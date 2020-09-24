@@ -27,9 +27,8 @@ A javascript-based Oracle validator node for the Phoenix sidechain contracts
 
 ## Setup
 
+1. `git hf init`
 1. `npm install`
-2. `git hf init`
-3. ``
 
 ## Licensed under MIT.
 
