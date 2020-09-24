@@ -26,9 +26,13 @@
     "yo": "^3.1.1"
   },
   "dependencies": {
+    "@ladjs/graceful": "^1.0.4",
+    "bree": "^3.3.0",
+    "cabin": "^8.0.7",
     "compress": "^0.99.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.5",
+    "dayjs": "^1.8.36",
     "express": "^4.17.1",
     "express-handlebars": "^5.1.0",
     "method-override": "^3.0.0",

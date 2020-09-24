@@ -27,7 +27,7 @@ const config = {
       name: 'pegasus'
     },
     port: process.env.PORT || 3000,
-    db: 'mongodb://localhost/pegasus-production'
+    db: 'mongodb://localhost/pegasus'
   }
 };
 
