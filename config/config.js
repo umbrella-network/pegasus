@@ -9,7 +9,8 @@ const config = {
       name: 'pegasus'
     },
     port: process.env.PORT || 3000,
-    db: 'mongodb://localhost/pegasus-development'
+    db: 'mongodb://localhost/pegasus-development',
+    web3: 'ws://127.0.0.1:8545'
   },
 
   test: {

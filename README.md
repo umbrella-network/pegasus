@@ -1,5 +1,5 @@
 # pegasus
-A javascript-based Oracle validator node for the Phoenix sidechain contracts
+A javascript-based Oracle validator node for the Phoenix DPoS contracts
 
 ## Prerequisites
 
@@ -15,13 +15,11 @@ A javascript-based Oracle validator node for the Phoenix sidechain contracts
   brew install hubflow
   ```
 
-> If you are on Linux
+1. [NVM](https://github.com/nvm-sh/nvm)
 
-  ```sh
-  git clone https://github.com/datasift/gitflow
-  cd gitflow
-  sudo ./install.sh
-  ```
+```sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.36.0/install.sh | bash
+```
 
 ---
 
@@ -29,6 +27,20 @@ A javascript-based Oracle validator node for the Phoenix sidechain contracts
 
 1. `git hf init`
 1. `npm install`
+
+---
+
+## Development
+
+1. Start Ganache
+
+`npx ganache-cli --blockTime 23`
+
+## Commands
+
+1. Start workers
+
+`node ./bree.js`
 
 ## Licensed under MIT.
 

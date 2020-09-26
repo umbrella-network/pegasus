@@ -1,3 +1,9 @@
+const config = require('../config/config');
 const Cabin = require('cabin');
+const Contract = require('web3-eth-contract');
 
-console.log('starting block creator job');
+const logger = new Cabin();
+
+logger.info('starting block creator job');
+
+let web3 = new Web3(config.web3);
