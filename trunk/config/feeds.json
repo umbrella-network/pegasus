@@ -1,0 +1,10 @@
+{
+  "data": [
+    {
+      "id": "eth-usd",
+      "url": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD",
+      "path": "",
+      "discrepancy": 0.1
+    } 
+  ]
+}

@@ -1,4 +1,10 @@
-node_modules/
-.nyc_output
-.sass-cache
-.env*
+tmp
+dist
+node_modules
+tmp
+.idea
+.env
+*.pem
+.DS_STORE
+.cache
+yarn-error.log
