@@ -9,7 +9,11 @@ Install packages.
 $ npm install
 ```
 
-Setup a dotenv file (`.env`) with local configuration values.
+Setup a dotenv file (`.env`) with local configuration values. Example:
+
+```
+PORT=3000 # HTTP port the server will listen to.
+```
 
 # Commands
 ## Running Locally (Development)
