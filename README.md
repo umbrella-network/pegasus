@@ -1,53 +1,36 @@
-# pegasus
-A javascript-based Oracle validator node for the Phoenix DPoS contracts
+# Description
 
-## Prerequisites
+ADD PEGASUS' DESCRIPTION HERE.
 
-1. [brew](http://brew.sh)
+# Setup
+Install packages.
 
-  ```sh
-  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  ```
-
-1. [HubFlow](http://datasift.github.io/gitflow/)
-
-  ```sh
-  brew install hubflow
-  ```
-
-1. [NVM](https://github.com/nvm-sh/nvm)
-
-```sh
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.36.0/install.sh | bash
+```
+$ npm install
 ```
 
----
+Setup a dotenv file (`.env`) with local configuration values. Example:
 
-## Setup
+```
+PORT=3000 # HTTP port the server will listen to.
+```
 
-1. `git hf init`
-1. `npm install`
+# Commands
+## Running Locally (Development)
+```
+$ npm run start:dev
+```
 
----
+## Building & Releasing
+First, compile the application:
+```
+$ npm run bundle
+```
 
-## Development
+This will create a directory with optimized JS files under `dist`.
 
-1. Start Ganache
+Run the application under production via:
 
-`npx ganache-cli --blockTime 23`
-
-## Commands
-
-1. Start workers
-
-`node ./bree.js`
-
-## Licensed under MIT.
-
-This code is licensed under MIT.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+$ npm run start
+```
