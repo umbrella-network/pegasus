@@ -1,4 +1,8 @@
 import 'reflect-metadata';
 import dotenv from 'dotenv';
 
-dotenv.config();
+const boot = async () => {
+  dotenv.config();
+}
+
+boot();

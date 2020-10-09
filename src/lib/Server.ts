@@ -3,7 +3,6 @@ import express from 'express';
 import http from 'http';
 import helmet from 'helmet';
 import compression from 'compression';
-import cookieParser from 'cookie-parser';
 import logger from './logger';
 import settings from '../config/settings';
 
@@ -17,9 +16,8 @@ class Server {
     this.router = express();
     this.router.use(helmet());
     this.router.use(compression())
-    this.router.use(cookieParser());
     this.router.use(express.json());
-    this.router.use(express.urlencoded());
+    this.router.use(express.urlencoded({ extended: true }));
     this.server = http.createServer(this.router);
   }
 
