@@ -1,14 +1,21 @@
 import Bull from 'bull';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
+import BlockMinter from '../services/BlockMinter';
 import Worker from './Worker';
 
 @injectable()
 class LeadershipDetectionWorker extends Worker {
+  @inject(BlockMinter) blockMinter!: BlockMinter;
+
   apply = async (job: Bull.Job): Promise<void> => {
-    console.log('===============');
-    console.log(job.data);
-    console.log(new Date());
-    console.log('===============');
+    try {
+      await job.takeLock()
+      await this.blockMinter.apply();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      await job.releaseLock();
+    }
   }
 }
 

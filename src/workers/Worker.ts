@@ -14,8 +14,7 @@ abstract class Worker {
   }
 
   get queue(): Bull.Queue {
-    this.#queue ||= new Bull(this.queueName, { redis: settings.redis.url });
-    return this.#queue;
+    return this.#queue ||= new Bull(this.queueName, { redis: settings.redis.url });
   }
 
   enqueue = async <T>(params: T, opts?: Bull.JobOptions): Promise<Bull.Job<T>> => {
