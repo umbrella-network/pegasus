@@ -1,11 +1,9 @@
 import { inject, injectable } from 'inversify';
 import ChainContract from '../contracts/ChainContract';
 import settings from '../config/settings';
-import Web3 from 'web3';
 
 @injectable()
 class BlockMinter {
-  @inject(Web3) web3!: Web3;
   @inject(ChainContract) chainContract!: ChainContract;
 
   async apply(): Promise<void> {
@@ -19,7 +17,7 @@ class BlockMinter {
     console.log('==============');
     console.log(currentLeader);
     console.log('==============');
-    if(currentLeader != this.web3.eth.defaultAccount) return;
+    // if(currentLeader != this.web3.eth.defaultAccount) return;
 
     await this.mint();
   }

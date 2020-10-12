@@ -1,7 +1,7 @@
 import { Container, interfaces } from 'inversify';
-import Web3 from 'web3';
-import getWeb3 from '../functions/getWeb3';
+import { Provider } from '@ethersproject/providers';
 import ChainContract from '../contracts/ChainContract';
+import getEthers from '../functions/getEthers';
 
 class Application {
   private static _instance: Application;
@@ -9,7 +9,7 @@ class Application {
 
   private constructor() {
     this.container = new Container({ autoBindInjectable: true });
-    this.container.bind<Web3>(Web3).toConstantValue(getWeb3());
+    this.container.bind<Provider>(Provider).toConstantValue(getEthers());
     this.container.bind<ChainContract>(ChainContract).toSelf().inSingletonScope();
   }
 
