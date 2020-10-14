@@ -19,7 +19,6 @@ class ChainContract {
     // const provider = new ethers.providers.HttpSocketProvider(settings.blockchain.provider.url);
     const provider = new ethers.providers.JsonRpcProvider();
 
-
     this.contract = new ethers.Contract(
       settings.blockchain.contracts.chain.address,
       ChainContract.ABI,

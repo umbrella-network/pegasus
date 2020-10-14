@@ -10,11 +10,14 @@ const settings: Settings = {
   redis: {
     url: (process.env.REDIS_URL || 'redis://127.0.0.1:6379')
   },
+  mongodb: {
+    url: (process.env.MONGODB_URL || 'mongodb://localhost:27017/pegasus')
+  },
   blockchain: {
     provider: {
       url: (process.env.BLOCKCHAIN_PROVIDER_URL || 'ws://127.0.0.1:8545'),
       account: process.env.BLOCKCHAIN_ACCOUNT,
-      privateKey: <string> process.env.BLOCKCHAIN_PRIVATE_KEY
+      privateKey: process.env.BLOCKCHAIN_PRIVATE_KEY as string
     },
     contracts: {
       chain: {

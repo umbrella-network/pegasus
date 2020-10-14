@@ -1,8 +1,13 @@
 import 'reflect-metadata';
 import dotenv from 'dotenv';
+import './config/initMongoDB';
+import initMongoDB from './config/initMongoDB';
 
-const boot = async () => {
+(async () => {
   dotenv.config();
-}
 
-boot();
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { default: settings } = await require('./config/settings');
+
+  await initMongoDB(settings);
+})()

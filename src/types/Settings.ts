@@ -8,6 +8,9 @@ type Settings = {
   redis: {
     url: string
   },
+  mongodb: {
+    url: string
+  },
   blockchain: {
     provider: {
       url: string,

@@ -19,7 +19,7 @@ class BlockMinter {
     console.log('==============');
     // if(currentLeader != this.web3.eth.defaultAccount) return;
 
-    await this.mint();
+    // await this.mint();
   }
 
   private mint = async (): Promise<void> => {
