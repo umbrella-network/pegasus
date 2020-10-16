@@ -1,13 +1,13 @@
 import './boot';
 import Application from './lib/Application';
-import LeadershipDetectionWorker from './workers/LeadershipDetectionWorker';
-import settings from './config/settings';
+import BlockMintingWorker from './workers/BlockMintingWorker';
+import Settings from './types/Settings';
 
-const leadershipDetectionWorker: LeadershipDetectionWorker = Application.get(LeadershipDetectionWorker);
+(async (): Promise<void> => {
+  const settings: Settings = Application.get('Settings');
+  const blockMintingWorker = Application.get(BlockMintingWorker);
 
-const schedule = async (): Promise<void> => {
-  await leadershipDetectionWorker.enqueue({});
-  setTimeout(schedule, settings.jobs.blockCreation.interval);
-}
-
-schedule();
+  setInterval(async () => {
+    await blockMintingWorker.enqueue({});
+  }, settings.jobs.blockCreation.interval);
+})();

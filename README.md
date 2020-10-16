@@ -21,6 +21,16 @@ PORT=3000 # HTTP port the server will listen to.
 $ npm run start:dev
 ```
 
+## Worker
+```
+$ npm run start:worker -- --worker BlockMintingWorker
+```
+
+## Scheduler
+```
+$ npm run start:scheduler
+```
+
 ## Building & Releasing
 First, compile the application:
 ```

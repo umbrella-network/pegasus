@@ -4,17 +4,21 @@ import http from 'http';
 import helmet from 'helmet';
 import compression from 'compression';
 import logger from './logger';
-import settings from '../config/settings';
 import HealthController from '../controllers/HealthController';
+import Settings from '../types/Settings';
 
 @injectable()
 class Server {
-  private router!: express.Application;
-  private server!: http.Server;
+  private port: number;
+  private router: express.Application;
+  private server: http.Server;
 
   constructor(
+    @inject('Settings') settings: Settings,
     @inject(HealthController) healthController: HealthController
   ) {
+    this.port = settings.port;
+
     this.router = express()
       .use(helmet())
       .use(compression())
@@ -26,7 +30,7 @@ class Server {
   }
 
   start(): void {
-    this.server.listen(settings.port, () => logger.info('Live on: ' + settings.port));
+    this.server.listen(this.port, () => logger.info('Live on: ' + this.port));
   }
 }
 

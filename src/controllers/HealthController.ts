@@ -1,9 +1,9 @@
 import { injectable } from 'inversify';
-import express, { Application, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 
 @injectable()
 class HeathController {
-  router: Application;
+  router: express.Application;
 
   constructor() {
     this.router = express().get('/', this.pong);

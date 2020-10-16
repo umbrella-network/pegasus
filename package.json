@@ -8,23 +8,24 @@
     "lint": "eslint ./src/**/*.ts",
     "clean": "rimraf dist",
     "compile": "tsc -p .",
-    "checkChain": "ts-node src/chainCheck.ts",
     "copy:assets": "cpx 'src/**/*.{graphql,html,png,json}' dist",
     "start:dev": "tsnd --respawn src/server.ts",
     "start:dev:worker": "tsnd --respawn src/worker.ts",
     "start:dev:scheduler": "tsnd --respawn src/scheduler.ts",
     "typeorm": "node --require ./node_modules/ts-node/register ./node_modules/typeorm/cli.js",
     "build": "npm run clean && npm run compile && npm run copy:assets",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "start:worker": "node dist/worker.js",
+    "start:scheduler": "node dist/scheduler.js"
   },
   "devDependencies": {
-    "@types/bull": "^3.14.4",
     "@types/compression": "^1.7.0",
     "@types/cookie-parser": "^1.4.2",
     "@types/express": "^4.17.8",
     "@types/mongoose": "^5.7.36",
     "@types/node": "^14.11.2",
     "@types/uuid": "^8.3.0",
+    "@types/yargs": "^15.0.8",
     "@typescript-eslint/eslint-plugin": "^4.3.0",
     "@typescript-eslint/parser": "^4.3.0",
     "eslint": "^7.10.0",
@@ -34,7 +35,7 @@
   },
   "dependencies": {
     "@typegoose/typegoose": "^7.4.1",
-    "bull": "^3.18.0",
+    "bullmq": "^1.9.0",
     "compression": "^1.7.4",
     "cpx": "^1.5.0",
     "dotenv": "^8.2.0",
@@ -42,10 +43,13 @@
     "express": "^4.17.1",
     "helmet": "^4.1.1",
     "inversify": "^5.0.1",
+    "ioredis": "^4.17.3",
     "mongoose": "^5.10.9",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "uuid": "^8.3.0",
-    "winston": "^3.3.3"
+    "uuidv4": "^6.2.4",
+    "winston": "^3.3.3",
+    "yargs": "^16.1.0"
   }
 }

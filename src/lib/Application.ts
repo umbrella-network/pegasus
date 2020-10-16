@@ -1,7 +1,10 @@
 import { Container, interfaces } from 'inversify';
-import { Provider } from '@ethersproject/providers';
+import { Logger } from 'winston';
+import settings from '../config/settings';
+import logger from './logger';
+import Settings from '../types/Settings';
+import BlockchainService from '../services/BlockchainService';
 import ChainContract from '../contracts/ChainContract';
-import getEthers from '../functions/getEthers';
 
 class Application {
   private static _instance: Application;
@@ -9,8 +12,10 @@ class Application {
 
   private constructor() {
     this.container = new Container({ autoBindInjectable: true });
-    this.container.bind<Provider>(Provider).toConstantValue(getEthers());
+    this.container.bind<Settings>('Settings').toConstantValue(settings);
+    this.container.bind<Logger>('Logger').toConstantValue(logger);
     this.container.bind<ChainContract>(ChainContract).toSelf().inSingletonScope();
+    this.container.bind<BlockchainService>(BlockchainService).toSelf().inSingletonScope();
   }
 
   public static get instance(): Application {
