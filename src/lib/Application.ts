@@ -3,7 +3,7 @@ import { Logger } from 'winston';
 import settings from '../config/settings';
 import logger from './logger';
 import Settings from '../types/Settings';
-import BlockchainService from '../services/BlockchainService';
+import Blockchain from './Blockchain';
 import ChainContract from '../contracts/ChainContract';
 
 class Application {
@@ -15,7 +15,7 @@ class Application {
     this.container.bind<Settings>('Settings').toConstantValue(settings);
     this.container.bind<Logger>('Logger').toConstantValue(logger);
     this.container.bind<ChainContract>(ChainContract).toSelf().inSingletonScope();
-    this.container.bind<BlockchainService>(BlockchainService).toSelf().inSingletonScope();
+    this.container.bind<Blockchain>(Blockchain).toSelf().inSingletonScope();
   }
 
   public static get instance(): Application {

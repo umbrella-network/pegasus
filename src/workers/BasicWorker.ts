@@ -38,7 +38,7 @@ abstract class BasicWorker {
   }
 
   start = (): void => {
-    this.worker
+    this.worker;
   }
 }
 

@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { Contract, ContractInterface, ethers } from 'ethers';
 import Settings from '../types/Settings';
-import BlockchainService from '../services/BlockchainService';
+import Blockchain from '../lib/Blockchain';
 
 @injectable()
 class ChainContract {
@@ -13,7 +13,7 @@ class ChainContract {
 
   constructor(
     @inject('Settings') settings: Settings,
-    @inject(BlockchainService) blockchain: BlockchainService
+    @inject(Blockchain) blockchain: Blockchain
   ) {
     this.contract = new ethers.Contract(
       settings.blockchain.contracts.chain.address,

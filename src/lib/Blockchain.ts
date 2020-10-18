@@ -4,7 +4,7 @@ import Settings from '../types/Settings';
 import { ethers, Wallet } from 'ethers';
 
 @injectable()
-class BlockchainService {
+class Blockchain {
   provider: Provider;
   wallet: Wallet;
 
@@ -16,4 +16,4 @@ class BlockchainService {
   }
 }
 
-export default BlockchainService;
+export default Blockchain;

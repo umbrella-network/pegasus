@@ -1,12 +1,12 @@
 import { Logger } from 'winston';
 import { inject, injectable } from 'inversify';
 import ChainContract from '../contracts/ChainContract';
-import BlockchainService from './BlockchainService';
+import Blockchain from '../lib/Blockchain';
 
 @injectable()
 class BlockMinter {
   @inject('Logger') logger!: Logger;
-  @inject(BlockchainService) blockchain!: BlockchainService;
+  @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
 
   async apply(): Promise<void> {
