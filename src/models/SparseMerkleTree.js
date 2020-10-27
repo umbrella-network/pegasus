@@ -1,5 +1,5 @@
-const { sha3, sha256, bufferToHex } = require('ethereumjs-util');
-const BigNumber = require('bignumber.js');
+import { sha3, bufferToHex } from 'ethereumjs-util';
+import BigNumber from 'bignumber.js';
 
 const hash = sha3;
 
@@ -146,4 +146,4 @@ function isEven(num) {
   return mul === num;
 }
 
-module.exports = SparseMerkleTree;
+export default SparseMerkleTree;

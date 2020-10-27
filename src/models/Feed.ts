@@ -11,10 +11,10 @@ class Feed {
   sourceUrl!: string;
 
   @prop()
-  tolerance?: number;
+  extractionPath!: string;
 
-  @prop({ index: true })
-  lastSynchronizedAt?: Date;
+  @prop()
+  tolerance?: number;
 }
 
 export default Feed;

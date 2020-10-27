@@ -36,10 +36,12 @@
   "dependencies": {
     "@typegoose/typegoose": "^7.4.1",
     "axios": "^0.20.0",
+    "bignumber.js": "^9.0.1",
     "bullmq": "^1.9.0",
     "compression": "^1.7.4",
     "cpx": "^1.5.0",
     "dotenv": "^8.2.0",
+    "ethereumjs-util": "^7.0.7",
     "ethers": "^5.0.17",
     "express": "^4.17.1",
     "helmet": "^4.1.1",
@@ -48,7 +50,6 @@
     "mongoose": "^5.10.9",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "uuid": "^8.3.0",
     "uuidv4": "^6.2.4",
     "winston": "^3.3.3",
     "yargs": "^16.1.0"

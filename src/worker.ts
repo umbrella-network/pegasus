@@ -14,12 +14,4 @@ switch (argv.worker) {
     Application.get(BlockMintingWorker).start();
     break;
   }
-  case 'FeedSynchroSchedulingWorker': {
-    Application.get(FeedSynchroSchedulingWorker).start();
-    break;
-  }
-  case 'FeedDataUpdateWorker': {
-    Application.get(FeedDataUpdateWorker).start();
-    break;
-  }
 }
