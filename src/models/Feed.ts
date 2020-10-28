@@ -11,7 +11,10 @@ class Feed {
   sourceUrl!: string;
 
   @prop()
-  extractionPath!: string;
+  leafLabel!: string;
+
+  @prop()
+  valuePath!: string;
 
   @prop()
   tolerance?: number;

@@ -12,9 +12,6 @@ class Leaf {
   timestamp!: Date;
 
   @prop()
-  type!: string;
-
-  @prop()
   label!: string;
 
   @prop()

@@ -1,14 +1,13 @@
 import { Logger } from 'winston';
 import { inject, injectable } from 'inversify';
-import { BigNumber } from 'ethers';
+import { ethers, BigNumber, Signature } from 'ethers';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import { getModelForClass } from '@typegoose/typegoose';
 import Feed from '../models/Feed';
 import FeedSynchronizer from './FeedSynchronizer';
 import Leaf from '../models/Leaf';
-import MerkleTreeFactory from './MerkleTreeFactory';
-import SparseMerkleTree from '../models/SparseMerkleTree';
+import SparseMerkleTreeFactory from './SparseMerkleTreeFactory';
 
 @injectable()
 class BlockMinter {
@@ -16,15 +15,18 @@ class BlockMinter {
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
   @inject(FeedSynchronizer) feedSynchronizer!: FeedSynchronizer;
-  @inject(MerkleTreeFactory) merkleTreeFactory!: MerkleTreeFactory;
+  @inject(SparseMerkleTreeFactory) sparseMerkleTreeFactory!: SparseMerkleTreeFactory;
 
   async apply(): Promise<void> {
     if (!(await this.isLeader())) return;
 
     const leaves = await this.getLatestLeaves();
-    const tree = this.merkleTreeFactory.apply(leaves);
+    const tree = this.sparseMerkleTreeFactory.apply(leaves);
     const blockHeight = await this.chainContract.getBlockHeight();
-    await this.mint(leaves, tree.root, blockHeight);
+    const testimony = this.generateTestimony(tree.getRoot(), blockHeight);
+    const signature = await this.signTestimony(testimony);
+    // TODO: gather signatures from other validators before minting a new block
+    await this.mint(tree.getRoot(), [signature]);
   }
 
   private isLeader = async (): Promise<boolean> => {
@@ -37,22 +39,29 @@ class BlockMinter {
     return (await Promise.all(feeds.map((feed) => this.feedSynchronizer.apply(feed)))).flat();
   }
 
-  private mint = async (leaves: Leaf[], root: string, blockHeight: BigNumber): Promise<void> => {
-    this.chainContract.submit();
-    // get latest datums / leaves
-    // Build the Merkle tree
-    // get the current blockHeight via chainContract.getBlockHeight()
-    // Assemble a JSON message with the blockHeight, Merklet root and all the raw leaves
-    // ===
-    // Get the address of the other validators by querying the validator registry
-    // send the JSON to all validators (add HTTP API to Pegasus)
-    // they are going to independently check the values against their latest value (within a tolerance)
-    // they're going to build the Merkle tree with the data sent
-    // and check whether their Merkle root matches up with the one we sent
-    // if it matches up they're going to return a signature
-    // ====
-    // collect list of signatures
-    // submit signatures
+  private generateTestimony = (root: string, blockHeight: BigNumber): string => {
+    const encoder = new ethers.utils.AbiCoder();
+    const encodedMessage = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
+    return ethers.utils.keccak256(encodedMessage);
+  }
+
+  private signTestimony = async (testimony: string): Promise<string> => {
+    return this.blockchain.wallet.signMessage(testimony);
+  }
+
+  private splitSignature = (signature: string): Signature => {
+    return ethers.utils.splitSignature(signature);
+  }
+
+  private mint = async (root: string, signatures: string[]): Promise<void> => {
+    const components = signatures.map((signature) => this.splitSignature(signature));
+
+    this.chainContract.submit(
+      root,
+      components.map((sig) => sig.v),
+      components.map((sig) => sig.r),
+      components.map((sig) => sig.s),
+    );
   }
 }
 
