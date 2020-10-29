@@ -42,7 +42,7 @@ class BlockMinter {
   private generateAffidavit = (root: string, blockHeight: BigNumber): string => {
     const encoder = new ethers.utils.AbiCoder();
     const testimony = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
-    return ethers.utils.solidityKeccak256(['bytes'], [testimony]);
+    return ethers.utils.keccak256(testimony);
   }
 
   private signAffidavit = async (affidavit: string): Promise<string> => {
