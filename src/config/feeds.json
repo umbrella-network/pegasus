@@ -2,9 +2,10 @@
   "data": [
     {
       "id": "eth-usd",
-      "url": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD",
-      "path": "",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD",
+      "leafLabel": "eth-usd",
+      "valuePath": "$.USD",
       "discrepancy": 0.1
-    } 
+    }
   ]
 }

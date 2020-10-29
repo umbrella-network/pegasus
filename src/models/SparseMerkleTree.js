@@ -1,7 +1,8 @@
-import { sha3, bufferToHex } from 'ethereumjs-util';
+import { bufferToHex } from 'ethereumjs-util';
+import * as utils from 'ethereumjs-util';
 import BigNumber from 'bignumber.js';
 
-const hash = sha3;
+const hash = (v) => utils.keccak256(v);
 
 class SparseMerkleTree {
   constructor(input, depth) {
@@ -96,6 +97,7 @@ class SparseMerkleTree {
         .sort()
         .forEach(index => {
           const value = treeLevel[index];
+
           if (isEven(index)) {
             nextLevel[div2(index)] = hash(Buffer.concat([value, this.defaultNodes[level]]));
           } else {
@@ -105,6 +107,7 @@ class SparseMerkleTree {
               nextLevel[div2(index)] = hash(Buffer.concat([this.defaultNodes[level], value]));
             }
           }
+
           prevIndex = index;
         }, this);
       tree.push(treeLevel = nextLevel);
@@ -130,19 +133,19 @@ class SparseMerkleTree {
 }
 
 function div2(num) {
-  const bigNumber = BigNumber(num);
+  const bigNumber = new BigNumber(num);
   return '0x' + bigNumber.dividedToIntegerBy(2).toString(16);
 }
 
 function add(num, val) {
-  const bigNumber = BigNumber(num);
+  const bigNumber = new BigNumber(num);
   return '0x' + bigNumber.plus(val).toString(16);
 }
 
 function isEven(num) {
-  const bigNumber = BigNumber(num);
+  const bigNumber = new BigNumber(num);
   const div = '0x' + bigNumber.dividedToIntegerBy(2).toString(16);
-  const mul = '0x' + BigNumber(div).multipliedBy(2).toString(16);
+  const mul = '0x' + new BigNumber(div).multipliedBy(2).toString(16);
   return mul === num;
 }
 

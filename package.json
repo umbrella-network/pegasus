@@ -12,11 +12,13 @@
     "start:dev": "tsnd --respawn src/server.ts",
     "start:dev:worker": "tsnd --respawn src/worker.ts",
     "start:dev:scheduler": "tsnd --respawn src/scheduler.ts",
+    "task:dev": "tsnd src/tasks.ts",
     "typeorm": "node --require ./node_modules/ts-node/register ./node_modules/typeorm/cli.js",
     "build": "npm run clean && npm run compile && npm run copy:assets",
     "start": "node dist/server.js",
     "start:worker": "node dist/worker.js",
-    "start:scheduler": "node dist/scheduler.js"
+    "start:scheduler": "node dist/scheduler.js",
+    "task": "node dist/tasks.js"
   },
   "devDependencies": {
     "@types/compression": "^1.7.0",

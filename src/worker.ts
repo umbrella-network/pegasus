@@ -2,8 +2,6 @@ import './boot';
 import yargs from 'yargs';
 import Application from './lib/Application';
 import BlockMintingWorker from './workers/BlockMintingWorker';
-import FeedSynchroSchedulingWorker from './workers/FeedSynchroSchedulingWorker';
-import FeedDataUpdateWorker from './workers/FeedDataUpdateWorker';
 
 const argv = yargs(process.argv.slice(2)).options({
   worker: { type: 'string', demandOption: true }

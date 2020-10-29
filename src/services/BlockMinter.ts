@@ -23,8 +23,8 @@ class BlockMinter {
     const leaves = await this.getLatestLeaves();
     const tree = this.sparseMerkleTreeFactory.apply(leaves);
     const blockHeight = await this.chainContract.getBlockHeight();
-    const testimony = this.generateTestimony(tree.getRoot(), blockHeight);
-    const signature = await this.signTestimony(testimony);
+    const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight);
+    const signature = await this.signAffidavit(affidavit);
     // TODO: gather signatures from other validators before minting a new block
     await this.mint(tree.getRoot(), [signature]);
   }
@@ -39,14 +39,14 @@ class BlockMinter {
     return (await Promise.all(feeds.map((feed) => this.feedSynchronizer.apply(feed)))).flat();
   }
 
-  private generateTestimony = (root: string, blockHeight: BigNumber): string => {
+  private generateAffidavit = (root: string, blockHeight: BigNumber): string => {
     const encoder = new ethers.utils.AbiCoder();
-    const encodedMessage = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
-    return ethers.utils.keccak256(encodedMessage);
+    const testimony = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
+    return ethers.utils.solidityKeccak256(['bytes'], [testimony]);
   }
 
-  private signTestimony = async (testimony: string): Promise<string> => {
-    return this.blockchain.wallet.signMessage(testimony);
+  private signAffidavit = async (affidavit: string): Promise<string> => {
+    return this.blockchain.wallet.signMessage(affidavit);
   }
 
   private splitSignature = (signature: string): Signature => {

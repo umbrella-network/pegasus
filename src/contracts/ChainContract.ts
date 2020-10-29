@@ -19,12 +19,15 @@ class ChainContract {
       settings.blockchain.contracts.chain.address,
       ChainContract.ABI,
       blockchain.provider
-    );
+    ).connect(blockchain.wallet);
   }
 
   getLeaderAddress = async (): Promise<string> => this.contract.getLeaderAddress();
   getBlockHeight = async (): Promise<BigNumber> => this.contract.getBlockHeight();
-  submit = async (root: string, v: number[], r: string[], s: string[]): Promise<void> => this.contract.submit(root, v, r, s);
+
+  submit = async (root: string, v: number[], r: string[], s: string[]): Promise<void> => this
+    .contract
+    .submit(root, [], [], v, r, s);
 }
 
 export default ChainContract;
