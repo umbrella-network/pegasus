@@ -3,6 +3,7 @@ import yargs from 'yargs';
 import fs from 'fs';
 import path from 'path';
 import { getModelForClass } from '@typegoose/typegoose';
+import { uuid } from 'uuidv4';
 import Feed from './models/Feed';
 import { EventEmitter } from 'events';
 
@@ -16,13 +17,15 @@ async function dbLoadFeeds(): Promise<void> {
   const feedModel = getModelForClass(Feed);
 
   for (const data of feeds.data) {
+    const id = data.id || uuid();
+
     await feedModel.findOneAndUpdate(
       {
-        _id: <string> data.id
+        _id: id
       },
       {
         '$setOnInsert': {
-          _id: <string> data.id,
+          _id: id,
         },
         '$set': {
           sourceUrl: <string> data.sourceUrl,

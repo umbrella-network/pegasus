@@ -2,7 +2,6 @@ import { injectable } from 'inversify';
 import * as utils from 'ethereumjs-util';
 import Leaf from '../models/Leaf';
 import SparseMerkleTree from '../models/SparseMerkleTree';
-import { BigNumber } from 'ethers';
 
 @injectable()
 class SparseMerkleTreeFactory {

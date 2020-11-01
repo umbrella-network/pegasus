@@ -6,6 +6,13 @@
       "leafLabel": "eth-usd",
       "valuePath": "$.USD",
       "discrepancy": 0.1
+    },
+    {
+      "id": "eth-eur",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=EUR",
+      "leafLabel": "eth-eur",
+      "valuePath": "$.EUR",
+      "discrepancy": 0.1
     }
   ]
 }

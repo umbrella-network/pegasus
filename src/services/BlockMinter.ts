@@ -8,6 +8,7 @@ import Feed from '../models/Feed';
 import FeedSynchronizer from './FeedSynchronizer';
 import Leaf from '../models/Leaf';
 import SparseMerkleTreeFactory from './SparseMerkleTreeFactory';
+import SaveMintedBlock from './SaveMintedBlock';
 
 @injectable()
 class BlockMinter {
@@ -16,6 +17,7 @@ class BlockMinter {
   @inject(ChainContract) chainContract!: ChainContract;
   @inject(FeedSynchronizer) feedSynchronizer!: FeedSynchronizer;
   @inject(SparseMerkleTreeFactory) sparseMerkleTreeFactory!: SparseMerkleTreeFactory;
+  @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
 
   async apply(): Promise<void> {
     if (!(await this.isLeader())) return;
@@ -27,6 +29,7 @@ class BlockMinter {
     const signature = await this.signAffidavit(affidavit);
     // TODO: gather signatures from other validators before minting a new block
     await this.mint(tree.getRoot(), [signature]);
+    await this.saveBlock(leaves, blockHeight, tree.getRoot());
   }
 
   private isLeader = async (): Promise<boolean> => {
@@ -62,6 +65,10 @@ class BlockMinter {
       components.map((sig) => sig.r),
       components.map((sig) => sig.s),
     );
+  }
+
+  private saveBlock = async(leaves: Leaf[], blockHeight: BigNumber, root: string): Promise<void> => {
+    this.saveMintedBlock.apply({ leaves, blockHeight, root });
   }
 }
 

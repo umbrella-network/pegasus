@@ -3,10 +3,10 @@ import express, { Request, Response } from 'express';
 
 @injectable()
 class HeathController {
-  router: express.Application;
+  router: express.Router;
 
   constructor() {
-    this.router = express().get('/', this.pong);
+    this.router = express.Router().get('/', this.pong);
   }
 
   pong = async (request: Request, response: Response): Promise<void> => {
