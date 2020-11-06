@@ -25,7 +25,7 @@ class ChainContract {
   getLeaderAddress = async (): Promise<string> => this.contract.getLeaderAddress();
   getBlockHeight = async (): Promise<BigNumber> => this.contract.getBlockHeight();
 
-  submit = async (root: string, v: number[], r: string[], s: string[]): Promise<void> => this
+  submit = async (root: string, v: number[], r: string[], s: string[]): Promise<boolean> => this
     .contract
     .submit(root, [], [], v, r, s);
 }

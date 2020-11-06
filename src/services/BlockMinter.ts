@@ -59,7 +59,7 @@ class BlockMinter {
   private mint = async (root: string, signatures: string[]): Promise<void> => {
     const components = signatures.map((signature) => this.splitSignature(signature));
 
-    this.chainContract.submit(
+    await this.chainContract.submit(
       root,
       components.map((sig) => sig.v),
       components.map((sig) => sig.r),
