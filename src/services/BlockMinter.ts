@@ -7,7 +7,7 @@ import { getModelForClass } from '@typegoose/typegoose';
 import Feed from '../models/Feed';
 import FeedSynchronizer from './FeedSynchronizer';
 import Leaf from '../models/Leaf';
-import SparseMerkleTreeFactory from './SparseMerkleTreeFactory';
+import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import SaveMintedBlock from './SaveMintedBlock';
 
 @injectable()
@@ -16,14 +16,14 @@ class BlockMinter {
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
   @inject(FeedSynchronizer) feedSynchronizer!: FeedSynchronizer;
-  @inject(SparseMerkleTreeFactory) sparseMerkleTreeFactory!: SparseMerkleTreeFactory;
+  @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
 
   async apply(): Promise<void> {
     if (!(await this.isLeader())) return;
 
     const leaves = await this.getLatestLeaves();
-    const tree = this.sparseMerkleTreeFactory.apply(leaves);
+    const tree = this.sortedMerkleTreeFactory.apply(leaves);
     const blockHeight = await this.chainContract.getBlockHeight();
     const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight);
     const signature = await this.signAffidavit(affidavit);

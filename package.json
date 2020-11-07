@@ -47,6 +47,7 @@
     "ethers": "^5.0.17",
     "express": "^4.17.1",
     "helmet": "^4.1.1",
+    "int64-buffer": "^1.0.0",
     "inversify": "^5.0.1",
     "ioredis": "^4.17.3",
     "jsonpath-plus": "^4.0.0",
