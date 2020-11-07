@@ -19,30 +19,18 @@ abstract class BasicWorker {
   }
 
   get queueName(): string {
-    if (!this.#queueName) {
-      this.#queueName = this.constructor.name;
-    }
-
-    return this.#queueName;
+    return this.#queueName ||= this.constructor.name;
   }
 
   get queue(): Bull.Queue {
-    if (!this.#queue) {
-      this.#queue = new Queue(
-        this.queueName, {connection: this.connection}
-      );
-    }
-
-    return this.#queue
+    return this.#queue ||= new Queue(
+      this.queueName, { connection: this.connection }
+    );
   }
 
   get worker(): Bull.Worker {
-    if (!this.#worker) {
-      this.#worker = new Worker(
-        this.queueName, this.apply, { connection: this.connection });
-    }
-
-    return this.#worker;
+    return this.#worker ||= new Worker(
+      this.queueName, this.apply, { connection: this.connection });
   }
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T>> => {
