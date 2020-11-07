@@ -49,7 +49,8 @@ class BlockMinter {
   }
 
   private signAffidavit = async (affidavit: string): Promise<string> => {
-    return this.blockchain.wallet.signMessage(affidavit);
+    const toSign = ethers.utils.arrayify(affidavit)
+    return this.blockchain.wallet.signMessage(toSign);
   }
 
   private splitSignature = (signature: string): Signature => {
@@ -68,7 +69,7 @@ class BlockMinter {
   }
 
   private saveBlock = async(leaves: Leaf[], blockHeight: BigNumber, root: string): Promise<void> => {
-    this.saveMintedBlock.apply({ leaves, blockHeight, root });
+    await this.saveMintedBlock.apply({leaves, blockHeight, root});
   }
 }
 

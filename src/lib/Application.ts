@@ -19,7 +19,11 @@ class Application {
   }
 
   public static get instance(): Application {
-    return this._instance ||= new Application();
+    if (!this._instance) {
+      this._instance = new Application();
+    }
+
+    return this._instance;
   }
 
   public static get<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T {
