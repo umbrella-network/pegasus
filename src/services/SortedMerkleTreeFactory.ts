@@ -2,7 +2,7 @@ import {injectable} from 'inversify';
 import int64 from 'int64-buffer';
 
 import Leaf from '../models/Leaf';
-import SortedMerkleTree from '../models/SortedMerkleTree';
+import SortedMerkleTree from '../lib/SortedMerkleTree';
 
 @injectable()
 class SortedMerkleTreeFactory {
@@ -18,7 +18,7 @@ class SortedMerkleTreeFactory {
     return new SortedMerkleTree(treeData);
   }
 
-  intToBuffer(i: number): Buffer {
+  private intToBuffer(i: number): Buffer {
     const hex = new int64.Int64BE(i).toBuffer().toString('hex')
     const hexInt = hex.replace(/^0+/g, '')
     return Buffer.from(`${hexInt.length % 2 === 0 ? '' : '0'}${hexInt}`, 'hex')
