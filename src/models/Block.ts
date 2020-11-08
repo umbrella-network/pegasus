@@ -1,8 +1,7 @@
-import { getModelForClass, index, prop } from '@typegoose/typegoose';
-import Leaf from './Leaf';
+import { index, prop } from '@typegoose/typegoose';
 
 @index({ timestamp: 1 })
-@index({ blockHeight: 1 }, { unique: true })
+@index({ height: 1 }, { unique: true })
 class Block {
   @prop()
   _id!: string;
@@ -11,7 +10,7 @@ class Block {
   timestamp!: Date;
 
   @prop()
-  blockHeight!: string;
+  height!: string;
 
   @prop()
   root!: string;

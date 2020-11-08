@@ -19,7 +19,7 @@ class SaveMintedBlock {
     const block = new Block();
     block._id = params.id || uuid();
     block.timestamp = params.timestamp || new Date();
-    block.blockHeight = params.blockHeight.toHexString();
+    block.height = params.blockHeight.toHexString();
     block.root = params.root;
     block.data = this.treeDataFor(params.leaves);
     await this.attachLeavesToBlockHeight(params.leaves, params.blockHeight);

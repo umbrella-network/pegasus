@@ -25,6 +25,8 @@ class BlockMinter {
     const leaves = await this.getLatestLeaves();
     const tree = this.sortedMerkleTreeFactory.apply(leaves);
     const blockHeight = await this.chainContract.getBlockHeight();
+    if (!(await this.canMint(blockHeight))) return;
+
     const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight);
     const signature = await this.signAffidavit(affidavit);
     // TODO: gather signatures from other validators before minting a new block
@@ -32,32 +34,37 @@ class BlockMinter {
     await this.saveBlock(leaves, blockHeight, tree.getRoot());
   }
 
-  private isLeader = async (): Promise<boolean> => {
+  private async canMint(blockHeight: BigNumber): Promise<boolean> {
+    const lastMinedBlockNumber = await this.blockchain.getBlockNumber();
+    return Number(blockHeight) > lastMinedBlockNumber;
+  }
+
+  private async isLeader(): Promise<boolean> {
     const currentLeader = await this.chainContract.getLeaderAddress();
     return currentLeader === this.blockchain.wallet.address;
   }
 
-  private getLatestLeaves = async (): Promise<Leaf[]> => {
+  private async getLatestLeaves(): Promise<Leaf[]> {
     const feeds: Feed[] = await getModelForClass(Feed).find().exec();
     return (await Promise.all(feeds.map((feed) => this.feedSynchronizer.apply(feed)))).flat();
   }
 
-  private generateAffidavit = (root: string, blockHeight: BigNumber): string => {
+  private generateAffidavit(root: string, blockHeight: BigNumber): string {
     const encoder = new ethers.utils.AbiCoder();
     const testimony = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
     return ethers.utils.keccak256(testimony);
   }
 
-  private signAffidavit = async (affidavit: string): Promise<string> => {
+  private async signAffidavit(affidavit: string): Promise<string> {
     const toSign = ethers.utils.arrayify(affidavit)
     return this.blockchain.wallet.signMessage(toSign);
   }
 
-  private splitSignature = (signature: string): Signature => {
+  private splitSignature(signature: string): Signature {
     return ethers.utils.splitSignature(signature);
   }
 
-  private mint = async (root: string, signatures: string[]): Promise<void> => {
+  private async mint(root: string, signatures: string[]): Promise<void> {
     const components = signatures.map((signature) => this.splitSignature(signature));
 
     await this.chainContract.submit(
@@ -68,7 +75,7 @@ class BlockMinter {
     );
   }
 
-  private saveBlock = async(leaves: Leaf[], blockHeight: BigNumber, root: string): Promise<void> => {
+  private async saveBlock(leaves: Leaf[], blockHeight: BigNumber, root: string): Promise<void> {
     await this.saveMintedBlock.apply({leaves, blockHeight, root});
   }
 }

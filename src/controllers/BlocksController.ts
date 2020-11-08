@@ -11,7 +11,7 @@ class BlocksController {
     this.router = express
       .Router()
       .get('/', this.index)
-      .get('/:blockHeight', this.read);
+      .get('/height/:height', this.read);
   }
 
   index = async (request: Request, response: Response): Promise<void> => {
@@ -29,8 +29,8 @@ class BlocksController {
   }
 
   read = async (request: Request, response: Response): Promise<void> => {
-    const blockHeight = request.params.blockHeight;
-    const block = await getModelForClass(Block).find({ blockHeight }).exec();
+    const height = request.params.height;
+    const block = await getModelForClass(Block).find({ height }).exec();
     response.send({ data: block });
   }
 }

@@ -14,6 +14,10 @@ class Blockchain {
     this.provider = ethers.providers.getDefaultProvider(settings.blockchain.provider.url);
     this.wallet = new Wallet(settings.blockchain.provider.privateKey, this.provider);
   }
+
+  async getBlockNumber(): Promise<number> {
+    return await this.provider.getBlockNumber();
+  }
 }
 
 export default Blockchain;
