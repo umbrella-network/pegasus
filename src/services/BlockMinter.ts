@@ -31,7 +31,7 @@ class BlockMinter {
     const signature = await this.signAffidavit(affidavit);
     // TODO: gather signatures from other validators before minting a new block
     await this.mint(tree.getRoot(), [signature]);
-    await this.saveBlock(leaves, blockHeight, tree.getRoot());
+    await this.saveBlock(leaves, Number(blockHeight), tree.getRoot());
   }
 
   private async canMint(blockHeight: BigNumber): Promise<boolean> {
@@ -75,7 +75,7 @@ class BlockMinter {
     );
   }
 
-  private async saveBlock(leaves: Leaf[], blockHeight: BigNumber, root: string): Promise<void> {
+  private async saveBlock(leaves: Leaf[], blockHeight: number, root: string): Promise<void> {
     await this.saveMintedBlock.apply({leaves, blockHeight, root});
   }
 }

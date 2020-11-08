@@ -10,7 +10,7 @@ class Leaf {
   feedId!: string;
 
   @prop()
-  blockHeight?: string;
+  blockHeight?: number;
 
   @prop()
   timestamp!: Date;

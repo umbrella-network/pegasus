@@ -8,25 +8,28 @@ import Leaf from '../models/Leaf';
 type Params = {
   id?: string,
   leaves: Leaf[],
-  blockHeight: BigNumber,
+  blockHeight: number,
   root: string,
+  mintedAt?: Date,
   timestamp?: Date
 }
 
 @injectable()
 class SaveMintedBlock {
   async apply(params: Params): Promise<Block> {
+    const currentTime = new Date();
     const block = new Block();
     block._id = params.id || uuid();
-    block.timestamp = params.timestamp || new Date();
-    block.height = params.blockHeight.toHexString();
+    block.timestamp = params.timestamp || currentTime;
+    block.timestamp = params.mintedAt || currentTime;
+    block.height = params.blockHeight;
     block.root = params.root;
     block.data = this.treeDataFor(params.leaves);
     await this.attachLeavesToBlockHeight(params.leaves, params.blockHeight);
     return await getModelForClass(Block).create(block);
   }
 
-  private async attachLeavesToBlockHeight(leaves: Leaf[], blockHeight: BigNumber): Promise<void> {
+  private async attachLeavesToBlockHeight(leaves: Leaf[], blockHeight: number): Promise<void> {
     getModelForClass(Leaf)
       .updateMany(
         {
@@ -36,7 +39,7 @@ class SaveMintedBlock {
         },
         {
           $set: {
-            blockHeight: blockHeight.toHexString()
+            blockHeight: blockHeight
           }
         }
       )

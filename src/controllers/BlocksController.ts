@@ -29,7 +29,7 @@ class BlocksController {
   }
 
   read = async (request: Request, response: Response): Promise<void> => {
-    const height = request.params.height;
+    const height = parseInt(request.params.height);
     const block = await getModelForClass(Block).find({ height }).exec();
     response.send({ data: block });
   }
