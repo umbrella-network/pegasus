@@ -17,8 +17,20 @@ PORT=3000 # HTTP port the server will listen to.
 
 # Commands
 ## Running Locally (Development)
+
+Instructions how to run blockchain locally you can find in phoenix, you need to:
+- start local blockchain node
+- deploy smart contracts to local blockchain node
+- get address of Chain and keys for validator
+
+When blockchain is running locally:
+
 ```
-$ npm run start:dev
+docker-compose up
+npm run start:dev:scheduler
+npm run start:dev:worker -- --worker BlockMintingWorker
+
+npm run start:dev
 ```
 
 ## Worker
