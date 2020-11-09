@@ -1,7 +1,7 @@
 import { getModelForClass } from '@typegoose/typegoose';
 import axios from 'axios';
 import { injectable } from 'inversify';
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 import { JSONPath } from 'jsonpath-plus';
 import Leaf from '../models/Leaf';
 import Feed from '../models/Feed';

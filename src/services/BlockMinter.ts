@@ -25,7 +25,11 @@ class BlockMinter {
     if (!(await this.isLeader())) return;
 
     const blockHeight = await this.chainContract.getBlockHeight();
-    if (!(await this.canMint(blockHeight))) return;
+
+    if (!(await this.canMint(blockHeight))) {
+      this.logger.info('Skipping...');
+      return;
+    }
 
     const leaves = await this.getLatestLeaves();
     const tree = this.sortedMerkleTreeFactory.apply(leaves);

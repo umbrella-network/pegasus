@@ -1,7 +1,6 @@
 import { getModelForClass } from '@typegoose/typegoose';
-import { BigNumber } from 'ethers';
 import { injectable } from 'inversify';
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 import Block from '../models/Block';
 import Leaf from '../models/Leaf';
 

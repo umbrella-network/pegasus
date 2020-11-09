@@ -3,7 +3,7 @@ import yargs from 'yargs';
 import fs from 'fs';
 import path from 'path';
 import { getModelForClass } from '@typegoose/typegoose';
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 import Feed from './models/Feed';
 import { EventEmitter } from 'events';
 
