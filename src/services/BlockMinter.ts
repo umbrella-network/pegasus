@@ -9,6 +9,7 @@ import FeedSynchronizer from './FeedSynchronizer';
 import Leaf from '../models/Leaf';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import SaveMintedBlock from './SaveMintedBlock';
+import MintGuard from './MintGuard';
 
 @injectable()
 class BlockMinter {
@@ -18,14 +19,16 @@ class BlockMinter {
   @inject(FeedSynchronizer) feedSynchronizer!: FeedSynchronizer;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
+  @inject(MintGuard) mintGuard!: MintGuard;
 
   async apply(): Promise<void> {
     if (!(await this.isLeader())) return;
 
-    const leaves = await this.getLatestLeaves();
-    const tree = this.sortedMerkleTreeFactory.apply(leaves);
     const blockHeight = await this.chainContract.getBlockHeight();
     if (!(await this.canMint(blockHeight))) return;
+
+    const leaves = await this.getLatestLeaves();
+    const tree = this.sortedMerkleTreeFactory.apply(leaves);
 
     const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight);
     const signature = await this.signAffidavit(affidavit);
@@ -35,8 +38,7 @@ class BlockMinter {
   }
 
   private async canMint(blockHeight: BigNumber): Promise<boolean> {
-    const lastMinedBlockNumber = await this.blockchain.getBlockNumber();
-    return Number(blockHeight) > lastMinedBlockNumber;
+    return await this.mintGuard.apply(Number(blockHeight));
   }
 
   private async isLeader(): Promise<boolean> {
