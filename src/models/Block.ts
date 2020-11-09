@@ -1,8 +1,8 @@
 import { index, prop } from '@typegoose/typegoose';
 
-@index({ timestamp: 1 })
-@index({ mintedAt: 1 })
-@index({ height: 1 }, { unique: true })
+@index({ timestamp: -1 })
+@index({ mintedAt: -1 })
+@index({ height: -1 }, { unique: true })
 class Block {
   @prop()
   _id!: string;
