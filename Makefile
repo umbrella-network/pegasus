@@ -1,4 +1,4 @@
-REPOSITORY=008205684207.dkr.ecr.us-east-1.amazonaws.com/pegasus
+REPOSITORY=008205684207.dkr.ecr.us-east-2.amazonaws.com/pegasus
 TAG=`git rev-parse --short HEAD`
 IMAGE="$(REPOSITORY):v$(TAG)"
 
@@ -16,6 +16,6 @@ push: login
 	@docker push $(IMAGE)
 
 publish:
-	@kubectl set image deployment/pegasus-api pegasus=$(IMAGE)
+	@kubectl set image deployment/pegasus-api pegasus-api=$(IMAGE)
 
 deploy: build push publish
