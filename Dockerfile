@@ -12,4 +12,3 @@ RUN chown -R runner:runner /home/runner
 USER runner
 RUN npm install
 RUN npm run build
-CMD ["npm", "run", "start"]
