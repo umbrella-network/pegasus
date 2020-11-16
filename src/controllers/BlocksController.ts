@@ -16,7 +16,8 @@ class BlocksController {
 
   index = async (request: Request, response: Response): Promise<void> => {
     const offset: number = parseInt(request.params.offset);
-    const limit: number = parseInt(request.params.limit);
+    // const limit: number = parseInt(request.params.limit);
+    const limit = 1;
 
     const blocks = await getModelForClass(Block)
       .find()

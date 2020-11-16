@@ -1,7 +1,6 @@
 import { Logger } from 'winston';
 import { inject, injectable } from 'inversify';
 import { ethers, BigNumber, Signature } from 'ethers';
-import { TransactionResponse } from '@ethersproject/providers';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import { getModelForClass } from '@typegoose/typegoose';
