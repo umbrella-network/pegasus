@@ -1,6 +1,7 @@
 import { Logger } from 'winston';
 import { inject, injectable } from 'inversify';
 import { ethers, BigNumber, Signature } from 'ethers';
+import { TransactionResponse } from '@ethersproject/providers';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import { getModelForClass } from '@typegoose/typegoose';
@@ -37,8 +38,11 @@ class BlockMinter {
     const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight);
     const signature = await this.signAffidavit(affidavit);
     // TODO: gather signatures from other validators before minting a new block
-    await this.mint(tree.getRoot(), [signature]);
-    await this.saveBlock(leaves, Number(blockHeight), tree.getRoot());
+    const mint = await this.mint(tree.getRoot(), [signature]);
+
+    if (mint) {
+      await this.saveBlock(leaves, Number(blockHeight), tree.getRoot());
+    }
   }
 
   private async canMint(blockHeight: BigNumber): Promise<boolean> {
@@ -70,15 +74,18 @@ class BlockMinter {
     return ethers.utils.splitSignature(signature);
   }
 
-  private async mint(root: string, signatures: string[]): Promise<void> {
+  private async mint(root: string, signatures: string[]): Promise<boolean> {
     const components = signatures.map((signature) => this.splitSignature(signature));
 
-    await this.chainContract.submit(
+    const tx = await this.chainContract.submit(
       root,
       components.map((sig) => sig.v),
       components.map((sig) => sig.r),
       components.map((sig) => sig.s),
     );
+
+    const receipt = await tx.wait();
+    return receipt.status == 1;
   }
 
   private async saveBlock(leaves: Leaf[], blockHeight: number, root: string): Promise<void> {

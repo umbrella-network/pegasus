@@ -2,6 +2,7 @@ import { inject, injectable } from 'inversify';
 import fs from 'fs';
 import path from 'path';
 import { Contract, ContractInterface, BigNumber } from 'ethers';
+import { TransactionResponse } from '@ethersproject/providers';
 import Settings from '../types/Settings';
 import Blockchain from '../lib/Blockchain';
 
@@ -25,7 +26,7 @@ class ChainContract {
   getLeaderAddress = async (): Promise<string> => this.contract.getLeaderAddress();
   getBlockHeight = async (): Promise<BigNumber> => this.contract.getBlockHeight();
 
-  submit = async (root: string, v: number[], r: string[], s: string[]): Promise<boolean> => this
+  submit = async (root: string, v: number[], r: string[], s: string[]): Promise<TransactionResponse> => this
     .contract
     .submit(root, [], [], v, r, s);
 }
