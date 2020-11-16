@@ -75,17 +75,22 @@ class BlockMinter {
   }
 
   private async mint(root: string, signatures: string[]): Promise<boolean> {
-    const components = signatures.map((signature) => this.splitSignature(signature));
+    try {
+      const components = signatures.map((signature) => this.splitSignature(signature));
 
-    const tx = await this.chainContract.submit(
-      root,
-      components.map((sig) => sig.v),
-      components.map((sig) => sig.r),
-      components.map((sig) => sig.s),
-    );
+      const tx = await this.chainContract.submit(
+        root,
+        components.map((sig) => sig.v),
+        components.map((sig) => sig.r),
+        components.map((sig) => sig.s),
+      );
 
-    const receipt = await tx.wait();
-    return receipt.status == 1;
+      const receipt = await tx.wait();
+      return receipt.status == 1;
+    } catch (e) {
+      this.logger.error(e);
+      return false;
+    }
   }
 
   private async saveBlock(leaves: Leaf[], blockHeight: number, root: string): Promise<void> {
