@@ -17,5 +17,7 @@ push: login
 
 publish:
 	@kubectl set image deployment/pegasus-api pegasus-api=$(IMAGE)
+	@kubectl set image deployment/pegasus-scheduler pegasus-scheduler=$(IMAGE)
+	@kubectl set image deployment/pegasus-worker pegasus-worker=$(IMAGE)
 
 deploy: build push publish
