@@ -23,6 +23,9 @@ const settings: Settings = {
       chain: {
         address: (process.env.CHAIN_CONTRACT_ADDRESS || 'CHAIN_CONTRACT_ADDRESS')
       }
+    },
+    transactions: {
+      gasPrice: (parseInt(process.env.GAS_PRICE, 10) || 100000000)
     }
   }
 }
