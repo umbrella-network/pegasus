@@ -11,6 +11,7 @@ class ChainContract {
   static ABI: ContractInterface = fs.readFileSync(path.resolve(__dirname, './ChainContract.abi.json'), 'utf-8');
 
   contract!: Contract;
+  gasPrice!: number;
 
   constructor(
     @inject('Settings') settings: Settings,
@@ -21,6 +22,8 @@ class ChainContract {
       ChainContract.ABI,
       blockchain.provider
     ).connect(blockchain.wallet);
+
+    this.gasPrice = settings.blockchain.transactions.gasPrice;
   }
 
   getLeaderAddress = async (): Promise<string> => this.contract.getLeaderAddress();
@@ -28,7 +31,7 @@ class ChainContract {
 
   submit = async (root: string, v: number[], r: string[], s: string[]): Promise<TransactionResponse> => this
     .contract
-    .submit(root, [], [], v, r, s);
+    .submit(root, [], [], v, r, s, {gasPrice: this.gasPrice});
 }
 
 export default ChainContract;

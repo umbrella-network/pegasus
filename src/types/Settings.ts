@@ -21,6 +21,9 @@ type Settings = {
       chain: {
         address: string
       }
+    },
+    transactions: {
+      gasPrice: number
     }
   }
 }
