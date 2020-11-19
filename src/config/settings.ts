@@ -25,7 +25,7 @@ const settings: Settings = {
       }
     },
     transactions: {
-      gasPrice: (parseInt(process.env.GAS_PRICE || '100000000', 10))
+      gasPrice: (parseInt(process.env.GAS_PRICE || '1000000000', 10))
     }
   }
 }
