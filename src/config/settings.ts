@@ -21,7 +21,7 @@ const settings: Settings = {
     },
     contracts: {
       chain: {
-        address: process.env.CHAIN_CONTRACT_ADDRESS
+        address: process.env.CHAIN_CONTRACT_ADDRESS as string
       }
     },
     transactions: {
