@@ -13,6 +13,27 @@
       "leafLabel": "eth-eur",
       "valuePath": "$.EUR",
       "discrepancy": 0.1
+    },
+    {
+      "id": "eth-usdt",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USDT",
+      "leafLabel": "eth-usdt",
+      "valuePath": "$.USDT",
+      "discrepancy": 0.1
+    },
+    {
+      "id": "usdt-eur",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=EUR",
+      "leafLabel": "usdt-eur",
+      "valuePath": "$.EUR",
+      "discrepancy": 0.1
+    },
+    {
+      "id": "usdt-usd",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=USD",
+      "leafLabel": "usdt-usd",
+      "valuePath": "$.USD",
+      "discrepancy": 0.1
     }
   ]
 }
