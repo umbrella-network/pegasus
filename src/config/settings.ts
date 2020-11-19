@@ -21,11 +21,11 @@ const settings: Settings = {
     },
     contracts: {
       chain: {
-        address: (process.env.CHAIN_CONTRACT_ADDRESS || 'CHAIN_CONTRACT_ADDRESS')
+        address: process.env.CHAIN_CONTRACT_ADDRESS
       }
     },
     transactions: {
-      gasPrice: (parseInt(process.env.GAS_PRICE, 10) || 100000000)
+      gasPrice: (parseInt(process.env.GAS_PRICE || '100000000', 10))
     }
   }
 }

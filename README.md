@@ -27,6 +27,10 @@ When blockchain is running locally:
 
 ```
 docker-compose up
+
+# load feeds on first run
+npm run task:dev -- --task db:load:feeds
+
 npm run start:dev:scheduler
 npm run start:dev:worker -- --worker BlockMintingWorker
 
