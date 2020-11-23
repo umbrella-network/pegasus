@@ -34,6 +34,41 @@
       "leafLabel": "usdt-usd",
       "valuePath": "$.USD",
       "discrepancy": 0.1
+    },
+    {
+      "id": "wbtc-usd",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=wBTC&tsyms=USD",
+      "leafLabel": "wbtc-usd",
+      "valuePath": "$.USD",
+      "discrepancy": 0.1
+    },
+    {
+      "id": "aave-usd",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=Aave&tsyms=USD",
+      "leafLabel": "aave-usd",
+      "valuePath": "$.USD",
+      "discrepancy": 0.1
+    },
+    {
+      "id": "yfi-usd",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=YFI&tsyms=USD",
+      "leafLabel": "yfi-usd",
+      "valuePath": "$.USD",
+      "discrepancy": 0.1
+    },
+    {
+      "id": "uni-usd",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=UNI&tsyms=USD",
+      "leafLabel": "uni-usd",
+      "valuePath": "$.USD",
+      "discrepancy": 0.1
+    },
+    {
+      "id": "comp-usd",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=COMP&tsyms=USD",
+      "leafLabel": "comp-usd",
+      "valuePath": "$.USD",
+      "discrepancy": 0.1
     }
   ]
 }
