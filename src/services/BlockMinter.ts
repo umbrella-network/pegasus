@@ -27,7 +27,7 @@ class BlockMinter {
     const blockHeight = await this.chainContract.getBlockHeight();
 
     if (!(await this.canMint(blockHeight))) {
-      this.logger.info('Skipping...');
+      this.logger.info(`Skipping blockHeight: ${blockHeight.toString()}...`);
       return;
     }
 
@@ -45,7 +45,8 @@ class BlockMinter {
   }
 
   private async canMint(blockHeight: BigNumber): Promise<boolean> {
-    return await this.mintGuard.apply(Number(blockHeight));
+    const votersCount = await this.chainContract.getBlockVotersCount(blockHeight);
+    return votersCount.isZero() && await this.mintGuard.apply(Number(blockHeight));
   }
 
   private async isLeader(): Promise<boolean> {
