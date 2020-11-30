@@ -27,7 +27,7 @@ class BlockMinter {
     const blockHeight = await this.chainContract.getBlockHeight();
 
     if (!(await this.canMint(blockHeight))) {
-      this.logger.info('Skipping...');
+      this.logger.info(`Skipping blockHeight: ${blockHeight.toString()}...`);
       return;
     }
 
@@ -37,12 +37,16 @@ class BlockMinter {
     const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight);
     const signature = await this.signAffidavit(affidavit);
     // TODO: gather signatures from other validators before minting a new block
-    await this.mint(tree.getRoot(), [signature]);
-    await this.saveBlock(leaves, Number(blockHeight), tree.getRoot());
+    const mint = await this.mint(tree.getRoot(), [signature]);
+
+    if (mint) {
+      await this.saveBlock(leaves, Number(blockHeight), tree.getRoot());
+    }
   }
 
   private async canMint(blockHeight: BigNumber): Promise<boolean> {
-    return await this.mintGuard.apply(Number(blockHeight));
+    const votersCount = await this.chainContract.getBlockVotersCount(blockHeight);
+    return votersCount.isZero() && await this.mintGuard.apply(Number(blockHeight));
   }
 
   private async isLeader(): Promise<boolean> {
@@ -70,15 +74,23 @@ class BlockMinter {
     return ethers.utils.splitSignature(signature);
   }
 
-  private async mint(root: string, signatures: string[]): Promise<void> {
-    const components = signatures.map((signature) => this.splitSignature(signature));
+  private async mint(root: string, signatures: string[]): Promise<boolean> {
+    try {
+      const components = signatures.map((signature) => this.splitSignature(signature));
 
-    await this.chainContract.submit(
-      root,
-      components.map((sig) => sig.v),
-      components.map((sig) => sig.r),
-      components.map((sig) => sig.s),
-    );
+      const tx = await this.chainContract.submit(
+        root,
+        components.map((sig) => sig.v),
+        components.map((sig) => sig.r),
+        components.map((sig) => sig.s),
+      );
+
+      const receipt = await tx.wait();
+      return receipt.status == 1;
+    } catch (e) {
+      this.logger.error(e);
+      return false;
+    }
   }
 
   private async saveBlock(leaves: Leaf[], blockHeight: number, root: string): Promise<void> {
