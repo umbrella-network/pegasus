@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { LeafKeyCoder } from '@umb-network/toolbox';
 
 const hash = ethers.utils.solidityKeccak256;
 const lastHash = '0x' + 'f'.repeat(64);
@@ -29,7 +30,7 @@ class SortedMerkleTree {
   }
 
   createLeafHash(k) {
-    return this.leafHash(Buffer.from(k), this.data[k]);
+    return this.leafHash(LeafKeyCoder.encode(k), this.data[k]);
   }
 
   addEvenHash(hashes) {

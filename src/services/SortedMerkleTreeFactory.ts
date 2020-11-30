@@ -1,5 +1,5 @@
 import {injectable} from 'inversify';
-import int64 from 'int64-buffer';
+import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
 
 import Leaf from '../models/Leaf';
 import SortedMerkleTree from '../lib/SortedMerkleTree';
@@ -10,18 +10,12 @@ class SortedMerkleTreeFactory {
     const treeData = leaves
       .map((leaf) => {
         const key = leaf.label;
-        const value = this.intToBuffer(leaf.value);
+        const value = LeafValueCoder.encode(leaf.value, LeafType.TYPE_FLOAT);
         return {[key]: value};
       })
       .reduce((acc, v) => ({...acc, ...v}), {});
 
     return new SortedMerkleTree(treeData);
-  }
-
-  private intToBuffer(i: number): Buffer {
-    const hex = new int64.Int64BE(i).toBuffer().toString('hex')
-    const hexInt = hex.replace(/^0+/g, '')
-    return Buffer.from(`${hexInt.length % 2 === 0 ? '' : '0'}${hexInt}`, 'hex')
   }
 }
 
