@@ -50,7 +50,7 @@ $ npm run start:scheduler
 ## Building & Releasing
 First, compile the application:
 ```
-$ npm run bundle
+$ npm run build
 ```
 
 This will create a directory with optimized JS files under `dist`.
@@ -59,4 +59,13 @@ Run the application under production via:
 
 ```
 $ npm run start
+```
+
+### Deploying
+
+```shell script
+make deploy
+
+# on first deploy - ssh to pod and run:
+npm run task -- --task db:load:feeds
 ```

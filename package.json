@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@typegoose/typegoose": "^7.4.1",
+    "@umb-network/toolbox": "^0.0.3",
     "axios": "^0.21.0",
     "bignumber.js": "^9.0.1",
     "bullmq": "^1.10.0",
@@ -47,7 +48,6 @@
     "ethers": "^5.0.19",
     "express": "^4.17.1",
     "helmet": "^4.2.0",
-    "int64-buffer": "^1.0.0",
     "inversify": "^5.0.1",
     "ioredis": "^4.19.2",
     "jsonpath-plus": "^4.0.0",
