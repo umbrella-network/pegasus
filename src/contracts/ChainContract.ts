@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { Contract, ContractInterface, BigNumber } from 'ethers';
 import { TransactionResponse } from '@ethersproject/providers';
+import { ContractRegistry } from '@umb-network/toolbox';
 import Settings from '../types/Settings';
 import Blockchain from '../lib/Blockchain';
 
@@ -17,13 +18,17 @@ class ChainContract {
     @inject('Settings') settings: Settings,
     @inject(Blockchain) blockchain: Blockchain
   ) {
-    this.contract = new Contract(
-      settings.blockchain.contracts.chain.address,
-      ChainContract.ABI,
-      blockchain.provider
-    ).connect(blockchain.wallet);
-
     this.gasPrice = settings.blockchain.transactions.gasPrice;
+
+    new ContractRegistry(blockchain.provider, settings.blockchain.contracts.registry.address)
+      .getAddress(settings.blockchain.contracts.chain.name)
+      .then((chainAddress: string) => {
+        this.contract = new Contract(
+          chainAddress,
+          ChainContract.ABI,
+          blockchain.provider
+        ).connect(blockchain.wallet);
+      })
   }
 
   getLeaderAddress = async (): Promise<string> => this.contract.getLeaderAddress();

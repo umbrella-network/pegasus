@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@typegoose/typegoose": "^7.4.1",
-    "@umb-network/toolbox": "^0.0.3",
+    "@umb-network/toolbox": "^0.2.0",
     "axios": "^0.21.0",
     "bignumber.js": "^9.0.1",
     "bullmq": "^1.10.0",

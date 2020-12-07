@@ -5,7 +5,7 @@ ADD PEGASUS' DESCRIPTION HERE.
 # Setup
 Install packages.
 
-```
+```shell script
 $ npm install
 ```
 
@@ -25,7 +25,7 @@ Instructions how to run blockchain locally you can find in phoenix, you need to:
 
 When blockchain is running locally:
 
-```
+```shell script
 docker-compose up
 
 # load feeds on first run
@@ -38,18 +38,18 @@ npm run start:dev
 ```
 
 ## Worker
-```
+```shell script
 $ npm run start:worker -- --worker BlockMintingWorker
 ```
 
 ## Scheduler
-```
+```shell script
 $ npm run start:scheduler
 ```
 
 ## Building & Releasing
 First, compile the application:
-```
+```shell script
 $ npm run build
 ```
 
@@ -57,7 +57,7 @@ This will create a directory with optimized JS files under `dist`.
 
 Run the application under production via:
 
-```
+```shell script
 $ npm run start
 ```
 

@@ -21,7 +21,10 @@ const settings: Settings = {
     },
     contracts: {
       chain: {
-        address: process.env.CHAIN_CONTRACT_ADDRESS as string
+        name: 'Chain'
+      },
+      registry: {
+        address: process.env.REGISTRY_CONTRACT_ADDRESS as string
       }
     },
     transactions: {
