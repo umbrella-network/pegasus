@@ -64,8 +64,15 @@ $ npm run start
 ### Deploying
 
 ```shell script
-make deploy
+make stage
 
 # on first deploy - ssh to pod and run:
 npm run task -- --task db:load:feeds
+```
+
+### Kubctl cheats
+
+```shell script
+# set env variable
+kubectl set env deployment/pegasus-worker REGISTRY_CONTRACT_ADDRESS='0x622c7725a8D1103E44F89341A6358A0e811Df0a5' --namespace staging
 ```
