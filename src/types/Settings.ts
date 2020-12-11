@@ -19,6 +19,9 @@ type Settings = {
     },
     contracts: {
       chain: {
+        name: string
+      },
+      registry: {
         address: string
       }
     },
