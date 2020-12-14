@@ -24,9 +24,6 @@ async function dbLoadFeeds(): Promise<void> {
         _id: id
       },
       {
-        '$setOnInsert': {
-          _id: id,
-        },
         '$set': {
           sourceUrl: <string> data.sourceUrl,
           leafLabel: <string> data.leafLabel,
