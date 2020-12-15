@@ -10,6 +10,10 @@ import Leaf from '../models/Leaf';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import SaveMintedBlock from './SaveMintedBlock';
 import MintGuard from './MintGuard';
+import {converters} from '@umb-network/toolbox';
+import fs from "fs";
+import path from "path";
+import FeedValueResolver from "./FeedValueResolver";
 
 @injectable()
 class BlockMinter {
@@ -31,16 +35,21 @@ class BlockMinter {
       return;
     }
 
+    this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()}...`);
+
     const leaves = await this.getLatestLeaves();
+    const [numericFcdKeys, numericFcdValues] = await this.getLatestFrontClassData();
     const tree = this.sortedMerkleTreeFactory.apply(leaves);
 
-    const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight);
+    const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
+
     const signature = await this.signAffidavit(affidavit);
+
     // TODO: gather signatures from other validators before minting a new block
-    const mint = await this.mint(tree.getRoot(), [signature]);
+    const mint = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues, [signature]);
 
     if (mint) {
-      await this.saveBlock(leaves, Number(blockHeight), tree.getRoot());
+      await this.saveBlock(leaves, Number(blockHeight), tree.getRoot(), numericFcdKeys);
     }
   }
 
@@ -59,9 +68,34 @@ class BlockMinter {
     return (await Promise.all(feeds.map((feed) => this.feedSynchronizer.apply(feed)))).flat();
   }
 
-  private generateAffidavit(root: string, blockHeight: BigNumber): string {
+  // @todo handle case where value is undefined or negative
+  private async getLatestFrontClassData(): Promise<[keys: string[], values: number[]]> {
+    const feedData = fs.readFileSync(path.resolve(__dirname, '../config/feedsOnChain.json'), 'utf-8');
+    const feeds: Feed[] = JSON.parse(feedData).data;
+    const keys = feeds.map(feed => feed.leafLabel).sort();
+    const values: (number | undefined)[] = await Promise.all(feeds.map((feed) => FeedValueResolver.apply(feed)));
+
+    return values.reduce((fcd: [keys: string[], values: number[]], value, i) => {
+      if (value === undefined) {
+        return fcd;
+      }
+
+      fcd[0].push(keys[i]);
+      fcd[1].push(value);
+      return fcd;
+    }, [[], []]);
+  }
+
+  private generateAffidavit(root: string, blockHeight: BigNumber, keys: string[], values: number[]): string {
     const encoder = new ethers.utils.AbiCoder();
-    const testimony = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
+    let testimony = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
+
+    keys.forEach((key, i) => {
+      testimony += ethers.utils.defaultAbiCoder.encode(
+        ['bytes32', 'uint256'],
+        [converters.strToBytes32(key), converters.numberToUint256(values[i])]).slice(2);
+    })
+
     return ethers.utils.keccak256(testimony);
   }
 
@@ -74,12 +108,14 @@ class BlockMinter {
     return ethers.utils.splitSignature(signature);
   }
 
-  private async mint(root: string, signatures: string[]): Promise<boolean> {
+  private async mint(root: string, keys: string[], values: number[], signatures: string[]): Promise<boolean> {
     try {
       const components = signatures.map((signature) => this.splitSignature(signature));
 
       const tx = await this.chainContract.submit(
         root,
+        keys.map(converters.strToBytes32),
+        values.map(converters.numberToUint256),
         components.map((sig) => sig.v),
         components.map((sig) => sig.r),
         components.map((sig) => sig.s),
@@ -93,8 +129,8 @@ class BlockMinter {
     }
   }
 
-  private async saveBlock(leaves: Leaf[], blockHeight: number, root: string): Promise<void> {
-    await this.saveMintedBlock.apply({leaves, blockHeight, root});
+  private async saveBlock(leaves: Leaf[], blockHeight: number, root: string, numericFcdKeys: string[]): Promise<void> {
+    await this.saveMintedBlock.apply({leaves, blockHeight, root, numericFcdKeys});
   }
 }
 

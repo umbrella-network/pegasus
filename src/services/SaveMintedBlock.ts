@@ -10,7 +10,8 @@ type Params = {
   blockHeight: number,
   root: string,
   mintedAt?: Date,
-  timestamp?: Date
+  timestamp?: Date,
+  numericFcdKeys: string[]
 }
 
 @injectable()
@@ -24,6 +25,7 @@ class SaveMintedBlock {
     block.height = params.blockHeight;
     block.root = params.root;
     block.data = this.treeDataFor(params.leaves);
+    block.numericFcdKeys = params.numericFcdKeys;
     await this.attachLeavesToBlockHeight(params.leaves, params.blockHeight);
     return await getModelForClass(Block).create(block);
   }
