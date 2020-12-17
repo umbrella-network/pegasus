@@ -1,16 +1,12 @@
 import { inject, injectable } from 'inversify';
-import fs from 'fs';
-import path from 'path';
-import { Contract, ContractInterface, BigNumber } from 'ethers';
+import { Contract, BigNumber } from 'ethers';
 import { TransactionResponse } from '@ethersproject/providers';
-import { ContractRegistry } from '@umb-network/toolbox';
+import { ContractRegistry, ABI } from '@umb-network/toolbox';
 import Settings from '../types/Settings';
 import Blockchain from '../lib/Blockchain';
 
 @injectable()
 class ChainContract {
-  static ABI: ContractInterface = fs.readFileSync(path.resolve(__dirname, './ChainContract.abi.json'), 'utf-8');
-
   contract!: Contract;
   gasPrice!: number;
 
@@ -25,7 +21,7 @@ class ChainContract {
       .then((chainAddress: string) => {
         this.contract = new Contract(
           chainAddress,
-          ChainContract.ABI,
+          ABI.chainAbi,
           blockchain.provider
         ).connect(blockchain.wallet);
       })
