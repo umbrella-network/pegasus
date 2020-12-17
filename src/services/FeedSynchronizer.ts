@@ -1,5 +1,5 @@
 import { getModelForClass } from '@typegoose/typegoose';
-import { injectable } from 'inversify';
+import {inject, injectable} from 'inversify';
 import { v4 as uuid } from 'uuid';
 import Leaf from '../models/Leaf';
 import Feed from '../models/Feed';
@@ -7,9 +7,11 @@ import FeedValueResolver from "./FeedValueResolver";
 
 @injectable()
 class FeedSynchronizer {
+  @inject(FeedValueResolver) feedValueResolver!: FeedValueResolver;
+
   async apply(feed: Feed): Promise<Leaf[]> {
     const leaf = this.buildLeaf(feed)
-    const value = await FeedValueResolver.apply(feed);
+    const value = await this.feedValueResolver.apply(feed);
 
     if (value) {
       leaf.value = value;

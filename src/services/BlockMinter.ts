@@ -20,6 +20,7 @@ class BlockMinter {
   @inject('Logger') logger!: Logger;
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
+  @inject(FeedValueResolver) feedValueResolver!: FeedValueResolver;
   @inject(FeedSynchronizer) feedSynchronizer!: FeedSynchronizer;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
@@ -38,11 +39,16 @@ class BlockMinter {
     this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()}...`);
 
     const leaves = await this.getLatestLeaves();
+
+    if (!leaves.length) {
+      this.logger.error(`we can't get leaves... check API access to feeds.`)
+      return
+    }
+
     const [numericFcdKeys, numericFcdValues] = await this.getLatestFrontClassData();
     const tree = this.sortedMerkleTreeFactory.apply(leaves);
 
     const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
-
     const signature = await this.signAffidavit(affidavit);
 
     // TODO: gather signatures from other validators before minting a new block
@@ -73,7 +79,7 @@ class BlockMinter {
     const feedData = fs.readFileSync(path.resolve(__dirname, '../config/feedsOnChain.json'), 'utf-8');
     const feeds: Feed[] = JSON.parse(feedData).data;
     const keys = feeds.map(feed => feed.leafLabel).sort();
-    const values: (number | undefined)[] = await Promise.all(feeds.map((feed) => FeedValueResolver.apply(feed)));
+    const values: (number | undefined)[] = await Promise.all(feeds.map((feed) => this.feedValueResolver.apply(feed)));
 
     return values.reduce((fcd: [keys: string[], values: number[]], value, i) => {
       if (value === undefined) {
@@ -104,13 +110,13 @@ class BlockMinter {
     return this.blockchain.wallet.signMessage(toSign);
   }
 
-  private splitSignature(signature: string): Signature {
+  private static splitSignature(signature: string): Signature {
     return ethers.utils.splitSignature(signature);
   }
 
   private async mint(root: string, keys: string[], values: number[], signatures: string[]): Promise<boolean> {
     try {
-      const components = signatures.map((signature) => this.splitSignature(signature));
+      const components = signatures.map((signature) => BlockMinter.splitSignature(signature));
 
       const tx = await this.chainContract.submit(
         root,

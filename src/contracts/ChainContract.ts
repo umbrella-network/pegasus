@@ -6,7 +6,6 @@ import { TransactionResponse } from '@ethersproject/providers';
 import { ContractRegistry } from '@umb-network/toolbox';
 import Settings from '../types/Settings';
 import Blockchain from '../lib/Blockchain';
-import {emitKeypressEvents} from "readline";
 
 @injectable()
 class ChainContract {
