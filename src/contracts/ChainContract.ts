@@ -35,9 +35,9 @@ class ChainContract {
   getBlockHeight = async (): Promise<BigNumber> => this.contract.getBlockHeight();
   getBlockVotersCount = async (blockHeight: BigNumber): Promise<BigNumber> => this.contract.getBlockVotersCount(blockHeight);
 
-  submit = async (root: string, v: number[], r: string[], s: string[]): Promise<TransactionResponse> => this
+  submit = async (root: string, keys: string[], values: string[], v: number[], r: string[], s: string[]): Promise<TransactionResponse> => this
     .contract
-    .submit(root, [], [], v, r, s, {gasPrice: this.gasPrice});
+    .submit(root, keys, values, v, r, s, {gasPrice: this.gasPrice});
 }
 
 export default ChainContract;

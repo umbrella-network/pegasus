@@ -21,6 +21,9 @@ class Block {
 
   @prop()
   data!: Record<string, unknown>;
+
+  @prop({ type: () => [String] })
+  numericFcdKeys!: Array<string>;
 }
 
 export default Block;

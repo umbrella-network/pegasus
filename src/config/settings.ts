@@ -30,6 +30,11 @@ const settings: Settings = {
     transactions: {
       gasPrice: (parseInt(process.env.GAS_PRICE || '1000000000', 10))
     }
+  },
+  api: {
+    cryptocompare: {
+      apiKey: process.env.CRYPTOCOMPARE_API_KEY as string
+    }
   }
 }
 

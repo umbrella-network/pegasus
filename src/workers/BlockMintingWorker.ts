@@ -15,7 +15,7 @@ class BlockMintingWorker extends BasicWorker {
     if (this.isStale(job)) return;
 
     try {
-      this.logger.info(`Minting a new block at ${new Date().toISOString()}`);
+      this.logger.info(`BlockMintingWorker job run at ${new Date().toISOString()}`);
       await this.blockMinter.apply();
     } catch (e) {
       this.logger.error(e);

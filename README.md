@@ -1,6 +1,6 @@
 # Description
 
-ADD PEGASUS' DESCRIPTION HERE.
+Umbrella Validator
 
 # Setup
 Install packages.
@@ -75,4 +75,38 @@ npm run task -- --task db:load:feeds
 ```shell script
 # set env variable
 kubectl set env deployment/pegasus-worker REGISTRY_CONTRACT_ADDRESS='0x622c7725a8D1103E44F89341A6358A0e811Df0a5' --namespace staging
+```
+
+## Api
+
+Sample response for `http://localhost:3000/blocks/height/3`:
+
+```json
+{
+  "data": {
+    "numericFcdKeys": [
+      [
+        "eth-eur",
+        "eth-usd"
+      ]
+    ],
+    "_id": "83620f18-a289-4f04-b7c4-1eea3d416a7c",
+    "timestamp": "2020-12-16T09:01:51.015Z",
+    "height": 3,
+    "root": "0x8817cbe7d10306b7991cc85aefcddc750c2f6be82b2b81193a138be92c777d42",
+    "data": {
+      "eth-usd": 587.56,
+      "eth-eur": 481.92,
+      "eth-usdt": 587.25,
+      "usdt-eur": 0.8217,
+      "usdt-usd": 1.001,
+      "wbtc-usd": 19477.16,
+      "aave-usd": 81.66,
+      "yfi-usd": 24665.35,
+      "uni-usd": 3.346,
+      "comp-usd": 155.55
+    },
+    "__v": 0
+  }
+}
 ```

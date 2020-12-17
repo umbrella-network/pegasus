@@ -28,6 +28,11 @@ type Settings = {
     transactions: {
       gasPrice: number
     }
+  },
+  api: {
+    cryptocompare: {
+      apiKey: string
+    }
   }
 }
 
