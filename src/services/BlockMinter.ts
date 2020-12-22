@@ -1,27 +1,24 @@
-import { Logger } from 'winston';
-import { inject, injectable } from 'inversify';
-import { ethers, BigNumber, Signature } from 'ethers';
+import {Logger} from 'winston';
+import {inject, injectable} from 'inversify';
+import {BigNumber, ethers, Signature} from 'ethers';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
-import { getModelForClass } from '@typegoose/typegoose';
-import Feed from '../models/Feed';
-import FeedSynchronizer from './FeedSynchronizer';
 import Leaf from '../models/Leaf';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import SaveMintedBlock from './SaveMintedBlock';
 import MintGuard from './MintGuard';
 import {converters} from '@umb-network/toolbox';
-import fs from "fs";
-import path from "path";
-import FeedValueResolver from "./FeedValueResolver";
+import FeedProcessor from "./FeedProcessor";
+import LeafPersistor from './LeafPersistor';
+import loadFeeds from "../config/loadFeeds";
 
 @injectable()
 class BlockMinter {
   @inject('Logger') logger!: Logger;
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
-  @inject(FeedValueResolver) feedValueResolver!: FeedValueResolver;
-  @inject(FeedSynchronizer) feedSynchronizer!: FeedSynchronizer;
+  @inject(FeedProcessor) feedProcessor!: FeedProcessor;
+  @inject(LeafPersistor) leafPersistor!: LeafPersistor;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
   @inject(MintGuard) mintGuard!: MintGuard;
@@ -38,15 +35,24 @@ class BlockMinter {
 
     this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()}...`);
 
-    const leaves = await this.getLatestLeaves();
+    const feeds = await loadFeeds('../config/feeds.json');
+    const leaves = await this.feedProcessor.apply(feeds);
 
     if (!leaves.length) {
-      this.logger.error(`we can't get leaves... check API access to feeds.`)
-      return
+      this.logger.error(`we can't get leaves... check API access to feeds.`);
+      return;
     }
 
-    const [numericFcdKeys, numericFcdValues] = await this.getLatestFrontClassData();
+    for (const leaf of leaves) {
+      await this.leafPersistor.apply(leaf);
+    }
+
     const tree = this.sortedMerkleTreeFactory.apply(leaves);
+
+    const firstClassFeeds = await loadFeeds('../config/feedsOnChain.json');
+    const firstClassLeaves = await this.feedProcessor.apply(firstClassFeeds);
+
+    const [numericFcdKeys, numericFcdValues] = this.formatFirstClassData(firstClassLeaves);
 
     const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
     const signature = await this.signAffidavit(affidavit);
@@ -69,23 +75,12 @@ class BlockMinter {
     return currentLeader === this.blockchain.wallet.address;
   }
 
-  private async getLatestLeaves(): Promise<Leaf[]> {
-    const feeds: Feed[] = await getModelForClass(Feed).find().exec();
-    return (await Promise.all(feeds.map((feed) => this.feedSynchronizer.apply(feed)))).flat();
-  }
-
   // @todo handle case where value is undefined or negative
-  private async getLatestFrontClassData(): Promise<[keys: string[], values: number[]]> {
-    const feedData = fs.readFileSync(path.resolve(__dirname, '../config/feedsOnChain.json'), 'utf-8');
-    const feeds: Feed[] = JSON.parse(feedData).data;
-    const keys = feeds.map(feed => feed.leafLabel).sort();
-    const values: (number | undefined)[] = await Promise.all(feeds.map((feed) => this.feedValueResolver.apply(feed)));
+  private formatFirstClassData(feeds: Leaf[]): [keys: string[], values: number[]] {
+    const keys = feeds.map(({label}) => label).sort();
+    const values: number[] = feeds.map(({value}) => value);
 
     return values.reduce((fcd: [keys: string[], values: number[]], value, i) => {
-      if (value === undefined) {
-        return fcd;
-      }
-
       fcd[0].push(keys[i]);
       fcd[1].push(value);
       return fcd;

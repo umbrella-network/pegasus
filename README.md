@@ -28,8 +28,9 @@ When blockchain is running locally:
 ```shell script
 docker-compose up
 
-# load feeds on first run
-npm run task:dev -- --task db:load:feeds
+# make sure config folder contains feeds
+cat config/feeds.json
+cat config/feedsOnChain.json
 
 npm run start:dev:scheduler
 npm run start:dev:worker -- --worker BlockMintingWorker
@@ -66,8 +67,9 @@ $ npm run start
 ```shell script
 make stage
 
-# on first deploy - ssh to pod and run:
-npm run task -- --task db:load:feeds
+# make sure config folder contains feeds
+cat config/feeds.json
+cat config/feedsOnChain.json
 ```
 
 ### Kubctl cheats

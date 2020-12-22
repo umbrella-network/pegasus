@@ -1,23 +1,29 @@
-import './boot';
+import 'dotenv';
 import yargs from 'yargs';
-import fs from 'fs';
-import path from 'path';
-import { getModelForClass } from '@typegoose/typegoose';
-import { v4 as uuid } from 'uuid';
-import Feed from './models/Feed';
-import { EventEmitter } from 'events';
+import {EventEmitter} from 'events';
+
+import './boot';
+import Application from './lib/Application';
+import FeedProcessor from './services/FeedProcessor';
+import loadFeeds from './config/loadFeeds';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: { type: 'string', demandOption: true }
 }).argv;
 
+async function testFeeds(): Promise<void> {
+  const feeds = await loadFeeds('./../config/feeds.json');
+  const leaves = await Application.get(FeedProcessor).apply(feeds);
+
+  console.log(leaves);
+}
+
 async function dbLoadFeeds(): Promise<void> {
-  const feedData = fs.readFileSync(path.resolve(__dirname, './config/feeds.json'), 'utf-8');
-  const feeds = JSON.parse(feedData);
+  /*const feeds = await loadFeeds('./../config/feeds.json');
   const feedModel = getModelForClass(Feed);
 
-  for (const data of feeds.data) {
-    const id = data.id || uuid();
+  for (const data of feeds) {
+    const id = uuid();
 
     await feedModel.findOneAndUpdate(
       {
@@ -27,24 +33,34 @@ async function dbLoadFeeds(): Promise<void> {
         '$set': {
           sourceUrl: <string> data.sourceUrl,
           leafLabel: <string> data.leafLabel,
-          valuePath: <string> data.valuePath,
-          tolerance: <number> data.tolerance
-        }
+          calculator: <string> data.calculator,
+          fetcher: <string> data.fetcher,
+          discrepancy: <number> data.discrepancy
+        },
+        '$unset': {
+          tolerance: true,
+          name: true
+        },
       },
       {
         upsert: true
       }
     );
-  }
+  }*/
 }
 
 const ev = new EventEmitter();
-ev.on('done', (e) => process.exit());
+ev.on('done', () => process.exit());
 
 (async () => {
   switch (argv.task) {
     case 'db:load:feeds': {
       await dbLoadFeeds();
+      ev.emit('done');
+      break;
+    }
+    case 'test:feeds': {
+      await testFeeds();
       ev.emit('done');
       break;
     }

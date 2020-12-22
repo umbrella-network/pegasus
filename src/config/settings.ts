@@ -33,9 +33,10 @@ const settings: Settings = {
   },
   api: {
     cryptocompare: {
-      apiKey: process.env.CRYPTOCOMPARE_API_KEY as string
+      apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
+      timeout: (parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', 10))
     }
-  }
+  },
 }
 
 export default settings;

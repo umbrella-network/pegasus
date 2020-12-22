@@ -31,9 +31,10 @@ type Settings = {
   },
   api: {
     cryptocompare: {
-      apiKey: string
+      apiKey: string,
+      timeout: number,
     }
-  }
+  },
 }
 
 export default Settings;

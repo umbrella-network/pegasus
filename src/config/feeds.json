@@ -1,73 +1,104 @@
 {
   "data": [
     {
-      "id": "eth-usd",
       "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD",
       "leafLabel": "eth-usd",
-      "valuePath": "$.USD",
+      "fetcher": "CryptoComparePriceFetcher",
       "discrepancy": 0.1
     },
     {
-      "id": "eth-eur",
+      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD",
+      "leafLabel": "eth-usd",
+      "fetcher": "CryptoComparePriceFetcher",
+      "discrepancy": 0.1
+    },
+    {
+      "sourceUrl": "https://min-api.cryptocompare.com/data/v2/histohour?fsym=BTC&tsym=USD&limit=24",
+      "leafLabel": "eth-usd-TWAP-day",
+      "fetcher": "CryptoCompareHistoFetcher",
+      "calculator": "TWAPCalculator",
+      "discrepancy": 0.1
+    },
+    {
+      "sourceUrl": "https://min-api.cryptocompare.com/data/v2/histohour?fsym=BTC&tsym=USD&limit=24",
+      "leafLabel": "eth-usd-TWAP-day",
+      "fetcher": "CryptoCompareHistoFetcher",
+      "calculator": "TWAPCalculator",
+      "discrepancy": 0.1
+    },
+    {
+      "sourceUrl": "https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=USD&limit=30",
+      "leafLabel": "eth-usd-TWAP-month",
+      "fetcher": "CryptoCompareHistoFetcher",
+      "calculator": "TWAPCalculator",
+      "discrepancy": 0.1
+    },
+    {
+      "sourceUrl": "https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=USD&limit=30",
+      "leafLabel": "eth-usd-TWAP-month",
+      "fetcher": "CryptoCompareHistoFetcher",
+      "calculator": "TWAPCalculator",
+      "discrepancy": 0.1
+    },
+    {
+      "sourceUrl": "https://min-api.cryptocompare.com/data/v2/histohour?fsym=BTC&tsym=USD&limit=24",
+      "leafLabel": "eth-usd-VWAP-day",
+      "fetcher": "CryptoCompareHistoFetcher",
+      "calculator": "VWAPCalculator",
+      "discrepancy": 0.1
+    },
+    {
       "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=EUR",
       "leafLabel": "eth-eur",
-      "valuePath": "$.EUR",
+      "fetcher": "CryptoComparePriceFetcher",
       "discrepancy": 0.1
     },
     {
-      "id": "eth-usdt",
       "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USDT",
       "leafLabel": "eth-usdt",
-      "valuePath": "$.USDT",
+      "fetcher": "CryptoComparePriceFetcher",
       "discrepancy": 0.1
     },
     {
-      "id": "usdt-eur",
       "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=EUR",
       "leafLabel": "usdt-eur",
-      "valuePath": "$.EUR",
+      "fetcher": "CryptoComparePriceFetcher",
       "discrepancy": 0.1
     },
     {
-      "id": "usdt-usd",
       "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=USD",
       "leafLabel": "usdt-usd",
-      "valuePath": "$.USD",
+      "fetcher": "CryptoComparePriceFetcher",
       "discrepancy": 0.1
     },
     {
-      "id": "wbtc-usd",
       "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=wBTC&tsyms=USD",
       "leafLabel": "wbtc-usd",
-      "valuePath": "$.USD",
+      "fetcher": "CryptoComparePriceFetcher",
       "discrepancy": 0.1
     },
     {
-      "id": "aave-usd",
       "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=Aave&tsyms=USD",
       "leafLabel": "aave-usd",
-      "valuePath": "$.USD",
+      "fetcher": "CryptoComparePriceFetcher",
       "discrepancy": 0.1
     },
     {
-      "id": "yfi-usd",
       "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=YFI&tsyms=USD",
       "leafLabel": "yfi-usd",
-      "valuePath": "$.USD",
+      "fetcher": "CryptoComparePriceFetcher",
       "discrepancy": 0.1
     },
     {
-      "id": "uni-usd",
       "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=UNI&tsyms=USD",
       "leafLabel": "uni-usd",
-      "valuePath": "$.USD",
+      "fetcher": "CryptoComparePriceFetcher",
       "discrepancy": 0.1
     },
     {
-      "id": "comp-usd",
       "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=COMP&tsyms=USD",
       "leafLabel": "comp-usd",
-      "valuePath": "$.USD",
+      "fetcher": "CryptoComparePriceFetcher",
       "discrepancy": 0.1
     }
   ]

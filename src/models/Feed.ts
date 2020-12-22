@@ -1,12 +1,6 @@
-import { prop } from '@typegoose/typegoose';
+import {prop} from '@typegoose/typegoose';
 
 class Feed {
-  @prop()
-  _id!: string;
-
-  @prop()
-  name?: string;
-
   @prop()
   sourceUrl!: string;
 
@@ -14,10 +8,13 @@ class Feed {
   leafLabel!: string;
 
   @prop()
-  valuePath!: string;
+  fetcher!: string;
 
   @prop()
-  tolerance?: number;
+  calculator?: string;
+
+  @prop()
+  discrepancy?: number;
 }
 
 export default Feed;
