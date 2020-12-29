@@ -6,21 +6,15 @@ import {price} from "@umb-network/validator";
 import Leaf from './../models/Leaf';
 import Feed from './../models/Feed';
 
-import CryptoCompareHistoFetcher from './fetchers/CryptoCompareHistoFetcher';
-import CryptoComparePriceFetcher from './fetchers/CryptoComparePriceFetcher';
-import IdentityCalculator from './calculators/IdentityCalculator';
-import TWAPCalculator from './calculators/TWAPCalculator';
-import VWAPCalculator from './calculators/VWAPCalculator';
+import * as fetchers from './fetchers';
+import * as calculators from './calculators';
 
 interface Fetcher {
   // eslint-disable-next-line
   apply: (feed: Feed) => Promise<any>;
 }
 
-interface Calculator {
-  // eslint-disable-next-line
-  apply: (value: any) => number;
-}
+type Calculator = (value: any) => number;
 
 @injectable()
 class FeedProcessor {
@@ -28,21 +22,18 @@ class FeedProcessor {
   calculators: { [key: string]: Calculator; };
 
   constructor(
-    @inject(IdentityCalculator) IdentityCalculator: IdentityCalculator,
-    @inject(TWAPCalculator) TWAPCalculator: TWAPCalculator,
-    @inject(VWAPCalculator) VWAPCalculator: VWAPCalculator,
-    @inject(CryptoCompareHistoFetcher) CryptoCompareHistoFetcher: CryptoCompareHistoFetcher,
-    @inject(CryptoComparePriceFetcher) CryptoComparePriceFetcher: CryptoComparePriceFetcher,
+    @inject(fetchers.CryptoCompareHistoFetcher) CryptoCompareHistoFetcher: fetchers.CryptoCompareHistoFetcher,
+    @inject(fetchers.CryptoComparePriceFetcher) CryptoComparePriceFetcher: fetchers.CryptoComparePriceFetcher,
   ) {
     this.fetchers = {
       CryptoComparePriceFetcher,
       CryptoCompareHistoFetcher,
     };
-    this.calculators = {
-      IdentityCalculator,
-      TWAPCalculator,
-      VWAPCalculator,
-    };
+
+    this.calculators = Object.keys(calculators).reduce((map, name, idx) => ({
+      ...map,
+      [name]: Object.values(calculators)[idx],
+    }), {} as { [key: string]: Calculator; });
   }
 
   async apply(feeds: Feed[]): Promise<Leaf[]> {
@@ -54,12 +45,12 @@ class FeedProcessor {
   async processFeed(feed: Feed): Promise<Leaf[]> {
     const leaf = this.buildLeaf(feed)
 
-    const fetcher = this.fetchers[feed.fetcher];
+    const fetcher = this.fetchers[`${feed.fetcher}Fetcher`];
     if (!fetcher) {
       throw new Error(`No fetcher specified for [${feed.leafLabel}]`)
     }
 
-    const calculator = this.calculators[feed.calculator || 'IdentityCalculator'];
+    const calculate: Calculator = this.calculators[`calculate${feed.calculator || 'Identity'}`];
 
     let value;
     try {
@@ -70,7 +61,7 @@ class FeedProcessor {
     }
 
     if (value) {
-      leaf.value = calculator.apply(value);
+      leaf.value = calculate(value);
       return [leaf];
     } else {
       return [];
