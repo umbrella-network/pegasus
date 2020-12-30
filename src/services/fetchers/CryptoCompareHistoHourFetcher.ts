@@ -3,10 +3,10 @@ import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
 
 import Settings from 'src/types/Settings';
-import Feed from 'src/models/Feed';
+import {mapParams} from "../../utils/request";
 
 @injectable()
-class CryptoCompareHistoFetcher {
+class CryptoCompareHistoHourFetcher {
   private apiKey: string;
   private timeout: number;
 
@@ -17,11 +17,13 @@ class CryptoCompareHistoFetcher {
     this.timeout = settings.api.cryptocompare.timeout;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async apply(feed: Feed): Promise<[any, number][] | undefined> {
-    const response = await axios.get(feed.sourceUrl, {
+  // eslint-disable-next-line
+  async apply(params: any): Promise<[any, number][] | undefined> {
+    const sourceUrl = `https://min-api.cryptocompare.com/data/v2/histohour${mapParams(params)}`;
+
+    const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
-      timeoutErrorMessage: `Timeout exceeded: ${feed.sourceUrl}`,
+      timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
       headers: {'Authorization': `token ${this.apiKey}`}
     });
 
@@ -49,4 +51,4 @@ class CryptoCompareHistoFetcher {
   }
 }
 
-export default CryptoCompareHistoFetcher;
+export default CryptoCompareHistoHourFetcher;

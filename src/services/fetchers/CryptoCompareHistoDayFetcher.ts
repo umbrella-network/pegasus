@@ -6,7 +6,7 @@ import Settings from 'src/types/Settings';
 import {mapParams} from "../../utils/request";
 
 @injectable()
-class CryptoComparePriceFetcher {
+class CryptoCompareHistoDayFetcher {
   private apiKey: string;
   private timeout: number;
 
@@ -17,8 +17,9 @@ class CryptoComparePriceFetcher {
     this.timeout = settings.api.cryptocompare.timeout;
   }
 
-  async apply(params: any): Promise<number> {
-    const sourceUrl = `https://min-api.cryptocompare.com/data/price${mapParams(params)}`;
+  // eslint-disable-next-line
+  async apply(params: any): Promise<[any, number][] | undefined> {
+    const sourceUrl = `https://min-api.cryptocompare.com/data/v2/histoday${mapParams(params)}`;
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
@@ -34,13 +35,20 @@ class CryptoComparePriceFetcher {
       throw new Error(response.data.Message);
     }
 
-    return this.extractValue(response.data, '$.*');
+    return this.extractValue(response.data, '$.[:0]').map(({high, low, open, close, volumefrom: volume}) => ([
+      {
+        high,
+        low,
+        open,
+        close
+      }, volume
+    ]));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractValue = (data: any, valuePath: string): number => {
-    return JSONPath({json: data, path: valuePath})[0];
+  private extractValue = (data: any, valuePath: string): any[] => {
+    return JSONPath({json: data, path: valuePath});
   }
 }
 
-export default CryptoComparePriceFetcher;
+export default CryptoCompareHistoDayFetcher;

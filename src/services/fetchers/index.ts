@@ -1,4 +1,6 @@
 import CryptoComparePriceFetcher from './CryptoComparePriceFetcher';
-import CryptoCompareHistoFetcher from './CryptoCompareHistoFetcher';
+import CryptoCompareHistoHourFetcher from './CryptoCompareHistoHourFetcher';
+import CryptoCompareHistoDayFetcher from './CryptoCompareHistoDayFetcher';
+import GVolImpliedVolatilityFetcher from './GVolImpliedVolatilityFetcher';
 
-export {CryptoComparePriceFetcher, CryptoCompareHistoFetcher};
+export {CryptoComparePriceFetcher, CryptoCompareHistoDayFetcher, CryptoCompareHistoHourFetcher, GVolImpliedVolatilityFetcher};

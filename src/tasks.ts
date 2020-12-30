@@ -12,7 +12,7 @@ const argv = yargs(process.argv.slice(2)).options({
 }).argv;
 
 async function testFeeds(): Promise<void> {
-  const feeds = await loadFeeds('./../config/feeds.json');
+  const feeds = await loadFeeds('./../config/feedsOnChain.json');
   const leaves = await Application.get(FeedProcessor).apply(feeds);
 
   console.log(leaves);

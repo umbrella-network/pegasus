@@ -35,7 +35,11 @@ const settings: Settings = {
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
       timeout: (parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', 10))
-    }
+    },
+    genesisVolatility: {
+      apiKey: process.env.GENESIS_VOLATILITY_API_KEY as string,
+      timeout: (parseInt(process.env.GENESIS_VOLATILITY_TIMEOUT || '5000', 10))
+    },
   },
 }
 

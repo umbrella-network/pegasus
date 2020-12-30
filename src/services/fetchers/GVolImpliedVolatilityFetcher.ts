@@ -3,27 +3,43 @@ import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
 
 import Settings from 'src/types/Settings';
-import {mapParams} from "../../utils/request";
 
 @injectable()
-class CryptoComparePriceFetcher {
+class GVolImpliedVolatilityFetcher {
   private apiKey: string;
   private timeout: number;
 
   constructor(
     @inject('Settings') settings: Settings
   ) {
-    this.apiKey = settings.api.cryptocompare.apiKey;
-    this.timeout = settings.api.cryptocompare.timeout;
+    this.apiKey = settings.api.genesisVolatility.apiKey;
+    this.timeout = settings.api.genesisVolatility.timeout;
   }
 
+  // eslint-disable-next-line
   async apply(params: any): Promise<number> {
-    const sourceUrl = `https://min-api.cryptocompare.com/data/price${mapParams(params)}`;
+    const sourceUrl = 'https://app.pinkswantrading.com/graphql';
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
+      method: 'POST',
       timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-      headers: {'Authorization': `token ${this.apiKey}`}
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': '*/*',
+        'x-oracle': this.apiKey,
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+      data: {
+        query: `query ChainlinkIV($symbol: SymbolEnumType) {
+          ChainlinkIv(symbol: $symbol) {
+            ${params.query}
+          }
+        }`,
+        variables: {
+          symbol: params.symbol,
+        },
+      }
     });
 
     if (response.status !== 200) {
@@ -34,7 +50,7 @@ class CryptoComparePriceFetcher {
       throw new Error(response.data.Message);
     }
 
-    return this.extractValue(response.data, '$.*');
+    return this.extractValue(response.data, `$.[:0].${params.query}`);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,4 +59,4 @@ class CryptoComparePriceFetcher {
   }
 }
 
-export default CryptoComparePriceFetcher;
+export default GVolImpliedVolatilityFetcher;

@@ -33,6 +33,10 @@ type Settings = {
     cryptocompare: {
       apiKey: string,
       timeout: number,
+    },
+    genesisVolatility: {
+      apiKey: string,
+      timeout: number,
     }
   },
 }

@@ -1,105 +1,389 @@
 {
-  "data": [
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD",
-      "leafLabel": "eth-usd",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD",
-      "leafLabel": "eth-usd",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/v2/histohour?fsym=BTC&tsym=USD&limit=24",
-      "leafLabel": "eth-usd-TWAP-day",
-      "fetcher": "CryptoCompareHisto",
-      "calculator": "TWAP",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/v2/histohour?fsym=BTC&tsym=USD&limit=24",
-      "leafLabel": "eth-usd-TWAP-day",
-      "fetcher": "CryptoCompareHisto",
-      "calculator": "TWAP",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=USD&limit=30",
-      "leafLabel": "eth-usd-TWAP-month",
-      "fetcher": "CryptoCompareHisto",
-      "calculator": "TWAP",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/v2/histoday?fsym=BTC&tsym=USD&limit=30",
-      "leafLabel": "eth-usd-TWAP-month",
-      "fetcher": "CryptoCompareHisto",
-      "calculator": "TWAP",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/v2/histohour?fsym=BTC&tsym=USD&limit=24",
-      "leafLabel": "eth-usd-VWAP-day",
-      "fetcher": "CryptoCompareHisto",
-      "calculator": "VWAP",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=EUR",
-      "leafLabel": "eth-eur",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USDT",
-      "leafLabel": "eth-usdt",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=EUR",
-      "leafLabel": "usdt-eur",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=USDT&tsyms=USD",
-      "leafLabel": "usdt-usd",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=wBTC&tsyms=USD",
-      "leafLabel": "wbtc-usd",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=Aave&tsyms=USD",
-      "leafLabel": "aave-usd",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=YFI&tsyms=USD",
-      "leafLabel": "yfi-usd",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=UNI&tsyms=USD",
-      "leafLabel": "uni-usd",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    },
-    {
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=COMP&tsyms=USD",
-      "leafLabel": "comp-usd",
-      "fetcher": "CryptoComparePrice",
-      "discrepancy": 0.1
-    }
-  ]
+  "eth-usd": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "ETH",
+            "tsyms": "USD"
+          }
+        }
+      }
+    ]
+  },
+  "eth-eur": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "ETH",
+            "tsyms": "EUR"
+          }
+        }
+      }
+    ]
+  },
+  "eth-usdt": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "ETH",
+            "tsyms": "USDT"
+          }
+        }
+      }
+    ]
+  },
+  "usdt-eur": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "USDT",
+            "tsyms": "EUR"
+          }
+        }
+      }
+    ]
+  },
+  "usdt-usd": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "USDT",
+            "tsyms": "USD"
+          }
+        }
+      }
+    ]
+  },
+  "wbtc-usd": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "wBTC",
+            "tsyms": "USD"
+          }
+        }
+      }
+    ]
+  },
+  "aave-usd": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "Aave",
+            "tsyms": "USD"
+          }
+        }
+      }
+    ]
+  },
+  "yfi-usd": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "YFI",
+            "tsyms": "USD"
+          }
+        }
+      }
+    ]
+  },
+  "uni-usd": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "UNI",
+            "tsyms": "USD"
+          }
+        }
+      }
+    ]
+  },
+  "comp-usd": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "COMP",
+            "tsyms": "USD"
+          }
+        }
+      }
+    ]
+  },
+  "eth-usd-TWAP-1day": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoCompareHistoHour",
+          "params": {
+            "fsym": "BTC",
+            "tsym": "USD",
+            "limit": 24
+          }
+        },
+        "calculator": {
+          "name": "TWAP"
+        }
+      }
+    ]
+  },
+  "eth-usd-TWAP-30days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoCompareHistoDay",
+          "params": {
+            "fsym": "BTC",
+            "tsym": "USD",
+            "limit": 30
+          }
+        },
+        "calculator": {
+          "name": "TWAP"
+        }
+      }
+    ]
+  },
+  "eth-usd-VWAP-1day": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoCompareHistoHour",
+          "params": {
+            "fsym": "BTC",
+            "tsym": "USD",
+            "limit": 24
+          }
+        },
+        "calculator": {
+          "name": "VWAP"
+        }
+      }
+    ]
+  },
+  "btc-iv-1day": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "oneDayIv",
+            "symbol": "BTC"
+          }
+        }
+      }
+    ]
+  },
+  "btc-iv-2days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "twoDayIv",
+            "symbol": "BTC"
+          }
+        }
+      }
+    ]
+  },
+  "btc-iv-2days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "sevenDayIv",
+            "symbol": "BTC"
+          }
+        }
+      }
+    ]
+  },
+  "btc-iv-14days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "fourteenDayIv",
+            "symbol": "BTC"
+          }
+        }
+      }
+    ]
+  },
+  "btc-iv-21days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "twentyOneDayIv",
+            "symbol": "BTC"
+          }
+        }
+      }
+    ]
+  },
+  "btc-iv-28days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "twentyEightDayIv",
+            "symbol": "BTC"
+          }
+        }
+      }
+    ]
+  },
+  "eth-iv-1day": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "oneDayIv",
+            "symbol": "ETH"
+          }
+        }
+      }
+    ]
+  },
+  "eth-iv-2days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "twoDayIv",
+            "symbol": "ETH"
+          }
+        }
+      }
+    ]
+  },
+  "eth-iv-7days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "sevenDayIv",
+            "symbol": "ETH"
+          }
+        }
+      }
+    ]
+  },
+  "eth-iv-14days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "fourteenDayIv",
+            "symbol": "ETH"
+          }
+        }
+      }
+    ]
+  },
+  "eth-iv-21days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "twentyOneDayIv",
+            "symbol": "ETH"
+          }
+        }
+      }
+    ]
+  },
+  "eth-iv-28days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "twentyEightDayIv",
+            "symbol": "ETH"
+          }
+        }
+      }
+    ]
+  }
 }
