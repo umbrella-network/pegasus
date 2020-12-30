@@ -236,7 +236,7 @@
       }
     ]
   },
-  "btc-iv-2days": {
+  "btc-iv-7days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [

@@ -39,6 +39,8 @@ type Settings = {
       timeout: number,
     }
   },
+  feedsFile: string,
+  feedsOnChain: string,
 }
 
 export default Settings;

@@ -11,6 +11,7 @@ import {converters} from '@umb-network/toolbox';
 import FeedProcessor from "./FeedProcessor";
 import LeafPersistor from './LeafPersistor';
 import loadFeeds from "../config/loadFeeds";
+import Settings from "../types/Settings";
 
 @injectable()
 class BlockMinter {
@@ -22,6 +23,7 @@ class BlockMinter {
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
   @inject(MintGuard) mintGuard!: MintGuard;
+  @inject('Settings') settings!: Settings;
 
   async apply(): Promise<void> {
     if (!(await this.isLeader())) return;
@@ -35,7 +37,7 @@ class BlockMinter {
 
     this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()}...`);
 
-    const feeds = await loadFeeds('../config/feeds.json');
+    const feeds = await loadFeeds(this.settings.feedsFile);
     const leaves = await this.feedProcessor.apply(feeds);
 
     if (!leaves.length) {
@@ -49,7 +51,7 @@ class BlockMinter {
 
     const tree = this.sortedMerkleTreeFactory.apply(leaves);
 
-    const firstClassFeeds = await loadFeeds('../config/feedsOnChain.json');
+    const firstClassFeeds = await loadFeeds(this.settings.feedsOnChain);
     const firstClassLeaves = await this.feedProcessor.apply(firstClassFeeds);
 
     const [numericFcdKeys, numericFcdValues] = this.formatFirstClassData(firstClassLeaves);
