@@ -1,6 +1,6 @@
 import fs from 'fs';
 import {Validator} from 'jsonschema';
-import Feeds from 'src/types/Feed';
+import Feeds from '../types/Feed';
 
 import FeedsSchema from './feeds-schema';
 
