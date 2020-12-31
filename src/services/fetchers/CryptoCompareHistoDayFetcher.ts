@@ -24,7 +24,7 @@ class CryptoCompareHistoDayFetcher {
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
       timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-      headers: {'Authorization': `token ${this.apiKey}`}
+      headers: {'Authorization': `Apikey ${this.apiKey}`}
     });
 
     if (response.status !== 200) {
