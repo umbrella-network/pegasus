@@ -41,8 +41,8 @@ const settings: Settings = {
       timeout: (parseInt(process.env.GENESIS_VOLATILITY_TIMEOUT || '5000', 10))
     },
   },
-  feedsFile: process.env.FEEDS_FILE as string,
-  feedsOnChain: process.env.FEEDS_ON_CHAIN_FILE as string,
+  feedsFile: (process.env.FEEDS_FILE || 'src/config/feeds.json'),
+  feedsOnChain: (process.env.FEEDS_ON_CHAIN_FILE || 'src/config/feedsOnChain.json'),
 }
 
 export default settings;
