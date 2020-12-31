@@ -28,6 +28,9 @@ When blockchain is running locally:
 ```shell script
 docker-compose up
 
+# clean up collections if needed:
+npm run task:dev -- --task db:cleanup
+
 # make sure config folder contains feeds
 cat config/feeds.json
 cat config/feedsOnChain.json
@@ -66,6 +69,9 @@ $ npm run start
 
 ```shell script
 make stage
+
+# clean up collections if needed:
+npm run task -- --task db:cleanup
 
 # make sure config folder contains feeds
 cat config/feeds.json
