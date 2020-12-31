@@ -1,7 +1,7 @@
 import {getModelForClass} from '@typegoose/typegoose';
 import {injectable} from 'inversify';
 
-import Leaf from 'src/models/Leaf';
+import Leaf from '../models/Leaf';
 
 @injectable()
 class LeafPersistor {
