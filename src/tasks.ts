@@ -1,52 +1,55 @@
-import './boot';
+import 'dotenv';
 import yargs from 'yargs';
-import fs from 'fs';
-import path from 'path';
-import { getModelForClass } from '@typegoose/typegoose';
-import { v4 as uuid } from 'uuid';
-import Feed from './models/Feed';
-import { EventEmitter } from 'events';
+import {EventEmitter} from 'events';
+import {getModelForClass} from '@typegoose/typegoose';
+
+import './boot';
+import Application from './lib/Application';
+import FeedProcessor from './services/FeedProcessor';
+import loadFeeds from './config/loadFeeds';
+import Settings from "./types/Settings";
+import Leaf from './models/Leaf';
+import Block from './models/Block';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: { type: 'string', demandOption: true }
 }).argv;
 
-async function dbLoadFeeds(): Promise<void> {
-  const feedData = fs.readFileSync(path.resolve(__dirname, './config/feeds.json'), 'utf-8');
-  const feeds = JSON.parse(feedData);
-  const feedModel = getModelForClass(Feed);
+async function testFeeds(settings: Settings): Promise<void> {
+  let feeds = await loadFeeds(settings.feedsFile);
+  let leaves = await Application.get(FeedProcessor).apply(feeds);
+  console.log('Feeds: ', leaves);
 
-  for (const data of feeds.data) {
-    const id = data.id || uuid();
+  feeds = await loadFeeds(settings.feedsOnChain);
+  leaves = await Application.get(FeedProcessor).apply(feeds);
+  console.log('On-chain feeds: ', leaves);
+}
 
-    await feedModel.findOneAndUpdate(
-      {
-        _id: id
-      },
-      {
-        '$set': {
-          sourceUrl: <string> data.sourceUrl,
-          leafLabel: <string> data.leafLabel,
-          valuePath: <string> data.valuePath,
-          tolerance: <number> data.tolerance
-        }
-      },
-      {
-        upsert: true
-      }
-    );
-  }
+async function dbCleanUp(): Promise<void> {
+  const leafModel = getModelForClass(Leaf);
+  await leafModel.collection.deleteMany({});
+
+  const blockModel = getModelForClass(Block);
+  await blockModel.collection.deleteMany({});
 }
 
 const ev = new EventEmitter();
-ev.on('done', (e) => process.exit());
+ev.on('done', () => process.exit());
 
 (async () => {
+  const settings: Settings = Application.get('Settings');
+
   switch (argv.task) {
-    case 'db:load:feeds': {
-      await dbLoadFeeds();
+    case 'db:cleanup': {
+      await dbCleanUp();
+      ev.emit('done');
+      break;
+    }
+    case 'test:feeds': {
+      await testFeeds(settings);
       ev.emit('done');
       break;
     }
   }
 })();
+
