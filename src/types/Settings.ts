@@ -31,9 +31,16 @@ type Settings = {
   },
   api: {
     cryptocompare: {
-      apiKey: string
+      apiKey: string,
+      timeout: number,
+    },
+    genesisVolatility: {
+      apiKey: string,
+      timeout: number,
     }
-  }
+  },
+  feedsFile: string,
+  feedsOnChain: string,
 }
 
 export default Settings;

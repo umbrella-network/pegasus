@@ -33,9 +33,16 @@ const settings: Settings = {
   },
   api: {
     cryptocompare: {
-      apiKey: process.env.CRYPTOCOMPARE_API_KEY as string
-    }
-  }
+      apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
+      timeout: (parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', 10))
+    },
+    genesisVolatility: {
+      apiKey: process.env.GENESIS_VOLATILITY_API_KEY as string,
+      timeout: (parseInt(process.env.GENESIS_VOLATILITY_TIMEOUT || '5000', 10))
+    },
+  },
+  feedsFile: (process.env.FEEDS_FILE || 'src/config/feeds.json'),
+  feedsOnChain: (process.env.FEEDS_ON_CHAIN_FILE || 'src/config/feedsOnChain.json'),
 }
 
 export default settings;

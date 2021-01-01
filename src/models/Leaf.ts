@@ -7,9 +7,6 @@ class Leaf {
   _id!: string;
 
   @prop()
-  feedId!: string;
-
-  @prop()
   blockHeight?: number;
 
   @prop()

@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - use registry to resolve Chain address
 - support numeric first class data
 - cryptocompare API support
+- Genesis Volatility support
+- support multiple data sources
+- validate feeds.json through schema
 
 ### Changed
 - use `@umb-network/toolbox` for fetching ABIs for contracts

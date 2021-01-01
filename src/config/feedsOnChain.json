@@ -1,18 +1,62 @@
 {
-  "data": [
-    {
-      "id": "eth-usd",
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD",
-      "leafLabel": "eth-usd",
-      "valuePath": "$.USD",
-      "discrepancy": 0.1
-    },
-    {
-      "id": "eth-eur",
-      "sourceUrl": "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=EUR",
-      "leafLabel": "eth-eur",
-      "valuePath": "$.EUR",
-      "discrepancy": 0.1
-    }
-  ]
+  "eth-usd": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "ETH",
+            "tsyms": "USD"
+          }
+        }
+      }
+    ]
+  },
+  "eth-eur": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "CryptoComparePrice",
+          "params": {
+            "fsym": "ETH",
+            "tsyms": "EUR"
+          }
+        }
+      }
+    ]
+  },
+  "btc-iv-28days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "twentyEightDayIv",
+            "symbol": "BTC"
+          }
+        }
+      }
+    ]
+  },
+  "eth-iv-28days": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "GVolImpliedVolatility",
+          "params": {
+            "query": "twentyEightDayIv",
+            "symbol": "ETH"
+          }
+        }
+      }
+    ]
+  }
 }
