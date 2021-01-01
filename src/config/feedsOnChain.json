@@ -1,5 +1,5 @@
 {
-  "eth-usd": {
+  "ETH-USD": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -14,7 +14,7 @@
       }
     ]
   },
-  "eth-eur": {
+  "ETH-EUR": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -29,7 +29,7 @@
       }
     ]
   },
-  "btc-iv-28days": {
+  "GVol-BTC-IV-28days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -44,7 +44,7 @@
       }
     ]
   },
-  "eth-iv-28days": {
+  "GVol-ETH-IV-28days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -54,6 +54,48 @@
           "params": {
             "query": "twentyEightDayIv",
             "symbol": "ETH"
+          }
+        }
+      }
+    ]
+  },
+  "DIA-USD": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "PolygonIOPrice",
+          "params": {
+            "ticker": "DIA"
+          }
+        }
+      }
+    ]
+  },
+  "QQQ-USD": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "PolygonIOPrice",
+          "params": {
+            "ticker": "QQQ"
+          }
+        }
+      }
+    ]
+  },
+  "SPY-USD": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "PolygonIOPrice",
+          "params": {
+            "ticker": "SPY"
           }
         }
       }
