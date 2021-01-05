@@ -157,7 +157,7 @@
         "fetcher": {
           "name": "CryptoCompareHistoHour",
           "params": {
-            "fsym": "BTC",
+            "fsym": "ETH",
             "tsym": "USD",
             "limit": 24
           }
@@ -176,7 +176,7 @@
         "fetcher": {
           "name": "CryptoCompareHistoDay",
           "params": {
-            "fsym": "BTC",
+            "fsym": "ETH",
             "tsym": "USD",
             "limit": 30
           }
@@ -195,7 +195,7 @@
         "fetcher": {
           "name": "CryptoCompareHistoHour",
           "params": {
-            "fsym": "BTC",
+            "fsym": "ETH",
             "tsym": "USD",
             "limit": 24
           }
