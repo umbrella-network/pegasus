@@ -9,7 +9,7 @@ build:
 	@docker build -t $(IMAGE) .
 
 login:
-	`aws ecr get-login --no-include-email`
+	@aws ecr get-login-password  | docker login --username AWS --password-stdin 008205684207.dkr.ecr.us-east-2.amazonaws.com
 
 push: login
 	@echo "## Pushing image to AWS ##"
