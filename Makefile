@@ -25,6 +25,13 @@ publish-staging:
 	@kubectl set image deployment/pegasus-scheduler pegasus-scheduler=$(IMAGE) --namespace staging
 	@kubectl set image deployment/pegasus-worker pegasus-worker=$(IMAGE) --namespace staging
 
+publish-dev:
+	@kubectl set image deployment/pegasus-api pegasus-api=$(IMAGE) --namespace dev
+	@kubectl set image deployment/pegasus-scheduler pegasus-scheduler=$(IMAGE) --namespace dev
+	@kubectl set image deployment/pegasus-worker pegasus-worker=$(IMAGE) --namespace dev
+
 deploy: build push publish
+
+dev: build push publish-dev
 
 stage: build push publish-staging
