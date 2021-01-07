@@ -1,13 +1,15 @@
 import {Logger} from 'winston';
+import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Signature} from 'ethers';
+import {converters} from '@umb-network/toolbox';
+
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import Leaf from '../models/Leaf';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import SaveMintedBlock from './SaveMintedBlock';
 import MintGuard from './MintGuard';
-import {converters} from '@umb-network/toolbox';
 import FeedProcessor from "./FeedProcessor";
 import LeafPersistor from './LeafPersistor';
 import loadFeeds from "../config/loadFeeds";
@@ -77,16 +79,10 @@ class BlockMinter {
     return currentLeader === this.blockchain.wallet.address;
   }
 
-  // @todo handle case where value is undefined or negative
   private formatFirstClassData(feeds: Leaf[]): [keys: string[], values: number[]] {
-    const keys = feeds.map(({label}) => label).sort();
-    const values: number[] = feeds.map(({value}) => value);
+    const sortedFeeds = sort(feeds).asc(({label}) => label);
 
-    return values.reduce((fcd: [keys: string[], values: number[]], value, i) => {
-      fcd[0].push(keys[i]);
-      fcd[1].push(value);
-      return fcd;
-    }, [[], []]);
+    return [sortedFeeds.map(({label}) => label), sortedFeeds.map(({value}) => value)];
   }
 
   private generateAffidavit(root: string, blockHeight: BigNumber, keys: string[], values: number[]): string {
