@@ -1,7 +1,7 @@
 import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
-import {BigNumber, ethers, Signature} from 'ethers';
+import {BigNumber, ethers, Signature, Wallet} from 'ethers';
 import {converters} from '@umb-network/toolbox';
 
 import ChainContract from '../contracts/ChainContract';
@@ -14,12 +14,15 @@ import FeedProcessor from "./FeedProcessor";
 import LeafPersistor from './LeafPersistor';
 import loadFeeds from "../config/loadFeeds";
 import Settings from "../types/Settings";
+import {SignedBlock} from '../types/SignedBlock';
+import SignatureCollector from './SignatureCollector';
 
 @injectable()
 class BlockMinter {
   @inject('Logger') logger!: Logger;
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
+  @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(LeafPersistor) leafPersistor!: LeafPersistor;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
@@ -39,34 +42,42 @@ class BlockMinter {
 
     this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()}...`);
 
-    const feeds = await loadFeeds(this.settings.feedsFile);
-    const leaves = await this.feedProcessor.apply(feeds);
-
-    if (!leaves.length) {
-      this.logger.error(`we can't get leaves... check API access to feeds.`);
-      return;
-    }
-
-    for (const leaf of leaves) {
-      await this.leafPersistor.apply(leaf);
-    }
+    const [firstClassLeaves, leaves] = await Promise.all([
+      this.loadFeeds(this.settings.feedsOnChain),
+      this.loadFeeds(this.settings.feedsFile)
+    ]);
 
     const tree = this.sortedMerkleTreeFactory.apply(leaves);
 
-    const firstClassFeeds = await loadFeeds(this.settings.feedsOnChain);
-    const firstClassLeaves = await this.feedProcessor.apply(firstClassFeeds);
+    const [numericFcdKeys, numericFcdValues] = BlockMinter.formatFirstClassData(firstClassLeaves);
 
-    const [numericFcdKeys, numericFcdValues] = this.formatFirstClassData(firstClassLeaves);
+    const affidavit = BlockMinter.generateAffidavit(tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
+    const signature = await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
 
-    const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
-    const signature = await this.signAffidavit(affidavit);
+    const signedBlock: SignedBlock = {
+      signature,
+      blockHeight: blockHeight.toNumber(),
+      leaves: Object.fromEntries(leaves.map(({label, value}) => [label, value])),
+      fcd: Object.fromEntries(numericFcdKeys.map((_, idx) => [numericFcdKeys[idx], numericFcdValues[idx]])),
+    };
 
-    // TODO: gather signatures from other validators before minting a new block
-    const mint = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues, [signature]);
+    const signatures = await this.signatureCollector.apply(signedBlock, affidavit);
 
+    const mint = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues, signatures);
     if (mint) {
       await this.saveBlock(leaves, Number(blockHeight), tree.getRoot(), numericFcdKeys);
     }
+  }
+
+  private async loadFeeds(feedFileName: string): Promise<Leaf[]> {
+    const feeds = await loadFeeds(feedFileName);
+    const leaves = await this.feedProcessor.apply(feeds);
+
+    if (!leaves.length) {
+      throw new Error(`we can't get leaves... check API access to feeds.`)
+    }
+
+    return leaves;
   }
 
   private async canMint(blockHeight: BigNumber): Promise<boolean> {
@@ -79,13 +90,21 @@ class BlockMinter {
     return currentLeader === this.blockchain.wallet.address;
   }
 
-  private formatFirstClassData(feeds: Leaf[]): [keys: string[], values: number[]] {
+  static recoverSigner(affidavit: string, signature: string): string {
+    const pubKey = ethers.utils.recoverPublicKey(
+      ethers.utils.solidityKeccak256(['string', 'bytes32'], ['\x19Ethereum Signed Message:\n32',
+        ethers.utils.arrayify(affidavit)]), signature);
+
+    return ethers.utils.computeAddress(pubKey)
+  }
+
+  static formatFirstClassData(feeds: Leaf[]): [keys: string[], values: number[]] {
     const sortedFeeds = sort(feeds).asc(({label}) => label);
 
     return [sortedFeeds.map(({label}) => label), sortedFeeds.map(({value}) => value)];
   }
 
-  private generateAffidavit(root: string, blockHeight: BigNumber, keys: string[], values: number[]): string {
+  static generateAffidavit(root: string, blockHeight: BigNumber, keys: string[], values: number[]): string {
     const encoder = new ethers.utils.AbiCoder();
     let testimony = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
 
@@ -98,9 +117,9 @@ class BlockMinter {
     return ethers.utils.keccak256(testimony);
   }
 
-  private async signAffidavit(affidavit: string): Promise<string> {
+  static async signAffidavitWithWallet(wallet: Wallet, affidavit: string): Promise<string> {
     const toSign = ethers.utils.arrayify(affidavit)
-    return this.blockchain.wallet.signMessage(toSign);
+    return wallet.signMessage(toSign);
   }
 
   private static splitSignature(signature: string): Signature {
