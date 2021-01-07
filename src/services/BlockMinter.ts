@@ -1,13 +1,15 @@
 import {Logger} from 'winston';
+import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Signature} from 'ethers';
+import {converters} from '@umb-network/toolbox';
+
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import Leaf from '../models/Leaf';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import SaveMintedBlock from './SaveMintedBlock';
 import MintGuard from './MintGuard';
-import {converters} from '@umb-network/toolbox';
 import FeedProcessor from "./FeedProcessor";
 import LeafPersistor from './LeafPersistor';
 import loadFeeds from "../config/loadFeeds";
@@ -49,12 +51,12 @@ class BlockMinter {
       await this.leafPersistor.apply(leaf);
     }
 
-    const tree = this.sortedMerkleTreeFactory.apply(leaves);
+    const tree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(leaves));
 
     const firstClassFeeds = await loadFeeds(this.settings.feedsOnChain);
-    const firstClassLeaves = await this.feedProcessor.apply(firstClassFeeds);
+    const firstClassLeaves = BlockMinter.sortLeaves(await this.feedProcessor.apply(firstClassFeeds));
 
-    const [numericFcdKeys, numericFcdValues] = this.formatFirstClassData(firstClassLeaves);
+    const [numericFcdKeys, numericFcdValues] = [firstClassLeaves.map(({label}) => label), firstClassLeaves.map(({value}) => value)];
 
     const affidavit = this.generateAffidavit(tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
     const signature = await this.signAffidavit(affidavit);
@@ -77,16 +79,8 @@ class BlockMinter {
     return currentLeader === this.blockchain.wallet.address;
   }
 
-  // @todo handle case where value is undefined or negative
-  private formatFirstClassData(feeds: Leaf[]): [keys: string[], values: number[]] {
-    const keys = feeds.map(({label}) => label).sort();
-    const values: number[] = feeds.map(({value}) => value);
-
-    return values.reduce((fcd: [keys: string[], values: number[]], value, i) => {
-      fcd[0].push(keys[i]);
-      fcd[1].push(value);
-      return fcd;
-    }, [[], []]);
+  private static sortLeaves(feeds: Leaf[]): Leaf[] {
+    return sort(feeds).asc(({label}) => label);
   }
 
   private generateAffidavit(root: string, blockHeight: BigNumber, keys: string[], values: number[]): string {
