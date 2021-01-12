@@ -25,7 +25,10 @@ const settings: Settings = {
       },
       registry: {
         address: process.env.REGISTRY_CONTRACT_ADDRESS as string
-      }
+      },
+      validatorRegistry: {
+        name: 'ValidatorRegistry'
+      },
     },
     transactions: {
       gasPrice: (parseInt(process.env.GAS_PRICE || '1000000000', 10))
