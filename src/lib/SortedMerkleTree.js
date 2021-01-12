@@ -42,7 +42,7 @@ class SortedMerkleTree {
   }
 
   createLeaves(keyValuePairs) {
-    return Object.keys(keyValuePairs).sort().map((k, i) => {
+    return Object.keys(keyValuePairs).map((k, i) => {
       const leafId = this.createLeafHash(k);
       this.keys[k] = i;
       return leafId;

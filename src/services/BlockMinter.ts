@@ -47,9 +47,13 @@ class BlockMinter {
       this.loadFeeds(this.settings.feedsFile)
     ]);
 
-    const tree = this.sortedMerkleTreeFactory.apply(leaves);
+    const tree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(leaves));
 
-    const [numericFcdKeys, numericFcdValues] = BlockMinter.formatFirstClassData(firstClassLeaves);
+    const sortedFirstClassLeaves = BlockMinter.sortLeaves(firstClassLeaves);
+    const [numericFcdKeys, numericFcdValues] = [
+      sortedFirstClassLeaves.map(({label}) => label),
+      sortedFirstClassLeaves.map(({value}) => value)
+    ];
 
     const affidavit = BlockMinter.generateAffidavit(tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
     const signature = await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
@@ -98,10 +102,8 @@ class BlockMinter {
     return ethers.utils.computeAddress(pubKey)
   }
 
-  static formatFirstClassData(feeds: Leaf[]): [keys: string[], values: number[]] {
-    const sortedFeeds = sort(feeds).asc(({label}) => label);
-
-    return [sortedFeeds.map(({label}) => label), sortedFeeds.map(({value}) => value)];
+  static sortLeaves(feeds: Leaf[]): Leaf[] {
+    return sort(feeds).asc(({label}) => label);
   }
 
   static generateAffidavit(root: string, blockHeight: BigNumber, keys: string[], values: number[]): string {

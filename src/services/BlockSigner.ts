@@ -41,10 +41,13 @@ class BlockSigner {
     });
 
     const proposedLeaves = keyValuesToLeaves(block.leaves);
-    const proposedTree = this.sortedMerkleTreeFactory.apply(proposedLeaves);
+    const proposedTree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(proposedLeaves));
 
-    const proposedFcd = keyValuesToLeaves(block.fcd);
-    const [proposedFcdKeys, proposedFcdValues] = BlockMinter.formatFirstClassData(proposedFcd);
+    const proposedFcd = BlockMinter.sortLeaves(keyValuesToLeaves(block.fcd));
+    const [proposedFcdKeys, proposedFcdValues] = [
+      proposedFcd.map(({label}) => label),
+      proposedFcd.map(({value}) => value)
+    ];
 
     const affidavit = BlockMinter.generateAffidavit(proposedTree.getRoot(), BigNumber.from(block.blockHeight), proposedFcdKeys, proposedFcdValues);
     const recoveredSigner = await BlockMinter.recoverSigner(affidavit, block.signature);
@@ -63,7 +66,6 @@ class BlockSigner {
   private async checkFeeds(feedFileName: string, proposedLeaves: Leaf[]): Promise<void> {
     const feeds = await loadFeeds(feedFileName);
     const leaves = await this.feedProcessor.apply(feeds);
-
 
     if (!leaves.length) {
       throw Error(`we can't get leaves from ${feedFileName}... check API access to feeds.`);
