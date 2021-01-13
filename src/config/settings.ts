@@ -43,6 +43,10 @@ const settings: Settings = {
       apiKey: process.env.GENESIS_VOLATILITY_API_KEY as string,
       timeout: (parseInt(process.env.GENESIS_VOLATILITY_TIMEOUT || '5000', 10))
     },
+    polygonIO: {
+      apiKey: process.env.POLYGON_IO_API_KEY as string,
+      timeout: (parseInt(process.env.POLYGON_IO_TIMEOUT || '5000', 10))
+    },
   },
   feedsFile: (process.env.FEEDS_FILE || 'src/config/feeds.json'),
   feedsOnChain: (process.env.FEEDS_ON_CHAIN_FILE || 'src/config/feedsOnChain.json'),

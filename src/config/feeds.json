@@ -1,5 +1,5 @@
 {
-  "eth-usd": {
+  "ETH-USD": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -14,7 +14,7 @@
       }
     ]
   },
-  "eth-eur": {
+  "ETH-EUR": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -29,7 +29,7 @@
       }
     ]
   },
-  "eth-usdt": {
+  "ETH-USDT": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -44,7 +44,7 @@
       }
     ]
   },
-  "usdt-eur": {
+  "USDT-EUR": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -59,7 +59,7 @@
       }
     ]
   },
-  "usdt-usd": {
+  "USDT-USD": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -74,7 +74,7 @@
       }
     ]
   },
-  "wbtc-usd": {
+  "WBTC-USD": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -89,7 +89,7 @@
       }
     ]
   },
-  "aave-usd": {
+  "AAVE-USD": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -104,7 +104,7 @@
       }
     ]
   },
-  "yfi-usd": {
+  "YFI-USD": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -119,7 +119,7 @@
       }
     ]
   },
-  "uni-usd": {
+  "UNI-USD": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -134,7 +134,7 @@
       }
     ]
   },
-  "comp-usd": {
+  "COMP-USD": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -149,7 +149,7 @@
       }
     ]
   },
-  "eth-usd-TWAP-1day": {
+  "ETH-USD-TWAP-1day": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -168,7 +168,7 @@
       }
     ]
   },
-  "eth-usd-TWAP-30days": {
+  "ETH-USD-TWAP-30days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -187,7 +187,7 @@
       }
     ]
   },
-  "eth-usd-VWAP-1day": {
+  "ETH-USD-VWAP-1day": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -206,7 +206,7 @@
       }
     ]
   },
-  "btc-iv-1day": {
+  "GVol-BTC-IV-1day": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -221,7 +221,7 @@
       }
     ]
   },
-  "btc-iv-2days": {
+  "GVol-BTC-IV-2days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -236,7 +236,7 @@
       }
     ]
   },
-  "btc-iv-7days": {
+  "GVol-BTC-IV-7days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -251,7 +251,7 @@
       }
     ]
   },
-  "btc-iv-14days": {
+  "GVol-BTC-IV-14days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -266,7 +266,7 @@
       }
     ]
   },
-  "btc-iv-21days": {
+  "GVol-BTC-IV-21days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -281,7 +281,7 @@
       }
     ]
   },
-  "btc-iv-28days": {
+  "GVol-BTC-IV-28days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -296,7 +296,7 @@
       }
     ]
   },
-  "eth-iv-1day": {
+  "GVol-ETH-IV-1day": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -311,7 +311,7 @@
       }
     ]
   },
-  "eth-iv-2days": {
+  "GVol-ETH-IV-2days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -326,7 +326,7 @@
       }
     ]
   },
-  "eth-iv-7days": {
+  "GVol-ETH-IV-7days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -341,7 +341,7 @@
       }
     ]
   },
-  "eth-iv-14days": {
+  "GVol-ETH-IV-14days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -356,7 +356,7 @@
       }
     ]
   },
-  "eth-iv-21days": {
+  "GVol-ETH-IV-21days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -371,7 +371,7 @@
       }
     ]
   },
-  "eth-iv-28days": {
+  "GVol-ETH-IV-28days": {
     "discrepancy": 0.1,
     "precision": 2,
     "inputs": [
@@ -381,6 +381,48 @@
           "params": {
             "query": "twentyEightDayIv",
             "symbol": "ETH"
+          }
+        }
+      }
+    ]
+  },
+  "DIA-USD": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "PolygonIOPrice",
+          "params": {
+            "ticker": "DIA"
+          }
+        }
+      }
+    ]
+  },
+  "QQQ-USD": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "PolygonIOPrice",
+          "params": {
+            "ticker": "QQQ"
+          }
+        }
+      }
+    ]
+  },
+  "SPY-USD": {
+    "discrepancy": 0.1,
+    "precision": 2,
+    "inputs": [
+      {
+        "fetcher": {
+          "name": "PolygonIOPrice",
+          "params": {
+            "ticker": "SPY"
           }
         }
       }

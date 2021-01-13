@@ -26,6 +26,7 @@ export default {
             {'$ref': '#/definitions/CryptoCompareHistoDayFetcher'},
             {'$ref': '#/definitions/CryptoCompareHistoHourFetcher'},
             {'$ref': '#/definitions/CryptoComparePriceFetcher'},
+            {'$ref': '#/definitions/PolygonIOPriceFetcher'},
           ]
         },
         calculator: {
@@ -100,6 +101,21 @@ export default {
             limit: {type: 'number'},
           },
           required: ['fsym', 'tsym', 'limit'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    PolygonIOPriceFetcher: {
+      properties: {
+        name: {const: 'PolygonIOPrice'},
+        params: {
+          type: 'object',
+          properties: {
+            ticker: {type: 'string'},
+          },
+          required: ['ticker'],
           additionalProperties: false,
         },
       },

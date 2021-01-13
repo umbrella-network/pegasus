@@ -41,6 +41,10 @@ type Settings = {
       apiKey: string,
       timeout: number,
     }
+    polygonIO: {
+      apiKey: string,
+      timeout: number,
+    },
   },
   feedsFile: string,
   feedsOnChain: string,
