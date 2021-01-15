@@ -37,7 +37,7 @@ class GVolImpliedVolatilityFetcher {
           }
         }`,
         variables: {
-          symbol: params.symbol,
+          symbol: params.sym,
         },
       }
     });

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import {Validator} from 'jsonschema';
+import {loadAll} from 'js-yaml';
 import Feeds from '../types/Feed';
 
 import FeedsSchema from './feeds-schema';
@@ -12,7 +13,7 @@ export default async function loadFeeds(filePath: string): Promise<Feeds> {
         return;
       }
 
-      const feeds = JSON.parse(feedData) as Feeds;
+      const [feeds] = loadAll(feedData);
       const result = new Validator().validate(feeds, FeedsSchema);
       if (!result.valid) {
         reject(new Error(`Feeds validation error:\n${result.errors.map((err) => err.toString()).join('; ')}`));

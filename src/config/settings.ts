@@ -48,8 +48,8 @@ const settings: Settings = {
       timeout: (parseInt(process.env.POLYGON_IO_TIMEOUT || '5000', 10))
     },
   },
-  feedsFile: (process.env.FEEDS_FILE || 'src/config/feeds.json'),
-  feedsOnChain: (process.env.FEEDS_ON_CHAIN_FILE || 'src/config/feedsOnChain.json'),
+  feedsFile: (process.env.FEEDS_FILE || 'src/config/feeds.yaml'),
+  feedsOnChain: (process.env.FEEDS_ON_CHAIN_FILE || 'src/config/feedsOnChain.yaml'),
 }
 
 export default settings;

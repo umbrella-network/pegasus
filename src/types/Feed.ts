@@ -22,3 +22,8 @@ export interface Feed {
 export default interface Feeds {
   [leafLabel: string]: Feed;
 }
+
+export interface Pair {
+  fsym: string;
+  tsym: string;
+}

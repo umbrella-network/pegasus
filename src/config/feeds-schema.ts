@@ -26,6 +26,7 @@ export default {
             {'$ref': '#/definitions/CryptoCompareHistoDayFetcher'},
             {'$ref': '#/definitions/CryptoCompareHistoHourFetcher'},
             {'$ref': '#/definitions/CryptoComparePriceFetcher'},
+            {'$ref': '#/definitions/CryptoComparePriceWSFetcher'},
             {'$ref': '#/definitions/PolygonIOPriceFetcher'},
           ]
         },
@@ -48,9 +49,9 @@ export default {
           type: 'object',
           properties: {
             query: {type: 'string'},
-            symbol: {type: 'string'},
+            sym: {type: 'string'},
           },
-          required: ['query', 'symbol'],
+          required: ['query', 'sym'],
           additionalProperties: false,
         },
       },
@@ -67,6 +68,22 @@ export default {
             tsyms: {type: 'string'},
           },
           required: ['fsym', 'tsyms'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    CryptoComparePriceWSFetcher: {
+      properties: {
+        name: {const: 'CryptoComparePriceWS'},
+        params: {
+          type: 'object',
+          properties: {
+            fsym: {type: 'string'},
+            tsym: {type: 'string'},
+          },
+          required: ['fsym', 'tsym'],
           additionalProperties: false,
         },
       },
