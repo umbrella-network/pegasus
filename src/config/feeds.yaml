@@ -1,0 +1,453 @@
+---
+ETH-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: ETH
+          tsym: USD
+ETH-EUR:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: ETH
+          tsym: EUR
+BTC-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: BTC
+          tsym: USD
+BTC-EUR:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: BTC
+          tsym: EUR
+LINK-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: LINK
+          tsym: USD
+SNX-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: SNX
+          tsym: USD
+DAI-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: DAI
+          tsym: USD
+COMP-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: COMP
+          tsym: USD
+DASH-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: DASH
+          tsym: USD
+LTC-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: LTC
+          tsym: USD
+ETC-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: ETC
+          tsym: USD
+BCH-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: BCH
+          tsym: USD
+XRP-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: XRP
+          tsym: USD
+EOS-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: EOS
+          tsym: USD
+XAG-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: XAG
+          tsym: USD
+KNC-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: KNC
+          tsym: USD
+#sDEFI-USD:
+#  discrepancy: 0.1
+#  precision: 2
+#  inputs:
+#    - fetcher:
+#        name: CryptoComparePriceWS
+#        params:
+#          fsym: SDEFI
+#          tsym: USD
+FIL-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: FIL
+          tsym: USD
+BNT-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: BNT
+          tsym: USD
+SXP-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: SXP
+          tsym: USD
+TRX-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: TRX
+          tsym: USD
+UNI-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: UNI
+          tsym: USD
+XTZ-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: XTZ
+          tsym: USD
+USDK-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: USDK
+          tsym: USD
+DOT-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: DOT
+          tsym: USD
+BNB-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: BNB
+          tsym: USD
+OXT-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: OXT
+          tsym: USD
+#ADX-USD:
+#  discrepancy: 0.1
+#  precision: 2
+#  inputs:
+#    - fetcher:
+#        name: CryptoComparePriceWS
+#        params:
+#          fsym: ADX
+#          tsym: USD
+YFI-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: YFI
+          tsym: USD
+#sCEX-USD:
+#  discrepancy: 0.1
+#  precision: 2
+#  inputs:
+#    - fetcher:
+#        name: CryptoComparePriceWS
+#        params:
+#          fsym: SCEX
+#          tsym: USD
+REN-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: REN
+          tsym: USD
+#FNX-USD:
+#  discrepancy: 0.1
+#  precision: 2
+#  inputs:
+#    - fetcher:
+#        name: CryptoComparePriceWS
+#        params:
+#          fsym: FNX
+#          tsym: USD
+Aave-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: AAVE
+          tsym: USD
+ADA-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: ADA
+          tsym: USD
+---
+ETH-USD-TWAP-1day:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoCompareHistoHour
+        params:
+          fsym: ETH
+          tsym: USD
+          limit: 24
+      calculator:
+        name: TWAP
+ETH-USD-TWAP-30days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoCompareHistoDay
+        params:
+          fsym: ETH
+          tsym: USD
+          limit: 30
+      calculator:
+        name: TWAP
+ETH-USD-VWAP-1day:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoCompareHistoHour
+        params:
+          fsym: ETH
+          tsym: USD
+          limit: 24
+      calculator:
+        name: VWAP
+---
+GVol-BTC-IV-1day:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: oneDayIv
+          sym: BTC
+GVol-BTC-IV-2days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: twoDayIv
+          sym: BTC
+GVol-BTC-IV-7days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: sevenDayIv
+          sym: BTC
+GVol-BTC-IV-14days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: fourteenDayIv
+          sym: BTC
+GVol-BTC-IV-21days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: twentyOneDayIv
+          sym: BTC
+GVol-BTC-IV-28days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: twentyEightDayIv
+          sym: BTC
+GVol-ETH-IV-1day:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: oneDayIv
+          sym: ETH
+GVol-ETH-IV-2days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: twoDayIv
+          sym: ETH
+GVol-ETH-IV-7days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: sevenDayIv
+          sym: ETH
+GVol-ETH-IV-14days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: fourteenDayIv
+          sym: ETH
+GVol-ETH-IV-21days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: twentyOneDayIv
+          sym: ETH
+GVol-ETH-IV-28days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: twentyEightDayIv
+          sym: ETH

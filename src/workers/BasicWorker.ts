@@ -37,7 +37,7 @@ abstract class BasicWorker {
     return this.queue.add(this.constructor.name, params, opts);
   }
 
-  start = (): void => {
+  start(): void {
     this.worker;
   }
 }

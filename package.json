@@ -27,6 +27,7 @@
     "@types/mongoose": "^5.7.37",
     "@types/node": "^14.14.6",
     "@types/uuid": "^8.3.0",
+    "@types/websocket": "1.0.1",
     "@types/yargs": "^15.0.9",
     "@typescript-eslint/eslint-plugin": "^4.6.1",
     "@typescript-eslint/parser": "^4.6.1",
@@ -37,6 +38,7 @@
   },
   "dependencies": {
     "@typegoose/typegoose": "^7.4.1",
+    "@types/js-yaml": "^4.0.0",
     "@umb-network/toolbox": "^0.4.0",
     "@umb-network/validator": "0.1.0",
     "axios": "^0.21.0",
@@ -53,6 +55,7 @@
     "install": "^0.13.0",
     "inversify": "^5.0.1",
     "ioredis": "^4.19.2",
+    "js-yaml": "^4.0.0",
     "jsonpath-plus": "^4.0.0",
     "jsonschema": "^1.4.0",
     "mongoose": "^5.10.13",
@@ -60,6 +63,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "uuid": "^8.3.1",
+    "websocket": "1.0.33",
     "winston": "^3.3.3",
     "yargs": "^16.1.0"
   }

@@ -8,6 +8,7 @@ import Leaf from './../models/Leaf';
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
 import Feeds, {FeedInput} from '../types/Feed';
+import {Logger} from 'winston';
 
 interface Fetcher {
   // eslint-disable-next-line
@@ -19,6 +20,8 @@ type Calculator = (value: any) => number;
 
 @injectable()
 class FeedProcessor {
+  @inject('Logger') logger!: Logger;
+
   fetchers: { [key: string]: Fetcher; };
   calculators: { [key: string]: Calculator; };
 
@@ -28,6 +31,7 @@ class FeedProcessor {
     @inject(fetchers.CryptoComparePriceFetcher) CryptoComparePriceFetcher: fetchers.CryptoComparePriceFetcher,
     @inject(fetchers.GVolImpliedVolatilityFetcher) GVolImpliedVolatilityFetcher: fetchers.GVolImpliedVolatilityFetcher,
     @inject(fetchers.PolygonIOPriceFetcher) PolygonIOPriceFetcher: fetchers.PolygonIOPriceFetcher,
+    @inject(fetchers.CryptoComparePriceWSFetcher) CryptoComparePriceWSFetcher: fetchers.CryptoComparePriceWSFetcher,
   ) {
     this.fetchers = {
       CryptoComparePriceFetcher,
@@ -35,6 +39,7 @@ class FeedProcessor {
       GVolImpliedVolatilityFetcher,
       CryptoCompareHistoDayFetcher,
       PolygonIOPriceFetcher,
+      CryptoComparePriceWSFetcher,
     };
 
     this.calculators = Object.keys(calculators).reduce((map, name, idx) => ({
@@ -65,7 +70,7 @@ class FeedProcessor {
     try {
       value = await fetcher.apply(feedInput.fetcher.params);
     } catch (err) {
-      console.warn(`Ignored feed [${leafLabel}] due to an error.`, err);
+      this.logger.warn(`Ignored feed [${leafLabel}] due to an error.`, err);
       return [];
     }
 

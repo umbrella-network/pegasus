@@ -1,10 +1,11 @@
-import { Container, interfaces } from 'inversify';
-import { Logger } from 'winston';
+import {Container, interfaces} from 'inversify';
+import {Logger} from 'winston';
 import settings from '../config/settings';
 import logger from './logger';
 import Settings from '../types/Settings';
 import Blockchain from './Blockchain';
 import ChainContract from '../contracts/ChainContract';
+import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
 
 class Application {
   private static _instance: Application;
@@ -16,6 +17,7 @@ class Application {
     this.container.bind<Logger>('Logger').toConstantValue(logger);
     this.container.bind<ChainContract>(ChainContract).toSelf().inSingletonScope();
     this.container.bind<Blockchain>(Blockchain).toSelf().inSingletonScope();
+    this.container.bind<CryptoCompareWSClient>(CryptoCompareWSClient).toSelf().inSingletonScope();
   }
 
   public static get instance(): Application {
