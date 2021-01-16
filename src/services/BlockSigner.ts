@@ -11,6 +11,7 @@ import FeedProcessor from './FeedProcessor';
 import Feeds from '../types/Feed';
 import {Logger} from 'winston';
 import BlockMinter from './BlockMinter';
+import { LeafType, LeafValueCoder } from '@umb-network/toolbox';
 
 @injectable()
 class BlockSigner {
@@ -35,7 +36,7 @@ class BlockSigner {
 
     const keyValuesToLeaves = (keyValues: KeyValues) => Object.entries(keyValues).map(([label, value]) => {
       const leaf = new Leaf();
-      leaf.value = value;
+      leaf.valueBuffer = LeafValueCoder.encode(value, LeafType.TYPE_FLOAT);
       leaf.label = label;
       return leaf;
     });
@@ -46,7 +47,7 @@ class BlockSigner {
     const proposedFcd = BlockMinter.sortLeaves(keyValuesToLeaves(block.fcd));
     const [proposedFcdKeys, proposedFcdValues] = [
       proposedFcd.map(({label}) => label),
-      proposedFcd.map(({value}) => value)
+      proposedFcd.map(({valueBuffer: value}) => value)
     ];
 
     const affidavit = BlockMinter.generateAffidavit(proposedTree.getRoot(), BigNumber.from(block.blockHeight), proposedFcdKeys, proposedFcdValues);
@@ -82,13 +83,14 @@ class BlockSigner {
       leafByLabel[leaf.label] = leaf;
     });
 
-    return originalLeafs.every(({value: originalValue, label}) => {
+    return originalLeafs.every(({valueBuffer: originalValueBuffer, label}) => {
       const leaf = leafByLabel[label];
       if (!leaf) {
         return false;
       }
 
-      const {value} = leaf;
+      const originalValue = LeafValueCoder.decode(originalValueBuffer.toString('hex')) as number;
+      const value = LeafValueCoder.decode(leaf.valueBuffer.toString('hex')) as number;
       const discrepancy = feeds[leaf.label].discrepancy;
       const diffPerc = Math.max(value, originalValue) / Math.min(value, originalValue) - 1.0;
       const invalid = diffPerc < (discrepancy * 0.01);

@@ -1,4 +1,5 @@
 import { index, prop } from '@typegoose/typegoose';
+import { SchemaTypes } from 'mongoose';
 
 @index({ feedId: 1, timestamp: 1})
 @index({ blockHeight: 1 })
@@ -15,8 +16,8 @@ class Leaf {
   @prop()
   label!: string;
 
-  @prop()
-  value!: number;
+  @prop({ type: SchemaTypes.Buffer })
+  valueBuffer!: Buffer;
 }
 
 export default Leaf;

@@ -3,6 +3,7 @@ dist
 node_modules
 tmp
 .idea
+.vscode
 .env
 *.pem
 .DS_STORE

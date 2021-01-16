@@ -49,7 +49,7 @@ class SaveMintedBlock {
 
   private treeDataFor(leaves: Leaf[]): Record<string, unknown> {
     return leaves
-      .map((leaf) => ({ [leaf.label]: leaf.value }))
+      .map((leaf) => ({ [leaf.label]: leaf.valueBuffer }))
       .reduce((acc, v) => ({ ...acc, ...v }), {});
   }
 }
