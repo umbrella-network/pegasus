@@ -77,7 +77,7 @@ class FeedProcessor {
 
     if (value) {
       const numericValue = calculate(value);
-      leaf.valueBuffer = LeafValueCoder.encode(numericValue, LeafType.TYPE_FLOAT)
+      leaf.valueBuffer = '0x' + LeafValueCoder.encode(numericValue, LeafType.TYPE_FLOAT).toString('hex')
       return [leaf];
     } else {
       return [];
@@ -101,11 +101,11 @@ class FeedProcessor {
     return Object.values(groupedLeaves).map((leaves) => {
       const precision = feeds[leaves[0].label].precision;
       const multi = Math.pow(10, precision);
-      const priceMedian = Math.round(price.median(leaves.map(({valueBuffer}) => LeafValueCoder.decode(valueBuffer.toString('hex')) as number)) * multi) / multi
+      const priceMedian = Math.round(price.median(leaves.map(({valueBuffer}) => LeafValueCoder.decode(valueBuffer) as number)) * multi) / multi
 
       return {
         ...leaves[0],
-        valueBuffer: LeafValueCoder.encode(priceMedian, LeafType.TYPE_FLOAT),
+        valueBuffer: '0x' + LeafValueCoder.encode(priceMedian, LeafType.TYPE_FLOAT).toString('hex'),
       };
     });
   }

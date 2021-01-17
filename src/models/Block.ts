@@ -19,8 +19,12 @@ class Block {
   @prop()
   root!: string;
 
+  /**
+   * An object, where values should be in HEX format with leading `0x`.
+   * @see Leaf#valueBuffer for more info 
+   */
   @prop()
-  data!: Record<string, unknown>;
+  data!: Record<string, string>;
 
   @prop({ type: () => [String] })
   numericFcdKeys!: Array<string>;

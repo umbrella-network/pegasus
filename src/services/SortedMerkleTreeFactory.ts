@@ -1,5 +1,4 @@
 import {injectable} from 'inversify';
-import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
 
 import Leaf from '../models/Leaf';
 import SortedMerkleTree from '../lib/SortedMerkleTree';
