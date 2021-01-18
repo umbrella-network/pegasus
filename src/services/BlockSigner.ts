@@ -34,17 +34,10 @@ class BlockSigner {
       throw Error(`Does not match with the current block ${blockHeight}.`);
     }
 
-    const keyValuesToLeaves = (keyValues: KeyValues) => Object.entries(keyValues).map(([label, value]) => {
-      const leaf = new Leaf();
-      leaf.valueBytes = '0x' + LeafValueCoder.encode(value, LeafType.TYPE_FLOAT).toString('hex');
-      leaf.label = label;
-      return leaf;
-    });
-
-    const proposedLeaves = keyValuesToLeaves(block.leaves);
+    const proposedLeaves = this.keyValuesToLeaves(block.leaves);
     const proposedTree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(proposedLeaves));
 
-    const proposedFcd = BlockMinter.sortLeaves(keyValuesToLeaves(block.fcd));
+    const proposedFcd = BlockMinter.sortLeaves(this.keyValuesToLeaves(block.fcd));
     const [proposedFcdKeys, proposedFcdValues] = [
       proposedFcd.map(({label}) => label),
       proposedFcd.map(({valueBytes}) => valueBytes)
@@ -99,6 +92,16 @@ class BlockSigner {
 
       return invalid;
     });
+  }
+
+  private keyValuesToLeaves(keyValues: KeyValues): Leaf[] {
+    return Object.entries(keyValues).map(([label, value]): Leaf => {
+      const leaf = new Leaf();
+      leaf.valueBytes = '0x' + LeafValueCoder.encode(value, LeafType.TYPE_FLOAT).toString('hex');
+      leaf.label = label;
+
+      return leaf;
+    })
   }
 }
 
