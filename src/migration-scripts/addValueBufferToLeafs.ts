@@ -2,7 +2,7 @@ import '../boot';
 import { DocumentType, getModelForClass } from '@typegoose/typegoose';
 import Leaf from '../models/Leaf';
 import { LeafValueCoder } from '@umb-network/toolbox';
-import { getLeafType } from '../utils/to-leaf-value-type';
+import { getLeafType } from '../utils/getLeafType';
 import { connection } from 'mongoose';
 import Block from '../models/Block';
 
