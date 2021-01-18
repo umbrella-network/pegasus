@@ -9,7 +9,7 @@ class SortedMerkleTreeFactory {
     const treeData = sortedLeaves
       .map((leaf) => {
         const key = leaf.label;
-        const value = leaf.valueBuffer;
+        const value = leaf.valueBytes;
         return {[key]: value};
       })
       .reduce((acc, v) => ({...acc, ...v}), {});

@@ -1,5 +1,6 @@
 import { index, prop } from '@typegoose/typegoose';
 import { SchemaTypes } from 'mongoose'
+import { HexStringWith0x } from '../types/HexStringWith0x';
 
 @index({ timestamp: -1 })
 @index({ mintedAt: -1 })
@@ -25,7 +26,7 @@ class Block {
    * @see Leaf#valueBuffer for more info 
    */
   @prop({ type: SchemaTypes.Mixed })
-  data!: Record<string, string>;
+  data!: Record<string, HexStringWith0x>;
 
   @prop({ type: () => [String] })
   numericFcdKeys!: Array<string>;

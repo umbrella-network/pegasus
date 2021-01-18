@@ -77,7 +77,7 @@ class FeedProcessor {
 
     if (value) {
       const numericValue = calculate(value);
-      leaf.valueBuffer = '0x' + LeafValueCoder.encode(numericValue, LeafType.TYPE_FLOAT).toString('hex')
+      leaf.valueBytes = '0x' + LeafValueCoder.encode(numericValue, LeafType.TYPE_FLOAT).toString('hex')
       return [leaf];
     } else {
       return [];
@@ -101,7 +101,7 @@ class FeedProcessor {
     return Object.values(groupedLeaves).map((leaves) => {
       const precision = feeds[leaves[0].label].precision;
       const multi = Math.pow(10, precision);
-      const priceMedian = Math.round(price.median(leaves.map(({valueBuffer}) => LeafValueCoder.decode(valueBuffer) as number)) * multi) / multi
+      const priceMedian = Math.round(price.median(leaves.map(({valueBytes}) => LeafValueCoder.decode(valueBytes) as number)) * multi) / multi
 
       return {
         ...leaves[0],

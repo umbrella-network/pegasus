@@ -36,7 +36,7 @@ class BlockSigner {
 
     const keyValuesToLeaves = (keyValues: KeyValues) => Object.entries(keyValues).map(([label, value]) => {
       const leaf = new Leaf();
-      leaf.valueBuffer = '0x' + LeafValueCoder.encode(value, LeafType.TYPE_FLOAT).toString('hex');
+      leaf.valueBytes = '0x' + LeafValueCoder.encode(value, LeafType.TYPE_FLOAT).toString('hex');
       leaf.label = label;
       return leaf;
     });
@@ -47,7 +47,7 @@ class BlockSigner {
     const proposedFcd = BlockMinter.sortLeaves(keyValuesToLeaves(block.fcd));
     const [proposedFcdKeys, proposedFcdValues] = [
       proposedFcd.map(({label}) => label),
-      proposedFcd.map(({valueBuffer}) => valueBuffer)
+      proposedFcd.map(({valueBytes}) => valueBytes)
     ];
 
     const affidavit = BlockMinter.generateAffidavit(proposedTree.getRoot(), BigNumber.from(block.blockHeight), proposedFcdKeys, proposedFcdValues);
@@ -83,14 +83,14 @@ class BlockSigner {
       leafByLabel[leaf.label] = leaf;
     });
 
-    return originalLeafs.every(({valueBuffer: originalValueBuffer, label}) => {
+    return originalLeafs.every(({valueBytes: originalValueBytes, label}) => {
       const leaf = leafByLabel[label];
       if (!leaf) {
         return false;
       }
 
-      const originalValue = LeafValueCoder.decode(originalValueBuffer) as number;
-      const value = LeafValueCoder.decode(leaf.valueBuffer) as number;
+      const originalValue = LeafValueCoder.decode(originalValueBytes) as number;
+      const value = LeafValueCoder.decode(leaf.valueBytes) as number;
       const discrepancy = feeds[leaf.label].discrepancy;
       const diffPerc = Math.max(value, originalValue) / Math.min(value, originalValue) - 1.0;
       const invalid = diffPerc < (discrepancy * 0.01);

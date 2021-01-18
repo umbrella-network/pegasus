@@ -11,7 +11,7 @@ import Block from '../models/Block';
     .find({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      valueBuffer: null,
+      valueBytes: null,
     })
     .cursor();
 
@@ -21,7 +21,7 @@ import Block from '../models/Block';
     const value = (leaf as any)['value'];
     const type = getLeafType(value);
 
-    leaf.valueBuffer = '0x' + LeafValueCoder.encode(value, type).toString('hex');
+    leaf.valueBytes = '0x' + LeafValueCoder.encode(value, type).toString('hex');
 
     await leaf.save();
 

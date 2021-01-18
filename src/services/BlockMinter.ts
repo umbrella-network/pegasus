@@ -16,6 +16,7 @@ import loadFeeds from "../config/loadFeeds";
 import Settings from "../types/Settings";
 import {SignedBlock} from '../types/SignedBlock';
 import SignatureCollector from './SignatureCollector';
+import {HexStringWith0x} from '../types/HexStringWith0x';
 
 @injectable()
 class BlockMinter {
@@ -51,7 +52,7 @@ class BlockMinter {
 
     const sortedFirstClassLeaves = BlockMinter.sortLeaves(firstClassLeaves);
     const numericFcdKeys: string[] = sortedFirstClassLeaves.map(({label}) => label);
-    const numericFcdValues: string[] = sortedFirstClassLeaves.map(({valueBuffer}) => valueBuffer);
+    const numericFcdValues: HexStringWith0x[] = sortedFirstClassLeaves.map(({valueBytes}) => valueBytes);
 
     const affidavit = BlockMinter.generateAffidavit(tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
     const signature = await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
@@ -59,7 +60,7 @@ class BlockMinter {
     const signedBlock: SignedBlock = {
       signature,
       blockHeight: blockHeight.toNumber(),
-      leaves: Object.fromEntries(leaves.map(({label, valueBuffer}) => [label, LeafValueCoder.decode(valueBuffer) as number])),
+      leaves: Object.fromEntries(leaves.map(({label, valueBytes}) => [label, LeafValueCoder.decode(valueBytes) as number])),
       fcd: Object.fromEntries(numericFcdKeys.map((_, idx) => [numericFcdKeys[idx], LeafValueCoder.decode(numericFcdValues[idx]) as number])),
     };
 
@@ -104,7 +105,7 @@ class BlockMinter {
     return sort(feeds).asc(({label}) => label);
   }
 
-  static generateAffidavit(root: string, blockHeight: BigNumber, keys: string[], values: string[]): string {
+  static generateAffidavit(root: string, blockHeight: BigNumber, keys: string[], values: HexStringWith0x[]): string {
     const encoder = new ethers.utils.AbiCoder();
     let testimony = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
 
