@@ -36,7 +36,7 @@ class BlockSigner {
 
     const keyValuesToLeaves = (keyValues: KeyValues) => Object.entries(keyValues).map(([label, value]) => {
       const leaf = new Leaf();
-      leaf.valueBuffer = LeafValueCoder.encode(value, LeafType.TYPE_FLOAT).toString('hex');
+      leaf.valueBuffer = '0x' + LeafValueCoder.encode(value, LeafType.TYPE_FLOAT).toString('hex');
       leaf.label = label;
       return leaf;
     });
