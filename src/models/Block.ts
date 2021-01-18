@@ -1,4 +1,5 @@
 import { index, prop } from '@typegoose/typegoose';
+import { SchemaTypes } from 'mongoose'
 
 @index({ timestamp: -1 })
 @index({ mintedAt: -1 })
@@ -23,7 +24,7 @@ class Block {
    * An object, where values should be in HEX format with leading `0x`.
    * @see Leaf#valueBuffer for more info 
    */
-  @prop()
+  @prop({ type: SchemaTypes.Mixed })
   data!: Record<string, string>;
 
   @prop({ type: () => [String] })
