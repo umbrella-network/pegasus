@@ -13,12 +13,12 @@ class CryptoCompareWSClient extends WSClient {
   connected = false;
 
   eventHandlers: {[type: number]: (event: unknown) => void} = {
-    5: this.onAggregate,
-    16: this.onSubscribe,
-    17: this.onUnsubscribe,
-    999: this.onHeartbeat,
-    20: this.onConnected,
-    3: this.onLoad,
+    5: this.onAggregate.bind(this),
+    16: this.onSubscribe.bind(this),
+    17: this.onUnsubscribe.bind(this),
+    999: this.onHeartbeat.bind(this),
+    20: this.onConnected.bind(this),
+    3: this.onLoad.bind(this),
   };
 
   constructor(
