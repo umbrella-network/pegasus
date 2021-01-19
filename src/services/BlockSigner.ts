@@ -38,10 +38,8 @@ class BlockSigner {
     const proposedTree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(proposedLeaves));
 
     const proposedFcd = BlockMinter.sortLeaves(this.keyValuesToLeaves(block.fcd));
-    const [proposedFcdKeys, proposedFcdValues] = [
-      proposedFcd.map(({label}) => label),
-      proposedFcd.map(({valueBytes}) => valueBytes)
-    ];
+    const proposedFcdKeys: string[] = proposedFcd.map(({label}) => label);
+    const proposedFcdValues: number[] = proposedFcd.map(({valueBytes}) => LeafValueCoder.decode(valueBytes) as number);
 
     const affidavit = BlockMinter.generateAffidavit(proposedTree.getRoot(), BigNumber.from(block.blockHeight), proposedFcdKeys, proposedFcdValues);
     const recoveredSigner = await BlockMinter.recoverSigner(affidavit, block.signature);

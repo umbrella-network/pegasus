@@ -16,7 +16,6 @@ import loadFeeds from "../config/loadFeeds";
 import Settings from "../types/Settings";
 import {SignedBlock} from '../types/SignedBlock';
 import SignatureCollector from './SignatureCollector';
-import {HexStringWith0x} from '../types/HexStringWith0x';
 
 @injectable()
 class BlockMinter {
@@ -52,7 +51,7 @@ class BlockMinter {
 
     const sortedFirstClassLeaves = BlockMinter.sortLeaves(firstClassLeaves);
     const numericFcdKeys: string[] = sortedFirstClassLeaves.map(({label}) => label);
-    const numericFcdValues: HexStringWith0x[] = sortedFirstClassLeaves.map(({valueBytes}) => valueBytes);
+    const numericFcdValues: number[] = sortedFirstClassLeaves.map(({valueBytes}) => LeafValueCoder.decode(valueBytes) as number);
 
     const affidavit = BlockMinter.generateAffidavit(tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
     const signature = await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
@@ -61,12 +60,12 @@ class BlockMinter {
       signature,
       blockHeight: blockHeight.toNumber(),
       leaves: Object.fromEntries(leaves.map(({label, valueBytes}) => [label, LeafValueCoder.decode(valueBytes) as number])),
-      fcd: Object.fromEntries(numericFcdKeys.map((_, idx) => [numericFcdKeys[idx], LeafValueCoder.decode(numericFcdValues[idx]) as number])),
+      fcd: Object.fromEntries(numericFcdKeys.map((_, idx) => [numericFcdKeys[idx], numericFcdValues[idx]])),
     };
 
     const signatures = await this.signatureCollector.apply(signedBlock, affidavit);
 
-    const mint = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues.map(value => LeafValueCoder.decode(value) as number), signatures);
+    const mint = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues, signatures);
     if (mint) {
       await this.saveBlock(leaves, Number(blockHeight), tree.getRoot(), numericFcdKeys);
     }
@@ -105,14 +104,14 @@ class BlockMinter {
     return sort(feeds).asc(({label}) => label);
   }
 
-  static generateAffidavit(root: string, blockHeight: BigNumber, keys: string[], values: HexStringWith0x[]): string {
+  static generateAffidavit(root: string, blockHeight: BigNumber, numericFCDKeys: string[], numericFCDValues: number[]): string {
     const encoder = new ethers.utils.AbiCoder();
     let testimony = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
 
-    keys.forEach((key, i) => {
+    numericFCDKeys.forEach((key, i) => {
       testimony += ethers.utils.defaultAbiCoder.encode(
         ['bytes32', 'uint256'],
-        [converters.strToBytes32(key), converters.numberToUint256(LeafValueCoder.decode(values[i]) as number)]).slice(2);
+        [converters.strToBytes32(key), converters.numberToUint256(numericFCDValues[i])]).slice(2);
     })
 
     return ethers.utils.keccak256(testimony);
