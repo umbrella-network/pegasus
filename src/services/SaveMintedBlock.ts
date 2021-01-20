@@ -1,5 +1,6 @@
 import { getModelForClass } from '@typegoose/typegoose';
 import { injectable } from 'inversify';
+import { HexStringWith0x } from '../types/HexStringWith0x';
 import { v4 as uuid } from 'uuid';
 import Block from '../models/Block';
 import Leaf from '../models/Leaf';
@@ -47,9 +48,9 @@ class SaveMintedBlock {
       .exec()
   }
 
-  private treeDataFor(leaves: Leaf[]): Record<string, unknown> {
+  private treeDataFor(leaves: Leaf[]): Record<string, HexStringWith0x> {
     return leaves
-      .map((leaf) => ({ [leaf.label]: leaf.value }))
+      .map((leaf) => ({ [leaf.label]: leaf.valueBytes }))
       .reduce((acc, v) => ({ ...acc, ...v }), {});
   }
 }

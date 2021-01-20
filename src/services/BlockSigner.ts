@@ -11,6 +11,7 @@ import FeedProcessor from './FeedProcessor';
 import Feeds from '../types/Feed';
 import {Logger} from 'winston';
 import BlockMinter from './BlockMinter';
+import { LeafType, LeafValueCoder } from '@umb-network/toolbox';
 
 @injectable()
 class BlockSigner {
@@ -33,21 +34,12 @@ class BlockSigner {
       throw Error(`Does not match with the current block ${blockHeight}.`);
     }
 
-    const keyValuesToLeaves = (keyValues: KeyValues) => Object.entries(keyValues).map(([label, value]) => {
-      const leaf = new Leaf();
-      leaf.value = value;
-      leaf.label = label;
-      return leaf;
-    });
-
-    const proposedLeaves = keyValuesToLeaves(block.leaves);
+    const proposedLeaves = this.keyValuesToLeaves(block.leaves);
     const proposedTree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(proposedLeaves));
 
-    const proposedFcd = BlockMinter.sortLeaves(keyValuesToLeaves(block.fcd));
-    const [proposedFcdKeys, proposedFcdValues] = [
-      proposedFcd.map(({label}) => label),
-      proposedFcd.map(({value}) => value)
-    ];
+    const proposedFcd = BlockMinter.sortLeaves(this.keyValuesToLeaves(block.fcd));
+    const proposedFcdKeys: string[] = proposedFcd.map(({label}) => label);
+    const proposedFcdValues: number[] = proposedFcd.map(({valueBytes}) => LeafValueCoder.decode(valueBytes) as number);
 
     const affidavit = BlockMinter.generateAffidavit(proposedTree.getRoot(), BigNumber.from(block.blockHeight), proposedFcdKeys, proposedFcdValues);
     const recoveredSigner = await BlockMinter.recoverSigner(affidavit, block.signature);
@@ -82,13 +74,14 @@ class BlockSigner {
       leafByLabel[leaf.label] = leaf;
     });
 
-    return originalLeafs.every(({value: originalValue, label}) => {
+    return originalLeafs.every(({valueBytes: originalValueBytes, label}) => {
       const leaf = leafByLabel[label];
       if (!leaf) {
         return false;
       }
 
-      const {value} = leaf;
+      const originalValue = LeafValueCoder.decode(originalValueBytes) as number;
+      const value = LeafValueCoder.decode(leaf.valueBytes) as number;
       const discrepancy = feeds[leaf.label].discrepancy;
       const diffPerc = Math.max(value, originalValue) / Math.min(value, originalValue) - 1.0;
       const invalid = diffPerc < (discrepancy * 0.01);
@@ -97,6 +90,16 @@ class BlockSigner {
 
       return invalid;
     });
+  }
+
+  private keyValuesToLeaves(keyValues: KeyValues): Leaf[] {
+    return Object.entries(keyValues).map(([label, value]): Leaf => {
+      const leaf = new Leaf();
+      leaf.valueBytes = '0x' + LeafValueCoder.encode(value, LeafType.TYPE_FLOAT).toString('hex');
+      leaf.label = label;
+
+      return leaf;
+    })
   }
 }
 

@@ -9,6 +9,7 @@ import * as fetchers from './fetchers';
 import * as calculators from './calculators';
 import Feeds, {FeedInput} from '../types/Feed';
 import {Logger} from 'winston';
+import { LeafType, LeafValueCoder } from '@umb-network/toolbox';
 
 interface Fetcher {
   // eslint-disable-next-line
@@ -75,7 +76,8 @@ class FeedProcessor {
     }
 
     if (value) {
-      leaf.value = calculate(value);
+      const numericValue = calculate(value);
+      leaf.valueBytes = '0x' + LeafValueCoder.encode(numericValue, LeafType.TYPE_FLOAT).toString('hex')
       return [leaf];
     } else {
       return [];
@@ -99,9 +101,11 @@ class FeedProcessor {
     return Object.values(groupedLeaves).map((leaves) => {
       const precision = feeds[leaves[0].label].precision;
       const multi = Math.pow(10, precision);
+      const priceMedian = Math.round(price.median(leaves.map(({valueBytes}) => LeafValueCoder.decode(valueBytes) as number)) * multi) / multi
+
       return {
         ...leaves[0],
-        value: Math.round(price.median(leaves.map(({value}) => value)) * multi) / multi,
+        valueBuffer: '0x' + LeafValueCoder.encode(priceMedian, LeafType.TYPE_FLOAT).toString('hex'),
       };
     });
   }

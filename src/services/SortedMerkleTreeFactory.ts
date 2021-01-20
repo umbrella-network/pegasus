@@ -1,5 +1,4 @@
 import {injectable} from 'inversify';
-import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
 
 import Leaf from '../models/Leaf';
 import SortedMerkleTree from '../lib/SortedMerkleTree';
@@ -10,7 +9,7 @@ class SortedMerkleTreeFactory {
     const treeData = sortedLeaves
       .map((leaf) => {
         const key = leaf.label;
-        const value = LeafValueCoder.encode(leaf.value, LeafType.TYPE_FLOAT);
+        const value = leaf.valueBytes;
         return {[key]: value};
       })
       .reduce((acc, v) => ({...acc, ...v}), {});
