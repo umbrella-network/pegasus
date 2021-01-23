@@ -105,7 +105,7 @@ class FeedProcessor {
 
       return {
         ...leaves[0],
-        valueBuffer: '0x' + LeafValueCoder.encode(priceMedian, LeafType.TYPE_FLOAT).toString('hex'),
+        valueBytes: '0x' + LeafValueCoder.encode(priceMedian, LeafType.TYPE_FLOAT).toString('hex'),
       };
     });
   }
