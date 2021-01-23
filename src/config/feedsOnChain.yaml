@@ -116,7 +116,7 @@ Aave-USD:
         params:
           fsym: AAVE
           tsym: USD
----
+# GVol
 GVol-BTC-IV-28days:
   discrepancy: 0.1
   precision: 2

@@ -305,7 +305,7 @@ ADA-USD:
         params:
           fsym: ADA
           tsym: USD
----
+# histo
 ETH-USD-TWAP-1day:
   discrepancy: 0.1
   precision: 2
@@ -342,7 +342,7 @@ ETH-USD-VWAP-1day:
           limit: 24
       calculator:
         name: VWAP
----
+# GVol
 GVol-BTC-IV-1day:
   discrepancy: 0.1
   precision: 2
