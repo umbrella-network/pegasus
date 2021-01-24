@@ -47,6 +47,10 @@ const settings: Settings = {
       apiKey: process.env.POLYGON_IO_API_KEY as string,
       timeout: (parseInt(process.env.POLYGON_IO_TIMEOUT || '5000', 10))
     },
+    iex: {
+      apiKey: process.env.IEX_API_KEY as string,
+      timeout: (parseInt(process.env.IEX_TIMEOUT || '5000', 10))
+    },
   },
   feedsFile: (process.env.FEEDS_FILE || 'src/config/feeds.yaml'),
   feedsOnChain: (process.env.FEEDS_ON_CHAIN_FILE || 'src/config/feedsOnChain.yaml'),

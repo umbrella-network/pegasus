@@ -2,7 +2,7 @@ export default {
   description: "Feeds schema for the Pegasus validator",
   type: 'object',
   propertyNames: {
-    pattern: '^[A-Za-z][A-Za-z0-9-]*$',
+    pattern: '^[A-Za-z][A-Za-z0-9-:]*$',
   },
   patternProperties: {
     '.*': {type: 'object', '$ref': '#/definitions/feed'},
@@ -28,6 +28,7 @@ export default {
             {'$ref': '#/definitions/CryptoComparePriceFetcher'},
             {'$ref': '#/definitions/CryptoComparePriceWSFetcher'},
             {'$ref': '#/definitions/PolygonIOPriceFetcher'},
+            {'$ref': '#/definitions/IEXEnergyFetcher'},
           ]
         },
         calculator: {
@@ -130,9 +131,24 @@ export default {
         params: {
           type: 'object',
           properties: {
-            ticker: {type: 'string'},
+            sym: {type: 'string'},
           },
-          required: ['ticker'],
+          required: ['sym'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    IEXEnergyFetcher: {
+      properties: {
+        name: {const: 'IEXEnergy'},
+        params: {
+          type: 'object',
+          properties: {
+            sym: {type: 'string'},
+          },
+          required: ['sym'],
           additionalProperties: false,
         },
       },

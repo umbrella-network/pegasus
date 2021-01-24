@@ -451,3 +451,69 @@ GVol-ETH-IV-28days:
         params:
           query: twentyEightDayIv
           sym: ETH
+# IEX
+CO:WTI:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: IEXEnergy
+        params:
+          sym: DCOILWTICO
+CO:BRENT:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: IEXEnergy
+        params:
+          sym: DCOILBRENTEU
+# Polygon
+EQ:VIXY: #EQ:BATS:VIXY
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: VIXY
+EQ:UVXY:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: UVXY
+EQ:VIXM:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: VIXM
+EQ:VXX:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: VXX
+EQ:SVXY:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: SVXY
+EQ:XVZ:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: XVZ
