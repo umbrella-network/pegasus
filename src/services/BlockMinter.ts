@@ -11,7 +11,6 @@ import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import SaveMintedBlock from './SaveMintedBlock';
 import MintGuard from './MintGuard';
 import FeedProcessor from "./FeedProcessor";
-import LeafPersistor from './LeafPersistor';
 import loadFeeds from "../config/loadFeeds";
 import Settings from "../types/Settings";
 import {SignedBlock} from '../types/SignedBlock';
@@ -24,7 +23,6 @@ class BlockMinter {
   @inject(ChainContract) chainContract!: ChainContract;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
-  @inject(LeafPersistor) leafPersistor!: LeafPersistor;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
   @inject(MintGuard) mintGuard!: MintGuard;
