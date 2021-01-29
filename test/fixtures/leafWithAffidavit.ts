@@ -4,11 +4,10 @@ import Leaf from "../../src/models/Leaf";
 import BlockMinter from "../../src/services/BlockMinter";
 import SortedMerkleTreeFactory from "../../src/services/SortedMerkleTreeFactory";
 import { KeyValues } from "../../src/types/SignedBlock";
-
-
+import { v4 as uuid } from 'uuid';
 
 const leaf: Leaf = { 
-  _id: '1',
+  _id: uuid(),
   timestamp: new Date(),
   blockHeight: 1,
   label: 'ETH-USD',

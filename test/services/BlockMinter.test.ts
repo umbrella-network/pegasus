@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 import BlockMinter from '../../src/services/BlockMinter';
 import SignatureCollector from '../../src/services/SignatureCollector';
@@ -12,29 +13,38 @@ import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory'
 import SaveMintedBlock from '../../src/services/SaveMintedBlock';
 import Settings from "../../src/types/Settings";
 import Leaf from '../../src/models/Leaf';
+import Block from '../../src/models/Block';
 import { leafWithAffidavit } from '../fixtures/leafWithAffidavit'
 import { expect } from 'chai';
 import { BigNumber, ethers, Wallet } from 'ethers'
+import { loadTestEnv } from '../helpers/loadTestEnv';
+import mongoose from 'mongoose';
+import { getModelForClass } from '@typegoose/typegoose';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let mockedChainContract: sinon.SinonStubbedInstance<ChainContract>;
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
-  let mockedSortedMerkleTreeFactory: sinon.SinonStubbedInstance<SortedMerkleTreeFactory>;
-  let mockedSaveMintedBlock: sinon.SinonStubbedInstance<SaveMintedBlock>;
   let mockedMintGuard: sinon.SinonStubbedInstance<MintGuard>;
   let settings: Settings;
+  let blockMinter: BlockMinter;
+
+  before(async () => {
+    const config = loadTestEnv()
+    await mongoose.connect(config.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+  })
 
   beforeEach(async () => {
+    await getModelForClass(Block).deleteMany({});
+    await getModelForClass(Leaf).deleteMany({});
+
     const container = new Container()
 
     mockedBlockchain = sinon.createStubInstance(Blockchain);
     mockedChainContract = sinon.createStubInstance(ChainContract);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
-    mockedSortedMerkleTreeFactory = sinon.createStubInstance(SortedMerkleTreeFactory);
-    mockedSaveMintedBlock = sinon.createStubInstance(SaveMintedBlock);
     mockedMintGuard = sinon.createStubInstance(MintGuard);
     settings = {
       feedsFile: 'src/config/feeds.yaml',
@@ -46,12 +56,20 @@ describe('BlockMinter', () => {
     container.bind(ChainContract).toConstantValue(mockedChainContract);
     container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor  as unknown as FeedProcessor);
-    container.bind(SortedMerkleTreeFactory).toConstantValue(mockedSortedMerkleTreeFactory);
-    container.bind(SaveMintedBlock).toConstantValue(mockedSaveMintedBlock as unknown as SaveMintedBlock);
+    container.bind(SortedMerkleTreeFactory).toSelf();
+    container.bind(SaveMintedBlock).toSelf();
     container.bind(MintGuard).toConstantValue(mockedMintGuard as unknown as MintGuard);
     container.bind('Settings').toConstantValue(settings);
 
-    container.bind(BlockMinter).to(BlockMinter)
+    container.bind(BlockMinter).to(BlockMinter);
+
+    blockMinter = container.get(BlockMinter);
+  })
+
+  after(async () => {
+    await getModelForClass(Block).deleteMany({});
+    await getModelForClass(Leaf).deleteMany({});
+    await mongoose.connection.close();
   })
 
   describe('#sortLeaves', () => {
@@ -106,6 +124,128 @@ describe('BlockMinter', () => {
       const signersAddress = BlockMinter.recoverSigner(affidavit, signedAffidavit);
 
       expect(signersAddress).to.be.eq(wallet.address)
+    })
+  })
+
+  describe('#apply', () => {
+    it('does not try to get new feed data if you are not the leader', async () => {
+      const wallet = Wallet.createRandom()
+      mockedBlockchain.wallet = wallet;
+      mockedChainContract.getLeaderAddress.resolves(Wallet.createRandom().address)
+
+      await blockMinter.apply()
+
+      expect(mockedFeedProcessor.apply.notCalled).to.be.true;
+    })
+
+    it('does not try to get new feed data if voters count is not zero', async () => {
+      const wallet = Wallet.createRandom()
+      mockedBlockchain.wallet = wallet;
+      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1))
+      mockedChainContract.getLeaderAddress.resolves(wallet.address)
+      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(1))
+      mockedMintGuard.apply.resolves(true)
+
+      await blockMinter.apply()
+
+      expect(mockedFeedProcessor.apply.notCalled).to.be.true;
+    })
+
+    it('does not try to get new feed data if MintGuard returns false', async () => {
+      const wallet = Wallet.createRandom()
+      mockedBlockchain.wallet = wallet;
+      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1))
+      mockedChainContract.getLeaderAddress.resolves(wallet.address)
+      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0))
+      mockedMintGuard.apply.resolves(false)
+
+      await blockMinter.apply()
+
+      expect(mockedFeedProcessor.apply.notCalled).to.be.true;
+    })
+
+    it('throw error if feed processor does not return any leaves', async () => {
+      const wallet = Wallet.createRandom()
+      mockedBlockchain.wallet = wallet;
+      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1))
+      mockedChainContract.getLeaderAddress.resolves(wallet.address)
+      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0))
+      mockedMintGuard.apply.resolves(true);
+      mockedFeedProcessor.apply.resolves([]);
+
+      await expect(blockMinter.apply()).to.eventually.be.rejectedWith(/can't get leaves/);
+    })
+
+    it('passes right arguments to SignatureCollector', async () => {
+      const { leaf, affidavit, fcd } = leafWithAffidavit;
+      const wallet = Wallet.createRandom();
+      const signature = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
+
+      mockedBlockchain.wallet = wallet;
+
+      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
+      mockedChainContract.getLeaderAddress.resolves(wallet.address);
+      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
+      mockedMintGuard.apply.resolves(true);
+      mockedFeedProcessor.apply.resolves([leaf]);
+      mockedSignatureCollector.apply.resolves([signature]);
+
+      await blockMinter.apply();
+
+      expect(mockedSignatureCollector.apply.args[0][0]).to.be.deep.eq({
+        blockHeight: 1,
+        fcd: fcd,
+        leaves: fcd,
+        signature,
+      }, 'the first argument passed to SignatureCollector is not eq to expected block')
+
+      expect(mockedSignatureCollector.apply.args[0][1]).to.be.eq(affidavit, 'the second argument is not the right affidavit');
+    })
+
+
+    it('does not save block to database if submitting finished unsuccessfully', async () => {
+      const { leaf, affidavit } = leafWithAffidavit;
+      const wallet = Wallet.createRandom();
+      const signature = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
+
+      mockedBlockchain.wallet = wallet;
+
+      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
+      mockedChainContract.getLeaderAddress.resolves(wallet.address);
+      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
+      mockedMintGuard.apply.resolves(true);
+      mockedFeedProcessor.apply.resolves([leaf]);
+      mockedSignatureCollector.apply.resolves([signature]);
+      mockedChainContract.submit.rejects(); // throw error when trying to submit minted block
+
+      await blockMinter.apply();
+
+      const blocksCount = await getModelForClass(Block).count({}).exec();
+      expect(blocksCount).to.be.eq(0, 'BlockMinter saved some blocks to database')
+    })
+
+
+    it('saves block to database if submitting finished successfully', async () => {
+      const { leaf, affidavit } = leafWithAffidavit;
+      const wallet = Wallet.createRandom();
+      const signature = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
+
+      mockedBlockchain.wallet = wallet;
+
+      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
+      mockedChainContract.getLeaderAddress.resolves(wallet.address);
+      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
+      mockedMintGuard.apply.resolves(true);
+      mockedFeedProcessor.apply.resolves([leaf]);
+      mockedSignatureCollector.apply.resolves([signature]);
+      mockedChainContract.submit.resolves({
+        wait: () => Promise.resolve({ status: 1 })
+      } as any); // throw error when trying to submit minted block
+
+      await blockMinter.apply();
+
+      const blocksCount = await getModelForClass(Block).count({}).exec();
+      expect(blocksCount).to.be.eq(1)
     })
   })
 })
