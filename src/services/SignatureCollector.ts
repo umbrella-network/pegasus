@@ -10,9 +10,9 @@ import {Validator} from '../types/Validator';
 
 @injectable()
 class SignatureCollector {
-  @inject('Logger') logger!: Logger;
-  @inject(Blockchain) blockchain!: Blockchain;
-  @inject(ValidatorRegistryContract) validatorRegistryContract!: ValidatorRegistryContract;
+  @inject('Logger') private logger!: Logger;
+  @inject(Blockchain) private blockchain!: Blockchain;
+  @inject(ValidatorRegistryContract) private validatorRegistryContract!: ValidatorRegistryContract;
 
   async apply(block: SignedBlock, affidavit: string): Promise<string[]> {
     const validators = await this.validatorRegistryContract.getValidators();

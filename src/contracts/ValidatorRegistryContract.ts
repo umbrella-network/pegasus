@@ -24,17 +24,19 @@ class ValidatorRegistryContract {
       })
   }
 
-  getNumberOfValidators = async (): Promise<BigNumber> => this.contract.getNumberOfValidators();
+  async getNumberOfValidators(): Promise<BigNumber> {
+    return this.contract.getNumberOfValidators();
+  }
 
-  getValidatorDetails = async (address: string): Promise<Validator> => {
+  async getValidatorDetails(address: string): Promise<Validator> {
     const [id, location] = await this.contract.validators(address);
     return {
       id,
       location,
     };
-  };
+  }
 
-  getValidators = async (): Promise<Validator[]> => {
+  async getValidators(): Promise<Validator[]> {
     const result = [];
     const count = (await this.getNumberOfValidators()).toNumber();
 
