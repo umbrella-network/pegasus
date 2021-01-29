@@ -10,6 +10,7 @@ import { Wallet } from 'ethers'
 import { SignedBlock } from '../../src/types/SignedBlock';
 import moxios from 'moxios'
 import BlockMinter from '../../src/services/BlockMinter'
+import { leafWithAffidavit } from '../fixtures/leafWithAffidavit';
 
 describe('SignatureCollector', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -66,7 +67,7 @@ describe('SignatureCollector', () => {
   });
 
   it('returns no signatures if signer addresses does not match', async () => {
-    const affidavit = '0xad5c2e48ca79dfaf8defc323b0d895ecf055623a005c73dbae657444b0af9172'
+    const { affidavit, fcd } = leafWithAffidavit
 
     const walletOfCurrentValidator = Wallet.createRandom();
     mockedBlockchain.wallet = walletOfCurrentValidator;
@@ -87,12 +88,8 @@ describe('SignatureCollector', () => {
 
     const block: SignedBlock = {
       blockHeight: 1,
-      fcd: {
-        'ETH-USD': 100,
-      },
-      leaves: {
-        'ETH-USD': 100,
-      },
+      fcd,
+      leaves: fcd,
       signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
@@ -102,7 +99,7 @@ describe('SignatureCollector', () => {
   });
 
   it('returns signature of the other validator if signer addresses match', async () => {
-    const affidavit = '0xad5c2e48ca79dfaf8defc323b0d895ecf055623a005c73dbae657444b0af9172'
+    const { affidavit, fcd } = leafWithAffidavit;
 
     const walletOfCurrentValidator = Wallet.createRandom();
     mockedBlockchain.wallet = walletOfCurrentValidator;
@@ -123,12 +120,8 @@ describe('SignatureCollector', () => {
 
     const block: SignedBlock = {
       blockHeight: 1,
-      fcd: {
-        'ETH-USD': 100,
-      },
-      leaves: {
-        'ETH-USD': 100,
-      },
+      fcd: fcd,
+      leaves: fcd,
       signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
@@ -139,7 +132,7 @@ describe('SignatureCollector', () => {
   });
 
   it('returns signatures from multiple validators if they are available', async () => {
-    const affidavit = '0xad5c2e48ca79dfaf8defc323b0d895ecf055623a005c73dbae657444b0af9172'
+    const { affidavit, fcd } = leafWithAffidavit;
 
     const walletOfCurrentValidator = Wallet.createRandom();
     mockedBlockchain.wallet = walletOfCurrentValidator;
@@ -171,12 +164,8 @@ describe('SignatureCollector', () => {
 
     const block: SignedBlock = {
       blockHeight: 1,
-      fcd: {
-        'ETH-USD': 100,
-      },
-      leaves: {
-        'ETH-USD': 100,
-      },
+      fcd: fcd,
+      leaves: fcd,
       signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 

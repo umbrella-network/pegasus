@@ -12,6 +12,7 @@ import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory'
 import SaveMintedBlock from '../../src/services/SaveMintedBlock';
 import Settings from "../../src/types/Settings";
 import Leaf from '../../src/models/Leaf';
+import { leafWithAffidavit } from '../fixtures/leafWithAffidavit'
 import { expect } from 'chai';
 import { BigNumber, ethers, Wallet } from 'ethers'
 
@@ -88,11 +89,9 @@ describe('BlockMinter', () => {
 
   describe('#signAffidavitWithWallet', () => {
     it('signes affidavit successfully', async () => {
+      const { affidavit } = leafWithAffidavit
       const wallet = Wallet.createRandom();
-      const signedAffidavit = await BlockMinter.signAffidavitWithWallet(
-        wallet,
-        '0xad5c2e48ca79dfaf8defc323b0d895ecf055623a005c73dbae657444b0af9172',
-      );
+      const signedAffidavit = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
 
       expect(signedAffidavit).to.be.a('string').that.matches(/^0x[0-9a-fA-F]+$/, 'generated affidavit is not a valid hex string');
     })
@@ -100,8 +99,8 @@ describe('BlockMinter', () => {
 
   describe('#recoverSigner', () => {
     it('recovers signer\'s address', async () => {
+      const { affidavit } = leafWithAffidavit
       const wallet = Wallet.createRandom();
-      const affidavit = '0xad5c2e48ca79dfaf8defc323b0d895ecf055623a005c73dbae657444b0af9172'
       const signedAffidavit = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
 
       const signersAddress = BlockMinter.recoverSigner(affidavit, signedAffidavit);
