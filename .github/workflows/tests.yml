@@ -34,5 +34,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.3.0
+
+      - name: Create .testing.env for unit tests
+        run: |
+          echo -n "" > ./.testing.env;
+          echo "MONGODB_URL=mongodb://localhost:27017/pegasus" >> ./.testing.env;
+
       - name: Run unit tests
         run: npm run test
