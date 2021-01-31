@@ -9,7 +9,7 @@ import Feeds from "../../src/types/Feed";
 
 const config = loadTestEnv();
 
-describe.only("FeedProcessor integration tests", () => {
+describe("FeedProcessor integration tests", () => {
   let feedProcessor: FeedProcessor;
   let feeds: Feeds;
 
