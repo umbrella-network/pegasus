@@ -517,3 +517,75 @@ EQ:XVZ:
         name: PolygonIOPrice
         params:
           sym: XVZ
+
+EQ:GME:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: GME
+
+EQ:AMC:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: AMC
+
+EQ:TSLA:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: TSLA
+
+EQ:FB:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: FB
+
+EQ:AMZN:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: AMZN
+
+EQ:AAPL:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: AAPL
+
+EQ:NFLX:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: NFLX
+
+EQ:GOOG:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: PolygonIOPrice
+        params:
+          sym: GOOG
