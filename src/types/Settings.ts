@@ -45,6 +45,10 @@ type Settings = {
       apiKey: string,
       timeout: number,
     },
+    iex: {
+      apiKey: string,
+      timeout: number,
+    },
   },
   feedsFile: string,
   feedsOnChain: string,

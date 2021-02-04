@@ -33,6 +33,7 @@ class FeedProcessor {
     @inject(fetchers.GVolImpliedVolatilityFetcher) GVolImpliedVolatilityFetcher: fetchers.GVolImpliedVolatilityFetcher,
     @inject(fetchers.PolygonIOPriceFetcher) PolygonIOPriceFetcher: fetchers.PolygonIOPriceFetcher,
     @inject(fetchers.CryptoComparePriceWSFetcher) CryptoComparePriceWSFetcher: fetchers.CryptoComparePriceWSFetcher,
+    @inject(fetchers.IEXEnergyFetcher) IEXEnergyFetcher: fetchers.IEXEnergyFetcher,
   ) {
     this.fetchers = {
       CryptoComparePriceFetcher,
@@ -41,6 +42,7 @@ class FeedProcessor {
       CryptoCompareHistoDayFetcher,
       PolygonIOPriceFetcher,
       CryptoComparePriceWSFetcher,
+      IEXEnergyFetcher,
     };
 
     this.calculators = Object.keys(calculators).reduce((map, name, idx) => ({

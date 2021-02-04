@@ -4,6 +4,7 @@ import CryptoCompareHistoDayFetcher from './CryptoCompareHistoDayFetcher';
 import GVolImpliedVolatilityFetcher from './GVolImpliedVolatilityFetcher';
 import PolygonIOPriceFetcher from './PolygonIOPriceFetcher';
 import CryptoComparePriceWSFetcher from './CryptoComparePriceWSFetcher';
+import IEXEnergyFetcher from './IEXEnergyFetcher';
 
 export {
   CryptoComparePriceWSFetcher,
@@ -11,5 +12,6 @@ export {
   CryptoComparePriceFetcher,
   CryptoCompareHistoDayFetcher,
   CryptoCompareHistoHourFetcher,
-  GVolImpliedVolatilityFetcher
+  GVolImpliedVolatilityFetcher,
+  IEXEnergyFetcher,
 };
