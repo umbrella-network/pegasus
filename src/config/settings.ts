@@ -1,5 +1,8 @@
 import Settings from '../types/Settings';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const packageJson = require('../../package.json')
+
 const settings: Settings = {
   port: parseInt(process.env.PORT || '3000'),
   jobs: {
@@ -54,6 +57,8 @@ const settings: Settings = {
   },
   feedsFile: (process.env.FEEDS_FILE || 'src/config/feeds.yaml'),
   feedsOnChain: (process.env.FEEDS_ON_CHAIN_FILE || 'src/config/feedsOnChain.yaml'),
+  version: packageJson.version,
+  environment: process.env.ENVIRONMENT,
 }
 
 export default settings;

@@ -52,6 +52,8 @@ type Settings = {
   },
   feedsFile: string,
   feedsOnChain: string,
+  version: string;
+  environment?: string;
 }
 
 export default Settings;
