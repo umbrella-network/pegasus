@@ -32,7 +32,7 @@ class SaveMintedBlock {
   }
 
   private async attachLeavesToBlockHeight(leaves: Leaf[], blockHeight: number): Promise<void> {
-    getModelForClass(Leaf)
+    return getModelForClass(Leaf)
       .updateMany(
         {
           _id: {

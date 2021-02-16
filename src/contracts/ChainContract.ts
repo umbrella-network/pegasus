@@ -27,13 +27,23 @@ class ChainContract {
       })
   }
 
-  getLeaderAddress = async (): Promise<string> => this.contract.getLeaderAddress();
-  getBlockHeight = async (): Promise<BigNumber> => this.contract.getBlockHeight();
-  getBlockVotersCount = async (blockHeight: BigNumber): Promise<BigNumber> => this.contract.getBlockVotersCount(blockHeight);
+  async getLeaderAddress(): Promise<string> {
+    return this.contract.getLeaderAddress();
+  }
 
-  submit = async (root: string, keys: string[], values: string[], v: number[], r: string[], s: string[]): Promise<TransactionResponse> => this
-    .contract
-    .submit(root, keys, values, v, r, s, {gasPrice: this.gasPrice});
+  async getBlockHeight(): Promise<BigNumber> {
+    return this.contract.getBlockHeight();
+  }
+
+  async getBlockVotersCount(blockHeight: BigNumber): Promise<BigNumber> {
+    return this.contract.getBlockVotersCount(blockHeight);
+  }
+
+  async submit(root: string, keys: string[], values: string[], v: number[], r: string[], s: string[]): Promise<TransactionResponse> {
+    return this.contract.submit(root, keys, values, v, r, s, {
+      gasPrice: this.gasPrice,
+    });
+  }
 }
 
 export default ChainContract;
