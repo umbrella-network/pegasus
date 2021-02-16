@@ -23,6 +23,7 @@ describe("FeedProcessor", () => {
     GVolImpliedVolatilityFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.GVolImpliedVolatilityFetcher>,
     PolygonIOPriceFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.PolygonIOPriceFetcher>,
     CryptoComparePriceWSFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CryptoComparePriceWSFetcher>,
+    IEXEnergyFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.IEXEnergyFetcher>,
   };
 
   let feedProcessor: FeedProcessor;
@@ -34,6 +35,7 @@ describe("FeedProcessor", () => {
     mockedFetchers.GVolImpliedVolatilityFetcher = sinon.createStubInstance(fetchers.GVolImpliedVolatilityFetcher);
     mockedFetchers.PolygonIOPriceFetcher = sinon.createStubInstance(fetchers.PolygonIOPriceFetcher);
     mockedFetchers.CryptoComparePriceWSFetcher = sinon.createStubInstance(fetchers.CryptoComparePriceWSFetcher);
+    mockedFetchers.IEXEnergyFetcher = sinon.createStubInstance(fetchers.IEXEnergyFetcher);
 
     const container = new Container();
 
@@ -51,6 +53,7 @@ describe("FeedProcessor", () => {
     container.bind(fetchers.GVolImpliedVolatilityFetcher).toConstantValue(mockedFetchers.GVolImpliedVolatilityFetcher as any);
     container.bind(fetchers.PolygonIOPriceFetcher).toConstantValue(mockedFetchers.PolygonIOPriceFetcher as any);
     container.bind(fetchers.CryptoComparePriceWSFetcher).toConstantValue(mockedFetchers.CryptoComparePriceWSFetcher as any);
+    container.bind(fetchers.IEXEnergyFetcher).toConstantValue(mockedFetchers.IEXEnergyFetcher as any);
 
     container.bind(FeedProcessor).toSelf();
 

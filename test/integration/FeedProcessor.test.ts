@@ -33,6 +33,10 @@ describe("FeedProcessor integration tests", () => {
           apiKey: config.POLYGON_IO_API_KEY,
           timeout: parseInt(process.env.POLYGON_IO_TIMEOUT || "5000", 10),
         },
+        iex: {
+          apiKey: config.IEX_API_KEY,
+          timeout: (parseInt(process.env.IEX_TIMEOUT || '5000', 10))
+        }
       },
     });
 
