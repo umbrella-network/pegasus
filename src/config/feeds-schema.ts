@@ -2,7 +2,7 @@ export default {
   description: "Feeds schema for the Pegasus validator",
   type: 'object',
   propertyNames: {
-    pattern: '^[A-Za-z][A-Za-z0-9-:]*$',
+    pattern: '^[A-Za-z0-9][A-Za-z0-9-:]*$',
   },
   patternProperties: {
     '.*': {type: 'object', '$ref': '#/definitions/feed'},
