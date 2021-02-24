@@ -1,4 +1,5 @@
----
+# Crypto
+
 ETH-USD:
   discrepancy: 0.1
   precision: 2
@@ -8,6 +9,7 @@ ETH-USD:
         params:
           fsym: ETH
           tsym: USD
+
 BTC-USD:
   discrepancy: 0.1
   precision: 2
@@ -17,6 +19,7 @@ BTC-USD:
         params:
           fsym: BTC
           tsym: USD
+
 LINK-USD:
   discrepancy: 0.1
   precision: 2
@@ -26,6 +29,7 @@ LINK-USD:
         params:
           fsym: LINK
           tsym: USD
+
 SNX-USD:
   discrepancy: 0.1
   precision: 2
@@ -35,6 +39,7 @@ SNX-USD:
         params:
           fsym: SNX
           tsym: USD
+
 DAI-USD:
   discrepancy: 0.1
   precision: 2
@@ -44,6 +49,7 @@ DAI-USD:
         params:
           fsym: DAI
           tsym: USD
+
 COMP-USD:
   discrepancy: 0.1
   precision: 2
@@ -53,6 +59,7 @@ COMP-USD:
         params:
           fsym: COMP
           tsym: USD
+
 BNT-USD:
   discrepancy: 0.1
   precision: 2
@@ -62,6 +69,7 @@ BNT-USD:
         params:
           fsym: BNT
           tsym: USD
+
 UNI-USD:
   discrepancy: 0.1
   precision: 2
@@ -71,6 +79,7 @@ UNI-USD:
         params:
           fsym: UNI
           tsym: USD
+
 BNB-USD:
   discrepancy: 0.1
   precision: 2
@@ -80,6 +89,7 @@ BNB-USD:
         params:
           fsym: BNB
           tsym: USD
+
 YFI-USD:
   discrepancy: 0.1
   precision: 2
@@ -89,6 +99,7 @@ YFI-USD:
         params:
           fsym: YFI
           tsym: USD
+
 REN-USD:
   discrepancy: 0.1
   precision: 2
@@ -98,15 +109,7 @@ REN-USD:
         params:
           fsym: REN
           tsym: USD
-#FNX-USD:
-#  discrepancy: 0.1
-#  precision: 2
-#  inputs:
-#    - fetcher:
-#        name: CryptoComparePriceWS
-#        params:
-#          fsym: FNX
-#          tsym: USD
+
 Aave-USD:
   discrepancy: 0.1
   precision: 2
@@ -116,7 +119,9 @@ Aave-USD:
         params:
           fsym: AAVE
           tsym: USD
+
 # GVol
+
 GVol-BTC-IV-28days:
   discrepancy: 0.1
   precision: 2
@@ -126,6 +131,7 @@ GVol-BTC-IV-28days:
         params:
           query: twentyEightDayIv
           sym: BTC
+
 GVol-ETH-IV-28days:
   discrepancy: 0.1
   precision: 2

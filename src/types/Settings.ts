@@ -14,7 +14,6 @@ type Settings = {
   blockchain: {
     provider: {
       url: string,
-      account?: string,
       privateKey: string
     },
     contracts: {
