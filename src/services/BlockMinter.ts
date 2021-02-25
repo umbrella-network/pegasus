@@ -65,7 +65,7 @@ class BlockMinter {
 
     const mint = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues, signatures);
     if (mint) {
-      await this.saveBlock(leaves, Number(blockHeight), tree.getRoot(), numericFcdKeys);
+      await this.saveBlock(leaves, Number(blockHeight), tree.getRoot(), numericFcdKeys, numericFcdValues);
     }
   }
 
@@ -145,8 +145,8 @@ class BlockMinter {
     }
   }
 
-  private async saveBlock(leaves: Leaf[], blockHeight: number, root: string, numericFcdKeys: string[]): Promise<void> {
-    await this.saveMintedBlock.apply({leaves, blockHeight, root, numericFcdKeys});
+  private async saveBlock(leaves: Leaf[], blockHeight: number, root: string, numericFcdKeys: string[], numericFcdValues: number[]): Promise<void> {
+    await this.saveMintedBlock.apply({leaves, blockHeight, root, numericFcdKeys, numericFcdValues});
   }
 }
 
