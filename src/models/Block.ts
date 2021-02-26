@@ -23,13 +23,16 @@ class Block {
 
   /**
    * An object, where values should be in HEX format with leading `0x`.
-   * @see Leaf#valueBuffer for more info 
+   * @see Leaf#valueBuffer for more info
    */
   @prop({ type: SchemaTypes.Mixed })
   data!: Record<string, HexStringWith0x>;
 
   @prop({ type: () => [String] })
   numericFcdKeys!: Array<string>;
+
+  @prop({ type: () => [Number] })
+  numericFcdValues!: Array<number>;
 }
 
 export default Block;
