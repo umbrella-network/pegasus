@@ -40,6 +40,7 @@ describe('SaveMintedBlock', () => {
       blockHeight: 1,
       leaves,
       numericFcdKeys: ['ETH-USD', 'USD-ETH'],
+      numericFcdValues: [1337.12, 512.12],
       root: '0x00',
     });
 
@@ -53,7 +54,8 @@ describe('SaveMintedBlock', () => {
     await saveMintedBlock.apply({
       blockHeight: 1,
       leaves: [],
-      numericFcdKeys: [],
+      numericFcdKeys: ['ETH-USD', 'USD-ETH'],
+      numericFcdValues: [1337.12, 512.12],
       root: '0x00',
     });
 
@@ -61,7 +63,8 @@ describe('SaveMintedBlock', () => {
     expect(blockFromDb).to.be.an('object');
     expect(uuid.validate(blockFromDb?._id as string)).to.be.true;
     expect(blockFromDb?.height).to.be.eq(1);
-    expect(blockFromDb?.numericFcdKeys).to.be.deep.eq([]);
+    expect(blockFromDb?.numericFcdKeys).to.be.deep.eq(['ETH-USD', 'USD-ETH']);
+    expect(blockFromDb?.numericFcdValues).to.be.deep.eq([1337.12, 512.12]);
     // is undefined or an empty object
     expect(blockFromDb?.data).to.satisfies((data: any) => data === undefined || Object.keys(data).length === 0);
     expect(blockFromDb?.root).to.be.eq('0x00');
