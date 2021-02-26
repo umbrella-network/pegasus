@@ -8,28 +8,35 @@ import {Validator} from '../types/Validator';
 @injectable()
 class ValidatorRegistryContract {
   contract!: Contract;
+  settings!: Settings;
+  blockchain!: Blockchain;
 
-  constructor(
-    @inject('Settings') settings: Settings,
-    @inject(Blockchain) blockchain: Blockchain
-  ) {
-    new ContractRegistry(blockchain.provider, settings.blockchain.contracts.registry.address)
-      .getAddress(settings.blockchain.contracts.validatorRegistry.name)
-      .then((contractAddress: string) => {
-        this.contract = new Contract(
-          contractAddress,
-          ABI.validatorRegistryAbi,
-          blockchain.provider
-        ).connect(blockchain.wallet);
-      })
+  constructor(@inject('Settings') settings: Settings, @inject(Blockchain) blockchain: Blockchain) {
+    this.settings = settings;
+    this.blockchain = blockchain;
   }
 
+  resolveContract = async (): Promise<Contract> => {
+    if (this.contract) {
+      return this.contract;
+    }
+
+    const registry = new ContractRegistry(
+      this.blockchain.provider,
+      this.settings.blockchain.contracts.registry.address
+    );
+
+    const address = await registry.getAddress(this.settings.blockchain.contracts.validatorRegistry.name);
+    this.contract = new Contract(address, ABI.validatorRegistryAbi, this.blockchain.provider);
+    return this.contract;
+  };
+
   async getNumberOfValidators(): Promise<BigNumber> {
-    return this.contract.getNumberOfValidators();
+    return (await this.resolveContract()).getNumberOfValidators();
   }
 
   async getValidatorDetails(address: string): Promise<Validator> {
-    const [id, location] = await this.contract.validators(address);
+    const [id, location] = await (await this.resolveContract()).validators(address);
     return {
       id,
       location,
@@ -41,7 +48,7 @@ class ValidatorRegistryContract {
     const count = (await this.getNumberOfValidators()).toNumber();
 
     for (let i = 0; i < count; ++i) {
-      const address = await this.contract.addresses(i);
+      const address = await (await this.resolveContract()).addresses(i);
       const validator = await this.getValidatorDetails(address);
       result.push(validator);
     }
