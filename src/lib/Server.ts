@@ -9,6 +9,7 @@ import HealthController from '../controllers/HealthController';
 import BlocksController from '../controllers/BlocksController';
 import SignatureController from "../controllers/SignatureController";
 import Blockchain from './Blockchain';
+import InfoController from '../controllers/InfoController';
 
 @injectable()
 class Server {
@@ -22,7 +23,8 @@ class Server {
     @inject(Blockchain) blockchain: Blockchain,
     @inject(HealthController) healthController: HealthController,
     @inject(BlocksController) blocksController: BlocksController,
-    @inject(SignatureController) signatureController: SignatureController
+    @inject(SignatureController) signatureController: SignatureController,
+    @inject(InfoController) infoController: InfoController,
   ) {
     this.port = settings.port;
 
@@ -33,7 +35,8 @@ class Server {
       .use(express.urlencoded({ extended: true }))
       .use('/blocks', blocksController.router)
       .use('/health', healthController.router)
-      .use('/signature', signatureController.router);
+      .use('/signature', signatureController.router)
+      .use('/info', infoController.router);
 
     this.server = http.createServer(this.router);
     this.blockchain = blockchain;
