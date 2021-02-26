@@ -8,40 +8,47 @@ import Blockchain from '../lib/Blockchain';
 @injectable()
 class ChainContract {
   contract!: Contract;
-  gasPrice!: number;
+  settings!: Settings;
+  blockchain!: Blockchain;
 
   constructor(
     @inject('Settings') settings: Settings,
     @inject(Blockchain) blockchain: Blockchain
   ) {
-    this.gasPrice = settings.blockchain.transactions.gasPrice;
-
-    new ContractRegistry(blockchain.provider, settings.blockchain.contracts.registry.address)
-      .getAddress(settings.blockchain.contracts.chain.name)
-      .then((chainAddress: string) => {
-        this.contract = new Contract(
-          chainAddress,
-          ABI.chainAbi,
-          blockchain.provider
-        ).connect(blockchain.wallet);
-      })
+    this.settings = settings;
+    this.blockchain = blockchain;
   }
 
+  resolveContract = async (): Promise<Contract> => {
+    if (this.contract) {
+      return this.contract;
+    }
+
+    const registry = new ContractRegistry(
+      this.blockchain.provider,
+      this.settings.blockchain.contracts.registry.address,
+    );
+
+    const chainAddress = await registry.getAddress(this.settings.blockchain.contracts.chain.name);
+    this.contract = new Contract(chainAddress, ABI.chainAbi, this.blockchain.provider);
+    return this.contract;
+  };
+
   async getLeaderAddress(): Promise<string> {
-    return this.contract.getLeaderAddress();
+    return (await this.resolveContract()).getLeaderAddress();
   }
 
   async getBlockHeight(): Promise<BigNumber> {
-    return this.contract.getBlockHeight();
+    return (await this.resolveContract()).getBlockHeight();
   }
 
   async getBlockVotersCount(blockHeight: BigNumber): Promise<BigNumber> {
-    return this.contract.getBlockVotersCount(blockHeight);
+    return (await this.resolveContract()).getBlockVotersCount(blockHeight);
   }
 
   async submit(root: string, keys: string[], values: string[], v: number[], r: string[], s: string[]): Promise<TransactionResponse> {
     return this.contract.submit(root, keys, values, v, r, s, {
-      gasPrice: this.gasPrice,
+      gasPrice: this.settings.blockchain.transactions.gasPrice,
     });
   }
 }
