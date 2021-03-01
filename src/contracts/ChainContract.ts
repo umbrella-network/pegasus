@@ -1,7 +1,7 @@
-import { inject, injectable } from 'inversify';
-import { Contract, BigNumber } from 'ethers';
-import { TransactionResponse } from '@ethersproject/providers';
-import { ContractRegistry, ABI } from '@umb-network/toolbox';
+import {inject, injectable} from 'inversify';
+import {BigNumber, Contract} from 'ethers';
+import {TransactionResponse} from '@ethersproject/providers';
+import {ABI, ContractRegistry} from '@umb-network/toolbox';
 import Settings from '../types/Settings';
 import Blockchain from '../lib/Blockchain';
 
@@ -47,7 +47,7 @@ class ChainContract {
   }
 
   async submit(root: string, keys: string[], values: string[], v: number[], r: string[], s: string[]): Promise<TransactionResponse> {
-    return this.contract.submit(root, keys, values, v, r, s, {
+    return (await this.resolveContract()).connect(this.blockchain.wallet).submit(root, keys, values, v, r, s, {
       gasPrice: this.settings.blockchain.transactions.gasPrice,
     });
   }
