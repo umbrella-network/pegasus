@@ -14,7 +14,6 @@ type Settings = {
   blockchain: {
     provider: {
       url: string,
-      account?: string,
       privateKey: string
     },
     contracts: {
@@ -23,7 +22,10 @@ type Settings = {
       },
       registry: {
         address: string
-      }
+      },
+      validatorRegistry: {
+        name: string
+      },
     },
     transactions: {
       gasPrice: number
@@ -38,9 +40,19 @@ type Settings = {
       apiKey: string,
       timeout: number,
     }
+    polygonIO: {
+      apiKey: string,
+      timeout: number,
+    },
+    iex: {
+      apiKey: string,
+      timeout: number,
+    },
   },
   feedsFile: string,
   feedsOnChain: string,
+  version: string;
+  environment?: string;
 }
 
 export default Settings;

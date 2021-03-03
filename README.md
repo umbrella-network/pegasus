@@ -98,6 +98,10 @@ Sample response for `http://localhost:3000/blocks/height/3`:
         "eth-usd"
       ]
     ],
+    "numericFcdValues": [
+      481.92,
+      587.56
+    ],
     "_id": "83620f18-a289-4f04-b7c4-1eea3d416a7c",
     "timestamp": "2020-12-16T09:01:51.015Z",
     "height": 3,

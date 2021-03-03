@@ -6,7 +6,7 @@ import Leaf from '../models/Leaf';
 @injectable()
 class LeafPersistor {
   async apply(leaf: Leaf): Promise<void> {
-    if (!leaf.value) {
+    if (!leaf.valueBytes) {
       throw new Error('Cannot persist feeds without a value');
     }
 

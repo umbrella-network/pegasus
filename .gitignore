@@ -3,7 +3,9 @@ dist
 node_modules
 tmp
 .idea
+.vscode
 .env
+.testing.env
 *.pem
 .DS_STORE
 .cache

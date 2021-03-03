@@ -1,5 +1,6 @@
 import { getModelForClass } from '@typegoose/typegoose';
 import { injectable } from 'inversify';
+import { HexStringWith0x } from '../types/HexStringWith0x';
 import { v4 as uuid } from 'uuid';
 import Block from '../models/Block';
 import Leaf from '../models/Leaf';
@@ -11,7 +12,8 @@ type Params = {
   root: string,
   mintedAt?: Date,
   timestamp?: Date,
-  numericFcdKeys: string[]
+  numericFcdKeys: string[],
+  numericFcdValues: number[]
 }
 
 @injectable()
@@ -26,12 +28,13 @@ class SaveMintedBlock {
     block.root = params.root;
     block.data = this.treeDataFor(params.leaves);
     block.numericFcdKeys = params.numericFcdKeys;
+    block.numericFcdValues = params.numericFcdValues;
     await this.attachLeavesToBlockHeight(params.leaves, params.blockHeight);
     return await getModelForClass(Block).create(block);
   }
 
   private async attachLeavesToBlockHeight(leaves: Leaf[], blockHeight: number): Promise<void> {
-    getModelForClass(Leaf)
+    return getModelForClass(Leaf)
       .updateMany(
         {
           _id: {
@@ -47,9 +50,9 @@ class SaveMintedBlock {
       .exec()
   }
 
-  private treeDataFor(leaves: Leaf[]): Record<string, unknown> {
+  private treeDataFor(leaves: Leaf[]): Record<string, HexStringWith0x> {
     return leaves
-      .map((leaf) => ({ [leaf.label]: leaf.value }))
+      .map((leaf) => ({ [leaf.label]: leaf.valueBytes }))
       .reduce((acc, v) => ({ ...acc, ...v }), {});
   }
 }
