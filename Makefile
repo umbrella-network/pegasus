@@ -1,6 +1,7 @@
-REPOSITORY=008205684207.dkr.ecr.us-east-2.amazonaws.com/pegasus
+include .env
+
 TAG=`git rev-parse --short HEAD`
-IMAGE="$(REPOSITORY):v$(TAG)"
+IMAGE="$(AWS_REPOSITORY)/pegasus:v$(TAG)"
 
 default: build
 
@@ -9,7 +10,7 @@ build:
 	@docker build -t $(IMAGE) .
 
 login:
-	`aws ecr get-login --no-include-email`
+	@aws ecr get-login-password  | docker login --username AWS --password-stdin $(AWS_REPOSITORY)
 
 push: login
 	@echo "## Pushing image to AWS ##"
@@ -25,6 +26,13 @@ publish-staging:
 	@kubectl set image deployment/pegasus-scheduler pegasus-scheduler=$(IMAGE) --namespace staging
 	@kubectl set image deployment/pegasus-worker pegasus-worker=$(IMAGE) --namespace staging
 
+publish-dev:
+	@kubectl set image deployment/pegasus-api pegasus-api=$(IMAGE) --namespace dev
+	@kubectl set image deployment/pegasus-scheduler pegasus-scheduler=$(IMAGE) --namespace dev
+	@kubectl set image deployment/pegasus-worker pegasus-worker=$(IMAGE) --namespace dev
+
 deploy: build push publish
+
+dev: build push publish-dev
 
 stage: build push publish-staging
