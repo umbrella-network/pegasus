@@ -7002,6 +7002,51 @@ BNB-USD:
           fsym: BNB
           tsym: USD
 
+UMB-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CoingeckoPrice
+        params:
+          id: umbrella-network
+          currency: USD
+    - fetcher:
+        name: CoinmarketcapPrice
+        params:
+          symbol: UMB
+          convert: USD
+
+UMB-ETH:
+  discrepancy: 0.1
+  precision: 6
+  inputs:
+    - fetcher:
+        name: CoingeckoPrice
+        params:
+          id: umbrella-network
+          currency: ETH
+    - fetcher:
+        name: CoinmarketcapPrice
+        params:
+          symbol: UMB
+          convert: ETH
+
+UMB-BTC:
+  discrepancy: 0.1
+  precision: 8
+  inputs:
+    - fetcher:
+        name: CoingeckoPrice
+        params:
+          id: umbrella-network
+          currency: BTC
+    - fetcher:
+        name: CoinmarketcapPrice
+        params:
+          symbol: UMB
+          convert: BTC
+
 # histo
 
 ETH-USD-TWAP-1day:
