@@ -19,8 +19,8 @@ class InfoController {
   pong = async (request: Request, response: Response): Promise<void> => {
     response.send({
       contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
-      validatorRegistryAddress: this.validatorRegistryContract.contract.address,
-      chainContractAddress: this.chainContract.contract.address,
+      validatorRegistryAddress: (await this.validatorRegistryContract.resolveContract()).address,
+      chainContractAddress: (await this.chainContract.resolveContract()).address,
       version: this.settings.version || null,
       environment: this.settings.environment || null,
     });
