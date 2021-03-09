@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [0.3.1] - 2021-03-09
+### Fixed
+- do not cache `Chain` address, pull it from registry
+- environment info
+
+### Changed
+- update toolbox version
+
 ## [0.3.0] - 2021-03-09
 ### Fixed
 - FeedProcessor assigned the same label to all values
