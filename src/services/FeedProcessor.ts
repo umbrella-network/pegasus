@@ -107,11 +107,13 @@ class FeedProcessor {
     }, {} as { [key: string]: ProcessedValue[]; });
 
     return Object.values(groupedLeaves).map((values) => {
-      const precision = feeds[leaves[0].label].precision;
+      const {label} = values[0],
+        {precision} = feeds[label];
+
       const multi = Math.pow(10, precision);
       const priceMedian = Math.round(price.median(values.map(({value}) => value)) * multi) / multi
 
-      return this.buildLeaf(values[0].label, priceMedian);
+      return this.buildLeaf(label, priceMedian);
     });
   }
 }
