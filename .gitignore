@@ -4,7 +4,7 @@ node_modules
 tmp
 .idea
 .vscode
-.env
+.env*
 .testing.env
 *.pem
 .DS_STORE
