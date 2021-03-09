@@ -27,7 +27,7 @@ class InfoController {
       validatorRegistryAddress: (await this.validatorRegistryContract.resolveContract()).address,
       chainContractAddress: (await this.chainContract.resolveContract()).address,
       version: this.settings.version || null,
-      environment: this.settings.environment || null,
+      environment: this.settings.environment,
     });
   }
 }

@@ -64,7 +64,7 @@ const settings: Settings = {
   feedsFile: (process.env.FEEDS_FILE || 'src/config/feeds.yaml'),
   feedsOnChain: (process.env.FEEDS_ON_CHAIN_FILE || 'src/config/feedsOnChain.yaml'),
   version: packageJson.version,
-  environment: process.env.ENVIRONMENT,
+  environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
 }
 
 export default settings;
