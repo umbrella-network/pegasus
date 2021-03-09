@@ -110,7 +110,7 @@ REN-USD:
           fsym: REN
           tsym: USD
 
-Aave-USD:
+AAVE-USD:
   discrepancy: 0.1
   precision: 2
   inputs:
@@ -119,6 +119,21 @@ Aave-USD:
         params:
           fsym: AAVE
           tsym: USD
+
+UMB-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CoingeckoPrice
+        params:
+          id: umbrella-network
+          currency: usd
+    - fetcher:
+        name: CoinmarketcapPrice
+        params:
+          symbol: UMB
+          convert: USD
 
 # GVol
 

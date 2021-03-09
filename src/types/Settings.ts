@@ -36,6 +36,13 @@ type Settings = {
       apiKey: string,
       timeout: number,
     },
+    coinmarketcap: {
+      apiKey: string,
+      timeout: number,
+    },
+    coingecko: {
+      timeout: number,
+    },
     genesisVolatility: {
       apiKey: string,
       timeout: number,

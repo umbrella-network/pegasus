@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import "reflect-metadata";
-import { Container } from "inversify";
-import sinon from "sinon";
-import { mockedLogger } from "../mocks/logger";
-import FeedProcessor from "../../src/services/FeedProcessor";
-import Settings from "../../src/types/Settings";
-import { expect } from "chai";
-import * as fetchers from "../../src/services/fetchers";
+import 'reflect-metadata';
+import { Container } from 'inversify';
+import sinon from 'sinon';
+import { mockedLogger } from '../mocks/logger';
+import FeedProcessor from '../../src/services/FeedProcessor';
+import Settings from '../../src/types/Settings';
+import { expect } from 'chai';
+import * as fetchers from '../../src/services/fetchers';
 
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
-import Feeds from "../../src/types/Feed";
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import Feeds from '../../src/types/Feed';
 chai.use(chaiAsPromised);
 
-describe("FeedProcessor", () => {
+describe('FeedProcessor', () => {
   let settings: Settings;
 
   const mockedFetchers = {
@@ -24,6 +24,8 @@ describe("FeedProcessor", () => {
     PolygonIOPriceFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.PolygonIOPriceFetcher>,
     CryptoComparePriceWSFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CryptoComparePriceWSFetcher>,
     IEXEnergyFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.IEXEnergyFetcher>,
+    CoingeckoPriceFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CoingeckoPriceFetcher>,
+    CoinmarketcapPriceFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CoinmarketcapPriceFetcher>,
   };
 
   let feedProcessor: FeedProcessor;
@@ -36,16 +38,18 @@ describe("FeedProcessor", () => {
     mockedFetchers.PolygonIOPriceFetcher = sinon.createStubInstance(fetchers.PolygonIOPriceFetcher);
     mockedFetchers.CryptoComparePriceWSFetcher = sinon.createStubInstance(fetchers.CryptoComparePriceWSFetcher);
     mockedFetchers.IEXEnergyFetcher = sinon.createStubInstance(fetchers.IEXEnergyFetcher);
+    mockedFetchers.CoingeckoPriceFetcher = sinon.createStubInstance(fetchers.CoingeckoPriceFetcher);
+    mockedFetchers.CoinmarketcapPriceFetcher = sinon.createStubInstance(fetchers.CoinmarketcapPriceFetcher);
 
     const container = new Container();
 
     settings = {
-      feedsFile: "src/config/feeds.yaml",
-      feedsOnChain: "src/config/feedsOnChain.yaml",
+      feedsFile: 'src/config/feeds.yaml',
+      feedsOnChain: 'src/config/feedsOnChain.yaml',
     } as Settings;
 
-    container.bind("Logger").toConstantValue(mockedLogger);
-    container.bind("Settings").toConstantValue(settings);
+    container.bind('Logger').toConstantValue(mockedLogger);
+    container.bind('Settings').toConstantValue(settings);
 
     container.bind(fetchers.CryptoCompareHistoHourFetcher).toConstantValue(mockedFetchers.CryptoCompareHistoHourFetcher as any);
     container.bind(fetchers.CryptoCompareHistoDayFetcher).toConstantValue(mockedFetchers.CryptoCompareHistoDayFetcher as any);
@@ -54,29 +58,31 @@ describe("FeedProcessor", () => {
     container.bind(fetchers.PolygonIOPriceFetcher).toConstantValue(mockedFetchers.PolygonIOPriceFetcher as any);
     container.bind(fetchers.CryptoComparePriceWSFetcher).toConstantValue(mockedFetchers.CryptoComparePriceWSFetcher as any);
     container.bind(fetchers.IEXEnergyFetcher).toConstantValue(mockedFetchers.IEXEnergyFetcher as any);
+    container.bind(fetchers.CoinmarketcapPriceFetcher).toConstantValue(mockedFetchers.CoinmarketcapPriceFetcher as any);
+    container.bind(fetchers.CoingeckoPriceFetcher).toConstantValue(mockedFetchers.CoingeckoPriceFetcher as any);
 
     container.bind(FeedProcessor).toSelf();
 
     feedProcessor = container.get(FeedProcessor);
   });
 
-  it("returns leafs for feeds with CryptoCompareHistoHour fetcher", async () => {
+  it('returns leafs for feeds with CryptoCompareHistoHour fetcher', async () => {
     const feeds: Feeds = {
-      "ETH-USD-TWAP-1day": {
+      'ETH-USD-TWAP-1day': {
         discrepancy: 0.1,
         precision: 2,
         inputs: [
           {
             fetcher: {
-              name: "CryptoCompareHistoHour",
+              name: 'CryptoCompareHistoHour',
               params: {
-                fsym: "ETH",
-                tsym: "USD",
+                fsym: 'ETH',
+                tsym: 'USD',
                 limit: 24,
               } as any,
             },
             calculator: {
-              name: "TWAP",
+              name: 'TWAP',
             },
           },
         ],
@@ -92,29 +98,48 @@ describe("FeedProcessor", () => {
 
     const leaves = await feedProcessor.apply(feeds);
 
-    expect(leaves).to.be.an("array").with.lengthOf(1);
+    expect(leaves).to.be.an('array').with.lengthOf(1);
     expect(leaves[0].valueBytes)
-      .is.a("string")
+      .is.a('string')
       .that.matches(/^0x[a-fA-F0-9]+$/);
   });
 
-  it("returns leafs for feeds with CryptoCompareHistoDay fetcher", async () => {
+  it('returns leafs for feeds with CryptoCompareHistoDay fetcher', async () => {
     const feeds: Feeds = {
-      "ETH-USD-TWAP-30days": {
+      'ETH-USD-TWAP-30days': {
         discrepancy: 0.1,
         precision: 2,
         inputs: [
           {
             fetcher: {
-              name: "CryptoCompareHistoDay",
+              name: 'CryptoCompareHistoDay',
               params: {
-                fsym: "ETH",
-                tsym: "USD",
+                fsym: 'ETH',
+                tsym: 'USD',
                 limit: 30,
               } as any,
             },
             calculator: {
-              name: "TWAP",
+              name: 'TWAP',
+            },
+          },
+        ],
+      },
+      'ETH-USD-TWAP-10days': {
+        discrepancy: 0.1,
+        precision: 2,
+        inputs: [
+          {
+            fetcher: {
+              name: 'CryptoCompareHistoDay',
+              params: {
+                fsym: 'ETH',
+                tsym: 'USD',
+                limit: 30,
+              } as any,
+            },
+            calculator: {
+              name: 'TWAP',
             },
           },
         ],
@@ -130,9 +155,15 @@ describe("FeedProcessor", () => {
 
     const leaves = await feedProcessor.apply(feeds);
 
-    expect(leaves).to.be.an("array").with.lengthOf(1);
+    expect(leaves).to.be.an('array').with.lengthOf(2);
+
+    expect(leaves[0].label).to.equal('ETH-USD-TWAP-30days');
     expect(leaves[0].valueBytes)
-      .is.a("string")
+      .is.a('string')
+      .that.matches(/^0x[a-fA-F0-9]+$/);
+    expect(leaves[1].label).to.equal('ETH-USD-TWAP-10days');
+    expect(leaves[1].valueBytes)
+      .is.a('string')
       .that.matches(/^0x[a-fA-F0-9]+$/);
   });
 });

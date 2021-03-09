@@ -29,6 +29,8 @@ export default {
             {'$ref': '#/definitions/CryptoComparePriceWSFetcher'},
             {'$ref': '#/definitions/PolygonIOPriceFetcher'},
             {'$ref': '#/definitions/IEXEnergyFetcher'},
+            {'$ref': '#/definitions/CoingeckoPriceFetcher'},
+            {'$ref': '#/definitions/CoinmarketcapPriceFetcher'},
           ]
         },
         calculator: {
@@ -119,6 +121,38 @@ export default {
             limit: {type: 'number'},
           },
           required: ['fsym', 'tsym', 'limit'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    CoinmarketcapPriceFetcher: {
+      properties: {
+        name: {const: 'CoinmarketcapPrice'},
+        params: {
+          type: 'object',
+          properties: {
+            symbol: {type: 'string'},
+            convert: {type: 'string'},
+          },
+          required: ['symbol', 'convert'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    CoingeckoPriceFetcher: {
+      properties: {
+        name: {const: 'CoingeckoPrice'},
+        params: {
+          type: 'object',
+          properties: {
+            id: {type: 'string'},
+            currency: {type: 'string'},
+          },
+          required: ['id', 'currency'],
           additionalProperties: false,
         },
       },

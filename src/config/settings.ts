@@ -41,6 +41,13 @@ const settings: Settings = {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
       timeout: (parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', 10))
     },
+    coingecko: {
+      timeout: (parseInt(process.env.COINGECKO_TIMEOUT || '5000', 10))
+    },
+    coinmarketcap: {
+      apiKey: process.env.COINMARKETCAP_API_KEY as string,
+      timeout: (parseInt(process.env.COINMARKETCAP_TIMEOUT || '5000', 10))
+    },
     genesisVolatility: {
       apiKey: process.env.GENESIS_VOLATILITY_API_KEY as string,
       timeout: (parseInt(process.env.GENESIS_VOLATILITY_TIMEOUT || '5000', 10))
