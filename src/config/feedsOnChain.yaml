@@ -1,0 +1,158 @@
+# Crypto
+
+ETH-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: ETH
+          tsym: USD
+
+BTC-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: BTC
+          tsym: USD
+
+LINK-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: LINK
+          tsym: USD
+
+SNX-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: SNX
+          tsym: USD
+
+DAI-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: DAI
+          tsym: USD
+
+COMP-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: COMP
+          tsym: USD
+
+BNT-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: BNT
+          tsym: USD
+
+UNI-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: UNI
+          tsym: USD
+
+BNB-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: BNB
+          tsym: USD
+
+YFI-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: YFI
+          tsym: USD
+
+REN-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: REN
+          tsym: USD
+
+AAVE-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: AAVE
+          tsym: USD
+
+UMB-USD:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CoingeckoPrice
+        params:
+          id: umbrella-network
+          currency: usd
+    - fetcher:
+        name: CoinmarketcapPrice
+        params:
+          symbol: UMB
+          convert: USD
+
+# GVol
+
+GVol-BTC-IV-28days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: twentyEightDayIv
+          sym: BTC
+
+GVol-ETH-IV-28days:
+  discrepancy: 0.1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: GVolImpliedVolatility
+        params:
+          query: twentyEightDayIv
+          sym: ETH
