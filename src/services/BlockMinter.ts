@@ -57,7 +57,10 @@ class BlockMinter {
     const signedBlock: SignedBlock = {
       signature,
       blockHeight: blockHeight.toNumber(),
-      leaves: Object.fromEntries(leaves.map(({label, valueBytes}) => [label, LeafValueCoder.decode(valueBytes) as number])),
+      leaves: Object.fromEntries(leaves.map(({
+                                               label,
+                                               valueBytes
+                                             }) => [label, LeafValueCoder.decode(valueBytes) as number])),
       fcd: Object.fromEntries(numericFcdKeys.map((_, idx) => [numericFcdKeys[idx], numericFcdValues[idx]])),
     };
 
@@ -81,8 +84,12 @@ class BlockMinter {
   }
 
   private async canMint(blockHeight: BigNumber): Promise<boolean> {
-    const votersCount = await this.chainContract.getBlockVotersCount(blockHeight);
-    return votersCount.isZero() && await this.mintGuard.apply(Number(blockHeight));
+    const [votersCount, allowed] = await Promise.all([
+      this.chainContract.getBlockVotersCount(blockHeight),
+      await this.mintGuard.apply(Number(blockHeight))
+    ]);
+
+    return votersCount.isZero() && allowed;
   }
 
   private async isLeader(): Promise<boolean> {
