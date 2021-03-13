@@ -1,5 +1,5 @@
-import { inject, injectable } from 'inversify';
-import express, { Request, Response } from 'express';
+import {inject, injectable} from 'inversify';
+import express, {Request, Response} from 'express';
 import Settings from '../types/Settings';
 import ValidatorRegistryContract from '../contracts/ValidatorRegistryContract';
 import ChainContract from '../contracts/ChainContract';
@@ -28,6 +28,7 @@ class InfoController {
       chainContractAddress: (await this.chainContract.resolveContract()).address,
       version: this.settings.version || null,
       environment: this.settings.environment,
+      name: this.settings.name,
     });
   }
 }
