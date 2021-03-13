@@ -1,0 +1,16 @@
+version: "3"
+services:
+  mongo:
+    image: mongo
+    container_name: mongo-pegasus
+    volumes:
+      - ./tmp/fs/mongo:/data/db
+    ports:
+      - "27017:27017"
+  redis:
+    image: redis:5.0-alpine
+    container_name: redis-pegasus
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./tmp/fs/redis:/data/redis
