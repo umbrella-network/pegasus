@@ -5,6 +5,7 @@ tmp
 .idea
 .vscode
 .env*
+.editorconfig
 .testing.env
 *.pem
 .DS_STORE

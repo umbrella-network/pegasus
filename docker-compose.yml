@@ -1,16 +1,74 @@
+# docker-compose
+
 version: "3"
 services:
-  mongo:
-    image: mongo
-    container_name: mongo-pegasus
-    volumes:
-      - ./tmp/fs/mongo:/data/db
+  api:
+    build: .
     ports:
-      - "27017:27017"
-  redis:
-    image: redis:5.0-alpine
-    container_name: redis-pegasus
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./tmp/fs/redis:/data/redis
+      - "${PORT}:${PORT}"
+    entrypoint: npm run start
+    depends_on:
+      - db
+    networks:
+      - umbrella-network
+      - core-network
+    environment:
+      - NAME=${COMPOSE_PROJECT_NAME}
+      - PORT=${PORT}
+      - REDIS_URL=${REDIS_URL}
+      - VALIDATOR_PRIVATE_KEY=${VALIDATOR_PRIVATE_KEY}
+      - MONGODB_URL=${MONGODB_URL}
+      - BLOCKCHAIN_PROVIDER_URL=${BLOCKCHAIN_PROVIDER_URL}
+      - REGISTRY_CONTRACT_ADDRESS=${REGISTRY_CONTRACT_ADDRESS}
+  scheduler:
+    build: .
+    entrypoint: npm run start:scheduler
+    depends_on:
+      - cache
+    networks:
+      - umbrella-network
+      - core-network
+    environment:
+      - NAME=${COMPOSE_PROJECT_NAME}
+      - VALIDATOR_PRIVATE_KEY=${VALIDATOR_PRIVATE_KEY}
+      - MONGODB_URL=${MONGODB_URL}
+      - REDIS_URL=${REDIS_URL}
+      - BLOCKCHAIN_PROVIDER_URL=${BLOCKCHAIN_PROVIDER_URL}
+      - BLOCK_CREATION_JOB_INTERVAL=${BLOCK_CREATION_JOB_INTERVAL}
+  worker:
+    build: .
+    entrypoint: npm run start:worker -- --worker BlockMintingWorker
+    depends_on:
+      - cache
+      - db
+    networks:
+      - umbrella-network
+      - core-network
+    environment:
+      - NAME=${COMPOSE_PROJECT_NAME}
+      - VALIDATOR_PRIVATE_KEY=${VALIDATOR_PRIVATE_KEY}
+      - MONGODB_URL=${MONGODB_URL}
+      - REDIS_URL=${REDIS_URL}
+      - BLOCKCHAIN_PROVIDER_URL=${BLOCKCHAIN_PROVIDER_URL}
+      - REGISTRY_CONTRACT_ADDRESS=${REGISTRY_CONTRACT_ADDRESS}
+      - BLOCK_CREATION_JOB_INTERVAL=${BLOCK_CREATION_JOB_INTERVAL}
+      - GAS_PRICE=${GAS_PRICE}
+      - CRYPTOCOMPARE_API_KEY=${CRYPTOCOMPARE_API_KEY}
+      - GENESIS_VOLATILITY_API_KEY=${GENESIS_VOLATILITY_API_KEY}
+      - POLYGON_IO_API_KEY=${POLYGON_IO_API_KEY}
+      - IEX_API_KEY=${IEX_API_KEY}
+      - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY}
+  db:
+    image: alpine:latest
+    command: echo "no db implementation"
+    networks:
+      - core-network
+  cache:
+    image: alpine:latest
+    command: echo "no cache implementation"
+    networks:
+      - core-network
+networks:
+  umbrella-network:
+    name: umbrella-network
+  core-network:
