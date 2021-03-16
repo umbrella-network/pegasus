@@ -1,0 +1,24 @@
+# docker-compose.core.yml
+
+version: "3"
+services:
+  db:
+    image: mongo
+    command: mongod --quiet --logpath /dev/null
+    volumes:
+      - ./tmp/${COMPOSE_PROJECT_NAME}/fs/mongo:/data/db
+    ports:
+      - "${MONGO_PORT}:27017"
+    networks:
+      - core-network
+  cache:
+    image: redis:5.0-alpine
+    command: redis-server
+    ports:
+      - "6379"
+    volumes:
+      - ./tmp/${COMPOSE_PROJECT_NAME}/fs/redis:/data/redis
+    networks:
+      - core-network
+networks:
+  core-network:

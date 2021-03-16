@@ -6,88 +6,193 @@ Umbrella Validator
 Install packages.
 
 ```shell script
-$ npm install
+npm install
 ```
 
-Setup a dotenv file (`.env`) with local configuration values. Example:
-
+Setup a dotenv file (`.env`) with local configuration values. 
+```shell script
+cp example.env .env
 ```
-PORT=3000 # HTTP port the server will listen to.
-```
 
-# Commands
-## Running Locally (Development)
+## ENV variables
+```
+# A unique node name for multi-node configuration
+COMPOSE_PROJECT_NAME=
+
+# API port to be exposed
+PORT=3030
+
+# MongoDB port to be exposed for managed db
+MONGO_PORT=27017
+
+# Redis URL
+REDIS_URL=redis://cache:6379
+
+# MongoDB URL
+MONGODB_URL=mongodb://db:27017/pegasus
+
+# Ethereum-compatible node URL
+BLOCKCHAIN_PROVIDER_URL=http://eth:8545
+
+# Secret key of the node
+VALIDATOR_PRIVATE_KEY=0x000000000000000000000000000000000000000000000000000000000000000
+
+# Contract registry address
+REGISTRY_CONTRACT_ADDRESS=0x0000000000000000000000000000000000000000
+
+# Gas price for block submission
+GAS_PRICE=100000000
+
+# Interval to wake up the worker service
+BLOCK_CREATION_JOB_INTERVAL=10000
+
+# Cryptocompare API Key
+CRYPTOCOMPARE_API_KEY=
+
+# Genesis Volatility API Key
+GENESIS_VOLATILITY_API_KEY=
+
+# Polygon.io API Key
+POLYGON_IO_API_KEY=
+
+# IEX API Key
+IEX_API_KEY=
+
+# Coinmarketcap API Key
+COINMARKETCAP_API_KEY=
+
+# Path to a file with L2 definitions
+FEEDS_FILE=
+
+# Path to a file with On-Chain definitions
+FEEDS_ON_CHAIN_FILE=
+
+# AWS repository for docker containers (dev only)
+AWS_REPOSITORY=
+```
+# Network
 
 Instructions how to run blockchain locally you can find in phoenix, you need to:
 - start local blockchain node
 - deploy smart contracts to local blockchain node
 - get address of Chain and keys for validator
 
-When blockchain is running locally:
+# Commands
+
+## Building
+First, compile the application:
+```shell script
+npm run build
+```
+
+## Run core services (redis and MongoDB) through docker-compose
+
+```shell script
+docker-compose -f docker-compose.core.yml up
+
+# alternatively
+docker-compose up db cache
+
+# run with a custom env file
+docker-compose -f docker-compose.core.yml --env-file=.env
+
+# alternatively
+docker-compose -f docker-compose.core.yml up db cache
+```
+
+## Run core services + validator through docker-compose
 
 ```shell script
 docker-compose up
 
-# clean up collections if needed:
-npm run task:dev -- --task db:cleanup
+# run with a custom env file
+docker-compose up --env-file=.env
+```
 
-# make sure config folder contains feeds
-cat config/feeds.json
-cat config/feedsOnChain.json
+## Run validator w/o core services through docker-compose
 
-npm run start:dev:scheduler
+```shell script
+docker-compose -f docker-compose.yml up
+
+# run with a custom env file
+docker-compose -f docker-compose.yml --env-file=.env
+```
+
+## Run the worker service
+```shell script
+npm run start:worker -- --worker BlockMintingWorker
+
+# run in the debug mode
 npm run start:dev:worker -- --worker BlockMintingWorker
-
-npm run start:dev
 ```
 
-## Worker
+## Run the scheduler service
 ```shell script
-$ npm run start:worker -- --worker BlockMintingWorker
+npm run start:scheduler
+
+# run in the debug mode
+npm run start:dev:scheduler
 ```
 
-## Scheduler
+## Run Web API service
 ```shell script
-$ npm run start:scheduler
+npm run start
+
+# run in the debug mode
+npm start:dev
 ```
 
-## Building & Releasing
-First, compile the application:
-```shell script
-$ npm run build
-```
-
-This will create a directory with optimized JS files under `dist`.
-
-Run the application under production via:
+## Edit On-Chain and L2 definitions 
 
 ```shell script
-$ npm run start
+vi config/feeds.json
+vi config/feedsOnChain.json
 ```
 
-### Deploying
+## Running multiple validators
+One-line command:
+```shell script
+cp example.env .env.node1
+docker-compose --env-file=.env.node1 up -d
+
+cp example.env .env.node2
+docker-compose --env-file=.env.node2 up -d
+
+cp example.env .env.node3
+docker-compose --env-file=.env.node3 up -d
+```
+
+# Testing
 
 ```shell script
-make stage
+echo 'MONGODB_URL=mongodb://localhost:27017/pegasus' > .testing.env
 
-# clean up collections if needed:
-npm run task -- --task db:cleanup
+docker-compose up db -d
 
-# make sure config folder contains feeds
-cat config/feeds.json
-cat config/feedsOnChain.json
+npm run test
 ```
 
-### Kubctl cheats
+
+# Deployment
+
+```shell script
+
+echo 'AWS_REPOSITORY=...' >> .env
+make
+```
+
+## kubectl examples
 
 ```shell script
 # set env variable
-kubectl set env deployment/pegasus-worker REGISTRY_CONTRACT_ADDRESS='0x622c7725a8D1103E44F89341A6358A0e811Df0a5' --namespace staging
+kubectl get pods -n dev
+kubectl logs pegasus-worker-74cffb4588-dmrbs -n dev -f
+kubectl set env deployment/pegasus-worker REGISTRY_CONTRACT_ADDRESS='0x622c7725a8D1103E44F89341A6358A0e811Df0a5' -n dev
 ```
 
-## Api
+# API
 
-Sample response for `http://localhost:3000/blocks/height/3`:
+`http://localhost:3030/blocks/height/3`:
 
 ```json
 {
@@ -121,4 +226,23 @@ Sample response for `http://localhost:3000/blocks/height/3`:
     "__v": 0
   }
 }
+```
+
+`http://localhost:3030/info`:
+
+```json
+{
+  "validator": "0x...",
+  "contractRegistryAddress": "0x...",
+  "validatorRegistryAddress":"0x...",
+  "chainContractAddress":"0x...",
+  "version":"0.3.2",
+  "name": "default"
+}
+```
+
+`http://localhost:3030/health`:
+
+```text
+pong
 ```
