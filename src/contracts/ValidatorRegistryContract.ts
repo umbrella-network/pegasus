@@ -7,7 +7,7 @@ import {Validator} from '../types/Validator';
 
 @injectable()
 class ValidatorRegistryContract {
-  contract!: Contract;
+  registry!: ContractRegistry;
   settings!: Settings;
   blockchain!: Blockchain;
 
@@ -17,18 +17,15 @@ class ValidatorRegistryContract {
   }
 
   resolveContract = async (): Promise<Contract> => {
-    if (this.contract) {
-      return this.contract;
+    if (!this.registry) {
+      this.registry = new ContractRegistry(
+        this.blockchain.provider,
+        this.settings.blockchain.contracts.registry.address,
+      );
     }
 
-    const registry = new ContractRegistry(
-      this.blockchain.provider,
-      this.settings.blockchain.contracts.registry.address
-    );
-
-    const address = await registry.getAddress(this.settings.blockchain.contracts.validatorRegistry.name);
-    this.contract = new Contract(address, ABI.validatorRegistryAbi, this.blockchain.provider);
-    return this.contract;
+    const address = await this.registry.getAddress(this.settings.blockchain.contracts.validatorRegistry.name);
+    return new Contract(address, ABI.validatorRegistryAbi, this.blockchain.provider);
   };
 
   async getNumberOfValidators(): Promise<BigNumber> {

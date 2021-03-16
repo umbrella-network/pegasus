@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [0.5.0] - 2021-03-13
 ### Added
-
 - documented all env variables
 - multi-node set-up
+
+### Fixed
+- do not cache `ValidatorRegistry`
 
 ## [0.4.0] - 2021-03-12
 
