@@ -192,7 +192,8 @@ kubectl set env deployment/pegasus-worker REGISTRY_CONTRACT_ADDRESS='0x622c7725a
 
 # API
 
-`http://localhost:3030/blocks/height/3`:
+`http://localhost:3030/blocks/latest`:
+`http://localhost:3030/blocks/3`:
 
 ```json
 {
