@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - /blocks endpoint
 
+### Fixed
+- renamed HOLO to HOT
+
 ## [0.5.0] - 2021-03-13
 ### Added
 - documented all env variables

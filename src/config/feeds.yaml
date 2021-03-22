@@ -1380,14 +1380,14 @@ YFII-USDT:
           fsym: YFII
           tsym: USDT
 
-HOLO-USDT:
+HOT-USDT:
   discrepancy: 0.1
   precision: 6
   inputs:
     - fetcher:
         name: CryptoComparePriceWS
         params:
-          fsym: HOLO
+          fsym: HOT
           tsym: USDT
 
 ADA-ETH:
@@ -3810,14 +3810,14 @@ ZRX-USD:
           fsym: ZRX
           tsym: USD
 
-HOLO-BNB:
+HOT-BNB:
   discrepancy: 0.1
   precision: 8
   inputs:
     - fetcher:
         name: CryptoComparePriceWS
         params:
-          fsym: HOLO
+          fsym: HOT
           tsym: BNB
 
 DOGE-BUSD:
@@ -4500,14 +4500,14 @@ PAY-BTC:
           fsym: PAY
           tsym: BTC
 
-HOLO-ETH:
+HOT-ETH:
   discrepancy: 0.1
   precision: 9
   inputs:
     - fetcher:
         name: CryptoComparePriceWS
         params:
-          fsym: HOLO
+          fsym: HOT
           tsym: ETH
 
 SUSHI-USD:
