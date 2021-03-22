@@ -89,6 +89,8 @@ class BlockMinter {
       this.mintGuard.apply(Number(blockHeight))
     ]);
 
+    this.logger.info(`canMint: ${votersCount.isZero()} && ${allowed}`)
+
     return votersCount.isZero() && allowed;
   }
 

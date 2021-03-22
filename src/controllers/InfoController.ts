@@ -4,6 +4,8 @@ import Settings from '../types/Settings';
 import ValidatorRegistryContract from '../contracts/ValidatorRegistryContract';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from "../lib/Blockchain";
+import Block from "../models/Block";
+import {getModelForClass} from "@typegoose/typegoose";
 
 @injectable()
 class InfoController {
@@ -20,7 +22,19 @@ class InfoController {
     this.blockchain = blockchain;
   }
 
+  private async getLastSubmittedBlock(): Promise<Block | undefined> {
+    const blocks: Block[] = await getModelForClass(Block)
+      .find({})
+      .limit(1)
+      .sort({height: -1})
+      .exec();
+
+    return blocks[0];
+  }
+
   pong = async (request: Request, response: Response): Promise<void> => {
+    const lastSubmittedBlock = await this.getLastSubmittedBlock()
+
     response.send({
       validator: await this.blockchain.wallet.getAddress(),
       contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
@@ -29,6 +43,7 @@ class InfoController {
       version: this.settings.version || null,
       environment: this.settings.environment,
       name: this.settings.name,
+      lastSubmittedBlock: lastSubmittedBlock ? lastSubmittedBlock.height : undefined
     });
   }
 }
