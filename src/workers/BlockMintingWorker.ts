@@ -4,16 +4,14 @@ import {inject, injectable} from 'inversify';
 import BlockMinter from '../services/BlockMinter';
 import BasicWorker from './BasicWorker';
 import Settings from '../types/Settings';
-import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
-import loadFeeds from '../config/loadFeeds';
-import {Pair} from '../types/Feed';
+import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
 
 @injectable()
 class BlockMintingWorker extends BasicWorker {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
   @inject(BlockMinter) blockMinter!: BlockMinter;
-  @inject(CryptoCompareWSClient) cryptoCompareWSClient!: CryptoCompareWSClient;
+  @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
 
   apply = async (job: Bull.Job): Promise<void> => {
     if (this.isStale(job)) return;
@@ -34,23 +32,11 @@ class BlockMintingWorker extends BasicWorker {
   start = (): void => {
     super.start();
 
-    this.cryptoCompareWSClient.start();
-
-    this.subscribeWS().catch(this.logger.error);
+    this.cryptoCompareWSInitializer.apply().catch((err) => {
+      this.logger.error(err);
+      process.exit(1);
+    });
   };
-
-  async subscribeWS(): Promise<void> {
-    const feeds = await loadFeeds(this.settings.feedsFile);
-    const onChainFeeds = await loadFeeds(this.settings.feedsOnChain);
-
-    const pairs: Pair[] = [...Object.values(feeds), ...Object.values(onChainFeeds)]
-      .map((value) => value.inputs).flat()
-      .filter(({fetcher}) => fetcher.name === 'CryptoComparePriceWS')
-      .map(({fetcher}) => fetcher.params)
-      .map(({fsym, tsym}: any) => ({fsym, tsym}));
-
-    this.cryptoCompareWSClient.subscribe(...pairs);
-  }
 }
 
 export default BlockMintingWorker;

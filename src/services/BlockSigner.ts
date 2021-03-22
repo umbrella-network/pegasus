@@ -11,7 +11,8 @@ import FeedProcessor from './FeedProcessor';
 import Feeds from '../types/Feed';
 import {Logger} from 'winston';
 import BlockMinter from './BlockMinter';
-import { LeafType, LeafValueCoder } from '@umb-network/toolbox';
+import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
+import sort from 'fast-sort';
 
 @injectable()
 class BlockSigner {
@@ -63,33 +64,44 @@ class BlockSigner {
       throw Error(`we can't get leaves from ${feedFileName}... check API access to feeds.`);
     }
 
-    if (!this.isValueDeviate(leaves, proposedLeaves, feeds)) {
-      throw Error(`Discrepancy is to high.`);
+    const discrepancies = Object.entries(this.findDiscrepancies(leaves, proposedLeaves, feeds));
+
+    if (discrepancies.length) {
+      throw Error('Discrepancy is to high: [' +
+        sort(discrepancies).desc(([, value]) => value)
+          .map(([key, value]) => `${key}: ${value}%`)
+          .join(', ') + ']');
     }
   }
 
-  private isValueDeviate(originalLeafs: Leaf[], leafs: Leaf[], feeds: Feeds) {
+  private findDiscrepancies(leaves: Leaf[], proposedLeaves: Leaf[], feeds: Feeds) {
     const leafByLabel: {[label: string]: Leaf} = {};
-    leafs.forEach((leaf) => {
+    leaves.forEach((leaf) => {
       leafByLabel[leaf.label] = leaf;
     });
 
-    return originalLeafs.every(({valueBytes: originalValueBytes, label}) => {
+    const discrepancies: {[key: string]: number} = {};
+
+    proposedLeaves.forEach(({valueBytes: proposedValueBytes, label}) => {
       const leaf = leafByLabel[label];
       if (!leaf) {
-        return false;
+        discrepancies[label] = 100;
       }
 
-      const originalValue = LeafValueCoder.decode(originalValueBytes) as number;
+      const proposedValue = LeafValueCoder.decode(proposedValueBytes) as number;
       const value = LeafValueCoder.decode(leaf.valueBytes) as number;
-      const discrepancy = feeds[leaf.label].discrepancy;
-      const diffPerc = Math.max(value, originalValue) / Math.min(value, originalValue) - 1.0;
-      const invalid = diffPerc < (discrepancy * 0.01);
+      const {discrepancy} = feeds[leaf.label];
 
-      this.logger.debug(`${leaf}: requested = ${originalValue}, original = ${value}`);
+      const diffPerc = 200 * Math.abs(value - proposedValue) / (value + proposedValue);
 
-      return invalid;
+      if (discrepancy < diffPerc) {
+        discrepancies[label] = diffPerc;
+      }
+
+      this.logger.debug(`${leaf}: proposed = ${proposedValue}, value = ${value}, discrepancy = ${diffPerc}`);
     });
+
+    return discrepancies;
   }
 
   private keyValuesToLeaves(keyValues: KeyValues): Leaf[] {

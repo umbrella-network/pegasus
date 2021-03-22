@@ -106,7 +106,7 @@ docker-compose -f docker-compose.core.yml up db cache
 docker-compose up
 
 # run with a custom env file
-docker-compose up --env-file=.env
+docker-compose --env-file=.env up
 ```
 
 ## Run validator w/o core services through docker-compose
