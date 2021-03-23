@@ -1,5 +1,6 @@
 import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
+
 import {SignedBlock} from '../types/SignedBlock';
 import BlockSigner from "../services/BlockSigner";
 

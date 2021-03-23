@@ -1,7 +1,8 @@
-import { injectable } from 'inversify';
-import express, { Request, Response } from 'express';
+import {injectable} from 'inversify';
+import express, {Request, Response} from 'express';
+import {getModelForClass} from '@typegoose/typegoose';
+
 import Block from '../models/Block';
-import { getModelForClass } from '@typegoose/typegoose';
 
 @injectable()
 class BlocksController {
@@ -10,28 +11,23 @@ class BlocksController {
   constructor() {
     this.router = express
       .Router()
-      .get('/', this.index)
-      .get('/height/:height', this.read);
+      .get('/latest', this.blockNum)
+      .get('/:height', this.readBlock)
+      .get('/height/:height', this.readBlock);
   }
 
-  index = async (request: Request, response: Response): Promise<void> => {
-    const offset: number = parseInt(<string> request.query.offset);
-    const limit: number = parseInt(<string> request.query.limit);
+  blockNum = async (request: Request, response: Response): Promise<void> => {
+    const block = await getModelForClass(Block).findOne().sort({$natural: -1})
 
-    const blocks = await getModelForClass(Block)
-      .find()
-      .skip(offset)
-      .limit(limit)
-      .sort({ timestamp: -1 })
-      .exec();
-
-    response.send({ data: blocks });
+    response.send({data: block});
   }
 
-  read = async (request: Request, response: Response): Promise<void> => {
+  readBlock = async (request: Request, response: Response): Promise<void> => {
     const height = parseInt(request.params.height);
-    const block = await getModelForClass(Block).findOne({ height }).exec();
-    response.send({ data: block });
+
+    const block = await getModelForClass(Block).findOne({height}).exec();
+
+    response.send({data: block});
   }
 }
 

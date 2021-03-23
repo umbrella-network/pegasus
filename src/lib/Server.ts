@@ -1,8 +1,10 @@
-import { inject, injectable } from 'inversify';
+import {inject, injectable} from 'inversify';
 import express from 'express';
 import http from 'http';
+import {Logger} from 'winston';
 import helmet from 'helmet';
 import compression from 'compression';
+
 import logger from './logger';
 import Settings from '../types/Settings';
 import HealthController from '../controllers/HealthController';
@@ -17,8 +19,10 @@ class Server {
   private router: express.Application;
   private server: http.Server;
   private blockchain: Blockchain;
+  private logger: Logger;
 
   constructor(
+    @inject('Logger') logger: Logger,
     @inject('Settings') settings: Settings,
     @inject(Blockchain) blockchain: Blockchain,
     @inject(HealthController) healthController: HealthController,
@@ -27,6 +31,7 @@ class Server {
     @inject(InfoController) infoController: InfoController,
   ) {
     this.port = settings.port;
+    this.logger = logger;
 
     this.router = express()
       .use(helmet())
