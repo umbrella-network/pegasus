@@ -1,7 +1,7 @@
 # Volume-based pairs
 
 BTC-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -11,7 +11,7 @@ BTC-USD:
           tsym: USD
 
 ETH-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -21,7 +21,7 @@ ETH-USD:
           tsym: USD
 
 BTC-JPY:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -31,7 +31,7 @@ BTC-JPY:
           tsym: JPY
 
 BTC-EUR:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -41,7 +41,7 @@ BTC-EUR:
           tsym: EUR
 
 ADA-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 4
   inputs:
     - fetcher:
@@ -51,7 +51,7 @@ ADA-USDT:
           tsym: USDT
 
 XRP-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 4
   inputs:
     - fetcher:
@@ -61,7 +61,7 @@ XRP-USDT:
           tsym: USDT
 
 DOT-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -71,7 +71,7 @@ DOT-USDT:
           tsym: USDT
 
 ETH-BTC:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 5
   inputs:
     - fetcher:
@@ -81,7 +81,7 @@ ETH-BTC:
           tsym: BTC
 
 LTC-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -91,7 +91,7 @@ LTC-USDT:
           tsym: USDT
 
 BUSD-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 3
   inputs:
     - fetcher:
@@ -101,7 +101,7 @@ BUSD-USDT:
           tsym: USDT
 
 EOS-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 3
   inputs:
     - fetcher:
@@ -111,7 +111,7 @@ EOS-USDT:
           tsym: USDT
 
 ETH-EUR:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -121,7 +121,7 @@ ETH-EUR:
           tsym: EUR
 
 BNB-BUSD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -131,7 +131,7 @@ BNB-BUSD:
           tsym: BUSD
 
 BTC-USDC:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -141,7 +141,7 @@ BTC-USDC:
           tsym: USDC
 
 TRX-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 5
   inputs:
     - fetcher:
@@ -151,7 +151,7 @@ TRX-USDT:
           tsym: USDT
 
 IOST-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 5
   inputs:
     - fetcher:
@@ -161,7 +161,7 @@ IOST-USDT:
           tsym: USDT
 
 XLM-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 4
   inputs:
     - fetcher:
@@ -171,7 +171,7 @@ XLM-USDT:
           tsym: USDT
 
 DOGE-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 5
   inputs:
     - fetcher:
@@ -181,7 +181,7 @@ DOGE-USDT:
           tsym: USDT
 
 BNB-BTC:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 6
   inputs:
     - fetcher:
@@ -191,7 +191,7 @@ BNB-BTC:
           tsym: BTC
 
 ADA-BTC:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 8
   inputs:
     - fetcher:
@@ -201,7 +201,7 @@ ADA-BTC:
           tsym: BTC
 
 ATOM-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -211,7 +211,7 @@ ATOM-USDT:
           tsym: USDT
 
 XRP-BTC:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 9
   inputs:
     - fetcher:
@@ -221,7 +221,7 @@ XRP-BTC:
           tsym: BTC
 
 LTC-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -231,7 +231,7 @@ LTC-USD:
           tsym: USD
 
 HT-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -241,7 +241,7 @@ HT-USDT:
           tsym: USDT
 
 BTC-GBP:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -251,7 +251,7 @@ BTC-GBP:
           tsym: GBP
 
 USDT-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 3
   inputs:
     - fetcher:
@@ -261,7 +261,7 @@ USDT-USD:
           tsym: USD
 
 LTC-BTC:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 6
   inputs:
     - fetcher:
@@ -271,7 +271,7 @@ LTC-BTC:
           tsym: BTC
 
 ZEC-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -281,7 +281,7 @@ ZEC-USDT:
           tsym: USDT
 
 ETC-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -291,7 +291,7 @@ ETC-USDT:
           tsym: USDT
 
 NEO-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -301,7 +301,7 @@ NEO-USDT:
           tsym: USDT
 
 SRM-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 3
   inputs:
     - fetcher:
@@ -311,7 +311,7 @@ SRM-USDT:
           tsym: USDT
 
 BSV-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -321,7 +321,7 @@ BSV-USDT:
           tsym: USDT
 
 USDC-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 3
   inputs:
     - fetcher:
@@ -331,7 +331,7 @@ USDC-USDT:
           tsym: USDT
 
 ETH-JPY:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -341,7 +341,7 @@ ETH-JPY:
           tsym: JPY
 
 DASH-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -351,7 +351,7 @@ DASH-USDT:
           tsym: USDT
 
 SOL-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -361,7 +361,7 @@ SOL-USDT:
           tsym: USDT
 
 XEM-BTC:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 8
   inputs:
     - fetcher:
@@ -371,7 +371,7 @@ XEM-BTC:
           tsym: BTC
 
 ONT-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 4
   inputs:
     - fetcher:
@@ -381,7 +381,7 @@ ONT-USDT:
           tsym: USDT
 
 DOT-BTC:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 7
   inputs:
     - fetcher:
@@ -391,7 +391,7 @@ DOT-BTC:
           tsym: BTC
 
 FTM-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 4
   inputs:
     - fetcher:
@@ -401,7 +401,7 @@ FTM-USDT:
           tsym: USDT
 
 SUSHI-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -411,7 +411,7 @@ SUSHI-USDT:
           tsym: USDT
 
 XLM-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 4
   inputs:
     - fetcher:
@@ -421,7 +421,7 @@ XLM-USD:
           tsym: USD
 
 ADA-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 4
   inputs:
     - fetcher:
@@ -431,7 +431,7 @@ ADA-USD:
           tsym: USD
 
 BTT-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 6
   inputs:
     - fetcher:
@@ -441,7 +441,7 @@ BTT-USDT:
           tsym: USDT
 
 UNI-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -451,7 +451,7 @@ UNI-USD:
           tsym: USD
 
 BNB-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -461,7 +461,7 @@ BNB-USD:
           tsym: USD
 
 VET-USDT:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 5
   inputs:
     - fetcher:
@@ -471,7 +471,7 @@ VET-USDT:
           tsym: USDT
 
 BCH-BTC:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 5
   inputs:
     - fetcher:
@@ -481,7 +481,7 @@ BCH-BTC:
           tsym: BTC
 
 BNT-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -491,7 +491,7 @@ BNT-USD:
           tsym: USD
 
 LINK-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -501,7 +501,7 @@ LINK-USD:
           tsym: USD
 
 UMB-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -513,7 +513,7 @@ UMB-USD:
 # histo
 
 ETH-USD-TWAP-1day:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -528,7 +528,7 @@ ETH-USD-TWAP-1day:
 # GVol
 
 GVol-BTC-IV-1day:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -538,7 +538,7 @@ GVol-BTC-IV-1day:
           sym: BTC
 
 GVol-BTC-IV-28days:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -548,7 +548,7 @@ GVol-BTC-IV-28days:
           sym: BTC
 
 GVol-ETH-IV-1day:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -558,7 +558,7 @@ GVol-ETH-IV-1day:
           sym: ETH
 
 GVol-ETH-IV-28days:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -570,7 +570,7 @@ GVol-ETH-IV-28days:
 # Polygon
 
 EQ:TSLA:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -579,7 +579,7 @@ EQ:TSLA:
           sym: TSLA
 
 EQ:FB:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -588,7 +588,7 @@ EQ:FB:
           sym: FB
 
 EQ:AMZN:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -597,7 +597,7 @@ EQ:AMZN:
           sym: AMZN
 
 EQ:AAPL:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -606,7 +606,7 @@ EQ:AAPL:
           sym: AAPL
 
 EQ:GOOG:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:

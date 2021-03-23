@@ -17,7 +17,7 @@ class BlocksController {
   }
 
   blockNum = async (request: Request, response: Response): Promise<void> => {
-    const block = await getModelForClass(Block).findOne().sort({$natural: -1})
+    const block = await getModelForClass(Block).findOne().sort({height: -1})
 
     response.send({data: block});
   }

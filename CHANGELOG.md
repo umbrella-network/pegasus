@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [0.6.1] - 2021-03-23
+
+### Fixed
+- No EX for CryptoCompare WS
+- Fixed MongoDB queries to be compatible with 4.0.0
+
 ## [0.6.0] - 2021-03-23
 
 ### Fixed
