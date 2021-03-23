@@ -1,6 +1,7 @@
 import Bull from 'bullmq';
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
+
 import BlockMinter from '../services/BlockMinter';
 import BasicWorker from './BasicWorker';
 import Settings from '../types/Settings';
@@ -32,7 +33,7 @@ class BlockMintingWorker extends BasicWorker {
   start = (): void => {
     super.start();
 
-    this.cryptoCompareWSInitializer.apply().catch((err) => {
+    this.cryptoCompareWSInitializer.apply().catch((err: Error) => {
       this.logger.error(err);
       process.exit(1);
     });
