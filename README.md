@@ -106,7 +106,7 @@ docker-compose -f docker-compose.core.yml up db cache
 docker-compose up
 
 # run with a custom env file
-docker-compose up --env-file=.env
+docker-compose --env-file=.env up
 ```
 
 ## Run validator w/o core services through docker-compose
@@ -167,7 +167,7 @@ docker-compose --env-file=.env.node3 up -d
 ```shell script
 echo 'MONGODB_URL=mongodb://localhost:27017/pegasus' > .testing.env
 
-docker-compose up db -d
+docker-compose up -d db
 
 npm run test
 ```

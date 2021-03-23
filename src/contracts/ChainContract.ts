@@ -7,9 +7,9 @@ import Blockchain from '../lib/Blockchain';
 
 @injectable()
 class ChainContract {
+  readonly settings!: Settings;
+  readonly blockchain!: Blockchain;
   registry!: ContractRegistry;
-  settings!: Settings;
-  blockchain!: Blockchain;
 
   constructor(
     @inject('Settings') settings: Settings,
@@ -19,17 +19,9 @@ class ChainContract {
     this.blockchain = blockchain;
   }
 
-  resolveContract = async (): Promise<Contract> => {
-    if (!this.registry) {
-      this.registry = new ContractRegistry(
-        this.blockchain.provider,
-        this.settings.blockchain.contracts.registry.address,
-      );
-    }
-
-    const chainAddress = await this.registry.getAddress(this.settings.blockchain.contracts.chain.name);
-    return new Contract(chainAddress, ABI.chainAbi, this.blockchain.provider);
-  };
+  async getAddress(): Promise<string> {
+    return (await this.resolveContract()).address;
+  }
 
   async getLeaderAddress(): Promise<string> {
     return (await this.resolveContract()).getLeaderAddress();
@@ -48,6 +40,18 @@ class ChainContract {
       gasPrice: this.settings.blockchain.transactions.gasPrice,
     });
   }
+
+  resolveContract = async (): Promise<Contract> => {
+    if (!this.registry) {
+      this.registry = new ContractRegistry(
+        this.blockchain.provider,
+        this.settings.blockchain.contracts.registry.address,
+      );
+    }
+
+    const chainAddress = await this.registry.getAddress(this.settings.blockchain.contracts.chain.name);
+    return new Contract(chainAddress, ABI.chainAbi, this.blockchain.provider);
+  };
 }
 
 export default ChainContract;

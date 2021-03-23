@@ -30,36 +30,6 @@ LINK-USD:
           fsym: LINK
           tsym: USD
 
-SNX-USD:
-  discrepancy: 0.2
-  precision: 2
-  inputs:
-    - fetcher:
-        name: CryptoComparePriceWS
-        params:
-          fsym: SNX
-          tsym: USD
-
-DAI-USD:
-  discrepancy: 0.2
-  precision: 2
-  inputs:
-    - fetcher:
-        name: CryptoComparePriceWS
-        params:
-          fsym: DAI
-          tsym: USD
-
-COMP-USD:
-  discrepancy: 0.2
-  precision: 2
-  inputs:
-    - fetcher:
-        name: CryptoComparePriceWS
-        params:
-          fsym: COMP
-          tsym: USD
-
 BNT-USD:
   discrepancy: 0.2
   precision: 2
@@ -90,36 +60,6 @@ BNB-USD:
           fsym: BNB
           tsym: USD
 
-YFI-USD:
-  discrepancy: 0.2
-  precision: 2
-  inputs:
-    - fetcher:
-        name: CryptoComparePriceWS
-        params:
-          fsym: YFI
-          tsym: USD
-
-REN-USD:
-  discrepancy: 0.2
-  precision: 2
-  inputs:
-    - fetcher:
-        name: CryptoComparePriceWS
-        params:
-          fsym: REN
-          tsym: USD
-
-AAVE-USD:
-  discrepancy: 0.2
-  precision: 2
-  inputs:
-    - fetcher:
-        name: CryptoComparePriceWS
-        params:
-          fsym: AAVE
-          tsym: USD
-
 UMB-USD:
   discrepancy: 0.2
   precision: 2
@@ -129,11 +69,6 @@ UMB-USD:
         params:
           id: umbrella-network
           currency: usd
-    - fetcher:
-        name: CoinmarketcapPrice
-        params:
-          symbol: UMB
-          convert: USD
 
 # GVol
 

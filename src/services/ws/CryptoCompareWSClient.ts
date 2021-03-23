@@ -1,4 +1,5 @@
 import {inject, injectable} from 'inversify';
+import IORedis from 'ioredis';
 
 import WSClient from './WSClient';
 import Settings from '../../types/Settings';
@@ -6,9 +7,9 @@ import {Pair} from '../../types/Feed';
 
 @injectable()
 class CryptoCompareWSClient extends WSClient {
-  subscriptions: {[subscription: string]: Pair} = {};
+  connection: IORedis.Redis;
 
-  latestPrice: {[subscription: string]: number} = {};
+  subscriptions: {[subscription: string]: Pair} = {};
 
   connected = false;
 
@@ -25,10 +26,13 @@ class CryptoCompareWSClient extends WSClient {
     @inject('Settings') settings: Settings
   ) {
     super(`wss://streamer.cryptocompare.com/v2?api_key=${settings.api.cryptocompare.apiKey}`, 6000);
+
+    this.connection = new IORedis(settings.redis.url);
   }
 
-  getLatestPrice({fsym, tsym}: Pair): number {
-    return this.latestPrice[`${fsym}~${tsym}`];
+  async getLatestPrice({fsym, tsym}: Pair): Promise<number | null> {
+    const value = await this.connection.get(`CryptoCompare::${fsym}~${tsym}`);
+    return value === null ? null : parseFloat(value);
   }
 
   onAggregate({FROMSYMBOL: fsym, TOSYMBOL: tsym, MEDIAN: median}: any): void {
@@ -37,7 +41,8 @@ class CryptoCompareWSClient extends WSClient {
     }
 
     this.logger.debug(`${fsym}-${tsym}: ${median}`);
-    this.latestPrice[`${fsym}~${tsym}`] = median;
+
+    this.connection.set(`CryptoCompare::${fsym}~${tsym}`, median, 'EX', 60 * 15).catch(this.logger.warn);
   }
 
   onOpen(): void {

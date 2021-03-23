@@ -1,7 +1,8 @@
 import {injectable} from 'inversify';
 import express, {Request, Response} from 'express';
-import Block from '../models/Block';
 import {getModelForClass} from '@typegoose/typegoose';
+
+import Block from '../models/Block';
 
 @injectable()
 class BlocksController {
@@ -18,15 +19,15 @@ class BlocksController {
   blockNum = async (request: Request, response: Response): Promise<void> => {
     const block = await getModelForClass(Block).findOne().sort({$natural: -1})
 
-    response.send({ data: block });
+    response.send({data: block});
   }
 
   readBlock = async (request: Request, response: Response): Promise<void> => {
     const height = parseInt(request.params.height);
 
-    const block = await getModelForClass(Block).findOne({ height }).exec();
+    const block = await getModelForClass(Block).findOne({height}).exec();
 
-    response.send({ data: block });
+    response.send({data: block});
   }
 }
 

@@ -1,5 +1,6 @@
 import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
+
 import Settings from '../types/Settings';
 import ValidatorRegistryContract from '../contracts/ValidatorRegistryContract';
 import ChainContract from '../contracts/ChainContract';
@@ -24,8 +25,8 @@ class InfoController {
     response.send({
       validator: await this.blockchain.wallet.getAddress(),
       contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
-      validatorRegistryAddress: (await this.validatorRegistryContract.resolveContract()).address,
-      chainContractAddress: (await this.chainContract.resolveContract()).address,
+      validatorRegistryAddress: await this.validatorRegistryContract.getAddress(),
+      chainContractAddress: await this.chainContract.getAddress(),
       version: this.settings.version || null,
       environment: this.settings.environment,
       name: this.settings.name,

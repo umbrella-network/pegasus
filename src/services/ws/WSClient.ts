@@ -20,15 +20,15 @@ abstract class WSClient {
   }
 
   protected onStart(): void {
-    this.logger.info('started');
+    this.logger.info('WS started');
   }
 
   protected onOpen(): void {
-    this.logger.info('opened');
+    this.logger.info('WS opened');
   }
 
   protected onClose(): void {
-    this.logger.info('closed');
+    this.logger.info(`WS closed. reconnecting in ${this.reconnectTimout} ms`);
 
     this.socket = undefined;
     this.symbols.clear();
@@ -41,7 +41,7 @@ abstract class WSClient {
   }
 
   protected onMessage(message: string): void {
-    this.logger.warn(`message received: ${message}`);
+    this.logger.warn(`WS message received: ${message}`);
   }
 
   start(): void {
@@ -57,6 +57,8 @@ abstract class WSClient {
   }
 
   connect(): void {
+    this.logger.warn('WS connecting...');
+
     this.socket = new WebSocket(this.url);
 
     this.socket.onopen = () => {
@@ -70,11 +72,11 @@ abstract class WSClient {
 
     this.socket.onclose = (event) => {
       if (event.wasClean) {
-        console.warn(`Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+        this.logger.warn(`WS connection closed cleanly, code=${event.code} reason=${event.reason}`);
       } else {
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case
-        console.warn('Connection died');
+        this.logger.warn('WS connection died');
       }
 
       this.open = false;
