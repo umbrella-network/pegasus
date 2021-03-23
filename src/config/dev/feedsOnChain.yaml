@@ -1,7 +1,7 @@
 # Crypto
 
 ETH-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -11,7 +11,7 @@ ETH-USD:
           tsym: USD
 
 BTC-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -21,7 +21,7 @@ BTC-USD:
           tsym: USD
 
 LINK-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -31,7 +31,7 @@ LINK-USD:
           tsym: USD
 
 BNT-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -41,7 +41,7 @@ BNT-USD:
           tsym: USD
 
 UNI-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -51,7 +51,7 @@ UNI-USD:
           tsym: USD
 
 BNB-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -61,7 +61,7 @@ BNB-USD:
           tsym: USD
 
 UMB-USD:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -73,7 +73,7 @@ UMB-USD:
 # GVol
 
 GVol-BTC-IV-28days:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
@@ -83,7 +83,7 @@ GVol-BTC-IV-28days:
           sym: BTC
 
 GVol-ETH-IV-28days:
-  discrepancy: 0.2
+  discrepancy: 0.5
   precision: 2
   inputs:
     - fetcher:
