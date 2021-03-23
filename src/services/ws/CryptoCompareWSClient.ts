@@ -42,7 +42,7 @@ class CryptoCompareWSClient extends WSClient {
 
     this.logger.debug(`${fsym}-${tsym}: ${median}`);
 
-    this.connection.set(`CryptoCompare::${fsym}~${tsym}`, median, 'EX', 60 * 15).catch(this.logger.warn);
+    this.connection.set(`CryptoCompare::${fsym}~${tsym}`, median).catch(this.logger.warn);
   }
 
   onOpen(): void {

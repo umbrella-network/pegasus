@@ -69,7 +69,7 @@ class BlockSigner {
     if (discrepancies.length) {
       throw Error('Discrepancy is to high: [' +
         sort(discrepancies).desc(([, value]) => value)
-          .map(([key, value]) => `${key}: ${value}%`)
+          .map(([key, value]) => `${key}: ${Math.round(value * 100) / 100.0}%`)
           .join(', ') + ']');
     }
   }
