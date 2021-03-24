@@ -109,4 +109,4 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
           aws_region: ${{ secrets.AWS_REGION }}
           cluster_name: ${{ secrets.CLUSTER_NAME_PROD }}
-          args: set image --record deployment/pegasus-scheduler2 pegasus2-scheduler="${{ steps.docker_meta.outputs.tags }}" --namespace prod
+          args: set image --record deployment/pegasus2-scheduler pegasus2-scheduler="${{ steps.docker_meta.outputs.tags }}" --namespace prod
