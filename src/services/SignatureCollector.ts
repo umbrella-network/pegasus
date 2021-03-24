@@ -7,6 +7,7 @@ import Blockchain from '../lib/Blockchain';
 import BlockMinter from './BlockMinter';
 import {Logger} from 'winston';
 import {Validator} from '../types/Validator';
+import sort from 'fast-sort';
 
 @injectable()
 class SignatureCollector {
@@ -17,7 +18,9 @@ class SignatureCollector {
   async apply(block: SignedBlock, affidavit: string): Promise<string[]> {
     const validators = await this.validatorRegistryContract.getValidators();
 
-    const signatures = await Promise.all(validators.map((validator: Validator) => this.collectSignature(validator, block, affidavit)));
+    const signatures = await Promise.all(sort(validators)
+      .desc(({id}) => id === this.blockchain.wallet.address) // the leader's signature should go first
+      .map((validator: Validator) => this.collectSignature(validator, block, affidavit)));
 
     return [...new Set(signatures.flat())];
   }
