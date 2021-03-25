@@ -15,6 +15,7 @@ import loadFeeds from "../config/loadFeeds";
 import Settings from "../types/Settings";
 import {SignedBlock} from '../types/SignedBlock';
 import SignatureCollector from './SignatureCollector';
+import ValidatorRegistryContract from '../contracts/ValidatorRegistryContract';
 
 @injectable()
 class BlockMinter {
@@ -27,6 +28,7 @@ class BlockMinter {
   @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
   @inject(MintGuard) mintGuard!: MintGuard;
   @inject('Settings') settings!: Settings;
+  @inject(ValidatorRegistryContract) private validatorRegistryContract!: ValidatorRegistryContract;
 
   async apply(): Promise<void> {
     if (!(await this.isLeader())) return;
@@ -39,6 +41,8 @@ class BlockMinter {
     }
 
     this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()}...`);
+
+    const validators = await this.validatorRegistryContract.getValidators();
 
     const [firstClassLeaves, leaves] = await Promise.all([
       this.loadFeeds(this.settings.feedsOnChain),
@@ -64,7 +68,7 @@ class BlockMinter {
       fcd: Object.fromEntries(numericFcdKeys.map((_, idx) => [numericFcdKeys[idx], numericFcdValues[idx]])),
     };
 
-    const signatures = await this.signatureCollector.apply(signedBlock, affidavit);
+    const signatures = await this.signatureCollector.apply(signedBlock, affidavit, validators);
 
     const mint = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues, signatures);
     if (mint) {

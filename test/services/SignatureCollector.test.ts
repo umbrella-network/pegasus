@@ -60,7 +60,7 @@ describe('SignatureCollector', () => {
       signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit);
+    const signatures = await signatureCollector.apply(block, affidavit, await mockedValidatorRegistryContract.getValidators());
 
     expect(signatures).to.be.an('array').with.lengthOf(1);
     expect(signatures[0]).to.be.a('string').that.is.eq(block.signature);
@@ -93,7 +93,7 @@ describe('SignatureCollector', () => {
       signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit);
+    const signatures = await signatureCollector.apply(block, affidavit, await mockedValidatorRegistryContract.getValidators());
 
     expect(signatures).to.be.an('array').with.lengthOf(0);
   });
@@ -125,7 +125,7 @@ describe('SignatureCollector', () => {
       signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit);
+    const signatures = await signatureCollector.apply(block, affidavit, await mockedValidatorRegistryContract.getValidators());
 
     expect(signatures).to.be.an('array').with.lengthOf(1);
     expect(signatures[0]).to.be.a('string').that.is.eq(signatureOfAnotherValidator);
@@ -169,7 +169,7 @@ describe('SignatureCollector', () => {
       signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit);
+    const signatures = await signatureCollector.apply(block, affidavit, await mockedValidatorRegistryContract.getValidators());
 
     expect(signatures).to.be.an('array').with.lengthOf(2);
     expect(signatures).to.include(signatureOfSecondValidator);

@@ -20,6 +20,7 @@ import { BigNumber, ethers, Wallet } from 'ethers'
 import { loadTestEnv } from '../helpers/loadTestEnv';
 import mongoose from 'mongoose';
 import { getModelForClass } from '@typegoose/typegoose';
+import ValidatorRegistryContract from '../../src/contracts/ValidatorRegistryContract';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -27,6 +28,7 @@ describe('BlockMinter', () => {
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedMintGuard: sinon.SinonStubbedInstance<MintGuard>;
+  let mockedValidatorRegistryContract: sinon.SinonStubbedInstance<ValidatorRegistryContract>;
   let settings: Settings;
   let blockMinter: BlockMinter;
 
@@ -46,6 +48,7 @@ describe('BlockMinter', () => {
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
     mockedMintGuard = sinon.createStubInstance(MintGuard);
+    mockedValidatorRegistryContract = sinon.createStubInstance(ValidatorRegistryContract);
     settings = {
       feedsFile: 'src/config/feeds.yaml',
       feedsOnChain: 'src/config/feedsOnChain.yaml',
@@ -60,6 +63,7 @@ describe('BlockMinter', () => {
     container.bind(SaveMintedBlock).toSelf();
     container.bind(MintGuard).toConstantValue(mockedMintGuard as unknown as MintGuard);
     container.bind('Settings').toConstantValue(settings);
+    container.bind(ValidatorRegistryContract).toConstantValue(mockedValidatorRegistryContract);
 
     container.bind(BlockMinter).to(BlockMinter);
 
@@ -202,7 +206,6 @@ describe('BlockMinter', () => {
       expect(mockedSignatureCollector.apply.args[0][1]).to.be.eq(affidavit, 'the second argument is not the right affidavit');
     })
 
-
     it('does not save block to database if submitting finished unsuccessfully', async () => {
       const { leaf, affidavit } = leafWithAffidavit;
       const wallet = Wallet.createRandom();
@@ -210,6 +213,7 @@ describe('BlockMinter', () => {
 
       mockedBlockchain.wallet = wallet;
 
+      mockedValidatorRegistryContract.getValidators.resolves([]);
       mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
       mockedChainContract.getLeaderAddress.resolves(wallet.address);
       mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
@@ -224,7 +228,6 @@ describe('BlockMinter', () => {
       expect(blocksCount).to.be.eq(0, 'BlockMinter saved some blocks to database')
     })
 
-
     it('saves block to database if submitting finished successfully', async () => {
       const { leaf, affidavit } = leafWithAffidavit;
       const wallet = Wallet.createRandom();
@@ -232,6 +235,7 @@ describe('BlockMinter', () => {
 
       mockedBlockchain.wallet = wallet;
 
+      mockedValidatorRegistryContract.getValidators.resolves([]);
       mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
       mockedChainContract.getLeaderAddress.resolves(wallet.address);
       mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
