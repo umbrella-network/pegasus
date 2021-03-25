@@ -181,6 +181,7 @@ describe('BlockMinter', () => {
       mockedMintGuard.apply.resolves(true);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
       mockedSignatureCollector.apply.resolves([signature]);
+      mockedValidatorRegistryContract.getValidators.resolves([]);
 
       await blockMinter.apply();
 

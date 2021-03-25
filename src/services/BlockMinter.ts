@@ -45,7 +45,11 @@ class BlockMinter {
 
     const validators = await this.validatorRegistryContract.getValidators();
 
+    this.logger.info('Loading feeds...');
+
     const [firstClassLeaves, leaves] = await this.loadFeeds(this.settings.feedsOnChain, this.settings.feedsFile);
+
+    this.logger.info('Signing feeds...');
 
     const tree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(leaves));
 
@@ -66,7 +70,11 @@ class BlockMinter {
       fcd: Object.fromEntries(numericFcdKeys.map((_, idx) => [numericFcdKeys[idx], numericFcdValues[idx]])),
     };
 
+    this.logger.info(`Collecting signatures from ${validators.length - 1} validators...`);
+
     const signatures = await this.signatureCollector.apply(signedBlock, affidavit, validators);
+
+    this.logger.info(`Minting a block with ${signatures.length} signatures...`);
 
     const mint = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues, signatures);
     if (mint) {

@@ -34,6 +34,8 @@ class BlockSigner {
       throw Error(`Does not match with the current block ${blockHeight}.`);
     }
 
+    this.logger.info(`Signing a block by ${leader}...`);
+
     const proposedLeaves = this.keyValuesToLeaves(block.leaves);
     const proposedTree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(proposedLeaves));
 
@@ -49,7 +51,11 @@ class BlockSigner {
 
     await this.checkFeeds([this.settings.feedsOnChain, this.settings.feedsFile], [proposedFcd, proposedLeaves]);
 
-    return await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
+    const result = await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
+
+    this.logger.info(`Signed a block by ${leader} `);
+
+    return result;
   }
 
   private async checkFeeds(feedFiles: string[], proposedLeaves: Leaf[][]): Promise<void> {
