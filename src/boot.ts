@@ -1,4 +1,4 @@
-import 'newrelic';
+require('newrelic');
 import 'reflect-metadata';
 import dotenv from 'dotenv';
 import './config/initMongoDB';
