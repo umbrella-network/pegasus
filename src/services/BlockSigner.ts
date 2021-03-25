@@ -24,12 +24,11 @@ class BlockSigner {
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
 
   async apply(block: SignedBlock): Promise<string> {
-    const currentLeader = await this.chainContract.getLeaderAddress();
-    if (currentLeader === this.blockchain.wallet.address) {
+    const {leader, blockHeight} = await this.chainContract.getLatestData();
+
+    if (leader === this.blockchain.wallet.address) {
       throw Error('You are the leader, and you should not sign your block again.');
     }
-
-    const blockHeight = await this.chainContract.getBlockHeight();
 
     if (block.blockHeight !== blockHeight.toNumber()) {
       throw Error(`Does not match with the current block ${blockHeight}.`);
@@ -44,7 +43,7 @@ class BlockSigner {
 
     const affidavit = BlockMinter.generateAffidavit(proposedTree.getRoot(), BigNumber.from(block.blockHeight), proposedFcdKeys, proposedFcdValues);
     const recoveredSigner = await BlockMinter.recoverSigner(affidavit, block.signature);
-    if (recoveredSigner !== currentLeader) {
+    if (recoveredSigner !== leader) {
       throw Error('Signature does not belong to the current leader');
     }
 
