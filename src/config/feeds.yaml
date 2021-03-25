@@ -7016,6 +7016,11 @@ UMB-USD:
         params:
           symbol: UMB
           convert: USD
+    - fetcher:
+        name: CryptoComparePrice
+        params:
+          fsym: UMB
+          tsyms: USD
 
 UMB-ETH:
   discrepancy: 0.5
@@ -7031,6 +7036,11 @@ UMB-ETH:
         params:
           symbol: UMB
           convert: ETH
+    - fetcher:
+        name: CryptoComparePrice
+        params:
+          fsym: UMB
+          tsyms: ETH
 
 UMB-BTC:
   discrepancy: 0.5
@@ -7046,6 +7056,11 @@ UMB-BTC:
         params:
           symbol: UMB
           convert: BTC
+    - fetcher:
+        name: CryptoComparePrice
+        params:
+          fsym: UMB
+          tsyms: BTC
 
 # histo
 

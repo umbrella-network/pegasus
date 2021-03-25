@@ -134,6 +134,11 @@ UMB-USD:
         params:
           symbol: UMB
           convert: USD
+    - fetcher:
+        name: CryptoComparePrice
+        params:
+          fsym: UMB
+          tsyms: BTC
 
 # GVol
 
