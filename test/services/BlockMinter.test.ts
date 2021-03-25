@@ -168,18 +168,6 @@ describe('BlockMinter', () => {
       expect(mockedFeedProcessor.apply.notCalled).to.be.true;
     })
 
-    it('throw error if feed processor does not return any leaves', async () => {
-      const wallet = Wallet.createRandom()
-      mockedBlockchain.wallet = wallet;
-      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1))
-      mockedChainContract.getLeaderAddress.resolves(wallet.address)
-      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0))
-      mockedMintGuard.apply.resolves(true);
-      mockedFeedProcessor.apply.resolves([]);
-
-      await expect(blockMinter.apply()).to.eventually.be.rejectedWith(/can't get leaves/);
-    })
-
     it('passes right arguments to SignatureCollector', async () => {
       const { leaf, affidavit, fcd } = leafWithAffidavit;
       const wallet = Wallet.createRandom();
@@ -191,7 +179,7 @@ describe('BlockMinter', () => {
       mockedChainContract.getLeaderAddress.resolves(wallet.address);
       mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
       mockedMintGuard.apply.resolves(true);
-      mockedFeedProcessor.apply.resolves([leaf]);
+      mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
       mockedSignatureCollector.apply.resolves([signature]);
 
       await blockMinter.apply();
@@ -218,7 +206,7 @@ describe('BlockMinter', () => {
       mockedChainContract.getLeaderAddress.resolves(wallet.address);
       mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
       mockedMintGuard.apply.resolves(true);
-      mockedFeedProcessor.apply.resolves([leaf]);
+      mockedFeedProcessor.apply.resolves([[leaf, leaf], [leaf, leaf]]);
       mockedSignatureCollector.apply.resolves([signature]);
       mockedChainContract.submit.rejects(); // throw error when trying to submit minted block
 
@@ -240,7 +228,7 @@ describe('BlockMinter', () => {
       mockedChainContract.getLeaderAddress.resolves(wallet.address);
       mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
       mockedMintGuard.apply.resolves(true);
-      mockedFeedProcessor.apply.resolves([leaf]);
+      mockedFeedProcessor.apply.resolves([[leaf, leaf], [leaf, leaf]]);
       mockedSignatureCollector.apply.resolves([signature]);
       mockedChainContract.submit.resolves({
         wait: () => Promise.resolve({ status: 1 })

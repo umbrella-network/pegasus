@@ -22,7 +22,7 @@ describe('BlockSigner', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let mockedChainContract: sinon.SinonStubbedInstance<ChainContract>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
-  
+
   let blockSigner: BlockSigner;
 
   beforeEach(async () => {
@@ -105,7 +105,7 @@ describe('BlockSigner', () => {
     mockedBlockchain.wallet = wallet;
     mockedChainContract.getLeaderAddress.resolves(leaderWallet.address);
     mockedChainContract.getBlockHeight.resolves(BigNumber.from(1))
-    mockedFeedProcessor.apply.resolves([leaf]);
+    mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 
     const result = await blockSigner.apply({
       blockHeight: 1,

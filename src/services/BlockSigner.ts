@@ -48,29 +48,25 @@ class BlockSigner {
       throw Error('Signature does not belong to the current leader');
     }
 
-    await Promise.all([
-      this.checkFeeds(this.settings.feedsOnChain, proposedFcd),
-      this.checkFeeds(this.settings.feedsFile, proposedLeaves)
-    ]);
+    await this.checkFeeds([this.settings.feedsOnChain, this.settings.feedsFile], [proposedFcd, proposedLeaves]);
 
     return await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
   }
 
-  private async checkFeeds(feedFileName: string, proposedLeaves: Leaf[]): Promise<void> {
-    const feeds = await loadFeeds(feedFileName);
-    const leaves = await this.feedProcessor.apply(feeds);
+  private async checkFeeds(feedFiles: string[], proposedLeaves: Leaf[][]): Promise<void> {
+    const feeds: Feeds[] = await Promise.all(feedFiles.map((fileName) => loadFeeds(fileName)));
 
-    if (!leaves.length) {
-      throw Error(`we can't get leaves from ${feedFileName}... check API access to feeds.`);
-    }
+    const leaves = await this.feedProcessor.apply(...feeds);
 
-    const discrepancies = Object.entries(this.findDiscrepancies(leaves, proposedLeaves, feeds));
+    for (let i = 0; i < feeds.length; ++i) {
+      const discrepancies = Object.entries(this.findDiscrepancies(leaves[i], proposedLeaves[i], feeds[i]));
 
-    if (discrepancies.length) {
-      throw Error('Discrepancy is to high: [' +
-        sort(discrepancies).desc(([, value]) => value)
-          .map(([key, value]) => `${key}: ${Math.round(value * 100) / 100.0}%`)
-          .join(', ') + ']');
+      if (discrepancies.length) {
+        throw Error('Discrepancy is to high: [' +
+          sort(discrepancies).desc(([, value]) => value)
+            .map(([key, value]) => `${key}: ${Math.round(value * 100) / 100.0}%`)
+            .join(', ') + ']');
+      }
     }
   }
 
