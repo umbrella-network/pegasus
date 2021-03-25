@@ -1,4 +1,3 @@
-require('newrelic');
 import './boot';
 import yargs from 'yargs';
 import Application from './lib/Application';

@@ -50,6 +50,7 @@
     "typescript": "4.0.5"
   },
   "dependencies": {
+    "@newrelic/publish-sourcemap": "^5.0.1",
     "@typegoose/typegoose": "7.4.1",
     "@types/chai-as-promised": "7.1.3",
     "@umb-network/toolbox": "0.8.1",

@@ -1,4 +1,3 @@
-require('newrelic');
 import './boot';
 import Application from './lib/Application';
 import BlockMintingWorker from './workers/BlockMintingWorker';
