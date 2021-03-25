@@ -24,16 +24,17 @@ class BlockSigner {
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
 
   async apply(block: SignedBlock): Promise<string> {
-    const currentLeader = await this.chainContract.getLeaderAddress();
-    if (currentLeader === this.blockchain.wallet.address) {
+    const {leader, blockHeight} = await this.chainContract.getLatestData();
+
+    if (leader === this.blockchain.wallet.address) {
       throw Error('You are the leader, and you should not sign your block again.');
     }
-
-    const blockHeight = await this.chainContract.getBlockHeight();
 
     if (block.blockHeight !== blockHeight.toNumber()) {
       throw Error(`Does not match with the current block ${blockHeight}.`);
     }
+
+    this.logger.info(`Signing a block by ${leader}...`);
 
     const proposedLeaves = this.keyValuesToLeaves(block.leaves);
     const proposedTree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(proposedLeaves));
@@ -44,33 +45,33 @@ class BlockSigner {
 
     const affidavit = BlockMinter.generateAffidavit(proposedTree.getRoot(), BigNumber.from(block.blockHeight), proposedFcdKeys, proposedFcdValues);
     const recoveredSigner = await BlockMinter.recoverSigner(affidavit, block.signature);
-    if (recoveredSigner !== currentLeader) {
+    if (recoveredSigner !== leader) {
       throw Error('Signature does not belong to the current leader');
     }
 
-    await Promise.all([
-      this.checkFeeds(this.settings.feedsOnChain, proposedFcd),
-      this.checkFeeds(this.settings.feedsFile, proposedLeaves)
-    ]);
+    await this.checkFeeds([this.settings.feedsOnChain, this.settings.feedsFile], [proposedFcd, proposedLeaves]);
 
-    return await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
+    const result = await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
+
+    this.logger.info(`Signed a block by ${leader} `);
+
+    return result;
   }
 
-  private async checkFeeds(feedFileName: string, proposedLeaves: Leaf[]): Promise<void> {
-    const feeds = await loadFeeds(feedFileName);
-    const leaves = await this.feedProcessor.apply(feeds);
+  private async checkFeeds(feedFiles: string[], proposedLeaves: Leaf[][]): Promise<void> {
+    const feeds: Feeds[] = await Promise.all(feedFiles.map((fileName) => loadFeeds(fileName)));
 
-    if (!leaves.length) {
-      throw Error(`we can't get leaves from ${feedFileName}... check API access to feeds.`);
-    }
+    const leaves = await this.feedProcessor.apply(...feeds);
 
-    const discrepancies = Object.entries(this.findDiscrepancies(leaves, proposedLeaves, feeds));
+    for (let i = 0; i < feeds.length; ++i) {
+      const discrepancies = Object.entries(this.findDiscrepancies(leaves[i], proposedLeaves[i], feeds[i]));
 
-    if (discrepancies.length) {
-      throw Error('Discrepancy is to high: [' +
-        sort(discrepancies).desc(([, value]) => value)
-          .map(([key, value]) => `${key}: ${Math.round(value * 100) / 100.0}%`)
-          .join(', ') + ']');
+      if (discrepancies.length) {
+        throw Error('Discrepancy is to high: [' +
+          sort(discrepancies).desc(([, value]) => value)
+            .map(([key, value]) => `${key}: ${Math.round(value * 100) / 100.0}%`)
+            .join(', ') + ']');
+      }
     }
   }
 

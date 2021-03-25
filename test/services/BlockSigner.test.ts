@@ -22,7 +22,7 @@ describe('BlockSigner', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let mockedChainContract: sinon.SinonStubbedInstance<ChainContract>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
-  
+
   let blockSigner: BlockSigner;
 
   beforeEach(async () => {
@@ -51,7 +51,10 @@ describe('BlockSigner', () => {
   it('throws error if you are the leader', async () => {
     const wallet = Wallet.createRandom();
     mockedBlockchain.wallet = wallet;
-    mockedChainContract.getLeaderAddress.resolves(wallet.address);
+    mockedChainContract.getLatestData.resolves({
+      leader: wallet.address,
+      blockHeight: BigNumber.from(2),
+    });
 
     await expect(blockSigner.apply({
       blockHeight: 1,
@@ -63,8 +66,10 @@ describe('BlockSigner', () => {
 
   it('throws error if submitted block is not the current one', async () => {
     mockedBlockchain.wallet = Wallet.createRandom();
-    mockedChainContract.getLeaderAddress.resolves(Wallet.createRandom().address);
-    mockedChainContract.getBlockHeight.resolves(BigNumber.from(2))
+    mockedChainContract.getLatestData.resolves({
+      leader: Wallet.createRandom().address,
+      blockHeight: BigNumber.from(2),
+    });
 
     await expect(blockSigner.apply({
       blockHeight: 1,
@@ -82,8 +87,11 @@ describe('BlockSigner', () => {
     const signature = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
 
     mockedBlockchain.wallet = wallet;
-    mockedChainContract.getLeaderAddress.resolves(Wallet.createRandom().address);
-    mockedChainContract.getBlockHeight.resolves(BigNumber.from(1))
+
+    mockedChainContract.getLatestData.resolves({
+      leader: Wallet.createRandom().address,
+      blockHeight: BigNumber.from(1),
+    });
 
     await expect(blockSigner.apply({
       blockHeight: 1,
@@ -92,7 +100,6 @@ describe('BlockSigner', () => {
       signature: signature,
     })).to.be.rejectedWith('Signature does not belong to the current leader')
   })
-
 
   it('returns validator\'s signature', async () => {
     const { affidavit, fcd, leaf } = leafWithAffidavit
@@ -103,9 +110,13 @@ describe('BlockSigner', () => {
     const signature = await BlockMinter.signAffidavitWithWallet(leaderWallet, affidavit);
 
     mockedBlockchain.wallet = wallet;
-    mockedChainContract.getLeaderAddress.resolves(leaderWallet.address);
-    mockedChainContract.getBlockHeight.resolves(BigNumber.from(1))
-    mockedFeedProcessor.apply.resolves([leaf]);
+
+    mockedChainContract.getLatestData.resolves({
+      leader: leaderWallet.address,
+      blockHeight: BigNumber.from(1),
+    });
+
+    mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 
     const result = await blockSigner.apply({
       blockHeight: 1,

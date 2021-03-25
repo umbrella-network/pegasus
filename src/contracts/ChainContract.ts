@@ -19,6 +19,14 @@ class ChainContract {
     this.blockchain = blockchain;
   }
 
+  async getLatestData(): Promise<{leader: string, blockHeight: BigNumber}> {
+    const contract = await this.resolveContract();
+
+    const [leader, blockHeight] = await Promise.all([contract.getLeaderAddress(), contract.getBlockHeight()]);
+
+    return {leader, blockHeight: blockHeight};
+  }
+
   async getAddress(): Promise<string> {
     return (await this.resolveContract()).address;
   }

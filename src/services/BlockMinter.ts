@@ -11,10 +11,12 @@ import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import SaveMintedBlock from './SaveMintedBlock';
 import MintGuard from './MintGuard';
 import FeedProcessor from "./FeedProcessor";
-import loadFeeds from "../config/loadFeeds";
 import Settings from "../types/Settings";
 import {SignedBlock} from '../types/SignedBlock';
 import SignatureCollector from './SignatureCollector';
+import ValidatorRegistryContract from '../contracts/ValidatorRegistryContract';
+import Feeds from '../types/Feed';
+import loadFeeds from '../config/loadFeeds';
 
 @injectable()
 class BlockMinter {
@@ -27,6 +29,7 @@ class BlockMinter {
   @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
   @inject(MintGuard) mintGuard!: MintGuard;
   @inject('Settings') settings!: Settings;
+  @inject(ValidatorRegistryContract) private validatorRegistryContract!: ValidatorRegistryContract;
 
   async apply(): Promise<void> {
     if (!(await this.isLeader())) return;
@@ -40,10 +43,13 @@ class BlockMinter {
 
     this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()}...`);
 
-    const [firstClassLeaves, leaves] = await Promise.all([
-      this.loadFeeds(this.settings.feedsOnChain),
-      this.loadFeeds(this.settings.feedsFile)
-    ]);
+    const validators = await this.validatorRegistryContract.getValidators();
+
+    this.logger.info('Loading feeds...');
+
+    const [firstClassLeaves, leaves] = await this.loadFeeds(this.settings.feedsOnChain, this.settings.feedsFile);
+
+    this.logger.info('Signing feeds...');
 
     const tree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(leaves));
 
@@ -64,7 +70,11 @@ class BlockMinter {
       fcd: Object.fromEntries(numericFcdKeys.map((_, idx) => [numericFcdKeys[idx], numericFcdValues[idx]])),
     };
 
-    const signatures = await this.signatureCollector.apply(signedBlock, affidavit);
+    this.logger.info(`Collecting signatures from ${validators.length - 1} validators...`);
+
+    const signatures = await this.signatureCollector.apply(signedBlock, affidavit, validators);
+
+    this.logger.info(`Minting a block with ${signatures.length} signatures...`);
 
     const mint = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues, signatures);
     if (mint) {
@@ -72,15 +82,10 @@ class BlockMinter {
     }
   }
 
-  private async loadFeeds(feedFileName: string): Promise<Leaf[]> {
-    const feeds = await loadFeeds(feedFileName);
-    const leaves = await this.feedProcessor.apply(feeds);
+  private async loadFeeds(...feedFileName: string[]): Promise<Leaf[][]> {
+    const feeds: Feeds[] = await Promise.all(feedFileName.map((fileName) => loadFeeds(fileName)));
 
-    if (!leaves.length) {
-      throw new Error(`we can't get leaves... check API access to feeds.`)
-    }
-
-    return leaves;
+    return this.feedProcessor.apply(...feeds);
   }
 
   private async canMint(blockHeight: BigNumber): Promise<boolean> {
