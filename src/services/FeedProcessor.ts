@@ -1,15 +1,14 @@
 import {inject, injectable} from 'inversify';
 import {v4 as uuid} from 'uuid';
-import {price} from "@umb-network/validator";
-
+import {price} from '@umb-network/validator';
+import {MD5 as hash} from 'object-hash';
+import {Logger} from 'winston';
+import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
 
 import Leaf from './../models/Leaf';
-
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
 import Feeds, {FeedInput} from '../types/Feed';
-import {Logger} from 'winston';
-import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
 
 interface Fetcher {
   // eslint-disable-next-line
@@ -18,11 +17,6 @@ interface Fetcher {
 
 // eslint-disable-next-line
 type Calculator = (value: any) => number;
-
-interface ProcessedValue {
-  label: string;
-  value: number;
-}
 
 @injectable()
 class FeedProcessor {
@@ -60,18 +54,56 @@ class FeedProcessor {
     }), {} as { [key: string]: Calculator; });
   }
 
-  async apply(feeds: Feeds): Promise<Leaf[]> {
-    const leaves = (await Promise.all(
-      Object.keys(feeds).map((leafLabel) => feeds[leafLabel].inputs.map((it) =>
-        this.processFeed(leafLabel, it))).flat())).flat();
+  async apply(...feedsArray: Feeds[]): Promise<Leaf[][]> {
+    const uniqueInputsMap: {[hash: string]: FeedInput} = {};
+    feedsArray.forEach((feeds) => {
+      const keys = Object.keys(feeds);
+      keys.forEach((leafLabel) => feeds[leafLabel].inputs.forEach((input) => {
+        uniqueInputsMap[hash(input)] = input;
+      }));
+    });
 
-    return this.groupLeavesWithMedian(leaves, feeds);
+    const inputIndexByHash: {[hash: string]: number} = {};
+    Object.keys(uniqueInputsMap).forEach((hash, index) => {
+      inputIndexByHash[hash] = index;
+    });
+
+    const values = await Promise.all(Object.values(uniqueInputsMap).map((input) => this.processFeed(input)));
+
+    const result: Leaf[][] = [];
+    const ignoredMap: {[string: string]: boolean} = {};
+
+    feedsArray.forEach((feeds) => {
+      const keys = Object.keys(feeds);
+      const leaves: Leaf[] = [];
+
+      keys.forEach((key) => {
+        const feed = feeds[key];
+        const feedValues = feed.inputs.map((input) => values[inputIndexByHash[hash(input)]])
+          .filter((item) => item !== undefined) as number[];
+
+        if (feedValues.length) {
+          leaves.push(this.calculateMedian(feedValues, key, feed.precision));
+        } else {
+          ignoredMap[key] = true;
+        }
+      });
+
+      result.push(leaves);
+    });
+
+    const ignored = Object.keys(ignoredMap);
+    if (ignored.length) {
+      this.logger.warn(`Ignored: ${JSON.stringify(ignored)}`);
+    }
+
+    return result;
   }
 
-  async processFeed(leafLabel: string, feedInput: FeedInput): Promise<ProcessedValue[]> {
+  async processFeed(feedInput: FeedInput): Promise<number | undefined> {
     const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
     if (!fetcher) {
-      throw new Error(`No fetcher specified for [${leafLabel}]`)
+      throw new Error('No fetcher specified.')
     }
 
     const calculate: Calculator = this.calculators[`calculate${feedInput.calculator?.name || 'Identity'}`];
@@ -80,15 +112,15 @@ class FeedProcessor {
     try {
       value = await fetcher.apply(feedInput.fetcher.params);
     } catch (err) {
-      this.logger.warn(`Ignored feed [${leafLabel}] due to an error.`, err);
-      return [];
+      this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
+      return;
     }
 
     if (value) {
-      return [{value: calculate(value), label: leafLabel}];
-    } else {
-      return [];
+      return calculate(value);
     }
+
+    return;
   }
 
   private buildLeaf = (leafLabel: string, leafValue: number): Leaf => {
@@ -100,21 +132,11 @@ class FeedProcessor {
     return leaf;
   }
 
-  private groupLeavesWithMedian(leaves: ProcessedValue[], feeds: Feeds): Leaf[] {
-    const groupedLeaves = leaves.reduce(function (res, leaf) {
-      (res[leaf.label] = res[leaf.label] || []).push(leaf);
-      return res;
-    }, {} as { [key: string]: ProcessedValue[]; });
+  private calculateMedian(values: number[], leafLabel: string, precision: number): Leaf {
+    const multi = Math.pow(10, precision);
+    const priceMedian = Math.round(price.median(values.map((value) => value)) * multi) / multi
 
-    return Object.values(groupedLeaves).map((values) => {
-      const {label} = values[0],
-        {precision} = feeds[label];
-
-      const multi = Math.pow(10, precision);
-      const priceMedian = Math.round(price.median(values.map(({value}) => value)) * multi) / multi
-
-      return this.buildLeaf(label, priceMedian);
-    });
+    return this.buildLeaf(leafLabel, priceMedian);
   }
 }
 

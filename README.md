@@ -69,6 +69,12 @@ FEEDS_ON_CHAIN_FILE=
 
 # AWS repository for docker containers (dev only)
 AWS_REPOSITORY=
+
+# NewRelic App name
+NEW_RELIC_APP_NAME=
+
+# NewRelic License Key
+NEW_RELIC_LICENSE_KEY=
 ```
 # Network
 

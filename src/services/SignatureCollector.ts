@@ -2,7 +2,6 @@ import {inject, injectable} from 'inversify';
 import axios from 'axios';
 
 import {SignedBlock} from '../types/SignedBlock';
-import ValidatorRegistryContract from '../contracts/ValidatorRegistryContract';
 import Blockchain from '../lib/Blockchain';
 import BlockMinter from './BlockMinter';
 import {Logger} from 'winston';
@@ -13,11 +12,8 @@ import sort from 'fast-sort';
 class SignatureCollector {
   @inject('Logger') private logger!: Logger;
   @inject(Blockchain) private blockchain!: Blockchain;
-  @inject(ValidatorRegistryContract) private validatorRegistryContract!: ValidatorRegistryContract;
 
-  async apply(block: SignedBlock, affidavit: string): Promise<string[]> {
-    const validators = await this.validatorRegistryContract.getValidators();
-
+  async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<string[]> {
     const signatures = await Promise.all(sort(validators)
       .desc(({id}) => id === this.blockchain.wallet.address) // the leader's signature should go first
       .map((validator: Validator) => this.collectSignature(validator, block, affidavit)));

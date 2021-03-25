@@ -98,8 +98,8 @@ describe('FeedProcessor', () => {
 
     const leaves = await feedProcessor.apply(feeds);
 
-    expect(leaves).to.be.an('array').with.lengthOf(1);
-    expect(leaves[0].valueBytes)
+    expect(leaves[0]).to.be.an('array').with.lengthOf(1);
+    expect(leaves[0][0].valueBytes)
       .is.a('string')
       .that.matches(/^0x[a-fA-F0-9]+$/);
   });
@@ -155,14 +155,14 @@ describe('FeedProcessor', () => {
 
     const leaves = await feedProcessor.apply(feeds);
 
-    expect(leaves).to.be.an('array').with.lengthOf(2);
+    expect(leaves[0]).to.be.an('array').with.lengthOf(2);
 
-    expect(leaves[0].label).to.equal('ETH-USD-TWAP-30days');
-    expect(leaves[0].valueBytes)
+    expect(leaves[0][0].label).to.equal('ETH-USD-TWAP-30days');
+    expect(leaves[0][0].valueBytes)
       .is.a('string')
       .that.matches(/^0x[a-fA-F0-9]+$/);
-    expect(leaves[1].label).to.equal('ETH-USD-TWAP-10days');
-    expect(leaves[1].valueBytes)
+    expect(leaves[0][1].label).to.equal('ETH-USD-TWAP-10days');
+    expect(leaves[0][1].valueBytes)
       .is.a('string')
       .that.matches(/^0x[a-fA-F0-9]+$/);
   });
