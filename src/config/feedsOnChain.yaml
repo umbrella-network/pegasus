@@ -138,7 +138,7 @@ UMB-USD:
         name: CryptoComparePrice
         params:
           fsym: UMB
-          tsyms: BTC
+          tsyms: USD
 
 # GVol
 
