@@ -43,7 +43,7 @@ describe("FeedProcessor integration tests", () => {
     container.bind(FeedProcessor).toSelf();
 
     feedProcessor = container.get(FeedProcessor);
-    feeds = await loadFeeds("src/config/feeds.yaml");
+    feeds = await loadFeeds("test/feeds/feeds.yaml");
   });
 
   if (config.CRYPTOCOMPARE_API_KEY) {

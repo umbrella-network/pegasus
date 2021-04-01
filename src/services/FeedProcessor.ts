@@ -136,6 +136,9 @@ class FeedProcessor {
     const multi = Math.pow(10, precision);
     const priceMedian = Math.round(price.median(values.map((value) => value)) * multi) / multi
 
+    console.log({values});
+    console.log({priceMedian});
+
     return this.buildLeaf(leafLabel, priceMedian);
   }
 }

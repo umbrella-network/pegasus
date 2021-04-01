@@ -98,9 +98,9 @@ class BlockMinter {
   }
 
   private async isLeader(): Promise<boolean> {
-    const currentLeader = await this.chainContract.getLeaderAddress();
+    const currentLeader = await this.chainContract.getNextLeaderAddress();
 
-    this.logger.info(`Current leader: ${currentLeader}, ${currentLeader === this.blockchain.wallet.address}`);
+    this.logger.info(`Next leader: ${currentLeader}, ${currentLeader === this.blockchain.wallet.address}`);
 
     return currentLeader === this.blockchain.wallet.address;
   }

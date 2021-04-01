@@ -1,0 +1,9 @@
+ETH-USD:
+  discrepancy: 0.5
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: ETH
+          tsym: USD
