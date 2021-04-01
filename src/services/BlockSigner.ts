@@ -34,7 +34,7 @@ class BlockSigner {
       throw Error(`Does not match with the current block ${blockHeight}.`);
     }
 
-    this.logger.info(`Signing a block by ${leader}...`);
+    this.logger.info(`Signing a block for ${leader}...`);
 
     const proposedLeaves = this.keyValuesToLeaves(block.leaves);
     const proposedTree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(proposedLeaves));
@@ -49,16 +49,27 @@ class BlockSigner {
       throw Error('Signature does not belong to the current leader');
     }
 
-    await this.checkFeeds([this.settings.feedsOnChain, this.settings.feedsFile], [proposedFcd, proposedLeaves]);
+    let discrepancies;
+    try {
+      discrepancies =
+        await this.checkFeeds([this.settings.feedsOnChain, this.settings.feedsFile], [proposedFcd, proposedLeaves]);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+
+    if (discrepancies) {
+      throw Error(`Discrepancy is to high: [${discrepancies}]`);
+    }
 
     const result = await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
 
-    this.logger.info(`Signed a block by ${leader} `);
+    this.logger.info(`Signed a block for ${leader} `);
 
     return result;
   }
 
-  private async checkFeeds(feedFiles: string[], proposedLeaves: Leaf[][]): Promise<void> {
+  private async checkFeeds(feedFiles: string[], proposedLeaves: Leaf[][]): Promise<string | undefined> {
     const feeds: Feeds[] = await Promise.all(feedFiles.map((fileName) => loadFeeds(fileName)));
 
     const leaves = await this.feedProcessor.apply(...feeds);
@@ -67,10 +78,9 @@ class BlockSigner {
       const discrepancies = Object.entries(this.findDiscrepancies(leaves[i], proposedLeaves[i], feeds[i]));
 
       if (discrepancies.length) {
-        throw Error('Discrepancy is to high: [' +
-          sort(discrepancies).desc(([, value]) => value)
+        return sort(discrepancies).desc(([, value]) => value)
             .map(([key, value]) => `${key}: ${Math.round(value * 100) / 100.0}%`)
-            .join(', ') + ']');
+            .join(', ');
       }
     }
   }

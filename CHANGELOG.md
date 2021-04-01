@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- More logging to BlockSigner
+
+### Changed
+- feed files can be loaded from a remote host
+- check for the leader based on the next block
+
 ## [0.7.2] - 2021-03-25
 
 ### Fix
