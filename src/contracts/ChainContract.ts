@@ -22,7 +22,7 @@ class ChainContract {
   async getLatestData(): Promise<{leader: string, blockHeight: BigNumber}> {
     const contract = await this.resolveContract();
 
-    const [leader, blockHeight] = await Promise.all([contract.getLeaderAddress(), contract.getBlockHeight()]);
+    const [leader, blockHeight] = await Promise.all([contract.getNextLeaderAddress(), contract.getBlockHeight()]);
 
     return {leader, blockHeight: blockHeight};
   }
@@ -31,8 +31,8 @@ class ChainContract {
     return (await this.resolveContract()).address;
   }
 
-  async getLeaderAddress(): Promise<string> {
-    return (await this.resolveContract()).getLeaderAddress();
+  async getNextLeaderAddress(): Promise<string> {
+    return (await this.resolveContract()).getNextLeaderAddress();
   }
 
   async getBlockHeight(): Promise<BigNumber> {

@@ -44,8 +44,8 @@ describe('FeedProcessor', () => {
     const container = new Container();
 
     settings = {
-      feedsFile: 'src/config/feeds.yaml',
-      feedsOnChain: 'src/config/feedsOnChain.yaml',
+      feedsFile: 'test/feeds/feeds.yaml',
+      feedsOnChain: 'test/feeds/feedsOnChain.yaml',
     } as Settings;
 
     container.bind('Logger').toConstantValue(mockedLogger);

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [0.8.0] - 2021-04-02
+
+### Added
+- More logging to BlockSigner
+- Disconnect CryptoCompare WS every 4 hours
+
+### Changed
+- feed files can be loaded from a remote host
+- check for the leader based on the next block
+- NewRelic is disabled by default
+
 ## [0.7.2] - 2021-03-25
 
 ### Fix

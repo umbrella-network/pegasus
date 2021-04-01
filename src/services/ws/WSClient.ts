@@ -89,6 +89,10 @@ abstract class WSClient {
 
     this.socket?.close();
   }
+
+  close() {
+    this.socket?.close(0, 'closed manually');
+  }
 }
 
 export default WSClient;

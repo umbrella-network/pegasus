@@ -61,8 +61,8 @@ const settings: Settings = {
       timeout: (parseInt(process.env.IEX_TIMEOUT || '5000', 10))
     },
   },
-  feedsFile: (process.env.FEEDS_FILE || 'src/config/feeds.yaml'),
-  feedsOnChain: (process.env.FEEDS_ON_CHAIN_FILE || 'src/config/feedsOnChain.yaml'),
+  feedsFile: (process.env.FEEDS_FILE || 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/feeds.yaml'),
+  feedsOnChain: (process.env.FEEDS_ON_CHAIN_FILE || 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/feedsOnChain.yaml'),
   version: packageJson.version,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
   name: process.env.NAME || 'default'

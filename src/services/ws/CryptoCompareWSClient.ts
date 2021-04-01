@@ -13,6 +13,9 @@ class CryptoCompareWSClient extends WSClient {
 
   connected = false;
 
+  timeBreakTimout = 4 * 60 * 60 * 1000;
+  clearTimeBreak?: () => void;
+
   eventHandlers: {[type: number]: (event: unknown) => void} = {
     5: this.onAggregate.bind(this),
     16: this.onSubscribe.bind(this),
@@ -52,6 +55,11 @@ class CryptoCompareWSClient extends WSClient {
   onConnected(event: unknown): void {
     this.connected = true;
 
+    const timeout = setTimeout(this.close.bind(this), this.timeBreakTimout);
+    this.clearTimeBreak = () => {
+      clearTimeout(timeout);
+    };
+
     const subscriptions = this.subscriptions;
     this.subscriptions = {};
     this.updateSubscription(subscriptions);
@@ -59,6 +67,8 @@ class CryptoCompareWSClient extends WSClient {
 
   protected onClose() {
     super.onClose();
+
+    this.clearTimeBreak && this.clearTimeBreak();
 
     this.connected = false;
   }
