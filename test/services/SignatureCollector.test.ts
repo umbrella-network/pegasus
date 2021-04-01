@@ -1,16 +1,16 @@
 import 'reflect-metadata';
 import SignatureCollector from '../../src/services/SignatureCollector';
-import { Container } from 'inversify'
+import {Container} from 'inversify'
 import sinon from 'sinon'
-import { mockedLogger } from '../mocks/logger'
+import {mockedLogger} from '../mocks/logger'
 import Blockchain from '../../src/lib/Blockchain';
 import ValidatorRegistryContract from '../../src/contracts/ValidatorRegistryContract';
-import { expect } from 'chai';
-import { Wallet } from 'ethers'
-import { SignedBlock } from '../../src/types/SignedBlock';
+import {expect} from 'chai';
+import {Wallet} from 'ethers'
+import {SignedBlock} from '../../src/types/SignedBlock';
 import moxios from 'moxios'
 import BlockMinter from '../../src/services/BlockMinter'
-import { leafWithAffidavit } from '../fixtures/leafWithAffidavit';
+import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 
 describe('SignatureCollector', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -23,6 +23,11 @@ describe('SignatureCollector', () => {
 
     const container = new Container()
 
+    const settings = {
+      signatureTimeout: 5000,
+    };
+
+    container.bind('Settings').toConstantValue(settings);
     mockedBlockchain = sinon.createStubInstance(Blockchain);
     mockedValidatorRegistryContract = sinon.createStubInstance(ValidatorRegistryContract);
 
@@ -46,7 +51,7 @@ describe('SignatureCollector', () => {
     mockedBlockchain.wallet = wallet;
 
     mockedValidatorRegistryContract.getValidators.resolves([
-      { id: wallet.address, location: 'http://validator' }
+      {id: wallet.address, location: 'http://validator'}
     ]);
 
     const block: SignedBlock = {
@@ -67,7 +72,7 @@ describe('SignatureCollector', () => {
   });
 
   it('returns no signatures if signer addresses does not match', async () => {
-    const { affidavit, fcd } = leafWithAffidavit
+    const {affidavit, fcd} = leafWithAffidavit
 
     const walletOfCurrentValidator = Wallet.createRandom();
     mockedBlockchain.wallet = walletOfCurrentValidator;
@@ -75,7 +80,7 @@ describe('SignatureCollector', () => {
     const walletOfAnotherValidator = Wallet.createRandom();
 
     mockedValidatorRegistryContract.getValidators.resolves([
-      { id: walletOfAnotherValidator.address, location: 'http://validator' },
+      {id: walletOfAnotherValidator.address, location: 'http://validator'},
     ]);
 
     moxios.stubRequest('http://validator/signature', {
@@ -99,7 +104,7 @@ describe('SignatureCollector', () => {
   });
 
   it('returns signature of the other validator if signer addresses match', async () => {
-    const { affidavit, fcd } = leafWithAffidavit;
+    const {affidavit, fcd} = leafWithAffidavit;
 
     const walletOfCurrentValidator = Wallet.createRandom();
     mockedBlockchain.wallet = walletOfCurrentValidator;
@@ -108,7 +113,7 @@ describe('SignatureCollector', () => {
     const signatureOfAnotherValidator = await BlockMinter.signAffidavitWithWallet(walletOfAnotherValidator, affidavit)
 
     mockedValidatorRegistryContract.getValidators.resolves([
-      { id: walletOfAnotherValidator.address, location: 'http://validator' },
+      {id: walletOfAnotherValidator.address, location: 'http://validator'},
     ]);
 
     moxios.stubRequest('http://validator/signature', {
@@ -132,7 +137,7 @@ describe('SignatureCollector', () => {
   });
 
   it('returns signatures from multiple validators if they are available', async () => {
-    const { affidavit, fcd } = leafWithAffidavit;
+    const {affidavit, fcd} = leafWithAffidavit;
 
     const walletOfCurrentValidator = Wallet.createRandom();
     mockedBlockchain.wallet = walletOfCurrentValidator;
@@ -144,8 +149,8 @@ describe('SignatureCollector', () => {
     const signatureOfThirdValidator = await BlockMinter.signAffidavitWithWallet(walletOfThirdValidator, affidavit)
 
     mockedValidatorRegistryContract.getValidators.resolves([
-      { id: walletOfSecondValidator.address, location: 'http://second-validator' },
-      { id: walletOfThirdValidator.address, location: 'http://third-validator' },
+      {id: walletOfSecondValidator.address, location: 'http://second-validator'},
+      {id: walletOfThirdValidator.address, location: 'http://third-validator'},
     ]);
 
     moxios.stubRequest('http://second-validator/signature', {

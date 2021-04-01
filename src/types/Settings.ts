@@ -56,6 +56,7 @@ type Settings = {
       timeout: number,
     },
   },
+  signatureTimeout: number,
   feedsFile: string,
   feedsOnChain: string,
   version: string;

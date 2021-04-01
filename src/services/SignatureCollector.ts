@@ -1,17 +1,19 @@
 import {inject, injectable} from 'inversify';
 import axios from 'axios';
+import sort from 'fast-sort';
+import {Logger} from 'winston';
 
 import {SignedBlock} from '../types/SignedBlock';
 import Blockchain from '../lib/Blockchain';
 import BlockMinter from './BlockMinter';
-import {Logger} from 'winston';
 import {Validator} from '../types/Validator';
-import sort from 'fast-sort';
+import Settings from '../types/Settings';
 
 @injectable()
 class SignatureCollector {
   @inject('Logger') private logger!: Logger;
   @inject(Blockchain) private blockchain!: Blockchain;
+  @inject('Settings') private settings!: Settings;
 
   async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<string[]> {
     const signatures = await Promise.all(sort(validators)
@@ -29,7 +31,7 @@ class SignatureCollector {
     }
 
     try {
-      const signature = await SignatureCollector.requestSignature(location, block);
+      const signature = await SignatureCollector.requestSignature(location, block, this.settings.signatureTimeout);
 
       const signerAddress = await BlockMinter.recoverSigner(affidavit, signature);
       if (signerAddress !== id) {
@@ -44,7 +46,7 @@ class SignatureCollector {
     return [];
   }
 
-  private static async requestSignature(location: string, block: SignedBlock): Promise<string> {
+  private static async requestSignature(location: string, block: SignedBlock, timeout: number): Promise<string> {
     const sourceUrl = `${location}/signature`;
 
     try {
@@ -52,6 +54,8 @@ class SignatureCollector {
         headers: {
           'Content-Type': 'application/json',
         },
+        timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
+        timeout,
       });
 
       return response.data.data;
