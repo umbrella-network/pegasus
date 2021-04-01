@@ -97,6 +97,7 @@ class BlockSigner {
       const leaf = leafByLabel[label];
       if (!leaf) {
         discrepancies[label] = 100;
+        return;
       }
 
       const proposedValue = LeafValueCoder.decode(proposedValueBytes) as number;
