@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [0.8.1] - 2021-04-02
+
+### Added
+- timout for /signature endpoint
+
 ## [0.8.0] - 2021-04-02
 
 ### Added
