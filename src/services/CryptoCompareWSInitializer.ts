@@ -3,11 +3,15 @@ import CryptoCompareWSClient from './ws/CryptoCompareWSClient';
 import loadFeeds from '../config/loadFeeds';
 import {Pair} from '../types/Feed';
 import Settings from '../types/Settings';
+import {Logger} from 'winston';
 
 @injectable()
 class CryptoCompareWSInitializer {
   @inject(CryptoCompareWSClient) cryptoCompareWSClient!: CryptoCompareWSClient;
   @inject('Settings') settings!: Settings;
+  @inject('Logger') logger!: Logger;
+
+  fileUpdateInterval = 60 * 1000;
 
   async apply(): Promise<void> {
     this.cryptoCompareWSClient.start();
@@ -16,8 +20,18 @@ class CryptoCompareWSInitializer {
   }
 
   async subscribeWS(): Promise<void> {
-    const feeds = await loadFeeds(this.settings.feedsFile);
-    const onChainFeeds = await loadFeeds(this.settings.feedsOnChain);
+    await this.updateWSSubscription();
+
+    setInterval(() => {
+      this.updateWSSubscription().catch(this.logger.error);
+    }, this.fileUpdateInterval);
+  }
+
+  async updateWSSubscription(): Promise<void> {
+    const [feeds, onChainFeeds] = await Promise.all([
+      loadFeeds(this.settings.feedsFile),
+      loadFeeds(this.settings.feedsOnChain)
+    ]);
 
     const pairs: Pair[] = [...Object.values(feeds), ...Object.values(onChainFeeds)]
       .map((value) => value.inputs).flat()
