@@ -11,4 +11,5 @@ RUN npm install
 
 COPY src ./src
 
+ENV NEW_RELIC_ENABLED=false
 RUN npm run build
