@@ -1,7 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
-process.env['NEW_RELIC_ENABLED'] = process.env['NEW_RELIC_ENABLED'] || 'false';
+import './config/environment';
 import 'newrelic';
 
 import 'reflect-metadata';
