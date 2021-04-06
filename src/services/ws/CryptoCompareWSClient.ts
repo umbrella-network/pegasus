@@ -4,6 +4,7 @@ import IORedis from 'ioredis';
 import WSClient from './WSClient';
 import Settings from '../../types/Settings';
 import {Pair} from '../../types/Feed';
+import StatsDClient from '../../lib/StatsDClient'
 
 @injectable()
 class CryptoCompareWSClient extends WSClient {
@@ -43,6 +44,7 @@ class CryptoCompareWSClient extends WSClient {
       return;
     }
 
+    StatsDClient?.gauge(`${fsym}-${tsym}`, median);
     this.logger.debug(`${fsym}-${tsym}: ${median}`);
 
     this.connection.set(`CryptoCompare::${fsym}~${tsym}`, median).catch(this.logger.warn);
