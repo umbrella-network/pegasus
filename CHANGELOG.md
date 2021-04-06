@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 - Added StatsD Client
 
+## [0.8.2] - 2021-04-02
+
+### Change
+- better error handling in /info
+
 ## [0.8.1] - 2021-04-02
 
 ### Added
