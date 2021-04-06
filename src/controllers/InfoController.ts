@@ -1,5 +1,6 @@
 import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
+import {NextFunction} from 'express-serve-static-core';
 
 import Settings from '../types/Settings';
 import ValidatorRegistryContract from '../contracts/ValidatorRegistryContract';
@@ -17,20 +18,37 @@ class InfoController {
     @inject(ChainContract) private readonly chainContract: ChainContract,
     @inject(Blockchain) blockchain: Blockchain
   ) {
-    this.router = express.Router().get('/', this.pong);
+    this.router = express.Router().get('/', this.info);
     this.blockchain = blockchain;
   }
 
-  pong = async (request: Request, response: Response): Promise<void> => {
-    response.send({
-      validator: await this.blockchain.wallet.getAddress(),
-      contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
-      validatorRegistryAddress: await this.validatorRegistryContract.getAddress(),
-      chainContractAddress: await this.chainContract.getAddress(),
-      version: this.settings.version || null,
-      environment: this.settings.environment,
-      name: this.settings.name,
-    });
+  info = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+    try {
+      const [
+        validatorAddress,
+        validatorRegistryAddress,
+        chainContractAddress,
+        network,
+      ] = await Promise.all([
+        this.blockchain.wallet.getAddress(),
+        this.validatorRegistryContract.getAddress(),
+        this.chainContract.getAddress(),
+        this.blockchain.provider.getNetwork(),
+      ]);
+
+      response.send({
+        validator: validatorAddress,
+        contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
+        validatorRegistryAddress: validatorRegistryAddress,
+        chainContractAddress: chainContractAddress,
+        version: this.settings.version,
+        environment: this.settings.environment,
+        network,
+        name: this.settings.name,
+      });
+    } catch (err) {
+      next(err);
+    }
   }
 }
 
