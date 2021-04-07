@@ -17,12 +17,14 @@ import SignatureCollector from './SignatureCollector';
 import ValidatorRegistryContract from '../contracts/ValidatorRegistryContract';
 import Feeds from '../types/Feed';
 import loadFeeds from '../config/loadFeeds';
+import TimeService from './TimeService';
 
 @injectable()
 class BlockMinter {
   @inject('Logger') logger!: Logger;
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
+  @inject(TimeService) timeService!: TimeService;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
@@ -34,6 +36,8 @@ class BlockMinter {
   async apply(): Promise<void> {
     if (!(await this.isLeader())) return;
 
+    const timestamp = this.timeService.apply();
+
     const blockHeight = await this.chainContract.getBlockHeight();
 
     if (!(await this.canMint(blockHeight))) {
@@ -41,13 +45,13 @@ class BlockMinter {
       return;
     }
 
-    this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()}...`);
+    this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()} at ${timestamp}...`);
 
     const validators = await this.validatorRegistryContract.getValidators();
 
     this.logger.info('Loading feeds...');
 
-    const [firstClassLeaves, leaves] = await this.loadFeeds(this.settings.feedsOnChain, this.settings.feedsFile);
+    const [firstClassLeaves, leaves] = await this.loadFeeds(timestamp, this.settings.feedsOnChain, this.settings.feedsFile);
 
     this.logger.info('Signing feeds...');
 
@@ -61,6 +65,7 @@ class BlockMinter {
     const signature = await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
 
     const signedBlock: SignedBlock = {
+      timestamp,
       signature,
       blockHeight: blockHeight.toNumber(),
       leaves: Object.fromEntries(leaves.map(({
@@ -82,10 +87,10 @@ class BlockMinter {
     }
   }
 
-  private async loadFeeds(...feedFileName: string[]): Promise<Leaf[][]> {
+  private async loadFeeds(timestamp: number, ...feedFileName: string[]): Promise<Leaf[][]> {
     const feeds: Feeds[] = await Promise.all(feedFileName.map((fileName) => loadFeeds(fileName)));
 
-    return this.feedProcessor.apply(...feeds);
+    return this.feedProcessor.apply(timestamp, ...feeds);
   }
 
   private async canMint(blockHeight: BigNumber): Promise<boolean> {

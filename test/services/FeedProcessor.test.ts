@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+  /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 import { Container } from 'inversify';
 import sinon from 'sinon';
@@ -96,7 +96,7 @@ describe('FeedProcessor', () => {
       [{ high: 1352.2, low: 1347.14, open: 1360.47, close: 1349.5 }, 22545.38],
     ]);
 
-    const leaves = await feedProcessor.apply(feeds);
+    const leaves = await feedProcessor.apply(10, feeds);
 
     expect(leaves[0]).to.be.an('array').with.lengthOf(1);
     expect(leaves[0][0].valueBytes)
@@ -153,7 +153,7 @@ describe('FeedProcessor', () => {
       [{ high: 1290.46, low: 1151.6, open: 1210.59, close: 1225.5 }, 1601329.3],
     ]);
 
-    const leaves = await feedProcessor.apply(feeds);
+    const leaves = await feedProcessor.apply(10, feeds);
 
     expect(leaves[0]).to.be.an('array').with.lengthOf(2);
 
