@@ -10,19 +10,21 @@ import loadFeeds from './config/loadFeeds';
 import Settings from "./types/Settings";
 import Leaf from './models/Leaf';
 import Block from './models/Block';
+import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: { type: 'string', demandOption: true }
 }).argv;
 
 async function testFeeds(settings: Settings): Promise<void> {
-  let feeds = await loadFeeds(settings.feedsFile);
-  let leaves = await Application.get(FeedProcessor).apply(feeds);
-  console.log('Feeds: ', leaves);
+  await Application.get(CryptoCompareWSInitializer).apply();
 
-  feeds = await loadFeeds(settings.feedsOnChain);
-  leaves = await Application.get(FeedProcessor).apply(feeds);
-  console.log('On-chain feeds: ', leaves);
+  const feeds = await loadFeeds(settings.feedsFile);
+
+  await new Promise((resolve) => setTimeout(resolve, 10000));
+
+  const leaves = await Application.get(FeedProcessor).apply(Date.now(), feeds);
+  console.log('Feeds: ', leaves);
 }
 
 async function dbCleanUp(): Promise<void> {

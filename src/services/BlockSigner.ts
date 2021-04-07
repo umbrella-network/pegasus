@@ -52,7 +52,7 @@ class BlockSigner {
     let discrepancies;
     try {
       discrepancies =
-        await this.checkFeeds([this.settings.feedsOnChain, this.settings.feedsFile], [proposedFcd, proposedLeaves]);
+        await this.checkFeeds(block.timestamp, [this.settings.feedsOnChain, this.settings.feedsFile], [proposedFcd, proposedLeaves]);
     } catch (err) {
       console.error(err);
       throw err;
@@ -69,10 +69,10 @@ class BlockSigner {
     return result;
   }
 
-  private async checkFeeds(feedFiles: string[], proposedLeaves: Leaf[][]): Promise<string | undefined> {
+  private async checkFeeds(timestamp: number, feedFiles: string[], proposedLeaves: Leaf[][]): Promise<string | undefined> {
     const feeds: Feeds[] = await Promise.all(feedFiles.map((fileName) => loadFeeds(fileName)));
 
-    const leaves = await this.feedProcessor.apply(...feeds);
+    const leaves = await this.feedProcessor.apply(timestamp, ...feeds);
 
     for (let i = 0; i < feeds.length; ++i) {
       const discrepancies = Object.entries(this.findDiscrepancies(leaves[i], proposedLeaves[i], feeds[i]));

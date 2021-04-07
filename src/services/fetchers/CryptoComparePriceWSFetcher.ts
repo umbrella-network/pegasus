@@ -7,8 +7,8 @@ import {Pair} from '../../types/Feed';
 class CryptoComparePriceWSFetcher {
   @inject(CryptoCompareWSClient) cryptoCompareWSClient!: CryptoCompareWSClient;
 
-  async apply(params: Pair): Promise<number> {
-    const price = await this.cryptoCompareWSClient.getLatestPrice(params);
+  async apply(params: Pair, timestamp: number): Promise<number> {
+    const price = await this.cryptoCompareWSClient.getLatestPrice(params, timestamp);
     if (price !== null) {
       return price;
     }
