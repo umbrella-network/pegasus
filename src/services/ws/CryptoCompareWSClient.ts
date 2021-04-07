@@ -39,7 +39,7 @@ class CryptoCompareWSClient extends WSClient {
   }
 
   async getLatestPrice({fsym, tsym}: Pair, timestamp: number): Promise<number | null> {
-    return await this.priceAggregator.value(`CryptoCompare::${fsym}~${tsym}`, timestamp);
+    return await this.priceAggregator.value(`CryptoCompareAgg::${fsym}~${tsym}`, timestamp);
   }
 
   onAggregate(payload: any): void {
@@ -52,7 +52,7 @@ class CryptoCompareWSClient extends WSClient {
     StatsDClient?.gauge(`${fsym}-${tsym}`, median);
     this.logger.debug(`${fsym}-${tsym}: ${median}`);
 
-    this.priceAggregator.add(`CryptoCompare::${fsym}~${tsym}`, median, timestamp).catch(this.logger.error);
+    this.priceAggregator.add(`CryptoCompareAgg::${fsym}~${tsym}`, median, timestamp).catch(this.logger.error);
   }
 
   onOpen(): void {
@@ -146,7 +146,7 @@ class CryptoCompareWSClient extends WSClient {
 
     if (toUnsubscribe.length) {
       for (const subscription of toUnsubscribe) {
-        this.priceAggregator.cleanUp(`CryptoCompare::${subscription}`).catch(this.logger.warn);
+        this.priceAggregator.cleanUp(`CryptoCompareAgg::${subscription}`).catch(this.logger.warn);
       }
 
       this.socket?.send(JSON.stringify({
@@ -167,7 +167,7 @@ class CryptoCompareWSClient extends WSClient {
     const timestamp = Math.floor(Date.now() / 1000) - this.truncatePriceAggregatorInterval;
 
     Object.keys(this.subscriptions).forEach((subscription) => {
-      this.priceAggregator.cleanUp(`CryptoCompare::${subscription}`, timestamp).catch(this.logger.warn);
+      this.priceAggregator.cleanUp(`CryptoCompareAgg::${subscription}`, timestamp).catch(this.logger.warn);
     });
   }
 }

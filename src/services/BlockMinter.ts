@@ -45,7 +45,7 @@ class BlockMinter {
       return;
     }
 
-    this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()}...`);
+    this.logger.info(`Proposing new block for blockHeight: ${blockHeight.toString()} at ${timestamp}...`);
 
     const validators = await this.validatorRegistryContract.getValidators();
 

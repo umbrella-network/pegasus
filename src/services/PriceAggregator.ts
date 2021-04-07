@@ -1,7 +1,8 @@
 import {inject, injectable} from 'inversify';
 import IORedis from 'ioredis';
+import {price as Price} from "@umb-network/validator";
+
 import Settings from '../types/Settings';
-import {price} from "@umb-network/validator";
 
 @injectable()
 class PriceAggregator {
@@ -14,19 +15,31 @@ class PriceAggregator {
   }
 
   async add(symbol: string, price: number, timestamp: number): Promise<void> {
-    await this.connection.zadd(symbol, timestamp, price);
+    try {
+      await this.connection.zadd(symbol, timestamp, price);
+    } catch (err) {
+      console.error(err, JSON.stringify({symbol, price, timestamp}));
+
+      throw err;
+    }
   }
 
   async value(symbol: string, timestamp: number): Promise<number | null> {
-    const result = await this.connection.zrevrangebyscore(symbol, timestamp, '-inf','LIMIT', 0, 1);
+    try {
+      const result = await this.connection.zrevrangebyscore(symbol, timestamp, '-inf','LIMIT', 0, 1);
 
-    return result.length ? parseFloat(result[0]) : null;
+      return result.length ? parseFloat(result[0]) : null;
+    } catch (err) {
+      console.error(err, JSON.stringify({symbol, timestamp}));
+
+      throw err;
+    }
   }
 
   async averageValue(symbol: string, fromTimestamp: number, toTimestamp: number): Promise<number | null> {
     const result = await this.connection.zrevrangebyscore(symbol, toTimestamp, fromTimestamp);
 
-    return result.length ? price.mean(result.map(parseFloat)) : null;
+    return result.length ? Price.mean(result.map(parseFloat)) : null;
   }
 
   async cleanUp(symbol: string, beforeTimestamp?: number): Promise<number> {
