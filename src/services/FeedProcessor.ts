@@ -12,7 +12,7 @@ import Feeds, {FeedInput} from '../types/Feed';
 
 interface Fetcher {
   // eslint-disable-next-line
-  apply: (feed: any) => Promise<any>;
+  apply: (feed: any, timestamp: number) => Promise<any>;
 }
 
 // eslint-disable-next-line
@@ -54,7 +54,7 @@ class FeedProcessor {
     }), {} as { [key: string]: Calculator; });
   }
 
-  async apply(...feedsArray: Feeds[]): Promise<Leaf[][]> {
+  async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     const uniqueInputsMap: {[hash: string]: FeedInput} = {};
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);
@@ -68,7 +68,7 @@ class FeedProcessor {
       inputIndexByHash[hash] = index;
     });
 
-    const values = await Promise.all(Object.values(uniqueInputsMap).map((input) => this.processFeed(input)));
+    const values = await Promise.all(Object.values(uniqueInputsMap).map((input) => this.processFeed(input, timestamp)));
 
     const result: Leaf[][] = [];
     const ignoredMap: {[string: string]: boolean} = {};
@@ -100,7 +100,7 @@ class FeedProcessor {
     return result;
   }
 
-  async processFeed(feedInput: FeedInput): Promise<number | undefined> {
+  async processFeed(feedInput: FeedInput, timestamp: number): Promise<number | undefined> {
     const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
     if (!fetcher) {
       throw new Error('No fetcher specified.')
@@ -110,7 +110,7 @@ class FeedProcessor {
 
     let value;
     try {
-      value = await fetcher.apply(feedInput.fetcher.params);
+      value = await fetcher.apply(feedInput.fetcher.params, timestamp);
     } catch (err) {
       this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
       return;

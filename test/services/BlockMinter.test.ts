@@ -21,12 +21,14 @@ import { loadTestEnv } from '../helpers/loadTestEnv';
 import mongoose from 'mongoose';
 import { getModelForClass } from '@typegoose/typegoose';
 import ValidatorRegistryContract from '../../src/contracts/ValidatorRegistryContract';
+import TimeService from '../../src/services/TimeService';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let mockedChainContract: sinon.SinonStubbedInstance<ChainContract>;
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
+  let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
   let mockedMintGuard: sinon.SinonStubbedInstance<MintGuard>;
   let mockedValidatorRegistryContract: sinon.SinonStubbedInstance<ValidatorRegistryContract>;
   let settings: Settings;
@@ -44,6 +46,7 @@ describe('BlockMinter', () => {
     const container = new Container()
 
     mockedBlockchain = sinon.createStubInstance(Blockchain);
+    mockedTimeService = sinon.createStubInstance(TimeService);
     mockedChainContract = sinon.createStubInstance(ChainContract);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
@@ -61,6 +64,7 @@ describe('BlockMinter', () => {
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor  as unknown as FeedProcessor);
     container.bind(SortedMerkleTreeFactory).toSelf();
     container.bind(SaveMintedBlock).toSelf();
+    container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind(MintGuard).toConstantValue(mockedMintGuard as unknown as MintGuard);
     container.bind('Settings').toConstantValue(settings);
     container.bind(ValidatorRegistryContract).toConstantValue(mockedValidatorRegistryContract);
@@ -175,6 +179,7 @@ describe('BlockMinter', () => {
 
       mockedBlockchain.wallet = wallet;
 
+      mockedTimeService.apply.returns(10);
       mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
       mockedChainContract.getNextLeaderAddress.resolves(wallet.address);
       mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
@@ -186,6 +191,7 @@ describe('BlockMinter', () => {
       await blockMinter.apply();
 
       expect(mockedSignatureCollector.apply.args[0][0]).to.be.deep.eq({
+        timestamp: 10,
         blockHeight: 1,
         fcd: fcd,
         leaves: fcd,
@@ -202,6 +208,7 @@ describe('BlockMinter', () => {
 
       mockedBlockchain.wallet = wallet;
 
+      mockedTimeService.apply.returns(10);
       mockedValidatorRegistryContract.getValidators.resolves([]);
       mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
       mockedChainContract.getNextLeaderAddress.resolves(wallet.address);
@@ -224,6 +231,7 @@ describe('BlockMinter', () => {
 
       mockedBlockchain.wallet = wallet;
 
+      mockedTimeService.apply.returns(10);
       mockedValidatorRegistryContract.getValidators.resolves([]);
       mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
       mockedChainContract.getNextLeaderAddress.resolves(wallet.address);

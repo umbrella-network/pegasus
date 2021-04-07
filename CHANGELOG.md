@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [0.9.0] - 2021-04-07
+
+### Added
+- Added StatsD Client
+
+### Change
+- submit prices based on a timestamp
+
 ## [0.8.2] - 2021-04-02
 
 ### Change

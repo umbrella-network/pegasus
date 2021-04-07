@@ -59,6 +59,7 @@ describe("FeedProcessor integration tests", () => {
         );
 
       const leaves = await feedProcessor.apply(
+        10,
         feedsWithCryptoCompareHistoDayFetcher
       );
 
@@ -81,6 +82,7 @@ describe("FeedProcessor integration tests", () => {
         );
 
       const leaves = await feedProcessor.apply(
+        10,
         feedsWithCryptoCompareHistoHourFetcher
       );
 
@@ -109,6 +111,7 @@ describe("FeedProcessor integration tests", () => {
         );
 
       const leaves = await feedProcessor.apply(
+        10,
         feedsWithGVolImpliedVolatilityFetcher
       );
 

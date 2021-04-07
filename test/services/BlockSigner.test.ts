@@ -57,6 +57,7 @@ describe('BlockSigner', () => {
     });
 
     await expect(blockSigner.apply({
+      timestamp: 10,
       blockHeight: 1,
       fcd: { 'ETH-USD': 100 },
       leaves: { 'ETH-USD': 100 },
@@ -72,6 +73,7 @@ describe('BlockSigner', () => {
     });
 
     await expect(blockSigner.apply({
+      timestamp: 10,
       blockHeight: 1,
       fcd: { 'ETH-USD': 100 },
       leaves: { 'ETH-USD': 100 },
@@ -94,6 +96,7 @@ describe('BlockSigner', () => {
     });
 
     await expect(blockSigner.apply({
+      timestamp: 10,
       blockHeight: 1,
       fcd: fcd,
       leaves: fcd,
@@ -119,6 +122,7 @@ describe('BlockSigner', () => {
     mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 
     const result = await blockSigner.apply({
+      timestamp: 10,
       blockHeight: 1,
       fcd: fcd,
       leaves: fcd,

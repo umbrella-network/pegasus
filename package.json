@@ -1,6 +1,6 @@
 {
   "name": "pegasus",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/umbrella-network/pegasus.git"
@@ -47,6 +47,7 @@
     "eslint": "7.13.0",
     "mocha": "8.2.1",
     "moxios": "0.4.0",
+    "node-statsd-client": "^1.0.4",
     "sinon": "9.2.4",
     "ts-node": "9.0.0",
     "ts-node-dev": "1.0.0",

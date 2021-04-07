@@ -55,6 +55,7 @@ describe('SignatureCollector', () => {
     ]);
 
     const block: SignedBlock = {
+      timestamp: 10,
       blockHeight: 1,
       fcd: {
         'ETH-USD': 100,
@@ -92,6 +93,7 @@ describe('SignatureCollector', () => {
     });
 
     const block: SignedBlock = {
+      timestamp: 10,
       blockHeight: 1,
       fcd,
       leaves: fcd,
@@ -124,6 +126,7 @@ describe('SignatureCollector', () => {
     });
 
     const block: SignedBlock = {
+      timestamp: 10,
       blockHeight: 1,
       fcd: fcd,
       leaves: fcd,
@@ -168,6 +171,7 @@ describe('SignatureCollector', () => {
     });
 
     const block: SignedBlock = {
+      timestamp: 10,
       blockHeight: 1,
       fcd: fcd,
       leaves: fcd,
