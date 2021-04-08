@@ -12,6 +12,7 @@ import BlocksController from '../controllers/BlocksController';
 import SignatureController from "../controllers/SignatureController";
 import Blockchain from './Blockchain';
 import InfoController from '../controllers/InfoController';
+import DebugController from '../controllers/DebugController';
 
 @injectable()
 class Server {
@@ -26,6 +27,7 @@ class Server {
     @inject('Settings') settings: Settings,
     @inject(Blockchain) blockchain: Blockchain,
     @inject(HealthController) healthController: HealthController,
+    @inject(DebugController) debugController: DebugController,
     @inject(BlocksController) blocksController: BlocksController,
     @inject(SignatureController) signatureController: SignatureController,
     @inject(InfoController) infoController: InfoController,
@@ -39,6 +41,7 @@ class Server {
       .use(express.json())
       .use(express.urlencoded({ extended: true }))
       .use('/blocks', blocksController.router)
+      .use('/debug', debugController.router)
       .use('/health', healthController.router)
       .use('/signature', signatureController.router)
       .use('/info', infoController.router);

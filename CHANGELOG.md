@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [0.9.2] - 2021-04-08
+
+### Change
+- SIGNATURE_TIMEOUT is defaulted to 15 seconds
+
 ## [0.9.1] - 2021-04-08
 
 ### Change

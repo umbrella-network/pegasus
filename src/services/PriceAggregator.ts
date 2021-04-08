@@ -48,6 +48,21 @@ class PriceAggregator {
     }
   }
 
+  async valueTimestamps(symbol: string): Promise<{value: number, timestamp: number}[]> {
+    try {
+      const vt = await this.connection.zrevrangebyscore(symbol, '+inf', '-inf','WITHSCORES');
+
+      return Array.from(Array(vt.length / 2).keys()).map((i) => ({
+        value: parseInt(vt[i * 2]),
+        timestamp: parseInt(vt[i * 2 + 1]),
+      }));
+    } catch (err) {
+      console.error(err, JSON.stringify({symbol}));
+
+      throw err;
+    }
+  }
+
   async averageValue(symbol: string, fromTimestamp: number, toTimestamp: number): Promise<number | null> {
     const result = await this.connection.zrevrangebyscore(symbol, toTimestamp, fromTimestamp);
 
