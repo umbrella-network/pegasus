@@ -11,13 +11,9 @@ import Settings from "./types/Settings";
 import Leaf from './models/Leaf';
 import Block from './models/Block';
 import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
-import PriceAggregator from './services/PriceAggregator';
-import TimeService from './services/TimeService';
-import CryptoCompareWSClient from './services/ws/CryptoCompareWSClient';
-import sort from 'fast-sort';
 
 const argv = yargs(process.argv.slice(2)).options({
-  task: { type: 'string', demandOption: true }
+  task: { type: 'string', demandOption: true },
 }).argv;
 
 async function testFeeds(settings: Settings): Promise<void> {
@@ -29,28 +25,6 @@ async function testFeeds(settings: Settings): Promise<void> {
 
   const leaves = await Application.get(FeedProcessor).apply(Date.now(), feeds);
   console.log('Feeds: ', leaves);
-}
-
-async function priceAggregatorSorted(settings: Settings): Promise<void> {
-  const pairs = await CryptoCompareWSInitializer.allPairs(settings.feedsFile);
-  const priceAggregator = Application.get(PriceAggregator);
-  const timeService = Application.get(TimeService);
-
-  const time = timeService.apply();
-
-  const result = await Promise.all(pairs.map(async ({fsym, tsym}) => {
-    const valueTimestamp = (await priceAggregator.valueTimestamp(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, time));
-
-    const {value: price, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
-
-    return {
-      symbol: `${fsym}-${tsym}`,
-      price,
-      timestamp,
-    };
-  }));
-
-  console.log(JSON.stringify(sort(result).asc(({timestamp}) => timestamp)));
 }
 
 async function dbCleanUp(): Promise<void> {
@@ -70,11 +44,6 @@ ev.on('done', () => process.exit());
   switch (argv.task) {
     case 'db:cleanup': {
       await dbCleanUp();
-      ev.emit('done');
-      break;
-    }
-    case 'cca:sorted': {
-      await priceAggregatorSorted(settings);
       ev.emit('done');
       break;
     }
