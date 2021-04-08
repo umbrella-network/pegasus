@@ -81,8 +81,10 @@ class BlockMinter {
 
     this.logger.info(`Minting a block with ${signatures.length} signatures...`);
 
-    const mint = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues, signatures);
-    if (mint) {
+    const tx = await this.mint(tree.getRoot(), numericFcdKeys, numericFcdValues, signatures);
+    if (tx) {
+      this.logger.info(`Minted in TX ${tx}`);
+
       await this.saveBlock(leaves, Number(blockHeight), tree.getRoot(), numericFcdKeys, numericFcdValues);
     }
   }
@@ -144,7 +146,7 @@ class BlockMinter {
     return ethers.utils.splitSignature(signature);
   }
 
-  private async mint(root: string, keys: string[], values: number[], signatures: string[]): Promise<boolean> {
+  private async mint(root: string, keys: string[], values: number[], signatures: string[]): Promise<string | null> {
     try {
       const components = signatures.map((signature) => BlockMinter.splitSignature(signature));
 
@@ -158,10 +160,10 @@ class BlockMinter {
       );
 
       const receipt = await tx.wait();
-      return receipt.status == 1;
+      return receipt.status == 1 ? receipt.transactionHash : null;
     } catch (e) {
       this.logger.error(e);
-      return false;
+      return null;
     }
   }
 
