@@ -39,7 +39,9 @@ const settings: Settings = {
   api: {
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
-      timeout: (parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', 10))
+      timeout: parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', 10),
+      priceExpiryTimeout: parseInt(process.env.CRYPTOCOMPARE_PRICE_EXPIRY_TIMEOUT || '3600', 10), // seconds
+      reconnectInterval: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_INTERVAL || '7200000', 10)
     },
     coingecko: {
       timeout: (parseInt(process.env.COINGECKO_TIMEOUT || '5000', 10))
@@ -66,7 +68,7 @@ const settings: Settings = {
   signatureTimeout: (parseInt(process.env.SIGNATURE_TIMEOUT || '5000', 10)),
   version: packageJson.version,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
-  name: process.env.NAME || 'default'
+  name: process.env.NAME || 'default',
 }
 
 export default settings;

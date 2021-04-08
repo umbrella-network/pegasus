@@ -240,7 +240,7 @@ describe('BlockMinter', () => {
       mockedFeedProcessor.apply.resolves([[leaf, leaf], [leaf, leaf]]);
       mockedSignatureCollector.apply.resolves([signature]);
       mockedChainContract.submit.resolves({
-        wait: () => Promise.resolve({ status: 1 })
+        wait: () => Promise.resolve({ status: 1, transactionHash: '123' })
       } as any); // throw error when trying to submit minted block
 
       await blockMinter.apply();
