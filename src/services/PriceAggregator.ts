@@ -36,6 +36,18 @@ class PriceAggregator {
     }
   }
 
+  async valueTimestamp(symbol: string, timestamp: number): Promise<{value: number, timestamp: number} | null> {
+    try {
+      const result = await this.connection.zrevrangebyscore(symbol, timestamp, '-inf','WITHSCORES', 'LIMIT', 0, 1);
+
+      return result.length ? {value: parseFloat(result[0]), timestamp: parseInt(result[1])} : null;
+    } catch (err) {
+      console.error(err, JSON.stringify({symbol, timestamp}));
+
+      throw err;
+    }
+  }
+
   async averageValue(symbol: string, fromTimestamp: number, toTimestamp: number): Promise<number | null> {
     const result = await this.connection.zrevrangebyscore(symbol, toTimestamp, fromTimestamp);
 

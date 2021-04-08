@@ -16,33 +16,18 @@ class ValidatorRegistryContract {
     this.blockchain = blockchain;
   }
 
-  async getNumberOfValidators(): Promise<BigNumber> {
-    return (await this.resolveContract()).getNumberOfValidators();
-  }
-
-  async getValidatorDetails(address: string): Promise<Validator> {
-    const [id, location] = await (await this.resolveContract()).validators(address);
-    return {
-      id,
-      location,
-    };
+  async getAddress(): Promise<string> {
+    return (await this.resolveContract()).address;
   }
 
   async getValidators(): Promise<Validator[]> {
-    const result = [];
-    const count = (await this.getNumberOfValidators()).toNumber();
+    const contract = await this.resolveContract();
+    const count = (await this.getNumberOfValidators(contract)).toNumber();
 
-    for (let i = 0; i < count; ++i) {
-      const address = await (await this.resolveContract()).addresses(i);
-      const validator = await this.getValidatorDetails(address);
-      result.push(validator);
-    }
-
-    return result;
-  }
-
-  async getAddress(): Promise<string> {
-    return (await this.resolveContract()).address;
+    return Promise.all(Array.from(Array(count).keys()).map(async (i) => {
+      const address = await contract.addresses(i);
+      return this.getValidatorDetails(contract, address);
+    }));
   }
 
   resolveContract = async (): Promise<Contract> => {
@@ -57,6 +42,17 @@ class ValidatorRegistryContract {
     return new Contract(address, ABI.validatorRegistryAbi, this.blockchain.provider);
   };
 
+  async getValidatorDetails(contract: Contract, address: string): Promise<Validator> {
+    const [id, location] = await contract.validators(address);
+    return {
+      id,
+      location,
+    };
+  }
+
+  async getNumberOfValidators(contract: Contract): Promise<BigNumber> {
+    return contract.getNumberOfValidators();
+  }
 }
 
 export default ValidatorRegistryContract;
