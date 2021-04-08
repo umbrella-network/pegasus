@@ -5,6 +5,7 @@ import Settings from '../../types/Settings';
 import {Pair} from '../../types/Feed';
 import StatsDClient from '../../lib/StatsDClient'
 import PriceAggregator from '../PriceAggregator';
+import TimeService from '../TimeService';
 
 @injectable()
 class CryptoCompareWSClient extends WSClient {
@@ -12,12 +13,16 @@ class CryptoCompareWSClient extends WSClient {
 
   subscriptions: {[subscription: string]: Pair} = {};
 
+  timeService: TimeService;
+
+  static readonly Prefix = 'cca::';
+
+  settings: Settings;
+
   connected = false;
 
-  timeBreakTimout = 4 * 60 * 60 * 1000;
   clearTimeBreak?: () => void;
 
-  truncatePriceAggregatorInterval = 30 * 60 * 1000;
   clearTruncatePriceAggregatorInterval?: () => void;
 
   eventHandlers: {[type: number]: (event: unknown) => void} = {
@@ -31,15 +36,18 @@ class CryptoCompareWSClient extends WSClient {
 
   constructor(
     @inject('Settings') settings: Settings,
+    @inject(TimeService) timeService: TimeService,
     @inject(PriceAggregator) priceAggregator: PriceAggregator,
   ) {
     super(`wss://streamer.cryptocompare.com/v2?api_key=${settings.api.cryptocompare.apiKey}`, 6000);
 
+    this.timeService = timeService;
+    this.settings = settings;
     this.priceAggregator = priceAggregator;
   }
 
   async getLatestPrice({fsym, tsym}: Pair, timestamp: number): Promise<number | null> {
-    return await this.priceAggregator.value(`CryptoCompareAgg::${fsym}~${tsym}`, timestamp);
+    return await this.priceAggregator.value(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, timestamp);
   }
 
   onAggregate(payload: any): void {
@@ -52,7 +60,7 @@ class CryptoCompareWSClient extends WSClient {
     StatsDClient?.gauge(`${fsym}-${tsym}`, median);
     this.logger.debug(`${fsym}-${tsym}: ${median}`);
 
-    this.priceAggregator.add(`CryptoCompareAgg::${fsym}~${tsym}`, median, timestamp).catch(this.logger.error);
+    this.priceAggregator.add(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, median, timestamp).catch(this.logger.error);
   }
 
   onOpen(): void {
@@ -62,13 +70,13 @@ class CryptoCompareWSClient extends WSClient {
   onConnected(event: unknown): void {
     this.connected = true;
 
-    const timeout = setTimeout(this.close.bind(this), this.timeBreakTimout);
+    const timeout = setTimeout(this.close.bind(this), this.settings.api.cryptocompare.priceExpiryTimeout * 1000);
     this.clearTimeBreak = () => {
       clearTimeout(timeout);
     };
 
 
-    const truncateInterval = setInterval(this.truncatePriceAggregator.bind(this), this.truncatePriceAggregatorInterval);
+    const truncateInterval = setInterval(this.truncatePriceAggregator.bind(this), this.settings.api.cryptocompare.reconnectInterval);
     this.clearTruncatePriceAggregatorInterval = () => {
       clearInterval(truncateInterval);
     };
@@ -146,7 +154,7 @@ class CryptoCompareWSClient extends WSClient {
 
     if (toUnsubscribe.length) {
       for (const subscription of toUnsubscribe) {
-        this.priceAggregator.cleanUp(`CryptoCompareAgg::${subscription}`).catch(this.logger.warn);
+        this.priceAggregator.cleanUp(`${CryptoCompareWSClient.Prefix}${subscription}`).catch(this.logger.warn);
       }
 
       this.socket?.send(JSON.stringify({
@@ -164,10 +172,12 @@ class CryptoCompareWSClient extends WSClient {
   }
 
   private truncatePriceAggregator(): void {
-    const timestamp = Math.floor(Date.now() / 1000) - this.truncatePriceAggregatorInterval;
+    const timestamp = this.timeService.apply() - this.settings.api.cryptocompare.priceExpiryTimeout;
+
+    this.logger.info(`Truncating CryptoCompare prices before ${timestamp}...`);
 
     Object.keys(this.subscriptions).forEach((subscription) => {
-      this.priceAggregator.cleanUp(`CryptoCompareAgg::${subscription}`, timestamp).catch(this.logger.warn);
+      this.priceAggregator.cleanUp(`${CryptoCompareWSClient.Prefix}${subscription}`, timestamp).catch(this.logger.warn);
     });
   }
 }
