@@ -39,9 +39,9 @@ async function priceAggregatorSorted(settings: Settings): Promise<void> {
   const time = timeService.apply();
 
   const result = await Promise.all(pairs.map(async ({fsym, tsym}) => {
-    const valueTimestamp = (await priceAggregator.valueTimestamp(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, time)) || [0, 0];
+    const valueTimestamp = (await priceAggregator.valueTimestamp(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, time));
 
-    const [price, timestamp] = valueTimestamp;
+    const {value: price, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
 
     return {
       symbol: `${fsym}-${tsym}`,

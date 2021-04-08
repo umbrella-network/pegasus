@@ -36,11 +36,11 @@ class PriceAggregator {
     }
   }
 
-  async valueTimestamp(symbol: string, timestamp: number): Promise<[number, number] | null> {
+  async valueTimestamp(symbol: string, timestamp: number): Promise<{value: number, timestamp: number} | null> {
     try {
       const result = await this.connection.zrevrangebyscore(symbol, timestamp, '-inf','WITHSCORES', 'LIMIT', 0, 1);
 
-      return result.length ? [parseFloat(result[0]), parseInt(result[1])] : null;
+      return result.length ? {value: parseFloat(result[0]), timestamp: parseInt(result[1])} : null;
     } catch (err) {
       console.error(err, JSON.stringify({symbol, timestamp}));
 
