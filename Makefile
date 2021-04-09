@@ -47,9 +47,7 @@ push: login
 	@echo "## Pushing image to AWS ##"
 	@docker push $(IMAGE)
 
-newlogin:
-	
-	
+
 
 
 newpush: assume login
