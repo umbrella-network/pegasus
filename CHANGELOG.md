@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [0.9.3] - 2021-04-09
+
+### Fix
+- Fixed SIGNATURE_TIMEOUT
+
 ## [0.9.2] - 2021-04-08
 
 ### Change
