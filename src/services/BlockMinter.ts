@@ -10,8 +10,8 @@ import Leaf from '../models/Leaf';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import SaveMintedBlock from './SaveMintedBlock';
 import MintGuard from './MintGuard';
-import FeedProcessor from "./FeedProcessor";
-import Settings from "../types/Settings";
+import FeedProcessor from './FeedProcessor';
+import Settings from '../types/Settings';
 import {SignedBlock} from '../types/SignedBlock';
 import SignatureCollector from './SignatureCollector';
 import ValidatorRegistryContract from '../contracts/ValidatorRegistryContract';
@@ -51,7 +51,11 @@ class BlockMinter {
 
     this.logger.info('Loading feeds...');
 
-    const [firstClassLeaves, leaves] = await this.loadFeeds(timestamp, this.settings.feedsOnChain, this.settings.feedsFile);
+    const [firstClassLeaves, leaves] = await this.loadFeeds(
+      timestamp,
+      this.settings.feedsOnChain,
+      this.settings.feedsFile,
+    );
 
     this.logger.info('Signing feeds...');
 
@@ -59,7 +63,9 @@ class BlockMinter {
 
     const sortedFirstClassLeaves = BlockMinter.sortLeaves(firstClassLeaves);
     const numericFcdKeys: string[] = sortedFirstClassLeaves.map(({label}) => label);
-    const numericFcdValues: number[] = sortedFirstClassLeaves.map(({valueBytes}) => LeafValueCoder.decode(valueBytes) as number);
+    const numericFcdValues: number[] = sortedFirstClassLeaves.map(
+      ({valueBytes}) => LeafValueCoder.decode(valueBytes) as number,
+    );
 
     const affidavit = BlockMinter.generateAffidavit(tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
     const signature = await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
@@ -68,10 +74,9 @@ class BlockMinter {
       timestamp,
       signature,
       blockHeight: blockHeight.toNumber(),
-      leaves: Object.fromEntries(leaves.map(({
-                                               label,
-                                               valueBytes
-                                             }) => [label, LeafValueCoder.decode(valueBytes) as number])),
+      leaves: Object.fromEntries(
+        leaves.map(({label, valueBytes}) => [label, LeafValueCoder.decode(valueBytes) as number]),
+      ),
       fcd: Object.fromEntries(numericFcdKeys.map((_, idx) => [numericFcdKeys[idx], numericFcdValues[idx]])),
     };
 
@@ -98,7 +103,7 @@ class BlockMinter {
   private async canMint(blockHeight: BigNumber): Promise<boolean> {
     const [votersCount, allowed] = await Promise.all([
       this.chainContract.getBlockVotersCount(blockHeight),
-      this.mintGuard.apply(Number(blockHeight))
+      this.mintGuard.apply(Number(blockHeight)),
     ]);
 
     return votersCount.isZero() && allowed;
@@ -114,31 +119,40 @@ class BlockMinter {
 
   static recoverSigner(affidavit: string, signature: string): string {
     const pubKey = ethers.utils.recoverPublicKey(
-      ethers.utils.solidityKeccak256(['string', 'bytes32'], ['\x19Ethereum Signed Message:\n32',
-        ethers.utils.arrayify(affidavit)]), signature);
+      ethers.utils.solidityKeccak256(
+        ['string', 'bytes32'],
+        ['\x19Ethereum Signed Message:\n32', ethers.utils.arrayify(affidavit)],
+      ),
+      signature,
+    );
 
-    return ethers.utils.computeAddress(pubKey)
+    return ethers.utils.computeAddress(pubKey);
   }
 
   static sortLeaves(feeds: Leaf[]): Leaf[] {
     return sort(feeds).asc(({label}) => label);
   }
 
-  static generateAffidavit(root: string, blockHeight: BigNumber, numericFCDKeys: string[], numericFCDValues: number[]): string {
+  static generateAffidavit(
+    root: string,
+    blockHeight: BigNumber,
+    numericFCDKeys: string[],
+    numericFCDValues: number[],
+  ): string {
     const encoder = new ethers.utils.AbiCoder();
     let testimony = encoder.encode(['uint256', 'bytes32'], [blockHeight, root]);
 
     numericFCDKeys.forEach((key, i) => {
-      testimony += ethers.utils.defaultAbiCoder.encode(
-        ['bytes32', 'uint256'],
-        [converters.strToBytes32(key), converters.numberToUint256(numericFCDValues[i])]).slice(2);
-    })
+      testimony += ethers.utils.defaultAbiCoder
+        .encode(['bytes32', 'uint256'], [converters.strToBytes32(key), converters.numberToUint256(numericFCDValues[i])])
+        .slice(2);
+    });
 
     return ethers.utils.keccak256(testimony);
   }
 
   static async signAffidavitWithWallet(wallet: Wallet, affidavit: string): Promise<string> {
-    const toSign = ethers.utils.arrayify(affidavit)
+    const toSign = ethers.utils.arrayify(affidavit);
     return wallet.signMessage(toSign);
   }
 
@@ -167,7 +181,13 @@ class BlockMinter {
     }
   }
 
-  private async saveBlock(leaves: Leaf[], blockHeight: number, root: string, numericFcdKeys: string[], numericFcdValues: number[]): Promise<void> {
+  private async saveBlock(
+    leaves: Leaf[],
+    blockHeight: number,
+    root: string,
+    numericFcdKeys: string[],
+    numericFcdValues: number[],
+  ): Promise<void> {
     await this.saveMintedBlock.apply({leaves, blockHeight, root, numericFcdKeys, numericFcdValues});
   }
 }

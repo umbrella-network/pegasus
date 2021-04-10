@@ -3,8 +3,8 @@ export const mapParams = (params: any) => {
   // eslint-disable-next-line
   const objects: any[] = [];
   Object.keys(params)
-    .filter(item => item)
-    .forEach(key => {
+    .filter((item) => item)
+    .forEach((key) => {
       if (Array.isArray(params[key])) {
         // eslint-disable-next-line
         params[key].forEach((value: any) => {
@@ -22,4 +22,4 @@ export const mapParams = (params: any) => {
     return `${accumulator ? `${accumulator}&` : accumulator}${key}=${value}`;
   }, '');
   return string && `?${string}`;
-}
+};

@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import IORedis from 'ioredis';
-import {price as Price} from "@umb-network/validator";
+import {price as Price} from '@umb-network/validator';
 
 import Settings from '../types/Settings';
 
@@ -8,9 +8,7 @@ import Settings from '../types/Settings';
 class PriceAggregator {
   connection: IORedis.Redis;
 
-  constructor(
-    @inject('Settings') settings: Settings,
-  ) {
+  constructor(@inject('Settings') settings: Settings) {
     this.connection = new IORedis(settings.redis.url);
   }
 
@@ -26,7 +24,7 @@ class PriceAggregator {
 
   async value(symbol: string, timestamp: number): Promise<number | null> {
     try {
-      const result = await this.connection.zrevrangebyscore(symbol, timestamp, '-inf','LIMIT', 0, 1);
+      const result = await this.connection.zrevrangebyscore(symbol, timestamp, '-inf', 'LIMIT', 0, 1);
 
       return result.length ? parseFloat(result[0]) : null;
     } catch (err) {
@@ -36,9 +34,9 @@ class PriceAggregator {
     }
   }
 
-  async valueTimestamp(symbol: string, timestamp: number): Promise<{value: number, timestamp: number} | null> {
+  async valueTimestamp(symbol: string, timestamp: number): Promise<{value: number; timestamp: number} | null> {
     try {
-      const result = await this.connection.zrevrangebyscore(symbol, timestamp, '-inf','WITHSCORES', 'LIMIT', 0, 1);
+      const result = await this.connection.zrevrangebyscore(symbol, timestamp, '-inf', 'WITHSCORES', 'LIMIT', 0, 1);
 
       return result.length ? {value: parseFloat(result[0]), timestamp: parseInt(result[1])} : null;
     } catch (err) {
@@ -48,9 +46,9 @@ class PriceAggregator {
     }
   }
 
-  async valueTimestamps(symbol: string): Promise<{value: number, timestamp: number}[]> {
+  async valueTimestamps(symbol: string): Promise<{value: number; timestamp: number}[]> {
     try {
-      const vt = await this.connection.zrevrangebyscore(symbol, '+inf', '-inf','WITHSCORES');
+      const vt = await this.connection.zrevrangebyscore(symbol, '+inf', '-inf', 'WITHSCORES');
 
       return Array.from(Array(vt.length / 2).keys()).map((i) => ({
         value: parseInt(vt[i * 2]),

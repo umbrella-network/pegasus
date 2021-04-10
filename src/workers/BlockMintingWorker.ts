@@ -23,12 +23,12 @@ class BlockMintingWorker extends BasicWorker {
     } catch (e) {
       this.logger.error(e);
     }
-  }
+  };
 
   isStale = (job: Bull.Job): boolean => {
     const age = new Date().getTime() - job.timestamp;
     return age > this.settings.jobs.blockCreation.interval;
-  }
+  };
 
   start = (): void => {
     super.start();

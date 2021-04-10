@@ -16,9 +16,11 @@ class SignatureCollector {
   @inject('Settings') private settings!: Settings;
 
   async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<string[]> {
-    const signatures = await Promise.all(sort(validators)
-      .desc(({id}) => id === this.blockchain.wallet.address) // the leader's signature should go first
-      .map((validator: Validator) => this.collectSignature(validator, block, affidavit)));
+    const signatures = await Promise.all(
+      sort(validators)
+        .desc(({id}) => id === this.blockchain.wallet.address) // the leader's signature should go first
+        .map((validator: Validator) => this.collectSignature(validator, block, affidavit)),
+    );
 
     return [...new Set(signatures.flat())];
   }
@@ -50,7 +52,7 @@ class SignatureCollector {
     const sourceUrl = `${location}/signature`;
 
     try {
-      const response = await axios.post(sourceUrl, JSON.stringify(block),{
+      const response = await axios.post(sourceUrl, JSON.stringify(block), {
         headers: {
           'Content-Type': 'application/json',
         },

@@ -13,25 +13,33 @@ class Helper {
   @inject(PriceAggregator) priceAggregator!: PriceAggregator;
   @inject(TimeService) timeService!: TimeService;
 
-  async orderedPriceAggregatorContent(beforeTimestamp: number = this.timeService.apply(), orderBy = 'timestamp') : Promise<{symbol: string; value: number; timestamp: number}[]> {
+  async orderedPriceAggregatorContent(
+    beforeTimestamp: number = this.timeService.apply(),
+    orderBy = 'timestamp',
+  ): Promise<{symbol: string; value: number; timestamp: number}[]> {
     const pairs = await CryptoCompareWSInitializer.allPairs(this.settings.feedsOnChain, this.settings.feedsFile);
 
-    const result = await Promise.all(pairs.map(async ({fsym, tsym}) => {
-      const valueTimestamp = (await this.priceAggregator.valueTimestamp(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, beforeTimestamp));
+    const result = await Promise.all(
+      pairs.map(async ({fsym, tsym}) => {
+        const valueTimestamp = await this.priceAggregator.valueTimestamp(
+          `${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`,
+          beforeTimestamp,
+        );
 
-      const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
+        const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
 
-      return {
-        symbol: `${fsym}-${tsym}`,
-        value,
-        timestamp,
-      };
-    }));
+        return {
+          symbol: `${fsym}-${tsym}`,
+          value,
+          timestamp,
+        };
+      }),
+    );
 
-    return sort(result).asc(((item: any) => item[orderBy]));
+    return sort(result).asc((item: any) => item[orderBy]);
   }
 
-  async priceAggregatorAllPrices(fsym: string, tsym: string) : Promise<{value: number; timestamp: number}[]> {
+  async priceAggregatorAllPrices(fsym: string, tsym: string): Promise<{value: number; timestamp: number}[]> {
     return this.priceAggregator.valueTimestamps(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`);
   }
 }

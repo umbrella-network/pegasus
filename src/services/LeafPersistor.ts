@@ -15,7 +15,7 @@ class LeafPersistor {
 
   private save = async (leaf: Leaf): Promise<void> => {
     getModelForClass(Leaf).create(leaf);
-  }
+  };
 }
 
 export default LeafPersistor;

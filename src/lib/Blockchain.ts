@@ -9,9 +9,7 @@ class Blockchain {
   provider: Provider;
   wallet: Wallet;
 
-  constructor(
-    @inject('Settings') settings: Settings
-  ) {
+  constructor(@inject('Settings') settings: Settings) {
     this.provider = this.getProvider(settings.blockchain.provider.url);
     this.wallet = new Wallet(settings.blockchain.provider.privateKey, this.provider);
   }
@@ -26,7 +24,7 @@ class Blockchain {
       return new JsonRpcProvider(url);
     }
 
-    throw new Error(`unsupported URL scheme: ${url}. Please switch to http(s)`)
+    throw new Error(`unsupported URL scheme: ${url}. Please switch to http(s)`);
   }
 }
 

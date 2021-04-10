@@ -3,9 +3,9 @@ export interface KeyValues {
 }
 
 export interface SignedBlock {
-  fcd: KeyValues,
-  leaves: KeyValues,
-  blockHeight: number,
-  signature: string,
-  timestamp: number,
+  fcd: KeyValues;
+  leaves: KeyValues;
+  blockHeight: number;
+  signature: string;
+  timestamp: number;
 }

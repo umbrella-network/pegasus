@@ -9,7 +9,7 @@ import logger from './logger';
 import Settings from '../types/Settings';
 import HealthController from '../controllers/HealthController';
 import BlocksController from '../controllers/BlocksController';
-import SignatureController from "../controllers/SignatureController";
+import SignatureController from '../controllers/SignatureController';
 import Blockchain from './Blockchain';
 import InfoController from '../controllers/InfoController';
 import DebugController from '../controllers/DebugController';
@@ -39,7 +39,7 @@ class Server {
       .use(helmet())
       .use(compression())
       .use(express.json())
-      .use(express.urlencoded({ extended: true }))
+      .use(express.urlencoded({extended: true}))
       .use('/blocks', blocksController.router)
       .use('/debug', debugController.router)
       .use('/health', healthController.router)
@@ -51,7 +51,9 @@ class Server {
   }
 
   start(): void {
-    this.server.listen(this.port, () => logger.info(`Validator ${this.blockchain.wallet.address} is live on ${this.port}`));
+    this.server.listen(this.port, () =>
+      logger.info(`Validator ${this.blockchain.wallet.address} is live on ${this.port}`),
+    );
   }
 }
 

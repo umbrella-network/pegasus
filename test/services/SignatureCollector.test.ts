@@ -1,15 +1,15 @@
 import 'reflect-metadata';
 import SignatureCollector from '../../src/services/SignatureCollector';
-import {Container} from 'inversify'
-import sinon from 'sinon'
-import {mockedLogger} from '../mocks/logger'
+import {Container} from 'inversify';
+import sinon from 'sinon';
+import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
 import ValidatorRegistryContract from '../../src/contracts/ValidatorRegistryContract';
 import {expect} from 'chai';
-import {Wallet} from 'ethers'
+import {Wallet} from 'ethers';
 import {SignedBlock} from '../../src/types/SignedBlock';
-import moxios from 'moxios'
-import BlockMinter from '../../src/services/BlockMinter'
+import moxios from 'moxios';
+import BlockMinter from '../../src/services/BlockMinter';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 
 describe('SignatureCollector', () => {
@@ -19,9 +19,9 @@ describe('SignatureCollector', () => {
   let signatureCollector: SignatureCollector;
 
   beforeEach(async () => {
-    moxios.install()
+    moxios.install();
 
-    const container = new Container()
+    const container = new Container();
 
     const settings = {
       signatureTimeout: 5000,
@@ -38,21 +38,19 @@ describe('SignatureCollector', () => {
     container.bind(SignatureCollector).toSelf();
 
     signatureCollector = container.get(SignatureCollector);
-  })
+  });
 
   afterEach(() => {
     moxios.uninstall();
   });
 
-  it('returns block\'s signature if the only validator is the current one', async () => {
-    const affidavit = '0xad5c2e48ca79dfaf8defc323b0d895ecf055623a005c73dbae657444b0af9172'
+  it("returns block's signature if the only validator is the current one", async () => {
+    const affidavit = '0xad5c2e48ca79dfaf8defc323b0d895ecf055623a005c73dbae657444b0af9172';
 
     const wallet = Wallet.createRandom();
     mockedBlockchain.wallet = wallet;
 
-    mockedValidatorRegistryContract.getValidators.resolves([
-      {id: wallet.address, location: 'http://validator'}
-    ]);
+    mockedValidatorRegistryContract.getValidators.resolves([{id: wallet.address, location: 'http://validator'}]);
 
     const block: SignedBlock = {
       timestamp: 10,
@@ -63,17 +61,22 @@ describe('SignatureCollector', () => {
       leaves: {
         'ETH-USD': 100,
       },
-      signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
+      signature:
+        '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit, await mockedValidatorRegistryContract.getValidators());
+    const signatures = await signatureCollector.apply(
+      block,
+      affidavit,
+      await mockedValidatorRegistryContract.getValidators(),
+    );
 
     expect(signatures).to.be.an('array').with.lengthOf(1);
     expect(signatures[0]).to.be.a('string').that.is.eq(block.signature);
   });
 
   it('returns no signatures if signer addresses does not match', async () => {
-    const {affidavit, fcd} = leafWithAffidavit
+    const {affidavit, fcd} = leafWithAffidavit;
 
     const walletOfCurrentValidator = Wallet.createRandom();
     mockedBlockchain.wallet = walletOfCurrentValidator;
@@ -88,7 +91,8 @@ describe('SignatureCollector', () => {
       status: 200,
       response: {
         // a wrong signature, so the addresses of signers will not match
-        data: '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+        data:
+          '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
       },
     });
 
@@ -97,10 +101,15 @@ describe('SignatureCollector', () => {
       blockHeight: 1,
       fcd,
       leaves: fcd,
-      signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
+      signature:
+        '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit, await mockedValidatorRegistryContract.getValidators());
+    const signatures = await signatureCollector.apply(
+      block,
+      affidavit,
+      await mockedValidatorRegistryContract.getValidators(),
+    );
 
     expect(signatures).to.be.an('array').with.lengthOf(0);
   });
@@ -112,7 +121,7 @@ describe('SignatureCollector', () => {
     mockedBlockchain.wallet = walletOfCurrentValidator;
 
     const walletOfAnotherValidator = Wallet.createRandom();
-    const signatureOfAnotherValidator = await BlockMinter.signAffidavitWithWallet(walletOfAnotherValidator, affidavit)
+    const signatureOfAnotherValidator = await BlockMinter.signAffidavitWithWallet(walletOfAnotherValidator, affidavit);
 
     mockedValidatorRegistryContract.getValidators.resolves([
       {id: walletOfAnotherValidator.address, location: 'http://validator'},
@@ -130,10 +139,15 @@ describe('SignatureCollector', () => {
       blockHeight: 1,
       fcd: fcd,
       leaves: fcd,
-      signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
+      signature:
+        '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit, await mockedValidatorRegistryContract.getValidators());
+    const signatures = await signatureCollector.apply(
+      block,
+      affidavit,
+      await mockedValidatorRegistryContract.getValidators(),
+    );
 
     expect(signatures).to.be.an('array').with.lengthOf(1);
     expect(signatures[0]).to.be.a('string').that.is.eq(signatureOfAnotherValidator);
@@ -146,10 +160,10 @@ describe('SignatureCollector', () => {
     mockedBlockchain.wallet = walletOfCurrentValidator;
 
     const walletOfSecondValidator = Wallet.createRandom();
-    const signatureOfSecondValidator = await BlockMinter.signAffidavitWithWallet(walletOfSecondValidator, affidavit)
+    const signatureOfSecondValidator = await BlockMinter.signAffidavitWithWallet(walletOfSecondValidator, affidavit);
 
     const walletOfThirdValidator = Wallet.createRandom();
-    const signatureOfThirdValidator = await BlockMinter.signAffidavitWithWallet(walletOfThirdValidator, affidavit)
+    const signatureOfThirdValidator = await BlockMinter.signAffidavitWithWallet(walletOfThirdValidator, affidavit);
 
     mockedValidatorRegistryContract.getValidators.resolves([
       {id: walletOfSecondValidator.address, location: 'http://second-validator'},
@@ -175,13 +189,18 @@ describe('SignatureCollector', () => {
       blockHeight: 1,
       fcd: fcd,
       leaves: fcd,
-      signature: '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
+      signature:
+        '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit, await mockedValidatorRegistryContract.getValidators());
+    const signatures = await signatureCollector.apply(
+      block,
+      affidavit,
+      await mockedValidatorRegistryContract.getValidators(),
+    );
 
     expect(signatures).to.be.an('array').with.lengthOf(2);
     expect(signatures).to.include(signatureOfSecondValidator);
     expect(signatures).to.include(signatureOfThirdValidator);
-  })
-})
+  });
+});

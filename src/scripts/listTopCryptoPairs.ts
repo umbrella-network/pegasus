@@ -8,9 +8,9 @@ dotenv.config();
 import settings from '../config/settings';
 
 const argv = yargs(process.argv.slice(2)).options({
-  maxTickers: { type: 'number', default: 2000 },
-  maxPairs: { type: 'number', default: 10 },
-  minVolumeUSD: { type: 'number', default: 100000 },
+  maxTickers: {type: 'number', default: 2000},
+  maxPairs: {type: 'number', default: 10},
+  minVolumeUSD: {type: 'number', default: 100000},
 }).argv;
 
 /**
@@ -21,7 +21,7 @@ async function main() {
     const sourceUrl = `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=${limit}&page=${page}&tsym=${tsym}`;
 
     const response = await axios.get(sourceUrl, {
-      headers: {'Authorization': `Apikey ${settings.api.cryptocompare.apiKey}`}
+      headers: {Authorization: `Apikey ${settings.api.cryptocompare.apiKey}`},
     });
 
     if (response.status !== 200) {
@@ -29,13 +29,13 @@ async function main() {
     }
 
     return response.data;
-  }
+  };
 
   const fetchTopPairs = async (limit: number, fsym: string) => {
     const sourceUrl = `https://min-api.cryptocompare.com/data/top/pairs?fsym=${fsym}&limit=${limit}`;
 
     const response = await axios.get(sourceUrl, {
-      headers: {'Authorization': `Apikey ${settings.api.cryptocompare.apiKey}`}
+      headers: {Authorization: `Apikey ${settings.api.cryptocompare.apiKey}`},
     });
 
     if (response.status !== 200) {
@@ -43,13 +43,13 @@ async function main() {
     }
 
     return response.data;
-  }
+  };
 
   const fetchUSDPrices = async (fsyms: string[]) => {
     const sourceUrl = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${fsyms.join(',')}&tsyms=USD`;
 
     const response = await axios.get(sourceUrl, {
-      headers: {'Authorization': `Apikey ${settings.api.cryptocompare.apiKey}`}
+      headers: {Authorization: `Apikey ${settings.api.cryptocompare.apiKey}`},
     });
 
     if (response.status !== 200) {
@@ -62,7 +62,7 @@ async function main() {
       map[symbol] = result[symbol]['USD'];
       return map;
     }, {} as any);
-  }
+  };
 
   const unique: any = {};
   const volumes = [];
@@ -89,7 +89,6 @@ async function main() {
         if (volume24h > 0) {
           const volumeAdjusted = volume24h * prices[symbol];
           if (volumeAdjusted > argv.minVolumeUSD) {
-
             const ticker = `${fromSymbol}-${toSymbol}`;
 
             if (unique[ticker]) {
@@ -99,18 +98,21 @@ async function main() {
               continue;
             }
 
-            let {price} = pairs[p], precision = 2;
+            let {price} = pairs[p],
+              precision = 2;
             while (price < 10) {
               price *= 10;
               precision += 1;
             }
 
-            volumes.push(unique[ticker] = {
-              fromSymbol,
-              toSymbol,
-              volume: volumeAdjusted,
-              precision,
-            });
+            volumes.push(
+              (unique[ticker] = {
+                fromSymbol,
+                toSymbol,
+                volume: volumeAdjusted,
+                precision,
+              }),
+            );
 
             console.log(`num: ${volumes.length}`);
           }
@@ -140,7 +142,7 @@ main()
   .then(() => {
     process.exit(0);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
     process.exit(1);
   });

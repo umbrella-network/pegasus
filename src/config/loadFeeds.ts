@@ -9,13 +9,13 @@ import FeedsSchema from './feeds-schema';
 const urlCache = createUrlCache();
 
 export default async function loadFeeds(filePath: string): Promise<Feeds> {
- try {
-   new URL(filePath);
+  try {
+    new URL(filePath);
 
-   return await processYaml(await urlCache.loadFromURL(filePath, true));
- } catch (err) {
-   return await processYaml(await loadFromFile(filePath));
- }
+    return await processYaml(await urlCache.loadFromURL(filePath, true));
+  } catch (err) {
+    return await processYaml(await loadFromFile(filePath));
+  }
 }
 
 async function processYaml(feedData: string): Promise<Feeds> {
@@ -52,7 +52,7 @@ const loadFromURL = async (url: string): Promise<string> => {
   }
 
   return response.data;
-}
+};
 
 function createUrlCache() {
   const etagCache: {[url: string]: string} = {};
@@ -66,13 +66,15 @@ function createUrlCache() {
       try {
         const response = await axios.get(url, {
           headers: {
-            ...(etag ? {
-              'If-None-Match': etag,
-            } : {}),
+            ...(etag
+              ? {
+                  'If-None-Match': etag,
+                }
+              : {}),
           },
           validateStatus: function (status) {
             return status < 400;
-          }
+          },
         });
 
         if (response.status === 304) {
@@ -98,6 +100,6 @@ function createUrlCache() {
 
         throw err;
       }
-    }
+    },
   };
 }

@@ -24,10 +24,12 @@ class ValidatorRegistryContract {
     const contract = await this.resolveContract();
     const count = (await this.getNumberOfValidators(contract)).toNumber();
 
-    return Promise.all(Array.from(Array(count).keys()).map(async (i) => {
-      const address = await contract.addresses(i);
-      return this.getValidatorDetails(contract, address);
-    }));
+    return Promise.all(
+      Array.from(Array(count).keys()).map(async (i) => {
+        const address = await contract.addresses(i);
+        return this.getValidatorDetails(contract, address);
+      }),
+    );
   }
 
   resolveContract = async (): Promise<Contract> => {

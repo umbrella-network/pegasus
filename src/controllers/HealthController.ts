@@ -1,5 +1,5 @@
-import { injectable } from 'inversify';
-import express, { Request, Response } from 'express';
+import {injectable} from 'inversify';
+import express, {Request, Response} from 'express';
 
 @injectable()
 class HeathController {
@@ -11,7 +11,7 @@ class HeathController {
 
   pong = async (request: Request, response: Response): Promise<void> => {
     response.send('pong');
-  }
+  };
 }
 
 export default HeathController;

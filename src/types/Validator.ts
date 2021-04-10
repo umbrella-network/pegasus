@@ -1,4 +1,4 @@
 export interface Validator {
-  id: string,
-  location: string,
+  id: string;
+  location: string;
 }
