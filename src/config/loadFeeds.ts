@@ -40,6 +40,7 @@ async function loadFromFile(filePath: string): Promise<string> {
   });
 }
 
+/*
 const loadFromURL = async (url: string): Promise<string> => {
   const response = await axios.get(url);
 
@@ -53,6 +54,7 @@ const loadFromURL = async (url: string): Promise<string> => {
 
   return response.data;
 };
+*/
 
 function createUrlCache() {
   const etagCache: {[url: string]: string} = {};

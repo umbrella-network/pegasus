@@ -172,13 +172,23 @@ class CryptoCompareWSClient extends WSClient {
   }
 
   private truncatePriceAggregator(): void {
-    const timestamp = this.timeService.apply() - this.settings.api.cryptocompare.priceExpiryTimeout;
+    const beforeTimestamp = this.timeService.apply() - this.settings.api.cryptocompare.priceExpiryTimeout;
 
-    this.logger.info(`Truncating CryptoCompare prices before ${timestamp}...`);
+    this.logger.info(`Truncating CryptoCompare prices before ${beforeTimestamp}...`);
 
-    Object.keys(this.subscriptions).forEach((subscription) => {
-      this.priceAggregator.cleanUp(`${CryptoCompareWSClient.Prefix}${subscription}`, timestamp).catch(this.logger.warn);
-    });
+    Promise.all(Object.keys(this.subscriptions).map(async (subscription) => {
+      const key = `${CryptoCompareWSClient.Prefix}${subscription}`;
+
+      // find a value before a particular timestamp
+      const valueTimestamp = await this.priceAggregator.valueTimestamp(key, beforeTimestamp);
+      if (!valueTimestamp) {
+        // no values to truncate
+        return;
+      }
+
+      // delete all values before the one we have just found
+      await this.priceAggregator.cleanUp(key, valueTimestamp.timestamp);
+    })).catch(this.logger.warn);
   }
 }
 
