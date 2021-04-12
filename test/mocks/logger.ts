@@ -1,6 +1,6 @@
-import { Logger } from 'winston';
+import {Logger} from 'winston';
 
-export const mockedLogger: Logger = {
+export const mockedLogger: Logger = ({
   log: () => mockedLogger,
   error: () => mockedLogger,
   warn: () => mockedLogger,
@@ -18,4 +18,4 @@ export const mockedLogger: Logger = {
   crit: () => mockedLogger,
   warning: () => mockedLogger,
   notice: () => mockedLogger,
-} as unknown as Logger;
+} as unknown) as Logger;

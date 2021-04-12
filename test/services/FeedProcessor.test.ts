@@ -1,11 +1,11 @@
-  /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import { Container } from 'inversify';
+import {Container} from 'inversify';
 import sinon from 'sinon';
-import { mockedLogger } from '../mocks/logger';
+import {mockedLogger} from '../mocks/logger';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import Settings from '../../src/types/Settings';
-import { expect } from 'chai';
+import {expect} from 'chai';
 import * as fetchers from '../../src/services/fetchers';
 
 import chai from 'chai';
@@ -51,12 +51,20 @@ describe('FeedProcessor', () => {
     container.bind('Logger').toConstantValue(mockedLogger);
     container.bind('Settings').toConstantValue(settings);
 
-    container.bind(fetchers.CryptoCompareHistoHourFetcher).toConstantValue(mockedFetchers.CryptoCompareHistoHourFetcher as any);
-    container.bind(fetchers.CryptoCompareHistoDayFetcher).toConstantValue(mockedFetchers.CryptoCompareHistoDayFetcher as any);
+    container
+      .bind(fetchers.CryptoCompareHistoHourFetcher)
+      .toConstantValue(mockedFetchers.CryptoCompareHistoHourFetcher as any);
+    container
+      .bind(fetchers.CryptoCompareHistoDayFetcher)
+      .toConstantValue(mockedFetchers.CryptoCompareHistoDayFetcher as any);
     container.bind(fetchers.CryptoComparePriceFetcher).toConstantValue(mockedFetchers.CryptoComparePriceFetcher as any);
-    container.bind(fetchers.GVolImpliedVolatilityFetcher).toConstantValue(mockedFetchers.GVolImpliedVolatilityFetcher as any);
+    container
+      .bind(fetchers.GVolImpliedVolatilityFetcher)
+      .toConstantValue(mockedFetchers.GVolImpliedVolatilityFetcher as any);
     container.bind(fetchers.PolygonIOPriceFetcher).toConstantValue(mockedFetchers.PolygonIOPriceFetcher as any);
-    container.bind(fetchers.CryptoComparePriceWSFetcher).toConstantValue(mockedFetchers.CryptoComparePriceWSFetcher as any);
+    container
+      .bind(fetchers.CryptoComparePriceWSFetcher)
+      .toConstantValue(mockedFetchers.CryptoComparePriceWSFetcher as any);
     container.bind(fetchers.IEXEnergyFetcher).toConstantValue(mockedFetchers.IEXEnergyFetcher as any);
     container.bind(fetchers.CoinmarketcapPriceFetcher).toConstantValue(mockedFetchers.CoinmarketcapPriceFetcher as any);
     container.bind(fetchers.CoingeckoPriceFetcher).toConstantValue(mockedFetchers.CoingeckoPriceFetcher as any);
@@ -90,10 +98,10 @@ describe('FeedProcessor', () => {
     };
 
     mockedFetchers.CryptoCompareHistoHourFetcher.apply.resolves([
-      [{ high: 1380.16, low: 1367.16, open: 1377.43, close: 1372.9 }, 16798.85],
-      [{ high: 1358.45, low: 1351.08, open: 1352.75, close: 1355.31 }, 15647.4],
-      [{ high: 1376.11, low: 1359.79, open: 1355.68, close: 1360.47 }, 35425.3],
-      [{ high: 1352.2, low: 1347.14, open: 1360.47, close: 1349.5 }, 22545.38],
+      [{high: 1380.16, low: 1367.16, open: 1377.43, close: 1372.9}, 16798.85],
+      [{high: 1358.45, low: 1351.08, open: 1352.75, close: 1355.31}, 15647.4],
+      [{high: 1376.11, low: 1359.79, open: 1355.68, close: 1360.47}, 35425.3],
+      [{high: 1352.2, low: 1347.14, open: 1360.47, close: 1349.5}, 22545.38],
     ]);
 
     const leaves = await feedProcessor.apply(10, feeds);
@@ -147,10 +155,10 @@ describe('FeedProcessor', () => {
     };
 
     mockedFetchers.CryptoCompareHistoDayFetcher.apply.resolves([
-      [{ high: 749.71, low: 717.14, open: 737.15, close: 730.6 }, 436164.48],
-      [{ high: 788.27, low: 716.71, open: 730.6, close: 774.9 }, 904953.39],
-      [{ high: 1011.81, low: 770.07, open: 774.9, close: 978.69 }, 2200163.67],
-      [{ high: 1290.46, low: 1151.6, open: 1210.59, close: 1225.5 }, 1601329.3],
+      [{high: 749.71, low: 717.14, open: 737.15, close: 730.6}, 436164.48],
+      [{high: 788.27, low: 716.71, open: 730.6, close: 774.9}, 904953.39],
+      [{high: 1011.81, low: 770.07, open: 774.9, close: 978.69}, 2200163.67],
+      [{high: 1290.46, low: 1151.6, open: 1210.59, close: 1225.5}, 1601329.3],
     ]);
 
     const leaves = await feedProcessor.apply(10, feeds);

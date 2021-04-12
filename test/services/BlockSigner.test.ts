@@ -1,17 +1,17 @@
 import 'reflect-metadata';
 import BlockSigner from '../../src/services/BlockSigner';
-import { Container } from 'inversify'
-import sinon from 'sinon'
-import { mockedLogger } from '../mocks/logger'
+import {Container} from 'inversify';
+import sinon from 'sinon';
+import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
 import ChainContract from '../../src/contracts/ChainContract';
-import FeedProcessor from "../../src/services/FeedProcessor";
+import FeedProcessor from '../../src/services/FeedProcessor';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
-import Settings from "../../src/types/Settings";
-import { expect } from 'chai';
-import { BigNumber, Wallet } from 'ethers'
+import Settings from '../../src/types/Settings';
+import {expect} from 'chai';
+import {BigNumber, Wallet} from 'ethers';
 import BlockMinter from '../../src/services/BlockMinter';
-import { leafWithAffidavit } from '../fixtures/leafWithAffidavit';
+import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -26,7 +26,7 @@ describe('BlockSigner', () => {
   let blockSigner: BlockSigner;
 
   beforeEach(async () => {
-    const container = new Container()
+    const container = new Container();
 
     mockedBlockchain = sinon.createStubInstance(Blockchain);
     mockedChainContract = sinon.createStubInstance(ChainContract);
@@ -40,13 +40,13 @@ describe('BlockSigner', () => {
     container.bind('Settings').toConstantValue(settings);
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
-    container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor  as unknown as FeedProcessor);
+    container.bind(FeedProcessor).toConstantValue((mockedFeedProcessor as unknown) as FeedProcessor);
     container.bind(SortedMerkleTreeFactory).toSelf();
 
     container.bind(BlockSigner).to(BlockSigner);
 
     blockSigner = container.get(BlockSigner);
-  })
+  });
 
   it('throws error if you are the leader', async () => {
     const wallet = Wallet.createRandom();
@@ -56,14 +56,16 @@ describe('BlockSigner', () => {
       blockHeight: BigNumber.from(2),
     });
 
-    await expect(blockSigner.apply({
-      timestamp: 10,
-      blockHeight: 1,
-      fcd: { 'ETH-USD': 100 },
-      leaves: { 'ETH-USD': 100 },
-      signature: '0x00',
-    })).to.be.rejectedWith('You are the leader, and you should not sign your block again.')
-  })
+    await expect(
+      blockSigner.apply({
+        timestamp: 10,
+        blockHeight: 1,
+        fcd: {'ETH-USD': 100},
+        leaves: {'ETH-USD': 100},
+        signature: '0x00',
+      }),
+    ).to.be.rejectedWith('You are the leader, and you should not sign your block again.');
+  });
 
   it('throws error if submitted block is not the current one', async () => {
     mockedBlockchain.wallet = Wallet.createRandom();
@@ -72,17 +74,19 @@ describe('BlockSigner', () => {
       blockHeight: BigNumber.from(2),
     });
 
-    await expect(blockSigner.apply({
-      timestamp: 10,
-      blockHeight: 1,
-      fcd: { 'ETH-USD': 100 },
-      leaves: { 'ETH-USD': 100 },
-      signature: '0x00',
-    })).to.be.rejectedWith('Does not match with the current block 2.')
-  })
+    await expect(
+      blockSigner.apply({
+        timestamp: 10,
+        blockHeight: 1,
+        fcd: {'ETH-USD': 100},
+        leaves: {'ETH-USD': 100},
+        signature: '0x00',
+      }),
+    ).to.be.rejectedWith('Does not match with the current block 2.');
+  });
 
   it('throws error if signatures does not match', async () => {
-    const { affidavit, fcd } = leafWithAffidavit
+    const {affidavit, fcd} = leafWithAffidavit;
 
     const wallet = Wallet.createRandom();
 
@@ -95,19 +99,21 @@ describe('BlockSigner', () => {
       blockHeight: BigNumber.from(1),
     });
 
-    await expect(blockSigner.apply({
-      timestamp: 10,
-      blockHeight: 1,
-      fcd: fcd,
-      leaves: fcd,
-      signature: signature,
-    })).to.be.rejectedWith('Signature does not belong to the current leader')
-  })
+    await expect(
+      blockSigner.apply({
+        timestamp: 10,
+        blockHeight: 1,
+        fcd: fcd,
+        leaves: fcd,
+        signature: signature,
+      }),
+    ).to.be.rejectedWith('Signature does not belong to the current leader');
+  });
 
-  it('returns validator\'s signature', async () => {
-    const { affidavit, fcd, leaf } = leafWithAffidavit
+  it("returns validator's signature", async () => {
+    const {affidavit, fcd, leaf} = leafWithAffidavit;
 
-    const leaderWallet = Wallet.createRandom()
+    const leaderWallet = Wallet.createRandom();
     const wallet = Wallet.createRandom();
 
     const signature = await BlockMinter.signAffidavitWithWallet(leaderWallet, affidavit);
@@ -129,6 +135,8 @@ describe('BlockSigner', () => {
       signature: signature,
     });
 
-    expect(result).to.be.a('string').that.matches(/^0x[0-9a-fA-F]+$/);
-  })
-})
+    expect(result)
+      .to.be.a('string')
+      .that.matches(/^0x[0-9a-fA-F]+$/);
+  });
+});

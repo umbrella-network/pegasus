@@ -36,8 +36,11 @@ class CryptoCompareWSInitializer {
   static async allPairs(...files: string[]): Promise<Pair[]> {
     const feeds = await Promise.all(files.map(loadFeeds));
 
-    return feeds.map((feed) => Object.values(feed)).flat(1)
-      .map((value) => value.inputs).flat()
+    return feeds
+      .map((feed) => Object.values(feed))
+      .flat(1)
+      .map((value) => value.inputs)
+      .flat()
       .filter(({fetcher}) => fetcher.name === 'CryptoComparePriceWS')
       .map(({fetcher}) => fetcher.params)
       .map(({fsym, tsym}: any) => ({fsym, tsym}));

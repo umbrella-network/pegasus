@@ -1,11 +1,11 @@
 export default {
-  description: "Feeds schema for the Pegasus validator",
+  description: 'Feeds schema for the Pegasus validator',
   type: 'object',
   propertyNames: {
     pattern: '^[A-Za-z0-9][A-Za-z0-9-:]*$',
   },
   patternProperties: {
-    '.*': {type: 'object', '$ref': '#/definitions/feed'},
+    '.*': {type: 'object', $ref: '#/definitions/feed'},
   },
   minProperties: 1,
   definitions: {
@@ -13,7 +13,7 @@ export default {
       properties: {
         discrepancy: {type: 'number'},
         precision: {type: 'number'},
-        inputs: {type: 'array', minItems: 1, items: {'$ref': '#/definitions/input'}},
+        inputs: {type: 'array', minItems: 1, items: {$ref: '#/definitions/input'}},
       },
       required: ['discrepancy', 'precision', 'inputs'],
       additionalProperties: false,
@@ -22,16 +22,16 @@ export default {
       properties: {
         fetcher: {
           oneOf: [
-            {'$ref': '#/definitions/GVolImpliedVolatilityFetcher'},
-            {'$ref': '#/definitions/CryptoCompareHistoDayFetcher'},
-            {'$ref': '#/definitions/CryptoCompareHistoHourFetcher'},
-            {'$ref': '#/definitions/CryptoComparePriceFetcher'},
-            {'$ref': '#/definitions/CryptoComparePriceWSFetcher'},
-            {'$ref': '#/definitions/PolygonIOPriceFetcher'},
-            {'$ref': '#/definitions/IEXEnergyFetcher'},
-            {'$ref': '#/definitions/CoingeckoPriceFetcher'},
-            {'$ref': '#/definitions/CoinmarketcapPriceFetcher'},
-          ]
+            {$ref: '#/definitions/GVolImpliedVolatilityFetcher'},
+            {$ref: '#/definitions/CryptoCompareHistoDayFetcher'},
+            {$ref: '#/definitions/CryptoCompareHistoHourFetcher'},
+            {$ref: '#/definitions/CryptoComparePriceFetcher'},
+            {$ref: '#/definitions/CryptoComparePriceWSFetcher'},
+            {$ref: '#/definitions/PolygonIOPriceFetcher'},
+            {$ref: '#/definitions/IEXEnergyFetcher'},
+            {$ref: '#/definitions/CoingeckoPriceFetcher'},
+            {$ref: '#/definitions/CoinmarketcapPriceFetcher'},
+          ],
         },
         calculator: {
           type: 'object',
@@ -105,7 +105,7 @@ export default {
           },
           required: ['fsym', 'tsym', 'limit'],
           additionalProperties: false,
-        }
+        },
       },
       required: ['params'],
       additionalProperties: false,

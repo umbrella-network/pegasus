@@ -13,7 +13,7 @@ describe('PriceAggregator', () => {
   const symbol = 'AAPL';
 
   before(async () => {
-    const config = loadTestEnv()
+    const config = loadTestEnv();
 
     settings = {
       redis: {
@@ -21,13 +21,13 @@ describe('PriceAggregator', () => {
       },
     } as Settings;
 
-    const container = new Container()
+    const container = new Container();
 
     container.bind('Settings').toConstantValue(settings);
     container.bind(PriceAggregator).to(PriceAggregator);
 
     priceAggregator = container.get(PriceAggregator);
-  })
+  });
 
   after(async () => {
     await priceAggregator.close();
@@ -35,7 +35,7 @@ describe('PriceAggregator', () => {
 
   afterEach(async () => {
     await priceAggregator.cleanUp(symbol);
-  })
+  });
 
   it('check for a historical price', async () => {
     const date = Date.now();
@@ -81,8 +81,8 @@ describe('PriceAggregator', () => {
     const date = Date.now();
 
     await priceAggregator.add(symbol, 3, date);
-    await priceAggregator.add(symbol, 4,date + 5);
-    await priceAggregator.add(symbol, 9,date + 8);
+    await priceAggregator.add(symbol, 4, date + 5);
+    await priceAggregator.add(symbol, 9, date + 8);
     await priceAggregator.add(symbol, 5, date + 10);
 
     expect(await priceAggregator.averageValue(symbol, date + 5, date + 10)).to.be.eq(6);
@@ -92,8 +92,8 @@ describe('PriceAggregator', () => {
     const date = Date.now();
 
     await priceAggregator.add(symbol, 3, date);
-    await priceAggregator.add(symbol, 4,date + 5);
-    await priceAggregator.add(symbol, 9,date + 8);
+    await priceAggregator.add(symbol, 4, date + 5);
+    await priceAggregator.add(symbol, 9, date + 8);
     await priceAggregator.add(symbol, 5, date + 10);
 
     expect(await priceAggregator.averageValue(symbol, date + 11, date + 12)).to.be.null;
@@ -103,7 +103,7 @@ describe('PriceAggregator', () => {
     const date = Date.now();
 
     await priceAggregator.add(symbol, 3, date);
-    await priceAggregator.add(symbol, 4,date + 5);
+    await priceAggregator.add(symbol, 4, date + 5);
     await priceAggregator.add(symbol, 9, date + 8);
     await priceAggregator.add(symbol, 5, date + 10);
 
@@ -111,4 +111,4 @@ describe('PriceAggregator', () => {
 
     expect(await priceAggregator.averageValue(symbol, 0, date + 10)).to.be.eq(7);
   });
-})
+});
