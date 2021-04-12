@@ -70,13 +70,13 @@ class CryptoCompareWSClient extends WSClient {
   onConnected(event: unknown): void {
     this.connected = true;
 
-    const timeout = setTimeout(this.close.bind(this), this.settings.api.cryptocompare.priceExpiryTimeout * 1000);
+    const timeout = setTimeout(this.close.bind(this), this.settings.api.cryptocompare.reconnectInterval);
     this.clearTimeBreak = () => {
       clearTimeout(timeout);
     };
 
 
-    const truncateInterval = setInterval(this.truncatePriceAggregator.bind(this), this.settings.api.cryptocompare.reconnectInterval);
+    const truncateInterval = setInterval(this.truncatePriceAggregator.bind(this), this.settings.api.cryptocompare.priceExpiryTimeout * 1000);
     this.clearTruncatePriceAggregatorInterval = () => {
       clearInterval(truncateInterval);
     };
