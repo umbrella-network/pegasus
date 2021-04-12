@@ -26,15 +26,13 @@ build:
 
 build-bnc-testnet:
 	@echo "## Building the docker image ##"
-	@docker buildx build  --push --platform linux/amd64 -t $(DEVELOP)  .
-	@docker buildx build  --push --platform linux/amd64 -t $(NEWIMAGE)  .
-	
+	@docker buildx build  --push --platform linux/amd64 -t $(DEVELOP) -t $(NEWIMAGE)  .
 
 login:
 	@aws ecr get-login-password  | docker login --username AWS --password-stdin $(AWS_REPOSITORY)
 
 login-new-dev:
-	@aws ecr --profile umb-central --region $(AWS_REGION) get-login-password  | docker login --username AWS --password-stdin $(AWS_REPOSITORY)
+	@aws ecr --profile umb-central --region $(AWS_REGION) get-login-password  | docker login --username AWS --password-stdin $(NEW_AWS_REPOSITORY)
 
 push: login
 	@echo "## Pushing image to AWS ##"
