@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Fix
+- Keep at least one value provided by cryptocompare
+
 ## [0.9.3] - 2021-04-09
 
 ### Fix
