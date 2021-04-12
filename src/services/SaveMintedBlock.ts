@@ -1,20 +1,20 @@
-import { getModelForClass } from '@typegoose/typegoose';
-import { injectable } from 'inversify';
-import { HexStringWith0x } from '../types/HexStringWith0x';
-import { v4 as uuid } from 'uuid';
+import {getModelForClass} from '@typegoose/typegoose';
+import {injectable} from 'inversify';
+import {HexStringWith0x} from '../types/HexStringWith0x';
+import {v4 as uuid} from 'uuid';
 import Block from '../models/Block';
 import Leaf from '../models/Leaf';
 
 type Params = {
-  id?: string,
-  leaves: Leaf[],
-  blockHeight: number,
-  root: string,
-  mintedAt?: Date,
-  timestamp?: Date,
-  numericFcdKeys: string[],
-  numericFcdValues: number[]
-}
+  id?: string;
+  leaves: Leaf[];
+  blockHeight: number;
+  root: string;
+  mintedAt?: Date;
+  timestamp?: Date;
+  numericFcdKeys: string[];
+  numericFcdValues: number[];
+};
 
 @injectable()
 class SaveMintedBlock {
@@ -38,22 +38,20 @@ class SaveMintedBlock {
       .updateMany(
         {
           _id: {
-            $in: leaves.map((leaf) => leaf._id)
-          }
+            $in: leaves.map((leaf) => leaf._id),
+          },
         },
         {
           $set: {
-            blockHeight: blockHeight
-          }
-        }
+            blockHeight: blockHeight,
+          },
+        },
       )
-      .exec()
+      .exec();
   }
 
   private treeDataFor(leaves: Leaf[]): Record<string, HexStringWith0x> {
-    return leaves
-      .map((leaf) => ({ [leaf.label]: leaf.valueBytes }))
-      .reduce((acc, v) => ({ ...acc, ...v }), {});
+    return leaves.map((leaf) => ({[leaf.label]: leaf.valueBytes})).reduce((acc, v) => ({...acc, ...v}), {});
   }
 }
 

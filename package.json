@@ -1,12 +1,15 @@
 {
   "name": "pegasus",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/umbrella-network/pegasus.git"
   },
   "scripts": {
-    "lint": "eslint ./src/**/*.ts",
+    "lint": "eslint ./src/**/*.ts ./test/**/*.ts --max-warnings=7",
+    "lint:fix": "eslint ./src/**/*.ts ./test/**/*.ts --fix",
+    "prettier": "prettier --config .prettierrc ./src/**/*.ts ./test/**/*.ts --check",
+    "prettier:format": "prettier --config .prettierrc ./src/**/*.ts ./test/**/*.ts --write",
     "clean": "rm -rf dist",
     "compile": "tsc -p .",
     "copy:assets": "cpx 'src/**/*.{graphql,html,png,json}' dist",
@@ -48,7 +51,9 @@
     "mocha": "8.2.1",
     "moxios": "0.4.0",
     "node-statsd-client": "^1.0.4",
+    "prettier": "^2.2.1",
     "sinon": "9.2.4",
+    "statsd-client": "^0.4.5",
     "ts-node": "9.0.0",
     "ts-node-dev": "1.0.0",
     "typescript": "4.0.5"

@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
 
 import {SignedBlock} from '../types/SignedBlock';
-import BlockSigner from "../services/BlockSigner";
+import BlockSigner from '../services/BlockSigner';
 
 @injectable()
 class SignatureController {
@@ -10,14 +10,10 @@ class SignatureController {
 
   private blockSigner: BlockSigner;
 
-  constructor(
-    @inject(BlockSigner) blockSigner: BlockSigner,
-  ) {
+  constructor(@inject(BlockSigner) blockSigner: BlockSigner) {
     this.blockSigner = blockSigner;
 
-    this.router = express
-      .Router()
-      .post('/', this.index)
+    this.router = express.Router().post('/', this.index);
   }
 
   index = async (request: Request, response: Response): Promise<void> => {
@@ -26,12 +22,12 @@ class SignatureController {
     try {
       const signature = await this.blockSigner.apply(block);
 
-      response.send({ data: signature });
+      response.send({data: signature});
     } catch (err) {
-      response.status(400)
+      response.status(400);
       response.json({error: err.message});
     }
-  }
+  };
 }
 
 export default SignatureController;

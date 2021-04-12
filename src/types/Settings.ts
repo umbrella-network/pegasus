@@ -1,69 +1,69 @@
 type Settings = {
-  port: number,
+  port: number;
   jobs: {
     blockCreation: {
-      interval: number
-    }
-  },
+      interval: number;
+    };
+  };
   redis: {
-    url: string
-  },
+    url: string;
+  };
   mongodb: {
-    url: string
-  },
+    url: string;
+  };
   blockchain: {
     provider: {
-      url: string,
-      privateKey: string
-    },
+      url: string;
+      privateKey: string;
+    };
     contracts: {
       chain: {
-        name: string
-      },
+        name: string;
+      };
       registry: {
-        address: string
-      },
+        address: string;
+      };
       validatorRegistry: {
-        name: string
-      },
-    },
+        name: string;
+      };
+    };
     transactions: {
-      gasPrice: number
-    }
-  },
+      gasPrice: number;
+    };
+  };
   api: {
     cryptocompare: {
-      apiKey: string,
-      timeout: number,
-      priceExpiryTimeout: number,
-      reconnectInterval: number,
-    },
+      apiKey: string;
+      timeout: number;
+      priceExpiryTimeout: number;
+      reconnectInterval: number;
+    };
     coinmarketcap: {
-      apiKey: string,
-      timeout: number,
-    },
+      apiKey: string;
+      timeout: number;
+    };
     coingecko: {
-      timeout: number,
-    },
+      timeout: number;
+    };
     genesisVolatility: {
-      apiKey: string,
-      timeout: number,
-    }
+      apiKey: string;
+      timeout: number;
+    };
     polygonIO: {
-      apiKey: string,
-      timeout: number,
-    },
+      apiKey: string;
+      timeout: number;
+    };
     iex: {
-      apiKey: string,
-      timeout: number,
-    },
-  },
-  signatureTimeout: number,
-  feedsFile: string,
-  feedsOnChain: string,
+      apiKey: string;
+      timeout: number;
+    };
+  };
+  signatureTimeout: number;
+  feedsFile: string;
+  feedsOnChain: string;
   version: string;
   environment?: string;
   name: string;
-}
+};
 
 export default Settings;

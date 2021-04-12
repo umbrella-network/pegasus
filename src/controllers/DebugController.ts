@@ -11,11 +11,9 @@ class DebugController {
   helper!: Helper;
   settings!: Settings;
 
-  constructor(
-    @inject('Settings') settings: Settings,
-    @inject(Helper) helper: Helper,
-  ) {
-    this.router = express.Router()
+  constructor(@inject('Settings') settings: Settings, @inject(Helper) helper: Helper) {
+    this.router = express
+      .Router()
       .get('/price-aggregator/latest', this.latest)
       .get('/price-aggregator/prices/:fsym/:tsym', this.prices);
     this.helper = helper;
@@ -30,17 +28,19 @@ class DebugController {
     } catch (err) {
       next(err);
     }
-  }
+  };
 
   latest = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
     const {beforeTimestamp, orderBy = 'timestamp'}: any = request.query;
 
     try {
-      response.send(await this.helper.orderedPriceAggregatorContent(beforeTimestamp && parseInt(beforeTimestamp, 10), orderBy));
+      response.send(
+        await this.helper.orderedPriceAggregatorContent(beforeTimestamp && parseInt(beforeTimestamp, 10), orderBy),
+      );
     } catch (err) {
       next(err);
     }
-  }
+  };
 }
 
 export default DebugController;

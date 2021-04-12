@@ -11,15 +11,12 @@ class ChainContract {
   readonly blockchain!: Blockchain;
   registry!: ContractRegistry;
 
-  constructor(
-    @inject('Settings') settings: Settings,
-    @inject(Blockchain) blockchain: Blockchain,
-  ) {
+  constructor(@inject('Settings') settings: Settings, @inject(Blockchain) blockchain: Blockchain) {
     this.settings = settings;
     this.blockchain = blockchain;
   }
 
-  async getLatestData(): Promise<{leader: string, blockHeight: BigNumber}> {
+  async getLatestData(): Promise<{leader: string; blockHeight: BigNumber}> {
     const contract = await this.resolveContract();
 
     const [leader, blockHeight] = await Promise.all([contract.getNextLeaderAddress(), contract.getBlockHeight()]);
@@ -43,7 +40,14 @@ class ChainContract {
     return (await this.resolveContract()).getBlockVotersCount(blockHeight);
   }
 
-  async submit(root: string, keys: string[], values: string[], v: number[], r: string[], s: string[]): Promise<TransactionResponse> {
+  async submit(
+    root: string,
+    keys: string[],
+    values: string[],
+    v: number[],
+    r: string[],
+    s: string[],
+  ): Promise<TransactionResponse> {
     return (await this.resolveContract()).connect(this.blockchain.wallet).submit(root, keys, values, v, r, s, {
       gasPrice: this.settings.blockchain.transactions.gasPrice,
     });

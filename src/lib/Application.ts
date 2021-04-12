@@ -12,7 +12,7 @@ class Application {
   private container: Container;
 
   private constructor() {
-    this.container = new Container({ autoBindInjectable: true });
+    this.container = new Container({autoBindInjectable: true});
     this.container.bind<Settings>('Settings').toConstantValue(settings);
     this.container.bind<Logger>('Logger').toConstantValue(logger);
     this.container.bind<ChainContract>(ChainContract).toSelf().inSingletonScope();
@@ -21,7 +21,7 @@ class Application {
   }
 
   public static get instance(): Application {
-    return this._instance ||= new Application();
+    return (this._instance ||= new Application());
   }
 
   public static get<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T {

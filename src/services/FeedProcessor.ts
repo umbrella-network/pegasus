@@ -22,11 +22,12 @@ type Calculator = (value: any) => number;
 class FeedProcessor {
   @inject('Logger') logger!: Logger;
 
-  fetchers: { [key: string]: Fetcher; };
-  calculators: { [key: string]: Calculator; };
+  fetchers: {[key: string]: Fetcher};
+  calculators: {[key: string]: Calculator};
 
   constructor(
-    @inject(fetchers.CryptoCompareHistoHourFetcher) CryptoCompareHistoHourFetcher: fetchers.CryptoCompareHistoHourFetcher,
+    @inject(fetchers.CryptoCompareHistoHourFetcher)
+    CryptoCompareHistoHourFetcher: fetchers.CryptoCompareHistoHourFetcher,
     @inject(fetchers.CryptoCompareHistoDayFetcher) CryptoCompareHistoDayFetcher: fetchers.CryptoCompareHistoDayFetcher,
     @inject(fetchers.CryptoComparePriceFetcher) CryptoComparePriceFetcher: fetchers.CryptoComparePriceFetcher,
     @inject(fetchers.GVolImpliedVolatilityFetcher) GVolImpliedVolatilityFetcher: fetchers.GVolImpliedVolatilityFetcher,
@@ -48,19 +49,24 @@ class FeedProcessor {
       CoinmarketcapPriceFetcher,
     };
 
-    this.calculators = Object.keys(calculators).reduce((map, name, idx) => ({
-      ...map,
-      [name]: Object.values(calculators)[idx],
-    }), {} as { [key: string]: Calculator; });
+    this.calculators = Object.keys(calculators).reduce(
+      (map, name, idx) => ({
+        ...map,
+        [name]: Object.values(calculators)[idx],
+      }),
+      {} as {[key: string]: Calculator},
+    );
   }
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     const uniqueInputsMap: {[hash: string]: FeedInput} = {};
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);
-      keys.forEach((leafLabel) => feeds[leafLabel].inputs.forEach((input) => {
-        uniqueInputsMap[hash(input)] = input;
-      }));
+      keys.forEach((leafLabel) =>
+        feeds[leafLabel].inputs.forEach((input) => {
+          uniqueInputsMap[hash(input)] = input;
+        }),
+      );
     });
 
     const inputIndexByHash: {[hash: string]: number} = {};
@@ -79,7 +85,8 @@ class FeedProcessor {
 
       keys.forEach((key) => {
         const feed = feeds[key];
-        const feedValues = feed.inputs.map((input) => values[inputIndexByHash[hash(input)]])
+        const feedValues = feed.inputs
+          .map((input) => values[inputIndexByHash[hash(input)]])
           .filter((item) => item !== undefined) as number[];
 
         if (feedValues.length) {
@@ -103,7 +110,7 @@ class FeedProcessor {
   async processFeed(feedInput: FeedInput, timestamp: number): Promise<number | undefined> {
     const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
     if (!fetcher) {
-      throw new Error('No fetcher specified.')
+      throw new Error('No fetcher specified.');
     }
 
     const calculate: Calculator = this.calculators[`calculate${feedInput.calculator?.name || 'Identity'}`];
@@ -130,11 +137,11 @@ class FeedProcessor {
     leaf.label = leafLabel;
     leaf.valueBytes = '0x' + LeafValueCoder.encode(leafValue, LeafType.TYPE_FLOAT).toString('hex');
     return leaf;
-  }
+  };
 
   private calculateMedian(values: number[], leafLabel: string, precision: number): Leaf {
     const multi = Math.pow(10, precision);
-    const priceMedian = Math.round(price.median(values.map((value) => value)) * multi) / multi
+    const priceMedian = Math.round(price.median(values.map((value) => value)) * multi) / multi;
 
     return this.buildLeaf(leafLabel, priceMedian);
   }
