@@ -71,7 +71,7 @@ class PriceAggregator {
       const vt = await this.connection.zrevrangebyscore(symbol, '+inf', '-inf', 'WITHSCORES');
 
       return Array.from(Array(vt.length / 2).keys()).map((i) => ({
-        value: parseInt(vt[i * 2]),
+        value: parseFloat(vt[i * 2]),
         timestamp: parseInt(vt[i * 2 + 1]),
       }));
     } catch (err) {
