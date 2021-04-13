@@ -1,4 +1,5 @@
 import {inject, injectable} from 'inversify';
+import schedule, {Job} from 'node-schedule';
 
 import WSClient from './WSClient';
 import Settings from '../../types/Settings';
@@ -6,6 +7,7 @@ import {Pair} from '../../types/Feed';
 import StatsDClient from '../../lib/StatsDClient'
 import PriceAggregator from '../PriceAggregator';
 import TimeService from '../TimeService';
+import Timeout from '../../utils/timeout';
 
 @injectable()
 class CryptoCompareWSClient extends WSClient {
@@ -21,9 +23,11 @@ class CryptoCompareWSClient extends WSClient {
 
   connected = false;
 
-  clearTimeBreak?: () => void;
+  staleReconnectJob?: Timeout;
 
-  clearTruncatePriceAggregatorInterval?: () => void;
+  reconnectJob?: Timeout;
+
+  truncateJob?: Job;
 
   eventHandlers: {[type: number]: (event: unknown) => void} = {
     5: this.onAggregate.bind(this),
@@ -70,16 +74,20 @@ class CryptoCompareWSClient extends WSClient {
   onConnected(event: unknown): void {
     this.connected = true;
 
-    const timeout = setTimeout(this.close.bind(this), this.settings.api.cryptocompare.reconnectInterval);
-    this.clearTimeBreak = () => {
-      clearTimeout(timeout);
-    };
+    this.staleReconnectJob = new Timeout(70, () => {
+      this.logger.warn(`closing a stale connection...`);
+      this.close();
+    });
 
+    this.reconnectJob = new Timeout(this.settings.api.cryptocompare.reconnectTimeoutHours * 60 * 60, () => {
+      this.logger.info(`scheduled reconnection...`);
+      this.close();
+    });
 
-    const truncateInterval = setInterval(this.truncatePriceAggregator.bind(this), this.settings.api.cryptocompare.priceExpiryTimeout * 1000);
-    this.clearTruncatePriceAggregatorInterval = () => {
-      clearInterval(truncateInterval);
-    };
+    this.truncateJob = schedule.scheduleJob(this.settings.api.cryptocompare.truncateCronRule, () => {
+      this.logger.info(`truncating prices...`);
+      this.truncatePriceAggregator().catch(this.logger.warn);
+    });
 
     const subscriptions = this.subscriptions;
     this.subscriptions = {};
@@ -89,14 +97,17 @@ class CryptoCompareWSClient extends WSClient {
   protected onClose() {
     super.onClose();
 
-    this.clearTimeBreak && this.clearTimeBreak();
-    this.clearTruncatePriceAggregatorInterval && this.clearTruncatePriceAggregatorInterval();
+    this.truncateJob?.cancel();
+    this.reconnectJob?.cancel();
+    this.staleReconnectJob?.cancel();
 
     this.connected = false;
   }
 
   onHeartbeat(event: unknown): void {
     this.logger.debug(`heartbeat ${event}`);
+
+    this.staleReconnectJob?.reschedule();
   }
 
   onLoad(event: unknown): void {
@@ -171,12 +182,12 @@ class CryptoCompareWSClient extends WSClient {
     }
   }
 
-  private truncatePriceAggregator(): void {
-    const beforeTimestamp = this.timeService.apply() - this.settings.api.cryptocompare.priceExpiryTimeout;
+  private async truncatePriceAggregator(): Promise<void> {
+    const beforeTimestamp = this.timeService.apply() - this.settings.api.cryptocompare.truncateIntervalMinutes * 60;
 
     this.logger.info(`Truncating CryptoCompare prices before ${beforeTimestamp}...`);
 
-    Promise.all(Object.keys(this.subscriptions).map(async (subscription) => {
+    await Promise.all(Object.keys(this.subscriptions).map(async (subscription) => {
       const key = `${CryptoCompareWSClient.Prefix}${subscription}`;
 
       // find a value before a particular timestamp
@@ -188,7 +199,7 @@ class CryptoCompareWSClient extends WSClient {
 
       // delete all values before the one we have just found
       await this.priceAggregator.cleanUp(key, valueTimestamp.timestamp);
-    })).catch(this.logger.warn);
+    }));
   }
 }
 
