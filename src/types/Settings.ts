@@ -35,8 +35,9 @@ type Settings = {
     cryptocompare: {
       apiKey: string;
       timeout: number;
-      priceExpiryTimeout: number;
-      reconnectInterval: number;
+      reconnectTimeoutHours: number;
+      truncateCronRule: string;
+      truncateIntervalMinutes: number;
     };
     coinmarketcap: {
       apiKey: string;
