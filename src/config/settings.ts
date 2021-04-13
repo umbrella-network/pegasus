@@ -40,8 +40,9 @@ const settings: Settings = {
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
       timeout: parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', 10),
-      priceExpiryTimeout: parseInt(process.env.CRYPTOCOMPARE_PRICE_EXPIRY_TIMEOUT || '3600', 10), // seconds
-      reconnectInterval: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_INTERVAL || '7200000', 10),
+      reconnectTimeoutHours: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_TIMEOUT_HOURS || '4', 10),
+      truncateCronRule: process.env.CRYPTOCOMPARE_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
+      truncateIntervalMinutes: parseInt(process.env.CRYPTOCOMPARE_TRUNCATE_INTERVAL_MINUTES || '60', 10),
     },
     coingecko: {
       timeout: parseInt(process.env.COINGECKO_TIMEOUT || '5000', 10),
