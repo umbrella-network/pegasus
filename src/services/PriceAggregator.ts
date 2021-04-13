@@ -15,11 +15,11 @@ class PriceAggregator {
   /**
    * Adds a value with a timestamp to a sorted map
    */
-  async add(symbol: string, price: number, timestamp: number): Promise<void> {
+  async add(symbol: string, value: number, timestamp: number): Promise<void> {
     try {
-      await this.connection.zadd(symbol, timestamp, price);
+      await this.connection.zadd(symbol, timestamp, this.formatValue(value, timestamp));
     } catch (err) {
-      console.error(err, JSON.stringify({symbol, price, timestamp}));
+      console.error(err, JSON.stringify({symbol, value, timestamp}));
 
       throw err;
     }
@@ -32,7 +32,7 @@ class PriceAggregator {
     try {
       const result = await this.connection.zrevrangebyscore(symbol, `(${beforeTimestamp}`, '-inf', 'LIMIT', 0, 1);
 
-      return result.length ? parseFloat(result[0]) : null;
+      return result.length ? this.parseValue(result[0]) : null;
     } catch (err) {
       console.error(err, JSON.stringify({symbol, beforeTimestamp}));
 
@@ -43,21 +43,13 @@ class PriceAggregator {
   /**
    * Gets a value and a timestamp before the provided timestamp
    */
-  async valueTimestamp(symbol: string, timestamp: number): Promise<{value: number; timestamp: number} | null> {
+  async valueTimestamp(symbol: string, beforeTimestamp: number): Promise<{value: number; timestamp: number} | null> {
     try {
-      const result = await this.connection.zrevrangebyscore(
-        symbol,
-        `(${timestamp}`,
-        '-inf',
-        'WITHSCORES',
-        'LIMIT',
-        0,
-        1,
-      );
+      const result = await this.connection.zrevrangebyscore(symbol, `(${beforeTimestamp}`, '-inf', 'LIMIT', 0, 1);
 
-      return result.length ? {value: parseFloat(result[0]), timestamp: parseInt(result[1])} : null;
+      return result.length ? this.parseValueTimestamp(result[0]) : null;
     } catch (err) {
-      console.error(err, JSON.stringify({symbol, timestamp}));
+      console.error(err, JSON.stringify({symbol, beforeTimestamp}));
 
       throw err;
     }
@@ -68,12 +60,9 @@ class PriceAggregator {
    */
   async valueTimestamps(symbol: string): Promise<{value: number; timestamp: number}[]> {
     try {
-      const vt = await this.connection.zrevrangebyscore(symbol, '+inf', '-inf', 'WITHSCORES');
+      const vt = await this.connection.zrevrangebyscore(symbol, '+inf', '-inf');
 
-      return Array.from(Array(vt.length / 2).keys()).map((i) => ({
-        value: parseFloat(vt[i * 2]),
-        timestamp: parseInt(vt[i * 2 + 1]),
-      }));
+      return vt.map(this.parseValueTimestamp);
     } catch (err) {
       console.error(err, JSON.stringify({symbol}));
 
@@ -87,7 +76,7 @@ class PriceAggregator {
   async averageValue(symbol: string, beforeTimestamp: number, afterTimestamp: number): Promise<number | null> {
     const result = await this.connection.zrevrangebyscore(symbol, `(${afterTimestamp}`, `(${beforeTimestamp}`);
 
-    return result.length ? Price.mean(result.map(parseFloat)) : null;
+    return result.length ? Price.mean(result.map(this.parseValue)) : null;
   }
 
   /**
@@ -114,6 +103,19 @@ class PriceAggregator {
 
   async close(): Promise<void> {
     return this.connection.disconnect();
+  }
+
+  private formatValue(value: number, timestamp: number): string {
+    return `${timestamp}:${value}`;
+  }
+
+  private parseValue(formattedValue: string): number {
+    return parseFloat(formattedValue.split(':')[1]);
+  }
+
+  private parseValueTimestamp(formattedValue: string): {value: number; timestamp: number} {
+    const [timestamp, value] = formattedValue.split(':');
+    return {value: parseFloat(value), timestamp: parseInt(timestamp)};
   }
 }
 

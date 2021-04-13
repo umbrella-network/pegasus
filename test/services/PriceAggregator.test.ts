@@ -152,6 +152,45 @@ describe('PriceAggregator', () => {
 
     await priceAggregator.cleanUp(symbol, timestamp);
 
-    expect(await priceAggregator.count(symbol, 10000)).to.be.eq(4);
+    expect(await priceAggregator.count(symbol, 10000)).to.be.eq(5);
+  });
+
+  it('test-case 1', async () => {
+    await priceAggregator.add(symbol, 0.0001085, 1618273304);
+    await priceAggregator.add(symbol, 0.0001084, 1618273275);
+    await priceAggregator.add(symbol, 0.0001086, 1618273250);
+    await priceAggregator.add(symbol, 0.0001087, 1618273171);
+    await priceAggregator.add(symbol, 0.0001088, 1618273080);
+    await priceAggregator.add(symbol, 0.0001083, 1618272524);
+    await priceAggregator.add(symbol, 0.0001082, 1618272496);
+    await priceAggregator.add(symbol, 0.0001081, 1618272473);
+
+    await priceAggregator.add(symbol, 0.0001084, 1618273652);
+    await priceAggregator.add(symbol, 0.0001083, 1618273844);
+    await priceAggregator.add(symbol, 0.0001082, 1618273934);
+    await priceAggregator.add(symbol, 0.0001083, 1618273978);
+
+    expect(await priceAggregator.count(symbol)).to.be.eq(12);
+  });
+
+  it('no duplicates', async () => {
+    await priceAggregator.add(symbol, 0.0001085, 1618273304);
+    await priceAggregator.add(symbol, 0.0001084, 1618273275);
+
+    await priceAggregator.add(symbol, 0.0001085, 1618273304);
+    await priceAggregator.add(symbol, 0.0001084, 1618273275);
+
+    expect(await priceAggregator.count(symbol)).to.be.eq(2);
+  });
+
+  it('value timestamps', async () => {
+    await priceAggregator.add(symbol, 0.0001085, 1618273304);
+
+    expect(await priceAggregator.valueTimestamps(symbol)).to.be.eql([
+      {
+        value: 0.0001085,
+        timestamp: 1618273304,
+      },
+    ]);
   });
 });
