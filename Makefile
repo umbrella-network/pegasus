@@ -33,7 +33,7 @@ build:
 	@echo "## Building the docker image ##"
 	@docker build -t $(IMAGE) .
 
-build-bnc-testnet:
+build-dev:
 	@echo "## Building the docker image ##"
 	@docker buildx build  --push --platform linux/amd64 -t $(DEVELOP) .
 
@@ -66,7 +66,7 @@ publish-bnc:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bnc01 -n dev
 
 dev: build push publish-dev
-dev-bnc: assume login-new-dev build-bnc-testnet update-stg-kubeconfig publish-bnc
+dev-bnc: assume login-new-dev build-dev update-stg-kubeconfig publish-bnc
 dev-all: dev dev-bnc
 
 
