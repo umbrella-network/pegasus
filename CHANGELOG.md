@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [0.10.3] - 2021-04-13
+## [0.10.4] - 2021-04-13
 
 ### Added
 - Check cryptocompare heartbeat
