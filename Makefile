@@ -33,9 +33,15 @@ build:
 	@echo "## Building the docker image ##"
 	@docker build -t $(IMAGE) .
 
+<<<<<<< HEAD
 build-dev:
 	@echo "## Building the docker image ##"
 	@docker buildx build  --push --platform linux/amd64 -t $(DEVELOP) .
+=======
+build-bsc-testnet:
+	@echo "## Building the docker image ##"
+	@docker buildx build  --push --platform linux/amd64 -t $(DEVELOP) -t $(NEWIMAGE)  .
+>>>>>>> brian-binance
 
 login:
 	@aws ecr get-login-password  | docker login --username AWS --password-stdin $(AWS_REPOSITORY)
@@ -57,16 +63,16 @@ publish-dev:
 	@kubectl set image deployment/pegasus-2-scheduler pegasus-2-scheduler=$(IMAGE) --namespace dev
 	@kubectl set image deployment/pegasus-2-worker pegasus-2-worker=$(IMAGE) --namespace dev
 
-publish-bnc:
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bnc01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bnc01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-worker-bnc01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-bnc01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bnc01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bnc01 -n dev
+publish-bsc:
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-worker-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n dev
 
 dev: build push publish-dev
-dev-bnc: assume login-new-dev build-dev update-stg-kubeconfig publish-bnc
-dev-all: dev dev-bnc
+dev-bsc: assume login-new-dev build-dev update-stg-kubeconfig publish-bsc
+dev-all: dev dev-bsc
 
 
