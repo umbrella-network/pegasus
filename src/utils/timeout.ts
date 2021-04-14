@@ -9,9 +9,10 @@ class Timeout {
     this.reschedule();
   }
 
-  reschedule(): void {
+  reschedule(delaySeconds: number = this.delaySeconds): void {
     this.cancel();
-    this.timeout = setTimeout(this.callback, this.delaySeconds * 1000);
+    this.delaySeconds = delaySeconds;
+    this.timeout = setTimeout(this.callback, delaySeconds * 1000);
   }
 
   cancel(): void {
