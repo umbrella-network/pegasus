@@ -34,7 +34,7 @@ build:
 	@echo "## Building the docker image ##"
 	@docker build -t $(IMAGE) .
 
-build-bnc-testnet:
+build-bsc-testnet:
 	@echo "## Building the docker image ##"
 	@docker buildx build  --push --platform linux/amd64 -t $(DEVELOP) -t $(NEWIMAGE)  .
 
@@ -59,11 +59,11 @@ publish-dev:
 	@kubectl set image deployment/pegasus-2-worker pegasus-2-worker=$(IMAGE) --namespace dev
 
 publish-new-dev:
-	@kubectl --kubeconfig ~/.kube/config-staging set image deployment/pegasus-api-bnc01 pegasus=$(NEWIMAGE) --namespace dev
+	@kubectl --kubeconfig ~/.kube/config-staging set image deployment/pegasus-api-bsc01 pegasus=$(NEWIMAGE) --namespace dev
 
 
 
 dev: build push publish-dev
-publish-new-dev: assume login-new-dev build-bnc-testnet update-stg-kubeconfig publish-new-dev
+publish-new-dev: assume login-new-dev build-bsc-testnet update-stg-kubeconfig publish-new-dev
 
 
