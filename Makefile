@@ -33,15 +33,9 @@ build:
 	@echo "## Building the docker image ##"
 	@docker build -t $(IMAGE) .
 
-<<<<<<< HEAD
 build-dev:
 	@echo "## Building the docker image ##"
 	@docker buildx build  --push --platform linux/amd64 -t $(DEVELOP) .
-=======
-build-bsc-testnet:
-	@echo "## Building the docker image ##"
-	@docker buildx build  --push --platform linux/amd64 -t $(DEVELOP) -t $(NEWIMAGE)  .
->>>>>>> brian-binance
 
 login:
 	@aws ecr get-login-password  | docker login --username AWS --password-stdin $(AWS_REPOSITORY)
