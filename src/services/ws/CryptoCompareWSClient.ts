@@ -15,6 +15,8 @@ class CryptoCompareWSClient extends WSClient {
 
   subscriptions: {[subscription: string]: Pair} = {};
 
+  lastTimeUpdated: {[subscription: string]: number} = {};
+
   timeService: TimeService;
 
   static readonly Prefix = 'cca::';
@@ -28,6 +30,8 @@ class CryptoCompareWSClient extends WSClient {
   reconnectJob?: Timeout;
 
   truncateJob?: Job;
+
+  staleResubscribeJob?: Timeout;
 
   eventHandlers: {[type: number]: (event: unknown) => void} = {
     5: this.onAggregate.bind(this),
@@ -61,10 +65,14 @@ class CryptoCompareWSClient extends WSClient {
       return;
     }
 
-    StatsDClient?.gauge(`${fsym}-${tsym}`, median);
-    this.logger.debug(`${fsym}-${tsym}: ${median}`);
+    const subscription = `${fsym}~${tsym}`;
 
-    this.priceAggregator.add(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, median, timestamp).catch(this.logger.error);
+    this.lastTimeUpdated[subscription] = Date.now();
+
+    StatsDClient?.gauge(`${fsym}-${tsym}`, median);
+    this.logger.debug(`${subscription}: ${median}`);
+
+    this.priceAggregator.add(`${CryptoCompareWSClient.Prefix}${subscription}`, median, timestamp).catch(this.logger.error);
   }
 
   onOpen(): void {
@@ -84,6 +92,10 @@ class CryptoCompareWSClient extends WSClient {
       this.close();
     });
 
+    this.staleResubscribeJob = new Timeout(this.settings.api.cryptocompare.resubscribeTimeoutMinutes * 60, () => {
+      this.checkStaleSubscriptions();
+    });
+
     this.truncateJob = schedule.scheduleJob(this.settings.api.cryptocompare.truncateCronRule, () => {
       this.logger.info(`truncating prices...`);
       this.truncatePriceAggregator().catch(this.logger.warn);
@@ -100,6 +112,8 @@ class CryptoCompareWSClient extends WSClient {
     this.truncateJob?.cancel();
     this.reconnectJob?.cancel();
     this.staleReconnectJob?.cancel();
+    this.staleResubscribeJob?.cancel();
+    this.lastTimeUpdated = {};
 
     this.connected = false;
   }
@@ -163,23 +177,60 @@ class CryptoCompareWSClient extends WSClient {
       return;
     }
 
-    if (toUnsubscribe.length) {
-      for (const subscription of toUnsubscribe) {
+    this.unsubscribeSubscriptions(toUnsubscribe, true);
+
+    this.subscribeSubscriptions(toSubscribe);
+  }
+
+  private subscribeSubscriptions(subscriptions: string[]) {
+    if (!subscriptions.length) {
+      return;
+    }
+
+    this.socket?.send(JSON.stringify({
+      action: 'SubAdd',
+      subs: subscriptions.map((subscription) => `5~CCCAGG~${subscription}`),
+    }));
+  }
+
+  private unsubscribeSubscriptions(subscriptions: string[], cleanUp: boolean) {
+    if (!subscriptions.length) {
+      return;
+    }
+
+    if (cleanUp) {
+      for (const subscription of subscriptions) {
         this.priceAggregator.cleanUp(`${CryptoCompareWSClient.Prefix}${subscription}`).catch(this.logger.warn);
       }
-
-      this.socket?.send(JSON.stringify({
-        action: 'SubRemove',
-        subs: toUnsubscribe.map((subscription) => `5~CCCAGG~${subscription}`),
-      }));
     }
 
-    if (toSubscribe.length) {
-      this.socket?.send(JSON.stringify({
-        action: 'SubAdd',
-        subs: toSubscribe.map((subscription) => `5~CCCAGG~${subscription}`),
-      }));
+    this.socket?.send(JSON.stringify({
+      action: 'SubRemove',
+      subs: subscriptions.map((subscription) => `5~CCCAGG~${subscription}`),
+    }));
+  }
+
+  private checkStaleSubscriptions() {
+    const toResubscribe = [];
+
+    const currentTime = Date.now(),
+      resubscribeTimeout = this.settings.api.cryptocompare.resubscribeTimeoutMinutes * 60 * 1000,
+      timeStale = currentTime - resubscribeTimeout;
+    let minTimeUpdated = currentTime;
+
+    for (const subscription in this.lastTimeUpdated) {
+      const timeUpdated = this.lastTimeUpdated[subscription];
+      if (timeUpdated < timeStale) {
+        toResubscribe.push(subscription);
+      } else {
+        minTimeUpdated = Math.min(minTimeUpdated, timeUpdated);
+      }
     }
+
+    this.unsubscribeSubscriptions(toResubscribe, false);
+    this.subscribeSubscriptions(toResubscribe);
+
+    this.staleResubscribeJob?.reschedule(Math.floor((resubscribeTimeout - (currentTime - minTimeUpdated)) / 1000));
   }
 
   private async truncatePriceAggregator(): Promise<void> {

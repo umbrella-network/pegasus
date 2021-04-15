@@ -36,6 +36,7 @@ type Settings = {
       apiKey: string;
       timeout: number;
       reconnectTimeoutHours: number;
+      resubscribeTimeoutMinutes: number;
       truncateCronRule: string;
       truncateIntervalMinutes: number;
     };
