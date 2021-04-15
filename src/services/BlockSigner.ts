@@ -13,6 +13,7 @@ import {Logger} from 'winston';
 import BlockMinter from './BlockMinter';
 import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
 import sort from 'fast-sort';
+import StatsDClient from '../lib/StatsDClient'
 
 @injectable()
 class BlockSigner {
@@ -90,10 +91,13 @@ class BlockSigner {
       const discrepancies = Object.entries(this.findDiscrepancies(leaves[i], proposedLeaves[i], feeds[i]));
 
       if (discrepancies.length) {
-        return sort(discrepancies)
-          .desc(([, value]) => value)
-          .map(([key, value]) => `${key}: ${Math.round(value * 100) / 100.0}%`)
-          .join(', ');
+        return sort(discrepancies).desc(([, value]) => value)
+            .map(([key, value]) => {
+              const discrepancy = Math.round(value * 100) / 100.0;
+              StatsDClient?.set(`discrepancy.${key}`, discrepancy);
+              return `${key}: ${discrepancy}%`;
+            })
+            .join(', ');
       }
     }
   }
