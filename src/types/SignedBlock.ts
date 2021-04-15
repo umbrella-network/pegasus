@@ -7,5 +7,5 @@ export interface SignedBlock {
   leaves: KeyValues;
   blockHeight: number;
   signature: string;
-  timestamp: number;
+  dataTimestamp: number;
 }

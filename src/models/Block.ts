@@ -3,7 +3,7 @@ import {SchemaTypes} from 'mongoose';
 import {HexStringWith0x} from '../types/HexStringWith0x';
 
 @index({timestamp: -1})
-@index({mintedAt: -1})
+@index({dataTimestamp: -1})
 @index({height: -1}, {unique: true})
 class Block {
   @prop()
@@ -13,7 +13,7 @@ class Block {
   timestamp!: Date;
 
   @prop()
-  mintedAt!: Date;
+  dataTimestamp!: Date;
 
   @prop()
   height!: number;

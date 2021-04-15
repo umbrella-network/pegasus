@@ -2,25 +2,25 @@
 import 'reflect-metadata';
 import BlockMinter from '../../src/services/BlockMinter';
 import SignatureCollector from '../../src/services/SignatureCollector';
-import MintGuard from '../../src/services/MintGuard';
 import {Container} from 'inversify';
 import sinon from 'sinon';
+import {expect} from 'chai';
+import {BigNumber, ethers, Wallet} from 'ethers';
+import mongoose from 'mongoose';
+import {getModelForClass} from '@typegoose/typegoose';
+
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
 import ChainContract from '../../src/contracts/ChainContract';
 import FeedProcessor from '../../src/services/FeedProcessor';
+import RevertedBlockResolver from '../../src/services/RevertedBlockResolver';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
 import SaveMintedBlock from '../../src/services/SaveMintedBlock';
 import Settings from '../../src/types/Settings';
 import Leaf from '../../src/models/Leaf';
 import Block from '../../src/models/Block';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
-import {expect} from 'chai';
-import {BigNumber, ethers, Wallet} from 'ethers';
 import {loadTestEnv} from '../helpers/loadTestEnv';
-import mongoose from 'mongoose';
-import {getModelForClass} from '@typegoose/typegoose';
-import ValidatorRegistryContract from '../../src/contracts/ValidatorRegistryContract';
 import TimeService from '../../src/services/TimeService';
 
 describe('BlockMinter', () => {
@@ -29,8 +29,7 @@ describe('BlockMinter', () => {
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
-  let mockedMintGuard: sinon.SinonStubbedInstance<MintGuard>;
-  let mockedValidatorRegistryContract: sinon.SinonStubbedInstance<ValidatorRegistryContract>;
+  let mockedRevertedBlockResolver: sinon.SinonStubbedInstance<RevertedBlockResolver>;
   let settings: Settings;
   let blockMinter: BlockMinter;
 
@@ -50,8 +49,7 @@ describe('BlockMinter', () => {
     mockedChainContract = sinon.createStubInstance(ChainContract);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
-    mockedMintGuard = sinon.createStubInstance(MintGuard);
-    mockedValidatorRegistryContract = sinon.createStubInstance(ValidatorRegistryContract);
+    mockedRevertedBlockResolver = sinon.createStubInstance(RevertedBlockResolver);
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
       feedsOnChain: 'test/feeds/feedsOnChain.yaml',
@@ -65,9 +63,8 @@ describe('BlockMinter', () => {
     container.bind(SortedMerkleTreeFactory).toSelf();
     container.bind(SaveMintedBlock).toSelf();
     container.bind(TimeService).toConstantValue(mockedTimeService);
-    container.bind(MintGuard).toConstantValue((mockedMintGuard as unknown) as MintGuard);
     container.bind('Settings').toConstantValue(settings);
-    container.bind(ValidatorRegistryContract).toConstantValue(mockedValidatorRegistryContract);
+    container.bind(RevertedBlockResolver).toConstantValue(mockedRevertedBlockResolver);
 
     container.bind(BlockMinter).to(BlockMinter);
 
@@ -103,6 +100,7 @@ describe('BlockMinter', () => {
   describe('#generateAffidavit', () => {
     it('generates affidavit successfully', () => {
       const affidavit = BlockMinter.generateAffidavit(
+        1,
         ethers.utils.keccak256('0x1234'),
         BigNumber.from(1),
         ['ETH-USD'],
@@ -143,33 +141,39 @@ describe('BlockMinter', () => {
     it('does not try to get new feed data if you are not the leader', async () => {
       const wallet = Wallet.createRandom();
       mockedBlockchain.wallet = wallet;
-      mockedChainContract.getNextLeaderAddress.resolves(Wallet.createRandom().address);
+
+      mockedChainContract.resolveStatus.resolves({
+        blockNumber: BigNumber.from(1),
+        lastBlockHeight: BigNumber.from(0),
+        nextBlockHeight: BigNumber.from(1),
+        nextLeader: Wallet.createRandom().address,
+        validators: [wallet.address],
+        locations: ['abc'],
+        lastDataTimestamp: BigNumber.from(1),
+        powers: [BigNumber.from(1)],
+        staked: BigNumber.from(1),
+      });
 
       await blockMinter.apply();
 
       expect(mockedFeedProcessor.apply.notCalled).to.be.true;
     });
 
-    it('does not try to get new feed data if voters count is not zero', async () => {
+    it('does not try to get new feed data if there is the same round', async () => {
       const wallet = Wallet.createRandom();
       mockedBlockchain.wallet = wallet;
-      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
-      mockedChainContract.getNextLeaderAddress.resolves(wallet.address);
-      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(1));
-      mockedMintGuard.apply.resolves(true);
 
-      await blockMinter.apply();
-
-      expect(mockedFeedProcessor.apply.notCalled).to.be.true;
-    });
-
-    it('does not try to get new feed data if MintGuard returns false', async () => {
-      const wallet = Wallet.createRandom();
-      mockedBlockchain.wallet = wallet;
-      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
-      mockedChainContract.getNextLeaderAddress.resolves(wallet.address);
-      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
-      mockedMintGuard.apply.resolves(false);
+      mockedChainContract.resolveStatus.resolves({
+        blockNumber: BigNumber.from(1),
+        lastBlockHeight: BigNumber.from(1),
+        nextBlockHeight: BigNumber.from(1),
+        nextLeader: wallet.address,
+        validators: [wallet.address],
+        locations: ['abc'],
+        lastDataTimestamp: BigNumber.from(1),
+        powers: [BigNumber.from(1)],
+        staked: BigNumber.from(1),
+      });
 
       await blockMinter.apply();
 
@@ -184,19 +188,28 @@ describe('BlockMinter', () => {
       mockedBlockchain.wallet = wallet;
 
       mockedTimeService.apply.returns(10);
-      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
-      mockedChainContract.getNextLeaderAddress.resolves(wallet.address);
-      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
-      mockedMintGuard.apply.resolves(true);
+
+      mockedChainContract.resolveStatus.resolves({
+        blockNumber: BigNumber.from(1),
+        lastBlockHeight: BigNumber.from(0),
+        nextBlockHeight: BigNumber.from(1),
+        nextLeader: wallet.address,
+        validators: [wallet.address],
+        locations: ['abc'],
+        lastDataTimestamp: BigNumber.from(1),
+        powers: [BigNumber.from(1)],
+        staked: BigNumber.from(1),
+      });
+
+      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
       mockedSignatureCollector.apply.resolves([signature]);
-      mockedValidatorRegistryContract.getValidators.resolves([]);
 
       await blockMinter.apply();
 
       expect(mockedSignatureCollector.apply.args[0][0]).to.be.deep.eq(
         {
-          timestamp: 10,
+          dataTimestamp: 10,
           blockHeight: 1,
           fcd: fcd,
           leaves: fcd,
@@ -219,11 +232,21 @@ describe('BlockMinter', () => {
       mockedBlockchain.wallet = wallet;
 
       mockedTimeService.apply.returns(10);
-      mockedValidatorRegistryContract.getValidators.resolves([]);
-      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
-      mockedChainContract.getNextLeaderAddress.resolves(wallet.address);
-      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
-      mockedMintGuard.apply.resolves(true);
+
+      mockedChainContract.resolveStatus.resolves({
+        blockNumber: BigNumber.from(1),
+        lastBlockHeight: BigNumber.from(0),
+        nextBlockHeight: BigNumber.from(1),
+        nextLeader: wallet.address,
+        validators: [wallet.address],
+        locations: ['abc'],
+        lastDataTimestamp: BigNumber.from(1),
+        powers: [BigNumber.from(1)],
+        staked: BigNumber.from(1),
+      });
+
+      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+
       mockedFeedProcessor.apply.resolves([
         [leaf, leaf],
         [leaf, leaf],
@@ -245,11 +268,21 @@ describe('BlockMinter', () => {
       mockedBlockchain.wallet = wallet;
 
       mockedTimeService.apply.returns(10);
-      mockedValidatorRegistryContract.getValidators.resolves([]);
-      mockedChainContract.getBlockHeight.resolves(BigNumber.from(1));
-      mockedChainContract.getNextLeaderAddress.resolves(wallet.address);
-      mockedChainContract.getBlockVotersCount.resolves(BigNumber.from(0));
-      mockedMintGuard.apply.resolves(true);
+
+      mockedChainContract.resolveStatus.resolves({
+        blockNumber: BigNumber.from(1),
+        lastBlockHeight: BigNumber.from(0),
+        nextBlockHeight: BigNumber.from(1),
+        nextLeader: wallet.address,
+        validators: [wallet.address],
+        locations: ['abc'],
+        lastDataTimestamp: BigNumber.from(1),
+        powers: [BigNumber.from(1)],
+        staked: BigNumber.from(1),
+      });
+
+      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+
       mockedFeedProcessor.apply.resolves([
         [leaf, leaf],
         [leaf, leaf],

@@ -18,7 +18,7 @@ const settings: Settings = {
   },
   blockchain: {
     provider: {
-      url: process.env.BLOCKCHAIN_PROVIDER_URL || 'ws://127.0.0.1:8545',
+      url: process.env.BLOCKCHAIN_PROVIDER_URL || 'http://127.0.0.1:8545',
       privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
     },
     contracts: {
