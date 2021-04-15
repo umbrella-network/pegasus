@@ -1,13 +1,21 @@
 import {getModelForClass} from '@typegoose/typegoose';
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import Block from '../models/Block';
+import {Logger} from 'winston';
 
 @injectable()
 class RevertedBlockResolver {
-  async apply(blockHeightWithoutConsensus: number): Promise<number | undefined> {
-    const blockRes = await getModelForClass(Block).collection.deleteMany({
-      height: {$gte: blockHeightWithoutConsensus},
-    });
+  @inject('Logger') logger!: Logger;
+
+  async apply(lastSubmittedBlockHeight: number, nextBlockHeight: number): Promise<number | undefined> {
+    if (lastSubmittedBlockHeight <= nextBlockHeight) {
+      return;
+    }
+
+    this.logger.warn(`Block reverted: from ${lastSubmittedBlockHeight} --> ${nextBlockHeight}`);
+    const blockRes = await getModelForClass(Block).collection.deleteMany({height: {$gte: nextBlockHeight}});
+    this.logger.info(`because of reverts we deleted ${blockRes.deletedCount} blocks >= ${nextBlockHeight}`);
+
     return blockRes.deletedCount;
   }
 }

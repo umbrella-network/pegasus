@@ -1,20 +1,20 @@
 import 'reflect-metadata';
-import BlockSigner from '../../src/services/BlockSigner';
 import {Container} from 'inversify';
 import sinon from 'sinon';
+import chai, {expect} from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import {BigNumber, Wallet} from 'ethers';
+
+import BlockSigner from '../../src/services/BlockSigner';
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
 import ChainContract from '../../src/contracts/ChainContract';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
 import Settings from '../../src/types/Settings';
-import {expect} from 'chai';
-import {BigNumber, Wallet} from 'ethers';
 import BlockMinter from '../../src/services/BlockMinter';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
 describe('BlockSigner', () => {
@@ -31,6 +31,7 @@ describe('BlockSigner', () => {
     mockedBlockchain = sinon.createStubInstance(Blockchain);
     mockedChainContract = sinon.createStubInstance(ChainContract);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
+
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
       feedsOnChain: 'test/feeds/feedsOnChain.yaml',
@@ -48,35 +49,24 @@ describe('BlockSigner', () => {
     blockSigner = container.get(BlockSigner);
   });
 
-  it('throws error if you are the leader', async () => {
-    const wallet = Wallet.createRandom();
-    mockedBlockchain.wallet = wallet;
-    mockedChainContract.getLatestData.resolves({
-      leader: wallet.address,
-      blockHeight: BigNumber.from(2),
-    });
-
-    await expect(
-      blockSigner.apply({
-        timestamp: 10,
-        blockHeight: 1,
-        fcd: {'ETH-USD': 100},
-        leaves: {'ETH-USD': 100},
-        signature: '0x00',
-      }),
-    ).to.be.rejectedWith('You are the leader, and you should not sign your block again.');
-  });
-
   it('throws error if submitted block is not the current one', async () => {
     mockedBlockchain.wallet = Wallet.createRandom();
-    mockedChainContract.getLatestData.resolves({
-      leader: Wallet.createRandom().address,
-      blockHeight: BigNumber.from(2),
+
+    mockedChainContract.resolveStatus.resolves({
+      blockNumber: BigNumber.from(1),
+      lastBlockHeight: BigNumber.from(1),
+      nextBlockHeight: BigNumber.from(2),
+      nextLeader: Wallet.createRandom().address,
+      validators: [Wallet.createRandom().address],
+      locations: ['abc'],
+      lastDataTimestamp: BigNumber.from(1),
+      powers: [BigNumber.from(1)],
+      staked: BigNumber.from(1),
     });
 
     await expect(
       blockSigner.apply({
-        timestamp: 10,
+        dataTimestamp: 10,
         blockHeight: 1,
         fcd: {'ETH-USD': 100},
         leaves: {'ETH-USD': 100},
@@ -94,20 +84,27 @@ describe('BlockSigner', () => {
 
     mockedBlockchain.wallet = wallet;
 
-    mockedChainContract.getLatestData.resolves({
-      leader: Wallet.createRandom().address,
-      blockHeight: BigNumber.from(1),
+    mockedChainContract.resolveStatus.resolves({
+      blockNumber: BigNumber.from(1),
+      lastBlockHeight: BigNumber.from(0),
+      nextBlockHeight: BigNumber.from(1),
+      nextLeader: Wallet.createRandom().address,
+      validators: [wallet.address],
+      locations: ['abc'],
+      lastDataTimestamp: BigNumber.from(1),
+      powers: [BigNumber.from(1)],
+      staked: BigNumber.from(1),
     });
 
     await expect(
       blockSigner.apply({
-        timestamp: 10,
+        dataTimestamp: 10,
         blockHeight: 1,
         fcd: fcd,
         leaves: fcd,
         signature: signature,
       }),
-    ).to.be.rejectedWith('Signature does not belong to the current leader');
+    ).to.be.rejectedWith('You should not call yourself for signature.');
   });
 
   it("returns validator's signature", async () => {
@@ -120,19 +117,26 @@ describe('BlockSigner', () => {
 
     mockedBlockchain.wallet = wallet;
 
-    mockedChainContract.getLatestData.resolves({
-      leader: leaderWallet.address,
-      blockHeight: BigNumber.from(1),
+    mockedChainContract.resolveStatus.resolves({
+      blockNumber: BigNumber.from(1),
+      lastBlockHeight: BigNumber.from(0),
+      nextBlockHeight: BigNumber.from(1),
+      nextLeader: leaderWallet.address,
+      validators: [wallet.address],
+      locations: ['abc'],
+      lastDataTimestamp: BigNumber.from(1),
+      powers: [BigNumber.from(1)],
+      staked: BigNumber.from(1),
     });
 
     mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 
     const result = await blockSigner.apply({
-      timestamp: 10,
+      dataTimestamp: 10,
       blockHeight: 1,
       fcd: fcd,
       leaves: fcd,
-      signature: signature,
+      signature,
     });
 
     expect(result)

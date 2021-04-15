@@ -10,8 +10,8 @@ type Params = {
   leaves: Leaf[];
   blockHeight: number;
   root: string;
-  mintedAt?: Date;
-  timestamp?: Date;
+  dataTimestamp: Date;
+  timestamp: Date;
   numericFcdKeys: string[];
   numericFcdValues: number[];
 };
@@ -19,11 +19,10 @@ type Params = {
 @injectable()
 class SaveMintedBlock {
   async apply(params: Params): Promise<Block> {
-    const currentTime = new Date();
     const block = new Block();
     block._id = params.id || uuid();
-    block.timestamp = params.timestamp || currentTime;
-    block.timestamp = params.mintedAt || currentTime;
+    block.dataTimestamp = params.dataTimestamp;
+    block.timestamp = params.timestamp;
     block.height = params.blockHeight;
     block.root = params.root;
     block.data = this.treeDataFor(params.leaves);

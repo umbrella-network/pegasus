@@ -3,7 +3,6 @@ import express, {Request, Response} from 'express';
 import {NextFunction} from 'express-serve-static-core';
 
 import Settings from '../types/Settings';
-import ValidatorRegistryContract from '../contracts/ValidatorRegistryContract';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 
@@ -14,7 +13,6 @@ class InfoController {
 
   constructor(
     @inject('Settings') private readonly settings: Settings,
-    @inject(ValidatorRegistryContract) private readonly validatorRegistryContract: ValidatorRegistryContract,
     @inject(ChainContract) private readonly chainContract: ChainContract,
     @inject(Blockchain) blockchain: Blockchain,
   ) {
@@ -24,9 +22,8 @@ class InfoController {
 
   info = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
     try {
-      const [validatorAddress, validatorRegistryAddress, chainContractAddress, network] = await Promise.all([
+      const [validatorAddress, chainContractAddress, network] = await Promise.all([
         this.blockchain.wallet.getAddress(),
-        this.validatorRegistryContract.getAddress(),
         this.chainContract.getAddress(),
         this.blockchain.provider.getNetwork(),
       ]);
@@ -34,7 +31,6 @@ class InfoController {
       response.send({
         validator: validatorAddress,
         contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
-        validatorRegistryAddress: validatorRegistryAddress,
         chainContractAddress: chainContractAddress,
         version: this.settings.version,
         environment: this.settings.environment,
