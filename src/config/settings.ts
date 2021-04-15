@@ -41,6 +41,7 @@ const settings: Settings = {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
       timeout: parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', 10),
       reconnectTimeoutHours: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_TIMEOUT_HOURS || '4', 10),
+      resubscribeTimeoutMinutes: parseInt(process.env.CRYPTOCOMPARE_RESUBSCRIBE_INTERVAL_MINUTES || '5', 10),
       truncateCronRule: process.env.CRYPTOCOMPARE_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
       truncateIntervalMinutes: parseInt(process.env.CRYPTOCOMPARE_TRUNCATE_INTERVAL_MINUTES || '60', 10),
     },
