@@ -37,6 +37,7 @@ class CryptoCompareWSClient extends WSClient {
     5: this.onAggregate.bind(this),
     16: this.onSubscribe.bind(this),
     17: this.onUnsubscribe.bind(this),
+    18: this.onUnsubscribeAll.bind(this),
     999: this.onHeartbeat.bind(this),
     20: this.onConnected.bind(this),
     3: this.onLoad.bind(this),
@@ -70,7 +71,7 @@ class CryptoCompareWSClient extends WSClient {
     this.lastTimeUpdated[subscription] = Date.now();
 
     StatsDClient?.gauge(`${fsym}-${tsym}`, median);
-    this.logger.debug(`${subscription}: ${median}`);
+    this.logger.debug(`${subscription}: ${median} at ${timestamp}`);
 
     this.priceAggregator.add(`${CryptoCompareWSClient.Prefix}${subscription}`, median, timestamp).catch(this.logger.error);
   }
@@ -134,6 +135,10 @@ class CryptoCompareWSClient extends WSClient {
 
   onUnsubscribe(event: unknown): void {
     this.logger.debug(`unsubscribe ${event}`);
+  }
+
+  onUnsubscribeAll(event: unknown): void {
+    this.logger.debug(`unsubscribe all ${event}`);
   }
 
   onMessage(message: string): void {
