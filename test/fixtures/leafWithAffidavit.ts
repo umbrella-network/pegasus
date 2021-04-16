@@ -15,6 +15,7 @@ const leaf: Leaf = {
 };
 
 const affidavit = BlockMinter.generateAffidavit(
+  10,
   new SortedMerkleTreeFactory().apply([leaf]).getRoot(),
   BigNumber.from(1),
   [leaf.label],

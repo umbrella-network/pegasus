@@ -2,12 +2,13 @@
 import 'reflect-metadata';
 import {expect} from 'chai';
 import mongoose from 'mongoose';
+import * as uuid from 'uuid';
+
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import SaveMintedBlock from '../../src/services/SaveMintedBlock';
 import Block from '../../src/models/Block';
 import Leaf from '../../src/models/Leaf';
 import {getModelForClass} from '@typegoose/typegoose';
-import * as uuid from 'uuid';
 
 describe('SaveMintedBlock', () => {
   let saveMintedBlock: SaveMintedBlock;
@@ -42,6 +43,8 @@ describe('SaveMintedBlock', () => {
       numericFcdKeys: ['ETH-USD', 'USD-ETH'],
       numericFcdValues: [1337.12, 512.12],
       root: '0x00',
+      timestamp: new Date(1000),
+      dataTimestamp: new Date(1000),
     });
 
     expect(result.data).to.be.an('object').that.deep.eq({
@@ -57,6 +60,8 @@ describe('SaveMintedBlock', () => {
       numericFcdKeys: ['ETH-USD', 'USD-ETH'],
       numericFcdValues: [1337.12, 512.12],
       root: '0x00',
+      dataTimestamp: new Date(1000),
+      timestamp: new Date(1000),
     });
 
     const blockFromDb = await getModelForClass(Block).findOne();

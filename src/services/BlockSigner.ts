@@ -5,7 +5,6 @@ import Blockchain from '../lib/Blockchain';
 import ChainContract from '../contracts/ChainContract';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import Leaf from '../models/Leaf';
-import {BigNumber} from 'ethers';
 import loadFeeds from '../config/loadFeeds';
 import FeedProcessor from './FeedProcessor';
 import Feeds from '../types/Feed';
@@ -25,17 +24,13 @@ class BlockSigner {
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
 
   async apply(block: SignedBlock): Promise<string> {
-    const {leader, blockHeight} = await this.chainContract.getLatestData();
+    const chainStatus = await this.chainContract.resolveStatus();
 
-    if (leader === this.blockchain.wallet.address) {
-      throw Error('You are the leader, and you should not sign your block again.');
+    if (!chainStatus.nextBlockHeight.eq(block.blockHeight)) {
+      throw Error(`Does not match with the current block ${chainStatus.nextBlockHeight}.`);
     }
 
-    if (block.blockHeight !== blockHeight.toNumber()) {
-      throw Error(`Does not match with the current block ${blockHeight}.`);
-    }
-
-    this.logger.info(`Signing a block for ${leader} at ${block.timestamp}...`);
+    this.logger.info(`Signing a block for ${chainStatus.nextLeader} at ${block.dataTimestamp}...`);
 
     const proposedLeaves = this.keyValuesToLeaves(block.leaves);
     const proposedTree = this.sortedMerkleTreeFactory.apply(BlockMinter.sortLeaves(proposedLeaves));
@@ -45,20 +40,30 @@ class BlockSigner {
     const proposedFcdValues: number[] = proposedFcd.map(({valueBytes}) => LeafValueCoder.decode(valueBytes) as number);
 
     const affidavit = BlockMinter.generateAffidavit(
+      block.dataTimestamp,
       proposedTree.getRoot(),
-      BigNumber.from(block.blockHeight),
+      chainStatus.nextBlockHeight,
       proposedFcdKeys,
       proposedFcdValues,
     );
+
     const recoveredSigner = await BlockMinter.recoverSigner(affidavit, block.signature);
-    if (recoveredSigner !== leader) {
-      throw Error('Signature does not belong to the current leader');
+
+    if (this.blockchain.wallet.address === recoveredSigner) {
+      throw Error('You should not call yourself for signature.');
+    }
+
+    if (recoveredSigner !== chainStatus.nextLeader) {
+      throw Error(
+        `Signature does not belong to the current leader, expected ${chainStatus.nextLeader} got ${recoveredSigner} at block ${chainStatus.blockNumber}/${chainStatus.nextBlockHeight}`,
+      );
     }
 
     let discrepancies;
+
     try {
       discrepancies = await this.checkFeeds(
-        block.timestamp,
+        block.dataTimestamp,
         [this.settings.feedsOnChain, this.settings.feedsFile],
         [proposedFcd, proposedLeaves],
       );
@@ -73,7 +78,7 @@ class BlockSigner {
 
     const result = await BlockMinter.signAffidavitWithWallet(this.blockchain.wallet, affidavit);
 
-    this.logger.info(`Signed a block for ${leader} at ${block.timestamp}`);
+    this.logger.info(`Signed a block for ${recoveredSigner} at ${block.dataTimestamp}`);
 
     return result;
   }
