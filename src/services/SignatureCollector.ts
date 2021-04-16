@@ -1,6 +1,5 @@
 import {inject, injectable} from 'inversify';
 import axios from 'axios';
-import sort from 'fast-sort';
 import {Logger} from 'winston';
 
 import {SignedBlock} from '../types/SignedBlock';
@@ -16,21 +15,19 @@ class SignatureCollector {
   @inject('Settings') private settings!: Settings;
 
   async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<string[]> {
-    const signatures = await Promise.all(
-      sort(validators)
-        .desc(({id}) => id === this.blockchain.wallet.address) // the leader's signature should go first
+    const collectedSignatures = await Promise.all(
+      validators
+        .filter((v) => v.id !== this.blockchain.wallet.address)
         .map((validator: Validator) => this.collectSignature(validator, block, affidavit)),
     );
 
-    return [...new Set(signatures.flat())];
+    const signatures = [block.signature];
+    signatures.push(...new Set(collectedSignatures.flat()));
+    return signatures;
   }
 
   private async collectSignature(validator: Validator, block: SignedBlock, affidavit: string): Promise<string[]> {
     const {id, location} = validator;
-
-    if (id === this.blockchain.wallet.address) {
-      return [block.signature];
-    }
 
     try {
       const signature = await SignatureCollector.requestSignature(location, block, this.settings.signatureTimeout);

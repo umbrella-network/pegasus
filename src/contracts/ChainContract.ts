@@ -1,9 +1,11 @@
 import {inject, injectable} from 'inversify';
-import {BigNumber, Contract} from 'ethers';
+import {Contract} from 'ethers';
 import {TransactionResponse} from '@ethersproject/providers';
 import {ABI, ContractRegistry} from '@umb-network/toolbox';
 import Settings from '../types/Settings';
 import Blockchain from '../lib/Blockchain';
+import {ChainStatus} from '../types/ChainStatus';
+import {Validator} from '../types/Validator';
 
 @injectable()
 class ChainContract {
@@ -16,31 +18,26 @@ class ChainContract {
     this.blockchain = blockchain;
   }
 
-  async getLatestData(): Promise<{leader: string; blockHeight: BigNumber}> {
+  async resolveStatus(): Promise<ChainStatus> {
     const contract = await this.resolveContract();
+    return contract.getStatus();
+  }
 
-    const [leader, blockHeight] = await Promise.all([contract.getNextLeaderAddress(), contract.getBlockHeight()]);
-
-    return {leader, blockHeight: blockHeight};
+  resolveValidators(chainStatus: ChainStatus): Validator[] {
+    return chainStatus.validators.map((address, i) => {
+      return {
+        id: address,
+        location: chainStatus.locations[i],
+      };
+    });
   }
 
   async getAddress(): Promise<string> {
     return (await this.resolveContract()).address;
   }
 
-  async getNextLeaderAddress(): Promise<string> {
-    return (await this.resolveContract()).getNextLeaderAddress();
-  }
-
-  async getBlockHeight(): Promise<BigNumber> {
-    return (await this.resolveContract()).getBlockHeight();
-  }
-
-  async getBlockVotersCount(blockHeight: BigNumber): Promise<BigNumber> {
-    return (await this.resolveContract()).getBlockVotersCount(blockHeight);
-  }
-
   async submit(
+    dataTimestamp: number,
     root: string,
     keys: string[],
     values: string[],
@@ -48,9 +45,11 @@ class ChainContract {
     r: string[],
     s: string[],
   ): Promise<TransactionResponse> {
-    return (await this.resolveContract()).connect(this.blockchain.wallet).submit(root, keys, values, v, r, s, {
-      gasPrice: this.settings.blockchain.transactions.gasPrice,
-    });
+    return (await this.resolveContract())
+      .connect(this.blockchain.wallet)
+      .submit(dataTimestamp, root, keys, values, v, r, s, {
+        gasPrice: this.settings.blockchain.transactions.gasPrice,
+      });
   }
 
   resolveContract = async (): Promise<Contract> => {
