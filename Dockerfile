@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY tsconfig.json ./
 COPY package*.json ./
-COPY newrelic.json ./
+COPY newrelic.js ./
 
 RUN npm install
 
