@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [1.0.1] - 2021-04-16
+
+## Changed
+- set `dataTimestamp` with an offset
+
 ## [1.0.0] - 2021-04-15
 
 ## Changed
