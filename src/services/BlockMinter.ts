@@ -36,9 +36,11 @@ class BlockMinter {
 
   async apply(): Promise<void> {
     const chainStatus = await this.chainContract.resolveStatus();
+
     if (!this.isLeader(chainStatus)) return;
 
-    const dataTimestamp = this.timeService.apply();
+    const dataTimestamp = this.timeService.apply() - this.settings.dataTimestampOffsetSeconds;
+
     const {nextBlockHeight} = chainStatus;
 
     if (!(await this.canMint(chainStatus))) {
