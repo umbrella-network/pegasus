@@ -215,7 +215,7 @@ class CryptoCompareWSClient extends WSClient {
     }));
   }
 
-  private checkStaleSubscriptions() {
+  private async checkStaleSubscriptions(): Promise<void> {
     const toResubscribe = [];
 
     const currentTime = Date.now(),
@@ -233,6 +233,13 @@ class CryptoCompareWSClient extends WSClient {
     }
 
     this.unsubscribeSubscriptions(toResubscribe, false);
+
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
+    if (!this.connected) {
+      return;
+    }
+
     this.subscribeSubscriptions(toResubscribe);
 
     this.staleResubscribeJob?.reschedule(Math.floor((resubscribeTimeout - (currentTime - minTimeUpdated)) / 1000));
