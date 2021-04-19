@@ -100,7 +100,7 @@ class BlockSigner {
           .desc(([, value]) => value)
           .map(([key, value]) => {
             const discrepancy = Math.round(value * 100) / 100.0;
-            newrelic.recordCustomEvent('price.discrepancy', {
+            newrelic.recordCustomEvent('PriceDiscrepancy', {
               key: key,
               discrepancy: discrepancy
             })
