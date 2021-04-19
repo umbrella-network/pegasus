@@ -102,8 +102,8 @@ class BlockSigner {
             const discrepancy = Math.round(value * 100) / 100.0;
             newrelic.recordCustomEvent('PriceDiscrepancy', {
               key: key,
-              discrepancy: discrepancy
-            })
+              discrepancy: discrepancy,
+            });
             return `${key}: ${discrepancy}%`;
           })
           .join(', ');

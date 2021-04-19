@@ -18,7 +18,7 @@ class SignatureController {
 
   index = async (request: Request, response: Response): Promise<void> => {
     const block: SignedBlock = request.body;
-    
+
     try {
       const signature = await this.blockSigner.apply(block);
 
