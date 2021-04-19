@@ -19,7 +19,7 @@ class SignatureController {
 
   index = async (request: Request, response: Response): Promise<void> => {
     const block: SignedBlock = request.body;
-    newrelic.recordCustomEvent('price.discrepancy', {
+    newrelic.recordCustomEvent('PriceDiscrepancy', {
       key: 'testkey',
       discrepancy: '50'
     })
