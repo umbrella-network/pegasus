@@ -53,6 +53,7 @@ describe('BlockMinter', () => {
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
       feedsOnChain: 'test/feeds/feedsOnChain.yaml',
+      dataTimestampOffsetSeconds: 0,
     } as Settings;
 
     container.bind('Logger').toConstantValue(mockedLogger);

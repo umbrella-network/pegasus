@@ -61,6 +61,7 @@ type Settings = {
     };
   };
   signatureTimeout: number;
+  dataTimestampOffsetSeconds: number;
   feedsFile: string;
   feedsOnChain: string;
   version: string;
