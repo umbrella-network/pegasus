@@ -3,6 +3,7 @@ import express, {Request, Response} from 'express';
 
 import {SignedBlock} from '../types/SignedBlock';
 import BlockSigner from '../services/BlockSigner';
+import newrelic from 'newrelic';
 
 @injectable()
 class SignatureController {
@@ -18,7 +19,11 @@ class SignatureController {
 
   index = async (request: Request, response: Response): Promise<void> => {
     const block: SignedBlock = request.body;
-
+    newrelic.recordCustomEvent('price.discrepancy', {
+      key: 'testkey',
+      discrepancy: '50'
+    })
+    
     try {
       const signature = await this.blockSigner.apply(block);
 
