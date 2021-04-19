@@ -12,7 +12,7 @@ import {Logger} from 'winston';
 import BlockMinter from './BlockMinter';
 import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
 import sort from 'fast-sort';
-import StatsDClient from '../lib/StatsDClient';
+import newrelic from 'newrelic';
 
 @injectable()
 class BlockSigner {
@@ -100,7 +100,10 @@ class BlockSigner {
           .desc(([, value]) => value)
           .map(([key, value]) => {
             const discrepancy = Math.round(value * 100) / 100.0;
-            StatsDClient?.set(`discrepancy.${key}`, discrepancy);
+            newrelic.recordCustomEvent('price.discrepancy', {
+              key: key,
+              discrepancy: discrepancy
+            })
             return `${key}: ${discrepancy}%`;
           })
           .join(', ');
