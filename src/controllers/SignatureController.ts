@@ -3,7 +3,6 @@ import express, {Request, Response} from 'express';
 
 import {SignedBlock} from '../types/SignedBlock';
 import BlockSigner from '../services/BlockSigner';
-import newrelic from 'newrelic';
 
 @injectable()
 class SignatureController {
