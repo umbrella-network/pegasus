@@ -11,6 +11,9 @@ type Settings = {
   mongodb: {
     url: string;
   };
+  consensus: {
+    retries: number;
+  };
   blockchain: {
     provider: {
       url: string;

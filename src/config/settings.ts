@@ -16,6 +16,9 @@ const settings: Settings = {
   mongodb: {
     url: process.env.MONGODB_URL || 'mongodb://localhost:27017/pegasus',
   },
+  consensus: {
+    retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
+  },
   blockchain: {
     provider: {
       url: process.env.BLOCKCHAIN_PROVIDER_URL || 'http://127.0.0.1:8545',

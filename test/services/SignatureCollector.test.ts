@@ -5,11 +5,12 @@ import sinon from 'sinon';
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
 import {expect} from 'chai';
-import {Wallet} from 'ethers';
+import {BigNumber, Wallet} from 'ethers';
 import {SignedBlock} from '../../src/types/SignedBlock';
 import moxios from 'moxios';
-import BlockMinter from '../../src/services/BlockMinter';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
+import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse';
+import {signAffidavitWithWallet} from '../../src/utils/mining';
 
 describe('SignatureCollector', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -57,12 +58,14 @@ describe('SignatureCollector', () => {
         '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit, [
-      {id: wallet.address, location: 'http://validator'},
-    ]);
+    const blockSignerResponseWithPower: BlockSignerResponseWithPower[] = await signatureCollector.apply(
+      block,
+      affidavit,
+      [{id: wallet.address, location: 'http://validator', power: BigNumber.from(1)}],
+    );
 
-    expect(signatures).to.be.an('array').with.lengthOf(1);
-    expect(signatures[0]).to.be.a('string').that.is.eq(block.signature);
+    expect(blockSignerResponseWithPower).to.be.an('array').with.lengthOf(1);
+    expect(blockSignerResponseWithPower[0].signature).to.be.a('string').that.is.eq(block.signature);
   });
 
   it('returns no signatures if signer addresses does not match', async () => {
@@ -76,8 +79,7 @@ describe('SignatureCollector', () => {
       status: 200,
       response: {
         // a wrong signature, so the addresses of signers will not match
-        data:
-          '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+        data: `0x${'0'.repeat(130)}`,
       },
     });
 
@@ -91,7 +93,8 @@ describe('SignatureCollector', () => {
     };
 
     const signatures = await signatureCollector.apply(block, affidavit, [
-      {id: walletOfAnotherValidator.address, location: 'http://validator'},
+      {id: mockedBlockchain.wallet.address, location: 'http://me', power: BigNumber.from(1)},
+      {id: walletOfAnotherValidator.address, location: 'http://validator', power: BigNumber.from(1)},
     ]);
 
     expect(signatures).to.be.an('array').with.lengthOf(1);
@@ -103,12 +106,13 @@ describe('SignatureCollector', () => {
     mockedBlockchain.wallet = Wallet.createRandom();
 
     const walletOfAnotherValidator = Wallet.createRandom();
-    const signatureOfAnotherValidator = await BlockMinter.signAffidavitWithWallet(walletOfAnotherValidator, affidavit);
+    const signatureOfAnotherValidator = await signAffidavitWithWallet(walletOfAnotherValidator, affidavit);
 
     moxios.stubRequest('http://validator/signature', {
       status: 200,
       response: {
-        data: signatureOfAnotherValidator,
+        signature: signatureOfAnotherValidator,
+        discrepancies: [],
       },
     });
 
@@ -121,12 +125,14 @@ describe('SignatureCollector', () => {
         '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit, [
-      {id: walletOfAnotherValidator.address, location: 'http://validator'},
+    const blockSignerResponseWithPower = await signatureCollector.apply(block, affidavit, [
+      {id: mockedBlockchain.wallet.address, location: 'http://me', power: BigNumber.from(1)},
+      {id: walletOfAnotherValidator.address, location: 'http://validator', power: BigNumber.from(1)},
     ]);
 
-    expect(signatures).to.be.an('array').with.lengthOf(2);
-    expect(signatures[1]).to.be.a('string').that.is.eq(signatureOfAnotherValidator);
+    expect(blockSignerResponseWithPower).to.be.an('array').with.lengthOf(2);
+    expect(blockSignerResponseWithPower[0].signature).to.be.a('string').that.is.eq(block.signature);
+    expect(blockSignerResponseWithPower[1].signature).to.be.a('string').that.is.eq(signatureOfAnotherValidator);
   });
 
   it('returns signatures from multiple validators if they are available', async () => {
@@ -134,25 +140,27 @@ describe('SignatureCollector', () => {
 
     const walletOfCurrentValidator = Wallet.createRandom();
     mockedBlockchain.wallet = walletOfCurrentValidator;
-    const signatureOfCurrentValidator = await BlockMinter.signAffidavitWithWallet(walletOfCurrentValidator, affidavit);
+    const signatureOfCurrentValidator = await signAffidavitWithWallet(walletOfCurrentValidator, affidavit);
 
     const walletOfSecondValidator = Wallet.createRandom();
-    const signatureOfSecondValidator = await BlockMinter.signAffidavitWithWallet(walletOfSecondValidator, affidavit);
+    const signatureOfSecondValidator = await signAffidavitWithWallet(walletOfSecondValidator, affidavit);
 
     const walletOfThirdValidator = Wallet.createRandom();
-    const signatureOfThirdValidator = await BlockMinter.signAffidavitWithWallet(walletOfThirdValidator, affidavit);
+    const signatureOfThirdValidator = await signAffidavitWithWallet(walletOfThirdValidator, affidavit);
 
     moxios.stubRequest('http://second-validator/signature', {
       status: 200,
       response: {
-        data: signatureOfSecondValidator,
+        signature: signatureOfSecondValidator,
+        discrepancies: [],
       },
     });
 
     moxios.stubRequest('http://third-validator/signature', {
       status: 200,
       response: {
-        data: signatureOfThirdValidator,
+        signature: signatureOfThirdValidator,
+        discrepancies: [],
       },
     });
 
@@ -164,14 +172,18 @@ describe('SignatureCollector', () => {
       signature: signatureOfCurrentValidator,
     };
 
-    const signatures = await signatureCollector.apply(block, affidavit, [
-      {id: walletOfSecondValidator.address, location: 'http://second-validator'},
-      {id: walletOfThirdValidator.address, location: 'http://third-validator'},
+    const blockSignerResponseWithPower = await signatureCollector.apply(block, affidavit, [
+      {id: mockedBlockchain.wallet.address, location: 'http://me', power: BigNumber.from(1)},
+      {id: walletOfSecondValidator.address, location: 'http://second-validator', power: BigNumber.from(2)},
+      {id: walletOfThirdValidator.address, location: 'http://third-validator', power: BigNumber.from(3)},
     ]);
 
-    expect(signatures).to.be.an('array').with.lengthOf(3);
-    expect(signatures[0]).to.eq(signatureOfCurrentValidator, 'current validator signature must be as first');
-    expect(signatures).to.include(signatureOfSecondValidator);
-    expect(signatures).to.include(signatureOfThirdValidator);
+    expect(blockSignerResponseWithPower).to.be.an('array').with.lengthOf(3);
+    expect(blockSignerResponseWithPower[0].signature).to.eq(
+      signatureOfCurrentValidator,
+      'current validator signature must be as first',
+    );
+    expect(blockSignerResponseWithPower.map((r) => r.signature)).to.include(signatureOfSecondValidator);
+    expect(blockSignerResponseWithPower.map((r) => r.signature)).to.include(signatureOfThirdValidator);
   });
 });
