@@ -20,9 +20,7 @@ class SignatureController {
     const block: SignedBlock = request.body;
 
     try {
-      const signature = await this.blockSigner.apply(block);
-
-      response.send({data: signature});
+      response.send(await this.blockSigner.apply(block));
     } catch (err) {
       response.status(400);
       response.json({error: err.message});

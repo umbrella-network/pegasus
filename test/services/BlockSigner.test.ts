@@ -12,8 +12,8 @@ import ChainContract from '../../src/contracts/ChainContract';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
 import Settings from '../../src/types/Settings';
-import BlockMinter from '../../src/services/BlockMinter';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
+import {signAffidavitWithWallet} from '../../src/utils/mining';
 
 chai.use(chaiAsPromised);
 
@@ -80,7 +80,7 @@ describe('BlockSigner', () => {
 
     const wallet = Wallet.createRandom();
 
-    const signature = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
+    const signature = await signAffidavitWithWallet(wallet, affidavit);
 
     mockedBlockchain.wallet = wallet;
 
@@ -113,7 +113,7 @@ describe('BlockSigner', () => {
     const leaderWallet = Wallet.createRandom();
     const wallet = Wallet.createRandom();
 
-    const signature = await BlockMinter.signAffidavitWithWallet(leaderWallet, affidavit);
+    const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
 
     mockedBlockchain.wallet = wallet;
 
@@ -139,7 +139,7 @@ describe('BlockSigner', () => {
       signature,
     });
 
-    expect(result)
+    expect(result.signature)
       .to.be.a('string')
       .that.matches(/^0x[0-9a-fA-F]+$/);
   });
