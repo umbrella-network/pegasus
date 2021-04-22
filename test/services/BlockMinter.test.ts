@@ -12,6 +12,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
 import ChainContract from '../../src/contracts/ChainContract';
+import ConsensusRunner from '../../src/services/ConsensusRunner';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import RevertedBlockResolver from '../../src/services/RevertedBlockResolver';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
@@ -22,6 +23,7 @@ import Block from '../../src/models/Block';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import TimeService from '../../src/services/TimeService';
+import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves} from '../../src/utils/mining';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -54,6 +56,9 @@ describe('BlockMinter', () => {
       feedsFile: 'test/feeds/feeds.yaml',
       feedsOnChain: 'test/feeds/feedsOnChain.yaml',
       dataTimestampOffsetSeconds: 0,
+      consensus: {
+        retries: 2,
+      },
     } as Settings;
 
     container.bind('Logger').toConstantValue(mockedLogger);
@@ -63,6 +68,7 @@ describe('BlockMinter', () => {
     container.bind(FeedProcessor).toConstantValue((mockedFeedProcessor as unknown) as FeedProcessor);
     container.bind(SortedMerkleTreeFactory).toSelf();
     container.bind(SaveMintedBlock).toSelf();
+    container.bind(ConsensusRunner).toSelf();
     container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind('Settings').toConstantValue(settings);
     container.bind(RevertedBlockResolver).toConstantValue(mockedRevertedBlockResolver);
@@ -86,7 +92,7 @@ describe('BlockMinter', () => {
         {label: 'd', _id: '1', timestamp: new Date(), blockHeight: 1, valueBytes: '0x0'},
         {label: 'c', _id: '1', timestamp: new Date(), blockHeight: 1, valueBytes: '0x0'},
       ];
-      const resultingLeaves = BlockMinter.sortLeaves(leaves);
+      const resultingLeaves = sortLeaves(leaves);
 
       resultingLeaves.forEach((leaf, i) => {
         if (i === 0) {
@@ -100,13 +106,7 @@ describe('BlockMinter', () => {
 
   describe('#generateAffidavit', () => {
     it('generates affidavit successfully', () => {
-      const affidavit = BlockMinter.generateAffidavit(
-        1,
-        ethers.utils.keccak256('0x1234'),
-        BigNumber.from(1),
-        ['ETH-USD'],
-        [100],
-      );
+      const affidavit = generateAffidavit(1, ethers.utils.keccak256('0x1234'), 1, ['ETH-USD'], [100]);
 
       expect(affidavit)
         .to.be.a('string')
@@ -118,7 +118,7 @@ describe('BlockMinter', () => {
     it('signes affidavit successfully', async () => {
       const {affidavit} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
-      const signedAffidavit = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
+      const signedAffidavit = await signAffidavitWithWallet(wallet, affidavit);
 
       expect(signedAffidavit)
         .to.be.a('string')
@@ -130,9 +130,9 @@ describe('BlockMinter', () => {
     it("recovers signer's address", async () => {
       const {affidavit} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
-      const signedAffidavit = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
+      const signedAffidavit = await signAffidavitWithWallet(wallet, affidavit);
 
-      const signersAddress = BlockMinter.recoverSigner(affidavit, signedAffidavit);
+      const signersAddress = recoverSigner(affidavit, signedAffidavit);
 
       expect(signersAddress).to.be.eq(wallet.address);
     });
@@ -184,7 +184,7 @@ describe('BlockMinter', () => {
     it('passes right arguments to SignatureCollector', async () => {
       const {leaf, affidavit, fcd} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
-      const signature = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
+      const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedBlockchain.wallet = wallet;
 
@@ -204,7 +204,7 @@ describe('BlockMinter', () => {
 
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
-      mockedSignatureCollector.apply.resolves([signature]);
+      mockedSignatureCollector.apply.resolves([{signature, power: BigNumber.from(1), discrepancies: []}]);
 
       await blockMinter.apply();
 
@@ -228,7 +228,7 @@ describe('BlockMinter', () => {
     it('does not save block to database if submitting finished unsuccessfully', async () => {
       const {leaf, affidavit} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
-      const signature = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
+      const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedBlockchain.wallet = wallet;
 
@@ -252,7 +252,7 @@ describe('BlockMinter', () => {
         [leaf, leaf],
         [leaf, leaf],
       ]);
-      mockedSignatureCollector.apply.resolves([signature]);
+      mockedSignatureCollector.apply.resolves([{signature, power: BigNumber.from(1), discrepancies: []}]);
       mockedChainContract.submit.rejects(); // throw error when trying to submit minted block
 
       await blockMinter.apply();
@@ -264,7 +264,7 @@ describe('BlockMinter', () => {
     it('saves block to database if submitting finished successfully', async () => {
       const {leaf, affidavit} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
-      const signature = await BlockMinter.signAffidavitWithWallet(wallet, affidavit);
+      const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedBlockchain.wallet = wallet;
 
@@ -288,7 +288,7 @@ describe('BlockMinter', () => {
         [leaf, leaf],
         [leaf, leaf],
       ]);
-      mockedSignatureCollector.apply.resolves([signature]);
+      mockedSignatureCollector.apply.resolves([{signature, power: BigNumber.from(1), discrepancies: []}]);
       mockedChainContract.submit.resolves({
         wait: () => Promise.resolve({status: 1, transactionHash: '123'}),
       } as any); // throw error when trying to submit minted block

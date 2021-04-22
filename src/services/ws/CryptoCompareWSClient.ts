@@ -70,7 +70,7 @@ class CryptoCompareWSClient extends WSClient {
 
     this.lastTimeUpdated[subscription] = Date.now();
 
-    StatsDClient?.gauge(`${fsym}-${tsym}`, median);
+    StatsDClient?.gauge(`cpm.${fsym}-${tsym}`, median);
     this.logger.debug(`${subscription}: ${median} at ${timestamp}`);
 
     this.priceAggregator.add(`${CryptoCompareWSClient.Prefix}${subscription}`, median, timestamp).catch(this.logger.error);

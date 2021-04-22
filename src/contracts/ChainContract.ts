@@ -28,6 +28,7 @@ class ChainContract {
       return {
         id: address,
         location: chainStatus.locations[i],
+        power: chainStatus.powers[i],
       };
     });
   }

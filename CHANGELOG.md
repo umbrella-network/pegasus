@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+
+## [2.0.0] - 2021-04-22
+### Added
+- added new event `PriceDiscrepancy` reported to NewRelic
+- self-adjusting consensus, that can ignore discrepancy pairs
+
 ## [1.0.1] - 2021-04-16
 
 ## Changed
