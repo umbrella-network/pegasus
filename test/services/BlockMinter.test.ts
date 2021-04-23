@@ -59,6 +59,7 @@ describe('BlockMinter', () => {
       consensus: {
         retries: 2,
       },
+      version: '1.0.0',
     } as Settings;
 
     container.bind('Logger').toConstantValue(mockedLogger);
@@ -204,7 +205,9 @@ describe('BlockMinter', () => {
 
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
-      mockedSignatureCollector.apply.resolves([{signature, power: BigNumber.from(1), discrepancies: []}]);
+      mockedSignatureCollector.apply.resolves([
+        {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
+      ]);
 
       await blockMinter.apply();
 
@@ -252,7 +255,9 @@ describe('BlockMinter', () => {
         [leaf, leaf],
         [leaf, leaf],
       ]);
-      mockedSignatureCollector.apply.resolves([{signature, power: BigNumber.from(1), discrepancies: []}]);
+      mockedSignatureCollector.apply.resolves([
+        {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
+      ]);
       mockedChainContract.submit.rejects(); // throw error when trying to submit minted block
 
       await blockMinter.apply();
@@ -288,7 +293,9 @@ describe('BlockMinter', () => {
         [leaf, leaf],
         [leaf, leaf],
       ]);
-      mockedSignatureCollector.apply.resolves([{signature, power: BigNumber.from(1), discrepancies: []}]);
+      mockedSignatureCollector.apply.resolves([
+        {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
+      ]);
       mockedChainContract.submit.resolves({
         wait: () => Promise.resolve({status: 1, transactionHash: '123'}),
       } as any); // throw error when trying to submit minted block

@@ -77,14 +77,14 @@ class BlockSigner {
     }
 
     if (discrepancies) {
-      return {error: 'Discrepancy is to high', discrepancies, signature: ''};
+      return {error: 'Discrepancy is to high', discrepancies, signature: '', version: this.settings.version};
     }
 
     const signature = await signAffidavitWithWallet(this.blockchain.wallet, affidavit);
 
     this.logger.info(`Signed a block for ${recoveredSigner} at ${block.dataTimestamp}`);
 
-    return {signature: signature, discrepancies: []};
+    return {signature: signature, discrepancies: [], version: this.settings.version};
   }
 
   static recoverSigner(affidavit: string, signature: string): string {

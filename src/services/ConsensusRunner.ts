@@ -70,6 +70,7 @@ class ConsensusRunner {
       ({consensus, discrepanciesKeys} = await this.runConsensus(dataForConsensus, validators, staked));
 
       if (consensus || discrepanciesKeys.size === 0) {
+        this.logger.info(`step ${i} consensus: ${!!consensus}, discrepanciesKeys: ${discrepanciesKeys.size}`);
         return consensus;
       }
     }
@@ -145,7 +146,7 @@ class ConsensusRunner {
       return true;
     }
 
-    this.logger.info(`Not enough power: got ${got.toString()}%, required: ${required.toString()}%`);
+    this.logger.info(`Not enough power: got ${got.toString()}, required: ${required.toString()}`);
     return false;
   }
 
@@ -193,6 +194,8 @@ class ConsensusRunner {
     let powers: BigNumber = BigNumber.from(0);
 
     blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
+      this.versionCheck(response);
+
       if (response.signature) {
         signatures.push(response.signature);
         powers = powers.add(response.power);
@@ -205,6 +208,25 @@ class ConsensusRunner {
     });
 
     return {signatures, discrepanciesKeys, powers};
+  }
+
+  private versionCheck(validatorReponse: BlockSignerResponseWithPower) {
+    const expected = this.settings.version.split('.');
+
+    if (!validatorReponse.version) {
+      this.logger.warn('version check fail: no version');
+      return;
+    }
+
+    const v = validatorReponse.version.split('.');
+
+    if (expected[0] !== v[0]) {
+      this.logger.error(`version check fail: expected ${this.settings.version} got ${validatorReponse.version}`);
+    } else if (expected[1] !== v[1]) {
+      this.logger.warn(`version check warn: ${this.settings.version} vs ${validatorReponse.version}`);
+    } else if (expected[2] !== v[2]) {
+      this.logger.info(`version check: ${this.settings.version} vs ${validatorReponse.version}`);
+    }
   }
 
   static recoverSigner(affidavit: string, signature: string): string {
