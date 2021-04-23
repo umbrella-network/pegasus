@@ -28,12 +28,19 @@ class SignatureCollector {
         signature: block.signature,
         power: validators.filter((v) => v.id === this.blockchain.wallet.address)[0].power,
         discrepancies: [],
+        version: this.settings.version,
       },
     ];
 
+    let emptyResponses = 0;
+
     collectedSignatures.forEach((data) => {
-      data && signatures.push(data);
+      data ? signatures.push(data) : emptyResponses++;
     });
+
+    if (emptyResponses) {
+      this.logger.warn(`collected ${emptyResponses} empty (not compatible) responses`);
+    }
 
     return signatures;
   }

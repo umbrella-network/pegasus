@@ -5,6 +5,7 @@ export interface BlockSignerResponse {
   error?: string;
   signature: string;
   discrepancies: Discrepancy[];
+  version: string;
 }
 
 export interface BlockSignerResponseWithPower extends BlockSignerResponse {
