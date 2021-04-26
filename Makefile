@@ -1,8 +1,7 @@
 include .env
 
 TAG=`git rev-parse --short HEAD`
-IMAGE="$(AWS_REPOSITORY)/pegasus:v$(TAG)"
-DEVELOP="$(NEW_AWS_REPOSITORY)/pegasus:develop"
+DEVELOP="$(AWS_REPOSITORY)/pegasus:develop"
 
 CRED_TMP := /tmp/.credentials.tmp
 DURATION := 900
@@ -38,24 +37,8 @@ build-dev:
 	@docker buildx build  --push --platform linux/amd64 -t $(DEVELOP) .
 
 login:
-	@aws ecr get-login-password  | docker login --username AWS --password-stdin $(AWS_REPOSITORY)
+	@aws ecr --profile umb-central --region $(AWS_REGION) get-login-password  | docker login --username AWS --password-stdin $(AWS_REPOSITORY)
 
-login-new-dev:
-	@aws ecr --profile umb-central --region $(AWS_REGION) get-login-password  | docker login --username AWS --password-stdin $(NEW_AWS_REPOSITORY)
-
-push: login
-	@echo "## Pushing image to AWS ##"
-	@docker push $(IMAGE)
-
-
-
-publish-dev:
-	@kubectl set image deployment/pegasus-api pegasus-api=$(IMAGE) --namespace dev
-	@kubectl set image deployment/pegasus-scheduler pegasus-scheduler=$(IMAGE) --namespace dev
-	@kubectl set image deployment/pegasus-worker pegasus-worker=$(IMAGE) --namespace dev
-	@kubectl set image deployment/pegasus-2-api pegasus-2-api=$(IMAGE) --namespace dev
-	@kubectl set image deployment/pegasus-2-scheduler pegasus-2-scheduler=$(IMAGE) --namespace dev
-	@kubectl set image deployment/pegasus-2-worker pegasus-2-worker=$(IMAGE) --namespace dev
 
 publish-bsc:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc01 -n dev
@@ -65,8 +48,18 @@ publish-bsc:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n dev
 
-dev: build push publish-dev
-dev-bsc: assume login-new-dev build-dev update-stg-kubeconfig publish-bsc
-dev-all: dev dev-bsc
+publish-bsc:
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-eth01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-eth01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-worker-eth01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-eth01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-eth01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-eth01 -n dev
+
+
+
+dev-bsc: assume login build-dev update-stg-kubeconfig publish-bsc
+dev-eth: assume login build-dev update-stg-kubeconfig publish-eth
+dev: assume login build-dev update-stg-kubeconfig publish-bsc publish-eth
 
 
