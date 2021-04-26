@@ -57,9 +57,6 @@ publish-bsc:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-eth01 -n dev
 
 
-
 dev-bsc: assume login build-dev update-stg-kubeconfig publish-bsc
 dev-eth: assume login build-dev update-stg-kubeconfig publish-eth
 dev: assume login build-dev update-stg-kubeconfig publish-bsc publish-eth
-
-
