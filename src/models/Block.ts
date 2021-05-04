@@ -10,6 +10,9 @@ class Block {
   _id!: string;
 
   @prop()
+  chainAddress!: string;
+
+  @prop()
   timestamp!: Date;
 
   @prop()

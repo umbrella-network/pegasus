@@ -7,6 +7,7 @@ import Leaf from '../models/Leaf';
 
 type Params = {
   id?: string;
+  chainAddress: string;
   leaves: Leaf[];
   blockHeight: number;
   root: string;
@@ -21,6 +22,7 @@ class SaveMintedBlock {
   async apply(params: Params): Promise<Block> {
     const block = new Block();
     block._id = params.id || uuid();
+    block.chainAddress = params.chainAddress;
     block.dataTimestamp = params.dataTimestamp;
     block.timestamp = params.timestamp;
     block.height = params.blockHeight;

@@ -28,7 +28,7 @@ class BlockSigner {
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
 
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
-    const chainStatus = await this.chainContract.resolveStatus();
+    const [, chainStatus] = await this.chainContract.resolveStatus();
 
     if (!chainStatus.nextBlockHeight.eq(block.blockHeight)) {
       throw Error(`Does not match with the current block ${chainStatus.nextBlockHeight}.`);

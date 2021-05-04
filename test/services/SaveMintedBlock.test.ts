@@ -38,6 +38,7 @@ describe('SaveMintedBlock', () => {
 
     const result = await saveMintedBlock.apply({
       id: 'block::1',
+      chainAddress: '0x333',
       blockHeight: 1,
       leaves,
       numericFcdKeys: ['ETH-USD', 'USD-ETH'],
@@ -55,6 +56,7 @@ describe('SaveMintedBlock', () => {
 
   it('generates UUID and saves the block to database', async () => {
     await saveMintedBlock.apply({
+      chainAddress: '0x333',
       blockHeight: 1,
       leaves: [],
       numericFcdKeys: ['ETH-USD', 'USD-ETH'],

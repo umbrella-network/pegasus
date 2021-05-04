@@ -24,7 +24,7 @@ class InfoController {
     try {
       const [validatorAddress, chainContractAddress, network] = await Promise.all([
         this.blockchain.wallet.getAddress(),
-        this.chainContract.getAddress(),
+        this.chainContract.resolveAddress(),
         this.blockchain.provider.getNetwork(),
       ]);
 

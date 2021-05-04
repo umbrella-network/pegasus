@@ -52,17 +52,20 @@ describe('BlockSigner', () => {
   it('throws error if submitted block is not the current one', async () => {
     mockedBlockchain.wallet = Wallet.createRandom();
 
-    mockedChainContract.resolveStatus.resolves({
-      blockNumber: BigNumber.from(1),
-      lastBlockHeight: BigNumber.from(1),
-      nextBlockHeight: BigNumber.from(2),
-      nextLeader: Wallet.createRandom().address,
-      validators: [Wallet.createRandom().address],
-      locations: ['abc'],
-      lastDataTimestamp: BigNumber.from(1),
-      powers: [BigNumber.from(1)],
-      staked: BigNumber.from(1),
-    });
+    mockedChainContract.resolveStatus.resolves([
+      '0x123',
+      {
+        blockNumber: BigNumber.from(1),
+        lastBlockHeight: BigNumber.from(1),
+        nextBlockHeight: BigNumber.from(2),
+        nextLeader: Wallet.createRandom().address,
+        validators: [Wallet.createRandom().address],
+        locations: ['abc'],
+        lastDataTimestamp: BigNumber.from(1),
+        powers: [BigNumber.from(1)],
+        staked: BigNumber.from(1),
+      },
+    ]);
 
     await expect(
       blockSigner.apply({
@@ -84,17 +87,20 @@ describe('BlockSigner', () => {
 
     mockedBlockchain.wallet = wallet;
 
-    mockedChainContract.resolveStatus.resolves({
-      blockNumber: BigNumber.from(1),
-      lastBlockHeight: BigNumber.from(0),
-      nextBlockHeight: BigNumber.from(1),
-      nextLeader: Wallet.createRandom().address,
-      validators: [wallet.address],
-      locations: ['abc'],
-      lastDataTimestamp: BigNumber.from(1),
-      powers: [BigNumber.from(1)],
-      staked: BigNumber.from(1),
-    });
+    mockedChainContract.resolveStatus.resolves([
+      '0x123',
+      {
+        blockNumber: BigNumber.from(1),
+        lastBlockHeight: BigNumber.from(0),
+        nextBlockHeight: BigNumber.from(1),
+        nextLeader: Wallet.createRandom().address,
+        validators: [wallet.address],
+        locations: ['abc'],
+        lastDataTimestamp: BigNumber.from(1),
+        powers: [BigNumber.from(1)],
+        staked: BigNumber.from(1),
+      },
+    ]);
 
     await expect(
       blockSigner.apply({
@@ -117,17 +123,20 @@ describe('BlockSigner', () => {
 
     mockedBlockchain.wallet = wallet;
 
-    mockedChainContract.resolveStatus.resolves({
-      blockNumber: BigNumber.from(1),
-      lastBlockHeight: BigNumber.from(0),
-      nextBlockHeight: BigNumber.from(1),
-      nextLeader: leaderWallet.address,
-      validators: [wallet.address],
-      locations: ['abc'],
-      lastDataTimestamp: BigNumber.from(1),
-      powers: [BigNumber.from(1)],
-      staked: BigNumber.from(1),
-    });
+    mockedChainContract.resolveStatus.resolves([
+      '0x123',
+      {
+        blockNumber: BigNumber.from(1),
+        lastBlockHeight: BigNumber.from(0),
+        nextBlockHeight: BigNumber.from(1),
+        nextLeader: leaderWallet.address,
+        validators: [wallet.address],
+        locations: ['abc'],
+        lastDataTimestamp: BigNumber.from(1),
+        powers: [BigNumber.from(1)],
+        staked: BigNumber.from(1),
+      },
+    ]);
 
     mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 
