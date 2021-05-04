@@ -145,7 +145,7 @@ npm run start:dev:scheduler
 npm run start
 
 # run in the debug mode
-npm start:dev
+npm run start:dev
 ```
 
 ## Edit On-Chain and L2 definitions 

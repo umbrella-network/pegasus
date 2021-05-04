@@ -33,7 +33,7 @@ class BlockMinter {
   @inject(RevertedBlockResolver) reveredBlockResolver!: RevertedBlockResolver;
 
   async apply(): Promise<void> {
-    const chainStatus = await this.chainContract.resolveStatus();
+    const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
 
     if (!this.isLeader(chainStatus)) return;
 
@@ -76,7 +76,7 @@ class BlockMinter {
 
     if (tx) {
       this.logger.info(`Minted in TX ${tx}`);
-      await this.saveBlock(consensus);
+      await this.saveBlock(chainAddress, consensus);
     }
   }
 
@@ -156,8 +156,9 @@ class BlockMinter {
     return blocks[0];
   }
 
-  private async saveBlock(consensus: Consensus): Promise<void> {
+  private async saveBlock(chainAddress: string, consensus: Consensus): Promise<void> {
     await this.saveMintedBlock.apply({
+      chainAddress,
       dataTimestamp: new Date(consensus.dataTimestamp * 1000),
       timestamp: new Date(),
       leaves: consensus.leaves,
