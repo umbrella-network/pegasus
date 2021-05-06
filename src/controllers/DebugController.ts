@@ -15,13 +15,14 @@ class DebugController {
     this.router = express
       .Router()
       .get('/price-aggregator/latest', this.latest)
-      .get('/price-aggregator/prices/:fsym/:tsym', this.prices);
+      .get('/price-aggregator/prices/:fsym/:tsym', this.prices)
+      .get('/price-aggregator/prices/:sym', this.stockPrices);
     this.helper = helper;
     this.settings = settings;
   }
 
   prices = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
-    const {fsym, tsym}: any = request.params;
+    const {fsym, tsym} = request.params as {fsym: string; tsym: string};
 
     try {
       response.send(await this.helper.priceAggregatorAllPrices(fsym, tsym));
@@ -30,12 +31,25 @@ class DebugController {
     }
   };
 
+  stockPrices = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+    const {sym} = request.params as {sym: string};
+
+    try {
+      response.send(await this.helper.priceAggregatorStockPrices(sym));
+    } catch (err) {
+      next(err);
+    }
+  };
+
   latest = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
-    const {beforeTimestamp, orderBy = 'timestamp'}: any = request.query;
+    const {beforeTimestamp, orderBy} = (request.query as unknown) as {beforeTimestamp: string; orderBy: string};
 
     try {
       response.send(
-        await this.helper.orderedPriceAggregatorContent(beforeTimestamp && parseInt(beforeTimestamp, 10), orderBy),
+        await this.helper.orderedPriceAggregatorContent(
+          beforeTimestamp ? parseInt(beforeTimestamp, 10) : undefined,
+          orderBy,
+        ),
       );
     } catch (err) {
       next(err);

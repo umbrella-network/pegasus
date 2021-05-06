@@ -61,6 +61,8 @@ const settings: Settings = {
     },
     polygonIO: {
       apiKey: process.env.POLYGON_IO_API_KEY as string,
+      priceUpdateCronRule: process.env.POLYGON_IO_PRICE_UPDATE_CRON_RULE || '* * * * *', // every minute
+      truncateCronRule: process.env.POLYGON_IO_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
       timeout: parseInt(process.env.POLYGON_IO_TIMEOUT || '5000', 10),
     },
     iex: {
