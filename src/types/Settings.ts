@@ -56,6 +56,8 @@ type Settings = {
     };
     polygonIO: {
       apiKey: string;
+      priceUpdateCronRule: string;
+      truncateCronRule: string;
       timeout: number;
     };
     iex: {
