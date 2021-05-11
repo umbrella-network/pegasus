@@ -1,39 +1,18 @@
-import axios from 'axios';
 import {inject, injectable} from 'inversify';
-import {JSONPath} from 'jsonpath-plus';
 
-import Settings from '../../types/Settings';
+import PolygonIOPriceService from '../PolygonIOPriceService';
 
 @injectable()
 class PolygonIOPriceFetcher {
-  private apiKey: string;
-  private timeout: number;
+  @inject(PolygonIOPriceService) polygonIOPriceService!: PolygonIOPriceService;
 
-  constructor(
-    @inject('Settings') settings: Settings
-  ) {
-    this.apiKey = settings.api.polygonIO.apiKey;
-    this.timeout = settings.api.polygonIO.timeout;
-  }
-
-  async apply(params: any): Promise<number> {
-    const sourceUrl = `https://api.polygon.io/v1/last/stocks/${params.sym}?apiKey=${this.apiKey}`;
-
-    const response = await axios.get(sourceUrl, {
-      timeout: this.timeout,
-      timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-    });
-
-    if (response.status !== 200) {
-      throw new Error(response.data);
+  async apply({sym}: any, timestamp: number): Promise<number> {
+    const price = await this.polygonIOPriceService.getLatestPrice(sym, timestamp);
+    if (price !== null) {
+      return price;
     }
 
-    return this.extractValue(response.data, '$.last.price');
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractValue = (data: any, valuePath: string): number => {
-    return JSONPath({json: data, path: valuePath})[0];
+    throw new Error(`NO price for ${sym}`);
   }
 }
 

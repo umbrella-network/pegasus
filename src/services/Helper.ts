@@ -6,6 +6,8 @@ import TimeService from './TimeService';
 import CryptoCompareWSClient from './ws/CryptoCompareWSClient';
 import Settings from '../types/Settings';
 import sort from 'fast-sort';
+import PolygonIOPriceInitializer from './PolygonIOPriceInitializer';
+import PolygonIOPriceService from './PolygonIOPriceService';
 
 @injectable()
 class Helper {
@@ -17,19 +19,24 @@ class Helper {
     beforeTimestamp: number = this.timeService.apply(),
     orderBy = 'timestamp',
   ): Promise<{symbol: string; value: number; timestamp: number}[]> {
-    const pairs = await CryptoCompareWSInitializer.allPairs(this.settings.feedsOnChain, this.settings.feedsFile);
+    const cryptoPairs = await CryptoCompareWSInitializer.allPairs(this.settings.feedsOnChain, this.settings.feedsFile);
+    const stockSymbols = await PolygonIOPriceInitializer.allSymbols(
+      this.settings.feedsOnChain,
+      this.settings.feedsFile,
+    );
+
+    const keys = cryptoPairs
+      .map(({fsym, tsym}) => [`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, `${fsym}-${tsym}`])
+      .concat(stockSymbols.map((sym: string) => [`${PolygonIOPriceService.Prefix}${sym}`, `EQ:${sym}`]));
 
     const result = await Promise.all(
-      pairs.map(async ({fsym, tsym}) => {
-        const valueTimestamp = await this.priceAggregator.valueTimestamp(
-          `${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`,
-          beforeTimestamp,
-        );
+      keys.map(async ([key, desc]) => {
+        const valueTimestamp = await this.priceAggregator.valueTimestamp(key, beforeTimestamp);
 
         const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
 
         return {
-          symbol: `${fsym}-${tsym}`,
+          symbol: desc,
           value,
           timestamp,
         };
@@ -41,6 +48,10 @@ class Helper {
 
   async priceAggregatorAllPrices(fsym: string, tsym: string): Promise<{value: number; timestamp: number}[]> {
     return this.priceAggregator.valueTimestamps(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`);
+  }
+
+  async priceAggregatorStockPrices(sym: string): Promise<{value: number; timestamp: number}[]> {
+    return this.priceAggregator.valueTimestamps(`${PolygonIOPriceService.Prefix}${sym}`);
   }
 }
 
