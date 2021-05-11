@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [2.0.2] - 2021-05-10
+### Changed
+- Support hundreds of US equities
 
 ## [2.0.1] - 2021-04-23
 ### Added
