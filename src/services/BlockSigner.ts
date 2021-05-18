@@ -16,7 +16,7 @@ import Settings from '../types/Settings';
 import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {BlockSignerResponse} from '../types/BlockSignerResponse';
 import {ethers} from 'ethers';
-import {generateAffidavit, signAffidavitWithWallet, sortLeaves} from '../utils/mining';
+import {chainReadyForNewBlock, generateAffidavit, signAffidavitWithWallet, sortLeaves} from '../utils/mining';
 
 @injectable()
 class BlockSigner {
@@ -30,8 +30,10 @@ class BlockSigner {
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
     const [, chainStatus] = await this.chainContract.resolveStatus();
 
-    if (!chainStatus.nextBlockHeight.eq(block.blockHeight)) {
-      throw Error(`Does not match with the current block ${chainStatus.nextBlockHeight}.`);
+    const [ready, error] = chainReadyForNewBlock(chainStatus, block.dataTimestamp);
+
+    if (!ready) {
+      throw Error(error);
     }
 
     this.logger.info(`Signing a block for ${chainStatus.nextLeader} at ${block.dataTimestamp}...`);
@@ -46,7 +48,6 @@ class BlockSigner {
     const affidavit = generateAffidavit(
       block.dataTimestamp,
       proposedTree.getRoot(),
-      chainStatus.nextBlockHeight.toNumber(),
       proposedFcdKeys,
       proposedFcdValues,
     );
@@ -59,7 +60,7 @@ class BlockSigner {
 
     if (recoveredSigner !== chainStatus.nextLeader) {
       throw Error(
-        `Signature does not belong to the current leader, expected ${chainStatus.nextLeader} got ${recoveredSigner} at block ${chainStatus.blockNumber}/${chainStatus.nextBlockHeight}`,
+        `Signature does not belong to the current leader, expected ${chainStatus.nextLeader} got ${recoveredSigner} at block ${chainStatus.blockNumber}/${chainStatus.nextBlockId}`,
       );
     }
 
@@ -107,6 +108,11 @@ class BlockSigner {
     const feeds: Feeds[] = await Promise.all(feedFiles.map((fileName) => loadFeeds(fileName)));
 
     const leaves = await this.feedProcessor.apply(timestamp, ...feeds);
+
+    if (leaves[0].length + leaves[1].length === 0) {
+      this.logger.error('feedProcessor returned no leaves');
+      return undefined;
+    }
 
     for (let i = 0; i < feeds.length; ++i) {
       const discrepancies = Object.entries(this.findDiscrepancies(leaves[i], proposedLeaves[i], feeds[i]));

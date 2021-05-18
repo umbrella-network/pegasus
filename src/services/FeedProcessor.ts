@@ -59,6 +59,8 @@ class FeedProcessor {
   }
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
+    // TODO we don't have to process all keys twice for FCD and leaves,
+    // we can do it once for all and then filter out FCD and leaves data
     const uniqueInputsMap: {[hash: string]: FeedInput} = {};
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);

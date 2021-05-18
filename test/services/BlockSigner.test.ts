@@ -13,7 +13,7 @@ import FeedProcessor from '../../src/services/FeedProcessor';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
 import Settings from '../../src/types/Settings';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
-import {signAffidavitWithWallet} from '../../src/utils/mining';
+import {signAffidavitWithWallet, timestamp} from '../../src/utils/mining';
 
 chai.use(chaiAsPromised);
 
@@ -49,19 +49,26 @@ describe('BlockSigner', () => {
     blockSigner = container.get(BlockSigner);
   });
 
-  it('throws error if submitted block is not the current one', async () => {
+  it('throws error if chain not ready', async () => {
     mockedBlockchain.wallet = Wallet.createRandom();
+    const nextLeader = Wallet.createRandom();
+
+    const signature = await signAffidavitWithWallet(
+      nextLeader,
+      '0x631a4e7c2311787c7da16377b77f24bdd12a293dd7956789f1b5c6b16fe1e262',
+    );
 
     mockedChainContract.resolveStatus.resolves([
       '0x123',
       {
         blockNumber: BigNumber.from(1),
-        lastBlockHeight: BigNumber.from(1),
-        nextBlockHeight: BigNumber.from(2),
-        nextLeader: Wallet.createRandom().address,
+        timePadding: 100,
+        lastBlockId: 1,
+        nextBlockId: 1,
+        nextLeader: nextLeader.address,
         validators: [Wallet.createRandom().address],
         locations: ['abc'],
-        lastDataTimestamp: BigNumber.from(1),
+        lastDataTimestamp: timestamp(),
         powers: [BigNumber.from(1)],
         staked: BigNumber.from(1),
       },
@@ -70,12 +77,11 @@ describe('BlockSigner', () => {
     await expect(
       blockSigner.apply({
         dataTimestamp: 10,
-        blockHeight: 1,
         fcd: {'ETH-USD': 100},
         leaves: {'ETH-USD': 100},
-        signature: '0x00',
+        signature,
       }),
-    ).to.be.rejectedWith('Does not match with the current block 2.');
+    ).to.be.rejectedWith('skipping 1: do not spam');
   });
 
   it('throws error if signatures does not match', async () => {
@@ -91,12 +97,13 @@ describe('BlockSigner', () => {
       '0x123',
       {
         blockNumber: BigNumber.from(1),
-        lastBlockHeight: BigNumber.from(0),
-        nextBlockHeight: BigNumber.from(1),
+        timePadding: 1,
+        lastBlockId: 1,
+        nextBlockId: 1,
         nextLeader: Wallet.createRandom().address,
         validators: [wallet.address],
         locations: ['abc'],
-        lastDataTimestamp: BigNumber.from(1),
+        lastDataTimestamp: 1,
         powers: [BigNumber.from(1)],
         staked: BigNumber.from(1),
       },
@@ -105,7 +112,6 @@ describe('BlockSigner', () => {
     await expect(
       blockSigner.apply({
         dataTimestamp: 10,
-        blockHeight: 1,
         fcd: fcd,
         leaves: fcd,
         signature: signature,
@@ -127,12 +133,13 @@ describe('BlockSigner', () => {
       '0x123',
       {
         blockNumber: BigNumber.from(1),
-        lastBlockHeight: BigNumber.from(0),
-        nextBlockHeight: BigNumber.from(1),
+        timePadding: 1,
+        lastBlockId: 1,
+        nextBlockId: 1,
         nextLeader: leaderWallet.address,
         validators: [wallet.address],
         locations: ['abc'],
-        lastDataTimestamp: BigNumber.from(1),
+        lastDataTimestamp: 1,
         powers: [BigNumber.from(1)],
         staked: BigNumber.from(1),
       },
@@ -142,7 +149,6 @@ describe('BlockSigner', () => {
 
     const result = await blockSigner.apply({
       dataTimestamp: 10,
-      blockHeight: 1,
       fcd: fcd,
       leaves: fcd,
       signature,

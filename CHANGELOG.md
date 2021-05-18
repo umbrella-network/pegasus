@@ -6,8 +6,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- collect consensus data from events
+
 ### Changed
 - support storing only latest FCDs
+- support full `Chain` storage optimisation, also:
+  - leader based on timestamp padding
+  - sorted signatures
+  
+### Removed
+- delete deprecated blocks
 
 ## [2.0.2] - 2021-05-10
 ### Changed

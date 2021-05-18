@@ -12,20 +12,20 @@ class BlocksController {
     this.router = express
       .Router()
       .get('/latest', this.blockNum)
-      .get('/:height', this.readBlock)
-      .get('/height/:height', this.readBlock);
+      .get('/:blockId', this.readBlock)
+      .get('/blockId/:blockId', this.readBlock);
   }
 
   blockNum = async (request: Request, response: Response): Promise<void> => {
-    const block = await getModelForClass(Block).findOne().sort({height: -1});
+    const block = await getModelForClass(Block).findOne().sort({blockId: -1});
 
     response.send({data: block});
   };
 
   readBlock = async (request: Request, response: Response): Promise<void> => {
-    const height = parseInt(request.params.height);
+    const blockId = parseInt(request.params.blockId);
 
-    const block = await getModelForClass(Block).findOne({height}).exec();
+    const block = await getModelForClass(Block).findOne({blockId: blockId}).exec();
 
     response.send({data: block});
   };
