@@ -1,6 +1,5 @@
 import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
-import {NextFunction} from 'express-serve-static-core';
 
 import Settings from '../types/Settings';
 import ChainContract from '../contracts/ChainContract';
@@ -20,26 +19,36 @@ class InfoController {
     this.blockchain = blockchain;
   }
 
-  info = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
-    try {
-      const [validatorAddress, chainContractAddress, network] = await Promise.all([
-        this.blockchain.wallet.getAddress(),
-        this.chainContract.resolveAddress(),
-        this.blockchain.provider.getNetwork(),
-      ]);
+  info = async (request: Request, response: Response): Promise<void> => {
+    let validatorAddress, chainContractAddress, network;
 
-      response.send({
-        validator: validatorAddress,
-        contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
-        chainContractAddress: chainContractAddress,
-        version: this.settings.version,
-        environment: this.settings.environment,
-        network,
-        name: this.settings.name,
-      });
-    } catch (err) {
-      next(err);
+    try {
+      validatorAddress = await this.blockchain.wallet.getAddress();
+    } catch (e) {
+      validatorAddress = e;
     }
+
+    try {
+      chainContractAddress = await this.chainContract.resolveAddress();
+    } catch (e) {
+      chainContractAddress = e;
+    }
+
+    try {
+      network = await this.blockchain.provider.getNetwork();
+    } catch (e) {
+      network = e;
+    }
+
+    response.send({
+      validator: validatorAddress,
+      contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
+      chainContractAddress: chainContractAddress,
+      version: this.settings.version,
+      environment: this.settings.environment,
+      network,
+      name: this.settings.name,
+    });
   };
 }
 

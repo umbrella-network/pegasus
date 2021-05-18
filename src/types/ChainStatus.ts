@@ -2,10 +2,11 @@ import {BigNumber} from 'ethers';
 
 export interface ChainStatus {
   blockNumber: BigNumber;
-  lastDataTimestamp: BigNumber;
-  lastBlockHeight: BigNumber;
-  nextBlockHeight: BigNumber;
+  timePadding: number;
+  lastDataTimestamp: number;
+  lastBlockId: number;
   nextLeader: string;
+  nextBlockId: number;
   validators: string[];
   powers: BigNumber[];
   locations: string[];

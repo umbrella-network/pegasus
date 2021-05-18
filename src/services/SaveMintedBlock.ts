@@ -9,12 +9,17 @@ type Params = {
   id?: string;
   chainAddress: string;
   leaves: Leaf[];
-  blockHeight: number;
+  blockId: number;
+  anchor: number;
   root: string;
   dataTimestamp: Date;
   timestamp: Date;
   numericFcdKeys: string[];
   numericFcdValues: number[];
+  votes: Record<string, string>;
+  power: string;
+  staked: string;
+  miner: string;
 };
 
 @injectable()
@@ -25,16 +30,21 @@ class SaveMintedBlock {
     block.chainAddress = params.chainAddress;
     block.dataTimestamp = params.dataTimestamp;
     block.timestamp = params.timestamp;
-    block.height = params.blockHeight;
+    block.blockId = params.blockId;
+    block.anchor = params.anchor;
     block.root = params.root;
     block.data = this.treeDataFor(params.leaves);
     block.numericFcdKeys = params.numericFcdKeys;
     block.numericFcdValues = params.numericFcdValues;
-    await this.attachLeavesToBlockHeight(params.leaves, params.blockHeight);
+    block.votes = params.votes;
+    block.power = params.power;
+    block.staked = params.staked;
+    block.minter = params.miner;
+    await this.attachLeavesToBlock(params.leaves, params.blockId);
     return await getModelForClass(Block).create(block);
   }
 
-  private async attachLeavesToBlockHeight(leaves: Leaf[], blockHeight: number): Promise<void> {
+  private async attachLeavesToBlock(leaves: Leaf[], blockId: number): Promise<void> {
     return getModelForClass(Leaf)
       .updateMany(
         {
@@ -44,7 +54,7 @@ class SaveMintedBlock {
         },
         {
           $set: {
-            blockHeight: blockHeight,
+            blockId: blockId,
           },
         },
       )

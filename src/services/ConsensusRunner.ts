@@ -21,7 +21,7 @@ import Settings from '../types/Settings';
 import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
-import {sortLeaves, generateAffidavit, signAffidavitWithWallet} from '../utils/mining';
+import {sortLeaves, generateAffidavit, signAffidavitWithWallet, sortSignaturesBySigner} from '../utils/mining';
 
 @injectable()
 class ConsensusRunner {
@@ -62,7 +62,6 @@ class ConsensusRunner {
 
       const dataForConsensus: DataForConsensus = await this.getDataForConsensus(
         dataTimestamp,
-        blockHeight,
         firstClassLeaves,
         leaves,
       );
@@ -91,14 +90,13 @@ class ConsensusRunner {
     const {numericFcdKeys, numericFcdValues, leaves} = dataForConsensus;
 
     const signedBlock: SignedBlock = {
-      blockHeight: dataForConsensus.blockHeight,
       dataTimestamp: dataForConsensus.dataTimestamp,
       leaves: this.leavesToKeyValues(leaves),
       fcd: this.fcdToKeyValues(numericFcdKeys, numericFcdValues),
       signature: await signAffidavitWithWallet(this.blockchain.wallet, dataForConsensus.affidavit),
     };
 
-    this.logger.info(`Running consensus for ${dataForConsensus.blockHeight} with ${validators.length} validators...`);
+    this.logger.info(`Running consensus at ${dataForConsensus.dataTimestamp} with ${validators.length} validators...`);
 
     const blockSignerResponsesWithPowers = await this.signatureCollector.apply(
       signedBlock,
@@ -114,14 +112,13 @@ class ConsensusRunner {
 
     return {
       consensus: {
-        blockHeight: signedBlock.blockHeight,
         dataTimestamp: signedBlock.dataTimestamp,
         leaves,
         numericFcdKeys,
         numericFcdValues,
         power: validatorsResponses.powers,
         root: dataForConsensus.root,
-        signatures: validatorsResponses.signatures,
+        signatures: sortSignaturesBySigner(validatorsResponses.signatures, dataForConsensus.affidavit),
       },
       discrepanciesKeys: new Set<string>(),
     };
@@ -152,7 +149,6 @@ class ConsensusRunner {
 
   private async getDataForConsensus(
     dataTimestamp: number,
-    blockHeight: number,
     firstClassLeaves: Leaf[],
     leaves: Leaf[],
   ): Promise<DataForConsensus> {
@@ -164,12 +160,11 @@ class ConsensusRunner {
       ({valueBytes}) => LeafValueCoder.decode(valueBytes) as number,
     );
 
-    const affidavit = generateAffidavit(dataTimestamp, tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
+    const affidavit = generateAffidavit(dataTimestamp, tree.getRoot(), numericFcdKeys, numericFcdValues);
 
     return {
       dataTimestamp,
       affidavit,
-      blockHeight,
       numericFcdKeys,
       numericFcdValues,
       leaves,
