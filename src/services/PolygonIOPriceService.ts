@@ -130,7 +130,7 @@ class PolygonIOPriceService {
   }
 
   private async truncatePriceAggregator(): Promise<void> {
-    const beforeTimestamp = this.timeService.apply() - this.settings.api.cryptocompare.truncateIntervalMinutes * 60;
+    const beforeTimestamp = this.timeService.apply() - this.settings.api.polygonIO.truncateIntervalMinutes * 60;
 
     this.logger.info(`Truncating PolygonIO prices before ${beforeTimestamp}...`);
 

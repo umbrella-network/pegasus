@@ -94,7 +94,7 @@ class CryptoCompareWSClient extends WSClient {
     });
 
     this.staleResubscribeJob = new Timeout(this.settings.api.cryptocompare.resubscribeTimeoutMinutes * 60, () => {
-      this.checkStaleSubscriptions();
+      this.checkStaleSubscriptions().catch(this.logger.warn);
     });
 
     this.truncateJob = schedule.scheduleJob(this.settings.api.cryptocompare.truncateCronRule, () => {
