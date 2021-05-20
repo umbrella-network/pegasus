@@ -18,11 +18,22 @@ export default async function loadFeeds(filePath: string): Promise<Feeds> {
   }
 }
 
-async function processYaml(feedData: string): Promise<Feeds> {
+async function processYaml(feedData: string, ignoreInvalid = true): Promise<Feeds> {
   const [feeds] = loadAll(feedData);
   const result = new Validator().validate(feeds, FeedsSchema);
   if (!result.valid) {
-    throw new Error(`Feeds validation error:\n${result.errors.map((err) => err.toString()).join('; ')}`);
+    if (!ignoreInvalid) {
+      throw new Error(`Feeds validation error:\n${result.errors.map((err) => err.toString()).join('; ')}`);
+    }
+
+    result.errors.forEach((error) => {
+      delete feeds[error.path[0]];
+    });
+
+    const updatedResult = new Validator().validate(feeds, FeedsSchema);
+    if (!updatedResult.valid) {
+      throw new Error(`Feeds validation error (pass 2):\n${result.errors.map((err) => err.toString()).join('; ')}`);
+    }
   }
 
   return feeds;

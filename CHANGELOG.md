@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [2.0.4] - 2021-05-20
+### Changed
+- Average CPI implemented
+
 ## [2.0.3] - 2021-05-10
 ### Changed
 - Fixed BlockSigner and the case when validator fails to calculate values
