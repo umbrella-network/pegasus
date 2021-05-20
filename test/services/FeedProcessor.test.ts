@@ -26,6 +26,7 @@ describe('FeedProcessor', () => {
     IEXEnergyFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.IEXEnergyFetcher>,
     CoingeckoPriceFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CoingeckoPriceFetcher>,
     CoinmarketcapPriceFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CoinmarketcapPriceFetcher>,
+    BEACPIAverageFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.BEACPIAverageFetcher>,
   };
 
   let feedProcessor: FeedProcessor;
@@ -40,6 +41,7 @@ describe('FeedProcessor', () => {
     mockedFetchers.IEXEnergyFetcher = sinon.createStubInstance(fetchers.IEXEnergyFetcher);
     mockedFetchers.CoingeckoPriceFetcher = sinon.createStubInstance(fetchers.CoingeckoPriceFetcher);
     mockedFetchers.CoinmarketcapPriceFetcher = sinon.createStubInstance(fetchers.CoinmarketcapPriceFetcher);
+    mockedFetchers.BEACPIAverageFetcher = sinon.createStubInstance(fetchers.BEACPIAverageFetcher);
 
     const container = new Container();
 
@@ -68,6 +70,7 @@ describe('FeedProcessor', () => {
     container.bind(fetchers.IEXEnergyFetcher).toConstantValue(mockedFetchers.IEXEnergyFetcher as any);
     container.bind(fetchers.CoinmarketcapPriceFetcher).toConstantValue(mockedFetchers.CoinmarketcapPriceFetcher as any);
     container.bind(fetchers.CoingeckoPriceFetcher).toConstantValue(mockedFetchers.CoingeckoPriceFetcher as any);
+    container.bind(fetchers.BEACPIAverageFetcher).toConstantValue(mockedFetchers.BEACPIAverageFetcher as any);
 
     container.bind(FeedProcessor).toSelf();
 
