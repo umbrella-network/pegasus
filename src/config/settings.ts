@@ -70,6 +70,10 @@ const settings: Settings = {
       apiKey: process.env.IEX_API_KEY as string,
       timeout: parseInt(process.env.IEX_TIMEOUT || '5000', 10),
     },
+    bea: {
+      apiKey: process.env.BAE_API_KEY as string,
+      timeout: parseInt(process.env.BAE_TIMEOUT || '5000', 10),
+    },
   },
   feedsFile:
     process.env.FEEDS_FILE || 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/feeds.yaml',

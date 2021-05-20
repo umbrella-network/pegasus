@@ -61,6 +61,10 @@ type Settings = {
       truncateIntervalMinutes: number;
       timeout: number;
     };
+    bea: {
+      apiKey: string;
+      timeout: number;
+    };
     iex: {
       apiKey: string;
       timeout: number;

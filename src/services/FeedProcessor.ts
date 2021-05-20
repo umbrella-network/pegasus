@@ -36,6 +36,7 @@ class FeedProcessor {
     @inject(fetchers.IEXEnergyFetcher) IEXEnergyFetcher: fetchers.IEXEnergyFetcher,
     @inject(fetchers.CoingeckoPriceFetcher) CoingeckoPriceFetcher: fetchers.CoingeckoPriceFetcher,
     @inject(fetchers.CoinmarketcapPriceFetcher) CoinmarketcapPriceFetcher: fetchers.CoinmarketcapPriceFetcher,
+    @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
   ) {
     this.fetchers = {
       CryptoComparePriceFetcher,
@@ -47,6 +48,7 @@ class FeedProcessor {
       IEXEnergyFetcher,
       CoingeckoPriceFetcher,
       CoinmarketcapPriceFetcher,
+      BEACPIAverageFetcher,
     };
 
     this.calculators = Object.keys(calculators).reduce(

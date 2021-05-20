@@ -29,6 +29,7 @@ export default {
             {$ref: '#/definitions/CryptoComparePriceWSFetcher'},
             {$ref: '#/definitions/PolygonIOPriceFetcher'},
             {$ref: '#/definitions/IEXEnergyFetcher'},
+            {$ref: '#/definitions/BEACPIAverageFetcher'},
             {$ref: '#/definitions/CoingeckoPriceFetcher'},
             {$ref: '#/definitions/CoinmarketcapPriceFetcher'},
           ],
@@ -183,6 +184,21 @@ export default {
             sym: {type: 'string'},
           },
           required: ['sym'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    BEACPIAverageFetcher: {
+      properties: {
+        name: {const: 'BEACPIAverage'},
+        params: {
+          type: 'object',
+          properties: {
+            months: {type: 'number'},
+          },
+          required: ['months'],
           additionalProperties: false,
         },
       },
