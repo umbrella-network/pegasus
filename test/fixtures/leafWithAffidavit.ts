@@ -13,7 +13,7 @@ const leaf: Leaf = {
   valueBytes: '0x' + LeafValueCoder.encode(100, LeafType.TYPE_FLOAT).toString('hex'),
 };
 
-const affidavit = generateAffidavit(10, new SortedMerkleTreeFactory().apply([leaf]).getRoot(), [leaf.label], [100]);
+const affidavit = generateAffidavit(1621508941, new SortedMerkleTreeFactory().apply([leaf]).getRoot(), [leaf.label], [100]);
 
 const fcd: KeyValues = {
   [leaf.label]: 100,

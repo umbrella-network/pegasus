@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - delete deprecated blocks
 
+## [2.0.3] - 2021-05-10
+### Changed
+- Fixed BlockSigner and the case when validator fails to calculate values
+
 ## [2.0.2] - 2021-05-10
 ### Changed
 - Support hundreds of US equities
