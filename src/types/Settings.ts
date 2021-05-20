@@ -58,6 +58,7 @@ type Settings = {
       apiKey: string;
       priceUpdateCronRule: string;
       truncateCronRule: string;
+      truncateIntervalMinutes: number;
       timeout: number;
     };
     iex: {

@@ -106,10 +106,10 @@ class ConsensusRunner {
       validators,
     );
 
-    const validatorsResponses: ValidatorsResponses = this.processValidatorsResponses(blockSignerResponsesWithPowers);
+    const {powers, discrepanciesKeys, signatures} = this.processValidatorsResponses(blockSignerResponsesWithPowers);
 
-    if (!this.hasConsensus(validatorsResponses.powers, staked)) {
-      return {consensus: null, discrepanciesKeys: validatorsResponses.discrepanciesKeys};
+    if (!this.hasConsensus(powers, staked)) {
+      return {consensus: null, discrepanciesKeys};
     }
 
     return {
@@ -119,9 +119,9 @@ class ConsensusRunner {
         leaves,
         numericFcdKeys,
         numericFcdValues,
-        power: validatorsResponses.powers,
+        power: powers,
         root: dataForConsensus.root,
-        signatures: validatorsResponses.signatures,
+        signatures: signatures,
       },
       discrepanciesKeys: new Set<string>(),
     };
@@ -194,7 +194,11 @@ class ConsensusRunner {
     let powers: BigNumber = BigNumber.from(0);
 
     blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
-      this.versionCheck(response);
+      this.versionCheck(response.version);
+
+      if (response.error) {
+        return;
+      }
 
       if (response.signature) {
         signatures.push(response.signature);
@@ -202,7 +206,7 @@ class ConsensusRunner {
         return;
       }
 
-      response.discrepancies.forEach((discrepancy) => {
+      (response.discrepancies || []).forEach((discrepancy) => {
         discrepanciesKeys.add(discrepancy.key);
       });
     });
@@ -210,22 +214,22 @@ class ConsensusRunner {
     return {signatures, discrepanciesKeys, powers};
   }
 
-  private versionCheck(validatorReponse: BlockSignerResponseWithPower) {
+  private versionCheck(version: string) {
     const expected = this.settings.version.split('.');
 
-    if (!validatorReponse.version) {
+    if (!version) {
       this.logger.warn('version check fail: no version');
       return;
     }
 
-    const v = validatorReponse.version.split('.');
+    const v = version.split('.');
 
     if (expected[0] !== v[0]) {
-      this.logger.error(`version check fail: expected ${this.settings.version} got ${validatorReponse.version}`);
+      this.logger.error(`version check fail: expected ${this.settings.version} got ${version}`);
     } else if (expected[1] !== v[1]) {
-      this.logger.warn(`version check warn: ${this.settings.version} vs ${validatorReponse.version}`);
+      this.logger.warn(`version check warn: ${this.settings.version} vs ${version}`);
     } else if (expected[2] !== v[2]) {
-      this.logger.info(`version check: ${this.settings.version} vs ${validatorReponse.version}`);
+      this.logger.info(`version check: ${this.settings.version} vs ${version}`);
     }
   }
 
