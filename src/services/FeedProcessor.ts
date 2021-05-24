@@ -3,7 +3,7 @@ import {v4 as uuid} from 'uuid';
 import {price} from '@umb-network/validator';
 import {MD5 as hash} from 'object-hash';
 import {Logger} from 'winston';
-import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
+import {LeafValueCoder} from '@umb-network/toolbox';
 
 import Leaf from './../models/Leaf';
 import * as fetchers from './fetchers';
@@ -64,6 +64,7 @@ class FeedProcessor {
     // TODO we don't have to process all keys twice for FCD and leaves,
     // we can do it once for all and then filter out FCD and leaves data
     const uniqueInputsMap: {[hash: string]: FeedInput} = {};
+
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);
       keys.forEach((leafLabel) =>
@@ -74,6 +75,7 @@ class FeedProcessor {
     });
 
     const inputIndexByHash: {[hash: string]: number} = {};
+
     Object.keys(uniqueInputsMap).forEach((hash, index) => {
       inputIndexByHash[hash] = index;
     });
@@ -139,7 +141,8 @@ class FeedProcessor {
     leaf._id = uuid();
     leaf.timestamp = new Date();
     leaf.label = leafLabel;
-    leaf.valueBytes = '0x' + LeafValueCoder.encode(leafValue, LeafType.TYPE_FLOAT).toString('hex');
+    leaf.valueBytes = '0x' + LeafValueCoder.encode(leafValue).toString('hex');
+    console.log(leafLabel, leaf.valueBytes);
     return leaf;
   };
 

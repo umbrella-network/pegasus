@@ -40,8 +40,8 @@ class ChainContract {
   async submit(
     dataTimestamp: number,
     root: string,
-    keys: string[],
-    values: string[],
+    keys: Buffer[],
+    values: Buffer[],
     v: number[],
     r: string[],
     s: string[],

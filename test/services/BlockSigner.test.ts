@@ -85,7 +85,46 @@ describe('BlockSigner', () => {
   });
 
   it('throws error if signatures does not match', async () => {
-    const {affidavit, fcd} = leafWithAffidavit;
+    const {affidavit, fcd, timestamp} = leafWithAffidavit;
+
+    const wallet = Wallet.createRandom();
+
+    const signature = await signAffidavitWithWallet(wallet, affidavit);
+
+    const nextLeader = Wallet.createRandom().address;
+
+    mockedBlockchain.wallet = Wallet.createRandom();
+
+    mockedChainContract.resolveStatus.resolves([
+      '0x123',
+      {
+        blockNumber: BigNumber.from(1),
+        timePadding: 1,
+        lastBlockId: 1,
+        nextBlockId: 1,
+        nextLeader,
+        validators: [wallet.address],
+        locations: ['abc'],
+        lastDataTimestamp: 1,
+        powers: [BigNumber.from(1)],
+        staked: BigNumber.from(1),
+      },
+    ]);
+
+    await expect(
+      blockSigner.apply({
+        dataTimestamp: timestamp,
+        fcd: fcd,
+        leaves: fcd,
+        signature: signature,
+      }),
+    ).to.be.rejectedWith(
+      `Signature does not belong to the current leader, expected ${nextLeader} got ${wallet.address}`,
+    );
+  });
+
+  it('throws error if validator calls itself', async () => {
+    const {affidavit, fcd, timestamp} = leafWithAffidavit;
 
     const wallet = Wallet.createRandom();
 
@@ -100,7 +139,7 @@ describe('BlockSigner', () => {
         timePadding: 1,
         lastBlockId: 1,
         nextBlockId: 1,
-        nextLeader: Wallet.createRandom().address,
+        nextLeader: wallet.address,
         validators: [wallet.address],
         locations: ['abc'],
         lastDataTimestamp: 1,
@@ -111,7 +150,7 @@ describe('BlockSigner', () => {
 
     await expect(
       blockSigner.apply({
-        dataTimestamp: 10,
+        dataTimestamp: timestamp,
         fcd: fcd,
         leaves: fcd,
         signature: signature,
@@ -120,7 +159,7 @@ describe('BlockSigner', () => {
   });
 
   it("returns validator's signature", async () => {
-    const {affidavit, fcd, leaf} = leafWithAffidavit;
+    const {affidavit, fcd, leaf, timestamp} = leafWithAffidavit;
 
     const leaderWallet = Wallet.createRandom();
     const wallet = Wallet.createRandom();
@@ -148,8 +187,8 @@ describe('BlockSigner', () => {
     mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 
     const result = await blockSigner.apply({
-      dataTimestamp: 10,
-      fcd: fcd,
+      dataTimestamp: timestamp,
+      fcd,
       leaves: fcd,
       signature,
     });

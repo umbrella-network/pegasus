@@ -1,6 +1,6 @@
 import {index, prop} from '@typegoose/typegoose';
 import {SchemaTypes} from 'mongoose';
-import {HexStringWith0x} from '../types/HexStringWith0x';
+import {HexStringWith0x} from '../types/custom';
 
 @index({timestamp: -1})
 @index({dataTimestamp: -1})
@@ -47,10 +47,10 @@ class Block {
   data!: Record<string, HexStringWith0x>;
 
   @prop({type: () => [String]})
-  numericFcdKeys!: Array<string>;
+  fcdKeys!: Array<string>;
 
   @prop({type: () => [Number]})
-  numericFcdValues!: Array<number>;
+  fcdValues!: Array<number>;
 }
 
 export default Block;

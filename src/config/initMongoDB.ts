@@ -7,7 +7,9 @@ const updateDB = async (): Promise<void> => {
   try {
     const blockModel = getModelForClass(Block);
     console.log('Updating DB to match new schema');
-    const deletedBlocks = await blockModel.collection.deleteMany({blockId: {$exists: false}});
+    const deletedBlocks = await blockModel.collection.deleteMany({
+      $or: [{blockId: {$exists: false}}, {numericFcdKeys: {$exists: true}}],
+    });
     console.log(`Deleted ${deletedBlocks.deletedCount} deprecated Blocks`);
 
     const heightIndexes = ['height_-1', 'height_1'];

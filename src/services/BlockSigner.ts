@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import newrelic from 'newrelic';
 import sort from 'fast-sort';
 import {Logger} from 'winston';
-import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
+import {LeafValueCoder} from '@umb-network/toolbox';
 
 import FeedProcessor from './FeedProcessor';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
@@ -45,7 +45,7 @@ class BlockSigner {
 
     const proposedFcd = sortLeaves(BlockSigner.keyValuesToLeaves(block.fcd));
     const proposedFcdKeys: string[] = proposedFcd.map(({label}) => label);
-    const proposedFcdValues: number[] = proposedFcd.map(({valueBytes}) => LeafValueCoder.decode(valueBytes) as number);
+    const proposedFcdValues: number[] = proposedFcd.map(({valueBytes}) => LeafValueCoder.decode(valueBytes));
 
     const affidavit = generateAffidavit(
       block.dataTimestamp,
@@ -144,8 +144,8 @@ class BlockSigner {
         return;
       }
 
-      const proposedValue = LeafValueCoder.decode(proposedValueBytes) as number;
-      const value = LeafValueCoder.decode(leaf.valueBytes) as number;
+      const proposedValue = LeafValueCoder.decode(proposedValueBytes);
+      const value = LeafValueCoder.decode(leaf.valueBytes);
       const {discrepancy} = feeds[leaf.label];
 
       const diffPerc = calcDiscrepancy(value, proposedValue) * 100.0;
@@ -164,7 +164,7 @@ class BlockSigner {
 
   private static newLeaf(label: string, value: number): Leaf {
     const leaf = new Leaf();
-    leaf.valueBytes = '0x' + LeafValueCoder.encode(value, LeafType.TYPE_FLOAT).toString('hex');
+    leaf.valueBytes = '0x' + LeafValueCoder.encode(value).toString('hex');
     leaf.label = label;
 
     return leaf;

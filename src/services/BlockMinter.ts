@@ -1,7 +1,7 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import {ethers, Signature} from 'ethers';
-import {converters, ABI} from '@umb-network/toolbox';
+import {ABI, LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import ConsensusRunner from './ConsensusRunner';
@@ -67,8 +67,8 @@ class BlockMinter {
     const mintedBlock = await this.mint(
       consensus.dataTimestamp,
       consensus.root,
-      consensus.numericFcdKeys,
-      consensus.numericFcdValues,
+      consensus.fcdKeys,
+      consensus.fcdValues,
       consensus.signatures,
     );
 
@@ -106,8 +106,8 @@ class BlockMinter {
       const tx = await this.chainContract.submit(
         dataTimestamp,
         root,
-        keys.map(converters.strToBytes32),
-        values.map(converters.numberToUint256),
+        keys.map(LeafKeyCoder.encode),
+        values.map((v) => LeafValueCoder.encode(v)),
         components.map((sig) => sig.v),
         components.map((sig) => sig.r),
         components.map((sig) => sig.s),
@@ -206,8 +206,8 @@ class BlockMinter {
       blockId: mintedBlock.logMint.blockId.toNumber(),
       anchor: mintedBlock.anchor,
       root: consensus.root,
-      numericFcdKeys: consensus.numericFcdKeys,
-      numericFcdValues: consensus.numericFcdValues,
+      fcdKeys: consensus.fcdKeys,
+      fcdValues: consensus.fcdValues,
       votes: votes,
       power: mintedBlock.logMint.power.toString(),
       staked: mintedBlock.logMint.staked.toString(),
