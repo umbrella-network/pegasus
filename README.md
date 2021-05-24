@@ -220,13 +220,13 @@ kubectl set env deployment/pegasus-worker REGISTRY_CONTRACT_ADDRESS='0x622c7725a
 ```json
 {
   "data": {
-    "numericFcdKeys": [
+    "fcdKeys": [
       [
         "eth-eur",
         "eth-usd"
       ]
     ],
-    "numericFcdValues": [
+    "fcdValues": [
       481.92,
       587.56
     ],

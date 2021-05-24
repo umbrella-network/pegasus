@@ -1,5 +1,5 @@
 import {index, prop} from '@typegoose/typegoose';
-import {HexStringWith0x} from '../types/HexStringWith0x';
+import {HexStringWith0x} from '../types/custom';
 
 @index({feedId: 1, timestamp: 1})
 @index({blockId: 1})

@@ -191,13 +191,13 @@ describe('BlockMinter', () => {
     });
 
     it('passes right arguments to SignatureCollector', async () => {
-      const {leaf, affidavit, fcd} = leafWithAffidavit;
+      const {leaf, affidavit, fcd, timestamp} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedBlockchain.wallet = wallet;
 
-      mockedTimeService.apply.returns(10);
+      mockedTimeService.apply.returns(timestamp);
 
       mockedChainContract.resolveStatus.resolves([
         '0x123',
@@ -217,6 +217,7 @@ describe('BlockMinter', () => {
 
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+
       mockedSignatureCollector.apply.resolves([
         {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
       ]);
@@ -225,7 +226,7 @@ describe('BlockMinter', () => {
 
       expect(mockedSignatureCollector.apply.args[0][0]).to.be.deep.eq(
         {
-          dataTimestamp: 10,
+          dataTimestamp: timestamp,
           fcd: fcd,
           leaves: fcd,
           signature,
@@ -312,9 +313,11 @@ describe('BlockMinter', () => {
         [leaf, leaf],
         [leaf, leaf],
       ]);
+
       mockedSignatureCollector.apply.resolves([
         {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
       ]);
+
       mockedChainContract.submit.resolves({
         wait: () =>
           Promise.resolve({
@@ -337,7 +340,7 @@ describe('BlockMinter', () => {
               },
             ],
           }),
-      } as any); // throw error when trying to submit minted block
+      } as any);
 
       await blockMinter.apply();
 

@@ -1,8 +1,12 @@
 import {ethers, Wallet} from 'ethers';
-import {converters} from '@umb-network/toolbox';
+import {LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
 import Leaf from '../models/Leaf';
 import sort from 'fast-sort';
 import {ChainStatus} from '../types/ChainStatus';
+import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
+
+const abiUintEncoder = (n: number | string, bits = 256): string =>
+  (typeof n === 'number' ? n.toString(16) : remove0x(n)).padStart(bits / 4, '0');
 
 export const recoverSigner = (affidavit: string, signature: string): string => {
   const pubKey = ethers.utils.recoverPublicKey(
@@ -24,14 +28,14 @@ export const signAffidavitWithWallet = async (wallet: Wallet, affidavit: string)
 export const generateAffidavit = (
   dataTimestamp: number,
   root: string,
-  numericFCDKeys: string[],
-  numericFCDValues: number[],
+  fcdKeys: string[],
+  fcdValues: number[],
 ): string => {
-  let testimony = `0x${dataTimestamp.toString(16).padStart(8, '0')}${root.replace('0x', '')}`;
+  let testimony = `0x${abiUintEncoder(dataTimestamp, 32)}${root.replace('0x', '')}`;
 
-  numericFCDKeys.forEach((key, i) => {
+  fcdKeys.forEach((key, i) => {
     testimony += ethers.utils.defaultAbiCoder
-      .encode(['bytes32', 'uint256'], [converters.strToBytes32(key), converters.numberToUint256(numericFCDValues[i])])
+      .encode(['bytes32', 'uint256'], [LeafKeyCoder.encode(key), LeafValueCoder.encode(fcdValues[i])])
       .slice(2);
   });
 

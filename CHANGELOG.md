@@ -11,12 +11,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - support storing only latest FCDs
-- support full `Chain` storage optimisation, also:
-  - leader based on timestamp padding
-  - sorted signatures
+- support full `Chain` storage optimisation
   
 ### Removed
-- delete deprecated blocks
+- delete deprecated blocks on boot
+- remove `MerkleTree` class (use one from SDK)
 
 ## [2.0.4] - 2021-05-20
 ### Changed

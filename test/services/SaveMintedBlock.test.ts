@@ -41,8 +41,8 @@ describe('SaveMintedBlock', () => {
       chainAddress: '0x333',
       blockId: 1,
       leaves,
-      numericFcdKeys: ['ETH-USD', 'USD-ETH'],
-      numericFcdValues: [1337.12, 512.12],
+      fcdKeys: ['ETH-USD', 'USD-ETH'],
+      fcdValues: [1337.12, 512.12],
       root: '0x00',
       timestamp: new Date(1000),
       dataTimestamp: new Date(1000),
@@ -64,8 +64,8 @@ describe('SaveMintedBlock', () => {
       chainAddress: '0x333',
       blockId: 1,
       leaves: [],
-      numericFcdKeys: ['ETH-USD', 'USD-ETH'],
-      numericFcdValues: [1337.12, 512.12],
+      fcdKeys: ['ETH-USD', 'USD-ETH'],
+      fcdValues: [1337.12, 512.12],
       root: '0x00',
       dataTimestamp: new Date(1000),
       timestamp: new Date(1000),
@@ -80,8 +80,8 @@ describe('SaveMintedBlock', () => {
     expect(blockFromDb).to.be.an('object');
     expect(uuid.validate(blockFromDb?._id as string)).to.be.true;
     expect(blockFromDb?.blockId).to.be.eq(1);
-    expect(blockFromDb?.numericFcdKeys).to.be.deep.eq(['ETH-USD', 'USD-ETH']);
-    expect(blockFromDb?.numericFcdValues).to.be.deep.eq([1337.12, 512.12]);
+    expect(blockFromDb?.fcdKeys).to.be.deep.eq(['ETH-USD', 'USD-ETH']);
+    expect(blockFromDb?.fcdValues).to.be.deep.eq([1337.12, 512.12]);
     // is undefined or an empty object
     expect(blockFromDb?.data).to.satisfies((data: any) => data === undefined || Object.keys(data).length === 0);
     expect(blockFromDb?.root).to.be.eq('0x00');
