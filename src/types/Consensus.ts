@@ -3,10 +3,9 @@ import {BigNumber} from 'ethers';
 
 export interface DataForConsensus {
   affidavit: string;
-  blockHeight: number;
   dataTimestamp: number;
-  numericFcdKeys: string[];
-  numericFcdValues: number[];
+  fcdKeys: string[];
+  fcdValues: number[];
   leaves: Leaf[];
   root: string;
 }
@@ -14,10 +13,9 @@ export interface DataForConsensus {
 export interface Consensus {
   dataTimestamp: number;
   leaves: Leaf[];
-  blockHeight: number;
   root: string;
-  numericFcdKeys: string[];
-  numericFcdValues: number[];
+  fcdKeys: string[];
+  fcdValues: number[];
   signatures: string[];
   power: BigNumber;
 }

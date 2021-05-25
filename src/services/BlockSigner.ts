@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import newrelic from 'newrelic';
 import sort from 'fast-sort';
 import {Logger} from 'winston';
-import {LeafType, LeafValueCoder} from '@umb-network/toolbox';
+import {LeafValueCoder} from '@umb-network/toolbox';
 
 import FeedProcessor from './FeedProcessor';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
@@ -17,7 +17,7 @@ import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {BlockSignerResponse} from '../types/BlockSignerResponse';
 import {ethers} from 'ethers';
 
-import {generateAffidavit, signAffidavitWithWallet, sortLeaves} from '../utils/mining';
+import {chainReadyForNewBlock, generateAffidavit, signAffidavitWithWallet, sortLeaves} from '../utils/mining';
 import {calcDiscrepancy} from '../utils/math';
 
 @injectable()
@@ -30,10 +30,12 @@ class BlockSigner {
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
 
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
-    const chainStatus = await this.chainContract.resolveStatus();
+    const [, chainStatus] = await this.chainContract.resolveStatus();
 
-    if (!chainStatus.nextBlockHeight.eq(block.blockHeight)) {
-      throw Error(`Does not match with the current block ${chainStatus.nextBlockHeight}.`);
+    const [ready, error] = chainReadyForNewBlock(chainStatus, block.dataTimestamp);
+
+    if (!ready) {
+      throw Error(error);
     }
 
     this.logger.info(`Signing a block for ${chainStatus.nextLeader} at ${block.dataTimestamp}...`);
@@ -43,12 +45,11 @@ class BlockSigner {
 
     const proposedFcd = sortLeaves(BlockSigner.keyValuesToLeaves(block.fcd));
     const proposedFcdKeys: string[] = proposedFcd.map(({label}) => label);
-    const proposedFcdValues: number[] = proposedFcd.map(({valueBytes}) => LeafValueCoder.decode(valueBytes) as number);
+    const proposedFcdValues: number[] = proposedFcd.map(({valueBytes}) => LeafValueCoder.decode(valueBytes));
 
     const affidavit = generateAffidavit(
       block.dataTimestamp,
       proposedTree.getRoot(),
-      chainStatus.nextBlockHeight.toNumber(),
       proposedFcdKeys,
       proposedFcdValues,
     );
@@ -61,7 +62,7 @@ class BlockSigner {
 
     if (recoveredSigner !== chainStatus.nextLeader) {
       throw Error(
-        `Signature does not belong to the current leader, expected ${chainStatus.nextLeader} got ${recoveredSigner} at block ${chainStatus.blockNumber}/${chainStatus.nextBlockHeight}`,
+        `Signature does not belong to the current leader, expected ${chainStatus.nextLeader} got ${recoveredSigner} at block ${chainStatus.blockNumber}/${chainStatus.nextBlockId}`,
       );
     }
 
@@ -143,8 +144,8 @@ class BlockSigner {
         return;
       }
 
-      const proposedValue = LeafValueCoder.decode(proposedValueBytes) as number;
-      const value = LeafValueCoder.decode(leaf.valueBytes) as number;
+      const proposedValue = LeafValueCoder.decode(proposedValueBytes);
+      const value = LeafValueCoder.decode(leaf.valueBytes);
       const {discrepancy} = feeds[leaf.label];
 
       const diffPerc = calcDiscrepancy(value, proposedValue) * 100.0;
@@ -163,7 +164,7 @@ class BlockSigner {
 
   private static newLeaf(label: string, value: number): Leaf {
     const leaf = new Leaf();
-    leaf.valueBytes = '0x' + LeafValueCoder.encode(value, LeafType.TYPE_FLOAT).toString('hex');
+    leaf.valueBytes = '0x' + LeafValueCoder.encode(value).toString('hex');
     leaf.label = label;
 
     return leaf;

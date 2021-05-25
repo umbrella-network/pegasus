@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [3.0.0] - 2021-05-24
+
+### Added
+- collect consensus data from events
+
+### Changed
+- support storing only latest FCDs
+- support full `Chain` storage optimisation
+  
+### Removed
+- delete deprecated blocks on boot
+- remove `MerkleTree` class (use one from SDK)
+
 ## [2.0.4] - 2021-05-20
 ### Changed
 - Average CPI implemented

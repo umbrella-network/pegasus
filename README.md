@@ -91,6 +91,35 @@ First, compile the application:
 npm run build
 ```
 
+## Run
+
+### Local development
+
+```shell
+# Run core services (redis and MongoDB) through docker-compose
+docker-compose -f docker-compose.core.yml up
+# run in the debug mode
+npm run start:dev:scheduler
+# run in the debug mode
+npm run start:dev:worker -- --worker BlockMintingWorker
+# run in the debug mode
+npm run start:dev
+```
+
+### Local QA with multiple validators
+
+One-line command:
+```shell script
+cp example.env .env.node1
+docker-compose --env-file=.env.node1 build && docker-compose --env-file=.env.node1 up -d
+
+cp example.env .env.node2
+docker-compose --env-file=.env.node2 build && docker-compose --env-file=.env.node2 up -d
+
+cp example.env .env.node3
+docker-compose --env-file=.env.node3 build && docker-compose --env-file=.env.node3 up -d
+```
+
 ## Run core services (redis and MongoDB) through docker-compose
 
 ```shell script
@@ -145,7 +174,7 @@ npm run start:dev:scheduler
 npm run start
 
 # run in the debug mode
-npm start:dev
+npm run start:dev
 ```
 
 ## Edit On-Chain and L2 definitions 
@@ -153,19 +182,6 @@ npm start:dev
 ```shell script
 vi config/feeds.json
 vi config/feedsOnChain.json
-```
-
-## Running multiple validators
-One-line command:
-```shell script
-cp example.env .env.node1
-docker-compose --env-file=.env.node1 up -d
-
-cp example.env .env.node2
-docker-compose --env-file=.env.node2 up -d
-
-cp example.env .env.node3
-docker-compose --env-file=.env.node3 up -d
 ```
 
 # Testing
@@ -204,13 +220,13 @@ kubectl set env deployment/pegasus-worker REGISTRY_CONTRACT_ADDRESS='0x622c7725a
 ```json
 {
   "data": {
-    "numericFcdKeys": [
+    "fcdKeys": [
       [
         "eth-eur",
         "eth-usd"
       ]
     ],
-    "numericFcdValues": [
+    "fcdValues": [
       481.92,
       587.56
     ],

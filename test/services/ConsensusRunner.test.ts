@@ -18,6 +18,7 @@ import {Validator} from '../../src/types/Validator';
 import {BigNumber, Wallet} from 'ethers';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse';
+import {signAffidavitWithWallet} from '../../src/utils/mining';
 
 chai.use(chaiAsPromised);
 
@@ -75,20 +76,20 @@ describe('ConsensusRunner', () => {
   it('return empty object when not enough votes', async () => {
     mockedBlockchain.wallet = Wallet.createRandom();
 
+    const {leaf, affidavit} = leafWithAffidavit;
+
+    mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+
     mockedSignatureCollector.apply.resolves([
       {
         discrepancies: [],
         power: BigNumber.from(10),
-        signature: '123',
+        signature: await signAffidavitWithWallet(mockedBlockchain.wallet, affidavit),
         version: '1',
       },
     ] as BlockSignerResponseWithPower[]);
 
-    const {leaf} = leafWithAffidavit;
-
-    mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
-
-    const dataTimestamp = Date.now();
+    const dataTimestamp = 1621509082;
     const blockHeight = 234;
     const validators: Validator[] = [
       {
@@ -105,20 +106,20 @@ describe('ConsensusRunner', () => {
   it('consensus is successful', async () => {
     mockedBlockchain.wallet = Wallet.createRandom();
 
+    const {leaf, affidavit} = leafWithAffidavit;
+
     mockedSignatureCollector.apply.resolves([
       {
         discrepancies: [],
         power: BigNumber.from(15),
-        signature: '123',
+        signature: await signAffidavitWithWallet(mockedBlockchain.wallet, affidavit),
         version: '1',
       },
     ] as BlockSignerResponseWithPower[]);
 
-    const {leaf} = leafWithAffidavit;
-
     mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 
-    const dataTimestamp = Date.now();
+    const dataTimestamp = 1621509082;
     const blockHeight = 234;
     const validators: Validator[] = [
       {
@@ -150,7 +151,7 @@ describe('ConsensusRunner', () => {
 
     mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 
-    const dataTimestamp = Date.now();
+    const dataTimestamp = 1621509082;
     const blockHeight = 234;
     const validators: Validator[] = [
       {

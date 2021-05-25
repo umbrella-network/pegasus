@@ -7,14 +7,14 @@ import {Logger} from 'winston';
 class RevertedBlockResolver {
   @inject('Logger') logger!: Logger;
 
-  async apply(lastSubmittedBlockHeight: number, nextBlockHeight: number): Promise<number | undefined> {
-    if (lastSubmittedBlockHeight <= nextBlockHeight) {
+  async apply(lastSubmittedBlockId: number, nextBlockId: number): Promise<number | undefined> {
+    if (lastSubmittedBlockId <= nextBlockId) {
       return;
     }
 
-    this.logger.warn(`Block reverted: from ${lastSubmittedBlockHeight} --> ${nextBlockHeight}`);
-    const blockRes = await getModelForClass(Block).collection.deleteMany({height: {$gte: nextBlockHeight}});
-    this.logger.info(`because of reverts we deleted ${blockRes.deletedCount} blocks >= ${nextBlockHeight}`);
+    this.logger.warn(`Block reverted: from ${lastSubmittedBlockId} --> ${nextBlockId}`);
+    const blockRes = await getModelForClass(Block).collection.deleteMany({blockId: {$gte: nextBlockId}});
+    this.logger.info(`because of reverts we deleted ${blockRes.deletedCount} blocks >= ${nextBlockId}`);
 
     return blockRes.deletedCount;
   }

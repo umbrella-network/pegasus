@@ -1,13 +1,16 @@
 import {index, prop} from '@typegoose/typegoose';
 import {SchemaTypes} from 'mongoose';
-import {HexStringWith0x} from '../types/HexStringWith0x';
+import {HexStringWith0x} from '../types/custom';
 
 @index({timestamp: -1})
 @index({dataTimestamp: -1})
-@index({height: -1}, {unique: true})
+@index({blockId: -1}, {unique: true})
 class Block {
   @prop()
   _id!: string;
+
+  @prop()
+  chainAddress!: string;
 
   @prop()
   timestamp!: Date;
@@ -16,7 +19,22 @@ class Block {
   dataTimestamp!: Date;
 
   @prop()
-  height!: number;
+  blockId!: number;
+
+  @prop()
+  anchor!: number;
+
+  @prop()
+  minter!: string;
+
+  @prop()
+  staked!: string;
+
+  @prop()
+  power!: string;
+
+  @prop({type: SchemaTypes.Mixed})
+  votes!: Record<string, string>;
 
   @prop()
   root!: string;
@@ -29,10 +47,10 @@ class Block {
   data!: Record<string, HexStringWith0x>;
 
   @prop({type: () => [String]})
-  numericFcdKeys!: Array<string>;
+  fcdKeys!: Array<string>;
 
   @prop({type: () => [Number]})
-  numericFcdValues!: Array<number>;
+  fcdValues!: Array<number>;
 }
 
 export default Block;

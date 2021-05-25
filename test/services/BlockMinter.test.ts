@@ -23,7 +23,7 @@ import Block from '../../src/models/Block';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import TimeService from '../../src/services/TimeService';
-import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves} from '../../src/utils/mining';
+import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, timestamp} from '../../src/utils/mining';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -88,10 +88,10 @@ describe('BlockMinter', () => {
   describe('#sortLeaves', () => {
     it("sorts leaves based on leaf's label", async () => {
       const leaves: Leaf[] = [
-        {label: 'b', _id: '1', timestamp: new Date(), blockHeight: 1, valueBytes: '0x0'},
-        {label: 'a', _id: '1', timestamp: new Date(), blockHeight: 1, valueBytes: '0x0'},
-        {label: 'd', _id: '1', timestamp: new Date(), blockHeight: 1, valueBytes: '0x0'},
-        {label: 'c', _id: '1', timestamp: new Date(), blockHeight: 1, valueBytes: '0x0'},
+        {label: 'b', _id: '1', timestamp: new Date(), blockId: 1, valueBytes: '0x0'},
+        {label: 'a', _id: '1', timestamp: new Date(), blockId: 1, valueBytes: '0x0'},
+        {label: 'd', _id: '1', timestamp: new Date(), blockId: 1, valueBytes: '0x0'},
+        {label: 'c', _id: '1', timestamp: new Date(), blockId: 1, valueBytes: '0x0'},
       ];
       const resultingLeaves = sortLeaves(leaves);
 
@@ -107,7 +107,7 @@ describe('BlockMinter', () => {
 
   describe('#generateAffidavit', () => {
     it('generates affidavit successfully', () => {
-      const affidavit = generateAffidavit(1, ethers.utils.keccak256('0x1234'), 1, ['ETH-USD'], [100]);
+      const affidavit = generateAffidavit(1, ethers.utils.keccak256('0x1234'), ['ETH-USD'], [100]);
 
       expect(affidavit)
         .to.be.a('string')
@@ -144,17 +144,21 @@ describe('BlockMinter', () => {
       const wallet = Wallet.createRandom();
       mockedBlockchain.wallet = wallet;
 
-      mockedChainContract.resolveStatus.resolves({
-        blockNumber: BigNumber.from(1),
-        lastBlockHeight: BigNumber.from(0),
-        nextBlockHeight: BigNumber.from(1),
-        nextLeader: Wallet.createRandom().address,
-        validators: [wallet.address],
-        locations: ['abc'],
-        lastDataTimestamp: BigNumber.from(1),
-        powers: [BigNumber.from(1)],
-        staked: BigNumber.from(1),
-      });
+      mockedChainContract.resolveStatus.resolves([
+        '0x123',
+        {
+          blockNumber: BigNumber.from(1),
+          timePadding: 10,
+          lastBlockId: 1,
+          nextBlockId: 2,
+          nextLeader: Wallet.createRandom().address,
+          validators: [wallet.address, 'leader'],
+          locations: ['abc'],
+          lastDataTimestamp: timestamp(),
+          powers: [BigNumber.from(1)],
+          staked: BigNumber.from(1),
+        },
+      ]);
 
       await blockMinter.apply();
 
@@ -165,17 +169,21 @@ describe('BlockMinter', () => {
       const wallet = Wallet.createRandom();
       mockedBlockchain.wallet = wallet;
 
-      mockedChainContract.resolveStatus.resolves({
-        blockNumber: BigNumber.from(1),
-        lastBlockHeight: BigNumber.from(1),
-        nextBlockHeight: BigNumber.from(1),
-        nextLeader: wallet.address,
-        validators: [wallet.address],
-        locations: ['abc'],
-        lastDataTimestamp: BigNumber.from(1),
-        powers: [BigNumber.from(1)],
-        staked: BigNumber.from(1),
-      });
+      mockedChainContract.resolveStatus.resolves([
+        '0x123',
+        {
+          blockNumber: BigNumber.from(1),
+          timePadding: 100,
+          lastBlockId: 1,
+          nextBlockId: 1,
+          nextLeader: wallet.address,
+          validators: [wallet.address],
+          locations: ['abc'],
+          lastDataTimestamp: timestamp(),
+          powers: [BigNumber.from(1)],
+          staked: BigNumber.from(1),
+        },
+      ]);
 
       await blockMinter.apply();
 
@@ -183,28 +191,33 @@ describe('BlockMinter', () => {
     });
 
     it('passes right arguments to SignatureCollector', async () => {
-      const {leaf, affidavit, fcd} = leafWithAffidavit;
+      const {leaf, affidavit, fcd, timestamp} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedBlockchain.wallet = wallet;
 
-      mockedTimeService.apply.returns(10);
+      mockedTimeService.apply.returns(timestamp);
 
-      mockedChainContract.resolveStatus.resolves({
-        blockNumber: BigNumber.from(1),
-        lastBlockHeight: BigNumber.from(0),
-        nextBlockHeight: BigNumber.from(1),
-        nextLeader: wallet.address,
-        validators: [wallet.address],
-        locations: ['abc'],
-        lastDataTimestamp: BigNumber.from(1),
-        powers: [BigNumber.from(1)],
-        staked: BigNumber.from(1),
-      });
+      mockedChainContract.resolveStatus.resolves([
+        '0x123',
+        {
+          blockNumber: BigNumber.from(1),
+          timePadding: 1,
+          lastBlockId: 0,
+          nextBlockId: 1,
+          nextLeader: wallet.address,
+          validators: [wallet.address],
+          locations: ['abc'],
+          lastDataTimestamp: 1,
+          powers: [BigNumber.from(1)],
+          staked: BigNumber.from(1),
+        },
+      ]);
 
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+
       mockedSignatureCollector.apply.resolves([
         {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
       ]);
@@ -213,8 +226,7 @@ describe('BlockMinter', () => {
 
       expect(mockedSignatureCollector.apply.args[0][0]).to.be.deep.eq(
         {
-          dataTimestamp: 10,
-          blockHeight: 1,
+          dataTimestamp: timestamp,
           fcd: fcd,
           leaves: fcd,
           signature,
@@ -237,17 +249,21 @@ describe('BlockMinter', () => {
 
       mockedTimeService.apply.returns(10);
 
-      mockedChainContract.resolveStatus.resolves({
-        blockNumber: BigNumber.from(1),
-        lastBlockHeight: BigNumber.from(0),
-        nextBlockHeight: BigNumber.from(1),
-        nextLeader: wallet.address,
-        validators: [wallet.address],
-        locations: ['abc'],
-        lastDataTimestamp: BigNumber.from(1),
-        powers: [BigNumber.from(1)],
-        staked: BigNumber.from(1),
-      });
+      mockedChainContract.resolveStatus.resolves([
+        '0x123',
+        {
+          blockNumber: BigNumber.from(1),
+          timePadding: 1,
+          lastBlockId: 0,
+          nextBlockId: 1,
+          nextLeader: wallet.address,
+          validators: [wallet.address],
+          locations: ['abc'],
+          lastDataTimestamp: 1,
+          powers: [BigNumber.from(1)],
+          staked: BigNumber.from(1),
+        },
+      ]);
 
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
 
@@ -275,17 +291,21 @@ describe('BlockMinter', () => {
 
       mockedTimeService.apply.returns(10);
 
-      mockedChainContract.resolveStatus.resolves({
-        blockNumber: BigNumber.from(1),
-        lastBlockHeight: BigNumber.from(0),
-        nextBlockHeight: BigNumber.from(1),
-        nextLeader: wallet.address,
-        validators: [wallet.address],
-        locations: ['abc'],
-        lastDataTimestamp: BigNumber.from(1),
-        powers: [BigNumber.from(1)],
-        staked: BigNumber.from(1),
-      });
+      mockedChainContract.resolveStatus.resolves([
+        '0x123',
+        {
+          blockNumber: BigNumber.from(1),
+          timePadding: 0,
+          lastBlockId: 1,
+          nextBlockId: 1,
+          nextLeader: wallet.address,
+          validators: [wallet.address],
+          locations: ['abc'],
+          lastDataTimestamp: 1,
+          powers: [BigNumber.from(1)],
+          staked: BigNumber.from(1),
+        },
+      ]);
 
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
 
@@ -293,12 +313,34 @@ describe('BlockMinter', () => {
         [leaf, leaf],
         [leaf, leaf],
       ]);
+
       mockedSignatureCollector.apply.resolves([
         {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
       ]);
+
       mockedChainContract.submit.resolves({
-        wait: () => Promise.resolve({status: 1, transactionHash: '123'}),
-      } as any); // throw error when trying to submit minted block
+        wait: () =>
+          Promise.resolve({
+            status: 1,
+            transactionHash: '123',
+            logs: [
+              {
+                transactionIndex: 0,
+                blockNumber: 6618,
+                transactionHash: '0x17063b26e48f5d9862688aac0ce693e2dfc4d8d9f230573c331e6616d7a85b55',
+                address: '0xc4905364b78a742ccce7B890A89514061E47068D',
+                topics: [
+                  '0x5f11830295067c4bcc7d02d4e3b048cd7427be50a3aeb6afc9d3d559ee64bcfa',
+                  '0x000000000000000000000000998cb7821e605cc16b6174e7c50e19adb2dd2fb0',
+                ],
+                data:
+                  '0x000000000000000000000000000000000000000000000000000000000000033f00000000000000000000000000000000000000000000000029a2241af62c00000000000000000000000000000000000000000000000000001bc16d674ec80000',
+                logIndex: 1,
+                blockHash: '0x7422c3bf9cda4cd91e282a495945d4b4ff310a06a67614e806bf6bb244527225',
+              },
+            ],
+          }),
+      } as any);
 
       await blockMinter.apply();
 

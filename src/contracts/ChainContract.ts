@@ -18,9 +18,9 @@ class ChainContract {
     this.blockchain = blockchain;
   }
 
-  async resolveStatus(): Promise<ChainStatus> {
+  async resolveStatus(): Promise<[address: string, status: ChainStatus]> {
     const contract = await this.resolveContract();
-    return contract.getStatus();
+    return Promise.all([contract.address, contract.getStatus()]);
   }
 
   resolveValidators(chainStatus: ChainStatus): Validator[] {
@@ -33,15 +33,15 @@ class ChainContract {
     });
   }
 
-  async getAddress(): Promise<string> {
+  async resolveAddress(): Promise<string> {
     return (await this.resolveContract()).address;
   }
 
   async submit(
     dataTimestamp: number,
     root: string,
-    keys: string[],
-    values: string[],
+    keys: Buffer[],
+    values: Buffer[],
     v: number[],
     r: string[],
     s: string[],

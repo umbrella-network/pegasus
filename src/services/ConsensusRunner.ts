@@ -2,7 +2,7 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
-import {converters, LeafValueCoder} from '@umb-network/toolbox';
+import {LeafValueCoder} from '@umb-network/toolbox';
 
 import FeedProcessor from './FeedProcessor';
 import RevertedBlockResolver from './RevertedBlockResolver';
@@ -21,7 +21,7 @@ import Settings from '../types/Settings';
 import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
-import {sortLeaves, generateAffidavit, signAffidavitWithWallet} from '../utils/mining';
+import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
 
 @injectable()
 class ConsensusRunner {
@@ -62,7 +62,6 @@ class ConsensusRunner {
 
       const dataForConsensus: DataForConsensus = await this.getDataForConsensus(
         dataTimestamp,
-        blockHeight,
         firstClassLeaves,
         leaves,
       );
@@ -88,17 +87,16 @@ class ConsensusRunner {
     validators: Validator[],
     staked: BigNumber,
   ): Promise<{consensus: Consensus | null; discrepanciesKeys: Set<string>}> {
-    const {numericFcdKeys, numericFcdValues, leaves} = dataForConsensus;
+    const {fcdKeys, fcdValues, leaves} = dataForConsensus;
 
     const signedBlock: SignedBlock = {
-      blockHeight: dataForConsensus.blockHeight,
       dataTimestamp: dataForConsensus.dataTimestamp,
       leaves: this.leavesToKeyValues(leaves),
-      fcd: this.fcdToKeyValues(numericFcdKeys, numericFcdValues),
+      fcd: this.fcdToKeyValues(fcdKeys, fcdValues),
       signature: await signAffidavitWithWallet(this.blockchain.wallet, dataForConsensus.affidavit),
     };
 
-    this.logger.info(`Running consensus for ${dataForConsensus.blockHeight} with ${validators.length} validators...`);
+    this.logger.info(`Running consensus at ${dataForConsensus.dataTimestamp} with ${validators.length} validators...`);
 
     const blockSignerResponsesWithPowers = await this.signatureCollector.apply(
       signedBlock,
@@ -114,14 +112,13 @@ class ConsensusRunner {
 
     return {
       consensus: {
-        blockHeight: signedBlock.blockHeight,
         dataTimestamp: signedBlock.dataTimestamp,
         leaves,
-        numericFcdKeys,
-        numericFcdValues,
+        fcdKeys,
+        fcdValues,
         power: powers,
         root: dataForConsensus.root,
-        signatures: signatures,
+        signatures: sortSignaturesBySigner(signatures, dataForConsensus.affidavit),
       },
       discrepanciesKeys: new Set<string>(),
     };
@@ -133,8 +130,8 @@ class ConsensusRunner {
     );
   }
 
-  private fcdToKeyValues(numericFcdKeys: string[], numericFcdValues: number[]): KeyValues {
-    return Object.fromEntries(numericFcdKeys.map((_, idx) => [numericFcdKeys[idx], numericFcdValues[idx]]));
+  private fcdToKeyValues(fcdKeys: string[], fcdValues: number[]): KeyValues {
+    return Object.fromEntries(fcdKeys.map((_, idx) => [fcdKeys[idx], fcdValues[idx]]));
   }
 
   private hasConsensus(powers: BigNumber, staked: BigNumber): boolean {
@@ -152,26 +149,24 @@ class ConsensusRunner {
 
   private async getDataForConsensus(
     dataTimestamp: number,
-    blockHeight: number,
     firstClassLeaves: Leaf[],
     leaves: Leaf[],
   ): Promise<DataForConsensus> {
     const tree = this.sortedMerkleTreeFactory.apply(sortLeaves(leaves));
     const sortedFirstClassLeaves = sortLeaves(firstClassLeaves);
-    const numericFcdKeys: string[] = sortedFirstClassLeaves.map(({label}) => label);
+    const fcdKeys: string[] = sortedFirstClassLeaves.map(({label}) => label);
 
-    const numericFcdValues: number[] = sortedFirstClassLeaves.map(
+    const fcdValues: number[] = sortedFirstClassLeaves.map(
       ({valueBytes}) => LeafValueCoder.decode(valueBytes) as number,
     );
 
-    const affidavit = generateAffidavit(dataTimestamp, tree.getRoot(), blockHeight, numericFcdKeys, numericFcdValues);
+    const affidavit = generateAffidavit(dataTimestamp, tree.getRoot(), fcdKeys, fcdValues);
 
     return {
       dataTimestamp,
       affidavit,
-      blockHeight,
-      numericFcdKeys,
-      numericFcdValues,
+      fcdKeys,
+      fcdValues,
       leaves,
       root: tree.getRoot(),
     };
@@ -247,25 +242,6 @@ class ConsensusRunner {
 
   static sortLeaves(feeds: Leaf[]): Leaf[] {
     return sort(feeds).asc(({label}) => label);
-  }
-
-  static generateAffidavit(
-    dataTimestamp: number,
-    root: string,
-    blockHeight: BigNumber,
-    numericFCDKeys: string[],
-    numericFCDValues: number[],
-  ): string {
-    const encoder = new ethers.utils.AbiCoder();
-    let testimony = encoder.encode(['uint256', 'uint256', 'bytes32'], [blockHeight, dataTimestamp, root]);
-
-    numericFCDKeys.forEach((key, i) => {
-      testimony += ethers.utils.defaultAbiCoder
-        .encode(['bytes32', 'uint256'], [converters.strToBytes32(key), converters.numberToUint256(numericFCDValues[i])])
-        .slice(2);
-    });
-
-    return ethers.utils.keccak256(testimony);
   }
 
   static async signAffidavitWithWallet(wallet: Wallet, affidavit: string): Promise<string> {

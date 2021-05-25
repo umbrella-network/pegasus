@@ -1,7 +1,12 @@
 import {ethers, Wallet} from 'ethers';
-import {converters} from '@umb-network/toolbox';
+import {LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
 import Leaf from '../models/Leaf';
 import sort from 'fast-sort';
+import {ChainStatus} from '../types/ChainStatus';
+import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
+
+const abiUintEncoder = (n: number | string, bits = 256): string =>
+  (typeof n === 'number' ? n.toString(16) : remove0x(n)).padStart(bits / 4, '0');
 
 export const recoverSigner = (affidavit: string, signature: string): string => {
   const pubKey = ethers.utils.recoverPublicKey(
@@ -23,16 +28,14 @@ export const signAffidavitWithWallet = async (wallet: Wallet, affidavit: string)
 export const generateAffidavit = (
   dataTimestamp: number,
   root: string,
-  blockHeight: number,
-  numericFCDKeys: string[],
-  numericFCDValues: number[],
+  fcdKeys: string[],
+  fcdValues: number[],
 ): string => {
-  const encoder = new ethers.utils.AbiCoder();
-  let testimony = encoder.encode(['uint256', 'uint256', 'bytes32'], [blockHeight, dataTimestamp, root]);
+  let testimony = `0x${abiUintEncoder(dataTimestamp, 32)}${root.replace('0x', '')}`;
 
-  numericFCDKeys.forEach((key, i) => {
+  fcdKeys.forEach((key, i) => {
     testimony += ethers.utils.defaultAbiCoder
-      .encode(['bytes32', 'uint256'], [converters.strToBytes32(key), converters.numberToUint256(numericFCDValues[i])])
+      .encode(['bytes32', 'uint256'], [LeafKeyCoder.encode(key), LeafValueCoder.encode(fcdValues[i])])
       .slice(2);
   });
 
@@ -42,3 +45,33 @@ export const generateAffidavit = (
 export const sortLeaves = (feeds: Leaf[]): Leaf[] => {
   return sort(feeds).asc(({label}) => label);
 };
+
+export const chainReadyForNewBlock = (
+  chainStatus: ChainStatus,
+  newDataTimestamp: number,
+): [ready: boolean, error: string | undefined] => {
+  const timestamp = Math.trunc(Date.now() / 1000);
+
+  if (chainStatus.lastDataTimestamp + chainStatus.timePadding > timestamp) {
+    return [false, `skipping ${chainStatus.nextBlockId.toString()}: do not spam`];
+  }
+
+  if (newDataTimestamp <= chainStatus.lastDataTimestamp) {
+    return [
+      false,
+      `skipping ${chainStatus.nextBlockId.toString()}, can NOT submit older data ${
+        chainStatus.lastDataTimestamp
+      } vs ${newDataTimestamp}`,
+    ];
+  }
+
+  return [true, undefined];
+};
+
+export const sortSignaturesBySigner = (signatures: string[], affidavit: string): string[] =>
+  signatures
+    .map((signature) => [recoverSigner(affidavit, signature), signature])
+    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    .map(([, signature]) => signature);
+
+export const timestamp = (): number => Math.trunc(Date.now() / 1000);

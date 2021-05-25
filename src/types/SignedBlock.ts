@@ -3,7 +3,6 @@ export interface KeyValues {
 }
 
 export interface SignedBlock {
-  blockHeight: number;
   dataTimestamp: number;
   fcd: KeyValues;
   leaves: KeyValues;
