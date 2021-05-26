@@ -4,6 +4,9 @@ type Settings = {
     blockCreation: {
       interval: number;
     };
+    metricsReporting: {
+      interval: number;
+    };
   };
   redis: {
     url: string;

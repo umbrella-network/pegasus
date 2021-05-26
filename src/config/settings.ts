@@ -9,6 +9,9 @@ const settings: Settings = {
     blockCreation: {
       interval: parseInt(process.env.BLOCK_CREATION_JOB_INTERVAL || '1000'),
     },
+    metricsReporting: {
+      interval: parseInt(process.env.METRICS_REPORTING_JOB_INTERVAL || '60000'),
+    },
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
