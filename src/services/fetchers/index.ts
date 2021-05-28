@@ -1,4 +1,4 @@
-import CryptoComparePriceFetcher from './CryptoComparePriceFetcher';
+import CryptoComparePriceMultiFetcher from './CryptoComparePriceMultiFetcher';
 import CryptoCompareHistoHourFetcher from './CryptoCompareHistoHourFetcher';
 import CryptoCompareHistoDayFetcher from './CryptoCompareHistoDayFetcher';
 import GVolImpliedVolatilityFetcher from './GVolImpliedVolatilityFetcher';
@@ -12,7 +12,7 @@ import BEACPIAverageFetcher from './BEACPIAverageFetcher';
 export {
   CryptoComparePriceWSFetcher,
   PolygonIOPriceFetcher,
-  CryptoComparePriceFetcher,
+  CryptoComparePriceMultiFetcher,
   CryptoCompareHistoDayFetcher,
   CryptoCompareHistoHourFetcher,
   GVolImpliedVolatilityFetcher,

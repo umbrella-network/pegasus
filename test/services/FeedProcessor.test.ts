@@ -19,7 +19,7 @@ describe('FeedProcessor', () => {
   const mockedFetchers = {
     CryptoCompareHistoHourFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CryptoCompareHistoHourFetcher>,
     CryptoCompareHistoDayFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CryptoCompareHistoDayFetcher>,
-    CryptoComparePriceFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CryptoComparePriceFetcher>,
+    CryptoComparePriceMultiFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CryptoComparePriceMultiFetcher>,
     GVolImpliedVolatilityFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.GVolImpliedVolatilityFetcher>,
     PolygonIOPriceFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.PolygonIOPriceFetcher>,
     CryptoComparePriceWSFetcher: (null as unknown) as sinon.SinonStubbedInstance<fetchers.CryptoComparePriceWSFetcher>,
@@ -34,7 +34,7 @@ describe('FeedProcessor', () => {
   beforeEach(async () => {
     mockedFetchers.CryptoCompareHistoHourFetcher = sinon.createStubInstance(fetchers.CryptoCompareHistoHourFetcher);
     mockedFetchers.CryptoCompareHistoDayFetcher = sinon.createStubInstance(fetchers.CryptoCompareHistoDayFetcher);
-    mockedFetchers.CryptoComparePriceFetcher = sinon.createStubInstance(fetchers.CryptoComparePriceFetcher);
+    mockedFetchers.CryptoComparePriceMultiFetcher = sinon.createStubInstance(fetchers.CryptoComparePriceMultiFetcher);
     mockedFetchers.GVolImpliedVolatilityFetcher = sinon.createStubInstance(fetchers.GVolImpliedVolatilityFetcher);
     mockedFetchers.PolygonIOPriceFetcher = sinon.createStubInstance(fetchers.PolygonIOPriceFetcher);
     mockedFetchers.CryptoComparePriceWSFetcher = sinon.createStubInstance(fetchers.CryptoComparePriceWSFetcher);
@@ -59,7 +59,7 @@ describe('FeedProcessor', () => {
     container
       .bind(fetchers.CryptoCompareHistoDayFetcher)
       .toConstantValue(mockedFetchers.CryptoCompareHistoDayFetcher as any);
-    container.bind(fetchers.CryptoComparePriceFetcher).toConstantValue(mockedFetchers.CryptoComparePriceFetcher as any);
+    container.bind(fetchers.CryptoComparePriceMultiFetcher).toConstantValue(mockedFetchers.CryptoComparePriceMultiFetcher as any);
     container
       .bind(fetchers.GVolImpliedVolatilityFetcher)
       .toConstantValue(mockedFetchers.GVolImpliedVolatilityFetcher as any);

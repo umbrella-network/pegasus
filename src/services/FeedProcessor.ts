@@ -29,7 +29,8 @@ class FeedProcessor {
     @inject(fetchers.CryptoCompareHistoHourFetcher)
     CryptoCompareHistoHourFetcher: fetchers.CryptoCompareHistoHourFetcher,
     @inject(fetchers.CryptoCompareHistoDayFetcher) CryptoCompareHistoDayFetcher: fetchers.CryptoCompareHistoDayFetcher,
-    @inject(fetchers.CryptoComparePriceFetcher) CryptoComparePriceFetcher: fetchers.CryptoComparePriceFetcher,
+    @inject(fetchers.CryptoComparePriceMultiFetcher)
+    CryptoComparePriceMultiFetcher: fetchers.CryptoComparePriceMultiFetcher,
     @inject(fetchers.GVolImpliedVolatilityFetcher) GVolImpliedVolatilityFetcher: fetchers.GVolImpliedVolatilityFetcher,
     @inject(fetchers.PolygonIOPriceFetcher) PolygonIOPriceFetcher: fetchers.PolygonIOPriceFetcher,
     @inject(fetchers.CryptoComparePriceWSFetcher) CryptoComparePriceWSFetcher: fetchers.CryptoComparePriceWSFetcher,
@@ -39,7 +40,7 @@ class FeedProcessor {
     @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
   ) {
     this.fetchers = {
-      CryptoComparePriceFetcher,
+      CryptoComparePriceMultiFetcher,
       CryptoCompareHistoHourFetcher,
       GVolImpliedVolatilityFetcher,
       CryptoCompareHistoDayFetcher,
@@ -74,13 +75,30 @@ class FeedProcessor {
       );
     });
 
+    const {cryptoCompare, otherInputs} = this.separateInputs(uniqueInputsMap);
+
     const inputIndexByHash: {[hash: string]: number} = {};
 
-    Object.keys(uniqueInputsMap).forEach((hash, index) => {
+    // Hardcoded cryptoCompare to be first, cause I put it first on Promise.all below.
+    // The current logic requires inputs to not be reordered after them are indexed.
+    // I'd try to figure out another strategy like handling objects with prices at processors/fetchers.
+    const reorderedInputs = {...cryptoCompare, ...otherInputs};
+
+    Object.keys(reorderedInputs).forEach((hash, index) => {
       inputIndexByHash[hash] = index;
     });
 
-    const values = await Promise.all(Object.values(uniqueInputsMap).map((input) => this.processFeed(input, timestamp)));
+    const condensatedInput = this.condensateMultiInputs(Object.values(cryptoCompare));
+
+    const feedValues = await Promise.all<number | number[] | undefined>([
+      this.processMultiFeed(condensatedInput, timestamp),
+      ...Object.values(otherInputs).map((input: any) => this.processFeed(input, timestamp)),
+    ]);
+
+    const multiFeed = feedValues[0] as number[];
+    const singleFeeds = feedValues.slice(1) as (number | undefined)[];
+
+    const values = [...multiFeed, ...singleFeeds];
 
     const result: Leaf[][] = [];
     const ignoredMap: {[string: string]: boolean} = {};
@@ -136,6 +154,34 @@ class FeedProcessor {
     return;
   }
 
+  async processMultiFeed(feedInput: FeedInput | undefined, timestamp: number): Promise<number[]> {
+    if (feedInput === undefined) {
+      return []
+    }
+
+    const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
+    if (!fetcher) {
+      throw new Error('No fetcher specified.');
+    }
+
+    const calculate: Calculator = this.calculators[`calculate${feedInput.calculator?.name || 'Identity'}`];
+
+    let values;
+    try {
+      values = await fetcher.apply(feedInput.fetcher.params, timestamp);
+    } catch (err) {
+      this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
+      return [];
+    }
+
+    if (values) {
+      const v = Object.values(values);
+      return v.map(calculate);
+    }
+
+    return [];
+  }
+
   private buildLeaf = (leafLabel: string, leafValue: number): Leaf => {
     const leaf = new Leaf();
     leaf._id = uuid();
@@ -151,6 +197,64 @@ class FeedProcessor {
     const priceMedian = Math.round(price.median(values.map((value) => value)) * multi) / multi;
 
     return this.buildLeaf(leafLabel, priceMedian);
+  }
+
+  private separateInputs(uniqueInputsMap: {[hash: string]: FeedInput}) {
+    const inputMapArr = Object.values(uniqueInputsMap);
+    const inputKeys = Object.keys(uniqueInputsMap);
+
+    const inputsObj = inputMapArr.reduce(
+      (acc: any, input: FeedInput, index: number) => {
+        if (input.fetcher.name === 'CryptoComparePrice') {
+          acc.cryptoCompare = {...acc.cryptoCompare, [inputKeys[index]]: input};
+        } else {
+          acc.otherInputs = {...acc.otherInputs, [inputKeys[index]]: input};
+        }
+
+        return acc;
+      },
+      {
+        cryptoCompare: {},
+        otherInputs: {},
+      }
+    );
+
+    return inputsObj;
+  }
+
+  private shouldCondensate(inputMapArr: FeedInput[]) {
+    return Boolean(inputMapArr.length);
+  }
+
+  private condensateMultiInputs(inputMapArr: FeedInput[]): FeedInput | undefined{
+    if (this.shouldCondensate(inputMapArr)) {
+      const condensatedInput = inputMapArr.reduce(
+        // TODO: Should FeedFetcher.params type be a Record type?
+        (acc, input: any) => {
+          const {fsym, tsyms} = input.fetcher.params;
+
+          !acc.fsym.includes(fsym) && acc.fsym.push(fsym);
+          !acc.tsyms.includes(tsyms) && acc.tsyms.push(tsyms);
+
+          return acc;
+        },
+        {
+          fsym: [] as (number | string)[],
+          tsyms: [] as (number | string)[],
+        },
+      );
+
+      const result = inputMapArr[0];
+
+      return {
+        ...result,
+        fetcher: {
+          name: result.fetcher.name + 'Multi',
+          params: condensatedInput,
+        },
+      };
+    }
+    return;
   }
 }
 
