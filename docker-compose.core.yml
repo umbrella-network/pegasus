@@ -15,7 +15,7 @@ services:
     image: redis:5.0-alpine
     command: redis-server
     ports:
-      - "6379"
+      - "6379:6379"
     volumes:
       - ./tmp/${COMPOSE_PROJECT_NAME}/fs/redis:/data
     networks:
