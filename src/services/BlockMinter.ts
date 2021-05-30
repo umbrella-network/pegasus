@@ -118,7 +118,7 @@ class BlockMinter {
 
       if (receipt.status !== 1) {
         newrelic.recordCustomEvent('FailedTransaction', {
-          "transactionHash": receipt.transactionHash
+          transactionHash: receipt.transactionHash,
         });
         return null;
       }
