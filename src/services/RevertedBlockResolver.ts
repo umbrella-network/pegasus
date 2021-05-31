@@ -1,5 +1,6 @@
 import {getModelForClass} from '@typegoose/typegoose';
 import {inject, injectable} from 'inversify';
+import newrelic from 'newrelic';
 import Block from '../models/Block';
 import {Logger} from 'winston';
 
@@ -13,6 +14,10 @@ class RevertedBlockResolver {
     }
 
     this.logger.warn(`Block reverted: from ${lastSubmittedBlockId} --> ${nextBlockId}`);
+    newrelic.recordCustomEvent('BlockReverted', {
+      lastSubmittedBlockId: lastSubmittedBlockId,
+      nextBlockId: nextBlockId,
+    });
     const blockRes = await getModelForClass(Block).collection.deleteMany({blockId: {$gte: nextBlockId}});
     this.logger.info(`because of reverts we deleted ${blockRes.deletedCount} blocks >= ${nextBlockId}`);
 
