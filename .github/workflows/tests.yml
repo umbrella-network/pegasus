@@ -54,18 +54,18 @@ jobs:
   remote_tests:
     runs-on: ubuntu-latest
     needs: tests
-    if: github.ref == 'refs/heads/feature/OR-536_E2E-testing-CrossRepositories'
+    if: github.ref == 'refs/heads/develop'
     
     steps:
       - name: Call Reff App Test for Develop
         run: |
           curl -X POST https://api.github.com/repos/umbrella-network/babel/dispatches \
           -H 'Accept: application/vnd.github.v3+json' \
-          -u ${{ secrets.BOT_GITHUB_TOKEN }} \
+          -u 'umb-dev:${{ secrets.BOT_GITHUB_TOKEN }}' \
           --data '{"event_type": "Reff_App_Test_Develop", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
       - name: Call SDK Test for Develop
         run: |
           curl -X POST https://api.github.com/repos/umbrella-network/canvas/dispatches \
           -H 'Accept: application/vnd.github.v3+json' \
-          -u ${{ secrets.BOT_GITHUB_TOKEN }} \
+          -u 'umb-dev:${{ secrets.BOT_GITHUB_TOKEN }}' \
           --data '{"event_type": "SDK_Test_Develop", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'

@@ -5,7 +5,6 @@ on:
       - "tests"
     branches: 
       - main
-      - feature/OR-536_E2E-testing-CrossRepositories
     types: 
       - completed
   workflow_dispatch:
