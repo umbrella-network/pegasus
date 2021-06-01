@@ -16,7 +16,7 @@ class CryptoComparePriceMultiFetcher {
     this.timeout = settings.api.cryptocompare.timeout;
   }
 
-  async apply(params: any): Promise<number> {
+  async apply(params: {fsym: string[], tsyms: string[]}) {
     const {fsym, tsyms} = params;
 
     const sourceUrl =  `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${fsym.join(',')}&tsyms=${tsyms.join(',')}`
@@ -35,12 +35,25 @@ class CryptoComparePriceMultiFetcher {
       throw new Error(response.data.Message);
     }
 
-    const r = this.extractValue(response.data, '$.*');
-    return r;
+    return this.extractValues(response.data, '$.*');
   }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractValue = (data: any, valuePath: string): number => {
-    return JSONPath({json: data, path: valuePath})[0];
+  private extractValues = (data: any, valuePath: string) => {
+    interface valuePairs {fsym: string, tsyms: string, value: number};
+
+    const valuePairsArr: valuePairs[] = [];
+    const valuesArrays = JSONPath({json: data, path: valuePath});
+    const fromKeys = Object.keys(data);
+
+    fromKeys.forEach((fk, index) => {
+      const toKeys = Object.keys(valuesArrays[index]); 
+      toKeys.forEach(tk => {
+        valuePairsArr.push({fsym: fk, tsyms: tk, value: valuesArrays[index][tk]});
+      });
+    });
+
+    return valuePairsArr;
   }
 }
 

@@ -3,21 +3,13 @@ export interface FeedFetcher {
   params?: Map<string, string | number>;
 }
 
-export interface MultiFeedFetcher {
-  name: string;
-  params: {
-    fsym: (string | number)[],
-    tsyms: (string | number)[]
-  };
-}
-
 export interface FeedCalculator {
   name: string;
   params?: Map<string, string | number>;
 }
 
 export interface FeedInput {
-  fetcher: FeedFetcher | MultiFeedFetcher;
+  fetcher: FeedFetcher;
   calculator: FeedCalculator;
 }
 

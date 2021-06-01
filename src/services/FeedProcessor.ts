@@ -8,7 +8,20 @@ import {LeafValueCoder} from '@umb-network/toolbox';
 import Leaf from './../models/Leaf';
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
-import Feeds, {FeedInput} from '../types/Feed';
+import Feeds, {FeedInput, FeedCalculator} from '../types/Feed';
+
+export interface MultiFeedFetcher {
+  name: string;
+  params: {
+    fsym: (string | number)[];
+    tsyms: (string | number)[];
+  };
+}
+
+export interface MultiFeedInput {
+  fetcher: MultiFeedFetcher;
+  calculator: FeedCalculator;
+}
 
 interface Fetcher {
   // eslint-disable-next-line
@@ -77,21 +90,8 @@ class FeedProcessor {
 
     const {cryptoCompare, otherInputs} = this.separateInputs(uniqueInputsMap);
 
-    const inputIndexByHash: {[hash: string]: number} = {};
-
-    // Hardcoded cryptoCompare to be first, cause I put it first on Promise.all below.
-    // The current logic requires inputs to not be reordered after them are indexed.
-    // I'd try to figure out another strategy like handling objects with prices at processors/fetchers.
-    const reorderedInputs = {...cryptoCompare, ...otherInputs};
-
-    Object.keys(reorderedInputs).forEach((hash, index) => {
-      inputIndexByHash[hash] = index;
-    });
-
-    const condensatedInput = this.condensateMultiInputs(Object.values(cryptoCompare));
-
     const feedValues = await Promise.all<number | number[] | undefined>([
-      this.processMultiFeed(condensatedInput, timestamp),
+      this.processMultiFeed(cryptoCompare, timestamp),
       ...Object.values(otherInputs).map((input: any) => this.processFeed(input, timestamp)),
     ]);
 
@@ -100,23 +100,33 @@ class FeedProcessor {
 
     const values = [...multiFeed, ...singleFeeds];
 
+    // Hardcoded cryptoCompare to be first, cause I put it first on Promise.all.
+    // The current logic requires inputs to not be reordered after them are indexed.
+    // I'd try to figure out another strategy like handling objects with prices at processors/fetchers.
+    const reorderedInputs = {...cryptoCompare, ...otherInputs};
+
+    const inputIndexByHash: {[hash: string]: number} = {};
+
+    Object.keys(reorderedInputs).forEach((hash, index) => {
+      inputIndexByHash[hash] = index;
+    });
+
     const result: Leaf[][] = [];
     const ignoredMap: {[string: string]: boolean} = {};
 
     feedsArray.forEach((feeds) => {
-      const keys = Object.keys(feeds);
+      const tickers = Object.keys(feeds);
       const leaves: Leaf[] = [];
 
-      keys.forEach((key) => {
-        const feed = feeds[key];
+      tickers.forEach((ticker) => {
+        const feed = feeds[ticker];
         const feedValues = feed.inputs
           .map((input) => values[inputIndexByHash[hash(input)]])
           .filter((item) => item !== undefined) as number[];
-
         if (feedValues.length) {
-          leaves.push(this.calculateMedian(feedValues, key, feed.precision));
+          leaves.push(this.calculateMedian(feedValues, ticker, feed.precision));
         } else {
-          ignoredMap[key] = true;
+          ignoredMap[ticker] = true;
         }
       });
 
@@ -131,11 +141,17 @@ class FeedProcessor {
     return result;
   }
 
-  async processFeed(feedInput: FeedInput, timestamp: number): Promise<number | undefined> {
+  private findFetcher(feedInput: FeedInput | MultiFeedInput) {
     const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
     if (!fetcher) {
       throw new Error('No fetcher specified.');
     }
+
+    return fetcher;
+  }
+
+  async processFeed(feedInput: FeedInput, timestamp: number): Promise<number | undefined> {
+    const fetcher = this.findFetcher(feedInput);
 
     const calculate: Calculator = this.calculators[`calculate${feedInput.calculator?.name || 'Identity'}`];
 
@@ -154,32 +170,39 @@ class FeedProcessor {
     return;
   }
 
-  async processMultiFeed(feedInput: FeedInput | undefined, timestamp: number): Promise<number[]> {
-    if (feedInput === undefined) {
-      return []
-    }
+  async processMultiFeed(feedInputs: FeedInput[], timestamp: number): Promise<number[]> {
+    const condensatedFeedInputs = this.condensateMultiInputs(feedInputs);
 
-    const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
-    if (!fetcher) {
-      throw new Error('No fetcher specified.');
-    }
-
-    const calculate: Calculator = this.calculators[`calculate${feedInput.calculator?.name || 'Identity'}`];
-
-    let values;
-    try {
-      values = await fetcher.apply(feedInput.fetcher.params, timestamp);
-    } catch (err) {
-      this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
+    if (condensatedFeedInputs === undefined) {
       return [];
     }
 
-    if (values) {
-      const v = Object.values(values);
-      return v.map(calculate);
-    }
+    const fetcher = this.findFetcher(condensatedFeedInputs);
 
-    return [];
+    let values;
+    try {
+      values = await fetcher.apply(condensatedFeedInputs.fetcher.params, timestamp);
+      return this.orderInputValues(feedInputs, values);
+    } catch (err) {
+      this.logger.warn(`Ignored feed ${JSON.stringify(condensatedFeedInputs)} due to an error.`, err);
+      return [];
+    }
+  }
+
+  private orderInputValues(feedInputs: FeedInput[], values: {fsym: string; tsyms: string; value: number}[]): number[] {
+    const feedInputValues = Object.values(feedInputs);
+    const valuesArr: number[] = [];
+
+    feedInputValues.forEach((input: any) => {
+      const foundValue = values.find((value) => {
+        return input.fetcher.params.fsym === value.fsym && input.fetcher.params.tsyms === value.tsyms;
+      });
+
+      if (foundValue) {
+        valuesArr.push(foundValue.value);
+      }
+    });
+    return valuesArr;
   }
 
   private buildLeaf = (leafLabel: string, leafValue: number): Leaf => {
@@ -199,11 +222,15 @@ class FeedProcessor {
     return this.buildLeaf(leafLabel, priceMedian);
   }
 
+  // CryptoCompare shall fetch many combinations in just one call,
+  // so it'll be separated from other inputs.
   private separateInputs(uniqueInputsMap: {[hash: string]: FeedInput}) {
     const inputMapArr = Object.values(uniqueInputsMap);
     const inputKeys = Object.keys(uniqueInputsMap);
 
+    // TODO change reduce to forEach because of speed
     const inputsObj = inputMapArr.reduce(
+      // TODO avoid any
       (acc: any, input: FeedInput, index: number) => {
         if (input.fetcher.name === 'CryptoComparePrice') {
           acc.cryptoCompare = {...acc.cryptoCompare, [inputKeys[index]]: input};
@@ -222,39 +249,40 @@ class FeedProcessor {
     return inputsObj;
   }
 
-  private shouldCondensate(inputMapArr: FeedInput[]) {
-    return Boolean(inputMapArr.length);
-  }
+  // Instead of a single ticker per param, it'll have an array of them.
+  private condensateMultiInputs(feedInputs: FeedInput[]): MultiFeedInput | undefined {
+    const inputMapArr = Object.values(feedInputs);
 
-  private condensateMultiInputs(inputMapArr: FeedInput[]): FeedInput | undefined{
-    if (this.shouldCondensate(inputMapArr)) {
-      const condensatedInput = inputMapArr.reduce(
-        // TODO: Should FeedFetcher.params type be a Record type?
-        (acc, input: any) => {
-          const {fsym, tsyms} = input.fetcher.params;
-
-          !acc.fsym.includes(fsym) && acc.fsym.push(fsym);
-          !acc.tsyms.includes(tsyms) && acc.tsyms.push(tsyms);
-
-          return acc;
-        },
-        {
-          fsym: [] as (number | string)[],
-          tsyms: [] as (number | string)[],
-        },
-      );
-
-      const result = inputMapArr[0];
-
-      return {
-        ...result,
-        fetcher: {
-          name: result.fetcher.name + 'Multi',
-          params: condensatedInput,
-        },
-      };
+    if (inputMapArr.length === 0) {
+      return;
     }
-    return;
+
+    // TODO change reduce to forEach
+    const condensatedInput = inputMapArr.reduce(
+      // TODO avoid any
+      (acc, input: any) => {
+        const {fsym, tsyms} = input.fetcher.params;
+
+        !acc.fsym.includes(fsym) && acc.fsym.push(fsym);
+        !acc.tsyms.includes(tsyms) && acc.tsyms.push(tsyms);
+
+        return acc;
+      },
+      {
+        fsym: [] as (number | string)[],
+        tsyms: [] as (number | string)[],
+      },
+    );
+
+    const result = inputMapArr[0];
+
+    return {
+      ...result,
+      fetcher: {
+        name: result.fetcher.name + 'Multi',
+        params: condensatedInput,
+      },
+    };
   }
 }
 
