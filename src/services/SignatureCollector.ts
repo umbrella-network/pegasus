@@ -10,6 +10,7 @@ import {Validator} from '../types/Validator';
 import Settings from '../types/Settings';
 import {BlockSignerResponse, BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
 import {recoverSigner} from '../utils/mining';
+import {SignatureCollectionErrorEvent} from '../types/ReportedMetricsEvents';
 
 @injectable()
 class SignatureCollector {
@@ -64,7 +65,7 @@ class SignatureCollector {
         (blockSignerResponse.discrepancies.length > 0 || blockSignerResponse.error) &&
         !blockSignerResponse.signature
       ) {
-        newrelic.recordCustomEvent('SignatureCollectionError', {
+        newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
           validatorId: id,
           location: location,
           error: blockSignerResponse.error ?? '',
@@ -87,7 +88,7 @@ class SignatureCollector {
         power: validator.power,
       };
     } catch (ex) {
-      newrelic.recordCustomEvent('SignatureCollectionError', {
+      newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
         validatorId: id,
         location: location,
         error: ex.message,

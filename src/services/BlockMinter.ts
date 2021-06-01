@@ -21,6 +21,7 @@ import Settings from '../types/Settings';
 import {LogMint, LogVoter} from '../types/events';
 import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
+import {FailedTransactionEvent} from '../types/ReportedMetricsEvents';
 
 @injectable()
 class BlockMinter {
@@ -117,7 +118,7 @@ class BlockMinter {
       const receipt = await tx.wait();
 
       if (receipt.status !== 1) {
-        newrelic.recordCustomEvent('FailedTransaction', {
+        newrelic.recordCustomEvent(FailedTransactionEvent, {
           transactionHash: receipt.transactionHash,
         });
         return null;

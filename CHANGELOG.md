@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
-- add new worker to report metrics to NewRelic
+- added new worker to report metrics to NewRelic
+- added reporting of reverted blocks to NewRelic
+- added reporting of data source errors to NewRelic
+- added reporting of transaction errors to NewRelic
 
 ## [3.0.0] - 2021-05-24
 
