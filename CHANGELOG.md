@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [3.0.1] - 2021-06-01
 ### Added
 - add new worker to report metrics to NewRelic
+- Improve tests execution and cleanup
+- Ensure Prod build is not executed if tests failed
+- Add develop workflow for the E2E testing (SDK and Reff App)
+- Add Badges for actions and Argocd
 
 ## [3.0.0] - 2021-05-24
 
