@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- add new worker to report metrics to NewRelic
+
 ## [3.0.0] - 2021-05-24
 
 ### Added
