@@ -52,6 +52,7 @@ describe('BlockMinter', () => {
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
     mockedRevertedBlockResolver = sinon.createStubInstance(RevertedBlockResolver);
+
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
       feedsOnChain: 'test/feeds/feedsOnChain.yaml',
