@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- added reporting of reverted blocks to NewRelic
+- added reporting of data source errors to NewRelic
+- added reporting of transaction errors to NewRelic
+
 # [3.0.2] - 2021-06-01
 ### Fixed
 - cicd workflow run to set production tag
