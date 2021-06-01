@@ -1,21 +1,21 @@
-![DEVELOP](https://img.shields.io/badge/Badges-DEVELOP-green)
+# Status
+## DEVELOP
+* `tests github workflow`: [![tests](https://github.com/umbrella-network/pegasus/actions/workflows/tests.yml/badge.svg?branch=develop)](https://github.com/umbrella-network/pegasus/actions/workflows/tests.yml)
 
-[![tests](https://github.com/umbrella-network/pegasus/actions/workflows/tests.yml/badge.svg?branch=develop)](https://github.com/umbrella-network/pegasus/actions/workflows/tests.yml)
+* `pegasus-bsc-01`: ![pegasus-bsc-01-dev](https://argocd.dev.umb.network/api/badge?name=pegasus-bsc-01-dev)
+* `pegasus-bsc-02`: ![pegasus-bsc-02-dev](https://argocd.dev.umb.network/api/badge?name=pegasus-bsc-02-dev)
+* `pegasus-eth-01`: ![pegasus-eth-01-dev](https://argocd.dev.umb.network/api/badge?name=pegasus-eth-01-dev)
+* `pegasus-eth-02`: ![pegasus-eth-02-dev](https://argocd.dev.umb.network/api/badge?name=pegasus-eth-02-dev)
 
-![pegasus-bsc-01-dev](https://argocd.dev.umb.network/api/badge?name=pegasus-bsc-01-dev)
-![pegasus-bsc-02-dev](https://argocd.dev.umb.network/api/badge?name=pegasus-bsc-02-dev)
-![pegasus-eth-01-dev](https://argocd.dev.umb.network/api/badge?name=pegasus-eth-01-dev)
-![pegasus-eth-02-dev](https://argocd.dev.umb.network/api/badge?name=pegasus-eth-02-dev)
+## PROD
 
-![PROD](https://img.shields.io/badge/Badges-PROD-green)
+* `tests github workflow`: [![tests](https://github.com/umbrella-network/pegasus/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/umbrella-network/pegasus/actions/workflows/tests.yml)
+* `cicd github workflow`: [![ci](https://github.com/umbrella-network/pegasus/actions/workflows/cicd.yml/badge.svg?branch=main)](https://github.com/umbrella-network/pegasus/actions/workflows/cicd.yml)
 
-[![tests](https://github.com/umbrella-network/pegasus/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/umbrella-network/pegasus/actions/workflows/tests.yml)
-[![ci](https://github.com/umbrella-network/pegasus/actions/workflows/cicd.yml/badge.svg?branch=main)](https://github.com/umbrella-network/pegasus/actions/workflows/cicd.yml)
-
-![pegasus-bsc01](https://argocd.umb.network/api/badge?name=pegasus-bsc01)
-![pegasus-bsc02](https://argocd.umb.network/api/badge?name=pegasus-bsc02)
-![pegasus-eth01](https://argocd.umb.network/api/badge?name=pegasus-eth01)
-![pegasus-eth02](https://argocd.umb.network/api/badge?name=pegasus-eth02)
+* `pegasus-bsc-01`: ![pegasus-bsc01](https://argocd.umb.network/api/badge?name=pegasus-bsc01)
+* `pegasus-bsc-02`: ![pegasus-bsc02](https://argocd.umb.network/api/badge?name=pegasus-bsc02)
+* `pegasus-eth-01`: ![pegasus-eth01](https://argocd.umb.network/api/badge?name=pegasus-eth01)
+* `pegasus-eth-02`: ![pegasus-eth02](https://argocd.umb.network/api/badge?name=pegasus-eth02)
 
 # Description
 
