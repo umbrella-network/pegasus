@@ -65,7 +65,7 @@ class FeedProcessor {
       {} as {[key: string]: Calculator},
     );
 
-    this.CryptoComparePriceMultiFetcher = CryptoComparePriceMultiFetcher
+    this.CryptoComparePriceMultiFetcher = CryptoComparePriceMultiFetcher;
   }
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
@@ -80,19 +80,20 @@ class FeedProcessor {
       );
     });
 
-    const {singleInputs, multiInputs} = this.separateInputs(Object.values(uniqueInputsMap));
+    const {singleInputs, multiInputs} = this.separateInputs(uniqueInputsMap);
 
     const inputIndexByHash: {[hash: string]: number} = {};
     Object.keys(singleInputs).forEach((hash, index) => {
       inputIndexByHash[hash] = index;
     });
     Object.keys(multiInputs).forEach((hash, index) => {
-      inputIndexByHash[hash] = index + singleInputs.length;
+      const singleInputsLength = Object.values(singleInputs).length
+      inputIndexByHash[hash] = index + singleInputsLength;
     });
 
     const [singleFeeds, multiFeeds] = await Promise.all([
-      this.processFeeds(singleInputs, timestamp),
-      this.processMultiFeeds(multiInputs),
+      this.processFeeds(Object.values(singleInputs), timestamp),
+      this.processMultiFeeds(Object.values(multiInputs)),
     ]);
 
     const values = [...singleFeeds, ...multiFeeds];
@@ -198,25 +199,36 @@ class FeedProcessor {
   /**
    * Separates inputs that belong to CryptoComparePriceMulti and others
    */
-  private separateInputs(inputs: FeedInput[]): {singleInputs: FeedInput[], multiInputs: FeedInput[]} {
-    const singleInputs: FeedInput[] = [],
-      multiInputs: FeedInput[] = [];
+  private separateInputs(uniqueInputsMap: {[hash: string]: FeedInput}) {
+    const inputMapArr = Object.values(uniqueInputsMap);
+    const inputKeys = Object.keys(uniqueInputsMap);
 
-    inputs.forEach((input: FeedInput) => {
+    const separatedInputs: {
+      singleInputs: {[hash: string]: FeedInput};
+      multiInputs: {[hash: string]: FeedInput};
+    } = {
+      singleInputs: {},
+      multiInputs: {},
+    };
+
+    inputMapArr.forEach((input: FeedInput, index) => {
       if (input.fetcher.name === 'CryptoComparePrice') {
-        multiInputs.push(input);
+        separatedInputs.multiInputs[inputKeys[index]] = input;
       } else {
-        singleInputs.push(input);
+        separatedInputs.singleInputs[inputKeys[index]] = input;
       }
     });
 
-    return {singleInputs, multiInputs};
+    return separatedInputs;
   }
 
   /**
    * Filters CryptoComparePriceMulti outputs based on CryptoComparePrice inputs
    */
-  private orderCryptoComparePriceMultiOutput(feedInputs: FeedInput[], values: CryptoComparePriceMultiFetcherOutputValue[]): (number | undefined)[] {
+  private orderCryptoComparePriceMultiOutput(
+    feedInputs: FeedInput[],
+    values: CryptoComparePriceMultiFetcherOutputValue[],
+  ): (number | undefined)[] {
     const inputsIndexMap: {[key: string]: number} = {};
     feedInputs.forEach(({fetcher: {params}}, index) => {
       const {fsym, tsyms} = params as never;
