@@ -16,10 +16,10 @@ class CryptoComparePriceMultiFetcher {
     this.timeout = settings.api.cryptocompare.timeout;
   }
 
-  async apply(params: {fsym: string[], tsyms: string[]}) {
-    const {fsym, tsyms} = params;
+  async apply(params: InputParams): Promise<OutputValue[]> {
+    const {fsyms, tsyms} = params;
 
-    const sourceUrl =  `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${fsym.join(',')}&tsyms=${tsyms.join(',')}`
+    const sourceUrl =  `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${fsyms.join(',')}&tsyms=${tsyms.join(',')}`
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
@@ -39,22 +39,29 @@ class CryptoComparePriceMultiFetcher {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractValues = (data: any, valuePath: string) => {
-    interface valuePairs {fsym: string, tsyms: string, value: number};
-
-    const valuePairsArr: valuePairs[] = [];
+  private extractValues = (data: any, valuePath: string): OutputValue[] => {
+    const valuePairs: OutputValue[] = [];
     const valuesArrays = JSONPath({json: data, path: valuePath});
-    const fromKeys = Object.keys(data);
 
-    fromKeys.forEach((fk, index) => {
-      const toKeys = Object.keys(valuesArrays[index]); 
-      toKeys.forEach(tk => {
-        valuePairsArr.push({fsym: fk, tsyms: tk, value: valuesArrays[index][tk]});
+    Object.keys(data).forEach((fk, index) => {
+      Object.keys(valuesArrays[index]).forEach((tk) => {
+        valuePairs.push({fsym: fk, tsym: tk, value: valuesArrays[index][tk]});
       });
     });
 
-    return valuePairsArr;
+    return valuePairs;
   }
+}
+
+export interface OutputValue {
+  fsym: string,
+  tsym: string,
+  value: number,
+}
+
+export interface InputParams {
+  fsyms: string[],
+  tsyms: string[],
 }
 
 export default CryptoComparePriceMultiFetcher;
