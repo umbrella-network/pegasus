@@ -7,9 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+# [3.1.0] - 2021-06-03
+
+### Added
+- added reporting of reverted blocks to NewRelic
+- added reporting of data source errors to NewRelic
+- added reporting of transaction errors to NewRelic
+- support CryptoCompare Multiple Symbols Price API
+
 # [3.0.2] - 2021-06-01
 ### Fixed
 - cicd workflow run to set production tag
+
 ## [3.0.1] - 2021-06-01
 ### Added
 - add new worker to report metrics to NewRelic

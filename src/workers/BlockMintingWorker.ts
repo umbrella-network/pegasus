@@ -1,6 +1,7 @@
 import Bull from 'bullmq';
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
+import newrelic from 'newrelic';
 
 import BlockMinter from '../services/BlockMinter';
 import BasicWorker from './BasicWorker';
@@ -36,11 +37,13 @@ class BlockMintingWorker extends BasicWorker {
     super.start();
 
     this.polygonIOPriceInitializer.apply().catch((err: Error) => {
+      newrelic.noticeError(err);
       this.logger.error(err);
       process.exit(1);
     });
 
     this.cryptoCompareWSInitializer.apply().catch((err: Error) => {
+      newrelic.noticeError(err);
       this.logger.error(err);
       process.exit(1);
     });

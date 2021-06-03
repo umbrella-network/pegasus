@@ -3,6 +3,7 @@ import {inject, injectable} from 'inversify';
 import {ethers, Signature} from 'ethers';
 import {ABI, LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
 import {getModelForClass} from '@typegoose/typegoose';
+import newrelic from 'newrelic';
 
 import ConsensusRunner from './ConsensusRunner';
 import FeedProcessor from './FeedProcessor';
@@ -20,6 +21,7 @@ import Settings from '../types/Settings';
 import {LogMint, LogVoter} from '../types/events';
 import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
+import {FailedTransactionEvent} from '../types/ReportedMetricsEvents';
 
 @injectable()
 class BlockMinter {
@@ -116,6 +118,9 @@ class BlockMinter {
       const receipt = await tx.wait();
 
       if (receipt.status !== 1) {
+        newrelic.recordCustomEvent(FailedTransactionEvent, {
+          transactionHash: receipt.transactionHash,
+        });
         return null;
       }
 
@@ -128,6 +133,7 @@ class BlockMinter {
 
       return {hash: receipt.transactionHash, anchor: receipt.blockNumber, logMint, logsVoters};
     } catch (e) {
+      newrelic.noticeError(e);
       this.logger.error(e);
       return null;
     }

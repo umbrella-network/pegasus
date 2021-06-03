@@ -9,6 +9,10 @@ import Leaf from './../models/Leaf';
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
 import Feeds, {FeedInput} from '../types/Feed';
+import {
+  InputParams as CryptoComparePriceMultiFetcherParams,
+  OutputValue as CryptoComparePriceMultiFetcherOutputValue,
+} from './fetchers/CryptoComparePriceMultiFetcher';
 
 interface Fetcher {
   // eslint-disable-next-line
@@ -25,11 +29,14 @@ class FeedProcessor {
   fetchers: {[key: string]: Fetcher};
   calculators: {[key: string]: Calculator};
 
+  CryptoComparePriceMultiFetcher: fetchers.CryptoComparePriceMultiFetcher;
+
   constructor(
     @inject(fetchers.CryptoCompareHistoHourFetcher)
     CryptoCompareHistoHourFetcher: fetchers.CryptoCompareHistoHourFetcher,
     @inject(fetchers.CryptoCompareHistoDayFetcher) CryptoCompareHistoDayFetcher: fetchers.CryptoCompareHistoDayFetcher,
-    @inject(fetchers.CryptoComparePriceFetcher) CryptoComparePriceFetcher: fetchers.CryptoComparePriceFetcher,
+    @inject(fetchers.CryptoComparePriceMultiFetcher)
+    CryptoComparePriceMultiFetcher: fetchers.CryptoComparePriceMultiFetcher,
     @inject(fetchers.GVolImpliedVolatilityFetcher) GVolImpliedVolatilityFetcher: fetchers.GVolImpliedVolatilityFetcher,
     @inject(fetchers.PolygonIOPriceFetcher) PolygonIOPriceFetcher: fetchers.PolygonIOPriceFetcher,
     @inject(fetchers.CryptoComparePriceWSFetcher) CryptoComparePriceWSFetcher: fetchers.CryptoComparePriceWSFetcher,
@@ -39,7 +46,6 @@ class FeedProcessor {
     @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
   ) {
     this.fetchers = {
-      CryptoComparePriceFetcher,
       CryptoCompareHistoHourFetcher,
       GVolImpliedVolatilityFetcher,
       CryptoCompareHistoDayFetcher,
@@ -58,13 +64,13 @@ class FeedProcessor {
       }),
       {} as {[key: string]: Calculator},
     );
+
+    this.CryptoComparePriceMultiFetcher = CryptoComparePriceMultiFetcher;
   }
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
-    // TODO we don't have to process all keys twice for FCD and leaves,
-    // we can do it once for all and then filter out FCD and leaves data
+    // collect unique inputs
     const uniqueInputsMap: {[hash: string]: FeedInput} = {};
-
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);
       keys.forEach((leafLabel) =>
@@ -74,31 +80,40 @@ class FeedProcessor {
       );
     });
 
-    const inputIndexByHash: {[hash: string]: number} = {};
+    const {singleInputs, multiInputs} = this.separateInputs(uniqueInputsMap);
 
-    Object.keys(uniqueInputsMap).forEach((hash, index) => {
+    const inputIndexByHash: {[hash: string]: number} = {};
+    Object.keys(singleInputs).forEach((hash, index) => {
       inputIndexByHash[hash] = index;
     });
+    Object.keys(multiInputs).forEach((hash, index) => {
+      const singleInputsLength = Object.values(singleInputs).length;
+      inputIndexByHash[hash] = index + singleInputsLength;
+    });
 
-    const values = await Promise.all(Object.values(uniqueInputsMap).map((input) => this.processFeed(input, timestamp)));
+    const [singleFeeds, multiFeeds] = await Promise.all([
+      this.processFeeds(Object.values(singleInputs), timestamp),
+      this.processMultiFeeds(Object.values(multiInputs)),
+    ]);
+
+    const values = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
     const ignoredMap: {[string: string]: boolean} = {};
 
     feedsArray.forEach((feeds) => {
-      const keys = Object.keys(feeds);
+      const tickers = Object.keys(feeds);
       const leaves: Leaf[] = [];
 
-      keys.forEach((key) => {
-        const feed = feeds[key];
+      tickers.forEach((ticker) => {
+        const feed = feeds[ticker];
         const feedValues = feed.inputs
           .map((input) => values[inputIndexByHash[hash(input)]])
           .filter((item) => item !== undefined) as number[];
-
         if (feedValues.length) {
-          leaves.push(this.calculateMedian(feedValues, key, feed.precision));
+          leaves.push(this.calculateMedian(feedValues, ticker, feed.precision));
         } else {
-          ignoredMap[key] = true;
+          ignoredMap[ticker] = true;
         }
       });
 
@@ -113,11 +128,17 @@ class FeedProcessor {
     return result;
   }
 
-  async processFeed(feedInput: FeedInput, timestamp: number): Promise<number | undefined> {
+  private findFetcher(feedInput: FeedInput) {
     const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
     if (!fetcher) {
       throw new Error('No fetcher specified.');
     }
+
+    return fetcher;
+  }
+
+  async processFeed(feedInput: FeedInput, timestamp: number): Promise<number | undefined> {
+    const fetcher = this.findFetcher(feedInput);
 
     const calculate: Calculator = this.calculators[`calculate${feedInput.calculator?.name || 'Identity'}`];
 
@@ -136,6 +157,28 @@ class FeedProcessor {
     return;
   }
 
+  async processFeeds(feedInputs: FeedInput[], timestamp: number): Promise<(number | undefined)[]> {
+    return Promise.all(feedInputs.map((input) => this.processFeed(input, timestamp)));
+  }
+
+  async processMultiFeeds(feedInputs: FeedInput[]): Promise<(number | undefined)[]> {
+    if (!feedInputs.length) {
+      return [];
+    }
+
+    const params = this.createComparePriceMultiParams(feedInputs);
+
+    let values: CryptoComparePriceMultiFetcherOutputValue[];
+    try {
+      values = await this.CryptoComparePriceMultiFetcher.apply(params);
+    } catch (err) {
+      this.logger.warn(`Ignored CryptoComparePriceMulti feed with ${JSON.stringify(params)} due to an error.`, err);
+      return [];
+    }
+
+    return this.orderCryptoComparePriceMultiOutput(feedInputs, values);
+  }
+
   private buildLeaf = (leafLabel: string, leafValue: number): Leaf => {
     const leaf = new Leaf();
     leaf._id = uuid();
@@ -151,6 +194,79 @@ class FeedProcessor {
     const priceMedian = Math.round(price.median(values.map((value) => value)) * multi) / multi;
 
     return this.buildLeaf(leafLabel, priceMedian);
+  }
+
+  /**
+   * Separates inputs that belong to CryptoComparePriceMulti and others
+   */
+  private separateInputs(uniqueInputsMap: {[hash: string]: FeedInput}) {
+    const inputMapArr = Object.values(uniqueInputsMap);
+    const inputKeys = Object.keys(uniqueInputsMap);
+
+    const separatedInputs: {
+      singleInputs: {[hash: string]: FeedInput};
+      multiInputs: {[hash: string]: FeedInput};
+    } = {
+      singleInputs: {},
+      multiInputs: {},
+    };
+
+    inputMapArr.forEach((input: FeedInput, index) => {
+      if (input.fetcher.name === 'CryptoComparePrice') {
+        separatedInputs.multiInputs[inputKeys[index]] = input;
+      } else {
+        separatedInputs.singleInputs[inputKeys[index]] = input;
+      }
+    });
+
+    return separatedInputs;
+  }
+
+  /**
+   * Filters CryptoComparePriceMulti outputs based on CryptoComparePrice inputs
+   */
+  private orderCryptoComparePriceMultiOutput(
+    feedInputs: FeedInput[],
+    values: CryptoComparePriceMultiFetcherOutputValue[],
+  ): (number | undefined)[] {
+    const inputsIndexMap: {[key: string]: number} = {};
+    feedInputs.forEach(({fetcher: {params}}, index) => {
+      const {fsym, tsyms} = params as never;
+      inputsIndexMap[`${fsym}:${tsyms}`] = index;
+    });
+
+    const result: (number | undefined)[] = [];
+    result.length = feedInputs.length;
+
+    values.forEach(({fsym, tsym, value}) => {
+      const index = inputsIndexMap[`${fsym}:${tsym}`];
+      if (index !== undefined) {
+        result[index] = value;
+      }
+    });
+
+    return result;
+  }
+
+  /**
+   * Creates a CryptoComparePriceMulti input params based CryptoComparePrice inputs
+   * @param feedInputs Inputs with CryptoComparePrice fetcher
+   */
+  private createComparePriceMultiParams(feedInputs: FeedInput[]): CryptoComparePriceMultiFetcherParams {
+    const fsymSet = new Set<string>(),
+      tsymSet = new Set<string>();
+
+    feedInputs.forEach(({fetcher}) => {
+      const {fsym, tsyms} = fetcher.params as never;
+
+      fsymSet.add(fsym);
+      tsymSet.add(tsyms);
+    });
+
+    return {
+      fsyms: [...fsymSet],
+      tsyms: [...tsymSet],
+    };
   }
 }
 

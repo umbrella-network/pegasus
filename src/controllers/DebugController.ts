@@ -42,7 +42,7 @@ class DebugController {
   };
 
   latest = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
-    const {beforeTimestamp, orderBy} = (request.query as unknown) as {beforeTimestamp: string; orderBy: string};
+    const {beforeTimestamp, orderBy} = request.query as unknown as {beforeTimestamp: string; orderBy: string};
 
     try {
       response.send(
