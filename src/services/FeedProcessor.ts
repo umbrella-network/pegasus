@@ -87,7 +87,7 @@ class FeedProcessor {
       inputIndexByHash[hash] = index;
     });
     Object.keys(multiInputs).forEach((hash, index) => {
-      const singleInputsLength = Object.values(singleInputs).length
+      const singleInputsLength = Object.values(singleInputs).length;
       inputIndexByHash[hash] = index + singleInputsLength;
     });
 

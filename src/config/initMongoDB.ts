@@ -13,14 +13,12 @@ const updateDB = async (): Promise<void> => {
     console.log(`Deleted ${deletedBlocks.deletedCount} deprecated Blocks`);
 
     const heightIndexes = ['height_-1', 'height_1'];
-    heightIndexes.forEach(
-      async (heightIndex): Promise<void> => {
-        if (await blockModel.collection.indexExists(heightIndex)) {
-          await blockModel.collection.dropIndex(heightIndex);
-          console.log(`${heightIndex} removed`);
-        }
-      },
-    );
+    heightIndexes.forEach(async (heightIndex): Promise<void> => {
+      if (await blockModel.collection.indexExists(heightIndex)) {
+        await blockModel.collection.dropIndex(heightIndex);
+        console.log(`${heightIndex} removed`);
+      }
+    });
   } catch (e) {
     console.error(`Error while updating DB: ${e}`);
   }

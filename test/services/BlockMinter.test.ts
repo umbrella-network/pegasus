@@ -66,8 +66,8 @@ describe('BlockMinter', () => {
     container.bind('Logger').toConstantValue(mockedLogger);
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
-    container.bind(SignatureCollector).toConstantValue((mockedSignatureCollector as unknown) as SignatureCollector);
-    container.bind(FeedProcessor).toConstantValue((mockedFeedProcessor as unknown) as FeedProcessor);
+    container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
+    container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
     container.bind(SortedMerkleTreeFactory).toSelf();
     container.bind(SaveMintedBlock).toSelf();
     container.bind(ConsensusRunner).toSelf();
@@ -334,8 +334,7 @@ describe('BlockMinter', () => {
                   '0x5f11830295067c4bcc7d02d4e3b048cd7427be50a3aeb6afc9d3d559ee64bcfa',
                   '0x000000000000000000000000998cb7821e605cc16b6174e7c50e19adb2dd2fb0',
                 ],
-                data:
-                  '0x000000000000000000000000000000000000000000000000000000000000033f00000000000000000000000000000000000000000000000029a2241af62c00000000000000000000000000000000000000000000000000001bc16d674ec80000',
+                data: '0x000000000000000000000000000000000000000000000000000000000000033f00000000000000000000000000000000000000000000000029a2241af62c00000000000000000000000000000000000000000000000000001bc16d674ec80000',
                 logIndex: 1,
                 blockHash: '0x7422c3bf9cda4cd91e282a495945d4b4ff310a06a67614e806bf6bb244527225',
               },
