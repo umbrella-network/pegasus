@@ -1,11 +1,16 @@
 name: ci
 on:
-  push:
-    branches:
+  workflow_run:
+    workflows: 
+      - "tests"
+    branches: 
       - main
+    types: 
+      - completed
 jobs:  
   build_local:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -13,9 +18,7 @@ jobs:
       - name: Extract building params
         id: building-params
         run: |
-          if [[ $GITHUB_REF == "refs/heads/main" ]]; then
-            echo "::set-output name=environment::production"
-          fi
+          echo "::set-output name=environment::production"
 
       - name: Analyze JSON Package
         id: package_json
@@ -43,8 +46,10 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           export IMAGE="$ECR_REGISTRY/pegasus"
+          export GIT_COMMIT_VERSION=$(echo ${GITHUB_SHA} | cut -c1-8)
+          export DATE=$(date +%s)
           echo "::set-output name=image::$IMAGE"
-          echo "::set-output name=commit_version::$(echo ${GITHUB_SHA} | cut -c1-8)"
+          echo "::set-output name=commit_version::$(echo ${GIT_COMMIT_VERSION}_${DATE})"
           echo "::set-output name=version::${{fromJson(steps.package_json.outputs.packageJson).version}}"
 
       - name: Build, tag, and push image to Amazon ECR

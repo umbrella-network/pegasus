@@ -2,6 +2,7 @@ import {inject, injectable} from 'inversify';
 import axios from 'axios';
 import {Logger} from 'winston';
 import {BigNumber} from 'ethers';
+import newrelic from 'newrelic';
 
 import {SignedBlock} from '../types/SignedBlock';
 import Blockchain from '../lib/Blockchain';
@@ -9,6 +10,7 @@ import {Validator} from '../types/Validator';
 import Settings from '../types/Settings';
 import {BlockSignerResponse, BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
 import {recoverSigner} from '../utils/mining';
+import {SignatureCollectionErrorEvent} from '../types/ReportedMetricsEvents';
 
 @injectable()
 class SignatureCollector {
@@ -63,6 +65,11 @@ class SignatureCollector {
         (blockSignerResponse.discrepancies.length > 0 || blockSignerResponse.error) &&
         !blockSignerResponse.signature
       ) {
+        newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
+          validatorId: id,
+          location: location,
+          error: blockSignerResponse.error ?? '',
+        });
         this.logger.info(`Validator ${id} at ${location} responded with error: ${blockSignerResponse.error}`);
         return {
           ...blockSignerResponse,
@@ -81,6 +88,11 @@ class SignatureCollector {
         power: validator.power,
       };
     } catch (ex) {
+      newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
+        validatorId: id,
+        location: location,
+        error: ex.message,
+      });
       this.logger.info(`Validator ${id} at ${location} responded with error: ${ex.message}`);
     }
   }

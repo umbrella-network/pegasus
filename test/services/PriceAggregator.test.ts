@@ -148,7 +148,7 @@ describe('PriceAggregator', () => {
     await priceAggregator.add(symbol, 4, 1005);
     await priceAggregator.add(symbol, 5, 1006);
 
-    const {timestamp}: any = await priceAggregator.valueTimestamp(symbol, 1003);
+    const {timestamp} = (await priceAggregator.valueTimestamp(symbol, 1003)) as never;
 
     await priceAggregator.cleanUp(symbol, timestamp);
 
