@@ -1,16 +1,16 @@
 export interface FeedFetcher {
   name: string;
-  params?: Map<string, string | number>;
+  params?: unknown;
 }
 
 export interface FeedCalculator {
   name: string;
-  params?: Map<string, string | number>;
+  params?: unknown;
 }
 
 export interface FeedInput {
   fetcher: FeedFetcher;
-  calculator: FeedCalculator;
+  calculator?: FeedCalculator;
 }
 
 export interface Feed {

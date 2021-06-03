@@ -59,13 +59,13 @@ describe('ConsensusRunner', () => {
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
 
-    container.bind(SaveMintedBlock).toConstantValue((mockedSaveMintedBlock as unknown) as SaveMintedBlock);
+    container.bind(SaveMintedBlock).toConstantValue(mockedSaveMintedBlock as unknown as SaveMintedBlock);
     container.bind(TimeService).toConstantValue(mockedTimeService);
-    container.bind(SignatureCollector).toConstantValue((mockedSignatureCollector as unknown) as SignatureCollector);
-    container.bind(FeedProcessor).toConstantValue((mockedFeedProcessor as unknown) as FeedProcessor);
+    container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
+    container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
     container
       .bind(RevertedBlockResolver)
-      .toConstantValue((mockedRevertedBlockResolver as unknown) as RevertedBlockResolver);
+      .toConstantValue(mockedRevertedBlockResolver as unknown as RevertedBlockResolver);
     container.bind(SortedMerkleTreeFactory).toSelf();
 
     container.bind(ConsensusRunner).to(ConsensusRunner);
