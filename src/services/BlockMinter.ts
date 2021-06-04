@@ -21,7 +21,7 @@ import Settings from '../types/Settings';
 import {LogMint, LogVoter} from '../types/events';
 import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
-import {FailedTransactionEvent} from '../types/ReportedMetricsEvents';
+import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
 
 @injectable()
 class BlockMinter {
