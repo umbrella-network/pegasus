@@ -2,7 +2,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {inject, injectable} from 'inversify';
 import newrelic from 'newrelic';
 import Block from '../models/Block';
-import {BlockRevertedEvent} from '../types/ReportedMetricsEvents';
+import {BlockRevertedEvent} from '../constants/ReportedMetricsEvents';
 import {Logger} from 'winston';
 
 @injectable()
