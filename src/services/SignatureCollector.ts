@@ -10,7 +10,7 @@ import {Validator} from '../types/Validator';
 import Settings from '../types/Settings';
 import {BlockSignerResponse, BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
 import {recoverSigner} from '../utils/mining';
-import {SignatureCollectionErrorEvent} from '../types/ReportedMetricsEvents';
+import {SignatureCollectionErrorEvent} from '../constants/ReportedMetricsEvents';
 
 @injectable()
 class SignatureCollector {
