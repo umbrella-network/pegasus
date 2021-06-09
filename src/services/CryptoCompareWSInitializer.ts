@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import CryptoCompareWSClient from './ws/CryptoCompareWSClient';
-import loadFeeds from '../config/loadFeeds';
+import {loadFeeds} from '@umb-network/toolbox';
 import {Pair} from '../types/Feed';
 import Settings from '../types/Settings';
 import {Logger} from 'winston';
