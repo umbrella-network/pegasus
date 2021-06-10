@@ -6,7 +6,7 @@ import {LeafValueCoder} from '@umb-network/toolbox';
 
 import FeedProcessor from './FeedProcessor';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
-import loadFeeds from '../config/loadFeeds';
+import {loadFeeds} from '@umb-network/toolbox';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import Leaf from '../models/Leaf';

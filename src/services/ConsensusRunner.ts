@@ -10,7 +10,7 @@ import SaveMintedBlock from './SaveMintedBlock';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import TimeService from './TimeService';
-import loadFeeds from '../config/loadFeeds';
+import {loadFeeds} from '@umb-network/toolbox';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import Leaf from '../models/Leaf';

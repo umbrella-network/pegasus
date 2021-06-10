@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import Settings from '../types/Settings';
-import loadFeeds from '../config/loadFeeds';
+import {loadFeeds} from '@umb-network/toolbox';
 import PolygonIOPriceService from './PolygonIOPriceService';
 
 @injectable()
