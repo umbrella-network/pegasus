@@ -22,6 +22,7 @@ import {LogMint, LogVoter} from '../types/events';
 import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
+import GasEstimator from './GasEstimator';
 
 @injectable()
 class BlockMinter {
@@ -36,6 +37,7 @@ class BlockMinter {
   @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
   @inject('Settings') settings!: Settings;
   @inject(RevertedBlockResolver) reveredBlockResolver!: RevertedBlockResolver;
+  @inject(GasEstimator) gasEstimator!: GasEstimator;
 
   async apply(): Promise<void> {
     const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
@@ -105,6 +107,8 @@ class BlockMinter {
     try {
       const components = signatures.map((signature) => BlockMinter.splitSignature(signature));
 
+      const gasPrice = await this.gasEstimator.apply();
+
       const tx = await this.chainContract.submit(
         dataTimestamp,
         root,
@@ -113,9 +117,14 @@ class BlockMinter {
         components.map((sig) => sig.v),
         components.map((sig) => sig.r),
         components.map((sig) => sig.s),
+        gasPrice,
       );
 
-      const receipt = await tx.wait();
+      const txTimeout = new Promise<never>((resolve, reject) =>
+        setTimeout(() => reject('TX timeout'), this.settings.blockchain.transactions.waitTime),
+      );
+
+      const receipt = await Promise.race([tx.wait(), txTimeout]);
 
       if (receipt.status !== 1) {
         newrelic.recordCustomEvent(FailedTransactionEvent, {

@@ -24,6 +24,7 @@ import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import TimeService from '../../src/services/TimeService';
 import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, timestamp} from '../../src/utils/mining';
+import GasEstimator from '../../src/services/GasEstimator';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -32,6 +33,7 @@ describe('BlockMinter', () => {
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
   let mockedRevertedBlockResolver: sinon.SinonStubbedInstance<RevertedBlockResolver>;
+  let mockedGasEstimator: sinon.SinonStubbedInstance<GasEstimator>;
   let settings: Settings;
   let blockMinter: BlockMinter;
 
@@ -52,6 +54,7 @@ describe('BlockMinter', () => {
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
     mockedRevertedBlockResolver = sinon.createStubInstance(RevertedBlockResolver);
+    mockedGasEstimator = sinon.createStubInstance(GasEstimator);
 
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
@@ -61,6 +64,11 @@ describe('BlockMinter', () => {
         retries: 2,
       },
       version: '1.0.0',
+      blockchain: {
+        transactions: {
+          waitTime: 60000,
+        },
+      },
     } as Settings;
 
     container.bind('Logger').toConstantValue(mockedLogger);
@@ -74,6 +82,7 @@ describe('BlockMinter', () => {
     container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind('Settings').toConstantValue(settings);
     container.bind(RevertedBlockResolver).toConstantValue(mockedRevertedBlockResolver);
+    container.bind(GasEstimator).toConstantValue(mockedGasEstimator);
 
     container.bind(BlockMinter).to(BlockMinter);
 
@@ -291,6 +300,7 @@ describe('BlockMinter', () => {
       mockedBlockchain.wallet = wallet;
 
       mockedTimeService.apply.returns(10);
+      mockedGasEstimator.apply.resolves(10);
 
       mockedChainContract.resolveStatus.resolves([
         '0x123',
