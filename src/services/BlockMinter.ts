@@ -21,7 +21,7 @@ import Settings from '../types/Settings';
 import {LogMint, LogVoter} from '../types/events';
 import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
-import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
+import {FailedTransactionEvent, MintedBlockEvent} from '../constants/ReportedMetricsEvents';
 
 @injectable()
 class BlockMinter {
@@ -77,6 +77,10 @@ class BlockMinter {
     if (mintedBlock) {
       const {hash, logMint} = mintedBlock;
       this.logger.info(`New Block ${logMint.blockId} Minted in TX ${hash}`);
+      newrelic.recordCustomEvent(MintedBlockEvent, {
+        transactionHash: hash,
+        blockId: logMint.blockId.toString(),
+      });
       await this.saveBlock(chainAddress, consensus, mintedBlock);
     }
   }
