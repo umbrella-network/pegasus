@@ -30,6 +30,7 @@ class BlockMintingWorker extends BasicWorker {
 
   isStale = (job: Bull.Job): boolean => {
     const age = new Date().getTime() - job.timestamp;
+    this.logger.info(`${job.id} ${age > this.settings.jobs.blockCreation.interval}`);
     return age > this.settings.jobs.blockCreation.interval;
   };
 
