@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Changed
 - remove loadFeeds to use toolbox's loadFeeds
+- calculate gas price dynamically 
 - worker's jobs are now deleted from redis when completed
 
 # [3.1.1] - 2021-06-09

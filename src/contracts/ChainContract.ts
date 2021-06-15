@@ -45,11 +45,12 @@ class ChainContract {
     v: number[],
     r: string[],
     s: string[],
+    gasPrice: number,
   ): Promise<TransactionResponse> {
     return (await this.resolveContract())
       .connect(this.blockchain.wallet)
       .submit(dataTimestamp, root, keys, values, v, r, s, {
-        gasPrice: this.settings.blockchain.transactions.gasPrice,
+        gasPrice,
       });
   }
 

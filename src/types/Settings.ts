@@ -34,7 +34,9 @@ type Settings = {
       };
     };
     transactions: {
-      gasPrice: number;
+      waitTime: number;
+      minGasPrice: number;
+      maxGasPrice: number;
     };
   };
   api: {
