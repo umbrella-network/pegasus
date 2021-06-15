@@ -11,11 +11,11 @@ describe('Worker', () => {
   let mockedWorker: MockedWorker;
   let settings: Settings;
   let connection: IORedis.Redis;
-  const timer = (ms: number) => new Promise( res => setTimeout(res, ms));
+  const timer = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
   before(async () => {
     const config = loadTestEnv();
-    
+
     settings = {
       redis: {
         url: config.REDIS_URL,
@@ -45,13 +45,13 @@ describe('Worker', () => {
 
   it('enqueues jobs and don`t delete them', async () => {
     for (let counter = 0; counter < 10; counter++) {
-      await mockedWorker.enqueue({});      
+      await mockedWorker.enqueue({});
     }
 
     let items = await connection.keys('bull:MockedWorker:*');
     expect(items.length).to.be.eq(14);
-    
-    await mockedWorker.resume();    
+
+    await mockedWorker.resume();
     await timer(1000);
 
     items = await connection.keys('bull:MockedWorker:*');
@@ -60,16 +60,19 @@ describe('Worker', () => {
 
   it('enqueues jobs and delete them', async () => {
     for (let counter = 0; counter < 10; counter++) {
-      await mockedWorker.enqueue({}, {
-        removeOnComplete: true,
-        removeOnFail: true,
-      });      
+      await mockedWorker.enqueue(
+        {},
+        {
+          removeOnComplete: true,
+          removeOnFail: true,
+        },
+      );
     }
 
     let items = await connection.keys('bull:MockedWorker:*');
     expect(items.length).to.be.eq(13);
 
-    await mockedWorker.resume();    
+    await mockedWorker.resume();
     await timer(1000);
 
     items = await connection.keys('bull:MockedWorker:*');

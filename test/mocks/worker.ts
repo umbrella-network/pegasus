@@ -7,7 +7,7 @@ class MockedWorker extends BasicWorker {
   close = async (): Promise<void> => {
     await this.worker.close(true);
     await this.connection.disconnect();
-  }
+  };
 }
 
 export default MockedWorker;
