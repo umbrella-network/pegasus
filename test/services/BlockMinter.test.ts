@@ -25,6 +25,7 @@ import {loadTestEnv} from '../helpers/loadTestEnv';
 import TimeService from '../../src/services/TimeService';
 import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, timestamp} from '../../src/utils/mining';
 import GasEstimator from '../../src/services/GasEstimator';
+import BlockRepository from '../../src/services/BlockRepository';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -77,6 +78,7 @@ describe('BlockMinter', () => {
     container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
     container.bind(SortedMerkleTreeFactory).toSelf();
+    container.bind(BlockRepository).toSelf();
     container.bind(SaveMintedBlock).toSelf();
     container.bind(ConsensusRunner).toSelf();
     container.bind(TimeService).toConstantValue(mockedTimeService);
