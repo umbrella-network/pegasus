@@ -22,21 +22,6 @@ class Block {
   blockId!: number;
 
   @prop()
-  anchor!: number;
-
-  @prop()
-  minter!: string;
-
-  @prop()
-  staked!: string;
-
-  @prop()
-  power!: string;
-
-  @prop({type: SchemaTypes.Mixed})
-  votes!: Record<string, string>;
-
-  @prop()
   root!: string;
 
   /**
@@ -48,9 +33,6 @@ class Block {
 
   @prop({type: () => [String]})
   fcdKeys!: Array<string>;
-
-  @prop({type: () => [Number]})
-  fcdValues!: Array<number>;
 }
 
 export default Block;
