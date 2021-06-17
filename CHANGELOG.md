@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - remove loadFeeds to use toolbox's loadFeeds
-- calculate gas price dynamically 
+- calculate gas price dynamically
+- TX cancellation for pending TXs
 - worker's jobs are now deleted from redis when completed
 
 ### Removed

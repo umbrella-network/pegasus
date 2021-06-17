@@ -1,6 +1,6 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
-import {ethers, Signature} from 'ethers';
+import {BigNumber, ethers, Signature} from 'ethers';
 import {ABI, LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
 import {getModelForClass} from '@typegoose/typegoose';
 import newrelic from 'newrelic';
@@ -120,13 +120,21 @@ class BlockMinter {
         gasPrice,
       );
 
-      const txTimeout = new Promise<never>((resolve, reject) =>
-        setTimeout(() => reject('TX timeout'), this.settings.blockchain.transactions.waitTime),
+      const txTimeout = new Promise<never>((resolve) =>
+        setTimeout(async () => {
+          resolve(undefined);
+        }, this.settings.blockchain.transactions.waitTime),
       );
 
       const receipt = await Promise.race([tx.wait(), txTimeout]);
 
-      if (!receipt || receipt.status !== 1) {
+      if (!receipt) {
+        this.cancelPendingTransaction(gasPrice).catch(this.logger.warn);
+
+        throw new Error('mint TX timeout');
+      }
+
+      if (receipt.status !== 1) {
         newrelic.recordCustomEvent(FailedTransactionEvent, {
           transactionHash: receipt.transactionHash,
         });
@@ -145,6 +153,23 @@ class BlockMinter {
       this.logger.error(e);
       return null;
     }
+  }
+
+  private async cancelPendingTransaction(prevGasPrice: number): Promise<boolean> {
+    const gasPrice = await this.gasEstimator.apply();
+
+    const tx = await this.blockchain.wallet.sendTransaction({
+      from: this.blockchain.wallet.address,
+      to: this.blockchain.wallet.address,
+      value: BigNumber.from(0),
+      nonce: this.blockchain.wallet.getTransactionCount('latest'),
+      gasLimit: 21000,
+      gasPrice: Math.max(gasPrice, prevGasPrice * 2),
+    });
+
+    const receipt = await tx.wait();
+
+    return receipt.status === 1;
   }
 
   private getLogMint(logs: ethers.providers.Log[]): LogMint {
