@@ -6,13 +6,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
 ### Changed
 - remove loadFeeds to use toolbox's loadFeeds
-- calculate gas price dynamically 
+- calculate gas price dynamically
+- TX cancellation for pending TXs
+- worker's jobs are now deleted from redis when completed
+
+### Removed
+- remove unnecessary consensus data, that block explorer is getting directly from blockchain
 
 # [3.1.1] - 2021-06-09
 ### Added
-- Moves contants to its own directory
+- Moves constants to its own directory
+
 # [3.1.0] - 2021-06-03
 
 ### Added

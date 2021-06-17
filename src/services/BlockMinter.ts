@@ -18,7 +18,7 @@ import Block from '../models/Block';
 import {ChainStatus} from '../types/ChainStatus';
 import {Consensus} from '../types/Consensus';
 import Settings from '../types/Settings';
-import {LogMint, LogVoter} from '../types/events';
+import {LogMint} from '../types/events';
 import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
@@ -142,13 +142,12 @@ class BlockMinter {
       }
 
       const logMint = this.getLogMint(receipt.logs);
-      const logsVoters = this.getLogVoters(receipt.logs);
 
       if (!logMint) {
         return null;
       }
 
-      return {hash: receipt.transactionHash, anchor: receipt.blockNumber, logMint, logsVoters};
+      return {hash: receipt.transactionHash, logMint};
     } catch (e) {
       newrelic.noticeError(e);
       this.logger.error(e);
@@ -165,7 +164,7 @@ class BlockMinter {
       value: BigNumber.from(0),
       nonce: this.blockchain.wallet.getTransactionCount('latest'),
       gasLimit: 21000,
-      gasPrice: Math.max(gasPrice, prevGasPrice + 1),
+      gasPrice: Math.max(gasPrice, prevGasPrice * 2),
     });
 
     const receipt = await tx.wait();
@@ -183,19 +182,6 @@ class BlockMinter {
 
     const {minter, staked, blockId, power} = logMint.args;
     return {minter, staked, blockId, power};
-  }
-
-  private getLogVoters(logs: ethers.providers.Log[]): LogVoter[] {
-    const iface = new ethers.utils.Interface(ABI.chainAbi);
-    const logVoters = logs.map((log) => iface.parseLog(log)).filter((event) => event.name === 'LogVoter');
-
-    if (!logVoters) {
-      throw Error('can`t find logVoters in logs');
-    }
-
-    return logVoters.map((logVoter) => {
-      return {vote: logVoter.args.vote, voter: logVoter.args.voter, blockId: logVoter.args.blockId};
-    });
   }
 
   private async canMint(chainStatus: ChainStatus, dataTimestamp: number): Promise<boolean> {
@@ -231,12 +217,6 @@ class BlockMinter {
   }
 
   private async saveBlock(chainAddress: string, consensus: Consensus, mintedBlock: MintedBlock): Promise<void> {
-    const votes: Record<string, string> = {};
-
-    mintedBlock.logsVoters.forEach((logVoter) => {
-      votes[logVoter.voter] = logVoter.vote.toString();
-    });
-
     await this.saveMintedBlock.apply({
       id: `block::${mintedBlock.logMint.blockId}`,
       chainAddress,
@@ -244,14 +224,8 @@ class BlockMinter {
       timestamp: new Date(),
       leaves: consensus.leaves,
       blockId: mintedBlock.logMint.blockId.toNumber(),
-      anchor: mintedBlock.anchor,
       root: consensus.root,
       fcdKeys: consensus.fcdKeys,
-      fcdValues: consensus.fcdValues,
-      votes: votes,
-      power: mintedBlock.logMint.power.toString(),
-      staked: mintedBlock.logMint.staked.toString(),
-      miner: mintedBlock.logMint.minter,
     });
   }
 }

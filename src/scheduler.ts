@@ -10,10 +10,16 @@ import Settings from './types/Settings';
   const metricsWorker = Application.get(MetricsWorker);
 
   setInterval(async () => {
-    await metricsWorker.enqueue({});
+    await metricsWorker.enqueue({}, {
+      removeOnComplete: true,
+      removeOnFail: true,
+    });
   }, settings.jobs.metricsReporting.interval);
 
   setInterval(async () => {
-    await blockMintingWorker.enqueue({});
+    await blockMintingWorker.enqueue({}, {
+      removeOnComplete: true,
+      removeOnFail: true,
+    });
   }, settings.jobs.blockCreation.interval);
 })();
