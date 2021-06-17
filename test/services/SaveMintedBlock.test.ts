@@ -42,15 +42,9 @@ describe('SaveMintedBlock', () => {
       blockId: 1,
       leaves,
       fcdKeys: ['ETH-USD', 'USD-ETH'],
-      fcdValues: [1337.12, 512.12],
       root: '0x00',
       timestamp: new Date(1000),
       dataTimestamp: new Date(1000),
-      power: '2',
-      staked: '1',
-      votes: {'0xab': '1'},
-      anchor: 123,
-      miner: '0x111',
     });
 
     expect(result.data).to.be.an('object').that.deep.eq({
@@ -65,15 +59,9 @@ describe('SaveMintedBlock', () => {
       blockId: 1,
       leaves: [],
       fcdKeys: ['ETH-USD', 'USD-ETH'],
-      fcdValues: [1337.12, 512.12],
       root: '0x00',
       dataTimestamp: new Date(1000),
       timestamp: new Date(1000),
-      power: '2',
-      staked: '1',
-      votes: {'0xab': '1'},
-      anchor: 123,
-      miner: '0x1111',
     });
 
     const blockFromDb = await getModelForClass(Block).findOne();
@@ -81,14 +69,9 @@ describe('SaveMintedBlock', () => {
     expect(uuid.validate(blockFromDb?._id as string)).to.be.true;
     expect(blockFromDb?.blockId).to.be.eq(1);
     expect(blockFromDb?.fcdKeys).to.be.deep.eq(['ETH-USD', 'USD-ETH']);
-    expect(blockFromDb?.fcdValues).to.be.deep.eq([1337.12, 512.12]);
     // is undefined or an empty object
     expect(blockFromDb?.data).to.satisfies((data: any) => data === undefined || Object.keys(data).length === 0);
     expect(blockFromDb?.root).to.be.eq('0x00');
     expect(blockFromDb?.timestamp).to.be.a('Date');
-    expect(blockFromDb?.anchor).to.eq(123);
-    expect(blockFromDb?.power).to.eq('2');
-    expect(blockFromDb?.staked).to.eq('1');
-    expect(blockFromDb?.votes).to.eql({'0xab': '1'});
   });
 });

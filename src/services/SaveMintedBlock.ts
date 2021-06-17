@@ -10,16 +10,10 @@ type Params = {
   chainAddress: string;
   leaves: Leaf[];
   blockId: number;
-  anchor: number;
   root: string;
   dataTimestamp: Date;
   timestamp: Date;
   fcdKeys: string[];
-  fcdValues: number[];
-  votes: Record<string, string>;
-  power: string;
-  staked: string;
-  miner: string;
 };
 
 @injectable()
@@ -31,15 +25,9 @@ class SaveMintedBlock {
     block.dataTimestamp = params.dataTimestamp;
     block.timestamp = params.timestamp;
     block.blockId = params.blockId;
-    block.anchor = params.anchor;
     block.root = params.root;
     block.data = this.treeDataFor(params.leaves);
     block.fcdKeys = params.fcdKeys;
-    block.fcdValues = params.fcdValues;
-    block.votes = params.votes;
-    block.power = params.power;
-    block.staked = params.staked;
-    block.minter = params.miner;
     await this.attachLeavesToBlock(params.leaves, params.blockId);
     return await getModelForClass(Block).create(block);
   }

@@ -1,8 +1,6 @@
-import {LogMint, LogVoter} from './events';
+import {LogMint} from './events';
 
 export type MintedBlock = {
   hash: string;
-  anchor: number;
   logMint: LogMint;
-  logsVoters: LogVoter[];
 };
