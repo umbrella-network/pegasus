@@ -16,7 +16,6 @@ import ConsensusRunner from '../../src/services/ConsensusRunner';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import RevertedBlockResolver from '../../src/services/RevertedBlockResolver';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
-import SaveMintedBlock from '../../src/services/SaveMintedBlock';
 import Settings from '../../src/types/Settings';
 import Leaf from '../../src/models/Leaf';
 import Block from '../../src/models/Block';
@@ -79,7 +78,6 @@ describe('BlockMinter', () => {
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
     container.bind(SortedMerkleTreeFactory).toSelf();
     container.bind(BlockRepository).toSelf();
-    container.bind(SaveMintedBlock).toSelf();
     container.bind(ConsensusRunner).toSelf();
     container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind('Settings').toConstantValue(settings);

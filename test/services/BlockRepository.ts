@@ -5,13 +5,13 @@ import mongoose from 'mongoose';
 import * as uuid from 'uuid';
 
 import {loadTestEnv} from '../helpers/loadTestEnv';
-import SaveMintedBlock from '../../src/services/SaveMintedBlock';
+import BlockRepository from '../../src/services/BlockRepository';
 import Block from '../../src/models/Block';
 import Leaf from '../../src/models/Leaf';
 import {getModelForClass} from '@typegoose/typegoose';
 
-describe('SaveMintedBlock', () => {
-  let saveMintedBlock: SaveMintedBlock;
+describe('BlockRepository', () => {
+  let blockRepository: BlockRepository;
 
   before(async () => {
     const config = loadTestEnv();
@@ -21,7 +21,7 @@ describe('SaveMintedBlock', () => {
   beforeEach(async () => {
     await getModelForClass(Block).deleteMany({});
     await getModelForClass(Leaf).deleteMany({});
-    saveMintedBlock = new SaveMintedBlock();
+    blockRepository = new BlockRepository();
   });
 
   after(async () => {
@@ -36,7 +36,7 @@ describe('SaveMintedBlock', () => {
       {_id: uuid.v4(), label: 'USD-ETH', valueBytes: '0x02', timestamp: new Date(), blockId: 1},
     ];
 
-    const result = await saveMintedBlock.apply({
+    const result = await blockRepository.apply({
       id: 'block::1',
       chainAddress: '0x333',
       blockId: 1,
@@ -54,7 +54,7 @@ describe('SaveMintedBlock', () => {
   });
 
   it('generates UUID and saves the block to database', async () => {
-    await saveMintedBlock.apply({
+    await blockRepository.apply({
       chainAddress: '0x333',
       blockId: 1,
       leaves: [],

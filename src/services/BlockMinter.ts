@@ -78,7 +78,7 @@ class BlockMinter {
     if (mintedBlock) {
       const {hash, logMint} = mintedBlock;
       this.logger.info(`New Block ${logMint.blockId} Minted in TX ${hash}`);
-      await this.blockRepository.saveBlock(chainAddress, consensus, mintedBlock);
+      await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId);
     }
   }
 

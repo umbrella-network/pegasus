@@ -14,6 +14,7 @@ import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory'
 import Settings from '../../src/types/Settings';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {signAffidavitWithWallet, timestamp} from '../../src/utils/mining';
+import BlockRepository from '../../src/services/BlockRepository';
 
 chai.use(chaiAsPromised);
 
@@ -43,6 +44,7 @@ describe('BlockSigner', () => {
     container.bind(ChainContract).toConstantValue(mockedChainContract);
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
     container.bind(SortedMerkleTreeFactory).toSelf();
+    container.bind(BlockRepository).toSelf();
 
     container.bind(BlockSigner).to(BlockSigner);
 
