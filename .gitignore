@@ -11,3 +11,4 @@ tmp
 .DS_STORE
 .cache
 yarn-error.log
+newrelic_agent.log

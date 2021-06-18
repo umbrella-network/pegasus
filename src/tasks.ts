@@ -6,11 +6,12 @@ import {getModelForClass} from '@typegoose/typegoose';
 import './boot';
 import Application from './lib/Application';
 import FeedProcessor from './services/FeedProcessor';
-import loadFeeds from './config/loadFeeds';
+import {loadFeeds} from '@umb-network/toolbox';
 import Settings from "./types/Settings";
 import Leaf from './models/Leaf';
 import Block from './models/Block';
 import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
+import GasEstimator from './services/GasEstimator';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: { type: 'string', demandOption: true },
@@ -35,6 +36,12 @@ async function dbCleanUp(): Promise<void> {
   await blockModel.collection.deleteMany({});
 }
 
+async function estimateGasPrice(): Promise<void> {
+  const gasPrice = await Application.get(GasEstimator).apply();
+
+  console.log(gasPrice.toString());
+}
+
 const ev = new EventEmitter();
 ev.on('done', () => process.exit());
 
@@ -49,6 +56,12 @@ ev.on('done', () => process.exit());
     }
     case 'test:feeds': {
       await testFeeds(settings);
+      ev.emit('done');
+      break;
+    }
+
+    case 'estimate:gas-price': {
+      await estimateGasPrice();
       ev.emit('done');
       break;
     }

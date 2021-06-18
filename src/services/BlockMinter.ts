@@ -1,6 +1,6 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
-import {ethers, Signature} from 'ethers';
+import {BigNumber, ethers, Signature} from 'ethers';
 import {ABI, LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
 import {getModelForClass} from '@typegoose/typegoose';
 import newrelic from 'newrelic';
@@ -18,10 +18,11 @@ import Block from '../models/Block';
 import {ChainStatus} from '../types/ChainStatus';
 import {Consensus} from '../types/Consensus';
 import Settings from '../types/Settings';
-import {LogMint, LogVoter} from '../types/events';
+import {LogMint} from '../types/events';
 import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
+import GasEstimator from './GasEstimator';
 
 @injectable()
 class BlockMinter {
@@ -36,6 +37,7 @@ class BlockMinter {
   @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
   @inject('Settings') settings!: Settings;
   @inject(RevertedBlockResolver) reveredBlockResolver!: RevertedBlockResolver;
+  @inject(GasEstimator) gasEstimator!: GasEstimator;
 
   async apply(): Promise<void> {
     const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
@@ -105,6 +107,8 @@ class BlockMinter {
     try {
       const components = signatures.map((signature) => BlockMinter.splitSignature(signature));
 
+      const gasPrice = await this.gasEstimator.apply();
+
       const tx = await this.chainContract.submit(
         dataTimestamp,
         root,
@@ -113,9 +117,22 @@ class BlockMinter {
         components.map((sig) => sig.v),
         components.map((sig) => sig.r),
         components.map((sig) => sig.s),
+        gasPrice,
       );
 
-      const receipt = await tx.wait();
+      const txTimeout = new Promise<never>((resolve) =>
+        setTimeout(async () => {
+          resolve(undefined);
+        }, this.settings.blockchain.transactions.waitTime),
+      );
+
+      const receipt = await Promise.race([tx.wait(), txTimeout]);
+
+      if (!receipt) {
+        this.cancelPendingTransaction(gasPrice).catch(this.logger.warn);
+
+        throw new Error('mint TX timeout');
+      }
 
       if (receipt.status !== 1) {
         newrelic.recordCustomEvent(FailedTransactionEvent, {
@@ -125,18 +142,34 @@ class BlockMinter {
       }
 
       const logMint = this.getLogMint(receipt.logs);
-      const logsVoters = this.getLogVoters(receipt.logs);
 
       if (!logMint) {
         return null;
       }
 
-      return {hash: receipt.transactionHash, anchor: receipt.blockNumber, logMint, logsVoters};
+      return {hash: receipt.transactionHash, logMint};
     } catch (e) {
       newrelic.noticeError(e);
       this.logger.error(e);
       return null;
     }
+  }
+
+  private async cancelPendingTransaction(prevGasPrice: number): Promise<boolean> {
+    const gasPrice = await this.gasEstimator.apply();
+
+    const tx = await this.blockchain.wallet.sendTransaction({
+      from: this.blockchain.wallet.address,
+      to: this.blockchain.wallet.address,
+      value: BigNumber.from(0),
+      nonce: this.blockchain.wallet.getTransactionCount('latest'),
+      gasLimit: 21000,
+      gasPrice: Math.max(gasPrice, prevGasPrice * 2),
+    });
+
+    const receipt = await tx.wait();
+
+    return receipt.status === 1;
   }
 
   private getLogMint(logs: ethers.providers.Log[]): LogMint {
@@ -149,19 +182,6 @@ class BlockMinter {
 
     const {minter, staked, blockId, power} = logMint.args;
     return {minter, staked, blockId, power};
-  }
-
-  private getLogVoters(logs: ethers.providers.Log[]): LogVoter[] {
-    const iface = new ethers.utils.Interface(ABI.chainAbi);
-    const logVoters = logs.map((log) => iface.parseLog(log)).filter((event) => event.name === 'LogVoter');
-
-    if (!logVoters) {
-      throw Error('can`t find logVoters in logs');
-    }
-
-    return logVoters.map((logVoter) => {
-      return {vote: logVoter.args.vote, voter: logVoter.args.voter, blockId: logVoter.args.blockId};
-    });
   }
 
   private async canMint(chainStatus: ChainStatus, dataTimestamp: number): Promise<boolean> {
@@ -197,12 +217,6 @@ class BlockMinter {
   }
 
   private async saveBlock(chainAddress: string, consensus: Consensus, mintedBlock: MintedBlock): Promise<void> {
-    const votes: Record<string, string> = {};
-
-    mintedBlock.logsVoters.forEach((logVoter) => {
-      votes[logVoter.voter] = logVoter.vote.toString();
-    });
-
     await this.saveMintedBlock.apply({
       id: `block::${mintedBlock.logMint.blockId}`,
       chainAddress,
@@ -210,14 +224,8 @@ class BlockMinter {
       timestamp: new Date(),
       leaves: consensus.leaves,
       blockId: mintedBlock.logMint.blockId.toNumber(),
-      anchor: mintedBlock.anchor,
       root: consensus.root,
       fcdKeys: consensus.fcdKeys,
-      fcdValues: consensus.fcdValues,
-      votes: votes,
-      power: mintedBlock.logMint.power.toString(),
-      staked: mintedBlock.logMint.staked.toString(),
-      miner: mintedBlock.logMint.minter,
     });
   }
 }

@@ -6,9 +6,3 @@ export type LogMint = {
   staked: BigNumber;
   power: BigNumber;
 };
-
-export type LogVoter = {
-  blockId: BigNumber;
-  voter: string;
-  vote: BigNumber;
-};
