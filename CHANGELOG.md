@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+# [3.2.1] - 2021-06-18
+### Added
+- CryptoCompare re-connect timeout
+
 # [3.2.0] - 2021-06-18
 
 ### Changed
