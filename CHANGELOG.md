@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+# [3.2.0] - 2021-06-18
+
 ### Changed
 - remove loadFeeds to use toolbox's loadFeeds
 - calculate gas price dynamically
 - TX cancellation for pending TXs
 - worker's jobs are now deleted from redis when completed
+- Minted blocks are reported to NewRelic
 
 ### Removed
 - remove unnecessary consensus data, that block explorer is getting directly from blockchain
