@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
+        with:
+          ref: main
 
       - name: Extract building params
         id: building-params
@@ -46,7 +48,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           export IMAGE="$ECR_REGISTRY/pegasus"
-          export GIT_COMMIT_VERSION=$(echo ${GITHUB_SHA} | cut -c1-8)
+          export GIT_COMMIT_VERSION=$(git rev-parse main | cut -c1-8)
           export DATE=$(date +%s)
           echo "::set-output name=image::$IMAGE"
           echo "::set-output name=commit_version::$(echo ${GIT_COMMIT_VERSION}_${DATE})"
