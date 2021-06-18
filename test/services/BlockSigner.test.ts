@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {BigNumber, Wallet} from 'ethers';
+import {getModelForClass} from '@typegoose/typegoose';
 
 import BlockSigner from '../../src/services/BlockSigner';
 import {mockedLogger} from '../mocks/logger';
@@ -15,6 +16,9 @@ import Settings from '../../src/types/Settings';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {signAffidavitWithWallet, timestamp} from '../../src/utils/mining';
 import BlockRepository from '../../src/services/BlockRepository';
+import Block from '../../src/models/Block';
+import {loadTestEnv} from '../helpers/loadTestEnv';
+import mongoose from 'mongoose';
 
 chai.use(chaiAsPromised);
 
@@ -26,7 +30,19 @@ describe('BlockSigner', () => {
 
   let blockSigner: BlockSigner;
 
+  before(async () => {
+    const config = loadTestEnv();
+    await mongoose.connect(config.MONGODB_URL, {useNewUrlParser: true, useUnifiedTopology: true});
+  });
+
+  after(async () => {
+    await getModelForClass(Block).deleteMany({});
+    await mongoose.connection.close();
+  });
+
   beforeEach(async () => {
+    await getModelForClass(Block).deleteMany({});
+
     const container = new Container();
 
     mockedBlockchain = sinon.createStubInstance(Blockchain);
@@ -160,7 +176,7 @@ describe('BlockSigner', () => {
     ).to.be.rejectedWith('You should not call yourself for signature.');
   });
 
-  it("returns validator's signature", async () => {
+  it("returns validator's signature and saves the block", async () => {
     const {affidavit, fcd, leaf, timestamp} = leafWithAffidavit;
 
     const leaderWallet = Wallet.createRandom();
@@ -195,8 +211,63 @@ describe('BlockSigner', () => {
       signature,
     });
 
+    const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
+    expect(blocksCount).to.be.eq(1);
+
     expect(result.signature)
       .to.be.a('string')
       .that.matches(/^0x[0-9a-fA-F]+$/);
+  });
+
+  describe('signing a second block', () => {
+    it('should upsert old block registry', async () => {
+      const {affidavit, fcd, leaf, timestamp} = leafWithAffidavit;
+
+      const leaderWallet = Wallet.createRandom();
+      const wallet = Wallet.createRandom();
+
+      const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
+
+      mockedBlockchain.wallet = wallet;
+
+      mockedChainContract.resolveStatus.resolves([
+        '0x123',
+        {
+          blockNumber: BigNumber.from(132153),
+          timePadding: 1,
+          lastBlockId: 1,
+          nextBlockId: 2,
+          nextLeader: leaderWallet.address,
+          validators: [wallet.address],
+          locations: ['abc'],
+          lastDataTimestamp: 1,
+          powers: [BigNumber.from(1)],
+          staked: BigNumber.from(1),
+        },
+      ]);
+
+      mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+
+      await blockSigner.apply({
+        dataTimestamp: timestamp,
+        fcd,
+        leaves: fcd,
+        signature,
+      });
+
+      const oldBlocks = await getModelForClass(Block).find({}).exec();
+
+      await blockSigner.apply({
+        dataTimestamp: timestamp,
+        fcd,
+        leaves: fcd,
+        signature,
+      });
+
+      const newBlocks = await getModelForClass(Block).find({}).exec();
+
+      expect(oldBlocks[0].blockId).to.be.eq(newBlocks[0].blockId).and.to.be.eq(2);
+      expect(oldBlocks[0].timestamp).to.be.lt(newBlocks[0].timestamp);
+    });
   });
 });

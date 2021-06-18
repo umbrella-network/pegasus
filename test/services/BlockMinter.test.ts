@@ -354,7 +354,7 @@ describe('BlockMinter', () => {
 
       await blockMinter.apply();
 
-      const blocksCount = await getModelForClass(Block).count({}).exec();
+      const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
       expect(blocksCount).to.be.eq(1);
     });
   });

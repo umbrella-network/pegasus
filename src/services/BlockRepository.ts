@@ -4,9 +4,8 @@ import {HexStringWith0x} from '../types/custom';
 import {v4 as uuid} from 'uuid';
 import Block from '../models/Block';
 import Leaf from '../models/Leaf';
-import {Consensus} from '../types/Consensus';
-import { BigNumber } from 'ethers';
-// import {MintedBlock} from '../types/MintedBlock';
+import {BigNumber} from 'ethers';
+import {SignedBlockConsensus} from '../types/Consensus';
 
 type Params = {
   id?: string;
@@ -20,9 +19,8 @@ type Params = {
 };
 
 @injectable()
-class BlockRepository {  
-  async saveBlock(chainAddress: string, consensus: Consensus, blockId: BigNumber): Promise<void> {
-    console.log(consensus)
+class BlockRepository {
+  async saveBlock(chainAddress: string, consensus: SignedBlockConsensus, blockId: BigNumber): Promise<void> {
     await this.apply({
       id: `block::${blockId}`,
       chainAddress,
@@ -46,7 +44,11 @@ class BlockRepository {
     block.data = this.treeDataFor(params.leaves);
     block.fcdKeys = params.fcdKeys;
     await this.attachLeavesToBlock(params.leaves, params.blockId);
-    return await getModelForClass(Block).create(block);
+    return getModelForClass(Block).findOneAndUpdate({blockId: block.blockId}, block, {
+      upsert: true,
+      setDefaultsOnInsert: true,
+      new: true,
+    });
   }
 
   private async attachLeavesToBlock(leaves: Leaf[], blockId: number): Promise<void> {

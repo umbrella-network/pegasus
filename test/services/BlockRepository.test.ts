@@ -9,6 +9,8 @@ import BlockRepository from '../../src/services/BlockRepository';
 import Block from '../../src/models/Block';
 import Leaf from '../../src/models/Leaf';
 import {getModelForClass} from '@typegoose/typegoose';
+import {BigNumber} from 'ethers';
+import {SignedBlockConsensus} from '../../src/types/Consensus';
 
 describe('BlockRepository', () => {
   let blockRepository: BlockRepository;
@@ -73,5 +75,21 @@ describe('BlockRepository', () => {
     expect(blockFromDb?.data).to.satisfies((data: any) => data === undefined || Object.keys(data).length === 0);
     expect(blockFromDb?.root).to.be.eq('0x00');
     expect(blockFromDb?.timestamp).to.be.a('Date');
+  });
+
+  describe('#saveBlock', () => {
+    it('saves a block with its leaves', async () => {
+      const blockConsensus: SignedBlockConsensus = {
+        dataTimestamp: 1,
+        leaves: [],
+        root: '0x00',
+        fcdKeys: ['ETH-USD', 'USD-ETH'],
+      };
+
+      await blockRepository.saveBlock('0x333', blockConsensus, BigNumber.from(1));
+
+      const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
+      expect(blocksCount).to.be.eq(1);
+    });
   });
 });

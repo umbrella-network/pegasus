@@ -15,7 +15,7 @@ import Feeds from '../types/Feed';
 import Settings from '../types/Settings';
 import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {BlockSignerResponse} from '../types/BlockSignerResponse';
-import {ethers} from 'ethers';
+import {ethers, BigNumber} from 'ethers';
 import BlockRepository from './BlockRepository';
 
 import {chainReadyForNewBlock, generateAffidavit, signAffidavitWithWallet, sortLeaves} from '../utils/mining';
@@ -86,9 +86,16 @@ class BlockSigner {
 
     const signature = await signAffidavitWithWallet(this.blockchain.wallet, affidavit);
 
+    const signedBlockConsensus = {
+      dataTimestamp: block.dataTimestamp,
+      leaves: proposedLeaves,
+      root: proposedTree.getRoot(),
+      fcdKeys: proposedFcdKeys,
+    };
+
+    await this.blockRepository.saveBlock(chainAddress, signedBlockConsensus, BigNumber.from(chainStatus.nextBlockId));
+
     this.logger.info(`Signed a block for ${recoveredSigner} at ${block.dataTimestamp}`);
-    
-    // this.blockRepository.saveBlock(chainAddress, consensus, chainStatus.blockNumber.add(1))
 
     return {signature: signature, discrepancies: [], version: this.settings.version};
   }
