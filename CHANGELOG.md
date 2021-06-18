@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+# [3.1.2] - 2021-06-18
+### Added
+- Cryptocompare reconnect timeout
+
 # [3.1.1] - 2021-06-09
 ### Added
 - Moves contants to its own directory

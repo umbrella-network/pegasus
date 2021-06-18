@@ -45,6 +45,7 @@ type Settings = {
       resubscribeTimeoutMinutes: number;
       truncateCronRule: string;
       truncateIntervalMinutes: number;
+      reconnectTimeout: number;
     };
     coinmarketcap: {
       apiKey: string;

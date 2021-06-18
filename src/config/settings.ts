@@ -50,6 +50,7 @@ const settings: Settings = {
       resubscribeTimeoutMinutes: parseInt(process.env.CRYPTOCOMPARE_RESUBSCRIBE_INTERVAL_MINUTES || '5', 10),
       truncateCronRule: process.env.CRYPTOCOMPARE_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
       truncateIntervalMinutes: parseInt(process.env.CRYPTOCOMPARE_TRUNCATE_INTERVAL_MINUTES || '60', 10),
+      reconnectTimeout: parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '30000', 10),
     },
     coingecko: {
       timeout: parseInt(process.env.COINGECKO_TIMEOUT || '5000', 10),
