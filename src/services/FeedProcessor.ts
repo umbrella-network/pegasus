@@ -111,7 +111,7 @@ class FeedProcessor {
           .map((input) => values[inputIndexByHash[hash(input)]])
           .filter((item) => item !== undefined) as number[];
         if (feedValues.length) {
-          leaves.push(this.calculateMedian(feedValues, ticker, feed.precision));
+          leaves.push(this.calculateMean(feedValues, ticker, feed.precision));
         } else {
           ignoredMap[ticker] = true;
         }
@@ -185,15 +185,15 @@ class FeedProcessor {
     leaf.timestamp = new Date();
     leaf.label = leafLabel;
     leaf.valueBytes = '0x' + LeafValueCoder.encode(leafValue).toString('hex');
-    console.log(leafLabel, leaf.valueBytes);
     return leaf;
   };
 
-  private calculateMedian(values: number[], leafLabel: string, precision: number): Leaf {
+  private calculateMean(values: number[], leafLabel: string, precision: number): Leaf {
     const multi = Math.pow(10, precision);
-    const priceMedian = Math.round(price.median(values.map((value) => value)) * multi) / multi;
 
-    return this.buildLeaf(leafLabel, priceMedian);
+    const result = Math.round(price.mean(values) * multi) / multi;
+
+    return this.buildLeaf(leafLabel, result);
   }
 
   /**

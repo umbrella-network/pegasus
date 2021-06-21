@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+# [3.2.2] - 2021-06-18
+### Fixed
+- Fixed VWAP calculation
+- Fixed aggregate price calculation
+
 # [3.2.1] - 2021-06-18
 ### Added
 - CryptoCompare re-connect timeout
