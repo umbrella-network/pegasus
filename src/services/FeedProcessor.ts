@@ -5,7 +5,7 @@ import {MD5 as hash} from 'object-hash';
 import {Logger} from 'winston';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
-import Leaf from './../models/Leaf';
+import Leaf from '../models/Leaf';
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
 import Feeds, {FeedInput} from '../types/Feed';

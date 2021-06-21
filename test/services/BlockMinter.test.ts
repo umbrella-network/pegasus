@@ -44,7 +44,6 @@ describe('BlockMinter', () => {
 
   beforeEach(async () => {
     await getModelForClass(Block).deleteMany({});
-    await getModelForClass(Leaf).deleteMany({});
 
     const container = new Container();
 
@@ -91,7 +90,6 @@ describe('BlockMinter', () => {
 
   after(async () => {
     await getModelForClass(Block).deleteMany({});
-    await getModelForClass(Leaf).deleteMany({});
     await mongoose.connection.close();
   });
 

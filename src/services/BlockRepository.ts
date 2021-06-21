@@ -43,29 +43,12 @@ class BlockRepository {
     block.root = params.root;
     block.data = this.treeDataFor(params.leaves);
     block.fcdKeys = params.fcdKeys;
-    await this.attachLeavesToBlock(params.leaves, params.blockId);
+
     return getModelForClass(Block).findOneAndUpdate({blockId: block.blockId}, block, {
       upsert: true,
       setDefaultsOnInsert: true,
       new: true,
     });
-  }
-
-  private async attachLeavesToBlock(leaves: Leaf[], blockId: number): Promise<void> {
-    return getModelForClass(Leaf)
-      .updateMany(
-        {
-          _id: {
-            $in: leaves.map((leaf) => leaf._id),
-          },
-        },
-        {
-          $set: {
-            blockId: blockId,
-          },
-        },
-      )
-      .exec();
   }
 
   private treeDataFor(leaves: Leaf[]): Record<string, HexStringWith0x> {

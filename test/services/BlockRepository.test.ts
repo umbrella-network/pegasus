@@ -22,13 +22,11 @@ describe('BlockRepository', () => {
 
   beforeEach(async () => {
     await getModelForClass(Block).deleteMany({});
-    await getModelForClass(Leaf).deleteMany({});
     blockRepository = new BlockRepository();
   });
 
   after(async () => {
     await getModelForClass(Block).deleteMany({});
-    await getModelForClass(Leaf).deleteMany({});
     await mongoose.connection.close();
   });
 
