@@ -48,7 +48,7 @@ class CryptoCompareWSClient extends WSClient {
     @inject(TimeService) timeService: TimeService,
     @inject(PriceAggregator) priceAggregator: PriceAggregator,
   ) {
-    super(`wss://streamer.cryptocompare.com/v2?api_key=${settings.api.cryptocompare.apiKey}`, 6000);
+    super(`wss://streamer.cryptocompare.com/v2?api_key=${settings.api.cryptocompare.apiKey}`, settings.api.cryptocompare.reconnectTimeout);
 
     this.timeService = timeService;
     this.settings = settings;
