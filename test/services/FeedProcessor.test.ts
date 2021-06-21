@@ -11,6 +11,7 @@ import * as fetchers from '../../src/services/fetchers';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Feeds from '../../src/types/Feed';
+import {LeafValueCoder} from '@umb-network/toolbox';
 chai.use(chaiAsPromised);
 
 describe('FeedProcessor', () => {
@@ -138,15 +139,25 @@ describe('FeedProcessor', () => {
               name: 'TWAP',
             },
           },
+          {
+            fetcher: {
+              name: 'CryptoComparePriceWS',
+              params: {
+                fsym: 'ETH',
+                tsym: 'USD',
+                limit: 30,
+              } as any,
+            },
+          },
         ],
       },
-      'ETH-USD-TWAP-10days': {
+      'ETH-USD-VWAP-10days': {
         discrepancy: 0.1,
         precision: 2,
         inputs: [
           {
             fetcher: {
-              name: 'CryptoCompareHistoDay',
+              name: 'CryptoCompareHistoHour',
               params: {
                 fsym: 'ETH',
                 tsym: 'USD',
@@ -154,7 +165,23 @@ describe('FeedProcessor', () => {
               } as any,
             },
             calculator: {
-              name: 'TWAP',
+              name: 'VWAP',
+            },
+          },
+          {
+            fetcher: {
+              name: 'CryptoComparePriceWS',
+              params: {
+                fsym: 'ETH',
+                tsym: 'USD',
+                limit: 30,
+              } as any,
+            },
+          },
+          {
+            fetcher: {
+              name: 'CoingeckoPrice',
+              params: {} as any,
             },
           },
         ],
@@ -162,23 +189,29 @@ describe('FeedProcessor', () => {
     };
 
     mockedFetchers.CryptoCompareHistoDayFetcher.apply.resolves([
-      [{high: 749.71, low: 717.14, open: 737.15, close: 730.6}, 436164.48],
-      [{high: 788.27, low: 716.71, open: 730.6, close: 774.9}, 904953.39],
+      [{high: 749.71, low: 717.14, open: 737.15, close: 730.6}, 236164.48],
+      [{high: 788.27, low: 716.71, open: 730.6, close: 774.9}, 4953.39],
       [{high: 1011.81, low: 770.07, open: 774.9, close: 978.69}, 2200163.67],
-      [{high: 1290.46, low: 1151.6, open: 1210.59, close: 1225.5}, 1601329.3],
+      [{high: 1290.46, low: 1151.6, open: 1210.59, close: 1225.5}, 2601329.3],
     ]);
+
+    mockedFetchers.CryptoCompareHistoHourFetcher.apply.resolves([
+      [{high: 749.71, low: 717.14, open: 737.15, close: 730.6}, 426164.48],
+      [{high: 788.27, low: 716.71, open: 730.6, close: 774.9}, 914953.39],
+      [{high: 1011.81, low: 770.07, open: 774.9, close: 978.69}, 8100163.67],
+      [{high: 1290.46, low: 1151.6, open: 1210.59, close: 1225.5}, 2101329.3],
+    ]);
+
+    mockedFetchers.CryptoComparePriceWSFetcher.apply.resolves(954.23);
+    mockedFetchers.CoingeckoPriceFetcher.apply.resolves(955.11);
 
     const leaves = await feedProcessor.apply(10, feeds);
 
     expect(leaves[0]).to.be.an('array').with.lengthOf(2);
 
     expect(leaves[0][0].label).to.equal('ETH-USD-TWAP-30days');
-    expect(leaves[0][0].valueBytes)
-      .is.a('string')
-      .that.matches(/^0x[a-fA-F0-9]+$/);
-    expect(leaves[0][1].label).to.equal('ETH-USD-TWAP-10days');
-    expect(leaves[0][1].valueBytes)
-      .is.a('string')
-      .that.matches(/^0x[a-fA-F0-9]+$/);
+    expect(LeafValueCoder.decode(leaves[0][0].valueBytes)).is.a('number').that.equal(925.82);
+    expect(leaves[0][1].label).to.equal('ETH-USD-VWAP-10days');
+    expect(LeafValueCoder.decode(leaves[0][1].valueBytes)).is.a('number').that.equal(954.98);
   });
 });
