@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- save blocks at Block Sign request
+
+### Changed
+- refactored block saving mechanism for code reuse
+
 # [3.2.2] - 2021-06-18
 ### Fixed
 - Fixed VWAP calculation

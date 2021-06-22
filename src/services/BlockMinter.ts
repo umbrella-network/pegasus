@@ -8,7 +8,7 @@ import newrelic from 'newrelic';
 import ConsensusRunner from './ConsensusRunner';
 import FeedProcessor from './FeedProcessor';
 import RevertedBlockResolver from './RevertedBlockResolver';
-import SaveMintedBlock from './SaveMintedBlock';
+import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import TimeService from './TimeService';
@@ -16,7 +16,6 @@ import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import Block from '../models/Block';
 import {ChainStatus} from '../types/ChainStatus';
-import {Consensus} from '../types/Consensus';
 import Settings from '../types/Settings';
 import {LogMint} from '../types/events';
 import {chainReadyForNewBlock} from '../utils/mining';
@@ -34,7 +33,7 @@ class BlockMinter {
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
-  @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
+  @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject('Settings') settings!: Settings;
   @inject(RevertedBlockResolver) reveredBlockResolver!: RevertedBlockResolver;
   @inject(GasEstimator) gasEstimator!: GasEstimator;
@@ -79,7 +78,7 @@ class BlockMinter {
     if (mintedBlock) {
       const {hash, logMint} = mintedBlock;
       this.logger.info(`New Block ${logMint.blockId} Minted in TX ${hash}`);
-      await this.saveBlock(chainAddress, consensus, mintedBlock);
+      await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId);
     }
   }
 
@@ -214,19 +213,6 @@ class BlockMinter {
   private static async getLastSubmittedBlock(): Promise<Block | undefined> {
     const blocks: Block[] = await getModelForClass(Block).find({}).limit(1).sort({blockId: -1}).exec();
     return blocks[0];
-  }
-
-  private async saveBlock(chainAddress: string, consensus: Consensus, mintedBlock: MintedBlock): Promise<void> {
-    await this.saveMintedBlock.apply({
-      id: `block::${mintedBlock.logMint.blockId}`,
-      chainAddress,
-      dataTimestamp: new Date(consensus.dataTimestamp * 1000),
-      timestamp: new Date(),
-      leaves: consensus.leaves,
-      blockId: mintedBlock.logMint.blockId.toNumber(),
-      root: consensus.root,
-      fcdKeys: consensus.fcdKeys,
-    });
   }
 }
 

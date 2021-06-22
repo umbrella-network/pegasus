@@ -19,3 +19,10 @@ export interface Consensus {
   signatures: string[];
   power: BigNumber;
 }
+
+export interface SignedBlockConsensus {
+  dataTimestamp: number;
+  leaves: Leaf[];
+  root: string;
+  fcdKeys: string[];
+}

@@ -6,7 +6,7 @@ import {LeafValueCoder} from '@umb-network/toolbox';
 
 import FeedProcessor from './FeedProcessor';
 import RevertedBlockResolver from './RevertedBlockResolver';
-import SaveMintedBlock from './SaveMintedBlock';
+import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import TimeService from './TimeService';
@@ -32,7 +32,7 @@ class ConsensusRunner {
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
-  @inject(SaveMintedBlock) saveMintedBlock!: SaveMintedBlock;
+  @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject('Settings') settings!: Settings;
   @inject(RevertedBlockResolver) reveredBlockResolver!: RevertedBlockResolver;
 

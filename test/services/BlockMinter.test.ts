@@ -16,7 +16,6 @@ import ConsensusRunner from '../../src/services/ConsensusRunner';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import RevertedBlockResolver from '../../src/services/RevertedBlockResolver';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
-import SaveMintedBlock from '../../src/services/SaveMintedBlock';
 import Settings from '../../src/types/Settings';
 import Leaf from '../../src/models/Leaf';
 import Block from '../../src/models/Block';
@@ -25,6 +24,7 @@ import {loadTestEnv} from '../helpers/loadTestEnv';
 import TimeService from '../../src/services/TimeService';
 import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, timestamp} from '../../src/utils/mining';
 import GasEstimator from '../../src/services/GasEstimator';
+import BlockRepository from '../../src/services/BlockRepository';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -77,7 +77,7 @@ describe('BlockMinter', () => {
     container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
     container.bind(SortedMerkleTreeFactory).toSelf();
-    container.bind(SaveMintedBlock).toSelf();
+    container.bind(BlockRepository).toSelf();
     container.bind(ConsensusRunner).toSelf();
     container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind('Settings').toConstantValue(settings);
@@ -354,7 +354,7 @@ describe('BlockMinter', () => {
 
       await blockMinter.apply();
 
-      const blocksCount = await getModelForClass(Block).count({}).exec();
+      const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
       expect(blocksCount).to.be.eq(1);
     });
   });
