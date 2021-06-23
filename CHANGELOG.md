@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - refactored block saving mechanism for code reuse
 
+# [3.2.3] - 2021-06-23
+### Fixed
+- Ignore out-of-date crypto prices in CryptoCompareWSClient
+
 # [3.2.2] - 2021-06-18
 ### Fixed
 - Fixed VWAP calculation
