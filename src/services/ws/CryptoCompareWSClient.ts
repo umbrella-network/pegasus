@@ -3,7 +3,7 @@ import schedule, {Job} from 'node-schedule';
 
 import WSClient from './WSClient';
 import Settings from '../../types/Settings';
-import {Pair} from '../../types/Feed';
+import {Pair, PairWithFreshness} from '../../types/Feed';
 import StatsDClient from '../../lib/StatsDClient'
 import PriceAggregator from '../PriceAggregator';
 import TimeService from '../TimeService';
@@ -20,6 +20,8 @@ class CryptoCompareWSClient extends WSClient {
   timeService: TimeService;
 
   static readonly Prefix = 'cca::';
+
+  static readonly DefaultFreshness = 3600;
 
   settings: Settings;
 
@@ -55,8 +57,8 @@ class CryptoCompareWSClient extends WSClient {
     this.priceAggregator = priceAggregator;
   }
 
-  async getLatestPrice({fsym, tsym}: Pair, timestamp: number): Promise<number | null> {
-    return await this.priceAggregator.value(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, timestamp);
+  async getLatestPrice({fsym, tsym, freshness = CryptoCompareWSClient.DefaultFreshness}: PairWithFreshness, timestamp: number): Promise<number | null> {
+    return await this.priceAggregator.valueAfter(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, timestamp, timestamp - freshness);
   }
 
   onAggregate(payload: any): void {

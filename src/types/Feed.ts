@@ -27,3 +27,7 @@ export interface Pair {
   fsym: string;
   tsym: string;
 }
+
+export interface PairWithFreshness extends Pair {
+  freshness: number;
+}
