@@ -7,7 +7,7 @@ import * as uuid from 'uuid';
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import BlockRepository from '../../src/services/BlockRepository';
 import Block from '../../src/models/Block';
-import Leaf from '../../src/models/Leaf';
+import Leaf from '../../src/types/Leaf';
 import {getModelForClass} from '@typegoose/typegoose';
 import {BigNumber} from 'ethers';
 import {SignedBlockConsensus} from '../../src/types/Consensus';
@@ -32,8 +32,8 @@ describe('BlockRepository', () => {
 
   it("builds tree data and saves in block's object", async () => {
     const leaves: Leaf[] = [
-      {_id: uuid.v4(), label: 'ETH-USD', valueBytes: '0x01', timestamp: new Date(), blockId: 1},
-      {_id: uuid.v4(), label: 'USD-ETH', valueBytes: '0x02', timestamp: new Date(), blockId: 1},
+      {label: 'ETH-USD', valueBytes: '0x01'},
+      {label: 'USD-ETH', valueBytes: '0x02'},
     ];
 
     const result = await blockRepository.apply({

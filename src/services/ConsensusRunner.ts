@@ -13,7 +13,7 @@ import TimeService from './TimeService';
 import {loadFeeds} from '@umb-network/toolbox';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
-import Leaf from '../models/Leaf';
+import Leaf from '../types/Leaf';
 import {BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
 import {Consensus, DataForConsensus} from '../types/Consensus';
 import Feeds from '../types/Feed';

@@ -1,4 +1,4 @@
-import Leaf from '../models/Leaf';
+import Leaf from '../types/Leaf';
 import {BigNumber} from 'ethers';
 
 export interface DataForConsensus {

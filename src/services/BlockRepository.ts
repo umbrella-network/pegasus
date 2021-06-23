@@ -3,7 +3,7 @@ import {injectable} from 'inversify';
 import {HexStringWith0x} from '../types/custom';
 import {v4 as uuid} from 'uuid';
 import Block from '../models/Block';
-import Leaf from '../models/Leaf';
+import Leaf from '../types/Leaf';
 import {BigNumber} from 'ethers';
 import {SignedBlockConsensus} from '../types/Consensus';
 
