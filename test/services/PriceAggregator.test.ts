@@ -193,4 +193,24 @@ describe('PriceAggregator', () => {
       },
     ]);
   });
+
+  it('check for a price within a range', async () => {
+    const date = Date.now();
+
+    await priceAggregator.add(symbol, 4, date + 50);
+    await priceAggregator.add(symbol, 5, date + 100);
+    await priceAggregator.add(symbol, 6, date + 150);
+
+    expect(await priceAggregator.valueAfter(symbol, date + 149, date + 96)).to.be.eq(5);
+  });
+
+  it('check for an out-of-date price', async () => {
+    const date = Date.now();
+
+    await priceAggregator.add(symbol, 4, date + 50);
+    await priceAggregator.add(symbol, 5, date + 100);
+    await priceAggregator.add(symbol, 6, date + 150);
+
+    expect(await priceAggregator.valueAfter(symbol, date + 149, date + 130)).to.be.null;
+  });
 });

@@ -41,6 +41,28 @@ class PriceAggregator {
   }
 
   /**
+   * Gets a value between the provided timestamps
+   */
+  async valueAfter(symbol: string, beforeTimestamp: number, afterTimestamp: number): Promise<number | null> {
+    try {
+      const result = await this.connection.zrevrangebyscore(
+        symbol,
+        `(${beforeTimestamp}`,
+        `(${afterTimestamp}`,
+        'LIMIT',
+        0,
+        1,
+      );
+
+      return result.length ? this.parseValue(result[0]) : null;
+    } catch (err) {
+      console.error(err, JSON.stringify({symbol, beforeTimestamp}));
+
+      throw err;
+    }
+  }
+
+  /**
    * Gets a value and a timestamp before the provided timestamp
    */
   async valueTimestamp(symbol: string, beforeTimestamp: number): Promise<{value: number; timestamp: number} | null> {
