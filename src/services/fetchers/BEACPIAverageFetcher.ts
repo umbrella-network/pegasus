@@ -1,13 +1,9 @@
 import {inject, injectable} from 'inversify';
 
-import CryptoCompareWSClient from '../ws/CryptoCompareWSClient';
-import {Pair} from '../../types/Feed';
 import Settings from '../../types/Settings';
-import {mapParams} from '../../utils/request';
 import axios from 'axios';
 import {JSONPath} from 'jsonpath-plus';
-import {mean, volumeWeightedAveragePrice} from '@umb-network/validator/dist/price';
-
+import {mean} from '@umb-network/validator/dist/price';
 
 @injectable()
 class BEACPIAverageFetcher {

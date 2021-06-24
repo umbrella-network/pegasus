@@ -17,7 +17,7 @@ import FeedProcessor from '../../src/services/FeedProcessor';
 import RevertedBlockResolver from '../../src/services/RevertedBlockResolver';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
 import Settings from '../../src/types/Settings';
-import Leaf from '../../src/models/Leaf';
+import Leaf from '../../src/types/Leaf';
 import Block from '../../src/models/Block';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {loadTestEnv} from '../helpers/loadTestEnv';
@@ -44,7 +44,6 @@ describe('BlockMinter', () => {
 
   beforeEach(async () => {
     await getModelForClass(Block).deleteMany({});
-    await getModelForClass(Leaf).deleteMany({});
 
     const container = new Container();
 
@@ -91,17 +90,16 @@ describe('BlockMinter', () => {
 
   after(async () => {
     await getModelForClass(Block).deleteMany({});
-    await getModelForClass(Leaf).deleteMany({});
     await mongoose.connection.close();
   });
 
   describe('#sortLeaves', () => {
     it("sorts leaves based on leaf's label", async () => {
       const leaves: Leaf[] = [
-        {label: 'b', _id: '1', timestamp: new Date(), blockId: 1, valueBytes: '0x0'},
-        {label: 'a', _id: '1', timestamp: new Date(), blockId: 1, valueBytes: '0x0'},
-        {label: 'd', _id: '1', timestamp: new Date(), blockId: 1, valueBytes: '0x0'},
-        {label: 'c', _id: '1', timestamp: new Date(), blockId: 1, valueBytes: '0x0'},
+        {label: 'b', valueBytes: '0x0'},
+        {label: 'a', valueBytes: '0x0'},
+        {label: 'd', valueBytes: '0x0'},
+        {label: 'c', valueBytes: '0x0'},
       ];
       const resultingLeaves = sortLeaves(leaves);
 

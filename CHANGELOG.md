@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - refactored block saving mechanism for code reuse
+- typo fix. revered -> reverted
+
+### Removed
+- leaf collection is no longer used
 
 # [3.2.3] - 2021-06-23
 ### Fixed

@@ -9,7 +9,7 @@ import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import {loadFeeds} from '@umb-network/toolbox';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
-import Leaf from '../models/Leaf';
+import Leaf from '../types/Leaf';
 import {Discrepancy} from '../types/Discrepancy';
 import Feeds from '../types/Feed';
 import Settings from '../types/Settings';
@@ -174,9 +174,10 @@ class BlockSigner {
   }
 
   private static newLeaf(label: string, value: number): Leaf {
-    const leaf = new Leaf();
-    leaf.valueBytes = '0x' + LeafValueCoder.encode(value).toString('hex');
-    leaf.label = label;
+    const leaf: Leaf = {
+      label: label,
+      valueBytes: '0x' + LeafValueCoder.encode(value).toString('hex'),
+    };
 
     return leaf;
   }

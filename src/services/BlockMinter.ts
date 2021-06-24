@@ -35,7 +35,7 @@ class BlockMinter {
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject('Settings') settings!: Settings;
-  @inject(RevertedBlockResolver) reveredBlockResolver!: RevertedBlockResolver;
+  @inject(RevertedBlockResolver) revertedBlockResolver!: RevertedBlockResolver;
   @inject(GasEstimator) gasEstimator!: GasEstimator;
 
   async apply(): Promise<void> {
@@ -197,7 +197,7 @@ class BlockMinter {
       return true;
     }
 
-    await this.reveredBlockResolver.apply(lastSubmittedBlock?.blockId, chainStatus.nextBlockId);
+    await this.revertedBlockResolver.apply(lastSubmittedBlock?.blockId, chainStatus.nextBlockId);
     lastSubmittedBlock = await BlockMinter.getLastSubmittedBlock();
 
     const allowed = lastSubmittedBlock ? chainStatus.nextBlockId > lastSubmittedBlock.blockId : true;
