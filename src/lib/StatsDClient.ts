@@ -5,7 +5,8 @@ const {NEW_RELIC_LABELS} = process.env;
 let tags: {[key: string]: string} = {};
 tags = NEW_RELIC_LABELS?.split(';').reduce((nrTags, tag) => {
   const t = tag.split(':');
-  nrTags[t[0]] = t[1];
+  const [key, value] = tag.split(':');
+  nrTags[key] = value;
   return nrTags;
 }, tags) ?? tags;
 
