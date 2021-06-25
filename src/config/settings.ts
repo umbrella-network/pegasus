@@ -81,9 +81,11 @@ const settings: Settings = {
       timeout: parseInt(process.env.BAE_TIMEOUT || '5000', 10),
     },
   },
-  feedsFile: 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/feature/add-dafi/dev/feeds.yaml',
+  feedsFile:
+    process.env.FEEDS_FILE || 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/feeds.yaml',
   feedsOnChain:
-    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/feature/add-dafi/dev/feedsOnChain.yaml',
+    process.env.FEEDS_ON_CHAIN_FILE ||
+    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/feedsOnChain.yaml',
   signatureTimeout: parseInt(process.env.SIGNATURE_TIMEOUT || '15000', 10),
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
   version: packageJson.version,
