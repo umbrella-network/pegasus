@@ -1,6 +1,6 @@
 import {ethers, Wallet} from 'ethers';
 import {LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
-import Leaf from '../models/Leaf';
+import Leaf from '../types/Leaf';
 import sort from 'fast-sort';
 import {ChainStatus} from '../types/ChainStatus';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';

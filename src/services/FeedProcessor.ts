@@ -1,11 +1,10 @@
 import {inject, injectable} from 'inversify';
-import {v4 as uuid} from 'uuid';
 import {price} from '@umb-network/validator';
 import {MD5 as hash} from 'object-hash';
 import {Logger} from 'winston';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
-import Leaf from './../models/Leaf';
+import Leaf from '../types/Leaf';
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
 import Feeds, {FeedInput} from '../types/Feed';
@@ -180,12 +179,10 @@ class FeedProcessor {
   }
 
   private buildLeaf = (leafLabel: string, leafValue: number): Leaf => {
-    const leaf = new Leaf();
-    leaf._id = uuid();
-    leaf.timestamp = new Date();
-    leaf.label = leafLabel;
-    leaf.valueBytes = '0x' + LeafValueCoder.encode(leafValue).toString('hex');
-    return leaf;
+    return {
+      label: leafLabel,
+      valueBytes: `0x${LeafValueCoder.encode(leafValue).toString('hex')}`,
+    };
   };
 
   private calculateMean(values: number[], leafLabel: string, precision: number): Leaf {

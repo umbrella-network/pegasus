@@ -8,7 +8,6 @@ import Application from './lib/Application';
 import FeedProcessor from './services/FeedProcessor';
 import {loadFeeds} from '@umb-network/toolbox';
 import Settings from "./types/Settings";
-import Leaf from './models/Leaf';
 import Block from './models/Block';
 import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
 import GasEstimator from './services/GasEstimator';
@@ -29,9 +28,6 @@ async function testFeeds(settings: Settings): Promise<void> {
 }
 
 async function dbCleanUp(): Promise<void> {
-  const leafModel = getModelForClass(Leaf);
-  await leafModel.collection.deleteMany({});
-
   const blockModel = getModelForClass(Block);
   await blockModel.collection.deleteMany({});
 }

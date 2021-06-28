@@ -1,4 +1,6 @@
 import {Container} from 'inversify';
+import 'reflect-metadata';
+
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import {loadFeeds} from '@umb-network/toolbox';

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+# [3.3.0] - 2021-06-26
+### Added
+- save blocks at Block Sign request
+
+### Changed
+- refactored block saving mechanism for code reuse
+- typo fix. revered -> reverted
+- split BlockSigner into services for better QA
+
+### Fixed
+- potentialy fix issue with discrepanties by refactoring code
+
+### Removed
+- leaf collection is no longer used
+
 # [3.2.3] - 2021-06-23
 ### Fixed
 - Ignore out-of-date crypto prices in CryptoCompareWSClient

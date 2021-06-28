@@ -12,7 +12,7 @@ import Settings from '../../src/types/Settings';
 import ConsensusRunner from '../../src/services/ConsensusRunner';
 import TimeService from '../../src/services/TimeService';
 import SignatureCollector from '../../src/services/SignatureCollector';
-import SaveMintedBlock from '../../src/services/SaveMintedBlock';
+import BlockRepository from '../../src/services/BlockRepository';
 import RevertedBlockResolver from '../../src/services/RevertedBlockResolver';
 import {Validator} from '../../src/types/Validator';
 import {BigNumber, Wallet} from 'ethers';
@@ -29,7 +29,7 @@ describe('ConsensusRunner', () => {
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
-  let mockedSaveMintedBlock: sinon.SinonStubbedInstance<SaveMintedBlock>;
+  let mockedBlockRepository: sinon.SinonStubbedInstance<BlockRepository>;
   let mockedRevertedBlockResolver: sinon.SinonStubbedInstance<RevertedBlockResolver>;
 
   let consensusRunner: ConsensusRunner;
@@ -42,7 +42,7 @@ describe('ConsensusRunner', () => {
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
     mockedTimeService = sinon.createStubInstance(TimeService);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
-    mockedSaveMintedBlock = sinon.createStubInstance(SaveMintedBlock);
+    mockedBlockRepository = sinon.createStubInstance(BlockRepository);
     mockedRevertedBlockResolver = sinon.createStubInstance(RevertedBlockResolver);
 
     settings = {
@@ -59,7 +59,7 @@ describe('ConsensusRunner', () => {
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
 
-    container.bind(SaveMintedBlock).toConstantValue(mockedSaveMintedBlock as unknown as SaveMintedBlock);
+    container.bind(BlockRepository).toConstantValue(mockedBlockRepository as unknown as BlockRepository);
     container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
