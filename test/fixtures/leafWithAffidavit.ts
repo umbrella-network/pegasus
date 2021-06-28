@@ -11,12 +11,7 @@ const leaf: Leaf = {
   valueBytes: '0x' + LeafValueCoder.encode(100).toString('hex'),
 };
 
-const affidavit = generateAffidavit(
-  timestamp,
-  new SortedMerkleTreeFactory().apply([leaf]).getRoot(),
-  [leaf.label],
-  [100],
-);
+const affidavit = generateAffidavit(timestamp, SortedMerkleTreeFactory.apply([leaf]).getRoot(), [leaf.label], [100]);
 
 const fcd: KeyValues = {
   [leaf.label]: 100,

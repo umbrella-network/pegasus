@@ -179,12 +179,10 @@ class FeedProcessor {
   }
 
   private buildLeaf = (leafLabel: string, leafValue: number): Leaf => {
-    const leaf: Leaf = {
+    return {
       label: leafLabel,
       valueBytes: `0x${LeafValueCoder.encode(leafValue).toString('hex')}`,
     };
-
-    return leaf;
   };
 
   private calculateMean(values: number[], leafLabel: string, precision: number): Leaf {

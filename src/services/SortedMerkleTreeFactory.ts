@@ -7,7 +7,7 @@ import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 
 @injectable()
 class SortedMerkleTreeFactory {
-  apply(sortedLeaves: Leaf[]): SortedMerkleTree {
+  static apply(sortedLeaves: Leaf[]): SortedMerkleTree {
     const treeData: KeyValuePairs = {};
 
     sortedLeaves.forEach((leaf) => {

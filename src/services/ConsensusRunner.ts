@@ -2,7 +2,7 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
-import {LeafValueCoder} from '@umb-network/toolbox';
+import {LeafValueCoder, loadFeeds} from '@umb-network/toolbox';
 
 import FeedProcessor from './FeedProcessor';
 import RevertedBlockResolver from './RevertedBlockResolver';
@@ -10,18 +10,17 @@ import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import TimeService from './TimeService';
-import {loadFeeds} from '@umb-network/toolbox';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import Leaf from '../types/Leaf';
 import {BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
-import {Consensus, DataForConsensus} from '../types/Consensus';
-import Feeds from '../types/Feed';
+import {Consensus, DataForConsensus, LeavesAndFeeds} from '../types/Consensus';
 import Settings from '../types/Settings';
 import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
+import Feeds from '../types/Feed';
 
 @injectable()
 class ConsensusRunner {
@@ -31,7 +30,6 @@ class ConsensusRunner {
   @inject(TimeService) timeService!: TimeService;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
-  @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject('Settings') settings!: Settings;
   @inject(RevertedBlockResolver) reveredBlockResolver!: RevertedBlockResolver;
@@ -42,12 +40,7 @@ class ConsensusRunner {
     validators: Validator[],
     staked: BigNumber,
   ): Promise<Consensus | null> {
-    let [firstClassLeaves, leaves] = await this.loadFeeds(
-      dataTimestamp,
-      this.settings.feedsOnChain,
-      this.settings.feedsFile,
-    );
-
+    let {firstClassLeaves, leaves} = await this.leavesAndFeeds(dataTimestamp);
     let consensus: Consensus | null = null;
     let discrepanciesKeys: Set<string> = new Set();
 
@@ -77,9 +70,12 @@ class ConsensusRunner {
     return null;
   }
 
-  private async loadFeeds(timestamp: number, ...feedFileName: string[]): Promise<Leaf[][]> {
-    const feeds: Feeds[] = await Promise.all(feedFileName.map((fileName) => loadFeeds(fileName)));
-    return this.feedProcessor.apply(timestamp, ...feeds);
+  private async leavesAndFeeds(dataTimestamp: number): Promise<LeavesAndFeeds> {
+    const feeds: Feeds[] = await Promise.all(
+      [this.settings.feedsOnChain, this.settings.feedsFile].map((fileName) => loadFeeds(fileName)),
+    );
+    const [firstClassLeaves, leaves] = await this.feedProcessor.apply(dataTimestamp, ...feeds);
+    return {firstClassLeaves, leaves, fcdsFeeds: feeds[0], leavesFeeds: feeds[1]};
   }
 
   private async runConsensus(
@@ -152,7 +148,7 @@ class ConsensusRunner {
     firstClassLeaves: Leaf[],
     leaves: Leaf[],
   ): Promise<DataForConsensus> {
-    const tree = this.sortedMerkleTreeFactory.apply(sortLeaves(leaves));
+    const tree = SortedMerkleTreeFactory.apply(sortLeaves(leaves));
     const sortedFirstClassLeaves = sortLeaves(firstClassLeaves);
     const fcdKeys: string[] = sortedFirstClassLeaves.map(({label}) => label);
 
