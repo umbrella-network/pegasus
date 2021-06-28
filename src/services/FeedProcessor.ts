@@ -42,6 +42,8 @@ class FeedProcessor {
     @inject(fetchers.IEXEnergyFetcher) IEXEnergyFetcher: fetchers.IEXEnergyFetcher,
     @inject(fetchers.CoingeckoPriceFetcher) CoingeckoPriceFetcher: fetchers.CoingeckoPriceFetcher,
     @inject(fetchers.CoinmarketcapPriceFetcher) CoinmarketcapPriceFetcher: fetchers.CoinmarketcapPriceFetcher,
+    @inject(fetchers.CoinmarketcapHistoHourFetcher) CoinmarketcapHistoHourFetcher: fetchers.CoinmarketcapHistoHourFetcher,
+    @inject(fetchers.CoinmarketcapHistoDayFetcher) CoinmarketcapHistoDayFetcher: fetchers.CoinmarketcapHistoDayFetcher,
     @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
   ) {
     this.fetchers = {
@@ -53,6 +55,8 @@ class FeedProcessor {
       IEXEnergyFetcher,
       CoingeckoPriceFetcher,
       CoinmarketcapPriceFetcher,
+      CoinmarketcapHistoHourFetcher,
+      CoinmarketcapHistoDayFetcher,
       BEACPIAverageFetcher,
     };
 
