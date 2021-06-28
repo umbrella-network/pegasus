@@ -16,11 +16,17 @@ type Params = {
   dataTimestamp: Date;
   timestamp: Date;
   fcdKeys: string[];
+  minted: boolean;
 };
 
 @injectable()
 class BlockRepository {
-  async saveBlock(chainAddress: string, consensus: SignedBlockConsensus, blockId: BigNumber): Promise<void> {
+  async saveBlock(
+    chainAddress: string,
+    consensus: SignedBlockConsensus,
+    blockId: BigNumber,
+    minted = false,
+  ): Promise<void> {
     await this.apply({
       id: `block::${blockId}`,
       chainAddress,
@@ -30,6 +36,7 @@ class BlockRepository {
       blockId: blockId.toNumber(),
       root: consensus.root,
       fcdKeys: consensus.fcdKeys,
+      minted,
     });
   }
 
@@ -43,6 +50,7 @@ class BlockRepository {
     block.root = params.root;
     block.data = this.treeDataFor(params.leaves);
     block.fcdKeys = params.fcdKeys;
+    block.minted = params.minted;
 
     return getModelForClass(Block).findOneAndUpdate({blockId: block.blockId}, block, {
       upsert: true,

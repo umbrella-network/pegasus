@@ -45,6 +45,7 @@ describe('BlockRepository', () => {
       root: '0x00',
       timestamp: new Date(1000),
       dataTimestamp: new Date(1000),
+      minted: true,
     });
 
     expect(result.data).to.be.an('object').that.deep.eq({
@@ -62,6 +63,7 @@ describe('BlockRepository', () => {
       root: '0x00',
       dataTimestamp: new Date(1000),
       timestamp: new Date(1000),
+      minted: false,
     });
 
     const blockFromDb = await getModelForClass(Block).findOne();
