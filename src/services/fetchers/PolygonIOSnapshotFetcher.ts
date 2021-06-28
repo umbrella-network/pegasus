@@ -16,6 +16,7 @@ class PolygonIOSnapshotFetcher {
     this.timeout = settings.api.polygonIO.timeout;
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   async apply({symbols}: any, raw = false): Promise<SnapshotResponse | number[]> {
     const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=${symbols.join(',')}&apiKey=${this.apiKey}`;
 

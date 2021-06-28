@@ -17,7 +17,7 @@ class CryptoCompareHistoDayFetcher {
     this.timeout = settings.api.cryptocompare.timeout;
   }
 
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   async apply(params: any): Promise<[any, number][] | undefined> {
     const sourceUrl = `https://min-api.cryptocompare.com/data/v2/histoday${mapParams(params)}`;
 

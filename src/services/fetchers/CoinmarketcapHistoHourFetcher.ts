@@ -16,7 +16,7 @@ class CoinmarketcapHistoHourFetcher {
     this.timeout = settings.api.coinmarketcap.timeout;
   }
   
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   async apply(params: any): Promise<[any, number][] | undefined> {
     const sourceUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/ohlcv/historical?symbol=${params.symbol}&convert=${params.convert}&time_period=hourly&interval=hourly&count=${params.count}&CMC_PRO_API_KEY=${this.apiKey}`;
 
