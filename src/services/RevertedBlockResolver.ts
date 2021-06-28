@@ -9,7 +9,19 @@ import {Logger} from 'winston';
 class RevertedBlockResolver {
   @inject('Logger') logger!: Logger;
 
-  async apply(lastSubmittedBlockId: number, nextBlockId: number): Promise<number | undefined> {
+  async apply(
+    lastBlockMinted: boolean | undefined,
+    lastSubmittedBlockId: number,
+    nextBlockId: number,
+  ): Promise<number | undefined> {
+    // first, check the case, where you save block as signer, block were not minted
+    // and now its your turn to vote for this round
+    if (!lastBlockMinted && lastSubmittedBlockId === nextBlockId) {
+      const blockRes = await getModelForClass(Block).collection.deleteOne({blockId: lastSubmittedBlockId});
+      this.logger.info(`Removing ${blockRes.deletedCount} not minted block: ${lastSubmittedBlockId}`);
+      return;
+    }
+
     if (lastSubmittedBlockId <= nextBlockId) {
       return;
     }

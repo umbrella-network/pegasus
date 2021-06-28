@@ -78,7 +78,7 @@ class BlockMinter {
     if (mintedBlock) {
       const {hash, logMint} = mintedBlock;
       this.logger.info(`New Block ${logMint.blockId} Minted in TX ${hash}`);
-      await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId);
+      await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId, true);
     }
   }
 
@@ -197,7 +197,11 @@ class BlockMinter {
       return true;
     }
 
-    await this.revertedBlockResolver.apply(lastSubmittedBlock?.blockId, chainStatus.nextBlockId);
+    await this.revertedBlockResolver.apply(
+      lastSubmittedBlock?.minted,
+      lastSubmittedBlock?.blockId,
+      chainStatus.nextBlockId,
+    );
     lastSubmittedBlock = await BlockMinter.getLastSubmittedBlock();
 
     const allowed = lastSubmittedBlock ? chainStatus.nextBlockId > lastSubmittedBlock.blockId : true;
