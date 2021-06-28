@@ -29,7 +29,8 @@ describe('FeedProcessor', () => {
     IEXEnergyFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.IEXEnergyFetcher>,
     CoingeckoPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoingeckoPriceFetcher>,
     CoinmarketcapPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoinmarketcapPriceFetcher>,
-    CoinmarketcapHistoHourFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoinmarketcapHistoHourFetcher>,
+    CoinmarketcapHistoHourFetcher:
+      null as unknown as sinon.SinonStubbedInstance<fetchers.CoinmarketcapHistoHourFetcher>,
     CoinmarketcapHistoDayFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoinmarketcapHistoDayFetcher>,
     BEACPIAverageFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.BEACPIAverageFetcher>,
   };
@@ -78,8 +79,12 @@ describe('FeedProcessor', () => {
       .toConstantValue(mockedFetchers.CryptoComparePriceWSFetcher as any);
     container.bind(fetchers.IEXEnergyFetcher).toConstantValue(mockedFetchers.IEXEnergyFetcher as any);
     container.bind(fetchers.CoinmarketcapPriceFetcher).toConstantValue(mockedFetchers.CoinmarketcapPriceFetcher as any);
-    container.bind(fetchers.CoinmarketcapHistoHourFetcher).toConstantValue(mockedFetchers.CoinmarketcapHistoHourFetcher as any);
-    container.bind(fetchers.CoinmarketcapHistoDayFetcher).toConstantValue(mockedFetchers.CoinmarketcapHistoDayFetcher as any);
+    container
+      .bind(fetchers.CoinmarketcapHistoHourFetcher)
+      .toConstantValue(mockedFetchers.CoinmarketcapHistoHourFetcher as any);
+    container
+      .bind(fetchers.CoinmarketcapHistoDayFetcher)
+      .toConstantValue(mockedFetchers.CoinmarketcapHistoDayFetcher as any);
     container.bind(fetchers.CoingeckoPriceFetcher).toConstantValue(mockedFetchers.CoingeckoPriceFetcher as any);
     container.bind(fetchers.BEACPIAverageFetcher).toConstantValue(mockedFetchers.BEACPIAverageFetcher as any);
 
@@ -252,7 +257,7 @@ describe('FeedProcessor', () => {
     ]);
 
     const leaves = await feedProcessor.apply(10, feeds);
-    
+
     expect(leaves[0]).to.be.an('array').with.lengthOf(1);
 
     expect(leaves[0][0].label).to.equal('DAFI-USD-TWAP-1day');
@@ -288,10 +293,10 @@ describe('FeedProcessor', () => {
     ]);
 
     const leaves = await feedProcessor.apply(10, feeds);
-    
+
     expect(leaves[0]).to.be.an('array').with.lengthOf(1);
 
     expect(leaves[0][0].label).to.equal('DAFI-USD-VWAP-2day');
     expect(LeafValueCoder.decode(leaves[0][0].valueBytes)).is.a('number').that.equal(0.02);
-  });  
+  });
 });
