@@ -10,6 +10,9 @@ class Block {
   _id!: string;
 
   @prop()
+  minted?: boolean;
+
+  @prop()
   chainAddress!: string;
 
   @prop()

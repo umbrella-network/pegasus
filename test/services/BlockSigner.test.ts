@@ -99,7 +99,7 @@ describe('BlockSigner', () => {
         leaves: {'ETH-USD': 100},
         signature,
       }),
-    ).to.be.rejectedWith('skipping 1: do not spam');
+    ).to.be.rejectedWith('skipping 1: waiting for next round');
   });
 
   it('throws error if signatures does not match', async () => {

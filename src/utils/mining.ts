@@ -5,6 +5,8 @@ import sort from 'fast-sort';
 import {ChainStatus} from '../types/ChainStatus';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 
+export const timestamp = (): number => Math.trunc(Date.now() / 1000);
+
 const abiUintEncoder = (n: number | string, bits = 256): string =>
   (typeof n === 'number' ? n.toString(16) : remove0x(n)).padStart(bits / 4, '0');
 
@@ -50,10 +52,8 @@ export const chainReadyForNewBlock = (
   chainStatus: ChainStatus,
   newDataTimestamp: number,
 ): [ready: boolean, error: string | undefined] => {
-  const timestamp = Math.trunc(Date.now() / 1000);
-
-  if (chainStatus.lastDataTimestamp + chainStatus.timePadding > timestamp) {
-    return [false, `skipping ${chainStatus.nextBlockId.toString()}: do not spam`];
+  if (chainStatus.lastDataTimestamp + chainStatus.timePadding > timestamp()) {
+    return [false, `skipping ${chainStatus.nextBlockId.toString()}: waiting for next round`];
   }
 
   if (newDataTimestamp <= chainStatus.lastDataTimestamp) {
@@ -73,5 +73,3 @@ export const sortSignaturesBySigner = (signatures: string[], affidavit: string):
     .map((signature) => [recoverSigner(affidavit, signature), signature])
     .sort((a, b) => (a[0] < b[0] ? -1 : 1))
     .map(([, signature]) => signature);
-
-export const timestamp = (): number => Math.trunc(Date.now() / 1000);
