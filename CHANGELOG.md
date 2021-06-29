@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.0.0] - 2021-06-29
 ### Added
 - `OnChain` feed collector
+
+### Changed
+- restrict packages versions with `~`
 
 ## [3.3.1] - 2021-06-28
 ### Fixed
