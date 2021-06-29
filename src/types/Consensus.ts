@@ -1,12 +1,12 @@
-import Leaf from '../types/Leaf';
 import {BigNumber} from 'ethers';
-import Feeds from './Feed';
+import Feeds, {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
+import Leaf from '../types/Leaf';
 
 export interface DataForConsensus {
   affidavit: string;
   dataTimestamp: number;
   fcdKeys: string[];
-  fcdValues: number[];
+  fcdValues: FeedValue[];
   leaves: Leaf[];
   root: string;
 }
@@ -16,7 +16,7 @@ export interface Consensus {
   leaves: Leaf[];
   root: string;
   fcdKeys: string[];
-  fcdValues: number[];
+  fcdValues: FeedValue[];
   signatures: string[];
   power: BigNumber;
 }

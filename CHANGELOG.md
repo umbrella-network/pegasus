@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.0.0] - 2021-06-29
+### Added
+- `OnChain` feed collector
+
+### Changed
+- restrict packages versions with `~`
+
 ## [3.3.1] - 2021-06-28
 ### Fixed
 - Remove last block if it was not minted
@@ -25,6 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 - leaf collection is no longer used
+- DB migrations
 
 ## [3.2.3] - 2021-06-23
 ### Fixed
@@ -76,7 +84,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add Badges for actions and Argocd
 
 ## [3.0.0] - 2021-05-24
-
 ### Added
 - collect consensus data from events
 

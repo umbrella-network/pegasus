@@ -8,7 +8,7 @@ const timestamp = 1621508941;
 
 const leaf: Leaf = {
   label: 'ETH-USD',
-  valueBytes: '0x' + LeafValueCoder.encode(100).toString('hex'),
+  valueBytes: '0x' + LeafValueCoder.encode(100, '').toString('hex'),
 };
 
 const affidavit = generateAffidavit(timestamp, SortedMerkleTreeFactory.apply([leaf]).getRoot(), [leaf.label], [100]);

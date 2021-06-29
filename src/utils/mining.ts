@@ -1,9 +1,11 @@
 import {ethers, Wallet} from 'ethers';
-import {LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
-import Leaf from '../types/Leaf';
 import sort from 'fast-sort';
-import {ChainStatus} from '../types/ChainStatus';
+import {LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
+import {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
+
+import Leaf from '../types/Leaf';
+import {ChainStatus} from '../types/ChainStatus';
 
 export const timestamp = (): number => Math.trunc(Date.now() / 1000);
 
@@ -27,17 +29,24 @@ export const signAffidavitWithWallet = async (wallet: Wallet, affidavit: string)
   return wallet.signMessage(toSign);
 };
 
+/**
+ *
+ * @param dataTimestamp
+ * @param root
+ * @param fcdKeys
+ * @param fcdValues {number | string}
+ */
 export const generateAffidavit = (
   dataTimestamp: number,
   root: string,
   fcdKeys: string[],
-  fcdValues: number[],
+  fcdValues: FeedValue[],
 ): string => {
-  let testimony = `0x${abiUintEncoder(dataTimestamp, 32)}${root.replace('0x', '')}`;
+  let testimony = `0x${abiUintEncoder(dataTimestamp, 32)}${remove0x(root)}`;
 
   fcdKeys.forEach((key, i) => {
     testimony += ethers.utils.defaultAbiCoder
-      .encode(['bytes32', 'uint256'], [LeafKeyCoder.encode(key), LeafValueCoder.encode(fcdValues[i])])
+      .encode(['bytes32', 'uint256'], [LeafKeyCoder.encode(key), LeafValueCoder.encode(fcdValues[i], key)])
       .slice(2);
   });
 

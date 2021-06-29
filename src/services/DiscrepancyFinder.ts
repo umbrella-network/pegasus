@@ -1,10 +1,11 @@
-import Leaf from '../types/Leaf';
-import {Discrepancy} from '../types/Discrepancy';
-import Feeds from '../types/Feed';
-import {LeafValueCoder} from '@umb-network/toolbox';
 import sort from 'fast-sort';
+import {LeafValueCoder} from '@umb-network/toolbox';
+import Feeds from '@umb-network/toolbox/dist/types/Feed';
+
 import {calcDiscrepancy} from '../utils/math';
 import {ProposedConsensus} from '../types/Consensus';
+import {Discrepancy} from '../types/Discrepancy';
+import Leaf from '../types/Leaf';
 
 export class DiscrepancyFinder {
   static apply(
@@ -52,11 +53,11 @@ export class DiscrepancyFinder {
         return;
       }
 
-      const proposedValue = LeafValueCoder.decode(proposedValueBytes);
-      const value = LeafValueCoder.decode(leaf.valueBytes);
+      const proposedValue = LeafValueCoder.decode(proposedValueBytes, label);
+      const value = LeafValueCoder.decode(leaf.valueBytes, label);
       const {discrepancy} = feeds[leaf.label];
 
-      const diffPerc = calcDiscrepancy(value, proposedValue) * 100.0;
+      const diffPerc = calcDiscrepancy(value, proposedValue, label) * 100.0;
 
       if (discrepancy < diffPerc) {
         discrepancies.set(label, diffPerc);

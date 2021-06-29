@@ -3,6 +3,7 @@ import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
 import {LeafValueCoder, loadFeeds} from '@umb-network/toolbox';
+import Feeds, {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
 
 import FeedProcessor from './FeedProcessor';
 import RevertedBlockResolver from './RevertedBlockResolver';
@@ -20,7 +21,6 @@ import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
-import Feeds from '../types/Feed';
 
 @injectable()
 class ConsensusRunner {
@@ -121,12 +121,10 @@ class ConsensusRunner {
   }
 
   private leavesToKeyValues(leaves: Leaf[]): KeyValues {
-    return Object.fromEntries(
-      leaves.map(({label, valueBytes}) => [label, LeafValueCoder.decode(valueBytes) as number]),
-    );
+    return Object.fromEntries(leaves.map(({label, valueBytes}) => [label, LeafValueCoder.decode(valueBytes, label)]));
   }
 
-  private fcdToKeyValues(fcdKeys: string[], fcdValues: number[]): KeyValues {
+  private fcdToKeyValues(fcdKeys: string[], fcdValues: FeedValue[]): KeyValues {
     return Object.fromEntries(fcdKeys.map((_, idx) => [fcdKeys[idx], fcdValues[idx]]));
   }
 
@@ -152,8 +150,8 @@ class ConsensusRunner {
     const sortedFirstClassLeaves = sortLeaves(firstClassLeaves);
     const fcdKeys: string[] = sortedFirstClassLeaves.map(({label}) => label);
 
-    const fcdValues: number[] = sortedFirstClassLeaves.map(
-      ({valueBytes}) => LeafValueCoder.decode(valueBytes) as number,
+    const fcdValues: FeedValue[] = sortedFirstClassLeaves.map(({valueBytes, label}) =>
+      LeafValueCoder.decode(valueBytes, label),
     );
 
     const affidavit = generateAffidavit(dataTimestamp, tree.getRoot(), fcdKeys, fcdValues);
