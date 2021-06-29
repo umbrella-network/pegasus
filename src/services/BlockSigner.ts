@@ -1,5 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
+import {loadFeeds} from '@umb-network/toolbox';
+import Feeds from '@umb-network/toolbox/dist/types/Feed';
 
 import FeedProcessor from './FeedProcessor';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
@@ -18,8 +20,6 @@ import {DiscrepancyFinder} from './DiscrepancyFinder';
 import newrelic from 'newrelic';
 import {Discrepancy} from '../types/Discrepancy';
 import {ProposedConsensusService} from './ProposedConsensusService';
-import Feeds from '../types/Feed';
-import {loadFeeds} from '@umb-network/toolbox';
 
 @injectable()
 class BlockSigner {
