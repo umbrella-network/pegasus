@@ -13,16 +13,6 @@ export interface FeedInput {
   calculator?: FeedCalculator;
 }
 
-export interface Feed {
-  discrepancy: number;
-  precision: number;
-  inputs: FeedInput[];
-}
-
-export default interface Feeds {
-  [leafLabel: string]: Feed;
-}
-
 export interface Pair {
   fsym: string;
   tsym: string;
@@ -30,4 +20,12 @@ export interface Pair {
 
 export interface PairWithFreshness extends Pair {
   freshness: number;
+}
+
+export interface OnChainCall {
+  address: string;
+  method: string;
+  inputs: string[];
+  outputs: string[];
+  args: string[];
 }

@@ -3,11 +3,12 @@ import {price} from '@umb-network/validator';
 import {MD5 as hash} from 'object-hash';
 import {Logger} from 'winston';
 import {LeafValueCoder} from '@umb-network/toolbox';
+import Feeds, {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
 
 import Leaf from '../types/Leaf';
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
-import Feeds, {FeedInput} from '../types/Feed';
+import {FeedInput} from '../types/Feed';
 import {
   InputParams as CryptoComparePriceMultiFetcherParams,
   OutputValue as CryptoComparePriceMultiFetcherOutputValue,
@@ -43,6 +44,7 @@ class FeedProcessor {
     @inject(fetchers.CoingeckoPriceFetcher) CoingeckoPriceFetcher: fetchers.CoingeckoPriceFetcher,
     @inject(fetchers.CoinmarketcapPriceFetcher) CoinmarketcapPriceFetcher: fetchers.CoinmarketcapPriceFetcher,
     @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
+    @inject(fetchers.OnChainDataFetcher) OnChainDataFetcher: fetchers.OnChainDataFetcher,
   ) {
     this.fetchers = {
       CryptoCompareHistoHourFetcher,
@@ -54,6 +56,7 @@ class FeedProcessor {
       CoingeckoPriceFetcher,
       CoinmarketcapPriceFetcher,
       BEACPIAverageFetcher,
+      OnChainDataFetcher,
     };
 
     this.calculators = Object.keys(calculators).reduce(
@@ -70,6 +73,7 @@ class FeedProcessor {
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     // collect unique inputs
     const uniqueInputsMap: {[hash: string]: FeedInput} = {};
+
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);
       keys.forEach((leafLabel) =>
@@ -80,11 +84,12 @@ class FeedProcessor {
     });
 
     const {singleInputs, multiInputs} = this.separateInputs(uniqueInputsMap);
-
     const inputIndexByHash: {[hash: string]: number} = {};
+
     Object.keys(singleInputs).forEach((hash, index) => {
       inputIndexByHash[hash] = index;
     });
+
     Object.keys(multiInputs).forEach((hash, index) => {
       const singleInputsLength = Object.values(singleInputs).length;
       inputIndexByHash[hash] = index + singleInputsLength;
@@ -96,7 +101,6 @@ class FeedProcessor {
     ]);
 
     const values = [...singleFeeds, ...multiFeeds];
-
     const result: Leaf[][] = [];
     const ignoredMap: {[string: string]: boolean} = {};
 
@@ -106,9 +110,11 @@ class FeedProcessor {
 
       tickers.forEach((ticker) => {
         const feed = feeds[ticker];
+
         const feedValues = feed.inputs
           .map((input) => values[inputIndexByHash[hash(input)]])
           .filter((item) => item !== undefined) as number[];
+
         if (feedValues.length) {
           leaves.push(this.calculateMean(feedValues, ticker, feed.precision));
         } else {
@@ -120,8 +126,9 @@ class FeedProcessor {
     });
 
     const ignored = Object.keys(ignoredMap);
+
     if (ignored.length) {
-      this.logger.warn(`Ignored: ${JSON.stringify(ignored)}`);
+      ////// this.logger.warn(`Ignored: ${JSON.stringify(ignored)}`);
     }
 
     return result;
@@ -136,7 +143,7 @@ class FeedProcessor {
     return fetcher;
   }
 
-  async processFeed(feedInput: FeedInput, timestamp: number): Promise<number | undefined> {
+  async processFeed(feedInput: FeedInput, timestamp: number): Promise<FeedValue | undefined> {
     const fetcher = this.findFetcher(feedInput);
 
     const calculate: Calculator = this.calculators[`calculate${feedInput.calculator?.name || 'Identity'}`];
@@ -145,7 +152,7 @@ class FeedProcessor {
     try {
       value = await fetcher.apply(feedInput.fetcher.params, timestamp);
     } catch (err) {
-      this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
+      /////this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
       return;
     }
 
@@ -156,7 +163,7 @@ class FeedProcessor {
     return;
   }
 
-  async processFeeds(feedInputs: FeedInput[], timestamp: number): Promise<(number | undefined)[]> {
+  async processFeeds(feedInputs: FeedInput[], timestamp: number): Promise<(FeedValue | undefined)[]> {
     return Promise.all(feedInputs.map((input) => this.processFeed(input, timestamp)));
   }
 
@@ -178,10 +185,10 @@ class FeedProcessor {
     return this.orderCryptoComparePriceMultiOutput(feedInputs, values);
   }
 
-  private buildLeaf = (leafLabel: string, leafValue: number): Leaf => {
+  private buildLeaf = (label: string, value: number): Leaf => {
     return {
-      label: leafLabel,
-      valueBytes: `0x${LeafValueCoder.encode(leafValue).toString('hex')}`,
+      label,
+      valueBytes: `0x${LeafValueCoder.encode(value, label).toString('hex')}`,
     };
   };
 

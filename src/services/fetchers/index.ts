@@ -8,6 +8,7 @@ import IEXEnergyFetcher from './IEXEnergyFetcher';
 import CoinmarketcapPriceFetcher from './CoinmarketcapPriceFetcher';
 import CoingeckoPriceFetcher from './CoingeckoPriceFetcher';
 import BEACPIAverageFetcher from './BEACPIAverageFetcher';
+import OnChainDataFetcher from './OnChainDataFetcher';
 
 export {
   CryptoComparePriceWSFetcher,
@@ -20,4 +21,5 @@ export {
   CoingeckoPriceFetcher,
   CoinmarketcapPriceFetcher,
   BEACPIAverageFetcher,
+  OnChainDataFetcher,
 };

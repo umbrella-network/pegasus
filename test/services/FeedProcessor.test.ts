@@ -2,16 +2,17 @@
 import 'reflect-metadata';
 import {Container} from 'inversify';
 import sinon from 'sinon';
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import {LeafValueCoder} from '@umb-network/toolbox';
+import Feeds from '@umb-network/toolbox/dist/types/Feed';
+
 import {mockedLogger} from '../mocks/logger';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import Settings from '../../src/types/Settings';
 import {expect} from 'chai';
 import * as fetchers from '../../src/services/fetchers';
 
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
-import Feeds from '../../src/types/Feed';
-import {LeafValueCoder} from '@umb-network/toolbox';
 chai.use(chaiAsPromised);
 
 describe('FeedProcessor', () => {
@@ -30,6 +31,7 @@ describe('FeedProcessor', () => {
     CoingeckoPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoingeckoPriceFetcher>,
     CoinmarketcapPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoinmarketcapPriceFetcher>,
     BEACPIAverageFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.BEACPIAverageFetcher>,
+    OnChainDataFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OnChainDataFetcher>,
   };
 
   let feedProcessor: FeedProcessor;
@@ -45,6 +47,7 @@ describe('FeedProcessor', () => {
     mockedFetchers.CoingeckoPriceFetcher = sinon.createStubInstance(fetchers.CoingeckoPriceFetcher);
     mockedFetchers.CoinmarketcapPriceFetcher = sinon.createStubInstance(fetchers.CoinmarketcapPriceFetcher);
     mockedFetchers.BEACPIAverageFetcher = sinon.createStubInstance(fetchers.BEACPIAverageFetcher);
+    mockedFetchers.OnChainDataFetcher = sinon.createStubInstance(fetchers.OnChainDataFetcher);
 
     const container = new Container();
 
@@ -76,6 +79,7 @@ describe('FeedProcessor', () => {
     container.bind(fetchers.CoinmarketcapPriceFetcher).toConstantValue(mockedFetchers.CoinmarketcapPriceFetcher as any);
     container.bind(fetchers.CoingeckoPriceFetcher).toConstantValue(mockedFetchers.CoingeckoPriceFetcher as any);
     container.bind(fetchers.BEACPIAverageFetcher).toConstantValue(mockedFetchers.BEACPIAverageFetcher as any);
+    container.bind(fetchers.OnChainDataFetcher).toConstantValue(mockedFetchers.OnChainDataFetcher as any);
 
     container.bind(FeedProcessor).toSelf();
 
@@ -210,8 +214,8 @@ describe('FeedProcessor', () => {
     expect(leaves[0]).to.be.an('array').with.lengthOf(2);
 
     expect(leaves[0][0].label).to.equal('ETH-USD-TWAP-30days');
-    expect(LeafValueCoder.decode(leaves[0][0].valueBytes)).is.a('number').that.equal(925.82);
+    expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(925.82);
     expect(leaves[0][1].label).to.equal('ETH-USD-VWAP-10days');
-    expect(LeafValueCoder.decode(leaves[0][1].valueBytes)).is.a('number').that.equal(954.98);
+    expect(LeafValueCoder.decode(leaves[0][1].valueBytes, leaves[0][1].label)).is.a('number').that.equal(954.98);
   });
 });
