@@ -25,7 +25,8 @@ describe('FeedProcessor', () => {
     CryptoComparePriceMultiFetcher:
       null as unknown as sinon.SinonStubbedInstance<fetchers.CryptoComparePriceMultiFetcher>,
     GVolImpliedVolatilityFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.GVolImpliedVolatilityFetcher>,
-    PolygonIOPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.PolygonIOPriceFetcher>,
+    PolygonIOCryptoPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.PolygonIOCryptoPriceFetcher>,
+    PolygonIOStockPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.PolygonIOStockPriceFetcher>,
     CryptoComparePriceWSFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CryptoComparePriceWSFetcher>,
     IEXEnergyFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.IEXEnergyFetcher>,
     CoingeckoPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoingeckoPriceFetcher>,
@@ -41,7 +42,8 @@ describe('FeedProcessor', () => {
     mockedFetchers.CryptoCompareHistoDayFetcher = sinon.createStubInstance(fetchers.CryptoCompareHistoDayFetcher);
     mockedFetchers.CryptoComparePriceMultiFetcher = sinon.createStubInstance(fetchers.CryptoComparePriceMultiFetcher);
     mockedFetchers.GVolImpliedVolatilityFetcher = sinon.createStubInstance(fetchers.GVolImpliedVolatilityFetcher);
-    mockedFetchers.PolygonIOPriceFetcher = sinon.createStubInstance(fetchers.PolygonIOPriceFetcher);
+    mockedFetchers.PolygonIOCryptoPriceFetcher = sinon.createStubInstance(fetchers.PolygonIOCryptoPriceFetcher);
+    mockedFetchers.PolygonIOCryptoPriceFetcher = sinon.createStubInstance(fetchers.PolygonIOCryptoPriceFetcher);
     mockedFetchers.CryptoComparePriceWSFetcher = sinon.createStubInstance(fetchers.CryptoComparePriceWSFetcher);
     mockedFetchers.IEXEnergyFetcher = sinon.createStubInstance(fetchers.IEXEnergyFetcher);
     mockedFetchers.CoingeckoPriceFetcher = sinon.createStubInstance(fetchers.CoingeckoPriceFetcher);
@@ -71,7 +73,12 @@ describe('FeedProcessor', () => {
     container
       .bind(fetchers.GVolImpliedVolatilityFetcher)
       .toConstantValue(mockedFetchers.GVolImpliedVolatilityFetcher as any);
-    container.bind(fetchers.PolygonIOPriceFetcher).toConstantValue(mockedFetchers.PolygonIOPriceFetcher as any);
+    container
+      .bind(fetchers.PolygonIOCryptoPriceFetcher)
+      .toConstantValue(mockedFetchers.PolygonIOCryptoPriceFetcher as any);
+    container
+      .bind(fetchers.PolygonIOStockPriceFetcher)
+      .toConstantValue(mockedFetchers.PolygonIOStockPriceFetcher as any);
     container
       .bind(fetchers.CryptoComparePriceWSFetcher)
       .toConstantValue(mockedFetchers.CryptoComparePriceWSFetcher as any);

@@ -5,7 +5,7 @@ import {JSONPath} from 'jsonpath-plus';
 import Settings from '../../types/Settings';
 
 @injectable()
-class PolygonIOSinglePriceFetcher {
+class PolygonIOSingleStockPriceFetcher {
   private apiKey: string;
   private timeout: number;
 
@@ -46,4 +46,4 @@ export interface SinglePriceResponse {
   },
 }
 
-export default PolygonIOSinglePriceFetcher;
+export default PolygonIOSingleStockPriceFetcher;

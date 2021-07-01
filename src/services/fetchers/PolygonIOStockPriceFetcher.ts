@@ -1,13 +1,12 @@
 import {inject, injectable} from 'inversify';
-
-import PolygonIOPriceService from '../PolygonIOPriceService';
+import PolygonIOStockPriceService from '../PolygonIOStockPriceService';
 
 @injectable()
 class PolygonIOPriceFetcher {
-  @inject(PolygonIOPriceService) polygonIOPriceService!: PolygonIOPriceService;
+  @inject(PolygonIOStockPriceService) polygonIOStockPriceService!: PolygonIOStockPriceService;
 
   async apply({sym}: any, timestamp: number): Promise<number> {
-    const price = await this.polygonIOPriceService.getLatestPrice(sym, timestamp);
+    const price = await this.polygonIOStockPriceService.getLatestPrice(sym, timestamp);
     if (price !== null) {
       return price;
     }

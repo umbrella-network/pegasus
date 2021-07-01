@@ -6,27 +6,28 @@ import PriceAggregator from './PriceAggregator';
 import Settings from '../types/Settings';
 import TimeService from './TimeService';
 import StatsDClient from '../lib/StatsDClient';
-import PolygonIOSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOSnapshotFetcher';
-import PolygonIOSinglePriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSinglePriceFetcher';
+import PolygonIOCryptoSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOCryptoSnapshotFetcher';
+import PolygonIOSingleCryptoPriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSingleCryptoPriceFetcher';
+import {Pair} from '../types/Feed';
 
 @injectable()
-class PolygonIOPriceService {
+class PolygonIOCryptoPriceService {
   @inject('Logger') logger!: Logger;
-  @inject(PolygonIOSnapshotFetcher) polygonIOSnapshotFetcher!: PolygonIOSnapshotFetcher;
-  @inject(PolygonIOSinglePriceFetcher) polygonIOSinglePriceFetcher!: PolygonIOSinglePriceFetcher;
+  @inject(PolygonIOCryptoSnapshotFetcher) polygonIOCryptoSnapshotFetcher!: PolygonIOCryptoSnapshotFetcher;
+  @inject(PolygonIOSingleCryptoPriceFetcher) polygonIOSingleCryptoPriceFetcher!: PolygonIOSingleCryptoPriceFetcher;
   @inject('Settings') settings!: Settings;
   @inject(TimeService) timeService!: TimeService;
   @inject(PriceAggregator) priceAggregator!: PriceAggregator;
 
-  static readonly Prefix = 'pio::';
+  static readonly Prefix = 'pioc::';
 
   priceUpdateJob?: Job;
   truncateJob?: Job;
 
-  subscriptions = {} as {[symbol: string]: boolean};
+  subscriptions: {[subscription: string]: [Pair, boolean]} = {};
 
-  async getLatestPrice(sym: string, timestamp: number): Promise<number | null> {
-    return await this.priceAggregator.value(`${PolygonIOPriceService.Prefix}${sym}`, timestamp);
+  async getLatestPrice({fsym, tsym}: Pair, timestamp: number): Promise<number | null> {
+    return await this.priceAggregator.value(`${PolygonIOCryptoPriceService.Prefix}${fsym}-${tsym}`, timestamp);
   }
 
   start(): void {
@@ -35,7 +36,7 @@ class PolygonIOPriceService {
     });
 
     this.priceUpdateJob = schedule.scheduleJob(this.settings.api.polygonIO.priceUpdateCronRule, () => {
-      this.requestAllPrices(Object.keys(this.subscriptions)).catch(this.logger.warn);
+      this.requestAllPrices(Object.values(this.subscriptions).map(([pair]) => pair)).catch(this.logger.warn);
     });
   }
 
@@ -49,41 +50,43 @@ class PolygonIOPriceService {
       return;
     }
 
-    StatsDClient?.gauge(`cpm.${symbol}`, price);
+    StatsDClient?.gauge(`pioc.${symbol}`, price);
     this.logger.debug(`${symbol}: ${price} at ${timestamp}`);
 
-    this.priceAggregator.add(`${PolygonIOPriceService.Prefix}${symbol}`, price, timestamp).catch(this.logger.error);
+    this.priceAggregator
+      .add(`${PolygonIOCryptoPriceService.Prefix}${symbol}`, price, timestamp)
+      .catch(this.logger.error);
   }
 
-  subscribe(...symbols: string[]): void {
-    const newSymbols = symbols.filter((symbol) => this.subscriptions[symbol] === undefined);
+  subscribe(...symbols: Pair[]): void {
+    const newPairs = symbols.filter((pair) => this.subscriptions[`${pair.fsym}-${pair.tsym}`] === undefined);
 
-    for (const newSymbol of newSymbols) {
-      this.subscriptions[newSymbol] = false;
+    for (const pair of newPairs) {
+      this.subscriptions[`${pair.fsym}-${pair.tsym}`] = [pair, false];
     }
 
     this.updateInitialPrices().catch(console.warn);
   }
 
-  unsubscribe(...symbols: string[]): void {
-    for (const symbol of symbols) {
-      delete this.subscriptions[symbol];
+  unsubscribe(...pairs: Pair[]): void {
+    for (const pair of pairs) {
+      delete this.subscriptions[`${pair.fsym}-${pair.tsym}`];
     }
   }
 
   private async updateInitialPrices(): Promise<void> {
-    const initialSymbols = Object.entries(this.subscriptions)
-      .filter(([, initialized]) => !initialized)
-      .map(([symbol]) => symbol);
+    const initialPairs = Object.entries(this.subscriptions)
+      .filter(([, [, initialized]]) => !initialized)
+      .map(([, [pair]]) => pair);
 
-    if (!initialSymbols.length) {
+    if (!initialPairs.length) {
       return;
     }
 
-    this.logger.info(`updating ${initialSymbols.length} initial prices...`);
+    this.logger.info(`updating ${initialPairs.length} initial crypto prices...`);
 
     const results = await Promise.allSettled(
-      initialSymbols.map((sym) => this.polygonIOSinglePriceFetcher.apply({sym}, true)),
+      initialPairs.map((pair) => this.polygonIOSingleCryptoPriceFetcher.apply(pair, true)),
     );
 
     const fulfilled: SinglePriceResponse[] = results
@@ -91,7 +94,7 @@ class PolygonIOPriceService {
       .map(({value}: any) => value);
 
     fulfilled.forEach(({last, symbol}) => {
-      this.subscriptions[symbol] = true;
+      this.subscriptions[symbol] = [this.subscriptions[symbol][0], true];
 
       if (!last) {
         console.warn(`no last for ${symbol}`);
@@ -109,23 +112,32 @@ class PolygonIOPriceService {
     }
   }
 
-  private async requestAllPrices(symbols: string[]): Promise<void> {
-    this.logger.info(`updating all ${symbols.length} prices...`);
+  private async requestAllPrices(pairs: Pair[]): Promise<void> {
+    this.logger.info(`updating all ${pairs.length} prices...`);
 
-    if (!symbols.length) {
+    if (!pairs.length) {
       return;
     }
 
-    const result = (await this.polygonIOSnapshotFetcher.apply({symbols}, true)) as SnapshotResponse;
+    const symbols: {[key: string]: string} = {};
+    pairs.forEach(({fsym, tsym}) => {
+      symbols[`X:${fsym}${tsym}`] = `${fsym}-${tsym}`;
+    });
+
+    const result = (await this.polygonIOCryptoSnapshotFetcher.apply(
+      {symbols: Object.keys(symbols)},
+      true,
+    )) as SnapshotResponse;
 
     result.tickers.forEach(({lastTrade, ticker: symbol}) => {
+      symbol = symbols[symbol];
       if (!lastTrade) {
         console.warn(`no lastTrade for ${symbol}`);
         return;
       }
 
       const {p: price, t: timestamp} = lastTrade;
-      this.onUpdate(symbol, price, Math.floor(timestamp / 1000000000));
+      this.onUpdate(symbol, price, Math.floor(timestamp / 1000));
     });
   }
 
@@ -136,7 +148,7 @@ class PolygonIOPriceService {
 
     await Promise.all(
       Object.keys(this.subscriptions).map(async (subscription) => {
-        const key = `${PolygonIOPriceService.Prefix}${subscription}`;
+        const key = `${PolygonIOCryptoPriceService.Prefix}${subscription}`;
 
         // find a value before a particular timestamp
         const valueTimestamp = await this.priceAggregator.valueTimestamp(key, beforeTimestamp);
@@ -152,4 +164,4 @@ class PolygonIOPriceService {
   }
 }
 
-export default PolygonIOPriceService;
+export default PolygonIOCryptoPriceService;

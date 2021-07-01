@@ -52,7 +52,7 @@ const settings: Settings = {
       resubscribeTimeoutMinutes: parseInt(process.env.CRYPTOCOMPARE_RESUBSCRIBE_INTERVAL_MINUTES || '5', 10),
       truncateCronRule: process.env.CRYPTOCOMPARE_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
       truncateIntervalMinutes: parseInt(process.env.CRYPTOCOMPARE_TRUNCATE_INTERVAL_MINUTES || '60', 10),
-      reconnectTimeout: parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '30000', 10),
+      reconnectTimeout: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_TIMEOUT || '30000', 10),
     },
     coingecko: {
       timeout: parseInt(process.env.COINGECKO_TIMEOUT || '5000', 10),
@@ -71,6 +71,7 @@ const settings: Settings = {
       truncateCronRule: process.env.POLYGON_IO_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
       timeout: parseInt(process.env.POLYGON_IO_TIMEOUT || '5000', 10),
       truncateIntervalMinutes: parseInt(process.env.POLYGON_IO_TRUNCATE_INTERVAL_MINUTES || '60', 10),
+      reconnectTimeout: parseInt(process.env.POLYGON_IO_RECONNECT_TIMEOUT || '30000', 10),
     },
     iex: {
       apiKey: process.env.IEX_API_KEY as string,

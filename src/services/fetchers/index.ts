@@ -2,7 +2,8 @@ import CryptoComparePriceMultiFetcher from './CryptoComparePriceMultiFetcher';
 import CryptoCompareHistoHourFetcher from './CryptoCompareHistoHourFetcher';
 import CryptoCompareHistoDayFetcher from './CryptoCompareHistoDayFetcher';
 import GVolImpliedVolatilityFetcher from './GVolImpliedVolatilityFetcher';
-import PolygonIOPriceFetcher from './PolygonIOPriceFetcher';
+import PolygonIOStockPriceFetcher from './PolygonIOStockPriceFetcher';
+import PolygonIOCryptoPriceFetcher from './PolygonIOCryptoPriceFetcher';
 import CryptoComparePriceWSFetcher from './CryptoComparePriceWSFetcher';
 import IEXEnergyFetcher from './IEXEnergyFetcher';
 import CoinmarketcapPriceFetcher from './CoinmarketcapPriceFetcher';
@@ -12,7 +13,8 @@ import OnChainDataFetcher from './OnChainDataFetcher';
 
 export {
   CryptoComparePriceWSFetcher,
-  PolygonIOPriceFetcher,
+  PolygonIOStockPriceFetcher,
+  PolygonIOCryptoPriceFetcher,
   CryptoComparePriceMultiFetcher,
   CryptoCompareHistoDayFetcher,
   CryptoCompareHistoHourFetcher,

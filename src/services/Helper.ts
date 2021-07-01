@@ -7,7 +7,7 @@ import CryptoCompareWSClient from './ws/CryptoCompareWSClient';
 import Settings from '../types/Settings';
 import sort from 'fast-sort';
 import PolygonIOPriceInitializer from './PolygonIOPriceInitializer';
-import PolygonIOPriceService from './PolygonIOPriceService';
+import PolygonIOCryptoPriceService from './PolygonIOPriceService';
 
 @injectable()
 class Helper {
@@ -27,7 +27,7 @@ class Helper {
 
     const keys = cryptoPairs
       .map(({fsym, tsym}) => [`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, `${fsym}-${tsym}`])
-      .concat(stockSymbols.map((sym: string) => [`${PolygonIOPriceService.Prefix}${sym}`, `EQ:${sym}`]));
+      .concat(stockSymbols.map((sym: string) => [`${PolygonIOCryptoPriceService.Prefix}${sym}`, `EQ:${sym}`]));
 
     const result = await Promise.all(
       keys.map(async ([key, desc]) => {
@@ -51,7 +51,7 @@ class Helper {
   }
 
   async priceAggregatorStockPrices(sym: string): Promise<{value: number; timestamp: number}[]> {
-    return this.priceAggregator.valueTimestamps(`${PolygonIOPriceService.Prefix}${sym}`);
+    return this.priceAggregator.valueTimestamps(`${PolygonIOCryptoPriceService.Prefix}${sym}`);
   }
 }
 

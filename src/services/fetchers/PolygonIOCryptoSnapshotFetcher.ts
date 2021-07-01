@@ -5,7 +5,7 @@ import {JSONPath} from 'jsonpath-plus';
 import Settings from '../../types/Settings';
 
 @injectable()
-class PolygonIOSnapshotFetcher {
+class PolygonIOCryptoSnapshotFetcher {
   private apiKey: string;
   private timeout: number;
 
@@ -16,8 +16,12 @@ class PolygonIOSnapshotFetcher {
     this.timeout = settings.api.polygonIO.timeout;
   }
 
+  /**
+   * @param symbols X:BTCUSD, ...
+   * @param raw
+   */
   async apply({symbols}: any, raw = false): Promise<SnapshotResponse | number[]> {
-    const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=${symbols.join(',')}&apiKey=${this.apiKey}`;
+    const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers?tickers=${symbols.join(',')}&apiKey=${this.apiKey}`;
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
@@ -49,4 +53,4 @@ export interface SnapshotResponse {
   tickers: Ticker[],
 }
 
-export default PolygonIOSnapshotFetcher;
+export default PolygonIOCryptoSnapshotFetcher;
