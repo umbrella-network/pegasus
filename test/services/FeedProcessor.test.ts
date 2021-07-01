@@ -265,7 +265,7 @@ describe('FeedProcessor', () => {
     expect(leaves[0]).to.be.an('array').with.lengthOf(1);
 
     expect(leaves[0][0].label).to.equal('DAFI-USD-TWAP-1day');
-    expect(LeafValueCoder.decode(leaves[0][0].valueBytes)).is.a('number').that.equal(0.02);
+    expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(0.02);
   });
 
   it('returns leafs for feeds with CoinmarketcapHistoDayFetcher fetcher', async () => {
@@ -301,6 +301,6 @@ describe('FeedProcessor', () => {
     expect(leaves[0]).to.be.an('array').with.lengthOf(1);
 
     expect(leaves[0][0].label).to.equal('DAFI-USD-VWAP-2day');
-    expect(LeafValueCoder.decode(leaves[0][0].valueBytes)).is.a('number').that.equal(0.02);
+    expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(0.02);
   });
 });
