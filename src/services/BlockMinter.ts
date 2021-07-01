@@ -2,6 +2,7 @@ import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Signature} from 'ethers';
 import {ABI, LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
+import {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
 import {getModelForClass} from '@typegoose/typegoose';
 import newrelic from 'newrelic';
 
@@ -78,7 +79,7 @@ class BlockMinter {
     if (mintedBlock) {
       const {hash, logMint} = mintedBlock;
       this.logger.info(`New Block ${logMint.blockId} Minted in TX ${hash}`);
-      await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId);
+      await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId, true);
     }
   }
 
@@ -100,7 +101,7 @@ class BlockMinter {
     dataTimestamp: number,
     root: string,
     keys: string[],
-    values: number[],
+    values: FeedValue[],
     signatures: string[],
   ): Promise<MintedBlock | null> {
     try {
@@ -112,7 +113,7 @@ class BlockMinter {
         dataTimestamp,
         root,
         keys.map(LeafKeyCoder.encode),
-        values.map((v) => LeafValueCoder.encode(v)),
+        values.map((v, i) => LeafValueCoder.encode(v, keys[i])),
         components.map((sig) => sig.v),
         components.map((sig) => sig.r),
         components.map((sig) => sig.s),
@@ -197,7 +198,11 @@ class BlockMinter {
       return true;
     }
 
-    await this.revertedBlockResolver.apply(lastSubmittedBlock?.blockId, chainStatus.nextBlockId);
+    await this.revertedBlockResolver.apply(
+      lastSubmittedBlock?.minted,
+      lastSubmittedBlock?.blockId,
+      chainStatus.nextBlockId,
+    );
     lastSubmittedBlock = await BlockMinter.getLastSubmittedBlock();
 
     const allowed = lastSubmittedBlock ? chainStatus.nextBlockId > lastSubmittedBlock.blockId : true;

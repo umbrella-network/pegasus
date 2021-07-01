@@ -33,9 +33,7 @@ async function dbCleanUp(): Promise<void> {
 }
 
 async function estimateGasPrice(): Promise<void> {
-  const gasPrice = await Application.get(GasEstimator).apply();
-
-  console.log(gasPrice.toString());
+  await Application.get(GasEstimator).apply();
 }
 
 const ev = new EventEmitter();

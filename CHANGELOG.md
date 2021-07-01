@@ -10,7 +10,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - new fetcher CoinmarketcapHistoDay
 - new fetcher CoinmarketcapHistoHour
 
-# [3.3.0] - 2021-06-26
+## [4.0.0] - 2021-06-29
+### Added
+- `OnChain` feed collector
+
+### Changed
+- restrict packages versions with `~`
+
+## [3.3.1] - 2021-06-28
+### Fixed
+- Remove last block if it was not minted
+
+## [3.3.0] - 2021-06-26
 ### Added
 - save blocks at Block Sign request
 
@@ -20,25 +31,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - split BlockSigner into services for better QA
 
 ### Fixed
-- potentialy fix issue with discrepanties by refactoring code
+- potentially fix issue with discrepancies by refactoring code
 
 ### Removed
 - leaf collection is no longer used
+- DB migrations
 
-# [3.2.3] - 2021-06-23
+## [3.2.3] - 2021-06-23
 ### Fixed
 - Ignore out-of-date crypto prices in CryptoCompareWSClient
 
-# [3.2.2] - 2021-06-18
+## [3.2.2] - 2021-06-18
 ### Fixed
 - Fixed VWAP calculation
 - Fixed aggregate price calculation
 
-# [3.2.1] - 2021-06-18
+## [3.2.1] - 2021-06-18
 ### Added
 - CryptoCompare re-connect timeout
 
-# [3.2.0] - 2021-06-18
+## [3.2.0] - 2021-06-18
 
 ### Changed
 - remove loadFeeds to use toolbox's loadFeeds
@@ -50,11 +62,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - remove unnecessary consensus data, that block explorer is getting directly from blockchain
 
-# [3.1.1] - 2021-06-09
+## [3.1.1] - 2021-06-09
 ### Added
 - Moves constants to its own directory
 
-# [3.1.0] - 2021-06-03
+## [3.1.0] - 2021-06-03
 
 ### Added
 - added reporting of reverted blocks to NewRelic
@@ -62,7 +74,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - added reporting of transaction errors to NewRelic
 - support CryptoCompare Multiple Symbols Price API
 
-# [3.0.2] - 2021-06-01
+## [3.0.2] - 2021-06-01
 ### Fixed
 - cicd workflow run to set production tag
 
@@ -75,7 +87,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add Badges for actions and Argocd
 
 ## [3.0.0] - 2021-05-24
-
 ### Added
 - collect consensus data from events
 

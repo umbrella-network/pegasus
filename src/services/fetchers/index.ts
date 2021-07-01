@@ -10,6 +10,7 @@ import CoinmarketcapHistoHourFetcher from './CoinmarketcapHistoHourFetcher';
 import CoinmarketcapHistoDayFetcher from './CoinmarketcapHistoDayFetcher';
 import CoingeckoPriceFetcher from './CoingeckoPriceFetcher';
 import BEACPIAverageFetcher from './BEACPIAverageFetcher';
+import OnChainDataFetcher from './OnChainDataFetcher';
 
 export {
   CryptoComparePriceWSFetcher,
@@ -24,4 +25,5 @@ export {
   CoinmarketcapHistoHourFetcher,
   CoinmarketcapHistoDayFetcher,
   BEACPIAverageFetcher,
+  OnChainDataFetcher,
 };

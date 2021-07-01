@@ -1,5 +1,7 @@
+import {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
+
 export interface KeyValues {
-  [key: string]: number;
+  [key: string]: FeedValue;
 }
 
 export interface SignedBlock {

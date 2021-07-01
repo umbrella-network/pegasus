@@ -1,14 +1,15 @@
 import 'reflect-metadata';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import {LeafValueCoder} from '@umb-network/toolbox';
+import Feeds from '@umb-network/toolbox/dist/types/Feed';
+
 import {DiscrepancyFinder} from '../../src/services/DiscrepancyFinder';
 import {Wallet} from 'ethers';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {signAffidavitWithWallet} from '../../src/utils/mining';
-import Feeds from '../../src/types/Feed';
 import {ProposedConsensusService} from '../../src/services/ProposedConsensusService';
 import {SignedBlock} from '../../src/types/SignedBlock';
-import {LeafValueCoder} from '@umb-network/toolbox';
 import {ProposedConsensus} from '../../src/types/Consensus';
 
 chai.use(chaiAsPromised);
@@ -41,7 +42,7 @@ describe('DiscrepancyFinder', () => {
   });
 
   it('return empty array when no discrepancy', () => {
-    const dicrepancies = DiscrepancyFinder.apply(
+    const discrepancies = DiscrepancyFinder.apply(
       proposedConsensus,
       proposedConsensus.fcds,
       proposedConsensus.leaves,
@@ -49,7 +50,7 @@ describe('DiscrepancyFinder', () => {
       feeds,
     );
 
-    expect(dicrepancies.length).to.eq(0);
+    expect(discrepancies.length).to.eq(0);
   });
 
   describe('return discrepancy', () => {
@@ -57,15 +58,18 @@ describe('DiscrepancyFinder', () => {
       const myLeaves = proposedConsensus.fcds.map((fcd) => {
         return {
           label: fcd.label,
-          valueBytes: LeafValueCoder.encode(LeafValueCoder.decode(fcd.valueBytes) + 0.11).toString('hex'),
+          valueBytes: LeafValueCoder.encode(
+            <number>LeafValueCoder.decode(fcd.valueBytes, fcd.label) + 0.11,
+            fcd.label,
+          ).toString('hex'),
         };
       });
 
-      const dicrepancies = DiscrepancyFinder.apply(proposedConsensus, [], myLeaves, feeds, feeds);
+      const discrepancies = DiscrepancyFinder.apply(proposedConsensus, [], myLeaves, feeds, feeds);
 
-      expect(dicrepancies.length).to.eq(2);
-      expect(dicrepancies[0]).to.eql({key: leaf.label, discrepancy: 0.11});
-      expect(dicrepancies[1]).to.eql({key: leaf.label, discrepancy: 100});
+      expect(discrepancies.length).to.eq(2);
+      expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 0.11});
+      expect(discrepancies[1]).to.eql({key: leaf.label, discrepancy: 100});
     });
 
     it('when we missing fcds', () => {
@@ -76,10 +80,10 @@ describe('DiscrepancyFinder', () => {
         };
       });
 
-      const dicrepancies = DiscrepancyFinder.apply(proposedConsensus, myFcds, proposedConsensus.leaves, feeds, feeds);
+      const discrepancies = DiscrepancyFinder.apply(proposedConsensus, myFcds, proposedConsensus.leaves, feeds, feeds);
 
-      expect(dicrepancies.length).to.eq(1);
-      expect(dicrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
+      expect(discrepancies.length).to.eq(1);
+      expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
     });
 
     it('when we missing leaves', () => {
@@ -90,18 +94,18 @@ describe('DiscrepancyFinder', () => {
         };
       });
 
-      const dicrepancies = DiscrepancyFinder.apply(proposedConsensus, proposedConsensus.fcds, myFcds, feeds, feeds);
+      const discrepancies = DiscrepancyFinder.apply(proposedConsensus, proposedConsensus.fcds, myFcds, feeds, feeds);
 
-      expect(dicrepancies.length).to.eq(1);
-      expect(dicrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
+      expect(discrepancies.length).to.eq(1);
+      expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
     });
 
     it('when we have no data', () => {
-      const dicrepancies = DiscrepancyFinder.apply(proposedConsensus, [], [], feeds, feeds);
+      const discrepancies = DiscrepancyFinder.apply(proposedConsensus, [], [], feeds, feeds);
 
-      expect(dicrepancies.length).to.eq(2);
-      expect(dicrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
-      expect(dicrepancies[1]).to.eql({key: leaf.label, discrepancy: 100});
+      expect(discrepancies.length).to.eq(2);
+      expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
+      expect(discrepancies[1]).to.eql({key: leaf.label, discrepancy: 100});
     });
   });
 });

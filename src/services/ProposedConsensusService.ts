@@ -5,6 +5,7 @@ import SortedMerkleTreeFactory from '../services/SortedMerkleTreeFactory';
 import {ProposedConsensus} from '../types/Consensus';
 import Leaf from '../types/Leaf';
 import {KeyValues, SignedBlock} from '../types/SignedBlock';
+import {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
 
 export class ProposedConsensusService {
   static apply(block: SignedBlock): ProposedConsensus {
@@ -12,7 +13,7 @@ export class ProposedConsensusService {
     const proposedTree = SortedMerkleTreeFactory.apply(sortLeaves(leaves));
     const fcds = sortLeaves(this.keyValuesToLeaves(block.fcd));
     const fcdKeys: string[] = fcds.map(({label}) => label);
-    const fcdValues: number[] = fcds.map(({valueBytes}) => LeafValueCoder.decode(valueBytes));
+    const fcdValues: FeedValue[] = fcds.map(({valueBytes, label}) => LeafValueCoder.decode(valueBytes, label));
     const root = proposedTree.getRoot();
     const affidavit = generateAffidavit(block.dataTimestamp, root, fcdKeys, fcdValues);
     const signer = this.recoverSigner(affidavit, block.signature);
@@ -24,10 +25,10 @@ export class ProposedConsensusService {
     return Object.entries(keyValues).map(([label, value]): Leaf => this.newLeaf(label, value));
   }
 
-  private static newLeaf(label: string, value: number): Leaf {
+  private static newLeaf(label: string, value: FeedValue): Leaf {
     return {
       label: label,
-      valueBytes: '0x' + LeafValueCoder.encode(value).toString('hex'),
+      valueBytes: '0x' + LeafValueCoder.encode(value, label).toString('hex'),
     };
   }
 
