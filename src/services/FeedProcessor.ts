@@ -82,7 +82,7 @@ class FeedProcessor {
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);
       keys.forEach((leafLabel) => {
-        if(leafLabel.includes("DAFI")) console.log(`${leafLabel}:`, feeds[leafLabel].inputs);
+        if (leafLabel.includes('DAFI')) console.log(`${leafLabel}:`, feeds[leafLabel].inputs);
         feeds[leafLabel].inputs.forEach((input) => {
           uniqueInputsMap[hash(input)] = input;
         });
