@@ -16,6 +16,7 @@ class IEXEnergyFetcher {
     this.timeout = settings.api.iex.timeout;
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   async apply({sym}: any): Promise<number> {
     const sourceUrl = `https://cloud.iexapis.com/stable/time-series/energy/${sym}?token=${this.apiKey}`;
 

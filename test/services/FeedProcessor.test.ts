@@ -31,6 +31,9 @@ describe('FeedProcessor', () => {
     IEXEnergyFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.IEXEnergyFetcher>,
     CoingeckoPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoingeckoPriceFetcher>,
     CoinmarketcapPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoinmarketcapPriceFetcher>,
+    CoinmarketcapHistoHourFetcher:
+      null as unknown as sinon.SinonStubbedInstance<fetchers.CoinmarketcapHistoHourFetcher>,
+    CoinmarketcapHistoDayFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoinmarketcapHistoDayFetcher>,
     BEACPIAverageFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.BEACPIAverageFetcher>,
     OnChainDataFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OnChainDataFetcher>,
   };
@@ -48,6 +51,8 @@ describe('FeedProcessor', () => {
     mockedFetchers.IEXEnergyFetcher = sinon.createStubInstance(fetchers.IEXEnergyFetcher);
     mockedFetchers.CoingeckoPriceFetcher = sinon.createStubInstance(fetchers.CoingeckoPriceFetcher);
     mockedFetchers.CoinmarketcapPriceFetcher = sinon.createStubInstance(fetchers.CoinmarketcapPriceFetcher);
+    mockedFetchers.CoinmarketcapHistoHourFetcher = sinon.createStubInstance(fetchers.CoinmarketcapHistoHourFetcher);
+    mockedFetchers.CoinmarketcapHistoDayFetcher = sinon.createStubInstance(fetchers.CoinmarketcapHistoDayFetcher);
     mockedFetchers.BEACPIAverageFetcher = sinon.createStubInstance(fetchers.BEACPIAverageFetcher);
     mockedFetchers.OnChainDataFetcher = sinon.createStubInstance(fetchers.OnChainDataFetcher);
 
@@ -84,6 +89,12 @@ describe('FeedProcessor', () => {
       .toConstantValue(mockedFetchers.CryptoComparePriceWSFetcher as any);
     container.bind(fetchers.IEXEnergyFetcher).toConstantValue(mockedFetchers.IEXEnergyFetcher as any);
     container.bind(fetchers.CoinmarketcapPriceFetcher).toConstantValue(mockedFetchers.CoinmarketcapPriceFetcher as any);
+    container
+      .bind(fetchers.CoinmarketcapHistoHourFetcher)
+      .toConstantValue(mockedFetchers.CoinmarketcapHistoHourFetcher as any);
+    container
+      .bind(fetchers.CoinmarketcapHistoDayFetcher)
+      .toConstantValue(mockedFetchers.CoinmarketcapHistoDayFetcher as any);
     container.bind(fetchers.CoingeckoPriceFetcher).toConstantValue(mockedFetchers.CoingeckoPriceFetcher as any);
     container.bind(fetchers.BEACPIAverageFetcher).toConstantValue(mockedFetchers.BEACPIAverageFetcher as any);
     container.bind(fetchers.OnChainDataFetcher).toConstantValue(mockedFetchers.OnChainDataFetcher as any);
@@ -224,5 +235,79 @@ describe('FeedProcessor', () => {
     expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(925.82);
     expect(leaves[0][1].label).to.equal('ETH-USD-VWAP-10days');
     expect(LeafValueCoder.decode(leaves[0][1].valueBytes, leaves[0][1].label)).is.a('number').that.equal(954.98);
+  });
+
+  it('returns leafs for feeds with CoinmarketcapHistoHourFetcher fetcher', async () => {
+    const feeds: Feeds = {
+      'DAFI-USD-TWAP-1day': {
+        discrepancy: 1,
+        precision: 2,
+        inputs: [
+          {
+            fetcher: {
+              name: 'CoinmarketcapHistoHour',
+              params: {
+                symbol: 'DAFI',
+                convert: 'USD',
+                count: 24,
+              } as any,
+            },
+            calculator: {
+              name: 'TWAP',
+            },
+          },
+        ],
+      },
+    };
+
+    mockedFetchers.CoinmarketcapHistoHourFetcher.apply.resolves([
+      [{high: 0.01921101420515, low: 0.01877340354233, open: 0.01920044307503, close: 0.01883937761903}, 0],
+      [{high: 0.01892011699539, low: 0.01865968395006, open: 0.01883342952984, close: 0.01871888037923}, 0],
+      [{high: 0.019151325829, low: 0.01868707355498, open: 0.01873161524546, close: 0.01881365248309}, 0],
+      [{high: 0.01928533157671, low: 0.01881243016939, open: 0.01881243016939, close: 0.01928533157671}, 0],
+    ]);
+
+    const leaves = await feedProcessor.apply(10, feeds);
+
+    expect(leaves[0]).to.be.an('array').with.lengthOf(1);
+
+    expect(leaves[0][0].label).to.equal('DAFI-USD-TWAP-1day');
+    expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(0.02);
+  });
+
+  it('returns leafs for feeds with CoinmarketcapHistoDayFetcher fetcher', async () => {
+    const feeds: Feeds = {
+      'DAFI-USD-VWAP-2day': {
+        discrepancy: 1,
+        precision: 2,
+        inputs: [
+          {
+            fetcher: {
+              name: 'CoinmarketcapHistoDay',
+              params: {
+                symbol: 'DAFI',
+                convert: 'USD',
+                count: 2,
+              } as any,
+            },
+            calculator: {
+              name: 'VWAP',
+            },
+          },
+        ],
+      },
+    };
+
+    mockedFetchers.CoinmarketcapHistoDayFetcher.apply.resolves([
+      [{high: 0.01982096, low: 0.01817868, open: 0.01920489, close: 0.01919132}, 153270.54],
+      [{high: 0.02047754, low: 0.01865968, open: 0.01920292, close: 0.02026433}, 212662.98],
+    ]);
+
+    const leaves = await feedProcessor.apply(10, feeds);
+
+    expect(leaves[0]).to.be.an('array').with.lengthOf(1);
+
+    expect(leaves[0][0].label).to.equal('DAFI-USD-VWAP-2day');
+    expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(0.02);
   });
 });

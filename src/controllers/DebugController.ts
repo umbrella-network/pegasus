@@ -1,13 +1,13 @@
 import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
 import {NextFunction} from 'express-serve-static-core';
+import sort from 'fast-sort';
 
 import Settings from '../types/Settings';
 import TimeService from '../services/TimeService';
 import PolygonIOCryptoPriceService from '../services/PolygonIOCryptoPriceService';
 import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService';
 import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
-import sort from 'fast-sort';
 
 @injectable()
 class DebugController {
