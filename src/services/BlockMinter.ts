@@ -129,6 +129,7 @@ class BlockMinter {
       const receipt = await Promise.race([tx.wait(), txTimeout]);
 
       if (!receipt) {
+        this.logger.warn(`canceling tx ${tx.hash}`);
         this.cancelPendingTransaction(gasPrice).catch(this.logger.warn);
 
         throw new Error('mint TX timeout');
@@ -158,14 +159,18 @@ class BlockMinter {
   private async cancelPendingTransaction(prevGasPrice: number): Promise<boolean> {
     const gasPrice = await this.gasEstimator.apply();
 
-    const tx = await this.blockchain.wallet.sendTransaction({
+    const txData = {
       from: this.blockchain.wallet.address,
       to: this.blockchain.wallet.address,
       value: BigNumber.from(0),
-      nonce: this.blockchain.wallet.getTransactionCount('latest'),
+      nonce: await this.blockchain.wallet.getTransactionCount('latest'),
       gasLimit: 21000,
-      gasPrice: Math.max(gasPrice, prevGasPrice * 2),
-    });
+      gasPrice: Math.max(gasPrice, prevGasPrice) * 2,
+    };
+
+    this.logger.warn(`Sending canceling tx: ${{nonce: txData.nonce, gasPrice: txData.gasPrice}}`);
+
+    const tx = await this.blockchain.wallet.sendTransaction(txData);
 
     const receipt = await tx.wait();
 

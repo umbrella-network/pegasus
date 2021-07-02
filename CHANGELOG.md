@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.1.1] - 2021-07-05
+### Added
+- make log level configurable
+
+### Fixed
+- fix gas calculation
+
 ## [4.1.0] - 2021-07-02
 ### Added
 - new fetcher CoinmarketcapHistoDay

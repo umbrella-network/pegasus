@@ -3,6 +3,7 @@ import {inject, injectable} from 'inversify';
 
 import Blockchain from '../lib/Blockchain';
 import Settings from '../types/Settings';
+import {BlockWithTransactions} from '@ethersproject/abstract-provider';
 
 @injectable()
 class GasEstimator {
@@ -12,16 +13,21 @@ class GasEstimator {
 
   async apply(): Promise<number> {
     const block = await this.blockchain.provider.getBlockWithTransactions('latest');
+    const lowestGasForBlock = GasEstimator.lowestGasForBlock(block, this.settings.blockchain.transactions.maxGasPrice);
 
-    let minPrice = this.settings.blockchain.transactions.maxGasPrice;
+    return Math.max(this.settings.blockchain.transactions.minGasPrice, lowestGasForBlock);
+  }
+
+  private static lowestGasForBlock(block: BlockWithTransactions, maxGasPrice: number): number {
+    let minPrice = maxGasPrice;
 
     block.transactions.forEach(({gasPrice}) => {
-      if (!gasPrice.isZero()) {
-        minPrice = Math.min(minPrice, gasPrice.toNumber());
+      if (!gasPrice.isZero() && gasPrice.lt(minPrice)) {
+        minPrice = gasPrice.toNumber();
       }
     });
 
-    return Math.max(minPrice, this.settings.blockchain.transactions.minGasPrice);
+    return minPrice;
   }
 }
 
