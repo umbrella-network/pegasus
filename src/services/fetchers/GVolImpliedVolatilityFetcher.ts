@@ -16,7 +16,7 @@ class GVolImpliedVolatilityFetcher {
     this.timeout = settings.api.genesisVolatility.timeout;
   }
 
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   async apply(params: any): Promise<number> {
     const sourceUrl = 'https://app.pinkswantrading.com/graphql';
 
