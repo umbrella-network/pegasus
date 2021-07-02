@@ -61,10 +61,11 @@ async function main() {
     return Object.keys(result).reduce((map, symbol) => {
       map[symbol] = result[symbol]['USD'];
       return map;
-    }, {} as any);
+    }, {} as {[key: string]: number});
   };
 
-  const unique: any = {};
+  // eslint-disable-next-line
+  const unique: {[key: string]: any} = {};
   const volumes = [];
 
   for (let page = 0; page < 100; ++page) {

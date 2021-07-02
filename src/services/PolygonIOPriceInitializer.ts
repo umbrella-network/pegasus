@@ -52,11 +52,13 @@ class PolygonIOPriceInitializer {
     const stockSymbols = inputs
       .filter(({fetcher}) => fetcher.name === 'PolygonIOPrice' || fetcher.name === 'PolygonIOStockPrice')
       .map(({fetcher}) => fetcher.params)
+      // eslint-disable-next-line
       .map(({sym}: any) => sym);
 
     const cryptoPairs = inputs
       .filter(({fetcher}) => fetcher.name === 'PolygonIOCryptoPrice')
       .map(({fetcher}) => fetcher.params)
+      // eslint-disable-next-line
       .map(({fsym, tsym}: any) => ({fsym, tsym}));
 
     return [stockSymbols, cryptoPairs];

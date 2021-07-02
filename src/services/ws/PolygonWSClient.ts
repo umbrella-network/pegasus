@@ -49,7 +49,7 @@ class PolygonWSClient extends WSClient {
     return await this.priceAggregator.valueAfter(aggregatorKey, timestamp, timestamp - pair.freshness);
   }
 
-  onAggregate({pair: symbol, e: timestamp, c: price}: any): void {
+  onAggregate({pair: symbol, e: timestamp, c: price}: {pair: string, e: number, c: number}): void {
     timestamp = Math.floor(timestamp / 1000);
     const [fsym, tsym] = symbol.split('-');
 

@@ -91,6 +91,7 @@ class PolygonIOCryptoPriceService {
 
     const fulfilled: SinglePriceResponse[] = results
       .filter(({status}) => status === 'fulfilled')
+      // eslint-disable-next-line
       .map(({value}: any) => value);
 
     fulfilled.forEach(({last, symbol}) => {
@@ -159,6 +160,28 @@ class PolygonIOCryptoPriceService {
 
         // delete all values before the one we have just found
         await this.priceAggregator.cleanUp(key, valueTimestamp.timestamp);
+      }),
+    );
+  }
+
+  public async allPrices({fsym, tsym}: Pair): Promise<{value: number; timestamp: number}[]> {
+    return this.priceAggregator.valueTimestamps(`${PolygonIOCryptoPriceService.Prefix}${fsym}-${tsym}`);
+  }
+
+  public async latestPrices(beforeTimestamp: number): Promise<{symbol: string; value: number; timestamp: number}[]> {
+    return await Promise.all(
+      Object.values(this.subscriptions).map(async ([{fsym, tsym}]) => {
+        const valueTimestamp = await this.priceAggregator.valueTimestamp(
+          `${PolygonIOCryptoPriceService.Prefix}${fsym}-${tsym}`,
+          beforeTimestamp,
+        );
+
+        const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
+        return {
+          symbol: `${fsym}-${tsym}`,
+          value,
+          timestamp,
+        };
       }),
     );
   }
