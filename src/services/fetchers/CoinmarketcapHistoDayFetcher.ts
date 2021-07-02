@@ -3,23 +3,22 @@ import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
 
 import Settings from '../../types/Settings';
-import {mapParams} from "../../utils/request";
 
 @injectable()
-class CryptoCompareHistoDayFetcher {
+class CoinmarketcapHistoDayFetcher {
   private apiKey: string;
   private timeout: number;
 
   constructor(
     @inject('Settings') settings: Settings
   ) {
-    this.apiKey = settings.api.cryptocompare.apiKey;
-    this.timeout = settings.api.cryptocompare.timeout;
+    this.apiKey = settings.api.coinmarketcap.apiKey;
+    this.timeout = settings.api.coinmarketcap.timeout;
   }
-
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async apply(params: any): Promise<[any, number][] | undefined> {
-    const sourceUrl = `https://min-api.cryptocompare.com/data/v2/histoday${mapParams(params)}`;
+    const sourceUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/ohlcv/historical?symbol=${params.symbol}&convert=${params.convert}&time_period=daily&interval=daily&count=${params.count}&CMC_PRO_API_KEY=${this.apiKey}`;
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
@@ -35,13 +34,13 @@ class CryptoCompareHistoDayFetcher {
       throw new Error(response.data.Message);
     }
 
-    return this.extractValue(response.data, '$.[:0]').map(({high, low, open, close, volumefrom: volume}) => ([
+    return this.extractValue(response.data, '$.data.quotes.*.quote.*').map(({high, low, open, close, volume}) => ([
       {
         high,
         low,
         open,
         close
-      }, volume
+      }, volume ?? 0
     ]));
   }
 
@@ -51,4 +50,4 @@ class CryptoCompareHistoDayFetcher {
   }
 }
 
-export default CryptoCompareHistoDayFetcher;
+export default CoinmarketcapHistoDayFetcher;

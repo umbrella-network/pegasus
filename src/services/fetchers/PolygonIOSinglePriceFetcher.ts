@@ -16,6 +16,7 @@ class PolygonIOSinglePriceFetcher {
     this.timeout = settings.api.polygonIO.timeout;
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   async apply({sym}: any, raw = false): Promise<SinglePriceResponse | number> {
     const sourceUrl = `https://api.polygon.io/v1/last/stocks/${sym}?apiKey=${this.apiKey}`;
 

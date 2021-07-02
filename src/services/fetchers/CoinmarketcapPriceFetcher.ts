@@ -16,6 +16,7 @@ class CoinmarketcapPriceFetcher {
     this.timeout = settings.api.coinmarketcap.timeout;
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   async apply(params: any): Promise<number> {
     const sourceUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${params.symbol}&convert=${params.convert}&CMC_PRO_API_KEY=${this.apiKey}`;
 
