@@ -5,7 +5,7 @@ import {JSONPath} from 'jsonpath-plus';
 import Settings from '../../types/Settings';
 
 @injectable()
-class PolygonIOSinglePriceFetcher {
+class PolygonIOSingleCryptoPriceFetcher {
   private apiKey: string;
   private timeout: number;
 
@@ -16,9 +16,8 @@ class PolygonIOSinglePriceFetcher {
     this.timeout = settings.api.polygonIO.timeout;
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
-  async apply({sym}: any, raw = false): Promise<SinglePriceResponse | number> {
-    const sourceUrl = `https://api.polygon.io/v1/last/stocks/${sym}?apiKey=${this.apiKey}`;
+  async apply({fsym, tsym}: any, raw = false): Promise<SinglePriceResponse | number> {
+    const sourceUrl = `https://api.polygon.io/v1/last/crypto/${fsym}/${tsym}?apiKey=${this.apiKey}`;
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
@@ -47,4 +46,4 @@ export interface SinglePriceResponse {
   },
 }
 
-export default PolygonIOSinglePriceFetcher;
+export default PolygonIOSingleCryptoPriceFetcher;

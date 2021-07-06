@@ -66,6 +66,7 @@ type Settings = {
       truncateCronRule: string;
       truncateIntervalMinutes: number;
       timeout: number;
+      reconnectTimeout: number;
     };
     bea: {
       apiKey: string;
