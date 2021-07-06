@@ -65,12 +65,14 @@ class SignatureCollector {
         (blockSignerResponse.discrepancies.length > 0 || blockSignerResponse.error) &&
         !blockSignerResponse.signature
       ) {
+        const errMsg = blockSignerResponse.error || `${blockSignerResponse.discrepancies.length} discrepancies`;
+
         newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
           validatorId: id,
           location: location,
-          error: blockSignerResponse.error ?? '',
+          error: errMsg,
         });
-        this.logger.info(`Validator ${id} at ${location} responded with error: ${blockSignerResponse.error}`);
+        this.logger.error(`Validator ${id} at ${location} responded with error: ${errMsg}`);
         return {
           ...blockSignerResponse,
           power: BigNumber.from(0),
@@ -93,7 +95,7 @@ class SignatureCollector {
         location: location,
         error: ex.message,
       });
-      this.logger.info(`Validator ${id} at ${location} responded with error: ${ex.message}`);
+      this.logger.error(`Can not collect signature at ${location}, error: ${ex.message}`);
     }
   }
 
