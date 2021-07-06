@@ -114,7 +114,7 @@ class PolygonIOCryptoPriceService {
   }
 
   private async requestAllPrices(pairs: Pair[]): Promise<void> {
-    this.logger.info(`updating all ${pairs.length} prices...`);
+    this.logger.info(`updating all ${pairs.length} crypto prices...`);
 
     if (!pairs.length) {
       return;
@@ -145,7 +145,7 @@ class PolygonIOCryptoPriceService {
   private async truncatePriceAggregator(): Promise<void> {
     const beforeTimestamp = this.timeService.apply() - this.settings.api.polygonIO.truncateIntervalMinutes * 60;
 
-    this.logger.info(`Truncating PolygonIO prices before ${beforeTimestamp}...`);
+    this.logger.info(`Truncating PolygonIO crypto prices before ${beforeTimestamp}...`);
 
     await Promise.all(
       Object.keys(this.subscriptions).map(async (subscription) => {

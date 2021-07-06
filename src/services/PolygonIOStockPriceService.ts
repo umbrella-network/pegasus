@@ -82,7 +82,7 @@ class PolygonIOStockPriceService {
       return;
     }
 
-    this.logger.info(`updating ${initialSymbols.length} initial prices...`);
+    this.logger.info(`updating ${initialSymbols.length} initial stock prices...`);
 
     const results = await Promise.allSettled(
       initialSymbols.map((sym) => this.polygonIOSingleStockPriceFetcher.apply({sym}, true)),
@@ -113,7 +113,7 @@ class PolygonIOStockPriceService {
   }
 
   private async requestAllPrices(symbols: string[]): Promise<void> {
-    this.logger.info(`updating all ${symbols.length} prices...`);
+    this.logger.info(`updating all ${symbols.length} stock prices...`);
 
     if (!symbols.length) {
       return;
@@ -135,7 +135,7 @@ class PolygonIOStockPriceService {
   private async truncatePriceAggregator(): Promise<void> {
     const beforeTimestamp = this.timeService.apply() - this.settings.api.polygonIO.truncateIntervalMinutes * 60;
 
-    this.logger.info(`Truncating PolygonIO prices before ${beforeTimestamp}...`);
+    this.logger.info(`Truncating PolygonIO stock prices before ${beforeTimestamp}...`);
 
     await Promise.all(
       Object.keys(this.subscriptions).map(async (subscription) => {
