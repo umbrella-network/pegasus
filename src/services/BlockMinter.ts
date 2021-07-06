@@ -168,7 +168,7 @@ class BlockMinter {
       gasPrice: Math.max(gasPrice, prevGasPrice) * 2,
     };
 
-    this.logger.warn(`Sending canceling tx: ${{nonce: txData.nonce, gasPrice: txData.gasPrice}}`);
+    this.logger.warn('Sending canceling tx', {nonce: txData.nonce, gasPrice: txData.gasPrice});
 
     const tx = await this.blockchain.wallet.sendTransaction(txData);
 
