@@ -49,9 +49,7 @@ class ChainContract {
   ): Promise<TransactionResponse> {
     return (await this.resolveContract())
       .connect(this.blockchain.wallet)
-      .submit(dataTimestamp, root, keys, values, v, r, s, {
-        gasPrice,
-      });
+      .submit(dataTimestamp, root, keys, values, v, r, s, {gasPrice});
   }
 
   resolveContract = async (): Promise<Contract> => {

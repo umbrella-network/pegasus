@@ -1,6 +1,6 @@
 {
   "name": "pegasus",
-  "version": "4.0.0",
+  "version": "4.1.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/umbrella-network/pegasus.git"
@@ -70,7 +70,7 @@
     "chai-as-promised": "~7.1.1",
     "compression": "~1.7.4",
     "dotenv": "~8.2.0",
-    "ethereumjs-util": "~7.0.7",
+    "ethereumjs-util": "~7.0.10",
     "ethers": "~5.3.1",
     "express": "~4.17.1",
     "fast-sort": "~2.2.0",
