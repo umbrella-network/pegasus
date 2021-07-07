@@ -158,9 +158,12 @@ class PolygonIOStockPriceService {
     return this.priceAggregator.valueTimestamps(`${PolygonIOStockPriceService.Prefix}${sym}`);
   }
 
-  public async latestPrices(beforeTimestamp: number): Promise<{symbol: string; value: number; timestamp: number}[]> {
+  public async latestPrices(
+    symbols: string[],
+    beforeTimestamp: number,
+  ): Promise<{symbol: string; value: number; timestamp: number}[]> {
     return await Promise.all(
-      Object.keys(this.subscriptions).map(async (sym) => {
+      symbols.map(async (sym) => {
         const valueTimestamp = await this.priceAggregator.valueTimestamp(
           `${PolygonIOStockPriceService.Prefix}${sym}`,
           beforeTimestamp,

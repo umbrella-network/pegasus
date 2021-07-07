@@ -31,16 +31,17 @@ class PolygonIOPriceInitializer {
   }
 
   async updateWSSubscription(): Promise<void> {
-    const [stockSymbols, cryptoPairs] = await PolygonIOPriceInitializer.allSymbols(
-      this.settings.feedsFile,
-      this.settings.feedsOnChain,
-    );
+    const [stockSymbols, cryptoPairs] = await this.allPairs();
 
     this.polygonIOStockPriceService.subscribe(...stockSymbols);
     this.polygonIOCryptoPriceService.subscribe(...cryptoPairs);
   }
 
-  static async allSymbols(...files: string[]): Promise<[string[], Pair[]]> {
+  async allPairs(): Promise<[string[], Pair[]]> {
+    return PolygonIOPriceInitializer.allPairs(this.settings.feedsFile, this.settings.feedsOnChain);
+  }
+
+  static async allPairs(...files: string[]): Promise<[string[], Pair[]]> {
     const feeds = await Promise.all(files.map(loadFeeds));
 
     const inputs = feeds

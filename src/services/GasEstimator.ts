@@ -22,7 +22,7 @@ class GasEstimator {
     let minPrice = maxGasPrice;
 
     block.transactions.forEach(({gasPrice}) => {
-      if (!gasPrice.isZero() && gasPrice.lt(minPrice)) {
+      if (gasPrice && !gasPrice.isZero() && gasPrice.lt(minPrice)) {
         minPrice = gasPrice.toNumber();
       }
     });

@@ -11,13 +11,15 @@ import Settings from "./types/Settings";
 import Block from './models/Block';
 import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
 import GasEstimator from './services/GasEstimator';
+import CryptoCompareWSClient from './services/ws/CryptoCompareWSClient';
+import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: { type: 'string', demandOption: true },
 }).argv;
 
 async function testFeeds(settings: Settings): Promise<void> {
-  await Application.get(CryptoCompareWSInitializer).apply();
+  await Application.get(PolygonIOPriceInitializer).apply();
 
   const feeds = await loadFeeds(settings.feedsFile);
 
