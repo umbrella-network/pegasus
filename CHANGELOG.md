@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.2.0] - 2021-07-06
+### Added
+- Polygon.io for crypto
+
 ## [4.1.2] - 2021-07-06
 ### Changed
 - change error message for `SignatureCollector` to reflect issue better 

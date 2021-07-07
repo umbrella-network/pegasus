@@ -2,18 +2,22 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import Settings from '../types/Settings';
 import {loadFeeds} from '@umb-network/toolbox';
-import PolygonIOPriceService from './PolygonIOPriceService';
+import PolygonIOCryptoPriceService from './PolygonIOCryptoPriceService';
+import PolygonIOStockPriceService from './PolygonIOStockPriceService';
+import {Pair} from '../types/Feed';
 
 @injectable()
 class PolygonIOPriceInitializer {
-  @inject(PolygonIOPriceService) polygonIOPriceService!: PolygonIOPriceService;
+  @inject(PolygonIOCryptoPriceService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceService;
+  @inject(PolygonIOStockPriceService) polygonIOStockPriceService!: PolygonIOStockPriceService;
   @inject('Settings') settings!: Settings;
   @inject('Logger') logger!: Logger;
 
   fileUpdateInterval = 60 * 1000;
 
   async apply(): Promise<void> {
-    this.polygonIOPriceService.start();
+    this.polygonIOCryptoPriceService.start();
+    this.polygonIOStockPriceService.start();
 
     return this.subscribeWS();
   }
@@ -27,22 +31,37 @@ class PolygonIOPriceInitializer {
   }
 
   async updateWSSubscription(): Promise<void> {
-    const symbols = await PolygonIOPriceInitializer.allSymbols(this.settings.feedsFile, this.settings.feedsOnChain);
+    const [stockSymbols, cryptoPairs] = await PolygonIOPriceInitializer.allSymbols(
+      this.settings.feedsFile,
+      this.settings.feedsOnChain,
+    );
 
-    this.polygonIOPriceService.subscribe(...symbols);
+    this.polygonIOStockPriceService.subscribe(...stockSymbols);
+    this.polygonIOCryptoPriceService.subscribe(...cryptoPairs);
   }
 
-  static async allSymbols(...files: string[]): Promise<string[]> {
+  static async allSymbols(...files: string[]): Promise<[string[], Pair[]]> {
     const feeds = await Promise.all(files.map(loadFeeds));
 
-    return feeds
+    const inputs = feeds
       .map((feed) => Object.values(feed))
       .flat(1)
       .map((value) => value.inputs)
-      .flat()
-      .filter(({fetcher}) => fetcher.name === 'PolygonIOPrice')
+      .flat();
+
+    const stockSymbols = inputs
+      .filter(({fetcher}) => fetcher.name === 'PolygonIOPrice' || fetcher.name === 'PolygonIOStockPrice')
       .map(({fetcher}) => fetcher.params)
+      // eslint-disable-next-line
       .map(({sym}: any) => sym);
+
+    const cryptoPairs = inputs
+      .filter(({fetcher}) => fetcher.name === 'PolygonIOCryptoPrice')
+      .map(({fetcher}) => fetcher.params)
+      // eslint-disable-next-line
+      .map(({fsym, tsym}: any) => ({fsym, tsym}));
+
+    return [stockSymbols, cryptoPairs];
   }
 }
 

@@ -6,19 +6,19 @@ import PriceAggregator from './PriceAggregator';
 import Settings from '../types/Settings';
 import TimeService from './TimeService';
 import StatsDClient from '../lib/StatsDClient';
-import PolygonIOSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOSnapshotFetcher';
-import PolygonIOSinglePriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSinglePriceFetcher';
+import PolygonIOStockSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOStockSnapshotFetcher';
+import PolygonIOSingleStockPriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSingleStockPriceFetcher';
 
 @injectable()
-class PolygonIOPriceService {
+class PolygonIOStockPriceService {
   @inject('Logger') logger!: Logger;
-  @inject(PolygonIOSnapshotFetcher) polygonIOSnapshotFetcher!: PolygonIOSnapshotFetcher;
-  @inject(PolygonIOSinglePriceFetcher) polygonIOSinglePriceFetcher!: PolygonIOSinglePriceFetcher;
+  @inject(PolygonIOStockSnapshotFetcher) polygonIOSnapshotFetcher!: PolygonIOStockSnapshotFetcher;
+  @inject(PolygonIOSingleStockPriceFetcher) polygonIOSingleStockPriceFetcher!: PolygonIOSingleStockPriceFetcher;
   @inject('Settings') settings!: Settings;
   @inject(TimeService) timeService!: TimeService;
   @inject(PriceAggregator) priceAggregator!: PriceAggregator;
 
-  static readonly Prefix = 'pio::';
+  static readonly Prefix = 'pios::';
 
   priceUpdateJob?: Job;
   truncateJob?: Job;
@@ -26,7 +26,7 @@ class PolygonIOPriceService {
   subscriptions = {} as {[symbol: string]: boolean};
 
   async getLatestPrice(sym: string, timestamp: number): Promise<number | null> {
-    return await this.priceAggregator.value(`${PolygonIOPriceService.Prefix}${sym}`, timestamp);
+    return await this.priceAggregator.value(`${PolygonIOStockPriceService.Prefix}${sym}`, timestamp);
   }
 
   start(): void {
@@ -52,7 +52,9 @@ class PolygonIOPriceService {
     StatsDClient?.gauge(`cpm.${symbol}`, price);
     this.logger.debug(`${symbol}: ${price} at ${timestamp}`);
 
-    this.priceAggregator.add(`${PolygonIOPriceService.Prefix}${symbol}`, price, timestamp).catch(this.logger.error);
+    this.priceAggregator
+      .add(`${PolygonIOStockPriceService.Prefix}${symbol}`, price, timestamp)
+      .catch(this.logger.error);
   }
 
   subscribe(...symbols: string[]): void {
@@ -80,14 +82,15 @@ class PolygonIOPriceService {
       return;
     }
 
-    this.logger.info(`updating ${initialSymbols.length} initial prices...`);
+    this.logger.info(`updating ${initialSymbols.length} initial stock prices...`);
 
     const results = await Promise.allSettled(
-      initialSymbols.map((sym) => this.polygonIOSinglePriceFetcher.apply({sym}, true)),
+      initialSymbols.map((sym) => this.polygonIOSingleStockPriceFetcher.apply({sym}, true)),
     );
 
     const fulfilled: SinglePriceResponse[] = results
       .filter(({status}) => status === 'fulfilled')
+      // eslint-disable-next-line
       .map(({value}: any) => value);
 
     fulfilled.forEach(({last, symbol}) => {
@@ -110,7 +113,7 @@ class PolygonIOPriceService {
   }
 
   private async requestAllPrices(symbols: string[]): Promise<void> {
-    this.logger.info(`updating all ${symbols.length} prices...`);
+    this.logger.info(`updating all ${symbols.length} stock prices...`);
 
     if (!symbols.length) {
       return;
@@ -132,11 +135,11 @@ class PolygonIOPriceService {
   private async truncatePriceAggregator(): Promise<void> {
     const beforeTimestamp = this.timeService.apply() - this.settings.api.polygonIO.truncateIntervalMinutes * 60;
 
-    this.logger.info(`Truncating PolygonIO prices before ${beforeTimestamp}...`);
+    this.logger.info(`Truncating PolygonIO stock prices before ${beforeTimestamp}...`);
 
     await Promise.all(
       Object.keys(this.subscriptions).map(async (subscription) => {
-        const key = `${PolygonIOPriceService.Prefix}${subscription}`;
+        const key = `${PolygonIOStockPriceService.Prefix}${subscription}`;
 
         // find a value before a particular timestamp
         const valueTimestamp = await this.priceAggregator.valueTimestamp(key, beforeTimestamp);
@@ -150,6 +153,28 @@ class PolygonIOPriceService {
       }),
     );
   }
+
+  public async allPrices(sym: string): Promise<{value: number; timestamp: number}[]> {
+    return this.priceAggregator.valueTimestamps(`${PolygonIOStockPriceService.Prefix}${sym}`);
+  }
+
+  public async latestPrices(beforeTimestamp: number): Promise<{symbol: string; value: number; timestamp: number}[]> {
+    return await Promise.all(
+      Object.keys(this.subscriptions).map(async (sym) => {
+        const valueTimestamp = await this.priceAggregator.valueTimestamp(
+          `${PolygonIOStockPriceService.Prefix}${sym}`,
+          beforeTimestamp,
+        );
+
+        const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
+        return {
+          symbol: `${sym}`,
+          value,
+          timestamp,
+        };
+      }),
+    );
+  }
 }
 
-export default PolygonIOPriceService;
+export default PolygonIOStockPriceService;

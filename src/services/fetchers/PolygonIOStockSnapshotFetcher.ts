@@ -5,7 +5,7 @@ import {JSONPath} from 'jsonpath-plus';
 import Settings from '../../types/Settings';
 
 @injectable()
-class PolygonIOSnapshotFetcher {
+class PolygonIOStockSnapshotFetcher {
   private apiKey: string;
   private timeout: number;
 
@@ -50,4 +50,4 @@ export interface SnapshotResponse {
   tickers: Ticker[],
 }
 
-export default PolygonIOSnapshotFetcher;
+export default PolygonIOStockSnapshotFetcher;
