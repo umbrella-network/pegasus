@@ -271,9 +271,9 @@ class CryptoCompareWSClient extends WSClient {
     return this.priceAggregator.valueTimestamps(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`);
   }
 
-  public async latestPrices(beforeTimestamp: number): Promise<{symbol: string; value: number; timestamp: number}[]> {
+  public async latestPrices(pairs: Pair[], beforeTimestamp: number): Promise<{symbol: string; value: number; timestamp: number}[]> {
     return await Promise.all(
-      Object.values(this.subscriptions).map(async ({fsym, tsym}) => {
+      pairs.map(async ({fsym, tsym}) => {
         const valueTimestamp = await this.priceAggregator.valueTimestamp(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, beforeTimestamp);
 
         const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
