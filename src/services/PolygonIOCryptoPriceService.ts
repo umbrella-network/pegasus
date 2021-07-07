@@ -168,9 +168,12 @@ class PolygonIOCryptoPriceService {
     return this.priceAggregator.valueTimestamps(`${PolygonIOCryptoPriceService.Prefix}${fsym}-${tsym}`);
   }
 
-  public async latestPrices(beforeTimestamp: number): Promise<{symbol: string; value: number; timestamp: number}[]> {
+  public async latestPrices(
+    pairs: Pair[],
+    beforeTimestamp: number,
+  ): Promise<{symbol: string; value: number; timestamp: number}[]> {
     return await Promise.all(
-      Object.values(this.subscriptions).map(async ([{fsym, tsym}]) => {
+      pairs.map(async ({fsym, tsym}) => {
         const valueTimestamp = await this.priceAggregator.valueTimestamp(
           `${PolygonIOCryptoPriceService.Prefix}${fsym}-${tsym}`,
           beforeTimestamp,

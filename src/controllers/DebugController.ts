@@ -8,6 +8,8 @@ import TimeService from '../services/TimeService';
 import PolygonIOCryptoPriceService from '../services/PolygonIOCryptoPriceService';
 import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService';
 import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
+import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer';
+import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
 
 @injectable()
 class DebugController {
@@ -18,6 +20,8 @@ class DebugController {
   @inject(PolygonIOCryptoPriceService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceService;
   @inject(PolygonIOStockPriceService) polygonIOStockPriceService!: PolygonIOStockPriceService;
   @inject(CryptoCompareWSClient) cryptoCompareWSClient!: CryptoCompareWSClient;
+  @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
+  @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
 
   constructor(@inject('Settings') settings: Settings) {
     this.router = express
@@ -69,9 +73,14 @@ class DebugController {
     };
 
     try {
+      const pairs = await this.cryptoCompareWSInitializer.allPairs();
+
       response.send(
         sort(
-          await this.cryptoCompareWSClient.latestPrices(parseInt(beforeTimestamp, 10) || this.timeService.apply()),
+          await this.cryptoCompareWSClient.latestPrices(
+            pairs,
+            parseInt(beforeTimestamp, 10) || this.timeService.apply(),
+          ),
           // eslint-disable-next-line
         ).asc((item: any) => item[orderBy]),
       );
@@ -87,9 +96,12 @@ class DebugController {
     };
 
     try {
+      const [, pairs] = await this.polygonIOPriceInitializer.allPairs();
+
       response.send(
         sort(
           await this.polygonIOCryptoPriceService.latestPrices(
+            pairs,
             parseInt(beforeTimestamp, 10) || this.timeService.apply(),
           ),
           // eslint-disable-next-line
@@ -107,9 +119,14 @@ class DebugController {
     };
 
     try {
+      const [symbols] = await this.polygonIOPriceInitializer.allPairs();
+
       response.send(
         sort(
-          await this.polygonIOStockPriceService.latestPrices(parseInt(beforeTimestamp, 10) || this.timeService.apply()),
+          await this.polygonIOStockPriceService.latestPrices(
+            symbols,
+            parseInt(beforeTimestamp, 10) || this.timeService.apply(),
+          ),
           // eslint-disable-next-line
         ).asc((item: any) => item[orderBy]),
       );

@@ -28,9 +28,12 @@ class CryptoCompareWSInitializer {
   }
 
   async updateWSSubscription(): Promise<void> {
-    const pairs = await CryptoCompareWSInitializer.allPairs(this.settings.feedsFile, this.settings.feedsOnChain);
-
+    const pairs = await this.allPairs();
     this.cryptoCompareWSClient.subscribe(...pairs);
+  }
+
+  async allPairs(): Promise<Pair[]> {
+    return CryptoCompareWSInitializer.allPairs(this.settings.feedsFile, this.settings.feedsOnChain);
   }
 
   static async allPairs(...files: string[]): Promise<Pair[]> {
