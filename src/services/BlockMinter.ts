@@ -150,10 +150,20 @@ class BlockMinter {
 
       return {hash: receipt.transactionHash, logMint};
     } catch (e) {
-      newrelic.noticeError(e);
-      this.logger.error(e);
+      const err = await this.handleTimestampDiscrepancyError(e, dataTimestamp);
+      newrelic.noticeError(err);
+      this.logger.error(err);
       return null;
     }
+  }
+
+  private async handleTimestampDiscrepancyError(e: Error, dataTimestamp: number): Promise<Error> {
+    if (!e.message.includes('so you can predict the future')) {
+      return e;
+    }
+
+    const blockTimestamp = await this.blockchain.getBlockTimestamp();
+    return new Error(`Timestamp discrepancy ${blockTimestamp - dataTimestamp}s: (${e.message})`);
   }
 
   private async cancelPendingTransaction(prevGasPrice: number): Promise<boolean> {

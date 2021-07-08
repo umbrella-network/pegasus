@@ -18,6 +18,10 @@ class Blockchain {
     return await this.provider.getBlockNumber();
   }
 
+  async getBlockTimestamp(): Promise<number> {
+    return (await this.provider.getBlock('latest')).timestamp;
+  }
+
   getProvider(url: string): JsonRpcProvider {
     const match = url.match(/^(http)s?:/i);
     if (match && match[1] === 'http') {
