@@ -83,7 +83,8 @@ const settings: Settings = {
     },
   },
   feedsFile:
-    process.env.FEEDS_FILE || 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/eth/feeds.yaml',
+    process.env.FEEDS_FILE ||
+    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/eth/feeds.yaml',
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/eth/feedsOnChain.yaml',

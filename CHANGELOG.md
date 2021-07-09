@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.2.4] - 2021-07-09
+### Fixed
+- fix linters errors
+
 ## [4.2.3] - 2021-07-09
 ### Fixed
 - fix default paths to feeds files
