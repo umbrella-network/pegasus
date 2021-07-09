@@ -83,10 +83,10 @@ const settings: Settings = {
     },
   },
   feedsFile:
-    process.env.FEEDS_FILE || 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/feeds.yaml',
+    process.env.FEEDS_FILE || 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/eth/feeds.yaml',
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
-    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/feedsOnChain.yaml',
+    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/eth/feedsOnChain.yaml',
   signatureTimeout: parseInt(process.env.SIGNATURE_TIMEOUT || '15000', 10),
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
   version: packageJson.version,
