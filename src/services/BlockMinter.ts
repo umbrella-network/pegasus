@@ -130,7 +130,7 @@ class BlockMinter {
 
       if (!receipt) {
         this.logger.warn(`canceling tx ${tx.hash}`);
-        this.cancelPendingTransaction(gasPrice).catch(this.logger.warn);
+        await this.cancelPendingTransaction(gasPrice).catch(this.logger.warn);
 
         throw new Error('mint TX timeout');
       }
