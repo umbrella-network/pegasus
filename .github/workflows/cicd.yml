@@ -207,6 +207,25 @@ jobs:
           echo "::set-output name=environment::$BUILDING_ENVIRONMENT"
           echo "::set-output name=build-id::$BUILD_ID"
           echo "::set-output name=image::$IMAGE"
+
+      - name: Update GitOps Sandbox repository
+        env:
+          VERSION: ${{ steps.atifact-reader.outputs.version }}
+          BUILDING_ENVIRONMENT: "non-prod/sbx"
+        run: >-
+          yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/base/kustomization.yaml
+
+      - name: Commit and Push to master for SANDBOX
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+          IMAGE: ${{ steps.atifact-reader.outputs.image }}
+          BUILD_ID: ${{ steps.atifact-reader.outputs.build-id}}
+        run: |
+          git config user.email "dev+gitbot@umb.network"
+          git config user.name "umb-dev"
+          git commit -a -m "chore(build): SANDBOX - $IMAGE"
+          git push
+
       - name: Update GitOps repository
         env:
           VERSION: ${{ steps.atifact-reader.outputs.version }}
