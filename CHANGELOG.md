@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.2.6] - 2021-07-13
+
+### Added
+
+- Add SANDBOX workflow
+
 ## [4.2.5] - 2021-07-12
 ### Fixed
 - wait for canceling tx to be minted
