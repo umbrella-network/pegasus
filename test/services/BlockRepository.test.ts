@@ -2,7 +2,6 @@
 import 'reflect-metadata';
 import {expect} from 'chai';
 import mongoose from 'mongoose';
-import * as uuid from 'uuid';
 
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import BlockRepository from '../../src/services/BlockRepository';
@@ -54,8 +53,9 @@ describe('BlockRepository', () => {
     });
   });
 
-  it('generates UUID and saves the block to database', async () => {
+  it('saves the block to database', async () => {
     await blockRepository.apply({
+      id: 'block::1',
       chainAddress: '0x333',
       blockId: 1,
       leaves: [],
@@ -68,7 +68,6 @@ describe('BlockRepository', () => {
 
     const blockFromDb = await getModelForClass(Block).findOne();
     expect(blockFromDb).to.be.an('object');
-    expect(uuid.validate(blockFromDb?._id as string)).to.be.true;
     expect(blockFromDb?.blockId).to.be.eq(1);
     expect(blockFromDb?.fcdKeys).to.be.deep.eq(['ETH-USD', 'USD-ETH']);
     // is undefined or an empty object
