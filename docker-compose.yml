@@ -78,6 +78,11 @@ services:
     command: echo "no cache implementation"
     networks:
       - core-network
+  timeseries:
+    image: alpine:latest
+    command: echo "no timeseries implementation"
+    networks:
+      - core-network
 networks:
   umbrella-network:
     name: umbrella-network
