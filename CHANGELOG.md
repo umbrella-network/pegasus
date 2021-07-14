@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [4.2.6] - 2021-07-13
-
+## [4.2.7] - 2021-07-14
 ### Added
+- add more details to `/info` endpoint
+- add protection to not override minted blocks
 
+## [4.2.6] - 2021-07-13
+### Added
 - Add SANDBOX workflow
 
 ## [4.2.5] - 2021-07-12
