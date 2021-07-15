@@ -19,7 +19,11 @@ class InfoController {
     this.blockchain = blockchain;
   }
 
-  static obfuscate = (data: string): string => {
+  static obfuscate = (data: string | undefined): string => {
+    if (!data) {
+      return 'undefined';
+    }
+
     return `${data.slice(0, 1)}***${data.slice(-1)}`.toLowerCase();
   };
 

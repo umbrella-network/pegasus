@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.2.8] - 2021-07-15
+### Fixed
+- fix `obfuscate` function
+
 ## [4.2.7] - 2021-07-14
 ### Added
 - add more details to `/info` endpoint
