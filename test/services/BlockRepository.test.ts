@@ -76,6 +76,24 @@ describe('BlockRepository', () => {
     expect(blockFromDb?.timestamp).to.be.a('Date');
   });
 
+  it('throw when try to overide minted block', async () => {
+    const params = {
+      id: 'block::1',
+      chainAddress: '0x333',
+      blockId: 1,
+      leaves: [],
+      fcdKeys: ['ETH-USD', 'USD-ETH'],
+      root: '0x00',
+      dataTimestamp: new Date(1000),
+      timestamp: new Date(1000),
+      minted: true,
+    };
+
+    await blockRepository.apply(params);
+
+    await expect(blockRepository.apply(params)).to.throw;
+  });
+
   describe('#saveBlock', () => {
     it('saves a block with its leaves', async () => {
       const blockConsensus: SignedBlockConsensus = {
