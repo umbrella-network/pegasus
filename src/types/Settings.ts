@@ -81,6 +81,10 @@ type Settings = {
       apiKey: string;
       timeout: number;
     };
+    kaiko: {
+      apiKey: string;
+      timeout: number;
+    };
   };
   statusCheckTimeout: number;
   signatureTimeout: number;

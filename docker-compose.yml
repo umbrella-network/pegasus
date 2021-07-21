@@ -68,6 +68,7 @@ services:
       - POLYGON_IO_API_KEY=${POLYGON_IO_API_KEY}
       - IEX_API_KEY=${IEX_API_KEY}
       - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY}
+      - KAIKO_API_KEY=${KAIKO_API_KEY}
   db:
     image: alpine:latest
     command: echo "no db implementation"
