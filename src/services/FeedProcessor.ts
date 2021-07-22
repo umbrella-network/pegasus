@@ -51,6 +51,7 @@ class FeedProcessor {
     @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
     @inject(fetchers.OnChainDataFetcher) OnChainDataFetcher: fetchers.OnChainDataFetcher,
     @inject(fetchers.KaikoSpotPriceFetcher) KaikoSpotPriceFetcher: fetchers.KaikoSpotPriceFetcher,
+    @inject(fetchers.KaikoPriceStreamFetcher) KaikoPriceStreamFetcher: fetchers.KaikoPriceStreamFetcher,
   ) {
     this.fetchers = {
       CryptoCompareHistoHourFetcher,
@@ -68,6 +69,7 @@ class FeedProcessor {
       BEACPIAverageFetcher,
       OnChainDataFetcher,
       KaikoSpotPriceFetcher,
+      KaikoPriceStreamFetcher,
     };
 
     this.calculators = Object.keys(calculators).reduce(

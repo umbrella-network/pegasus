@@ -1,0 +1,10 @@
+{
+  "name": "@kaiko-sdk/node",
+  "version": "0.0.14",
+  "description": "Kaiko Node SDK",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kaiko",
+  "license": "MIT"
+}

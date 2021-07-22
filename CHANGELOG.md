@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Added
 - add `KaikoSpotPrice` http fetcher
+- add `KaikoPriceStream` stream fetcher
 
 ## [5.1.1] - 2021-09-03
 ### Fixed
