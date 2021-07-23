@@ -157,7 +157,7 @@ class FeedProcessor {
     try {
       value = await fetcher.apply(feedInput.fetcher.params, timestamp);
     } catch (err) {
-      /////this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
+      this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
       return;
     }
 
