@@ -4,7 +4,7 @@ import {HexStringWith0x} from '../types/custom';
 
 @index({timestamp: -1})
 @index({dataTimestamp: -1})
-@index({blockId: -1}, {unique: true})
+@index({blockId: -1}, {unique: false})
 class Block {
   @prop()
   _id!: string;

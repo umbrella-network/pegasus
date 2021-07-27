@@ -220,7 +220,7 @@ describe('BlockSigner', () => {
   });
 
   describe('signing a second block', () => {
-    it('should upsert old block registry', async () => {
+    it('should add another block to registry', async () => {
       const {affidavit, fcd, leaf, timestamp} = leafWithAffidavit;
 
       const leaderWallet = Wallet.createRandom();
@@ -266,8 +266,12 @@ describe('BlockSigner', () => {
 
       const newBlocks = await getModelForClass(Block).find({}).exec();
 
-      expect(oldBlocks[0].blockId).to.be.eq(newBlocks[0].blockId).and.to.be.eq(2);
-      expect(oldBlocks[0].timestamp).to.be.lt(newBlocks[0].timestamp);
+      expect(oldBlocks.length + 1)
+        .to.be.eq(newBlocks.length)
+        .and.to.be.eq(2);
+      expect(oldBlocks[0].blockId).to.be.eq(newBlocks[1].blockId).and.to.be.eq(2);
+      expect(oldBlocks[0].id).not.to.be.eq(newBlocks[1].id);
+      expect(oldBlocks[0].timestamp).to.be.lt(newBlocks[1].timestamp);
     });
   });
 });

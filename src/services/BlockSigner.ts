@@ -10,7 +10,6 @@ import Blockchain from '../lib/Blockchain';
 import Settings from '../types/Settings';
 import {SignedBlock} from '../types/SignedBlock';
 import {BlockSignerResponse} from '../types/BlockSignerResponse';
-import {BigNumber} from 'ethers';
 import BlockRepository from './BlockRepository';
 
 import {chainReadyForNewBlock, signAffidavitWithWallet} from '../utils/mining';
@@ -54,7 +53,7 @@ class BlockSigner {
       fcdKeys: proposedConsensus.fcdKeys,
     };
 
-    await this.blockRepository.saveBlock(chainAddress, signedBlockConsensus, BigNumber.from(chainStatus.nextBlockId));
+    await this.blockRepository.saveBlock(chainAddress, signedBlockConsensus, chainStatus.lastBlockId + 1);
 
     this.logger.info(`Signed a block for ${proposedConsensus.signer} at ${block.dataTimestamp}`);
 

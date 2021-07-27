@@ -14,7 +14,6 @@ import Blockchain from '../../src/lib/Blockchain';
 import ChainContract from '../../src/contracts/ChainContract';
 import ConsensusRunner from '../../src/services/ConsensusRunner';
 import FeedProcessor from '../../src/services/FeedProcessor';
-import RevertedBlockResolver from '../../src/services/RevertedBlockResolver';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
 import Settings from '../../src/types/Settings';
 import Leaf from '../../src/types/Leaf';
@@ -32,7 +31,6 @@ describe('BlockMinter', () => {
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
-  let mockedRevertedBlockResolver: sinon.SinonStubbedInstance<RevertedBlockResolver>;
   let mockedGasEstimator: sinon.SinonStubbedInstance<GasEstimator>;
   let settings: Settings;
   let blockMinter: BlockMinter;
@@ -52,7 +50,6 @@ describe('BlockMinter', () => {
     mockedChainContract = sinon.createStubInstance(ChainContract);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
-    mockedRevertedBlockResolver = sinon.createStubInstance(RevertedBlockResolver);
     mockedGasEstimator = sinon.createStubInstance(GasEstimator);
 
     settings = {
@@ -65,7 +62,7 @@ describe('BlockMinter', () => {
       version: '1.0.0',
       blockchain: {
         transactions: {
-          waitTime: 60000,
+          waitForBlockTime: 60000,
         },
       },
     } as Settings;
@@ -80,7 +77,6 @@ describe('BlockMinter', () => {
     container.bind(ConsensusRunner).toSelf();
     container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind('Settings').toConstantValue(settings);
-    container.bind(RevertedBlockResolver).toConstantValue(mockedRevertedBlockResolver);
     container.bind(GasEstimator).toConstantValue(mockedGasEstimator);
 
     container.bind(BlockMinter).to(BlockMinter);

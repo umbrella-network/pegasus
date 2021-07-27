@@ -6,7 +6,6 @@ import {LeafValueCoder, loadFeeds} from '@umb-network/toolbox';
 import Feeds, {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
 
 import FeedProcessor from './FeedProcessor';
-import RevertedBlockResolver from './RevertedBlockResolver';
 import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
@@ -32,7 +31,6 @@ class ConsensusRunner {
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject('Settings') settings!: Settings;
-  @inject(RevertedBlockResolver) reveredBlockResolver!: RevertedBlockResolver;
 
   async apply(
     dataTimestamp: number,
