@@ -122,8 +122,13 @@ class BlockMinter {
         ),
       ]);
 
+      this.logger.info(`Tx submitted at ${currentBlockNumber}, waiting for new block.`);
+
       // there is no point of canceling tx if block is not minted
-      await this.waitUntilNextBlock(currentBlockNumber);
+      const newBlockNumber = await this.waitUntilNextBlock(currentBlockNumber);
+
+      this.logger.info(`New block detected ${newBlockNumber}, waiting for tx to be minted.`);
+
       const receipt = await Promise.race([tx.wait(), BlockMinter.txTimeout(chainStatus)]);
 
       if (!receipt) {
@@ -164,12 +169,17 @@ class BlockMinter {
     );
   }
 
-  private async waitUntilNextBlock(currentBlockNumber: number): Promise<void> {
+  private async waitUntilNextBlock(currentBlockNumber: number): Promise<number> {
     // it would be nice to subscribe for blockNumber, but we forcing http for RPC
     // this is not pretty solution, but we using proxy, so infura calls should not increase
-    while (currentBlockNumber >= (await this.blockchain.getBlockNumber())) {
+    let newBlockNumber = await this.blockchain.getBlockNumber();
+
+    while (currentBlockNumber === newBlockNumber) {
       await BlockMinter.sleep(this.settings.blockchain.transactions.waitForBlockTime);
+      newBlockNumber = await this.blockchain.getBlockNumber();
     }
+
+    return newBlockNumber;
   }
 
   private static sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
