@@ -34,7 +34,7 @@ type Settings = {
       };
     };
     transactions: {
-      waitTime: number;
+      waitForBlockTime: number;
       minGasPrice: number;
       maxGasPrice: number;
     };

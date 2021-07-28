@@ -39,7 +39,7 @@ const settings: Settings = {
       },
     },
     transactions: {
-      waitTime: parseInt(process.env.TX_WAIT_TIME || '60000'),
+      waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000'),
       minGasPrice: parseInt(process.env.MIN_GAS_PRICE || '5000000000', 10),
       maxGasPrice: parseInt(process.env.MAX_GAS_PRICE || '10000000000', 10),
     },

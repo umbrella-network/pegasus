@@ -8,7 +8,6 @@ import newrelic from 'newrelic';
 
 import ConsensusRunner from './ConsensusRunner';
 import FeedProcessor from './FeedProcessor';
-import RevertedBlockResolver from './RevertedBlockResolver';
 import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
@@ -36,7 +35,6 @@ class BlockMinter {
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject('Settings') settings!: Settings;
-  @inject(RevertedBlockResolver) revertedBlockResolver!: RevertedBlockResolver;
   @inject(GasEstimator) gasEstimator!: GasEstimator;
 
   async apply(): Promise<void> {
@@ -56,7 +54,6 @@ class BlockMinter {
     );
 
     const validators = this.chainContract.resolveValidators(chainStatus);
-
     const consensus = await this.consensusRunner.apply(dataTimestamp, nextBlockId, validators, chainStatus.staked);
 
     if (!consensus) {
@@ -74,12 +71,13 @@ class BlockMinter {
       consensus.fcdKeys,
       consensus.fcdValues,
       consensus.signatures,
+      chainStatus,
     );
 
     if (mintedBlock) {
       const {hash, logMint} = mintedBlock;
-      this.logger.info(`New Block ${logMint.blockId} Minted in TX ${hash}`);
-      await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId, true);
+      this.logger.info(`New Block ${logMint.blockId} minted with TX ${hash}`);
+      await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId.toNumber(), true);
     }
   }
 
@@ -103,30 +101,30 @@ class BlockMinter {
     keys: string[],
     values: FeedValue[],
     signatures: string[],
+    chainStatus: ChainStatus,
   ): Promise<MintedBlock | null> {
     try {
       const components = signatures.map((signature) => BlockMinter.splitSignature(signature));
 
       const gasPrice = await this.gasEstimator.apply();
 
-      const tx = await this.chainContract.submit(
-        dataTimestamp,
-        root,
-        keys.map(LeafKeyCoder.encode),
-        values.map((v, i) => LeafValueCoder.encode(v, keys[i])),
-        components.map((sig) => sig.v),
-        components.map((sig) => sig.r),
-        components.map((sig) => sig.s),
-        gasPrice,
-      );
+      const [currentBlockNumber, tx] = await Promise.all([
+        this.blockchain.getBlockNumber(),
+        this.chainContract.submit(
+          dataTimestamp,
+          root,
+          keys.map(LeafKeyCoder.encode),
+          values.map((v, i) => LeafValueCoder.encode(v, keys[i])),
+          components.map((sig) => sig.v),
+          components.map((sig) => sig.r),
+          components.map((sig) => sig.s),
+          gasPrice,
+        ),
+      ]);
 
-      const txTimeout = new Promise<never>((resolve) =>
-        setTimeout(async () => {
-          resolve(undefined);
-        }, this.settings.blockchain.transactions.waitTime),
-      );
-
-      const receipt = await Promise.race([tx.wait(), txTimeout]);
+      // there is no point of canceling tx if block is not minted
+      await this.waitUntilNextBlock(currentBlockNumber);
+      const receipt = await Promise.race([tx.wait(), BlockMinter.txTimeout(chainStatus)]);
 
       if (!receipt) {
         this.logger.warn(`canceling tx ${tx.hash}`);
@@ -139,6 +137,7 @@ class BlockMinter {
         newrelic.recordCustomEvent(FailedTransactionEvent, {
           transactionHash: receipt.transactionHash,
         });
+
         return null;
       }
 
@@ -157,8 +156,26 @@ class BlockMinter {
     }
   }
 
+  private static async txTimeout(chainStatus: ChainStatus): Promise<undefined> {
+    return new Promise<undefined>((resolve) =>
+      setTimeout(async () => {
+        resolve(undefined);
+      }, chainStatus.timePadding * 1000),
+    );
+  }
+
+  private async waitUntilNextBlock(currentBlockNumber: number): Promise<void> {
+    // it would be nice to subscribe for blockNumber, but we forcing http for RPC
+    // this is not pretty solution, but we using proxy, so infura calls should not increase
+    while (currentBlockNumber >= (await this.blockchain.getBlockNumber())) {
+      await BlockMinter.sleep(this.settings.blockchain.transactions.waitForBlockTime);
+    }
+  }
+
+  private static sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
   private async handleTimestampDiscrepancyError(e: Error, dataTimestamp: number): Promise<Error> {
-    if (!e.message.includes('so you can predict the future')) {
+    if (!e.message.includes('you can predict the future')) {
       return e;
     }
 
@@ -201,37 +218,14 @@ class BlockMinter {
 
   private async canMint(chainStatus: ChainStatus, dataTimestamp: number): Promise<boolean> {
     const [ready, error] = chainReadyForNewBlock(chainStatus, dataTimestamp);
-
-    if (!ready) {
-      this.logger.info(error);
-      return false;
-    }
-
-    let lastSubmittedBlock = await BlockMinter.getLastSubmittedBlock();
-
-    if (!lastSubmittedBlock) {
-      return true;
-    }
-
-    await this.revertedBlockResolver.apply(
-      lastSubmittedBlock?.minted,
-      lastSubmittedBlock?.blockId,
-      chainStatus.nextBlockId,
-    );
-    lastSubmittedBlock = await BlockMinter.getLastSubmittedBlock();
-
-    const allowed = lastSubmittedBlock ? chainStatus.nextBlockId > lastSubmittedBlock.blockId : true;
-
-    // TODO this can be removed if we add feature to Chain to start blockId from 1, not from 0.
-    if (!allowed) {
-      this.logger.info(`you already mined this block`);
-    }
-
-    return allowed;
+    error && this.logger.info(error);
+    return ready;
   }
 
   private static async getLastSubmittedBlock(): Promise<Block | undefined> {
-    const blocks: Block[] = await getModelForClass(Block).find({}).limit(1).sort({blockId: -1}).exec();
+    // sorting by timestamp because blockId can change eg blocks can be reverted
+    // so latest submitted not necessary can be the one with highest blockId
+    const blocks: Block[] = await getModelForClass(Block).find({}).limit(1).sort({timestamp: -1}).exec();
     return blocks[0];
   }
 }
