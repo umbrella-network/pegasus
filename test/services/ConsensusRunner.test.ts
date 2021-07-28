@@ -13,7 +13,6 @@ import ConsensusRunner from '../../src/services/ConsensusRunner';
 import TimeService from '../../src/services/TimeService';
 import SignatureCollector from '../../src/services/SignatureCollector';
 import BlockRepository from '../../src/services/BlockRepository';
-import RevertedBlockResolver from '../../src/services/RevertedBlockResolver';
 import {Validator} from '../../src/types/Validator';
 import {BigNumber, Wallet} from 'ethers';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
@@ -30,7 +29,6 @@ describe('ConsensusRunner', () => {
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedBlockRepository: sinon.SinonStubbedInstance<BlockRepository>;
-  let mockedRevertedBlockResolver: sinon.SinonStubbedInstance<RevertedBlockResolver>;
 
   let consensusRunner: ConsensusRunner;
 
@@ -43,7 +41,6 @@ describe('ConsensusRunner', () => {
     mockedTimeService = sinon.createStubInstance(TimeService);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedBlockRepository = sinon.createStubInstance(BlockRepository);
-    mockedRevertedBlockResolver = sinon.createStubInstance(RevertedBlockResolver);
 
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
@@ -63,9 +60,6 @@ describe('ConsensusRunner', () => {
     container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
-    container
-      .bind(RevertedBlockResolver)
-      .toConstantValue(mockedRevertedBlockResolver as unknown as RevertedBlockResolver);
     container.bind(SortedMerkleTreeFactory).toSelf();
 
     container.bind(ConsensusRunner).to(ConsensusRunner);

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.2.9] - 2021-07-26
+### Added
+- DB Migration service
+- add version to API block endpoint
+
+### Changed
+- store all signed blocks and let explorer choose valid one
+- return list of all blocks for `blockId` call
+- wait for new block to be minted before set timeout for submitted tx
+
+### Removed
+- remove `RevertedBlockResolver`
+
 ## [4.2.8] - 2021-07-15
 ### Fixed
 - fix `obfuscate` function

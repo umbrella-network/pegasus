@@ -8,7 +8,6 @@ import BlockRepository from '../../src/services/BlockRepository';
 import Block from '../../src/models/Block';
 import Leaf from '../../src/types/Leaf';
 import {getModelForClass} from '@typegoose/typegoose';
-import {BigNumber} from 'ethers';
 import {SignedBlockConsensus} from '../../src/types/Consensus';
 
 describe('BlockRepository', () => {
@@ -103,7 +102,7 @@ describe('BlockRepository', () => {
         fcdKeys: ['ETH-USD', 'USD-ETH'],
       };
 
-      await blockRepository.saveBlock('0x333', blockConsensus, BigNumber.from(1));
+      await blockRepository.saveBlock('0x333', blockConsensus, 1);
 
       const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
       expect(blocksCount).to.be.eq(1);

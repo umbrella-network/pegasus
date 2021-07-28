@@ -1,9 +1,9 @@
 import {getModelForClass} from '@typegoose/typegoose';
 import {injectable} from 'inversify';
+import {v4 as uuid} from 'uuid';
 import {HexStringWith0x} from '../types/custom';
 import Block from '../models/Block';
 import Leaf from '../types/Leaf';
-import {BigNumber} from 'ethers';
 import {SignedBlockConsensus} from '../types/Consensus';
 
 type Params = {
@@ -23,16 +23,16 @@ class BlockRepository {
   async saveBlock(
     chainAddress: string,
     consensus: SignedBlockConsensus,
-    blockId: BigNumber,
+    blockId: number,
     minted = false,
   ): Promise<void> {
     await this.apply({
-      id: `block::${blockId}`,
+      id: uuid(),
       chainAddress,
       dataTimestamp: new Date(consensus.dataTimestamp * 1000),
       timestamp: new Date(),
       leaves: consensus.leaves,
-      blockId: blockId.toNumber(),
+      blockId: blockId,
       root: consensus.root,
       fcdKeys: consensus.fcdKeys,
       minted,
@@ -41,11 +41,6 @@ class BlockRepository {
 
   async apply(params: Params): Promise<Block> {
     const mongoBlock = getModelForClass(Block);
-    const storedBlock = await mongoBlock.findById(params.id);
-
-    if (storedBlock && storedBlock.minted) {
-      throw Error(`attempt to override minted block ${params.id}`);
-    }
 
     const block = new Block();
     block._id = params.id;
@@ -58,11 +53,7 @@ class BlockRepository {
     block.fcdKeys = params.fcdKeys;
     block.minted = params.minted;
 
-    return mongoBlock.findOneAndUpdate({blockId: block.blockId}, block, {
-      upsert: true,
-      setDefaultsOnInsert: true,
-      new: true,
-    });
+    return mongoBlock.create(block);
   }
 
   private static treeDataFor(leaves: Leaf[]): Record<string, HexStringWith0x> {
