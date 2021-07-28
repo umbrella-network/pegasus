@@ -62,7 +62,7 @@ describe('BlockMinter', () => {
       version: '1.0.0',
       blockchain: {
         transactions: {
-          waitForBlockTime: 60000,
+          waitForBlockTime: 1000,
         },
       },
     } as Settings;
@@ -221,6 +221,9 @@ describe('BlockMinter', () => {
 
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
 
       mockedSignatureCollector.apply.resolves([
         {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
@@ -270,6 +273,9 @@ describe('BlockMinter', () => {
       ]);
 
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
 
       mockedFeedProcessor.apply.resolves([
         [leaf, leaf],
@@ -345,6 +351,10 @@ describe('BlockMinter', () => {
             ],
           }),
       } as any);
+
+      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
 
       await blockMinter.apply();
 
