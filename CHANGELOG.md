@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.2.11] - 2021-07-29
+### Added
+- more logs for minting tx process for debugging purpose
+
 ## [4.2.10] - 2021-07-28
 ### Added
 - more logs for minting tx process
