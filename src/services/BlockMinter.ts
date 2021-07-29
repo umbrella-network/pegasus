@@ -175,7 +175,7 @@ class BlockMinter {
     let newBlockNumber = await this.blockchain.getBlockNumber();
 
     while (currentBlockNumber === newBlockNumber) {
-      this.logger.info(`currentBlockNumber ${currentBlockNumber}, newBlockNumber ${newBlockNumber}.`);
+      this.logger.info(`waitUntilNextBlock: current ${currentBlockNumber}, new ${newBlockNumber}.`);
       await BlockMinter.sleep(this.settings.blockchain.transactions.waitForBlockTime);
       newBlockNumber = await this.blockchain.getBlockNumber();
     }
