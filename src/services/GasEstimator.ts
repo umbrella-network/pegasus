@@ -4,6 +4,7 @@ import {inject, injectable} from 'inversify';
 import Blockchain from '../lib/Blockchain';
 import Settings from '../types/Settings';
 import {BlockWithTransactions} from '@ethersproject/abstract-provider';
+import {GasMetrics} from '../types/GasMetrics';
 
 @injectable()
 class GasEstimator {
@@ -11,23 +12,40 @@ class GasEstimator {
   @inject(Blockchain) blockchain!: Blockchain;
   @inject('Settings') settings!: Settings;
 
-  async apply(): Promise<number> {
+  async apply(): Promise<GasMetrics> {
     const block = await this.blockchain.provider.getBlockWithTransactions('latest');
-    const lowestGasForBlock = GasEstimator.lowestGasForBlock(block, this.settings.blockchain.transactions.maxGasPrice);
+    const metrics = GasEstimator.gasMetricsForBlock(block, this.settings.blockchain.transactions.maxGasPrice);
 
-    return Math.max(this.settings.blockchain.transactions.minGasPrice, lowestGasForBlock);
+    metrics.estimation = Math.max(this.settings.blockchain.transactions.minGasPrice, metrics.min);
+
+    return metrics;
   }
 
-  private static lowestGasForBlock(block: BlockWithTransactions, maxGasPrice: number): number {
-    let minPrice = maxGasPrice;
+  private static gasMetricsForBlock(block: BlockWithTransactions, maxGasPrice: number): GasMetrics {
+    let min = maxGasPrice;
+    let max = 0;
+    let sum = 0;
+    let count = 0;
 
     block.transactions.forEach(({gasPrice}) => {
-      if (gasPrice && !gasPrice.isZero() && gasPrice.lt(minPrice)) {
-        minPrice = gasPrice.toNumber();
+      if (!gasPrice) {
+        return;
+      }
+
+      const gas = gasPrice.toNumber();
+      sum += gas;
+      count++;
+
+      if (gas > 0 && gas < min) {
+        min = gas;
+      }
+
+      if (gas > max) {
+        max = gas;
       }
     });
 
-    return minPrice;
+    return {min, max, avg: sum / count, estimation: 0};
   }
 }
 

@@ -106,9 +106,9 @@ class BlockMinter {
     try {
       const components = signatures.map((signature) => BlockMinter.splitSignature(signature));
 
-      const gasPrice = await this.gasEstimator.apply();
+      const gasMetrics = await this.gasEstimator.apply();
 
-      this.logger.info(`Submitting tx with gasPrice ${gasPrice}.`);
+      this.logger.info(`Submitting tx, gas metrics: ${JSON.stringify(gasMetrics)}`);
 
       const [currentBlockNumber, tx] = await Promise.all([
         this.blockchain.getBlockNumber(),
@@ -120,7 +120,7 @@ class BlockMinter {
           components.map((sig) => sig.v),
           components.map((sig) => sig.r),
           components.map((sig) => sig.s),
-          gasPrice,
+          gasMetrics.estimation,
         ),
       ]);
 
@@ -131,13 +131,14 @@ class BlockMinter {
 
       this.logger.info(`New block detected ${newBlockNumber}, waiting for tx to be minted.`);
 
-      const receipt = await Promise.race([tx.wait(), BlockMinter.txTimeout(chainStatus)]);
+      const timeout = chainStatus.timePadding * 1000;
+      const receipt = await Promise.race([tx.wait(), BlockMinter.txTimeout(timeout)]);
 
       if (!receipt) {
         this.logger.warn(`canceling tx ${tx.hash}`);
-        await this.cancelPendingTransaction(gasPrice).catch(this.logger.warn);
+        await this.cancelPendingTransaction(gasMetrics.estimation).catch(this.logger.warn);
 
-        throw new Error('mint TX timeout');
+        throw new Error(`mint TX timeout: ${timeout}ms`);
       }
 
       if (receipt.status !== 1) {
@@ -163,11 +164,11 @@ class BlockMinter {
     }
   }
 
-  private static async txTimeout(chainStatus: ChainStatus): Promise<undefined> {
+  private static async txTimeout(timeout: number): Promise<undefined> {
     return new Promise<undefined>((resolve) =>
       setTimeout(async () => {
         resolve(undefined);
-      }, chainStatus.timePadding * 1000),
+      }, timeout),
     );
   }
 
@@ -197,7 +198,7 @@ class BlockMinter {
   }
 
   private async cancelPendingTransaction(prevGasPrice: number): Promise<boolean> {
-    const gasPrice = await this.gasEstimator.apply();
+    const gasMetrics = await this.gasEstimator.apply();
 
     const txData = {
       from: this.blockchain.wallet.address,
@@ -205,7 +206,7 @@ class BlockMinter {
       value: BigNumber.from(0),
       nonce: await this.blockchain.wallet.getTransactionCount('latest'),
       gasLimit: 21000,
-      gasPrice: Math.max(gasPrice, prevGasPrice) * 2,
+      gasPrice: Math.max(gasMetrics.estimation, prevGasPrice) * 2,
     };
 
     this.logger.warn('Sending canceling tx', {nonce: txData.nonce, gasPrice: txData.gasPrice});

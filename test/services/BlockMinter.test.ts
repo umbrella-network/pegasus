@@ -300,7 +300,7 @@ describe('BlockMinter', () => {
       mockedBlockchain.wallet = wallet;
 
       mockedTimeService.apply.returns(10);
-      mockedGasEstimator.apply.resolves(10);
+      mockedGasEstimator.apply.resolves({min: 10, estimation: 10, max: 10, avg: 10});
 
       mockedChainContract.resolveStatus.resolves([
         '0x123',
