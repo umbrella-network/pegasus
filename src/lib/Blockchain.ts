@@ -15,7 +15,7 @@ class Blockchain {
   }
 
   async getBlockNumber(): Promise<number> {
-    return await this.provider.getBlockNumber();
+    return this.provider.getBlockNumber();
   }
 
   async getBlockTimestamp(): Promise<number> {
