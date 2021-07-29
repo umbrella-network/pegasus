@@ -108,6 +108,8 @@ class BlockMinter {
 
       const gasPrice = await this.gasEstimator.apply();
 
+      this.logger.info(`Submitting tx with gasPrice ${gasPrice}.`);
+
       const [currentBlockNumber, tx] = await Promise.all([
         this.blockchain.getBlockNumber(),
         this.chainContract.submit(

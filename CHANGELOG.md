@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [4.2.12] - 2021-07-29
+## [4.2.13] - 2021-07-29
 ### Added
+- add gas price to logs
+
+## [4.2.12] - 2021-07-29
+### Changed
 - clear logs after debugging
 
 ## [4.2.11] - 2021-07-29
