@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.2.15] - 2021-07-30
+### Changed
+- better gas estimation
+
 ## [4.2.14] - 2021-07-29
 ### Added
 - detailed logs about gas
