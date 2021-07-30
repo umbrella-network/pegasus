@@ -108,7 +108,7 @@ class BlockMinter {
 
       const gasMetrics = await this.gasEstimator.apply();
 
-      this.logger.info(`Submitting tx, gas metrics: ${JSON.stringify(gasMetrics)}`);
+      this.logger.info(`Submitting tx, gas metrics: ${GasEstimator.printable(gasMetrics)}`);
 
       const [currentBlockNumber, tx] = await Promise.all([
         this.blockchain.getBlockNumber(),
