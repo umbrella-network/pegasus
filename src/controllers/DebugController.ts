@@ -10,6 +10,8 @@ import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService';
 import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
 import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer';
 import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
+import KaikoPriceStreamClient from '../services/stream/KaikoPriceStreamClient';
+import KaikoPriceStreamInitializer from '../services/KaikoPriceStreamInitializer';
 
 @injectable()
 class DebugController {
@@ -22,6 +24,8 @@ class DebugController {
   @inject(CryptoCompareWSClient) cryptoCompareWSClient!: CryptoCompareWSClient;
   @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
   @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
+  @inject(KaikoPriceStreamClient) kaikoPriceStreamClient!: KaikoPriceStreamClient;
+  @inject(KaikoPriceStreamInitializer) kaikoPriceStreamInitializer!: KaikoPriceStreamInitializer;
 
   constructor(@inject('Settings') settings: Settings) {
     this.router = express
@@ -31,7 +35,9 @@ class DebugController {
       .get('/price-aggregator/polygon/crypto/prices/:fsym/:tsym', this.polygonCryptoPrices)
       .get('/price-aggregator/polygon/crypto/latest', this.polygonIOCryptoLatest)
       .get('/price-aggregator/polygon/stock/prices/:sym', this.polygonStockPrices)
-      .get('/price-aggregator/polygon/stock/latest', this.polygonIOStockLatest);
+      .get('/price-aggregator/polygon/stock/latest', this.polygonIOStockLatest)
+      .get('/price-aggregator/kaiko/latest', this.kaikoPriceLatest)
+      .get('/price-aggregator/kaiko/prices/:fsym/:tsym', this.kaikoPrices);
 
     this.settings = settings;
   }
@@ -130,6 +136,39 @@ class DebugController {
           // eslint-disable-next-line
         ).asc((item: any) => item[orderBy]),
       );
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  kaikoPriceLatest = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+    const {beforeTimestamp = '0', orderBy = 'timestamp'} = request.query as unknown as {
+      beforeTimestamp: string;
+      orderBy: string;
+    };
+
+    try {
+      const pairs = await this.kaikoPriceStreamInitializer.allPairs();
+
+      response.send(
+        sort(
+          await this.kaikoPriceStreamClient.latestPrices(
+            pairs,
+            parseInt(beforeTimestamp, 10) || this.timeService.apply(),
+          ),
+          // eslint-disable-next-line
+        ).asc((item: any) => item[orderBy]),
+      );
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  kaikoPrices = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+    const {fsym, tsym} = request.params as {fsym: string; tsym: string};
+
+    try {
+      response.send(await this.cryptoCompareWSClient.allPrices({fsym, tsym}));
     } catch (err) {
       next(err);
     }

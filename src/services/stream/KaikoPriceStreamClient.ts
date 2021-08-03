@@ -172,6 +172,30 @@ class KaikoPriceStreamClient {
     const prices = registries.map((registry) => registry.price);
     return price.mean(prices);
   }
+
+  public async latestPrices(
+    pairs: Pair[],
+    maxTimestamp: number,
+  ): Promise<{symbol: string; value: number; timestamp: number}[]> {
+    return await Promise.all(
+      pairs.map(async ({fsym, tsym}) => {
+        const valueTimestamp = await this.priceAggregator.valueTimestamp(
+          `${KaikoPriceStreamClient.Prefix}${fsym}~${tsym}`,
+          maxTimestamp,
+        );
+        const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
+        return {
+          symbol: `${fsym}-${tsym}`,
+          value,
+          timestamp,
+        };
+      }),
+    );
+  }
+
+  public async allPrices({fsym, tsym}: Pair): Promise<{value: number; timestamp: number}[]> {
+    return this.priceAggregator.valueTimestamps(`${KaikoPriceStreamClient.Prefix}${fsym}~${tsym}`);
+  }
 }
 
 export default KaikoPriceStreamClient;
