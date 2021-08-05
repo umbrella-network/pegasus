@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.2.17] - 2021-08-06
+### Fixed
+- adds JobId to ensure jobs are unique (limits task queue growing indefinitely)
+
 ## [4.2.16] - 2021-08-05
 ### Removed
 - removed `ValidatorRegistry` settings
