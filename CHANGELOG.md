@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [4.2.16] - 2021-08-05
+### Removed
+- removed `ValidatorRegistry` settings
+
 ## [4.2.15] - 2021-07-30
 ### Changed
 - better gas estimation
