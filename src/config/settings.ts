@@ -34,9 +34,6 @@ const settings: Settings = {
       registry: {
         address: process.env.REGISTRY_CONTRACT_ADDRESS as string,
       },
-      validatorRegistry: {
-        name: 'ValidatorRegistry',
-      },
     },
     transactions: {
       waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000'),

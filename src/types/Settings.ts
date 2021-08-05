@@ -29,9 +29,6 @@ type Settings = {
       registry: {
         address: string;
       };
-      validatorRegistry: {
-        name: string;
-      };
     };
     transactions: {
       waitForBlockTime: number;
