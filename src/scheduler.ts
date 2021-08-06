@@ -13,6 +13,7 @@ import Settings from './types/Settings';
     await metricsWorker.enqueue({}, {
       removeOnComplete: true,
       removeOnFail: true,
+      jobId: 'metrics',
     });
   }, settings.jobs.metricsReporting.interval);
 
@@ -20,6 +21,7 @@ import Settings from './types/Settings';
     await blockMintingWorker.enqueue({}, {
       removeOnComplete: true,
       removeOnFail: true,
+      jobId: 'blockMint'
     });
   }, settings.jobs.blockCreation.interval);
 })();
