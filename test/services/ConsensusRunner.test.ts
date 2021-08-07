@@ -94,7 +94,37 @@ describe('ConsensusRunner', () => {
     ];
     const staked = BigNumber.from(20);
 
-    await expect(consensusRunner.apply(dataTimestamp, blockHeight, validators, staked)).to.be.empty;
+    await expect(consensusRunner.apply(dataTimestamp, blockHeight, validators, staked, 1)).to.be.empty;
+  });
+
+  it('return empty object when not enough signatures', async () => {
+    mockedBlockchain.wallet = Wallet.createRandom();
+
+    const {leaf, affidavit} = leafWithAffidavit;
+
+    mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+
+    mockedSignatureCollector.apply.resolves([
+      {
+        discrepancies: [],
+        power: BigNumber.from(15),
+        signature: await signAffidavitWithWallet(mockedBlockchain.wallet, affidavit),
+        version: '1',
+      },
+    ] as BlockSignerResponseWithPower[]);
+
+    const dataTimestamp = 1621509082;
+    const blockHeight = 234;
+    const validators: Validator[] = [
+      {
+        location: 'http://abc.zyz',
+        power: BigNumber.from(15),
+        id: '123',
+      },
+    ];
+    const staked = BigNumber.from(20);
+
+    await expect(consensusRunner.apply(dataTimestamp, blockHeight, validators, staked, 2)).to.be.empty;
   });
 
   it('consensus is successful', async () => {
@@ -124,9 +154,9 @@ describe('ConsensusRunner', () => {
     ];
     const staked = BigNumber.from(20);
 
-    expect((await consensusRunner.apply(dataTimestamp, blockHeight, validators, staked))?.dataTimestamp).to.be.equals(
-      dataTimestamp,
-    );
+    expect(
+      (await consensusRunner.apply(dataTimestamp, blockHeight, validators, staked, 1))?.dataTimestamp,
+    ).to.be.equals(dataTimestamp);
   });
 
   it('discrepancy found', async () => {
@@ -156,8 +186,8 @@ describe('ConsensusRunner', () => {
     ];
     const staked = BigNumber.from(20);
 
-    expect((await consensusRunner.apply(dataTimestamp, blockHeight, validators, staked))?.dataTimestamp).to.be.equals(
-      undefined,
-    );
+    expect(
+      (await consensusRunner.apply(dataTimestamp, blockHeight, validators, staked, 1))?.dataTimestamp,
+    ).to.be.equals(undefined);
   });
 });

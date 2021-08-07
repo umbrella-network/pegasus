@@ -161,6 +161,7 @@ describe('BlockMinter', () => {
           lastDataTimestamp: timestamp(),
           powers: [BigNumber.from(1)],
           staked: BigNumber.from(1),
+          minSignatures: 1,
         },
       ]);
 
@@ -186,6 +187,7 @@ describe('BlockMinter', () => {
           lastDataTimestamp: timestamp(),
           powers: [BigNumber.from(1)],
           staked: BigNumber.from(1),
+          minSignatures: 1,
         },
       ]);
 
@@ -216,6 +218,7 @@ describe('BlockMinter', () => {
           lastDataTimestamp: 1,
           powers: [BigNumber.from(1)],
           staked: BigNumber.from(1),
+          minSignatures: 1,
         },
       ]);
 
@@ -269,6 +272,7 @@ describe('BlockMinter', () => {
           lastDataTimestamp: 1,
           powers: [BigNumber.from(1)],
           staked: BigNumber.from(1),
+          minSignatures: 1,
         },
       ]);
 
@@ -315,6 +319,7 @@ describe('BlockMinter', () => {
           lastDataTimestamp: 1,
           powers: [BigNumber.from(1)],
           staked: BigNumber.from(1),
+          minSignatures: 1,
         },
       ]);
 
