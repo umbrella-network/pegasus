@@ -37,6 +37,7 @@ class ConsensusRunner {
     blockHeight: number,
     validators: Validator[],
     staked: BigNumber,
+    requiredSignatures: number,
   ): Promise<Consensus | null> {
     let {firstClassLeaves, leaves} = await this.leavesAndFeeds(dataTimestamp);
     let consensus: Consensus | null = null;
@@ -57,7 +58,12 @@ class ConsensusRunner {
         leaves,
       );
 
-      ({consensus, discrepanciesKeys} = await this.runConsensus(dataForConsensus, validators, staked));
+      ({consensus, discrepanciesKeys} = await this.runConsensus(
+        dataForConsensus,
+        validators,
+        staked,
+        requiredSignatures,
+      ));
 
       if (consensus || discrepanciesKeys.size === 0) {
         this.logger.info(`step ${i} consensus: ${!!consensus}, discrepanciesKeys: ${discrepanciesKeys.size}`);
@@ -80,6 +86,7 @@ class ConsensusRunner {
     dataForConsensus: DataForConsensus,
     validators: Validator[],
     staked: BigNumber,
+    requiredSignatures: number,
   ): Promise<{consensus: Consensus | null; discrepanciesKeys: Set<string>}> {
     const {fcdKeys, fcdValues, leaves} = dataForConsensus;
 
@@ -100,7 +107,7 @@ class ConsensusRunner {
 
     const {powers, discrepanciesKeys, signatures} = this.processValidatorsResponses(blockSignerResponsesWithPowers);
 
-    if (!this.hasConsensus(powers, staked)) {
+    if (!this.hasConsensus(powers, staked, signatures, requiredSignatures)) {
       return {consensus: null, discrepanciesKeys};
     }
 
@@ -126,7 +133,17 @@ class ConsensusRunner {
     return Object.fromEntries(fcdKeys.map((_, idx) => [fcdKeys[idx], fcdValues[idx]]));
   }
 
-  private hasConsensus(powers: BigNumber, staked: BigNumber): boolean {
+  private hasConsensus(
+    powers: BigNumber,
+    staked: BigNumber,
+    signatures: string[],
+    requiredSignatures: number,
+  ): boolean {
+    if (signatures.length < requiredSignatures) {
+      this.logger.info(`Not enough signatures: got ${signatures.length}, required: ${requiredSignatures}`);
+      return false;
+    }
+
     const requiredPercent = 66;
     const got = powers.mul(100);
     const required = staked.mul(requiredPercent);
