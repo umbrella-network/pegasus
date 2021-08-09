@@ -54,7 +54,14 @@ class BlockMinter {
     );
 
     const validators = this.chainContract.resolveValidators(chainStatus);
-    const consensus = await this.consensusRunner.apply(dataTimestamp, nextBlockId, validators, chainStatus.staked);
+
+    const consensus = await this.consensusRunner.apply(
+      dataTimestamp,
+      nextBlockId,
+      validators,
+      chainStatus.staked,
+      chainStatus.minSignatures,
+    );
 
     if (!consensus) {
       this.logger.warn(
