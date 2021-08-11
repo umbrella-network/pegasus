@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [5.0.1] - 2021-08-11
+### Changed
+- use SDK v4.0.1
+- as temporary fix change `jobId`
+
 ## [5.0.0] - 2021-08-07
+### Added
+- add InfluxDB to docker-compose core
+
 ### Changed
 - support for `Chain` with 2 signatures requirement
 - update toolbox
