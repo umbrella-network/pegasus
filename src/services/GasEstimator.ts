@@ -5,6 +5,7 @@ import Blockchain from '../lib/Blockchain';
 import Settings from '../types/Settings';
 import {BlockWithTransactions} from '@ethersproject/abstract-provider';
 import {GasPriceMetrics} from '../types/GasPriceMetrics';
+import {BigNumber} from 'ethers';
 
 @injectable()
 class GasEstimator {
@@ -39,7 +40,8 @@ class GasEstimator {
         return;
       }
 
-      const gas = gasPrice.toNumber();
+      // gasPrice can se string or BN
+      const gas = BigNumber.from(gasPrice).toNumber();
       prices.push(gas);
       sum += gas;
 
