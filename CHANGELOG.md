@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - add InfluxDB to docker-compose core
 
+## [5.0.3] - 2021-08-13
+### Changed
+- change enqueueing rules
+
 ## [5.0.2] - 2021-08-12
 ### Changed
 - update ethers to version that supports EIP-1559 London

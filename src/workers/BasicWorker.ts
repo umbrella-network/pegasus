@@ -10,7 +10,7 @@ abstract class BasicWorker {
   #queue!: Bull.Queue;
   #worker!: Bull.Worker;
 
-  abstract async apply(job: Bull.Job): Promise<void>;
+  abstract apply(job: Bull.Job): Promise<void>;
 
   constructor(@inject('Settings') settings: Settings) {
     this.connection = new IORedis(settings.redis.url);
@@ -28,7 +28,7 @@ abstract class BasicWorker {
     return (this.#worker ||= new Worker(this.queueName, this.apply, {connection: this.connection}));
   }
 
-  enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T>> => {
+  enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
     return this.queue.add(this.constructor.name, params, opts);
   };
 
