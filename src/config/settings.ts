@@ -8,9 +8,17 @@ const settings: Settings = {
   jobs: {
     blockCreation: {
       interval: parseInt(process.env.BLOCK_CREATION_JOB_INTERVAL || '1000'),
+      lock: {
+        name: process.env.BLOCK_CREATION_LOCK_NAME || 'lock::BlockCreation',
+        ttl: parseInt(process.env.BLOCK_CREATION_LOCK_TTL || '60'),
+      },
     },
     metricsReporting: {
       interval: parseInt(process.env.METRICS_REPORTING_JOB_INTERVAL || '60000'),
+      lock: {
+        name: process.env.METRICS_REPORTING_LOCK_NAME || 'lock::MetricsReporting',
+        ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),
+      },
     },
   },
   redis: {

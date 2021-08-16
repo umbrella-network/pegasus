@@ -3,9 +3,17 @@ type Settings = {
   jobs: {
     blockCreation: {
       interval: number;
+      lock: {
+        name: string;
+        ttl: number;
+      };
     };
     metricsReporting: {
       interval: number;
+      lock: {
+        name: string;
+        ttl: number;
+      };
     };
   };
   redis: {
