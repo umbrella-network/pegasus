@@ -33,6 +33,10 @@ class BlockSigner {
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
     const {proposedConsensus, chainAddress, chainStatus} = await this.executeRequireChecks(block);
 
+    this.logger.info(
+      `Request from ${proposedConsensus.signer} to sign a block ~${chainStatus.nextBlockId} with ${proposedConsensus.leaves.length} leaves and ${proposedConsensus.fcdKeys.length} FCDs`,
+    );
+
     const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = await this.leavesAndFeeds(
       proposedConsensus.dataTimestamp,
     );

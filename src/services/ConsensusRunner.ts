@@ -47,7 +47,7 @@ class ConsensusRunner {
       if (i > 0) {
         const keys: string[] = [];
         discrepanciesKeys.forEach((k) => keys.push(k));
-        this.logger.warn(`Dumping discrepancy data: ${keys.join(', ')}`);
+        this.logger.warn(`Dumping discrepancy data (${keys.length}): ${keys.join(', ')}`);
         ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepanciesKeys));
         discrepanciesKeys = new Set(); // reset
       }
@@ -66,7 +66,11 @@ class ConsensusRunner {
       ));
 
       if (consensus || discrepanciesKeys.size === 0) {
-        this.logger.info(`step ${i} consensus: ${!!consensus}, discrepanciesKeys: ${discrepanciesKeys.size}`);
+        this.logger.info(
+          `step ${i} consensus: ${!!consensus}, discrepanciesKeys: ${discrepanciesKeys.size} of ${
+            dataForConsensus.leaves.length
+          }/${dataForConsensus.fcdKeys.length}`,
+        );
         return consensus;
       }
     }
@@ -97,7 +101,9 @@ class ConsensusRunner {
       signature: await signAffidavitWithWallet(this.blockchain.wallet, dataForConsensus.affidavit),
     };
 
-    this.logger.info(`Running consensus at ${dataForConsensus.dataTimestamp} with ${validators.length} validators...`);
+    this.logger.info(
+      `Running consensus at ${dataForConsensus.dataTimestamp} with ${validators.length} validators, ${leaves.length} leaves, ${fcdKeys.length} FCDs`,
+    );
 
     const blockSignerResponsesWithPowers = await this.signatureCollector.apply(
       signedBlock,
