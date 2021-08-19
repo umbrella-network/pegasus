@@ -6,8 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [5.0.4] - 2021-08-19
 ### Added
-- add InfluxDB to docker-compose core
+- add additional logs for tracking number of leaves and FCDs
 
 ## [5.0.3] - 2021-08-13
 ### Changed

@@ -70,7 +70,9 @@ class BlockMinter {
       return;
     }
 
-    this.logger.info(`Minting a block with ${consensus.signatures.length} signatures...`);
+    this.logger.info(
+      `Minting a block with ${consensus.signatures.length} signatures, ${consensus.leaves.length} leaves, ${consensus.fcdKeys.length} FCDs`,
+    );
 
     const mintedBlock = await this.mint(
       consensus.dataTimestamp,
