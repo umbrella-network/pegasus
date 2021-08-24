@@ -104,6 +104,70 @@ class BlockMinter {
     return ethers.utils.splitSignature(signature);
   }
 
+  private async submitTx(
+    dataTimestamp: number,
+    root: string,
+    keys: string[],
+    values: FeedValue[],
+    signatures: string[],
+    chainStatus: ChainStatus,
+    nonce?: number,
+  ) {
+    const components = signatures.map((signature) => BlockMinter.splitSignature(signature));
+
+    const gasMetrics = await this.gasEstimator.apply();
+
+    this.logger.info(`Submitting tx, gas metrics: ${GasEstimator.printable(gasMetrics)}`);
+
+    const [currentBlockNumber, tx] = await Promise.all([
+      this.blockchain.getBlockNumber(),
+      this.chainContract.submit(
+        dataTimestamp,
+        root,
+        keys.map(LeafKeyCoder.encode),
+        values.map((v, i) => LeafValueCoder.encode(v, keys[i])),
+        components.map((sig) => sig.v),
+        components.map((sig) => sig.r),
+        components.map((sig) => sig.s),
+        gasMetrics.estimation,
+        nonce,
+      ),
+    ]);
+
+    this.logger.info(`Tx submitted at ${currentBlockNumber}, waiting for new block.`);
+
+    // there is no point of canceling tx if block is not minted
+    const newBlockNumber = await this.waitUntilNextBlock(currentBlockNumber);
+
+    this.logger.info(`New block detected ${newBlockNumber}, waiting for tx to be minted.`);
+
+    const timeout = chainStatus.timePadding * 1000;
+    const receipt = await Promise.race([tx.wait(), BlockMinter.txTimeout(timeout)]);
+
+    if (!receipt) {
+      this.logger.warn(`canceling tx ${tx.hash}`);
+      await this.cancelPendingTransaction(gasMetrics.estimation).catch(this.logger.warn);
+
+      throw new Error(`mint TX timeout: ${timeout}ms`);
+    }
+
+    if (receipt.status !== 1) {
+      newrelic.recordCustomEvent(FailedTransactionEvent, {
+        transactionHash: receipt.transactionHash,
+      });
+
+      return null;
+    }
+
+    const logMint = this.getLogMint(receipt.logs);
+
+    if (!logMint) {
+      return null;
+    }
+
+    return {hash: receipt.transactionHash, logMint};
+  }
+
   private async mint(
     dataTimestamp: number,
     root: string,
@@ -113,60 +177,19 @@ class BlockMinter {
     chainStatus: ChainStatus,
   ): Promise<MintedBlock | null> {
     try {
-      const components = signatures.map((signature) => BlockMinter.splitSignature(signature));
-
-      const gasMetrics = await this.gasEstimator.apply();
-
-      this.logger.info(`Submitting tx, gas metrics: ${GasEstimator.printable(gasMetrics)}`);
-
-      const [currentBlockNumber, tx] = await Promise.all([
-        this.blockchain.getBlockNumber(),
-        this.chainContract.submit(
-          dataTimestamp,
-          root,
-          keys.map(LeafKeyCoder.encode),
-          values.map((v, i) => LeafValueCoder.encode(v, keys[i])),
-          components.map((sig) => sig.v),
-          components.map((sig) => sig.r),
-          components.map((sig) => sig.s),
-          gasMetrics.estimation,
-        ),
-      ]);
-
-      this.logger.info(`Tx submitted at ${currentBlockNumber}, waiting for new block.`);
-
-      // there is no point of canceling tx if block is not minted
-      const newBlockNumber = await this.waitUntilNextBlock(currentBlockNumber);
-
-      this.logger.info(`New block detected ${newBlockNumber}, waiting for tx to be minted.`);
-
-      const timeout = chainStatus.timePadding * 1000;
-      const receipt = await Promise.race([tx.wait(), BlockMinter.txTimeout(timeout)]);
-
-      if (!receipt) {
-        this.logger.warn(`canceling tx ${tx.hash}`);
-        await this.cancelPendingTransaction(gasMetrics.estimation).catch(this.logger.warn);
-
-        throw new Error(`mint TX timeout: ${timeout}ms`);
+      try {
+        return await this.submitTx(dataTimestamp, root, keys, values, signatures, chainStatus);
+      } catch (e) {
+        if (!this.isNonceError(e)) {
+          throw e;
+        }
+        const lastNonce = await this.blockchain.wallet.getTransactionCount('latest');
+        this.logger.warn(`Submit tx with nonce ${lastNonce} failed. Retrying with ${lastNonce + 1}`);
+        return await this.submitTx(dataTimestamp, root, keys, values, signatures, chainStatus, lastNonce + 1);
       }
-
-      if (receipt.status !== 1) {
-        newrelic.recordCustomEvent(FailedTransactionEvent, {
-          transactionHash: receipt.transactionHash,
-        });
-
-        return null;
-      }
-
-      const logMint = this.getLogMint(receipt.logs);
-
-      if (!logMint) {
-        return null;
-      }
-
-      return {hash: receipt.transactionHash, logMint};
     } catch (e) {
       const err = await this.handleTimestampDiscrepancyError(e, dataTimestamp);
+
       newrelic.noticeError(err);
       this.logger.error(err);
       return null;
@@ -196,6 +219,10 @@ class BlockMinter {
   }
 
   private static sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+  private isNonceError(e: Error): boolean {
+    return e.message.includes('nonce has already been used');
+  }
 
   private async handleTimestampDiscrepancyError(e: Error, dataTimestamp: number): Promise<Error> {
     if (!e.message.includes('you can predict the future')) {
