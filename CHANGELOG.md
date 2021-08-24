@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [5.0.5] - 2021-08-24
+### Added
+- add handling for `nonce has already been used` error
+
 ## [5.0.4] - 2021-08-19
 ### Added
 - add additional logs for tracking number of leaves and FCDs
