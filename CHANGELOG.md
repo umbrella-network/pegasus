@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [5.0.6] - 2021-08-24
+### Added
+- add additional logs for `BlockMintingWorker`
+
 ## [5.0.5] - 2021-08-24
 ### Added
 - add handling for `nonce has already been used` error
