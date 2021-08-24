@@ -366,5 +366,61 @@ describe('BlockMinter', () => {
       const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
       expect(blocksCount).to.be.eq(1);
     });
+
+    describe('when it fails to submit transaction', () => {
+      it('retries submitTx with different nonce', async () => {
+        const {leaf, affidavit} = leafWithAffidavit;
+
+        const wallet = Wallet.createRandom();
+        const signature = await signAffidavitWithWallet(wallet, affidavit);
+
+        mockedBlockchain.wallet = wallet;
+
+        mockedBlockchain.wallet.getTransactionCount = async () => 1;
+
+        mockedTimeService.apply.returns(10);
+        mockedGasEstimator.apply.resolves({min: 10, estimation: 10, max: 10, avg: 10});
+
+        mockedChainContract.resolveStatus.resolves([
+          '0x123',
+          {
+            blockNumber: BigNumber.from(1),
+            timePadding: 0,
+            lastBlockId: 1,
+            nextBlockId: 1,
+            nextLeader: wallet.address,
+            validators: [wallet.address],
+            locations: ['abc'],
+            lastDataTimestamp: 1,
+            powers: [BigNumber.from(1)],
+            staked: BigNumber.from(1),
+            minSignatures: 1,
+          },
+        ]);
+
+        mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+
+        mockedChainContract.submit.rejects({
+          message: 'nonce has already been used',
+        });
+
+        mockedFeedProcessor.apply.resolves([
+          [leaf, leaf],
+          [leaf, leaf],
+        ]);
+
+        mockedSignatureCollector.apply.resolves([
+          {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
+        ]);
+
+        const loggerSpy = sinon.spy(mockedLogger, 'warn');
+        const submitTxSpy = sinon.spy(blockMinter, <any>'submitTx');
+
+        await blockMinter.apply();
+
+        expect(submitTxSpy.calledTwice).to.be.true;
+        expect(loggerSpy.calledOnceWith(sinon.match('Submit tx with nonce 1 failed. Retrying with 2'))).to.be.true;
+      });
+    });
   });
 });
