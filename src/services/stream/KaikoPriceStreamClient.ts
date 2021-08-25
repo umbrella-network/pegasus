@@ -121,50 +121,65 @@ class KaikoPriceStreamClient {
     const formattedPairs = this.formatPairs(pairs);
 
     formattedPairs.forEach((pair) => {
-      let buffer: {
-        [pair: string]: PriceRegistry[];
-      } = {};
+      this.subscribePair(client, request, pair);
+    });
+  }
 
-      let time0 = Date.now();
+  private subscribePair(
+    client: StreamAggregatesSpotExchangeRateServiceV1Client,
+    request: StreamAggregatesSpotExchangeRateRequestV1,
+    pair: string,
+  ) {
+    let buffer: {
+      [pair: string]: PriceRegistry[];
+    } = {};
+    
+    let time0 = Date.now();
+    
+    request.setCode(pair);
+    request.setSources(false);
+    request.setAggregate('1m');
+    
+    this.logger.info(`${LOG_PREFIX} Subscribing pair: ${pair}`);
+    this.call = client.subscribe(request);
 
-      request.setCode(pair);
-      request.setSources(false);
-      request.setAggregate('1m');
+    this.call.on('data', (response: StreamAggregatesSpotExchangeRateResponseV1) => {
+      const priceRegistry: PriceRegistry = {
+        price: parseFloat(response.getPrice()),
+        timestamp: response.getUid(),
+      };
 
-      this.call = client.subscribe(request);
+      const pair = response.getCode();
 
-      this.call.on('data', (response: StreamAggregatesSpotExchangeRateResponseV1) => {
-        const priceRegistry: PriceRegistry = {
-          price: parseFloat(response.getPrice()),
-          timestamp: response.getUid(),
-        };
+      buffer[pair] = buffer[pair] ? buffer[pair] : [];
+      buffer[pair] = [...buffer[pair], priceRegistry];
 
-        const pair = response.getCode();
+      if (Date.now() - time0 >= PERSISTANCE_AGGREGATION_PERIOD_MS) {
+        time0 = Date.now();
+        Object.keys(buffer).forEach((key) => {
+          const timestamp = Math.floor(Date.now() / 1000);
+          this.savePrice(key, this.calculateMean(buffer[key]), timestamp);
+        });
+        buffer = {};
+      }
+    });
 
-        buffer[pair] = buffer[pair] ? buffer[pair] : [];
-        buffer[pair] = [...buffer[pair], priceRegistry];
+    this.call.on('end', () => {
+      this.logger.warn(`${LOG_PREFIX} Spot Exchange Rate Stream ended`);
+    });
 
-        if (Date.now() - time0 >= PERSISTANCE_AGGREGATION_PERIOD_MS) {
-          time0 = Date.now();
-          Object.keys(buffer).forEach((key) => {
-            const timestamp = Math.floor(Date.now() / 1000);
-            this.savePrice(key, this.calculateMean(buffer[key]), timestamp);
-          });
-          buffer = {};
-        }
-      });
-
-      this.call.on('end', () => {
-        this.logger.warn(`${LOG_PREFIX} Spot Exchange Rate Stream ended`);
-      });
-
-      this.call.on('error', (error: grpc.ServiceError) => {
-        if (error.code === grpc.status.CANCELLED) {
-          this.logger.error(`${LOG_PREFIX} CANCELLED: ${error}. Pair: ${pair}`);
-          return;
-        }
-        this.logger.error(`${LOG_PREFIX} ${error}. Pair: ${pair}`);
-      });
+    this.call.on('error', (error: grpc.ServiceError) => {
+      if (error.code === grpc.status.CANCELLED) {
+        this.logger.error(`${LOG_PREFIX} CANCELLED: ${error}. Pair: ${pair}`);
+        return;
+      }
+      if (error.message.includes('RST_STREAM')) {
+        this.logger.warn(`${LOG_PREFIX} RESET. Resubscribing ${pair}`);
+        setTimeout(() => {
+          this.subscribePair(client, request, pair);
+        }, 10000);
+      }
+      this.logger.error(`${LOG_PREFIX} ${error}. Pair: ${pair}`);
     });
   }
 
