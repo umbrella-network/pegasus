@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [5.0.7] - 2021-08-25
+### Changed
+- unify way for executing "normal" and canceling transactions
+- update `ethers`
+
 ## [5.0.6] - 2021-08-24
 ### Added
 - add additional logs for `BlockMintingWorker`

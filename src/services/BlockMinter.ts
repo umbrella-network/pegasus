@@ -22,6 +22,7 @@ import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
 import GasEstimator from './GasEstimator';
+import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
 
 @injectable()
 class BlockMinter {
@@ -119,8 +120,7 @@ class BlockMinter {
 
     this.logger.info(`Submitting tx, gas metrics: ${GasEstimator.printable(gasMetrics)}`);
 
-    const [currentBlockNumber, tx] = await Promise.all([
-      this.blockchain.getBlockNumber(),
+    const fn = () =>
       this.chainContract.submit(
         dataTimestamp,
         root,
@@ -131,24 +131,15 @@ class BlockMinter {
         components.map((sig) => sig.s),
         gasMetrics.estimation,
         nonce,
-      ),
-    ]);
+      );
 
-    this.logger.info(`Tx submitted at ${currentBlockNumber}, waiting for new block.`);
-
-    // there is no point of canceling tx if block is not minted
-    const newBlockNumber = await this.waitUntilNextBlock(currentBlockNumber);
-
-    this.logger.info(`New block detected ${newBlockNumber}, waiting for tx to be minted.`);
-
-    const timeout = chainStatus.timePadding * 1000;
-    const receipt = await Promise.race([tx.wait(), BlockMinter.txTimeout(timeout)]);
+    const {tx, receipt, timeoutMs} = await this.executeTx(fn, chainStatus.timePadding * 1000);
 
     if (!receipt) {
       this.logger.warn(`canceling tx ${tx.hash}`);
-      await this.cancelPendingTransaction(gasMetrics.estimation).catch(this.logger.warn);
+      await this.cancelPendingTransaction(gasMetrics.estimation, chainStatus.timePadding).catch(this.logger.warn);
 
-      throw new Error(`mint TX timeout: ${timeout}ms`);
+      throw new Error(`mint TX timeout: ${timeoutMs}ms`);
     }
 
     if (receipt.status !== 1) {
@@ -180,7 +171,7 @@ class BlockMinter {
       try {
         return await this.submitTx(dataTimestamp, root, keys, values, signatures, chainStatus);
       } catch (e) {
-        if (!this.isNonceError(e)) {
+        if (!BlockMinter.isNonceError(e)) {
           throw e;
         }
         const lastNonce = await this.blockchain.wallet.getTransactionCount('latest');
@@ -218,9 +209,23 @@ class BlockMinter {
     return newBlockNumber;
   }
 
+  private async executeTx(
+    fn: () => Promise<TransactionResponse>,
+    timeoutMs: number,
+  ): Promise<{tx: TransactionResponse; receipt: TransactionReceipt | undefined; timeoutMs: number}> {
+    const [currentBlockNumber, tx] = await Promise.all([this.blockchain.getBlockNumber(), fn()]);
+
+    // there is no point of doing any action on tx if block is not minted
+    const newBlockNumber = await this.waitUntilNextBlock(currentBlockNumber);
+
+    this.logger.info(`New block detected ${newBlockNumber}, waiting for tx to be minted.`);
+
+    return {tx, receipt: await Promise.race([tx.wait(), BlockMinter.txTimeout(timeoutMs)]), timeoutMs};
+  }
+
   private static sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
-  private isNonceError(e: Error): boolean {
+  private static isNonceError(e: Error): boolean {
     return e.message.includes('nonce has already been used');
   }
 
@@ -233,7 +238,7 @@ class BlockMinter {
     return new Error(`Timestamp discrepancy ${blockTimestamp - dataTimestamp}s: (${e.message})`);
   }
 
-  private async cancelPendingTransaction(prevGasPrice: number): Promise<boolean> {
+  private async cancelPendingTransaction(prevGasPrice: number, timePadding: number): Promise<boolean> {
     const gasMetrics = await this.gasEstimator.apply();
 
     const txData = {
@@ -247,9 +252,14 @@ class BlockMinter {
 
     this.logger.warn('Sending canceling tx', {nonce: txData.nonce, gasPrice: txData.gasPrice});
 
-    const tx = await this.blockchain.wallet.sendTransaction(txData);
+    const fn = () => this.blockchain.wallet.sendTransaction(txData);
 
-    const receipt = await tx.wait();
+    const {tx, receipt} = await this.executeTx(fn, timePadding * 1000);
+
+    if (!receipt || receipt.status !== 1) {
+      this.logger.warn(`Canceling tx ${tx.hash} filed or still pending`);
+      return false;
+    }
 
     return receipt.status === 1;
   }
