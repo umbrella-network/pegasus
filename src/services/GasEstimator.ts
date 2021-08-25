@@ -67,7 +67,7 @@ class GasEstimator {
     metrics: GasPriceMetrics,
     prices: number[],
   ): number => {
-    if (prices.length < 5) {
+    if (prices.length < 2) {
       return minGasPrice;
     }
 
