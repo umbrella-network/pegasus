@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [5.0.8] - 2021-08-25
+### Changed
+- change gas calculation
+
 ## [5.0.7] - 2021-08-25
 ### Changed
 - unify way for executing "normal" and canceling transactions
