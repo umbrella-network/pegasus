@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 
-import KaikoPriceStreamClient from '../stream/KaikoPriceStreamClient';
+import KaikoPriceStreamClient from '../../stream/KaikoPriceStreamClient';
 import {PairWithFreshness} from '../../types/Feed';
 
 @injectable()

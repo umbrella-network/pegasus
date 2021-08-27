@@ -3,22 +3,22 @@ import {Logger} from 'winston';
 
 import * as grpc from '@grpc/grpc-js';
 
-import {StreamAggregatesSpotExchangeRateServiceV1Client} from '../../lib/kaiko-sdk-node/sdk/sdk_grpc_pb';
-import {StreamAggregatesSpotExchangeRateResponseV1} from '../../lib/kaiko-sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/response_pb';
-import {StreamAggregatesSpotExchangeRateRequestV1} from '../../lib/kaiko-sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/request_pb';
+import {StreamAggregatesSpotExchangeRateServiceV1Client} from '../lib/kaiko-sdk-node/sdk/sdk_grpc_pb';
+import {StreamAggregatesSpotExchangeRateResponseV1} from '../lib/kaiko-sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/response_pb';
+import {StreamAggregatesSpotExchangeRateRequestV1} from '../lib/kaiko-sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/request_pb';
 
-import Settings from '../../types/Settings';
-import {Pair, PairWithFreshness} from '../../types/Feed';
+import Settings from '../types/Settings';
+import {Pair, PairWithFreshness} from '../types/Feed';
 
 import {price} from '@umb-network/validator';
 
-import PriceAggregator from '../PriceAggregator';
-import TimeService from '../TimeService';
+import PriceAggregator from '../services/PriceAggregator';
+import TimeService from '../services/TimeService';
 
 const PERSISTANCE_AGGREGATION_PERIOD_MS = 5000;
 const LOG_PREFIX = 'Kaiko Stream:';
 
-type PriceRegistry = {
+type PriceEntry = {
   price: number;
   timestamp: string;
 };
@@ -69,7 +69,7 @@ class KaikoPriceStreamClient {
       .catch((error) => this.logger.error(`${LOG_PREFIX} ${error}`));
   }
 
-  start(pairs: Pair[]) {
+  start(pairs: Pair[]): void {
     const metaCallback = (_params: unknown, callback: (err: Error | null, metadata?: grpc.Metadata) => void) => {
       const meta = new grpc.Metadata();
       meta.add('Authorization', `Bearer ${this.settings.api.kaiko.apiKey}`);
@@ -86,7 +86,7 @@ class KaikoPriceStreamClient {
     this.healthCheck();
   }
 
-  close() {
+  close(): void {
     this.call.cancel();
   }
 
@@ -131,20 +131,20 @@ class KaikoPriceStreamClient {
     pair: string,
   ) {
     let buffer: {
-      [pair: string]: PriceRegistry[];
+      [pair: string]: PriceEntry[];
     } = {};
-    
+
     let time0 = Date.now();
-    
+
     request.setCode(pair);
     request.setSources(false);
     request.setAggregate('1m');
-    
+
     this.logger.info(`${LOG_PREFIX} Subscribing pair: ${pair}`);
     this.call = client.subscribe(request);
 
     this.call.on('data', (response: StreamAggregatesSpotExchangeRateResponseV1) => {
-      const priceRegistry: PriceRegistry = {
+      const priceRegistry: PriceEntry = {
         price: parseFloat(response.getPrice()),
         timestamp: response.getUid(),
       };
@@ -183,7 +183,7 @@ class KaikoPriceStreamClient {
     });
   }
 
-  private calculateMean(registries: PriceRegistry[]): number {
+  private calculateMean(registries: PriceEntry[]): number {
     const prices = registries.map((registry) => registry.price);
     return price.mean(prices);
   }

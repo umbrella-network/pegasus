@@ -10,8 +10,9 @@ import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService';
 import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
 import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer';
 import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
-import KaikoPriceStreamClient from '../services/stream/KaikoPriceStreamClient';
+import KaikoPriceStreamClient from '../stream/KaikoPriceStreamClient';
 import KaikoPriceStreamInitializer from '../services/KaikoPriceStreamInitializer';
+import PairRepository from 'src/repositories/PairRepository';
 
 @injectable()
 class DebugController {
@@ -26,6 +27,7 @@ class DebugController {
   @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
   @inject(KaikoPriceStreamClient) kaikoPriceStreamClient!: KaikoPriceStreamClient;
   @inject(KaikoPriceStreamInitializer) kaikoPriceStreamInitializer!: KaikoPriceStreamInitializer;
+  @inject(PairRepository) pairRepository!: PairRepository;
 
   constructor(@inject('Settings') settings: Settings) {
     this.router = express
@@ -148,7 +150,7 @@ class DebugController {
     };
 
     try {
-      const pairs = await this.kaikoPriceStreamInitializer.allPairs();
+      const pairs = await this.pairRepository.getPairsByFetcher('KaikoPriceStream');
 
       response.send(
         sort(
