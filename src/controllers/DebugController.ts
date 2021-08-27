@@ -12,7 +12,8 @@ import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer';
 import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
 import KaikoPriceStreamClient from '../stream/KaikoPriceStreamClient';
 import KaikoPriceStreamInitializer from '../services/KaikoPriceStreamInitializer';
-import PairRepository from 'src/repositories/PairRepository';
+import PairRepository from '../repositories/PairRepository';
+import PriceRepository from '../repositories/PriceRepository';
 
 @injectable()
 class DebugController {
@@ -28,6 +29,7 @@ class DebugController {
   @inject(KaikoPriceStreamClient) kaikoPriceStreamClient!: KaikoPriceStreamClient;
   @inject(KaikoPriceStreamInitializer) kaikoPriceStreamInitializer!: KaikoPriceStreamInitializer;
   @inject(PairRepository) pairRepository!: PairRepository;
+  @inject(PriceRepository) priceRepository!: PriceRepository;
 
   constructor(@inject('Settings') settings: Settings) {
     this.router = express
@@ -154,7 +156,8 @@ class DebugController {
 
       response.send(
         sort(
-          await this.kaikoPriceStreamClient.latestPrices(
+          await this.priceRepository.getLatestPrices(
+            KaikoPriceStreamClient.Prefix,
             pairs,
             parseInt(beforeTimestamp, 10) || this.timeService.apply(),
           ),
@@ -170,7 +173,7 @@ class DebugController {
     const {fsym, tsym} = request.params as {fsym: string; tsym: string};
 
     try {
-      response.send(await this.cryptoCompareWSClient.allPrices({fsym, tsym}));
+      response.send(await this.priceRepository.getAllPrices(KaikoPriceStreamClient.Prefix, {fsym, tsym}));
     } catch (err) {
       next(err);
     }

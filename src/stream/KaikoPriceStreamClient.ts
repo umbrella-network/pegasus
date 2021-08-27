@@ -8,11 +8,11 @@ import {StreamAggregatesSpotExchangeRateResponseV1} from '../lib/kaiko-sdk-node/
 import {StreamAggregatesSpotExchangeRateRequestV1} from '../lib/kaiko-sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/request_pb';
 
 import Settings from '../types/Settings';
-import {Pair, PairWithFreshness} from '../types/Feed';
+import {Pair} from '../types/Feed';
 
 import {price} from '@umb-network/validator';
 
-import PriceAggregator from '../services/PriceAggregator';
+import PriceRepository from '../repositories/PriceRepository';
 import TimeService from '../services/TimeService';
 
 const PERSISTANCE_AGGREGATION_PERIOD_MS = 5000;
@@ -28,7 +28,7 @@ class KaikoPriceStreamClient {
   @inject('Logger') logger!: Logger;
 
   settings: Settings;
-  priceAggregator: PriceAggregator;
+  priceRepository: PriceRepository;
   timeService: TimeService;
   // eslint-disable-next-line
   call: any;
@@ -41,32 +41,12 @@ class KaikoPriceStreamClient {
   constructor(
     @inject('Settings') settings: Settings,
     @inject(TimeService) timeService: TimeService,
-    @inject(PriceAggregator) priceAggregator: PriceAggregator,
+    @inject(PriceRepository) priceRepository: PriceRepository,
   ) {
     this.timeService = timeService;
     this.settings = settings;
-    this.priceAggregator = priceAggregator;
+    this.priceRepository = priceRepository;
     this.updatedPricesCount = 0;
-  }
-
-  async getLatestPrice(
-    {fsym, tsym, freshness = KaikoPriceStreamClient.DefaultFreshness}: PairWithFreshness,
-    timestamp: number,
-  ): Promise<number | null> {
-    return await this.priceAggregator.valueAfter(
-      `${KaikoPriceStreamClient.Prefix}${fsym}~${tsym}`,
-      timestamp,
-      timestamp - freshness,
-    );
-  }
-
-  private savePrice(pair: string, price: number, timestamp: number) {
-    const formattedPair = pair.toUpperCase().replace('-', '~');
-
-    return this.priceAggregator
-      .add(`${KaikoPriceStreamClient.Prefix}${formattedPair}`, price, timestamp)
-      .then(() => this.updatedPricesCount++)
-      .catch((error) => this.logger.error(`${LOG_PREFIX} ${error}`));
   }
 
   start(pairs: Pair[]): void {
@@ -158,7 +138,9 @@ class KaikoPriceStreamClient {
         time0 = Date.now();
         Object.keys(buffer).forEach((key) => {
           const timestamp = Math.floor(Date.now() / 1000);
-          this.savePrice(key, this.calculateMean(buffer[key]), timestamp);
+          this.priceRepository
+            .savePrice(KaikoPriceStreamClient.Prefix, key, this.calculateMean(buffer[key]), timestamp)
+            .then(() => this.updatedPricesCount++);
         });
         buffer = {};
       }
@@ -186,30 +168,6 @@ class KaikoPriceStreamClient {
   private calculateMean(registries: PriceEntry[]): number {
     const prices = registries.map((registry) => registry.price);
     return price.mean(prices);
-  }
-
-  public async latestPrices(
-    pairs: Pair[],
-    maxTimestamp: number,
-  ): Promise<{symbol: string; value: number; timestamp: number}[]> {
-    return await Promise.all(
-      pairs.map(async ({fsym, tsym}) => {
-        const valueTimestamp = await this.priceAggregator.valueTimestamp(
-          `${KaikoPriceStreamClient.Prefix}${fsym}~${tsym}`,
-          maxTimestamp,
-        );
-        const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
-        return {
-          symbol: `${fsym}-${tsym}`,
-          value,
-          timestamp,
-        };
-      }),
-    );
-  }
-
-  public async allPrices({fsym, tsym}: Pair): Promise<{value: number; timestamp: number}[]> {
-    return this.priceAggregator.valueTimestamps(`${KaikoPriceStreamClient.Prefix}${fsym}~${tsym}`);
   }
 }
 
