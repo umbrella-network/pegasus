@@ -83,6 +83,7 @@ type Settings = {
     };
     kaiko: {
       apiKey: string;
+      rpcUrl: string;
       timeout: number;
     };
   };

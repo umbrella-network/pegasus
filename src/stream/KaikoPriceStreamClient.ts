@@ -113,7 +113,7 @@ class KaikoPriceStreamClient {
 
   private spotExchangeRequest(credentials: grpc.CallCredentials, pairs: Pair[]): void {
     const client = new StreamAggregatesSpotExchangeRateServiceV1Client(
-      'gateway-v0-grpc.kaiko.ovh:443',
+      this.settings.api.kaiko.rpcUrl,
       credentials as unknown as grpc.ChannelCredentials,
     );
     const request = new StreamAggregatesSpotExchangeRateRequestV1();
