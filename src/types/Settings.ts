@@ -82,6 +82,7 @@ type Settings = {
       timeout: number;
     };
   };
+  statusCheckTimeout: number;
   signatureTimeout: number;
   dataTimestampOffsetSeconds: number;
   feedsFile: string;
