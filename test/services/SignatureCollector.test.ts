@@ -74,6 +74,11 @@ describe('SignatureCollector', () => {
 
     const walletOfAnotherValidator = Wallet.createRandom();
 
+    moxios.stubRequest('http://validator/info', {
+      status: 200,
+      response: {data: `OK`},
+    });
+
     moxios.stubRequest('http://validator/signature', {
       status: 200,
       response: {
@@ -105,6 +110,11 @@ describe('SignatureCollector', () => {
 
     const walletOfAnotherValidator = Wallet.createRandom();
     const signatureOfAnotherValidator = await signAffidavitWithWallet(walletOfAnotherValidator, affidavit);
+
+    moxios.stubRequest('http://validator/info', {
+      status: 200,
+      response: {data: `OK`},
+    });
 
     moxios.stubRequest('http://validator/signature', {
       status: 200,
@@ -145,6 +155,16 @@ describe('SignatureCollector', () => {
     const walletOfThirdValidator = Wallet.createRandom();
     const signatureOfThirdValidator = await signAffidavitWithWallet(walletOfThirdValidator, affidavit);
 
+    moxios.stubRequest('http://second-validator/info', {
+      status: 200,
+      response: {data: `OK`},
+    });
+
+    moxios.stubRequest('http://third-validator/info', {
+      status: 200,
+      response: {data: `OK`},
+    });
+
     moxios.stubRequest('http://second-validator/signature', {
       status: 200,
       response: {
@@ -181,5 +201,60 @@ describe('SignatureCollector', () => {
     );
     expect(blockSignerResponseWithPower.map((r) => r.signature)).to.include(signatureOfSecondValidator);
     expect(blockSignerResponseWithPower.map((r) => r.signature)).to.include(signatureOfThirdValidator);
+  });
+
+  it('ignores signatures from validators if status check fails', async () => {
+    const {affidavit, fcd} = leafWithAffidavit;
+
+    const walletOfCurrentValidator = Wallet.createRandom();
+    mockedBlockchain.wallet = walletOfCurrentValidator;
+    const signatureOfCurrentValidator = await signAffidavitWithWallet(walletOfCurrentValidator, affidavit);
+
+    const walletOfSecondValidator = Wallet.createRandom();
+    const signatureOfSecondValidator = await signAffidavitWithWallet(walletOfSecondValidator, affidavit);
+
+    const walletOfThirdValidator = Wallet.createRandom();
+    const signatureOfThirdValidator = await signAffidavitWithWallet(walletOfThirdValidator, affidavit);
+
+    moxios.stubRequest('http://second-validator/info', {
+      status: 500,
+      response: {data: ''},
+    });
+
+    moxios.stubRequest('http://third-validator/info', {
+      status: 200,
+      response: {data: 'error: something'},
+    });
+
+    moxios.stubRequest('http://second-validator/signature', {
+      status: 200,
+      response: {
+        signature: signatureOfSecondValidator,
+        discrepancies: [],
+      },
+    });
+
+    moxios.stubRequest('http://third-validator/signature', {
+      status: 200,
+      response: {
+        signature: signatureOfThirdValidator,
+        discrepancies: [],
+      },
+    });
+
+    const block: SignedBlock = {
+      dataTimestamp: 10,
+      fcd: fcd,
+      leaves: fcd,
+      signature: signatureOfCurrentValidator,
+    };
+
+    const blockSignerResponseWithPower = await signatureCollector.apply(block, affidavit, [
+      {id: mockedBlockchain.wallet.address, location: 'http://me', power: BigNumber.from(1)},
+      {id: walletOfSecondValidator.address, location: 'http://second-validator', power: BigNumber.from(2)},
+      {id: walletOfThirdValidator.address, location: 'http://third-validator', power: BigNumber.from(3)},
+    ]);
+
+    expect(blockSignerResponseWithPower).to.be.an('array').with.lengthOf(1);
   });
 });

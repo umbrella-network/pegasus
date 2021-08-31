@@ -61,8 +61,10 @@ export const chainReadyForNewBlock = (
   chainStatus: ChainStatus,
   newDataTimestamp: number,
 ): [ready: boolean, error: string | undefined] => {
-  if (chainStatus.lastDataTimestamp + chainStatus.timePadding > timestamp()) {
-    return [false, `skipping ${chainStatus.nextBlockId.toString()}: waiting for next round`];
+  const deltaT = timestamp() - chainStatus.lastDataTimestamp - chainStatus.timePadding;
+
+  if (deltaT < 0) {
+    return [false, `skipping ${chainStatus.nextBlockId.toString()}: waiting for next round T${deltaT}`];
   }
 
   if (newDataTimestamp <= chainStatus.lastDataTimestamp) {
