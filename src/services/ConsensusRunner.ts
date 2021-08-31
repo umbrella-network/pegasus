@@ -113,7 +113,7 @@ class ConsensusRunner {
 
     const {powers, discrepanciesKeys, signatures} = this.processValidatorsResponses(blockSignerResponsesWithPowers);
 
-    if (!this.hasConsensus(powers, staked, signatures, requiredSignatures)) {
+    if (!this.hasConsensus(signatures, requiredSignatures)) {
       return {consensus: null, discrepanciesKeys};
     }
 
@@ -139,17 +139,16 @@ class ConsensusRunner {
     return Object.fromEntries(fcdKeys.map((_, idx) => [fcdKeys[idx], fcdValues[idx]]));
   }
 
-  private hasConsensus(
-    powers: BigNumber,
-    staked: BigNumber,
-    signatures: string[],
-    requiredSignatures: number,
-  ): boolean {
+  private hasConsensus(signatures: string[], requiredSignatures: number): boolean {
     if (signatures.length < requiredSignatures) {
       this.logger.info(`Not enough signatures: got ${signatures.length}, required: ${requiredSignatures}`);
       return false;
     }
 
+    return true;
+
+    // we turn on power when we will add DPoS
+    /*
     const requiredPercent = 66;
     const got = powers.mul(100);
     const required = staked.mul(requiredPercent);
@@ -160,6 +159,7 @@ class ConsensusRunner {
 
     this.logger.info(`Not enough power: got ${got.toString()}, required: ${required.toString()}`);
     return false;
+    */
   }
 
   private async getDataForConsensus(
