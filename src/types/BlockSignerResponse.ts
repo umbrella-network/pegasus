@@ -10,4 +10,5 @@ export interface BlockSignerResponse {
 
 export interface BlockSignerResponseWithPower extends BlockSignerResponse {
   power: BigNumber;
+  validator?: string;
 }
