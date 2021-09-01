@@ -3,7 +3,7 @@
 
 import * as jspb from "google-protobuf";
 import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
-import * as sdk_stream_aggregates_spot_exchange_rate_v1_source_pb from "../../../sdk/stream/aggregates_spot_exchange_rate_v1/source_pb";
+import * as sdk_core_source_pb from "../../../sdk/core/source_pb";
 
 export class StreamAggregatesSpotExchangeRateResponseV1 extends jspb.Message {
   getAggregate(): string;
@@ -18,7 +18,7 @@ export class StreamAggregatesSpotExchangeRateResponseV1 extends jspb.Message {
   getSequenceId(): string;
   setSequenceId(value: string): void;
 
-  getSourcesMap(): jspb.Map<string, sdk_stream_aggregates_spot_exchange_rate_v1_source_pb.Source>;
+  getSourcesMap(): jspb.Map<string, sdk_core_source_pb.Source>;
   clearSourcesMap(): void;
   hasTimestamp(): boolean;
   clearTimestamp(): void;
@@ -44,7 +44,7 @@ export namespace StreamAggregatesSpotExchangeRateResponseV1 {
     code: string,
     price: string,
     sequenceId: string,
-    sourcesMap: Array<[string, sdk_stream_aggregates_spot_exchange_rate_v1_source_pb.Source.AsObject]>,
+    sourcesMap: Array<[string, sdk_core_source_pb.Source.AsObject]>,
     timestamp?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     uid: string,
   }

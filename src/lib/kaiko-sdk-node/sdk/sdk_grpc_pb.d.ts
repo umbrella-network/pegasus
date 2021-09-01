@@ -8,6 +8,8 @@ import * as sdk_stream_aggregates_ohlcv_v1_request_pb from "../sdk/stream/aggreg
 import * as sdk_stream_aggregates_ohlcv_v1_response_pb from "../sdk/stream/aggregates_ohlcv_v1/response_pb";
 import * as sdk_stream_aggregates_vwap_v1_request_pb from "../sdk/stream/aggregates_vwap_v1/request_pb";
 import * as sdk_stream_aggregates_vwap_v1_response_pb from "../sdk/stream/aggregates_vwap_v1/response_pb";
+import * as sdk_stream_aggregates_direct_exchange_rate_v1_request_pb from "../sdk/stream/aggregates_direct_exchange_rate_v1/request_pb";
+import * as sdk_stream_aggregates_direct_exchange_rate_v1_response_pb from "../sdk/stream/aggregates_direct_exchange_rate_v1/response_pb";
 import * as sdk_stream_aggregates_spot_exchange_rate_v1_request_pb from "../sdk/stream/aggregates_spot_exchange_rate_v1/request_pb";
 import * as sdk_stream_aggregates_spot_exchange_rate_v1_response_pb from "../sdk/stream/aggregates_spot_exchange_rate_v1/response_pb";
 import * as sdk_stream_market_update_v1_request_pb from "../sdk/stream/market_update_v1/request_pb";
@@ -46,6 +48,22 @@ export class StreamAggregatesSpotExchangeRateServiceV1Client extends grpc.Client
   constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
   subscribe(argument: sdk_stream_aggregates_spot_exchange_rate_v1_request_pb.StreamAggregatesSpotExchangeRateRequestV1, metadataOrOptions?: grpc.Metadata | grpc.CallOptions | null): grpc.ClientReadableStream<sdk_stream_aggregates_spot_exchange_rate_v1_response_pb.StreamAggregatesSpotExchangeRateResponseV1>;
   subscribe(argument: sdk_stream_aggregates_spot_exchange_rate_v1_request_pb.StreamAggregatesSpotExchangeRateRequestV1, metadata?: grpc.Metadata | null, options?: grpc.CallOptions | null): grpc.ClientReadableStream<sdk_stream_aggregates_spot_exchange_rate_v1_response_pb.StreamAggregatesSpotExchangeRateResponseV1>;
+}
+
+interface IStreamAggregatesDirectExchangeRateServiceV1Service extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
+  subscribe: grpc.MethodDefinition<sdk_stream_aggregates_direct_exchange_rate_v1_request_pb.StreamAggregatesDirectExchangeRateRequestV1, sdk_stream_aggregates_direct_exchange_rate_v1_response_pb.StreamAggregatesDirectExchangeRateResponseV1>;
+}
+
+export const StreamAggregatesDirectExchangeRateServiceV1Service: IStreamAggregatesDirectExchangeRateServiceV1Service;
+
+export interface IStreamAggregatesDirectExchangeRateServiceV1Server extends grpc.UntypedServiceImplementation {
+  subscribe: grpc.handleServerStreamingCall<sdk_stream_aggregates_direct_exchange_rate_v1_request_pb.StreamAggregatesDirectExchangeRateRequestV1, sdk_stream_aggregates_direct_exchange_rate_v1_response_pb.StreamAggregatesDirectExchangeRateResponseV1>;
+}
+
+export class StreamAggregatesDirectExchangeRateServiceV1Client extends grpc.Client {
+  constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
+  subscribe(argument: sdk_stream_aggregates_direct_exchange_rate_v1_request_pb.StreamAggregatesDirectExchangeRateRequestV1, metadataOrOptions?: grpc.Metadata | grpc.CallOptions | null): grpc.ClientReadableStream<sdk_stream_aggregates_direct_exchange_rate_v1_response_pb.StreamAggregatesDirectExchangeRateResponseV1>;
+  subscribe(argument: sdk_stream_aggregates_direct_exchange_rate_v1_request_pb.StreamAggregatesDirectExchangeRateRequestV1, metadata?: grpc.Metadata | null, options?: grpc.CallOptions | null): grpc.ClientReadableStream<sdk_stream_aggregates_direct_exchange_rate_v1_response_pb.StreamAggregatesDirectExchangeRateResponseV1>;
 }
 
 interface IStreamTradesServiceV1Service extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {

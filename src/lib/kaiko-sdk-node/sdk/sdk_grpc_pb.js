@@ -6,12 +6,36 @@ var sdk_stream_aggregates_ohlcv_v1_request_pb = require('../sdk/stream/aggregate
 var sdk_stream_aggregates_ohlcv_v1_response_pb = require('../sdk/stream/aggregates_ohlcv_v1/response_pb.js');
 var sdk_stream_aggregates_vwap_v1_request_pb = require('../sdk/stream/aggregates_vwap_v1/request_pb.js');
 var sdk_stream_aggregates_vwap_v1_response_pb = require('../sdk/stream/aggregates_vwap_v1/response_pb.js');
+var sdk_stream_aggregates_direct_exchange_rate_v1_request_pb = require('../sdk/stream/aggregates_direct_exchange_rate_v1/request_pb.js');
+var sdk_stream_aggregates_direct_exchange_rate_v1_response_pb = require('../sdk/stream/aggregates_direct_exchange_rate_v1/response_pb.js');
 var sdk_stream_aggregates_spot_exchange_rate_v1_request_pb = require('../sdk/stream/aggregates_spot_exchange_rate_v1/request_pb.js');
 var sdk_stream_aggregates_spot_exchange_rate_v1_response_pb = require('../sdk/stream/aggregates_spot_exchange_rate_v1/response_pb.js');
 var sdk_stream_market_update_v1_request_pb = require('../sdk/stream/market_update_v1/request_pb.js');
 var sdk_stream_market_update_v1_response_pb = require('../sdk/stream/market_update_v1/response_pb.js');
 var sdk_stream_trades_v1_request_pb = require('../sdk/stream/trades_v1/request_pb.js');
 var sdk_stream_trades_v1_response_pb = require('../sdk/stream/trades_v1/response_pb.js');
+
+function serialize_kaikosdk_StreamAggregatesDirectExchangeRateRequestV1(arg) {
+  if (!(arg instanceof sdk_stream_aggregates_direct_exchange_rate_v1_request_pb.StreamAggregatesDirectExchangeRateRequestV1)) {
+    throw new Error('Expected argument of type kaikosdk.StreamAggregatesDirectExchangeRateRequestV1');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_kaikosdk_StreamAggregatesDirectExchangeRateRequestV1(buffer_arg) {
+  return sdk_stream_aggregates_direct_exchange_rate_v1_request_pb.StreamAggregatesDirectExchangeRateRequestV1.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_kaikosdk_StreamAggregatesDirectExchangeRateResponseV1(arg) {
+  if (!(arg instanceof sdk_stream_aggregates_direct_exchange_rate_v1_response_pb.StreamAggregatesDirectExchangeRateResponseV1)) {
+    throw new Error('Expected argument of type kaikosdk.StreamAggregatesDirectExchangeRateResponseV1');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_kaikosdk_StreamAggregatesDirectExchangeRateResponseV1(buffer_arg) {
+  return sdk_stream_aggregates_direct_exchange_rate_v1_response_pb.StreamAggregatesDirectExchangeRateResponseV1.deserializeBinary(new Uint8Array(buffer_arg));
+}
 
 function serialize_kaikosdk_StreamAggregatesOHLCVRequestV1(arg) {
   if (!(arg instanceof sdk_stream_aggregates_ohlcv_v1_request_pb.StreamAggregatesOHLCVRequestV1)) {
@@ -158,6 +182,23 @@ subscribe: {
 };
 
 exports.StreamAggregatesSpotExchangeRateServiceV1Client = grpc.makeGenericClientConstructor(StreamAggregatesSpotExchangeRateServiceV1Service);
+// Service for streaming market update V1
+var StreamAggregatesDirectExchangeRateServiceV1Service = exports.StreamAggregatesDirectExchangeRateServiceV1Service = {
+  // Subscribe
+subscribe: {
+    path: '/kaikosdk.StreamAggregatesDirectExchangeRateServiceV1/Subscribe',
+    requestStream: false,
+    responseStream: true,
+    requestType: sdk_stream_aggregates_direct_exchange_rate_v1_request_pb.StreamAggregatesDirectExchangeRateRequestV1,
+    responseType: sdk_stream_aggregates_direct_exchange_rate_v1_response_pb.StreamAggregatesDirectExchangeRateResponseV1,
+    requestSerialize: serialize_kaikosdk_StreamAggregatesDirectExchangeRateRequestV1,
+    requestDeserialize: deserialize_kaikosdk_StreamAggregatesDirectExchangeRateRequestV1,
+    responseSerialize: serialize_kaikosdk_StreamAggregatesDirectExchangeRateResponseV1,
+    responseDeserialize: deserialize_kaikosdk_StreamAggregatesDirectExchangeRateResponseV1,
+  },
+};
+
+exports.StreamAggregatesDirectExchangeRateServiceV1Client = grpc.makeGenericClientConstructor(StreamAggregatesDirectExchangeRateServiceV1Service);
 // Service for streaming trades V1
 var StreamTradesServiceV1Service = exports.StreamTradesServiceV1Service = {
   // Subscribe

@@ -1,6 +1,6 @@
 {
   "name": "@kaiko-sdk/node",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Kaiko Node SDK",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -23,6 +23,10 @@ var sdk_stream_aggregates_vwap_v1_request_pb = require('../sdk/stream/aggregates
 goog.object.extend(proto, sdk_stream_aggregates_vwap_v1_request_pb);
 var sdk_stream_aggregates_vwap_v1_response_pb = require('../sdk/stream/aggregates_vwap_v1/response_pb.js');
 goog.object.extend(proto, sdk_stream_aggregates_vwap_v1_response_pb);
+var sdk_stream_aggregates_direct_exchange_rate_v1_request_pb = require('../sdk/stream/aggregates_direct_exchange_rate_v1/request_pb.js');
+goog.object.extend(proto, sdk_stream_aggregates_direct_exchange_rate_v1_request_pb);
+var sdk_stream_aggregates_direct_exchange_rate_v1_response_pb = require('../sdk/stream/aggregates_direct_exchange_rate_v1/response_pb.js');
+goog.object.extend(proto, sdk_stream_aggregates_direct_exchange_rate_v1_response_pb);
 var sdk_stream_aggregates_spot_exchange_rate_v1_request_pb = require('../sdk/stream/aggregates_spot_exchange_rate_v1/request_pb.js');
 goog.object.extend(proto, sdk_stream_aggregates_spot_exchange_rate_v1_request_pb);
 var sdk_stream_aggregates_spot_exchange_rate_v1_response_pb = require('../sdk/stream/aggregates_spot_exchange_rate_v1/response_pb.js');
