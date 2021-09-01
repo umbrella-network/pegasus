@@ -58,12 +58,7 @@ class ConsensusRunner {
         leaves,
       );
 
-      ({consensus, discrepanciesKeys} = await this.runConsensus(
-        dataForConsensus,
-        validators,
-        staked,
-        requiredSignatures,
-      ));
+      ({consensus, discrepanciesKeys} = await this.runConsensus(dataForConsensus, validators, requiredSignatures));
 
       if (consensus || discrepanciesKeys.size === 0) {
         this.logger.info(
@@ -89,7 +84,6 @@ class ConsensusRunner {
   private async runConsensus(
     dataForConsensus: DataForConsensus,
     validators: Validator[],
-    staked: BigNumber,
     requiredSignatures: number,
   ): Promise<{consensus: Consensus | null; discrepanciesKeys: Set<string>}> {
     const {fcdKeys, fcdValues, leaves} = dataForConsensus;
@@ -216,7 +210,14 @@ class ConsensusRunner {
         return;
       }
 
-      (response.discrepancies || []).forEach((discrepancy) => {
+      const discrepancies = response.discrepancies || [];
+
+      if (discrepancies.length > 300) {
+        this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
+        return;
+      }
+
+      discrepancies.forEach((discrepancy) => {
         discrepanciesKeys.add(discrepancy.key);
       });
     });

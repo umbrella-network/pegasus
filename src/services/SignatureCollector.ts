@@ -19,10 +19,10 @@ class SignatureCollector {
   @inject('Settings') private settings!: Settings;
 
   async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<BlockSignerResponseWithPower[]> {
+    const otherValidators = validators.filter((v) => v.id !== this.blockchain.wallet.address);
+
     const collectedSignatures: (BlockSignerResponseWithPower | undefined)[] = await Promise.all(
-      validators
-        .filter((v) => v.id !== this.blockchain.wallet.address)
-        .map((validator: Validator) => this.collectSignature(validator, block, affidavit)),
+      otherValidators.map((validator: Validator) => this.collectSignature(validator, block, affidavit)),
     );
 
     const signatures: BlockSignerResponseWithPower[] = [
@@ -31,13 +31,14 @@ class SignatureCollector {
         power: validators.filter((v) => v.id === this.blockchain.wallet.address)[0].power,
         discrepancies: [],
         version: this.settings.version,
+        validator: this.blockchain.wallet.address,
       },
     ];
 
     let emptyResponses = 0;
 
-    collectedSignatures.forEach((data) => {
-      data ? signatures.push(data) : emptyResponses++;
+    collectedSignatures.forEach((data, i) => {
+      data ? signatures.push({...data, validator: otherValidators[i].id}) : emptyResponses++;
     });
 
     if (emptyResponses) {
