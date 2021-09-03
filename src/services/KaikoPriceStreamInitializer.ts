@@ -28,7 +28,7 @@ class KaikoPriceStreamInitializer {
 
       if (JSON.stringify(initialPairs) != JSON.stringify(newPairs)) {
         this.logger.info('Feeds file updated, updating stream feeds');
-        this.kaikoPriceStreamClient.close();
+        this.kaikoPriceStreamClient.cancelAll();
         this.kaikoPriceStreamClient.start(newPairs);
         initialPairs = newPairs;
       }

@@ -31,7 +31,7 @@ class KaikoPriceStreamClient {
   priceRepository: PriceRepository;
   timeService: TimeService;
   // eslint-disable-next-line
-  call: any;
+  connMap: Map<string, any> = new Map();
 
   updatedPricesCount: number;
 
@@ -66,8 +66,22 @@ class KaikoPriceStreamClient {
     this.healthCheck();
   }
 
-  close(): void {
-    this.call.cancel();
+  /**
+   * Cancels all open connecitons
+   */
+  cancelAll(): void {
+    this.connMap.forEach((conn) => {
+      conn.cancel();
+    });
+  }
+
+  /**
+   * Cancels one connection and removes it from the pool
+   * @param pair 'fsym-tsym'
+   */
+  private cancelOne(pair: string): void {
+    this.connMap.get(pair).cancel();
+    this.connMap.delete(pair);
   }
 
   /**
@@ -87,6 +101,8 @@ class KaikoPriceStreamClient {
         this.logger.info(`${LOG_PREFIX} updated ${this.updatedPricesCount} prices in the last ${checkPeriodMs} ms`);
         this.updatedPricesCount = 0;
         time0 = Date.now();
+
+        this.logger.info(`${LOG_PREFIX} ${this.connMap.size} active requests`);
       }
     }, 1000);
   }
@@ -121,9 +137,11 @@ class KaikoPriceStreamClient {
     request.setAggregate('1m');
 
     this.logger.info(`${LOG_PREFIX} Subscribing pair: ${pair}`);
-    this.call = client.subscribe(request);
+    const call = client.subscribe(request);
 
-    this.call.on('data', (response: StreamAggregatesSpotExchangeRateResponseV1) => {
+    this.connMap.set(pair, call);
+
+    call.on('data', (response: StreamAggregatesSpotExchangeRateResponseV1) => {
       const priceRegistry: PriceEntry = {
         price: parseFloat(response.getPrice()),
         timestamp: response.getUid(),
@@ -146,22 +164,23 @@ class KaikoPriceStreamClient {
       }
     });
 
-    this.call.on('end', () => {
+    call.on('end', () => {
       this.logger.warn(`${LOG_PREFIX} Spot Exchange Rate Stream ended`);
     });
 
-    this.call.on('error', (error: grpc.ServiceError) => {
+    call.on('error', (error: grpc.ServiceError) => {
       if (error.code === grpc.status.CANCELLED) {
         this.logger.error(`${LOG_PREFIX} CANCELLED: ${error}. Pair: ${pair}`);
         return;
       }
       if (error.message.includes('RST_STREAM')) {
         this.logger.warn(`${LOG_PREFIX} RESET. Resubscribing ${pair}`);
-        setTimeout(() => {
+        return setTimeout(() => {
           this.subscribePair(client, request, pair);
         }, 10000);
       }
       this.logger.error(`${LOG_PREFIX} ${error}. Pair: ${pair}`);
+      this.cancelOne(pair);
     });
   }
 
