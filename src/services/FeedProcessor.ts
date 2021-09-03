@@ -146,7 +146,8 @@ class FeedProcessor {
   private findFetcher(feedInput: FeedInput) {
     const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
     if (!fetcher) {
-      throw new Error('No fetcher specified.');
+      this.logger.warn(`No fetcher specified for ${feedInput.fetcher.name}`);
+      return;
     }
 
     return fetcher;
@@ -154,6 +155,7 @@ class FeedProcessor {
 
   async processFeed(feedInput: FeedInput, timestamp: number): Promise<FeedValue | undefined> {
     const fetcher = this.findFetcher(feedInput);
+    if (!fetcher) return;
 
     const calculate: Calculator = this.calculators[`calculate${feedInput.calculator?.name || 'Identity'}`];
 

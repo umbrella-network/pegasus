@@ -104,6 +104,10 @@ describe('FeedProcessor', () => {
     feedProcessor = container.get(FeedProcessor);
   });
 
+  afterEach(() => {
+    sinon.restore();
+  });
+
   it('returns leafs for feeds with CryptoCompareHistoHour fetcher', async () => {
     const feeds: Feeds = {
       'ETH-USD-TWAP-1day': {
@@ -309,5 +313,35 @@ describe('FeedProcessor', () => {
 
     expect(leaves[0][0].label).to.equal('DAFI-USD-VWAP-2day');
     expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(0.02);
+  });
+
+  it('should log and not throw when fetcher is not found', async () => {
+    const someFetcherName = 'ThisFetcherDoesNotExist';
+    const feeds: Feeds = {
+      'BTC-USD': {
+        discrepancy: 0.1,
+        precision: 2,
+        inputs: [
+          {
+            fetcher: {
+              name: someFetcherName,
+              params: {
+                fsym: 'BTC',
+                tsym: 'USD',
+              } as any,
+            },
+          },
+        ],
+      },
+    };
+
+    const loggerSpy = sinon.spy(mockedLogger, 'warn');
+
+    try {
+      await feedProcessor.apply(10, feeds);
+      expect(loggerSpy.calledWithExactly(sinon.match(`No fetcher specified for ${someFetcherName}`))).to.be.true;
+    } catch (err) {
+      expect(err).to.be.false;
+    }
   });
 });
