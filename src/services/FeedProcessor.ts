@@ -143,17 +143,13 @@ class FeedProcessor {
     return result;
   }
 
-  private findFetcher(feedInput: FeedInput) {
-    const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
-    if (!fetcher) {
-      throw new Error('No fetcher specified.');
-    }
-
-    return fetcher;
-  }
-
   async processFeed(feedInput: FeedInput, timestamp: number): Promise<FeedValue | undefined> {
-    const fetcher = this.findFetcher(feedInput);
+    const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
+
+    if (!fetcher) {
+      this.logger.warn(`No fetcher specified for ${feedInput.fetcher.name}`);
+      return;
+    }
 
     const calculate: Calculator = this.calculators[`calculate${feedInput.calculator?.name || 'Identity'}`];
 
