@@ -3,9 +3,9 @@ import {Logger} from 'winston';
 
 import * as grpc from '@grpc/grpc-js';
 
-import {StreamAggregatesSpotExchangeRateServiceV1Client} from '../lib/kaiko-sdk-node/sdk/sdk_grpc_pb';
-import {StreamAggregatesSpotExchangeRateResponseV1} from '../lib/kaiko-sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/response_pb';
-import {StreamAggregatesSpotExchangeRateRequestV1} from '../lib/kaiko-sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/request_pb';
+import {StreamAggregatesSpotExchangeRateServiceV1Client} from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
+import {StreamAggregatesSpotExchangeRateResponseV1} from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/response_pb';
+import {StreamAggregatesSpotExchangeRateRequestV1} from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/request_pb';
 
 import Settings from '../types/Settings';
 import {Pair} from '../types/Feed';
