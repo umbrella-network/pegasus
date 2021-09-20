@@ -86,6 +86,10 @@ type Settings = {
       rpcUrl: string;
       timeout: number;
     };
+    optionPrices: {
+      apiKey: string;
+      timeout: number;
+    };
   };
   statusCheckTimeout: number;
   signatureTimeout: number;
