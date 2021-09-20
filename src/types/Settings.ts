@@ -86,7 +86,7 @@ type Settings = {
       rpcUrl: string;
       timeout: number;
     };
-    optionPrices: {
+    optionsPrice: {
       apiKey: string;
       timeout: number;
     };
