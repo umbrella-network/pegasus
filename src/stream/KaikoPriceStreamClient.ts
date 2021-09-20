@@ -104,7 +104,7 @@ class KaikoPriceStreamClient {
 
         this.logger.info(`${LOG_PREFIX} ${this.connMap.size} active requests`);
       }
-    }, 1000);
+    }, checkPeriodMs);
   }
 
   private spotExchangeRequest(credentials: grpc.CallCredentials, pairs: Pair[]): void {
@@ -142,15 +142,15 @@ class KaikoPriceStreamClient {
     this.connMap.set(pair, call);
 
     call.on('data', (response: StreamAggregatesSpotExchangeRateResponseV1) => {
-      const priceRegistry: PriceEntry = {
+      const priceEntry: PriceEntry = {
         price: parseFloat(response.getPrice()),
         timestamp: response.getUid(),
       };
 
       const pair = response.getCode();
 
-      buffer[pair] = buffer[pair] ? buffer[pair] : [];
-      buffer[pair] = [...buffer[pair], priceRegistry];
+      buffer[pair] = buffer[pair] ?? [];
+      buffer[pair] = [...buffer[pair], priceEntry];
 
       if (Date.now() - time0 >= PERSISTANCE_AGGREGATION_PERIOD_MS) {
         time0 = Date.now();

@@ -12,7 +12,6 @@ import CoinmarketcapHistoDayFetcher from './CoinmarketcapHistoDayFetcher';
 import CoingeckoPriceFetcher from './CoingeckoPriceFetcher';
 import BEACPIAverageFetcher from './BEACPIAverageFetcher';
 import OnChainDataFetcher from './OnChainDataFetcher';
-import KaikoSpotPriceFetcher from './KaikoSpotPriceFetcher';
 import KaikoPriceStreamFetcher from './KaikoPriceStreamFetcher';
 
 export {
@@ -30,6 +29,5 @@ export {
   CoinmarketcapHistoDayFetcher,
   BEACPIAverageFetcher,
   OnChainDataFetcher,
-  KaikoSpotPriceFetcher,
   KaikoPriceStreamFetcher,
 };

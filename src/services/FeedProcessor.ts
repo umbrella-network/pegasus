@@ -50,7 +50,6 @@ class FeedProcessor {
     @inject(fetchers.CoinmarketcapHistoDayFetcher) CoinmarketcapHistoDayFetcher: fetchers.CoinmarketcapHistoDayFetcher,
     @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
     @inject(fetchers.OnChainDataFetcher) OnChainDataFetcher: fetchers.OnChainDataFetcher,
-    @inject(fetchers.KaikoSpotPriceFetcher) KaikoSpotPriceFetcher: fetchers.KaikoSpotPriceFetcher,
     @inject(fetchers.KaikoPriceStreamFetcher) KaikoPriceStreamFetcher: fetchers.KaikoPriceStreamFetcher,
   ) {
     this.fetchers = {
@@ -68,7 +67,6 @@ class FeedProcessor {
       CoinmarketcapHistoDayFetcher,
       BEACPIAverageFetcher,
       OnChainDataFetcher,
-      KaikoSpotPriceFetcher,
       KaikoPriceStreamFetcher,
     };
 

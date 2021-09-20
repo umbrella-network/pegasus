@@ -36,7 +36,6 @@ describe('FeedProcessor', () => {
     CoinmarketcapHistoDayFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.CoinmarketcapHistoDayFetcher>,
     BEACPIAverageFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.BEACPIAverageFetcher>,
     OnChainDataFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OnChainDataFetcher>,
-    KaikoSpotPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.KaikoSpotPriceFetcher>,
     KaikoPriceStreamFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.KaikoPriceStreamFetcher>,
   };
 
@@ -57,7 +56,6 @@ describe('FeedProcessor', () => {
     mockedFetchers.CoinmarketcapHistoDayFetcher = sinon.createStubInstance(fetchers.CoinmarketcapHistoDayFetcher);
     mockedFetchers.BEACPIAverageFetcher = sinon.createStubInstance(fetchers.BEACPIAverageFetcher);
     mockedFetchers.OnChainDataFetcher = sinon.createStubInstance(fetchers.OnChainDataFetcher);
-    mockedFetchers.KaikoSpotPriceFetcher = sinon.createStubInstance(fetchers.KaikoSpotPriceFetcher);
     mockedFetchers.KaikoPriceStreamFetcher = sinon.createStubInstance(fetchers.KaikoPriceStreamFetcher);
 
     const container = new Container();
@@ -102,7 +100,6 @@ describe('FeedProcessor', () => {
     container.bind(fetchers.CoingeckoPriceFetcher).toConstantValue(mockedFetchers.CoingeckoPriceFetcher as any);
     container.bind(fetchers.BEACPIAverageFetcher).toConstantValue(mockedFetchers.BEACPIAverageFetcher as any);
     container.bind(fetchers.OnChainDataFetcher).toConstantValue(mockedFetchers.OnChainDataFetcher as any);
-    container.bind(fetchers.KaikoSpotPriceFetcher).toConstantValue(mockedFetchers.KaikoSpotPriceFetcher as any);
     container.bind(fetchers.KaikoPriceStreamFetcher).toConstantValue(mockedFetchers.KaikoPriceStreamFetcher as any);
 
     container.bind(FeedProcessor).toSelf();
@@ -349,35 +346,6 @@ describe('FeedProcessor', () => {
     } catch (err) {
       expect(err).to.be.false;
     }
-  });
-
-  it('returns leafs for feeds with KaikoSpotPriceFetcher fetcher', async () => {
-    const feeds: Feeds = {
-      'BTC-USD': {
-        discrepancy: 1,
-        precision: 2,
-        inputs: [
-          {
-            fetcher: {
-              name: 'KaikoSpotPrice',
-              params: {
-                fsym: 'BTC',
-                tsym: 'USD',
-              } as any,
-            },
-          },
-        ],
-      },
-    };
-
-    mockedFetchers.KaikoSpotPriceFetcher.apply.resolves(38123);
-
-    const leaves = await feedProcessor.apply(10, feeds);
-
-    expect(leaves[0]).to.be.an('array').with.lengthOf(1);
-
-    expect(leaves[0][0].label).to.equal('BTC-USD');
-    expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(38123);
   });
 
   it('returns leafs for feeds with KaikoPriceStreamFetcher fetcher', async () => {
