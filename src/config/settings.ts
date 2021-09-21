@@ -86,6 +86,11 @@ const settings: Settings = {
       apiKey: process.env.BAE_API_KEY as string,
       timeout: parseInt(process.env.BAE_TIMEOUT || '5000', 10),
     },
+    kaiko: {
+      apiKey: process.env.KAIKO_API_KEY as string,
+      rpcUrl: process.env.KAIKO_RPC_URL || 'gateway-v0-grpc.kaiko.ovh:443',
+      timeout: parseInt(process.env.KAIKO_TIMEOUT || '5000', 10),
+    },
   },
   feedsFile:
     process.env.FEEDS_FILE ||

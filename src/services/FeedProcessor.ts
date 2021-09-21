@@ -50,6 +50,7 @@ class FeedProcessor {
     @inject(fetchers.CoinmarketcapHistoDayFetcher) CoinmarketcapHistoDayFetcher: fetchers.CoinmarketcapHistoDayFetcher,
     @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
     @inject(fetchers.OnChainDataFetcher) OnChainDataFetcher: fetchers.OnChainDataFetcher,
+    @inject(fetchers.KaikoPriceStreamFetcher) KaikoPriceStreamFetcher: fetchers.KaikoPriceStreamFetcher,
   ) {
     this.fetchers = {
       CryptoCompareHistoHourFetcher,
@@ -66,6 +67,7 @@ class FeedProcessor {
       CoinmarketcapHistoDayFetcher,
       BEACPIAverageFetcher,
       OnChainDataFetcher,
+      KaikoPriceStreamFetcher,
     };
 
     this.calculators = Object.keys(calculators).reduce(
@@ -157,7 +159,7 @@ class FeedProcessor {
     try {
       value = await fetcher.apply(feedInput.fetcher.params, timestamp);
     } catch (err) {
-      /////this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
+      this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
       return;
     }
 
