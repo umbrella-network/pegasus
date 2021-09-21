@@ -17,6 +17,8 @@ import TimeService from '../services/TimeService';
 
 const PERSISTANCE_AGGREGATION_PERIOD_MS = 5000;
 const LOG_PREFIX = 'Kaiko Stream:';
+// Wait a few seconds to resubscribe. To not spam failing connections.
+const WAIT_TO_RESUBSCRIBE_MS = 10000;
 
 type PriceEntry = {
   price: number;
@@ -31,7 +33,10 @@ class KaikoPriceStreamClient {
   priceRepository: PriceRepository;
   timeService: TimeService;
   // eslint-disable-next-line
-  connMap: Map<string, any> = new Map();
+  readonly connMap: Map<string, any> = new Map();
+
+  // eslint-disable-next-line
+  healthCheckIntervalId: any;
 
   updatedPricesCount: number;
 
@@ -47,6 +52,7 @@ class KaikoPriceStreamClient {
     this.settings = settings;
     this.priceRepository = priceRepository;
     this.updatedPricesCount = 0;
+    this.healthCheckIntervalId = 0;
   }
 
   start(pairs: Pair[]): void {
@@ -63,7 +69,12 @@ class KaikoPriceStreamClient {
 
     // Create a request for streaming Spot Exchange Rate Prices
     this.spotExchangeRequest(credentials, pairs);
-    this.healthCheck();
+    this.startHealthCheck();
+  }
+
+  stop(): void {
+    clearTimeout(this.healthCheckIntervalId);
+    this.cancelAll();
   }
 
   /**
@@ -92,18 +103,14 @@ class KaikoPriceStreamClient {
     return pairs.map((pair) => `${pair.fsym}-${pair.tsym}`.toLowerCase());
   }
 
-  private healthCheck(): void {
+  private startHealthCheck(): void {
     const checkPeriodMs = 10000;
-    let time0 = Date.now();
 
-    setInterval(() => {
-      if (Date.now() - time0 >= checkPeriodMs) {
-        this.logger.info(`${LOG_PREFIX} updated ${this.updatedPricesCount} prices in the last ${checkPeriodMs} ms`);
-        this.updatedPricesCount = 0;
-        time0 = Date.now();
+    this.healthCheckIntervalId = setInterval(() => {
+      this.logger.info(`${LOG_PREFIX} updated ${this.updatedPricesCount} prices in the last ${checkPeriodMs} ms`);
+      this.updatedPricesCount = 0;
 
-        this.logger.info(`${LOG_PREFIX} ${this.connMap.size} active requests`);
-      }
+      this.logger.info(`${LOG_PREFIX} ${this.connMap.size} active requests`);
     }, checkPeriodMs);
   }
 
@@ -177,7 +184,7 @@ class KaikoPriceStreamClient {
         this.logger.warn(`${LOG_PREFIX} RESET. Resubscribing ${pair}`);
         return setTimeout(() => {
           this.subscribePair(client, request, pair);
-        }, 10000);
+        }, WAIT_TO_RESUBSCRIBE_MS);
       }
       this.logger.error(`${LOG_PREFIX} ${error}. Pair: ${pair}`);
       this.cancelOne(pair);
