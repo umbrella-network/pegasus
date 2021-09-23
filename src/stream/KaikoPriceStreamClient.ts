@@ -56,9 +56,13 @@ class KaikoPriceStreamClient {
   }
 
   start(pairs: Pair[]): void {
+    const apiKey = this.settings.api.kaiko.apiKey;
+
+    if (!apiKey) return;
+
     const metaCallback = (_params: unknown, callback: (err: Error | null, metadata?: grpc.Metadata) => void) => {
       const meta = new grpc.Metadata();
-      meta.add('Authorization', `Bearer ${this.settings.api.kaiko.apiKey}`);
+      meta.add('Authorization', `Bearer ${apiKey}`);
       callback(null, meta);
     };
 
