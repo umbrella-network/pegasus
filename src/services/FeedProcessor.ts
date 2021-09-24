@@ -209,7 +209,7 @@ class FeedProcessor {
   /**
    * Checks if loop is on Layer 2 Data iteration. The first iteration
    * is for First Class Data
-   * @param iteration 
+   * @param iteration
    * @returns boolean
    */
   private isOnSecondIteration(iteration: number): boolean {
