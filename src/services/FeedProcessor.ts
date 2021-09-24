@@ -111,7 +111,7 @@ class FeedProcessor {
     const [singleFeeds, multiFeeds, optionPricesFeeds] = await Promise.all([
       this.processFeeds(Object.values(singleInputs), timestamp),
       this.processMultiFeeds(Object.values(multiInputs)),
-      this.fetchOptionPrices()
+      this.fetchOptionPrices(),
     ]);
 
     const values = [...singleFeeds, ...multiFeeds];
@@ -123,7 +123,7 @@ class FeedProcessor {
       const leaves: Leaf[] = [];
 
       tickers.forEach((ticker) => {
-        if (ticker === 'OPTIONS') return
+        if (ticker === 'OPTIONS') return;
 
         const feed = feeds[ticker];
 
@@ -139,10 +139,10 @@ class FeedProcessor {
       });
 
       if (this.isOnSecondIteration(iteration)) {
-        const optionPricesLeaves = this.buildOptionPricesLeaves(optionPricesFeeds, feeds.OPTIONS.precision)
-        optionPricesLeaves.forEach((leaf) => leaves.push(leaf))
+        const optionPricesLeaves = this.buildOptionPricesLeaves(optionPricesFeeds, feeds.OPTIONS.precision);
+        optionPricesLeaves.forEach((leaf) => leaves.push(leaf));
       }
-      
+
       result.push(leaves);
     });
 
@@ -213,12 +213,11 @@ class FeedProcessor {
    * @returns boolean
    */
   private isOnSecondIteration(iteration: number): boolean {
-    return iteration === 1
+    return iteration === 1;
   }
 
   private buildOptionPricesLeaves(optionPrices: {[key: string]: number}, precision: number): Leaf[] {
-    return Object.entries(optionPrices)
-      .map(([key, value]) => this.calculateMean([value], key, precision))
+    return Object.entries(optionPrices).map(([key, value]) => this.calculateMean([value], key, precision));
   }
 
   private buildLeaf = (label: string, value: number): Leaf => {
