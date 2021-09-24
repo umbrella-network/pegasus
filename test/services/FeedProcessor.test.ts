@@ -37,6 +37,7 @@ describe('FeedProcessor', () => {
     BEACPIAverageFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.BEACPIAverageFetcher>,
     OnChainDataFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OnChainDataFetcher>,
     KaikoPriceStreamFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.KaikoPriceStreamFetcher>,
+    OptionsPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OptionsPriceFetcher>,
   };
 
   let feedProcessor: FeedProcessor;
@@ -57,6 +58,7 @@ describe('FeedProcessor', () => {
     mockedFetchers.BEACPIAverageFetcher = sinon.createStubInstance(fetchers.BEACPIAverageFetcher);
     mockedFetchers.OnChainDataFetcher = sinon.createStubInstance(fetchers.OnChainDataFetcher);
     mockedFetchers.KaikoPriceStreamFetcher = sinon.createStubInstance(fetchers.KaikoPriceStreamFetcher);
+    mockedFetchers.OptionsPriceFetcher = sinon.createStubInstance(fetchers.OptionsPriceFetcher);
 
     const container = new Container();
 
@@ -101,6 +103,7 @@ describe('FeedProcessor', () => {
     container.bind(fetchers.BEACPIAverageFetcher).toConstantValue(mockedFetchers.BEACPIAverageFetcher as any);
     container.bind(fetchers.OnChainDataFetcher).toConstantValue(mockedFetchers.OnChainDataFetcher as any);
     container.bind(fetchers.KaikoPriceStreamFetcher).toConstantValue(mockedFetchers.KaikoPriceStreamFetcher as any);
+    container.bind(fetchers.OptionsPriceFetcher).toConstantValue(mockedFetchers.OptionsPriceFetcher as any);
 
     container.bind(FeedProcessor).toSelf();
 
