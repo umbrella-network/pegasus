@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - add `KaikoSpotPrice` http fetcher
 - add `KaikoPriceStream` stream fetcher
+- Added a new fetcher for the OptionPrices
+- Added a default value for discrepancy in consensus
 
 ## [5.1.1] - 2021-09-03
 ### Fixed
