@@ -96,7 +96,7 @@ class FeedProcessor {
       );
     });
 
-    const {singleInputs, multiInputs} = this.separateInputs(uniqueInputsMap);
+    const {singleInputs, multiInputs, optionsInputs} = this.separateInputs(uniqueInputsMap);
     const inputIndexByHash: {[hash: string]: number} = {};
 
     Object.keys(singleInputs).forEach((hash, index) => {
@@ -108,11 +108,17 @@ class FeedProcessor {
       inputIndexByHash[hash] = index + singleInputsLength;
     });
 
-    const [singleFeeds, multiFeeds, optionPricesFeeds] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const promises: any[] = [
       this.processFeeds(Object.values(singleInputs), timestamp),
       this.processMultiFeeds(Object.values(multiInputs)),
-      this.fetchOptionPrices(),
-    ]);
+    ];
+
+    if (this.containsOptionsPriceFetchers(optionsInputs)) {
+      promises.push(this.fetchOptionPrices());
+    }
+
+    const [singleFeeds, multiFeeds, optionPricesFeeds] = await Promise.all(promises);
 
     const values = [...singleFeeds, ...multiFeeds];
     const result: Leaf[][] = [];
@@ -138,7 +144,7 @@ class FeedProcessor {
         }
       });
 
-      if (this.isOnSecondIteration(iteration)) {
+      if (this.isOnSecondIteration(iteration) && this.containsOptionsPriceFetchers(optionsInputs)) {
         const optionPricesLeaves = this.buildOptionPricesLeaves(optionPricesFeeds, feeds.OPTIONS.precision);
         optionPricesLeaves.forEach((leaf) => leaves.push(leaf));
       }
@@ -206,6 +212,10 @@ class FeedProcessor {
     return this.fetchers.OptionsPriceFetcher.apply({}, 0);
   }
 
+  private containsOptionsPriceFetchers(optionsInputs: {[hash: string]: FeedInput}): boolean {
+    return Boolean(Object.keys(optionsInputs).length);
+  }
+
   /**
    * Checks if loop is on Layer 2 Data iteration. The first iteration
    * is for First Class Data
@@ -245,14 +255,18 @@ class FeedProcessor {
     const separatedInputs: {
       singleInputs: {[hash: string]: FeedInput};
       multiInputs: {[hash: string]: FeedInput};
+      optionsInputs: {[hash: string]: FeedInput};
     } = {
       singleInputs: {},
       multiInputs: {},
+      optionsInputs: {},
     };
 
     inputMapArr.forEach((input: FeedInput, index) => {
       if (input.fetcher.name === 'CryptoComparePrice') {
         separatedInputs.multiInputs[inputKeys[index]] = input;
+      } else if (input.fetcher.name === 'OptionsPrice') {
+        separatedInputs.optionsInputs[inputKeys[index]] = input;
       } else {
         separatedInputs.singleInputs[inputKeys[index]] = input;
       }
