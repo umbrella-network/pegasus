@@ -379,4 +379,65 @@ describe('FeedProcessor', () => {
     expect(leaves[0][0].label).to.equal('BTC-USD');
     expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(38123);
   });
+
+  it('should fetch Options prices only on L2D feeds', async () => {
+    const feeds: Feeds = {
+      OPTIONS: {
+        discrepancy: 1,
+        precision: 15,
+        inputs: [
+          {
+            fetcher: {
+              name: 'OptionsPrice',
+            },
+          },
+        ],
+      },
+    };
+
+    mockedFetchers.OptionsPriceFetcher.apply.resolves({
+      'BTC-01OCT21-36000_call_price': 0.555555555555555555555555555555555,
+      'BTC-01OCT21-36000_iv': 0.555555555555555555555555555555555,
+      'BTC-01OCT21-36000_put_price': 0.555555555555555555555555555555555,
+    });
+
+    const [firstClassLeaves, layerTwoLeaves] = await feedProcessor.apply(10, feeds, feeds);
+
+    expect(firstClassLeaves).to.be.an('array').of.length(0);
+    expect(layerTwoLeaves).to.be.an('array').of.length(3);
+  });
+
+  it('should not return Options Price Fetchers when OPTIONS feed is not present', async () => {
+    const feeds: Feeds = {
+      'BTC-USD': {
+        discrepancy: 1,
+        precision: 2,
+        inputs: [
+          {
+            fetcher: {
+              name: 'KaikoPriceStream',
+              params: {
+                fsym: 'BTC',
+                tsym: 'USD',
+              } as any,
+            },
+          },
+        ],
+      },
+    };
+
+    mockedFetchers.KaikoPriceStreamFetcher.apply.resolves(38123);
+
+    const [firstClassLeaves, layerTwoLeaves] = await feedProcessor.apply(10, feeds, feeds);
+
+    const expected = [
+      {
+        label: 'BTC-USD',
+        valueBytes: '0x000000000000000000000000000000000000000000000812a6e793b078cc0000',
+      },
+    ];
+
+    expect(firstClassLeaves).to.eql(expected);
+    expect(layerTwoLeaves).to.eql(expected);
+  });
 });
