@@ -6,12 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+- Added a new fetcher for the OptionPrices
+- Added a default value for discrepancy in consensus
 
 ## [5.2.0] - 2021-09-23
 ### Added
 - add `KaikoPriceStream` stream fetcher
-- Added a new fetcher for the OptionPrices
-- Added a default value for discrepancy in consensus
 
 ## [5.1.1] - 2021-09-03
 ### Fixed
