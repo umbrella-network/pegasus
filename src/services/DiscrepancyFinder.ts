@@ -7,8 +7,6 @@ import {ProposedConsensus} from '../types/Consensus';
 import {Discrepancy} from '../types/Discrepancy';
 import Leaf from '../types/Leaf';
 
-const DEFAULT_DISCREPANCY_VALUE = 1;
-
 export class DiscrepancyFinder {
   static apply(
     proposedConsensus: ProposedConsensus,
@@ -57,7 +55,7 @@ export class DiscrepancyFinder {
 
       const proposedValue = LeafValueCoder.decode(proposedValueBytes, label);
       const value = LeafValueCoder.decode(leaf.valueBytes, label);
-      const discrepancy = DiscrepancyFinder.getDiscrepancy(feeds, leaf);
+      const {discrepancy} = feeds[leaf.label];
 
       const diffPerc = calcDiscrepancy(value, proposedValue, label) * 100.0;
 
@@ -67,9 +65,5 @@ export class DiscrepancyFinder {
     });
 
     return discrepancies;
-  }
-
-  private static getDiscrepancy(feeds: Feeds, leaf: Leaf): number {
-    return feeds[leaf.label]?.discrepancy || DEFAULT_DISCREPANCY_VALUE;
   }
 }
