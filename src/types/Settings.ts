@@ -81,6 +81,11 @@ type Settings = {
       apiKey: string;
       timeout: number;
     };
+    kaiko: {
+      apiKey: string;
+      rpcUrl: string;
+      timeout: number;
+    };
   };
   statusCheckTimeout: number;
   signatureTimeout: number;

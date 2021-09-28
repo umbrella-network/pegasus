@@ -9,10 +9,11 @@ import FeedProcessor from './services/FeedProcessor';
 import {loadFeeds} from '@umb-network/toolbox';
 import Settings from "./types/Settings";
 import Block from './models/Block';
-import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
 import GasEstimator from './services/GasEstimator';
-import CryptoCompareWSClient from './services/ws/CryptoCompareWSClient';
 import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer';
+import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
+import KaikoPriceStreamInitializer from './services/KaikoPriceStreamInitializer';
+import TimeService from './services/TimeService';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: { type: 'string', demandOption: true },
@@ -20,12 +21,14 @@ const argv = yargs(process.argv.slice(2)).options({
 
 async function testFeeds(settings: Settings): Promise<void> {
   await Application.get(PolygonIOPriceInitializer).apply();
+  await Application.get(CryptoCompareWSInitializer).apply();
+  await Application.get(KaikoPriceStreamInitializer).apply();
 
   const feeds = await loadFeeds(settings.feedsFile);
 
-  await new Promise((resolve) => setTimeout(resolve, 1000000));
+  await new Promise((resolve) => setTimeout(resolve, 10000));
 
-  const leaves = await Application.get(FeedProcessor).apply(Date.now(), feeds);
+  const leaves = await Application.get(FeedProcessor).apply(new TimeService().apply(), feeds);
   console.log('Feeds: ', leaves);
 }
 
