@@ -108,17 +108,11 @@ class FeedProcessor {
       inputIndexByHash[hash] = index + singleInputsLength;
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const promises: any[] = [
+    const [singleFeeds, multiFeeds, optionPricesFeeds] = await Promise.all([
       this.processFeeds(Object.values(singleInputs), timestamp),
       this.processMultiFeeds(Object.values(multiInputs)),
-    ];
-
-    if (this.containsOptionsPriceFetchers(optionsInputs)) {
-      promises.push(this.fetchOptionPrices());
-    }
-
-    const [singleFeeds, multiFeeds, optionPricesFeeds] = await Promise.all(promises);
+      this.containsOptionsPriceFetchers(optionsInputs) ? this.fetchOptionPrices() : undefined,
+    ]);
 
     const values = [...singleFeeds, ...multiFeeds];
     const result: Leaf[][] = [];
@@ -226,7 +220,7 @@ class FeedProcessor {
     return iteration === 1;
   }
 
-  private buildOptionPricesLeaves(optionPrices: {[key: string]: number}, precision: number): Leaf[] {
+  private buildOptionPricesLeaves(optionPrices: {[key: string]: number} = {}, precision: number): Leaf[] {
     return Object.entries(optionPrices).map(([key, value]) => this.calculateMean([value], key, precision));
   }
 
