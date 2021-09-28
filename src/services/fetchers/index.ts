@@ -13,6 +13,7 @@ import CoingeckoPriceFetcher from './CoingeckoPriceFetcher';
 import BEACPIAverageFetcher from './BEACPIAverageFetcher';
 import OnChainDataFetcher from './OnChainDataFetcher';
 import KaikoPriceStreamFetcher from './KaikoPriceStreamFetcher';
+import OptionsPriceFetcher from './OptionsPriceFetcher';
 
 export {
   CryptoComparePriceWSFetcher,
@@ -30,4 +31,5 @@ export {
   BEACPIAverageFetcher,
   OnChainDataFetcher,
   KaikoPriceStreamFetcher,
+  OptionsPriceFetcher,
 };
