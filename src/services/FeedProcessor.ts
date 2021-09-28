@@ -51,7 +51,6 @@ class FeedProcessor {
     @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
     @inject(fetchers.OnChainDataFetcher) OnChainDataFetcher: fetchers.OnChainDataFetcher,
     @inject(fetchers.KaikoPriceStreamFetcher) KaikoPriceStreamFetcher: fetchers.KaikoPriceStreamFetcher,
-    @inject(fetchers.OptionsPriceFetcher) OptionsPriceFetcher: fetchers.OptionsPriceFetcher,
   ) {
     this.fetchers = {
       CryptoCompareHistoHourFetcher,
@@ -69,7 +68,6 @@ class FeedProcessor {
       BEACPIAverageFetcher,
       OnChainDataFetcher,
       KaikoPriceStreamFetcher,
-      OptionsPriceFetcher,
     };
 
     this.calculators = Object.keys(calculators).reduce(
@@ -96,7 +94,7 @@ class FeedProcessor {
       );
     });
 
-    const {singleInputs, multiInputs, optionsInputs} = this.separateInputs(uniqueInputsMap);
+    const {singleInputs, multiInputs} = this.separateInputs(uniqueInputsMap);
     const inputIndexByHash: {[hash: string]: number} = {};
 
     Object.keys(singleInputs).forEach((hash, index) => {
@@ -108,23 +106,20 @@ class FeedProcessor {
       inputIndexByHash[hash] = index + singleInputsLength;
     });
 
-    const [singleFeeds, multiFeeds, optionPricesFeeds] = await Promise.all([
+    const [singleFeeds, multiFeeds] = await Promise.all([
       this.processFeeds(Object.values(singleInputs), timestamp),
       this.processMultiFeeds(Object.values(multiInputs)),
-      this.containsOptionsPriceFetchers(optionsInputs) ? this.fetchOptionPrices() : undefined,
     ]);
 
     const values = [...singleFeeds, ...multiFeeds];
     const result: Leaf[][] = [];
     const ignoredMap: {[string: string]: boolean} = {};
 
-    feedsArray.forEach((feeds, iteration) => {
+    feedsArray.forEach((feeds) => {
       const tickers = Object.keys(feeds);
       const leaves: Leaf[] = [];
 
       tickers.forEach((ticker) => {
-        if (ticker === 'OPTIONS') return;
-
         const feed = feeds[ticker];
 
         const feedValues = feed.inputs
@@ -137,11 +132,6 @@ class FeedProcessor {
           ignoredMap[ticker] = true;
         }
       });
-
-      if (this.isOnSecondIteration(iteration) && this.containsOptionsPriceFetchers(optionsInputs)) {
-        const optionPricesLeaves = this.buildOptionPricesLeaves(optionPricesFeeds, feeds.OPTIONS.precision);
-        optionPricesLeaves.forEach((leaf) => leaves.push(leaf));
-      }
 
       result.push(leaves);
     });
@@ -202,28 +192,6 @@ class FeedProcessor {
     return this.orderCryptoComparePriceMultiOutput(feedInputs, values);
   }
 
-  async fetchOptionPrices(): Promise<{[key: string]: number}> {
-    return this.fetchers.OptionsPriceFetcher.apply({}, 0);
-  }
-
-  private containsOptionsPriceFetchers(optionsInputs: {[hash: string]: FeedInput}): boolean {
-    return Boolean(Object.keys(optionsInputs).length);
-  }
-
-  /**
-   * Checks if loop is on Layer 2 Data iteration. The first iteration
-   * is for First Class Data
-   * @param iteration
-   * @returns boolean
-   */
-  private isOnSecondIteration(iteration: number): boolean {
-    return iteration === 1;
-  }
-
-  private buildOptionPricesLeaves(optionPrices: {[key: string]: number} = {}, precision: number): Leaf[] {
-    return Object.entries(optionPrices).map(([key, value]) => this.calculateMean([value], key, precision));
-  }
-
   private buildLeaf = (label: string, value: number): Leaf => {
     return {
       label,
@@ -249,18 +217,14 @@ class FeedProcessor {
     const separatedInputs: {
       singleInputs: {[hash: string]: FeedInput};
       multiInputs: {[hash: string]: FeedInput};
-      optionsInputs: {[hash: string]: FeedInput};
     } = {
       singleInputs: {},
       multiInputs: {},
-      optionsInputs: {},
     };
 
     inputMapArr.forEach((input: FeedInput, index) => {
       if (input.fetcher.name === 'CryptoComparePrice') {
         separatedInputs.multiInputs[inputKeys[index]] = input;
-      } else if (input.fetcher.name === 'OptionsPrice') {
-        separatedInputs.optionsInputs[inputKeys[index]] = input;
       } else {
         separatedInputs.singleInputs[inputKeys[index]] = input;
       }
