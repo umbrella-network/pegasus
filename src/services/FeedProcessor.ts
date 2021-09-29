@@ -123,7 +123,7 @@ class FeedProcessor {
       const leaves: Leaf[] = [];
 
       tickers.forEach((ticker) => {
-        if (ticker === 'OPTIONS') return;
+        if (ticker.match(/^OP:/)) return;
 
         const feed = feeds[ticker];
 
@@ -139,7 +139,7 @@ class FeedProcessor {
       });
 
       if (this.isOnSecondIteration(iteration) && this.containsOptionsPriceFetchers(optionsInputs)) {
-        const optionPricesLeaves = this.buildOptionPricesLeaves(optionPricesFeeds, feeds.OPTIONS.precision);
+        const optionPricesLeaves = this.buildOptionPricesLeaves(optionPricesFeeds, feeds);
         optionPricesLeaves.forEach((leaf) => leaves.push(leaf));
       }
 
@@ -222,10 +222,19 @@ class FeedProcessor {
     return iteration === 1;
   }
 
-  private buildOptionPricesLeaves(optionPrices: {[key: string]: number} = {}, precision: number): Leaf[] {
-    return Object.entries(optionPrices).map(([key, value]) => this.calculateMean([value], key, precision));
+  private buildOptionPricesLeaves(optionPrices: {[key: string]: number} = {}, feeds: Feeds): Leaf[] {
+    return Object.entries(optionPrices)
+      .map(([option, price]) => {
+        if (option.match(/^OP:ETH/)) {
+          const feed = Object.keys(feeds).find((feedName) => feedName.match(/^OP:ETH/)) as string;
+          return this.calculateMean([price], option, feeds[feed].precision);
+        } else {
+          const feed = Object.keys(feeds).find((feedName) => feedName.match(/^OP:BTC/)) as string;
+          return this.calculateMean([price], option, feeds[feed].precision);
+        }
+      });
   }
-
+  
   private buildLeaf = (label: string, value: number): Leaf => {
     return {
       label,
