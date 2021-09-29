@@ -1,18 +1,23 @@
 import {inject, injectable} from 'inversify';
-import {price} from '@umb-network/validator';
 import {MD5 as hash} from 'object-hash';
 import {Logger} from 'winston';
-import {LeafValueCoder} from '@umb-network/toolbox';
 import Feeds, {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
 
 import Leaf from '../types/Leaf';
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
 import {FeedInput} from '../types/Feed';
+import LeafBuilder from './LeafBuilder';
+import OptionsPriceLeavesBuilder from './OptionsPriceLeavesBuilder';
 import {
   InputParams as CryptoComparePriceMultiFetcherParams,
   OutputValue as CryptoComparePriceMultiFetcherOutputValue,
 } from './fetchers/CryptoComparePriceMultiFetcher';
+
+interface LeafBuilders {
+  LeafBuilder: LeafBuilder;
+  OptionsPriceLeavesBuilder: OptionsPriceLeavesBuilder;
+}
 
 interface Fetcher {
   // eslint-disable-next-line
@@ -28,6 +33,7 @@ class FeedProcessor {
 
   fetchers: {[key: string]: Fetcher};
   calculators: {[key: string]: Calculator};
+  leafBuilders: LeafBuilders;
 
   CryptoComparePriceMultiFetcher: fetchers.CryptoComparePriceMultiFetcher;
 
@@ -52,6 +58,8 @@ class FeedProcessor {
     @inject(fetchers.OnChainDataFetcher) OnChainDataFetcher: fetchers.OnChainDataFetcher,
     @inject(fetchers.KaikoPriceStreamFetcher) KaikoPriceStreamFetcher: fetchers.KaikoPriceStreamFetcher,
     @inject(fetchers.OptionsPriceFetcher) OptionsPriceFetcher: fetchers.OptionsPriceFetcher,
+    @inject(LeafBuilder) LeafBuilder: LeafBuilder,
+    @inject(OptionsPriceLeavesBuilder) OptionsPriceLeavesBuilder: OptionsPriceLeavesBuilder,
   ) {
     this.fetchers = {
       CryptoCompareHistoHourFetcher,
@@ -79,6 +87,11 @@ class FeedProcessor {
       }),
       {} as {[key: string]: Calculator},
     );
+
+    this.leafBuilders = {
+      LeafBuilder,
+      OptionsPriceLeavesBuilder,
+    };
 
     this.CryptoComparePriceMultiFetcher = CryptoComparePriceMultiFetcher;
   }
@@ -132,14 +145,14 @@ class FeedProcessor {
           .filter((item) => item !== undefined) as number[];
 
         if (feedValues.length) {
-          leaves.push(this.calculateMean(feedValues, ticker, feed.precision));
+          leaves.push(this.leafBuilders.LeafBuilder.calculateMean(feedValues, ticker, feed.precision));
         } else {
           ignoredMap[ticker] = true;
         }
       });
 
       if (this.isOnSecondIteration(iteration) && this.containsOptionsPriceFetchers(optionsInputs)) {
-        const optionPricesLeaves = this.buildOptionPricesLeaves(optionPricesFeeds, feeds);
+        const optionPricesLeaves = this.leafBuilders.OptionsPriceLeavesBuilder.build(optionPricesFeeds, feeds);
         optionPricesLeaves.forEach((leaf) => leaves.push(leaf));
       }
 
@@ -203,9 +216,7 @@ class FeedProcessor {
   }
 
   async fetchOptionPrices(): Promise<{[key: string]: number}> {
-    const optionsPrice = await this.fetchers.OptionsPriceFetcher.apply({}, 0);
-
-    return Object.keys(optionsPrice) ? optionsPrice : Promise.resolve({});
+    return this.fetchers.OptionsPriceFetcher.apply({}, 0);
   }
 
   private containsOptionsPriceFetchers(optionsInputs: {[hash: string]: FeedInput}): boolean {
@@ -220,34 +231,6 @@ class FeedProcessor {
    */
   private isOnSecondIteration(iteration: number): boolean {
     return iteration === 1;
-  }
-
-  private buildOptionPricesLeaves(optionPrices: {[key: string]: number} = {}, feeds: Feeds): Leaf[] {
-    return Object.entries(optionPrices)
-      .map(([option, price]) => {
-        if (option.match(/^OP:ETH/)) {
-          const feed = Object.keys(feeds).find((feedName) => feedName.match(/^OP:ETH/)) as string;
-          return this.calculateMean([price], option, feeds[feed].precision);
-        } else {
-          const feed = Object.keys(feeds).find((feedName) => feedName.match(/^OP:BTC/)) as string;
-          return this.calculateMean([price], option, feeds[feed].precision);
-        }
-      });
-  }
-  
-  private buildLeaf = (label: string, value: number): Leaf => {
-    return {
-      label,
-      valueBytes: `0x${LeafValueCoder.encode(value, label).toString('hex')}`,
-    };
-  };
-
-  private calculateMean(values: number[], leafLabel: string, precision: number): Leaf {
-    const multi = Math.pow(10, precision);
-
-    const result = Math.round(price.mean(values) * multi) / multi;
-
-    return this.buildLeaf(leafLabel, result);
   }
 
   /**
