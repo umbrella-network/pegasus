@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {injectable, inject} from "inversify";
+import {Logger} from 'winston';
 
 import Settings from '../../types/Settings';
 
@@ -21,28 +22,30 @@ interface OptionsPriceResponse {
 class OptionsPriceFetcher {
   private apiKey: string;
   private timeout: number;
+  @inject('Logger') logger!: Logger 
   
   constructor(
-    @inject('Settings') settings: Settings
+    @inject('Settings') settings: Settings,
   ) {
     this.apiKey = settings.api.optionsPrice.apiKey;
-    this.timeout = settings.api.optionsPrice.timeout;
+    this.timeout = settings.api.optionsPrice.timeout; 
   }
 
   async apply(): Promise<OptionsEntries> {
     const sourceUrl = 'https://options-api.umb.network/options';
 
-    const response = await axios.get(sourceUrl, {
-      timeout: this.timeout,
-      timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-      headers: {'Authorization': `Bearer ${this.apiKey}`}
-    })
+    try {
+      const response = await axios.get(sourceUrl, {
+        timeout: this.timeout,
+        timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
+        headers: {'Authorization': `Bearer ${this.apiKey}`}
+      })
 
-    if (response.status !== 200) {
-      throw new Error(response.data);
+      return this.parseOptionPrices(response.data);
+    } catch (err) {
+      this.logger.warn(`Skipping OptionsPrice fetcher: ${err}`)
+      return Promise.resolve({})
     }
-
-    return this.parseOptionPrices(response.data)
   }
 
   private parseOptionPrices({ data: options }: OptionsPriceResponse) {
