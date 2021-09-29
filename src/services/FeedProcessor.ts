@@ -203,7 +203,9 @@ class FeedProcessor {
   }
 
   async fetchOptionPrices(): Promise<{[key: string]: number}> {
-    return this.fetchers.OptionsPriceFetcher.apply({}, 0);
+    const optionsPrice = await this.fetchers.OptionsPriceFetcher.apply({}, 0);
+
+    return Object.keys(optionsPrice) ? optionsPrice : Promise.resolve({});
   }
 
   private containsOptionsPriceFetchers(optionsInputs: {[hash: string]: FeedInput}): boolean {
