@@ -54,21 +54,4 @@ publish-bsc:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc02 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc02 -n dev
 
-publish-eth:
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-eth01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-eth01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-worker-eth01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-eth01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-eth01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-eth01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-eth02 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-eth02 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-worker-eth02 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-eth02 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-eth02 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-eth02 -n dev
-
-
-dev-bsc: assume login build-dev update-stg-kubeconfig publish-bsc
-dev-eth: assume login build-dev update-stg-kubeconfig publish-eth
-dev: assume login build-dev update-stg-kubeconfig publish-bsc publish-eth
+dev: assume login build-dev update-stg-kubeconfig publish-bsc
