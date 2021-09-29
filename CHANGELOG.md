@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ## [5.3.1] - 2021-09-29
+### Added
+-  Support new multichain feature on Makefile and github actions
 ### Fixed
 - fixed a case where the OptionsPrice Fetcher interrupts minting process when fails a request
 

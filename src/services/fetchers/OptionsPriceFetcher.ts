@@ -22,7 +22,7 @@ interface OptionsPriceResponse {
 class OptionsPriceFetcher {
   private apiKey: string;
   private timeout: number;
-  @inject('Logger') logger!: Logger 
+  @inject('Logger') logger!: Logger;
   
   constructor(
     @inject('Settings') settings: Settings,
