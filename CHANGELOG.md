@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [5.3.1] - 2021-09-29
+### Fixed
+- fixed a case where the OptionsPrice Fetcher interrupts minting process when fails a request
+
 ## [5.3.0] - 2021-09-28
 ### Added
 - Added a new fetcher for the OptionPrices
