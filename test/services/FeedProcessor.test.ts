@@ -5,8 +5,8 @@ import sinon from 'sinon';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {LeafValueCoder} from '@umb-network/toolbox';
-import Feeds from '@umb-network/toolbox/dist/types/Feed';
 
+import Feeds from '../../src/types/Feed';
 import {mockedLogger} from '../mocks/logger';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import Settings from '../../src/types/Settings';

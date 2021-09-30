@@ -33,6 +33,7 @@
     "@types/cookie-parser": "~1.4.2",
     "@types/express": "~4.17.8",
     "@types/google-protobuf": "^3.7.4",
+    "@types/js-yaml": "~4.0.1",
     "@types/mocha": "~8.2.0",
     "@types/mongoose": "~5.7.37",
     "@types/moxios": "~0.4.9",
@@ -90,6 +91,8 @@
     "uuid": "~8.3.1",
     "websocket": "~1.0.33",
     "winston": "~3.3.3",
-    "yargs": "~16.1.0"
+    "yargs": "~16.1.0",
+    "js-yaml": "~3.14.1",
+    "jsonschema": "~1.4.0"
   }
 }

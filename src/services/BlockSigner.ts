@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {loadFeeds} from '@umb-network/toolbox';
-import Feeds from '@umb-network/toolbox/dist/types/Feed';
+import loadFeeds from './loadFeeds';
+import Feeds from '../types/Feed';
 
 import FeedProcessor from './FeedProcessor';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';

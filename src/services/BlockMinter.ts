@@ -2,7 +2,7 @@ import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Signature} from 'ethers';
 import {ABI, LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
-import {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
+import {FeedValue} from '../types/Feed';
 import {getModelForClass} from '@typegoose/typegoose';
 import newrelic from 'newrelic';
 

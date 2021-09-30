@@ -13,7 +13,7 @@ class OnChainDataFetcher {
   }
 
   private async fetchData(params: OnChainCall): Promise<string> {
-    return this.blockchain.wallet.call({
+    return this.blockchain.provider.call({
       to: params.address,
       data: OnChainDataFetcher.txData(params)
     })

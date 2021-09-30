@@ -2,9 +2,10 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
-import {LeafValueCoder, loadFeeds} from '@umb-network/toolbox';
-import Feeds, {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
+import {LeafValueCoder} from '@umb-network/toolbox';
+import Feeds, {FeedValue} from '../types/Feed';
 
+import loadFeeds from '../services/loadFeeds';
 import FeedProcessor from './FeedProcessor';
 import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';

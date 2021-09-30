@@ -2,7 +2,7 @@ import {ethers, Wallet} from 'ethers';
 import sort from 'fast-sort';
 import {LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
-import {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
+import {FeedValue} from '../types/Feed';
 
 import Leaf from '../types/Leaf';
 import {ChainStatus} from '../types/ChainStatus';
