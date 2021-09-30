@@ -136,7 +136,7 @@ class FeedProcessor {
       const leaves: Leaf[] = [];
 
       tickers.forEach((ticker) => {
-        if (ticker.match(/^OP:/)) return;
+        if (ticker.startsWith('OP:')) return;
 
         const feed = feeds[ticker];
 
