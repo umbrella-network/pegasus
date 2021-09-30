@@ -6,7 +6,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import './boot';
 import Application from './lib/Application';
 import FeedProcessor from './services/FeedProcessor';
-import {loadFeeds} from '@umb-network/toolbox';
+import loadFeeds from './services/loadFeeds';
 import Settings from "./types/Settings";
 import Block from './models/Block';
 import GasEstimator from './services/GasEstimator';

@@ -31,6 +31,7 @@ const settings: Settings = {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
   },
   blockchain: {
+    providers: resolveBlockchainProviders(),
     provider: {
       url: process.env.BLOCKCHAIN_PROVIDER_URL || 'http://127.0.0.1:8545',
       privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
@@ -109,5 +110,30 @@ const settings: Settings = {
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
   name: process.env.NAME || 'default',
 };
+
+function resolveBlockchainProviders() {
+  return resolveArray((i) => process.env[`BLOCKCHAIN_PROVIDER_${i}_URL`] as string).reduce((map, item, i) => {
+    const name = process.env[`BLOCKCHAIN_PROVIDER_${i}_NAME`] as string;
+    if (name) {
+      map[name] = item;
+    }
+    return map;
+  }, {} as { [name: string]: string });
+}
+
+function resolveArray(iterator: (i: number) => string): string[] {
+  const result = [];
+  for (let i = 0; i < 10000; ++i) {
+    const item = iterator(i);
+
+    if (!item) {
+      break;
+    }
+
+    result.push(item);
+  }
+
+  return result;
+}
 
 export default settings;

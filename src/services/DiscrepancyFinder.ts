@@ -1,7 +1,7 @@
 import sort from 'fast-sort';
 import {LeafValueCoder} from '@umb-network/toolbox';
-import Feeds from '@umb-network/toolbox/dist/types/Feed';
 
+import Feeds from '../types/Feed';
 import {calcDiscrepancy} from '../utils/math';
 import {ProposedConsensus} from '../types/Consensus';
 import {Discrepancy} from '../types/Discrepancy';

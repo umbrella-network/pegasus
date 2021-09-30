@@ -1,5 +1,5 @@
 import {BigNumber} from 'ethers';
-import Feeds, {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
+import Feeds, {FeedValue} from '../types/Feed';
 import Leaf from '../types/Leaf';
 
 export interface DataForConsensus {

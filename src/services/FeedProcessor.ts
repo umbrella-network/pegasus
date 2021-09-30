@@ -3,12 +3,12 @@ import {price} from '@umb-network/validator';
 import {MD5 as hash} from 'object-hash';
 import {Logger} from 'winston';
 import {LeafValueCoder} from '@umb-network/toolbox';
-import Feeds, {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
 
+import Feeds from '../types/Feed';
 import Leaf from '../types/Leaf';
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
-import {FeedInput} from '../types/Feed';
+import {FeedCalculator, FeedFetcher, FeedOutput} from '../types/Feed';
 import {
   InputParams as CryptoComparePriceMultiFetcherParams,
   OutputValue as CryptoComparePriceMultiFetcherOutputValue,
@@ -16,11 +16,13 @@ import {
 
 interface Fetcher {
   // eslint-disable-next-line
-  apply: (feed: any, timestamp: number) => Promise<any>;
+  apply: (params: any, timestamp: number) => Promise<any>;
 }
 
-// eslint-disable-next-line
-type Calculator = (value: any) => number;
+interface Calculator {
+  // eslint-disable-next-line
+  apply: (key: string, value: any, params: any, ...args: any[]) => FeedOutput[];
+}
 
 @injectable()
 class FeedProcessor {
@@ -51,7 +53,12 @@ class FeedProcessor {
     @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
     @inject(fetchers.OnChainDataFetcher) OnChainDataFetcher: fetchers.OnChainDataFetcher,
     @inject(fetchers.KaikoPriceStreamFetcher) KaikoPriceStreamFetcher: fetchers.KaikoPriceStreamFetcher,
-    @inject(fetchers.OptionsPriceFetcher) OptionsPriceFetcher: fetchers.OptionsPriceFetcher,
+    @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPriceFetcher: fetchers.YearnVaultTokenPriceFetcher,
+
+    @inject(calculators.TWAPCalculator) TWAPCalculator: calculators.TWAPCalculator,
+    @inject(calculators.IdentityCalculator) IdentityCalculator: calculators.IdentityCalculator,
+    @inject(calculators.VWAPCalculator) VWAPCalculator: calculators.VWAPCalculator,
+    @inject(calculators.YearnTransformPriceCalculator) YearnTransformPriceCalculator: calculators.YearnTransformPriceCalculator,
   ) {
     this.fetchers = {
       CryptoCompareHistoHourFetcher,
@@ -69,34 +76,33 @@ class FeedProcessor {
       BEACPIAverageFetcher,
       OnChainDataFetcher,
       KaikoPriceStreamFetcher,
-      OptionsPriceFetcher,
+      YearnVaultTokenPriceFetcher,
     };
 
-    this.calculators = Object.keys(calculators).reduce(
-      (map, name, idx) => ({
-        ...map,
-        [name]: Object.values(calculators)[idx],
-      }),
-      {} as {[key: string]: Calculator},
-    );
+    this.calculators = {
+      TWAPCalculator,
+      IdentityCalculator,
+      VWAPCalculator,
+      YearnTransformPriceCalculator,
+    };
 
     this.CryptoComparePriceMultiFetcher = CryptoComparePriceMultiFetcher;
   }
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     // collect unique inputs
-    const uniqueInputsMap: {[hash: string]: FeedInput} = {};
+    const uniqueFeedFetcherMap: {[hash: string]: FeedFetcher} = {};
 
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);
       keys.forEach((leafLabel) =>
         feeds[leafLabel].inputs.forEach((input) => {
-          uniqueInputsMap[hash(input)] = input;
+          uniqueFeedFetcherMap[hash(input.fetcher)] = input.fetcher;
         }),
       );
     });
 
-    const {singleInputs, multiInputs, optionsInputs} = this.separateInputs(uniqueInputsMap);
+    const {singleInputs, multiInputs} = this.separateInputs(uniqueFeedFetcherMap);
     const inputIndexByHash: {[hash: string]: number} = {};
 
     Object.keys(singleInputs).forEach((hash, index) => {
@@ -108,40 +114,39 @@ class FeedProcessor {
       inputIndexByHash[hash] = index + singleInputsLength;
     });
 
-    const [singleFeeds, multiFeeds, optionPricesFeeds] = await Promise.all([
+    const [singleFeeds, multiFeeds] = await Promise.all([
       this.processFeeds(Object.values(singleInputs), timestamp),
       this.processMultiFeeds(Object.values(multiInputs)),
-      this.containsOptionsPriceFetchers(optionsInputs) ? this.fetchOptionPrices() : undefined,
     ]);
 
     const values = [...singleFeeds, ...multiFeeds];
     const result: Leaf[][] = [];
-    const ignoredMap: {[string: string]: boolean} = {};
+    const ignoredMap: {[key: string]: boolean} = {};
 
-    feedsArray.forEach((feeds, iteration) => {
+    const keyValueMap: {[key: string]: number} = {};
+
+    feedsArray.forEach((feeds) => {
       const tickers = Object.keys(feeds);
       const leaves: Leaf[] = [];
 
       tickers.forEach((ticker) => {
-        if (ticker === 'OPTIONS') return;
-
         const feed = feeds[ticker];
 
         const feedValues = feed.inputs
-          .map((input) => values[inputIndexByHash[hash(input)]])
-          .filter((item) => item !== undefined) as number[];
+          .map((input) => this.calculateFeed(ticker, values[inputIndexByHash[hash(input.fetcher)]], keyValueMap, input.calculator)).flat();
 
         if (feedValues.length) {
-          leaves.push(this.calculateMean(feedValues, ticker, feed.precision));
+          // calculateFeed is allowed to return different keys
+          const groups = this.groupInputs(feedValues);
+          for (const key in groups) {
+            const value = this.calculateMean(groups[key], key, feed.precision);
+            keyValueMap[key] = value;
+            leaves.push(this.buildLeaf(key, keyValueMap[key] = value));
+          }
         } else {
           ignoredMap[ticker] = true;
         }
       });
-
-      if (this.isOnSecondIteration(iteration) && this.containsOptionsPriceFetchers(optionsInputs)) {
-        const optionPricesLeaves = this.buildOptionPricesLeaves(optionPricesFeeds, feeds.OPTIONS.precision);
-        optionPricesLeaves.forEach((leaf) => leaves.push(leaf));
-      }
 
       result.push(leaves);
     });
@@ -155,41 +160,42 @@ class FeedProcessor {
     return result;
   }
 
-  async processFeed(feedInput: FeedInput, timestamp: number): Promise<FeedValue | undefined> {
-    const fetcher = this.fetchers[`${feedInput.fetcher.name}Fetcher`];
+  async processFeed(feedFetcher: FeedFetcher, timestamp: number): Promise<any> {
+    const fetcher = this.fetchers[`${feedFetcher.name}Fetcher`];
 
     if (!fetcher) {
-      this.logger.warn(`No fetcher specified for ${feedInput.fetcher.name}`);
+      this.logger.warn(`No fetcher specified for ${feedFetcher.name}`);
       return;
     }
 
-    const calculate: Calculator = this.calculators[`calculate${feedInput.calculator?.name || 'Identity'}`];
-
-    let value;
     try {
-      value = await fetcher.apply(feedInput.fetcher.params, timestamp);
+      return await fetcher.apply(feedFetcher.params, timestamp) || undefined;
     } catch (err) {
-      this.logger.warn(`Ignored feed ${JSON.stringify(feedInput)} due to an error.`, err);
+      this.logger.warn(`Ignored feed fetcher ${JSON.stringify(feedFetcher)} due to an error.`, err);
       return;
     }
-
-    if (value) {
-      return calculate(value);
-    }
-
-    return;
   }
 
-  async processFeeds(feedInputs: FeedInput[], timestamp: number): Promise<(FeedValue | undefined)[]> {
-    return Promise.all(feedInputs.map((input) => this.processFeed(input, timestamp)));
-  }
-
-  async processMultiFeeds(feedInputs: FeedInput[]): Promise<(number | undefined)[]> {
-    if (!feedInputs.length) {
+  calculateFeed(key: string, value: any, prices: {[key: string]: number}, feedCalculator?: FeedCalculator): FeedOutput[] {
+    if (!value) {
       return [];
     }
 
-    const params = this.createComparePriceMultiParams(feedInputs);
+    const calculator: Calculator = this.calculators[`${feedCalculator?.name || 'Identity'}Calculator`];
+
+    return calculator.apply(key, value, feedCalculator?.params, prices);
+  }
+
+  async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<any[]> {
+    return Promise.all(feedFetchers.map((input) => this.processFeed(input, timestamp)));
+  }
+
+  async processMultiFeeds(feedFetchers: FeedFetcher[]): Promise<(any)[]> {
+    if (!feedFetchers.length) {
+      return [];
+    }
+
+    const params = this.createComparePriceMultiParams(feedFetchers);
 
     let values: CryptoComparePriceMultiFetcherOutputValue[];
     try {
@@ -199,31 +205,7 @@ class FeedProcessor {
       return [];
     }
 
-    return this.orderCryptoComparePriceMultiOutput(feedInputs, values);
-  }
-
-  async fetchOptionPrices(): Promise<{[key: string]: number}> {
-    const optionsPrice = await this.fetchers.OptionsPriceFetcher.apply({}, 0);
-
-    return Object.keys(optionsPrice) ? optionsPrice : Promise.resolve({});
-  }
-
-  private containsOptionsPriceFetchers(optionsInputs: {[hash: string]: FeedInput}): boolean {
-    return Boolean(Object.keys(optionsInputs).length);
-  }
-
-  /**
-   * Checks if loop is on Layer 2 Data iteration. The first iteration
-   * is for First Class Data
-   * @param iteration
-   * @returns boolean
-   */
-  private isOnSecondIteration(iteration: number): boolean {
-    return iteration === 1;
-  }
-
-  private buildOptionPricesLeaves(optionPrices: {[key: string]: number} = {}, precision: number): Leaf[] {
-    return Object.entries(optionPrices).map(([key, value]) => this.calculateMean([value], key, precision));
+    return this.orderCryptoComparePriceMultiOutput(feedFetchers, values);
   }
 
   private buildLeaf = (label: string, value: number): Leaf => {
@@ -233,38 +215,32 @@ class FeedProcessor {
     };
   };
 
-  private calculateMean(values: number[], leafLabel: string, precision: number): Leaf {
+  private calculateMean(values: number[], leafLabel: string, precision: number): number {
     const multi = Math.pow(10, precision);
 
-    const result = Math.round(price.mean(values) * multi) / multi;
-
-    return this.buildLeaf(leafLabel, result);
+    return Math.round(price.mean(values) * multi) / multi;
   }
 
   /**
    * Separates inputs that belong to CryptoComparePriceMulti and others
    */
-  private separateInputs(uniqueInputsMap: {[hash: string]: FeedInput}) {
-    const inputMapArr = Object.values(uniqueInputsMap);
-    const inputKeys = Object.keys(uniqueInputsMap);
+  private separateInputs(uniqueFeedFetcherMap: {[hash: string]: FeedFetcher}) {
+    const fetcherMapArr = Object.values(uniqueFeedFetcherMap);
+    const fetcherKeys = Object.keys(uniqueFeedFetcherMap);
 
     const separatedInputs: {
-      singleInputs: {[hash: string]: FeedInput};
-      multiInputs: {[hash: string]: FeedInput};
-      optionsInputs: {[hash: string]: FeedInput};
+      singleInputs: {[hash: string]: FeedFetcher};
+      multiInputs: {[hash: string]: FeedFetcher};
     } = {
       singleInputs: {},
       multiInputs: {},
-      optionsInputs: {},
     };
 
-    inputMapArr.forEach((input: FeedInput, index) => {
-      if (input.fetcher.name === 'CryptoComparePrice') {
-        separatedInputs.multiInputs[inputKeys[index]] = input;
-      } else if (input.fetcher.name === 'OptionsPrice') {
-        separatedInputs.optionsInputs[inputKeys[index]] = input;
+    fetcherMapArr.forEach((fetcher: FeedFetcher, index) => {
+      if (fetcher.name === 'CryptoComparePrice') {
+        separatedInputs.multiInputs[fetcherKeys[index]] = fetcher;
       } else {
-        separatedInputs.singleInputs[inputKeys[index]] = input;
+        separatedInputs.singleInputs[fetcherKeys[index]] = fetcher;
       }
     });
 
@@ -275,17 +251,17 @@ class FeedProcessor {
    * Filters CryptoComparePriceMulti outputs based on CryptoComparePrice inputs
    */
   private orderCryptoComparePriceMultiOutput(
-    feedInputs: FeedInput[],
+    feedFetchers: FeedFetcher[],
     values: CryptoComparePriceMultiFetcherOutputValue[],
   ): (number | undefined)[] {
     const inputsIndexMap: {[key: string]: number} = {};
-    feedInputs.forEach(({fetcher: {params}}, index) => {
-      const {fsym, tsyms} = params as never;
+    feedFetchers.forEach((fetcher, index) => {
+      const {fsym, tsyms} = fetcher.params as never;
       inputsIndexMap[`${fsym}:${tsyms}`] = index;
     });
 
     const result: (number | undefined)[] = [];
-    result.length = feedInputs.length;
+    result.length = feedFetchers.length;
 
     values.forEach(({fsym, tsym, value}) => {
       const index = inputsIndexMap[`${fsym}:${tsym}`];
@@ -301,11 +277,11 @@ class FeedProcessor {
    * Creates a CryptoComparePriceMulti input params based CryptoComparePrice inputs
    * @param feedInputs Inputs with CryptoComparePrice fetcher
    */
-  private createComparePriceMultiParams(feedInputs: FeedInput[]): CryptoComparePriceMultiFetcherParams {
+  private createComparePriceMultiParams(feedInputs: FeedFetcher[]): CryptoComparePriceMultiFetcherParams {
     const fsymSet = new Set<string>(),
       tsymSet = new Set<string>();
 
-    feedInputs.forEach(({fetcher}) => {
+    feedInputs.forEach((fetcher) => {
       const {fsym, tsyms} = fetcher.params as never;
 
       fsymSet.add(fsym);
@@ -316,6 +292,21 @@ class FeedProcessor {
       fsyms: [...fsymSet],
       tsyms: [...tsymSet],
     };
+  }
+
+  private groupInputs(outputs: FeedOutput[]) {
+    const result: {[key: string]: number[]} = {};
+
+    for (const {key, value} of outputs) {
+      let array = result[key];
+      if (!array) {
+        result[key] = array = [];
+      }
+
+      array.push(value);
+    }
+
+    return result;
   }
 }
 

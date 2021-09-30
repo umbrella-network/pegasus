@@ -14,6 +14,7 @@ import BEACPIAverageFetcher from './BEACPIAverageFetcher';
 import OnChainDataFetcher from './OnChainDataFetcher';
 import KaikoPriceStreamFetcher from './KaikoPriceStreamFetcher';
 import OptionsPriceFetcher from './OptionsPriceFetcher';
+import YearnVaultTokenPriceFetcher from './YearnVaultTokenPriceFetcher';
 
 export {
   CryptoComparePriceWSFetcher,
@@ -32,4 +33,5 @@ export {
   OnChainDataFetcher,
   KaikoPriceStreamFetcher,
   OptionsPriceFetcher,
+  YearnVaultTokenPriceFetcher,
 };

@@ -30,6 +30,7 @@ type Settings = {
       url: string;
       privateKey: string;
     };
+    providers: { [name: string]: string },
     contracts: {
       chain: {
         name: string;
