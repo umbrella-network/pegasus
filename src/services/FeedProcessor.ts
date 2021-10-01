@@ -3,11 +3,10 @@ import {MD5 as hash} from 'object-hash';
 import {Logger} from 'winston';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
-import Feeds from '../types/Feed';
+import Feeds, {FeedCalculator, FeedFetcher, FeedOutput} from '../types/Feed';
 import Leaf from '../types/Leaf';
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
-import {FeedCalculator, FeedFetcher, FeedOutput} from '../types/Feed';
 import {
   InputParams as CryptoComparePriceMultiFetcherParams,
   OutputValue as CryptoComparePriceMultiFetcherOutputValue,
@@ -149,7 +148,7 @@ class FeedProcessor {
           // calculateFeed is allowed to return different keys
           const groups = this.groupInputs(feedValues);
           for (const key in groups) {
-            const value = this.calculateMean(groups[key], key, feed.precision);
+              const value = this.calculateMean(groups[key], key, feed.precision);
             keyValueMap[key] = value;
             leaves.push(this.buildLeaf(key, keyValueMap[key] = value));
           }

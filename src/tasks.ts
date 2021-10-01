@@ -26,7 +26,7 @@ async function testFeeds(settings: Settings): Promise<void> {
 
   const feeds = await loadFeeds(settings.feedsFile);
 
-  await new Promise((resolve) => setTimeout(resolve, 10000));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   const leaves = await Application.get(FeedProcessor).apply(new TimeService().apply(), feeds);
   console.log('Feeds: ', leaves);
