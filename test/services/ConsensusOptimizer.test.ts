@@ -22,7 +22,7 @@ describe('#apply', () => {
   let container: Container;
   let instance: ConsensusOptimizer;
   let props: ConsensusOptimizerProps;
-  let result: Set<string>;
+  let result: Set<string> | undefined;
   const subject = (props: ConsensusOptimizerProps) => instance.apply(props);
 
   before(() => {
@@ -91,6 +91,11 @@ describe('#apply', () => {
             address: 'VALIDATOR_5',
             power: BigInt(10),
             discrepancies: ['kp2'],
+          },
+          {
+            address: 'VALIDATOR_6',
+            power: BigInt(0),
+            discrepancies: [],
           },
         ],
         constraints: {

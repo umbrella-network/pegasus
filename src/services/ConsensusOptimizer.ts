@@ -22,7 +22,7 @@ export type ConsensusOptimization = {
   participants: Participant[];
   power: BigInt;
   signatures: number;
-  discrepancies: string[];
+  dropKeys: Set<string>;
 };
 
 @injectable()
@@ -30,15 +30,16 @@ export class ConsensusOptimizer {
   @inject('Logger')
   logger!: Logger;
 
-  readonly MAX_CANDIDATE_DISCREPANCIES = 100;
-  readonly CIRCUIT_BREAKER = 100;
-  readonly MAX_OPTIMIZATION_ITERATIONS = 10000;
+  readonly MAX_CANDIDATE_DISCREPANCIES = 300;
 
   // Objective: find the consensus solution that drops the least amount of keys
   // A consensus is a list of participants that, if certain keys are dropped,
   // can provide the necessary power and signatures.
-  apply(props: ConsensusOptimizerProps): Set<string> {
-    const {participants, constraints} = props;
+  apply(props: ConsensusOptimizerProps): Set<string> | undefined {
+    const {
+      participants,
+      constraints: {minimumRequiredSignatures, minimumRequiredPower},
+    } = props;
 
     if (this.everyoneAgrees(participants)) {
       this.logger.info('All participants agree. Keeping all keys.');
@@ -48,42 +49,38 @@ export class ConsensusOptimizer {
     // first, remove participants that have too many discrepancies. These should be outliers.
     // Also remove validators with power = 0
     const candidates = this.selectQualifyingParticipants(participants);
-    // narrow solution set to droppable keys by using only discrepant ones.
-    const discrepancies = this.getDiscrepantSet(candidates);
-
-    // Too many droppable keys would kill the application given the brute force approach.
-    if (discrepancies.size >= this.CIRCUIT_BREAKER) {
-      this.logger.info(`Too many discrepancies to optimize (${discrepancies.size} discrepancies).`);
-      this.logger.info(`Removing all discrepancies: ${discrepancies}`);
-      return discrepancies;
+    if (candidates.length < minimumRequiredSignatures) {
+      this.logger.info('Not enough candidates to achieve consensus');
+      this.logger.info(`Required: ${minimumRequiredSignatures} | Found: ${candidates.length}`);
+      return;
     }
 
-    // iterate over all K-combinations of the droppable key set, checking if the solution meets the constraints.
-    // Start with K = 1 and increase.
-    // Accept the highest power solution for a given K
-    let solution = new Set<string>();
+    let solution: ConsensusOptimization | undefined = undefined;
 
-    for (let k = 1; k < discrepancies.size; k++) {
-      const combinations = new Combination(discrepancies, k);
+    // iterate over the combination of validators
+    // starting with the quantity necessary to achieve consensus
+    for (let k = minimumRequiredSignatures; k < candidates.length; k++) {
+      const combinations = new Combination(candidates, k);
 
       for (let n = 0; n < combinations.length; n++) {
-        if (n > this.MAX_OPTIMIZATION_ITERATIONS) break;
+        const proposedCandidates = combinations.nth(n);
+        if (!proposedCandidates) continue;
 
-        const proposal = n > 1000 ? combinations.sample() : combinations.nth(n);
-        if (!proposal) continue;
+        const proposal = this.solutionFor(proposedCandidates);
+        if (proposal.power < minimumRequiredPower) continue;
+        solution ||= proposal;
 
-        const consensus = this.solutionFor(candidates, constraints, proposal);
-        if (!consensus) continue;
-
-        solution = new Set<string>(proposal);
-        break;
+        if (solution) {
+          solution = solution.dropKeys.size > proposal.dropKeys.size ? proposal : solution;
+        } else {
+          solution = proposal;
+        }
       }
 
-      if (solution.size > 0) break;
+      if (solution) return solution.dropKeys;
     }
 
-    this.logger.info(`Optimization found - removing: ${solution}`);
-    return solution;
+    return;
   }
 
   private everyoneAgrees(participants: Participant[]): boolean {
@@ -96,36 +93,15 @@ export class ConsensusOptimizer {
       .filter((candidate) => candidate.discrepancies.length <= this.MAX_CANDIDATE_DISCREPANCIES);
   }
 
-  private getDiscrepantSet(participants: Participant[]): Set<string> {
-    return participants
-      .map((participant) => participant.discrepancies)
-      .flat()
-      .reduce((acc, k) => acc.add(k), new Set<string>());
-  }
-
-  private solutionFor(
-    candidates: Participant[],
-    constraints: Constraints,
-    proposal: string[],
-  ): ConsensusOptimization | undefined {
-    const {minimumRequiredPower, minimumRequiredSignatures} = constraints;
-    const qualifyingCandidates = candidates.filter(
-      (candidate) => candidate.discrepancies.filter((d) => !proposal.includes(d)).length == 0,
-    );
-
-    if (qualifyingCandidates.length < minimumRequiredSignatures) return;
-
-    const power = qualifyingCandidates
-      .map((candidate) => candidate.power)
-      .reduce((acc, p) => p + acc, BigInt(0));
-
-    if (power < minimumRequiredPower) return;
-
+  private solutionFor(candidates: Participant[]): ConsensusOptimization {
     return {
-      participants: qualifyingCandidates,
-      signatures: qualifyingCandidates.length,
-      discrepancies: proposal,
-      power,
+      participants: candidates,
+      power: candidates.map((c) => c.power).reduce((acc, v) => acc + v, BigInt(0)),
+      signatures: candidates.length,
+      dropKeys: candidates
+        .map((c) => c.discrepancies)
+        .flat()
+        .reduce((acc, v) => acc.add(v), new Set<string>()),
     };
   }
 }
