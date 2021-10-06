@@ -18,10 +18,10 @@ export class DiscrepancyFinder {
     leavesFeeds: Feeds,
   ): Discrepancy[] {
     try {
-      const fcdsDisrepancies = this.checkForDiscrepancies(fcds, proposedConsensus.fcds, fcdsFeeds);
-      const disrepancies = this.checkForDiscrepancies(leaves, proposedConsensus.leaves, leavesFeeds);
+      const fcdsDiscrepancies = this.checkForDiscrepancies(fcds, proposedConsensus.fcds, fcdsFeeds);
+      const discrepancies = this.checkForDiscrepancies(leaves, proposedConsensus.leaves, leavesFeeds);
 
-      return disrepancies.concat(fcdsDisrepancies);
+      return discrepancies.concat(fcdsDiscrepancies);
     } catch (err) {
       console.error(err);
       throw err;
