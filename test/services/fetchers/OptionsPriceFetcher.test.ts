@@ -64,9 +64,9 @@ describe('OptionsPriceFetcher', () => {
       const result = await optionsPriceFetcher.apply();
 
       expect(result).to.eql({
-        "ETH-17SEP21-3500_call_price": 0.123,
-        "ETH-17SEP21-3500_put_price": 0.123,
-        "ETH-17SEP21-3500_iv": 71.123,
+        "OP:ETH-17SEP21-3500_call_price": 0.123,
+        "OP:ETH-17SEP21-3500_put_price": 0.123,
+        "OP:ETH-17SEP21-3500_iv": 71.123,
       });
     });
   });

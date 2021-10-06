@@ -12,6 +12,8 @@ import FeedProcessor from '../../src/services/FeedProcessor';
 import Settings from '../../src/types/Settings';
 import {expect} from 'chai';
 import * as fetchers from '../../src/services/fetchers';
+import LeafBuilder from '../../src/services/LeafBuilder';
+import OptionsPriceLeavesBuilder from '../../src/services/OptionsPriceLeavesBuilder';
 
 chai.use(chaiAsPromised);
 
@@ -38,6 +40,11 @@ describe('FeedProcessor', () => {
     OnChainDataFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OnChainDataFetcher>,
     KaikoPriceStreamFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.KaikoPriceStreamFetcher>,
     OptionsPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OptionsPriceFetcher>,
+  };
+
+  const leafBuilders = {
+    LeafBuilder,
+    OptionsPriceLeavesBuilder,
   };
 
   let feedProcessor: FeedProcessor;
@@ -104,6 +111,9 @@ describe('FeedProcessor', () => {
     container.bind(fetchers.OnChainDataFetcher).toConstantValue(mockedFetchers.OnChainDataFetcher as any);
     container.bind(fetchers.KaikoPriceStreamFetcher).toConstantValue(mockedFetchers.KaikoPriceStreamFetcher as any);
     container.bind(fetchers.OptionsPriceFetcher).toConstantValue(mockedFetchers.OptionsPriceFetcher as any);
+
+    container.bind(leafBuilders.LeafBuilder).toSelf();
+    container.bind(leafBuilders.OptionsPriceLeavesBuilder).toSelf();
 
     container.bind(FeedProcessor).toSelf();
 
@@ -382,7 +392,7 @@ describe('FeedProcessor', () => {
 
   it('should fetch Options prices only on L2D feeds', async () => {
     const feeds: Feeds = {
-      OPTIONS: {
+      'OP:ETH-': {
         discrepancy: 1,
         precision: 15,
         inputs: [
@@ -396,9 +406,9 @@ describe('FeedProcessor', () => {
     };
 
     mockedFetchers.OptionsPriceFetcher.apply.resolves({
-      'BTC-01OCT21-36000_call_price': 0.555555555555555555555555555555555,
-      'BTC-01OCT21-36000_iv': 0.555555555555555555555555555555555,
-      'BTC-01OCT21-36000_put_price': 0.555555555555555555555555555555555,
+      'OP:ETH-01OCT21-36000_call_price': 0.555555555555555555555555555555555,
+      'OP:ETH-01OCT21-36000_iv': 0.555555555555555555555555555555555,
+      'OP:ETH-01OCT21-36000_put_price': 0.555555555555555555555555555555555,
     });
 
     const [firstClassLeaves, layerTwoLeaves] = await feedProcessor.apply(10, feeds, feeds);
