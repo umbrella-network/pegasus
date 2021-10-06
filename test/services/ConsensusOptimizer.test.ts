@@ -22,7 +22,7 @@ describe('#apply', () => {
   let container: Container;
   let instance: ConsensusOptimizer;
   let props: ConsensusOptimizerProps;
-  let result: string[];
+  let result: Set<string>;
   const subject = (props: ConsensusOptimizerProps) => instance.apply(props);
 
   before(() => {
@@ -104,7 +104,7 @@ describe('#apply', () => {
 
     it('returns the keys to be excluded to achieve the best consensus', () => {
       expect(result).to.have.length(1);
-      expect(result).to.have.members(['kp2']);
+      expect(result).to.include('kp2');
     });
   });
 });

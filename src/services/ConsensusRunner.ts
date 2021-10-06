@@ -192,6 +192,7 @@ class ConsensusRunner {
     };
   }
 
+  // look into adding an additional parameter re: required signatures.
   private processValidatorsResponses(blockSignerResponses: BlockSignerResponseWithPower[]): ValidatorsResponses {
     const signatures: string[] = [];
     const discrepanciesKeys: Set<string> = new Set();
@@ -212,16 +213,21 @@ class ConsensusRunner {
 
       const discrepancies = response.discrepancies || [];
 
+      // remove this condition / move into optimizer
       if (discrepancies.length > 300) {
         this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
         return;
       }
 
+      // call consensus optimizer after this
+      // force minimumRequiredPower = 1 for now
       discrepancies.forEach((discrepancy) => {
         discrepanciesKeys.add(discrepancy.key);
       });
     });
 
+    // BlockSignerResponseWithPower.validator is the validator address
+    // optimizer will set discrepancyKeys, the rest stays the same
     return {signatures, discrepanciesKeys, powers};
   }
 
