@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import {Container} from 'inversify';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -18,6 +17,7 @@ import {BigNumber, Wallet} from 'ethers';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse';
 import {signAffidavitWithWallet} from '../../src/utils/mining';
+import {getTestContainer} from '../helpers/getTestContainer';
 
 chai.use(chaiAsPromised);
 
@@ -33,7 +33,7 @@ describe('ConsensusRunner', () => {
   let consensusRunner: ConsensusRunner;
 
   beforeEach(async () => {
-    const container = new Container();
+    const container = getTestContainer();
 
     mockedBlockchain = sinon.createStubInstance(Blockchain);
     mockedChainContract = sinon.createStubInstance(ChainContract);
@@ -51,8 +51,8 @@ describe('ConsensusRunner', () => {
       version: '1',
     } as Settings;
 
-    container.bind('Logger').toConstantValue(mockedLogger);
-    container.bind('Settings').toConstantValue(settings);
+    container.rebind('Logger').toConstantValue(mockedLogger);
+    container.rebind('Settings').toConstantValue(settings);
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
 

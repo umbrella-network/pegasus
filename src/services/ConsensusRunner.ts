@@ -21,6 +21,7 @@ import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
+import {ConsensusOptimizer, ConsensusOptimizerProps} from './ConsensusOptimizer';
 
 @injectable()
 class ConsensusRunner {
@@ -31,6 +32,7 @@ class ConsensusRunner {
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(BlockRepository) blockRepository!: BlockRepository;
+  @inject(ConsensusOptimizer) consensusOptimizer!: ConsensusOptimizer;
   @inject('Settings') settings!: Settings;
 
   async apply(
@@ -106,7 +108,10 @@ class ConsensusRunner {
       validators,
     );
 
-    const {powers, discrepanciesKeys, signatures} = this.processValidatorsResponses(blockSignerResponsesWithPowers);
+    const {powers, discrepanciesKeys, signatures} = this.processValidatorsResponses(
+      blockSignerResponsesWithPowers,
+      requiredSignatures,
+    );
 
     if (!this.hasConsensus(signatures, requiredSignatures)) {
       return {consensus: null, discrepanciesKeys};
@@ -193,42 +198,76 @@ class ConsensusRunner {
     };
   }
 
-  // look into adding an additional parameter re: required signatures.
-  private processValidatorsResponses(blockSignerResponses: BlockSignerResponseWithPower[]): ValidatorsResponses {
+  private processValidatorsResponses(
+    blockSignerResponses: BlockSignerResponseWithPower[],
+    requiredSignatures: number,
+  ): ValidatorsResponses {
+    // const signatures: string[] = [];
+    // const discrepanciesKeys: Set<string> = new Set();
+    // let powers: BigNumber = BigNumber.from(0);
+    //
+    // blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
+    //   this.versionCheck(response.version);
+    //
+    //   if (response.error) {
+    //     return;
+    //   }
+    //
+    //   if (response.signature) {
+    //     signatures.push(response.signature);
+    //     powers = powers.add(response.power);
+    //     return;
+    //   }
+    //
+    //   const discrepancies = response.discrepancies || [];
+    //
+    //   if (discrepancies.length > 300) {
+    //     this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
+    //     return;
+    //   }
+    //
+    //   discrepancies.forEach((discrepancy) => {
+    //     discrepanciesKeys.add(discrepancy.key);
+    //   });
+    // });
+    //
+    // console.log('>>>>>>>>>>>>>>');
+    // console.log({signatures, discrepanciesKeys, powers});
+    // console.log('<<<<<<<<<<<<<<');
+    //
+    // return {signatures, discrepanciesKeys, powers};
+
     const signatures: string[] = [];
-    const discrepanciesKeys: Set<string> = new Set();
     let powers: BigNumber = BigNumber.from(0);
 
-    blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
-      this.versionCheck(response.version);
+    const consensusOptimizerProps: ConsensusOptimizerProps = {
+      participants: [],
+      constraints: {
+        minimumRequiredPower: BigInt(1),
+        minimumRequiredSignatures: requiredSignatures,
+      },
+    };
 
-      if (response.error) {
-        return;
-      }
+    for (const response of blockSignerResponses) {
+      if (response.error) continue;
 
       if (response.signature) {
-        signatures.push(response.signature);
         powers = powers.add(response.power);
-        return;
+        signatures.push(response.signature);
+        continue;
       }
 
-      const discrepancies = response.discrepancies || [];
+      if (!response.validator) continue;
+      if (!response.discrepancies) continue;
 
-      // remove this condition / move into optimizer
-      if (discrepancies.length > 300) {
-        this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
-        return;
-      }
-
-      // call consensus optimizer after this
-      // force minimumRequiredPower = 1 for now
-      discrepancies.forEach((discrepancy) => {
-        discrepanciesKeys.add(discrepancy.key);
+      consensusOptimizerProps.participants.push({
+        address: response.validator,
+        power: response.power.toBigInt(),
+        discrepancies: response.discrepancies.map((d) => d.key),
       });
-    });
+    }
 
-    // BlockSignerResponseWithPower.validator is the validator address
-    // optimizer will set discrepancyKeys, the rest stays the same
+    const discrepanciesKeys = <Set<string>>this.consensusOptimizer.apply(consensusOptimizerProps);
     return {signatures, discrepanciesKeys, powers};
   }
 
