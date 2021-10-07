@@ -202,41 +202,6 @@ class ConsensusRunner {
     blockSignerResponses: BlockSignerResponseWithPower[],
     requiredSignatures: number,
   ): ValidatorsResponses {
-    // const signatures: string[] = [];
-    // const discrepanciesKeys: Set<string> = new Set();
-    // let powers: BigNumber = BigNumber.from(0);
-    //
-    // blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
-    //   this.versionCheck(response.version);
-    //
-    //   if (response.error) {
-    //     return;
-    //   }
-    //
-    //   if (response.signature) {
-    //     signatures.push(response.signature);
-    //     powers = powers.add(response.power);
-    //     return;
-    //   }
-    //
-    //   const discrepancies = response.discrepancies || [];
-    //
-    //   if (discrepancies.length > 300) {
-    //     this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
-    //     return;
-    //   }
-    //
-    //   discrepancies.forEach((discrepancy) => {
-    //     discrepanciesKeys.add(discrepancy.key);
-    //   });
-    // });
-    //
-    // console.log('>>>>>>>>>>>>>>');
-    // console.log({signatures, discrepanciesKeys, powers});
-    // console.log('<<<<<<<<<<<<<<');
-    //
-    // return {signatures, discrepanciesKeys, powers};
-
     const signatures: string[] = [];
     let powers: BigNumber = BigNumber.from(0);
 
