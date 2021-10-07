@@ -20,6 +20,8 @@ tags:
 - name: "blocks"
   description: "Block info"
 - name: "health"
+- name: "signature"
+  description: "Request checks for signed block"
 
 paths:
   /blocks/latest:
@@ -75,6 +77,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Block"
+
+  /signature:
+    post:
+      tags:
+      - "signature"
+      summary: "Request checks for signed block"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignedBlock"
+      responses:
+        "200":
+          description: "Block info"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlockSignerResponse"
 
   /health:
     get:
@@ -167,5 +187,38 @@ components:
           type: "string"
         dataLength:
           type: "integer"
-
-
+    SignedBlock:
+      type: "object"
+      properties:
+        dataTimestamp:
+          type: "integer"
+        fcd:
+          type: "object"
+          properties:
+            ETH-USD:
+              type: "string"
+        leaves:
+          type: "object"
+          properties:
+            ETH-USD:
+              type: "string"
+        signature:
+          type: "string"
+    BlockSignerResponse:
+      type: "object"
+      properties:
+        error:
+          type: "string"
+        signature:
+          type: "string"
+        discrepancies:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              key:
+                type: "string"
+              discrepancy:
+                type: "number"
+        version:
+          type: "string"
