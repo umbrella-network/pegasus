@@ -5,19 +5,6 @@ import {expect} from 'chai';
 import {Container} from 'inversify';
 import {getTestContainer} from '../helpers/getTestContainer';
 
-// type Props = {
-//   discrepancies: Record<string, string[]>; // 'VALIDATOR_ADDRESS': ['eth-usd'] - this guys can't agree with my value of this key
-//   powers: Record<string, bigint>; // 'VALIDATOR_ADDRESS': power
-//   minimumPower: bigint; // how much power is needed to reach consensus - sum of powers of validators in agreement
-//   minimumRequiredSignatures: number; // how many signatures are needed for enough consensus
-// }
-//
-// class ConsensusOptimizer {
-//   apply(props: Props): string[] // array of the minimum amount of keys (ex: coin pairs) that need to be dropped to reach consensus
-// }
-
-// Best possible consensus is that which minimizes the amount of keys that need to be dropped
-
 describe('#apply', () => {
   let container: Container;
   let instance: ConsensusOptimizer;
