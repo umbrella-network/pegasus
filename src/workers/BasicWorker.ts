@@ -3,8 +3,6 @@ import {inject, injectable} from 'inversify';
 import IORedis from 'ioredis';
 import Settings from '../types/Settings';
 
-const MAX_RETRY_TIME = 10000;
-
 @injectable()
 abstract class BasicWorker {
   connection: IORedis.Redis;
@@ -16,10 +14,7 @@ abstract class BasicWorker {
 
   constructor(@inject('Settings') settings: Settings) {
     this.connection = new IORedis(settings.redis.url, {
-      retryStrategy(times) {
-        const retryTime = Math.min(times * 50, MAX_RETRY_TIME);
-        return retryTime;
-      },
+      retryStrategy: (times) => Math.min(times * 50, settings.redis.maxRetryTime),
     });
   }
 
