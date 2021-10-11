@@ -214,6 +214,8 @@ class ConsensusRunner {
     };
 
     for (const response of blockSignerResponses) {
+      this.versionCheck(response.version);
+
       if (response.error) continue;
 
       if (response.signature) {
