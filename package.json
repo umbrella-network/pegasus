@@ -81,7 +81,7 @@
     "helmet": "~4.2.0",
     "inversify": "~5.0.1",
     "ioredis": "~4.19.2",
-    "js-combinatorics": "^1.5.4",
+    "js-combinatorics": "~1.5.4",
     "jsonpath-plus": "~4.0.0",
     "mongoose": "~5.10.13",
     "newrelic": "~7.2.0",
