@@ -207,7 +207,7 @@ class ConsensusRunner {
     const consensusOptimizerProps: ConsensusOptimizerProps = {
       participants: [],
       constraints: {
-        minimumRequiredPower: BigInt(1),
+        minimumRequiredPower: 1n,
         minimumRequiredSignatures: requiredSignatures,
       },
     };
