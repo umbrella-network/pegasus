@@ -98,10 +98,7 @@ export class ConsensusOptimizer {
       participants: candidates,
       power: candidates.map((c) => c.power).reduce((acc, v) => acc + v, BigInt(0)),
       signatures: candidates.length,
-      dropKeys: candidates
-        .map((c) => c.discrepancies)
-        .flat()
-        .reduce((acc, v) => acc.add(v), new Set<string>()),
+      dropKeys: new Set(candidates.map((c) => c.discrepancies).flat())
     };
   }
 }
