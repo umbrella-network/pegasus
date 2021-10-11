@@ -68,7 +68,8 @@ describe('BlockMinter', () => {
       },
     } as Settings;
 
-    container.bind('Logger').toConstantValue(mockedLogger);
+    container.rebind('Logger').toConstantValue(mockedLogger);
+    container.rebind('Settings').toConstantValue(settings);
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
     container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
@@ -77,7 +78,6 @@ describe('BlockMinter', () => {
     container.bind(BlockRepository).toSelf();
     container.bind(ConsensusRunner).toSelf();
     container.bind(TimeService).toConstantValue(mockedTimeService);
-    container.bind('Settings').toConstantValue(settings);
     container.bind(GasEstimator).toConstantValue(mockedGasEstimator);
 
     container.bind(BlockMinter).to(BlockMinter);
