@@ -84,7 +84,7 @@ export class ConsensusOptimizer {
   }
 
   private everyoneAgrees(participants: Participant[]): boolean {
-    return participants.filter((p) => p.discrepancies.length > 0).length == 0;
+    return participants.every((p) => p.discrepancies.length === 0);
   }
 
   private selectQualifyingParticipants(participants: Participant[]): Participant[] {
