@@ -13,7 +13,9 @@ abstract class BasicWorker {
   abstract apply(job: Bull.Job): Promise<void>;
 
   constructor(@inject('Settings') settings: Settings) {
-    this.connection = new IORedis(settings.redis.url);
+    this.connection = new IORedis(settings.redis.url, {
+      retryStrategy: (times) => Math.min(times * 50, settings.redis.maxRetryTime),
+    });
   }
 
   get queueName(): string {
