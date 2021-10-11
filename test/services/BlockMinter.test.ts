@@ -24,6 +24,7 @@ import TimeService from '../../src/services/TimeService';
 import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, timestamp} from '../../src/utils/mining';
 import GasEstimator from '../../src/services/GasEstimator';
 import BlockRepository from '../../src/services/BlockRepository';
+import {getTestContainer} from '../helpers/getTestContainer';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -43,7 +44,7 @@ describe('BlockMinter', () => {
   beforeEach(async () => {
     await getModelForClass(Block).deleteMany({});
 
-    const container = new Container();
+    const container = getTestContainer();
 
     mockedBlockchain = sinon.createStubInstance(Blockchain);
     mockedTimeService = sinon.createStubInstance(TimeService);
