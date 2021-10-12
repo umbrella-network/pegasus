@@ -52,9 +52,9 @@ class OptionsPriceFetcher {
     const optionsEntries: OptionsEntries = {}
 
     for (const key in options) {
-      optionsEntries[`${key}_call_price`] = options[key].callPrice
-      optionsEntries[`${key}_iv`] = options[key].iv
-      optionsEntries[`${key}_put_price`] = options[key].putPrice
+      optionsEntries[`OP:${key}_call_price`] = options[key].callPrice
+      optionsEntries[`OP:${key}_iv`] = options[key].iv
+      optionsEntries[`OP:${key}_put_price`] = options[key].putPrice
     }
   
     return optionsEntries
