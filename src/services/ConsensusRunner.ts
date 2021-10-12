@@ -208,7 +208,7 @@ class ConsensusRunner {
       participants: [],
       constraints: {
         minimumRequiredPower: 1n,
-        minimumRequiredSignatures: requiredSignatures,
+        minimumRequiredSignatures: Math.max(requiredSignatures - 1, 0),
       },
     };
 
@@ -233,7 +233,7 @@ class ConsensusRunner {
       });
     }
 
-    const discrepanciesKeys = <Set<string>>this.consensusOptimizer.apply(consensusOptimizerProps);
+    const discrepanciesKeys = this.consensusOptimizer.apply(consensusOptimizerProps) || new Set<string>();
     return {signatures, discrepanciesKeys, powers};
   }
 

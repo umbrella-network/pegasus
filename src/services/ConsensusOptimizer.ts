@@ -51,7 +51,8 @@ export class ConsensusOptimizer {
     const candidates: Participant[] = this.selectQualifyingParticipants(participants);
     if (candidates.length < minimumRequiredSignatures) {
       this.logger.info('Not enough candidates to achieve consensus');
-      this.logger.info(`Required: ${minimumRequiredSignatures} | Found: ${candidates.length}`);
+      this.logger.info(`Additional Signatures Required: ${minimumRequiredSignatures}`);
+      this.logger.info(`Additional Qualifying Candidates Found: ${candidates.length}`);
       return;
     }
 

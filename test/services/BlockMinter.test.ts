@@ -2,7 +2,6 @@
 import 'reflect-metadata';
 import BlockMinter from '../../src/services/BlockMinter';
 import SignatureCollector from '../../src/services/SignatureCollector';
-import {Container} from 'inversify';
 import sinon from 'sinon';
 import {expect} from 'chai';
 import {BigNumber, ethers, Wallet} from 'ethers';
