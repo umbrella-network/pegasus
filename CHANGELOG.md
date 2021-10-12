@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ## Changed
+- Add Consensus Optimization to reduce the number of discrepant dropped keys;
 - Add a `retryStrategy` to the Redis connection, to attempt a re-connection up to a 10-second interval;
 - Add a `maxRetryTime` for Redis re-connection interval. Default 10 seconds (10000 ms);
 
