@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [5.4.0] - 2021-10-13
+## Added
+- Add a `retryStrategy` to the Redis connection, to attempt a re-connection up to a 10-second interval;
+- Add a `maxRetryTime` for Redis re-connection interval. Default 10 seconds (10000 ms);
+- Add options price API key in the /info endpoint;
+
 ## [5.3.2] - 2021-09-29
 ### Changed
 - Refactored FeedProcessor leaf building to Service Object

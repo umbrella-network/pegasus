@@ -23,6 +23,7 @@ const settings: Settings = {
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+    maxRetryTime: parseInt(process.env.MAX_RETRY_TIME as string) || 10000,
   },
   mongodb: {
     url: process.env.MONGODB_URL || 'mongodb://localhost:27017/pegasus',

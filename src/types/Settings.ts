@@ -18,6 +18,7 @@ type Settings = {
   };
   redis: {
     url: string;
+    maxRetryTime: number;
   };
   mongodb: {
     url: string;
