@@ -6,9 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Add Consensus Optimization to reduce the number of discrepant dropped keys;
 
 ## [5.4.0] - 2021-10-13
-## Added
+### Added
 - Add a `retryStrategy` to the Redis connection, to attempt a re-connection up to a 10-second interval;
 - Add a `maxRetryTime` for Redis re-connection interval. Default 10 seconds (10000 ms);
 - Add options price API key in the /info endpoint;

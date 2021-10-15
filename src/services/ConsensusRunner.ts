@@ -20,6 +20,7 @@ import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
+import {ConsensusOptimizer, ConsensusOptimizerProps} from './ConsensusOptimizer';
 
 @injectable()
 class ConsensusRunner {
@@ -30,6 +31,7 @@ class ConsensusRunner {
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(BlockRepository) blockRepository!: BlockRepository;
+  @inject(ConsensusOptimizer) consensusOptimizer!: ConsensusOptimizer;
   @inject('Settings') settings!: Settings;
 
   async apply(
@@ -105,7 +107,10 @@ class ConsensusRunner {
       validators,
     );
 
-    const {powers, discrepanciesKeys, signatures} = this.processValidatorsResponses(blockSignerResponsesWithPowers);
+    const {powers, discrepanciesKeys, signatures} = this.processValidatorsResponses(
+      blockSignerResponsesWithPowers,
+      requiredSignatures,
+    );
 
     if (!this.hasConsensus(signatures, requiredSignatures)) {
       return {consensus: null, discrepanciesKeys};
@@ -192,36 +197,43 @@ class ConsensusRunner {
     };
   }
 
-  private processValidatorsResponses(blockSignerResponses: BlockSignerResponseWithPower[]): ValidatorsResponses {
+  private processValidatorsResponses(
+    blockSignerResponses: BlockSignerResponseWithPower[],
+    requiredSignatures: number,
+  ): ValidatorsResponses {
     const signatures: string[] = [];
-    const discrepanciesKeys: Set<string> = new Set();
     let powers: BigNumber = BigNumber.from(0);
 
-    blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
+    const consensusOptimizerProps: ConsensusOptimizerProps = {
+      participants: [],
+      constraints: {
+        minimumRequiredPower: 1n,
+        minimumRequiredSignatures: Math.max(requiredSignatures - 1, 0),
+      },
+    };
+
+    for (const response of blockSignerResponses) {
       this.versionCheck(response.version);
 
-      if (response.error) {
-        return;
-      }
+      if (response.error) continue;
 
       if (response.signature) {
-        signatures.push(response.signature);
         powers = powers.add(response.power);
-        return;
+        signatures.push(response.signature);
+        continue;
       }
 
-      const discrepancies = response.discrepancies || [];
+      if (!response.validator) continue;
+      if (!response.discrepancies) continue;
 
-      if (discrepancies.length > 300) {
-        this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
-        return;
-      }
-
-      discrepancies.forEach((discrepancy) => {
-        discrepanciesKeys.add(discrepancy.key);
+      consensusOptimizerProps.participants.push({
+        address: response.validator,
+        power: response.power.toBigInt(),
+        discrepancies: response.discrepancies.map((d) => d.key),
       });
-    });
+    }
 
+    const discrepanciesKeys = this.consensusOptimizer.apply(consensusOptimizerProps) || new Set<string>();
     return {signatures, discrepanciesKeys, powers};
   }
 
