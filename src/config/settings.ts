@@ -99,10 +99,10 @@ const settings: Settings = {
   },
   feedsFile:
     process.env.FEEDS_FILE ||
-    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/eth/feeds.yaml',
+    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feeds.yaml',
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
-    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/eth/feedsOnChain.yaml',
+    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
   statusCheckTimeout: parseInt(process.env.STATUS_CHECK_TIMEOUT || '2000', 10),
   signatureTimeout: parseInt(process.env.SIGNATURE_TIMEOUT || '10000', 10),
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
