@@ -12,3 +12,4 @@ tmp
 .cache
 yarn-error.log
 newrelic_agent.log
+package-lock.json
