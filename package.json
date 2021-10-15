@@ -82,7 +82,7 @@
     "ioredis": "~4.19.2",
     "js-combinatorics": "~1.5.4",
     "jsonpath-plus": "~4.0.0",
-    "mongoose": "^5.13.11",
+    "mongoose": "~5.13.11",
     "newrelic": "~7.2.0",
     "node-schedule": "~2.0.0",
     "object-hash": "~2.1.1",
