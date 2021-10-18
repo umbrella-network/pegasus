@@ -3,6 +3,8 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 import loadFeeds from '../../src/services/loadFeeds';
+import moxios from 'moxios';
+import * as fs from 'fs';
 
 const expect = chai.expect;
 chai.use(chaiAsPromised);
@@ -24,8 +26,25 @@ describe('LoadFeeds', () => {
   });
 
   describe('when loading from a valid url', () => {
+    beforeEach(async () => {
+      moxios.install();
+    });
+
+    afterEach(async () => {
+      moxios.uninstall();
+    });
+
     it('returns the proper object representation', async () => {
-      const feeds = await loadFeeds(process.env.FEEDS_URL as string);
+      const data = fs.readFileSync('test/fixtures/feeds-example.yaml', 'utf8');
+      moxios.stubRequest('https://google.com/feeds.json', {
+        status: 200,
+        headers: {
+          etag: '123',
+        },
+        response: data,
+      });
+
+      const feeds = await loadFeeds('https://google.com/feeds.json');
 
       const keys = Object.keys(feeds);
       expect(keys).to.have.length.greaterThan(1);
@@ -38,7 +57,7 @@ describe('LoadFeeds', () => {
   describe('when loading from a bad yaml file', () => {
     it('throws an error', async () => {
       expect(loadFeeds('test/fixtures/feeds-example-bad.yaml')).to.eventually.be.rejectedWith(
-        'Error: Feeds validation error (pass 2):'
+        'Error: Feeds validation error (pass 2):',
       );
     });
   });

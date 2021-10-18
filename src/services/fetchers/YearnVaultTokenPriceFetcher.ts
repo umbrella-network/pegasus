@@ -46,11 +46,11 @@ class YearnVaultTokenPriceFetcher {
 }
 
 export interface Vault {
-  tokenAddress: number;
+  tokenAddress: string;
   tokenSymbol: string;
   tokenDecimals: number;
   tokenVirtualPrice: BigNumber;
-  address: number;
+  address: string;
   decimals: number;
   symbol: string;
   totalAssets: BigNumber;

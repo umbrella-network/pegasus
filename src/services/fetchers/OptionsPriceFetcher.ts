@@ -1,11 +1,15 @@
 import axios from 'axios';
-import {injectable, inject} from "inversify";
+import {inject, injectable} from "inversify";
 import {Logger} from 'winston';
 
 import Settings from '../../types/Settings';
 
-interface OptionsEntries {
-  [key: string]: number;
+export interface OptionsEntries {
+  [key: string]: {
+    callPrice: number,
+    iv: number,
+    putPrice: number,
+  };
 }
 
 interface OptionsPriceResponse {
@@ -23,12 +27,12 @@ class OptionsPriceFetcher {
   private apiKey: string;
   private timeout: number;
   @inject('Logger') logger!: Logger;
-  
+
   constructor(
     @inject('Settings') settings: Settings,
   ) {
     this.apiKey = settings.api.optionsPrice.apiKey;
-    this.timeout = settings.api.optionsPrice.timeout; 
+    this.timeout = settings.api.optionsPrice.timeout;
   }
 
   async apply(): Promise<OptionsEntries> {
@@ -41,22 +45,21 @@ class OptionsPriceFetcher {
         headers: {'Authorization': `Bearer ${this.apiKey}`}
       })
 
-      return this.parseOptionPrices(response.data);
+      return OptionsPriceFetcher.parseOptionPrices(response.data);
     } catch (err) {
       this.logger.warn(`Skipping OptionsPrice fetcher: ${err}`)
       return Promise.resolve({})
     }
   }
 
-  private parseOptionPrices({ data: options }: OptionsPriceResponse) {
+  private static parseOptionPrices({ data: options }: OptionsPriceResponse) {
     const optionsEntries: OptionsEntries = {}
 
     for (const key in options) {
-      optionsEntries[`${key}_call_price`] = options[key].callPrice
-      optionsEntries[`${key}_iv`] = options[key].iv
-      optionsEntries[`${key}_put_price`] = options[key].putPrice
+      const {callPrice, iv, putPrice} = options[key];
+      optionsEntries[key] = {callPrice, iv, putPrice};
     }
-  
+
     return optionsEntries
   }
 }

@@ -12,6 +12,7 @@ import FeedProcessor from '../../src/services/FeedProcessor';
 import Settings from '../../src/types/Settings';
 import {expect} from 'chai';
 import * as fetchers from '../../src/services/fetchers';
+import * as calculators from '../../src/services/calculators';
 
 chai.use(chaiAsPromised);
 
@@ -38,6 +39,7 @@ describe('FeedProcessor', () => {
     OnChainDataFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OnChainDataFetcher>,
     KaikoPriceStreamFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.KaikoPriceStreamFetcher>,
     OptionsPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OptionsPriceFetcher>,
+    YearnVaultTokenPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.YearnVaultTokenPriceFetcher>,
   };
 
   let feedProcessor: FeedProcessor;
@@ -58,6 +60,7 @@ describe('FeedProcessor', () => {
     mockedFetchers.BEACPIAverageFetcher = sinon.createStubInstance(fetchers.BEACPIAverageFetcher);
     mockedFetchers.OnChainDataFetcher = sinon.createStubInstance(fetchers.OnChainDataFetcher);
     mockedFetchers.KaikoPriceStreamFetcher = sinon.createStubInstance(fetchers.KaikoPriceStreamFetcher);
+    mockedFetchers.YearnVaultTokenPriceFetcher = sinon.createStubInstance(fetchers.YearnVaultTokenPriceFetcher);
     mockedFetchers.OptionsPriceFetcher = sinon.createStubInstance(fetchers.OptionsPriceFetcher);
 
     const container = new Container();
@@ -103,7 +106,16 @@ describe('FeedProcessor', () => {
     container.bind(fetchers.BEACPIAverageFetcher).toConstantValue(mockedFetchers.BEACPIAverageFetcher as any);
     container.bind(fetchers.OnChainDataFetcher).toConstantValue(mockedFetchers.OnChainDataFetcher as any);
     container.bind(fetchers.KaikoPriceStreamFetcher).toConstantValue(mockedFetchers.KaikoPriceStreamFetcher as any);
+    container
+      .bind(fetchers.YearnVaultTokenPriceFetcher)
+      .toConstantValue(mockedFetchers.YearnVaultTokenPriceFetcher as any);
     container.bind(fetchers.OptionsPriceFetcher).toConstantValue(mockedFetchers.OptionsPriceFetcher as any);
+
+    container.bind(calculators.TWAPCalculator).toSelf();
+    container.bind(calculators.VWAPCalculator).toSelf();
+    container.bind(calculators.YearnTransformPriceCalculator).toSelf();
+    container.bind(calculators.OptionsPriceCalculator).toSelf();
+    container.bind(calculators.IdentityCalculator).toSelf();
 
     container.bind(FeedProcessor).toSelf();
 
@@ -378,33 +390,6 @@ describe('FeedProcessor', () => {
 
     expect(leaves[0][0].label).to.equal('BTC-USD');
     expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(38123);
-  });
-
-  it('should fetch Options prices only on L2D feeds', async () => {
-    const feeds: Feeds = {
-      OPTIONS: {
-        discrepancy: 1,
-        precision: 15,
-        inputs: [
-          {
-            fetcher: {
-              name: 'OptionsPrice',
-            },
-          },
-        ],
-      },
-    };
-
-    mockedFetchers.OptionsPriceFetcher.apply.resolves({
-      'BTC-01OCT21-36000_call_price': 0.555555555555555555555555555555555,
-      'BTC-01OCT21-36000_iv': 0.555555555555555555555555555555555,
-      'BTC-01OCT21-36000_put_price': 0.555555555555555555555555555555555,
-    });
-
-    const [firstClassLeaves, layerTwoLeaves] = await feedProcessor.apply(10, feeds, feeds);
-
-    expect(firstClassLeaves).to.be.an('array').of.length(0);
-    expect(layerTwoLeaves).to.be.an('array').of.length(3);
   });
 
   it('should not return Options Price Fetchers when OPTIONS feed is not present', async () => {

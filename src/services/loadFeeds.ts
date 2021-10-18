@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { Validator } from 'jsonschema';
-import { loadAll } from 'js-yaml';
+import {Validator} from 'jsonschema';
+import {loadAll} from 'js-yaml';
 import axios from 'axios';
 
 import Feeds from '../types/Feed';
@@ -52,8 +52,8 @@ async function loadFromFile(filePath: string): Promise<string> {
 }
 
 function createUrlCache() {
-  const etagCache: { [url: string]: string } = {};
-  const dataCache: { [etag: string]: string } = {};
+  const etagCache: {[url: string]: string} = {};
+  const dataCache: {[etag: string]: string} = {};
 
   return {
     loadFromURL: async (url: string, ignoreErrors = true): Promise<string> => {
@@ -61,12 +61,7 @@ function createUrlCache() {
       const prevData = dataCache[etag];
 
       try {
-        const response = await axios.get(url, {
-          headers: { ...(etag ? { 'If-None-Match': etag } : {}) },
-          validateStatus: function (status) {
-            return status < 400;
-          },
-        });
+        const response = await axios.get(url);
 
         if (response.status === 304) {
           return prevData;
@@ -78,7 +73,7 @@ function createUrlCache() {
           throw new Error(response.data.Message);
         }
 
-        const { etag: nextEtag } = response.headers;
+        const {etag: nextEtag} = response.headers;
 
         etagCache[url] = nextEtag;
         dataCache[nextEtag] = response.data;

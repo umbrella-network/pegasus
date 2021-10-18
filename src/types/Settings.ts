@@ -18,6 +18,7 @@ type Settings = {
   };
   redis: {
     url: string;
+    maxRetryTime: number;
   };
   mongodb: {
     url: string;
@@ -30,7 +31,7 @@ type Settings = {
       url: string;
       privateKey: string;
     };
-    providers: { [name: string]: string },
+    providers: {[name: string]: string};
     contracts: {
       chain: {
         name: string;

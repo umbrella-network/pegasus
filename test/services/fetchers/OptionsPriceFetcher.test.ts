@@ -64,9 +64,11 @@ describe('OptionsPriceFetcher', () => {
       const result = await optionsPriceFetcher.apply();
 
       expect(result).to.eql({
-        "ETH-17SEP21-3500_call_price": 0.123,
-        "ETH-17SEP21-3500_put_price": 0.123,
-        "ETH-17SEP21-3500_iv": 71.123,
+        'ETH-17SEP21-3500': {
+          callPrice: 0.123,
+          putPrice: 0.123,
+          iv: 71.123,
+        },
       });
     });
   });
@@ -79,12 +81,12 @@ describe('OptionsPriceFetcher', () => {
       });
 
       const spy = sinon.spy(mockedLogger, 'warn');
-      
+
       await optionsPriceFetcher.apply();
 
       expect(spy.calledWithExactly(sinon.match(`Skipping OptionsPrice fetcher`))).to.be.true;
     });
-    
+
     it('resolves an empty object', async () => {
       moxios.stubRequest('https://options-api.umb.network/options', {
         status: 401,

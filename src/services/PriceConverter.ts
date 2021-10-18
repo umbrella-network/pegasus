@@ -14,7 +14,8 @@ class PriceConverter {
     }
 
     for (const intermediary of this.INTERMEDIARIES) {
-      const t1 = this.findPrice(from, intermediary), t2 = this.findPrice(to, intermediary);
+      const t1 = this.findPrice(from, intermediary),
+        t2 = this.findPrice(to, intermediary);
 
       if (t1 && t2) {
         return t1 / t2;

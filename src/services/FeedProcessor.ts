@@ -53,11 +53,13 @@ class FeedProcessor {
     @inject(fetchers.OnChainDataFetcher) OnChainDataFetcher: fetchers.OnChainDataFetcher,
     @inject(fetchers.KaikoPriceStreamFetcher) KaikoPriceStreamFetcher: fetchers.KaikoPriceStreamFetcher,
     @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPriceFetcher: fetchers.YearnVaultTokenPriceFetcher,
+    @inject(fetchers.OptionsPriceFetcher) OptionsPriceFetcher: fetchers.OptionsPriceFetcher,
 
     @inject(calculators.TWAPCalculator) TWAPCalculator: calculators.TWAPCalculator,
     @inject(calculators.IdentityCalculator) IdentityCalculator: calculators.IdentityCalculator,
     @inject(calculators.VWAPCalculator) VWAPCalculator: calculators.VWAPCalculator,
-    @inject(calculators.YearnTransformPriceCalculator) YearnTransformPriceCalculator: calculators.YearnTransformPriceCalculator,
+    @inject(calculators.YearnTransformPriceCalculator)
+    YearnTransformPriceCalculator: calculators.YearnTransformPriceCalculator,
   ) {
     this.fetchers = {
       CryptoCompareHistoHourFetcher,
@@ -132,15 +134,18 @@ class FeedProcessor {
         const feed = feeds[ticker];
 
         const feedValues = feed.inputs
-          .map((input) => this.calculateFeed(ticker, values[inputIndexByHash[hash(input.fetcher)]], keyValueMap, input.calculator)).flat();
+          .map((input) =>
+            this.calculateFeed(ticker, values[inputIndexByHash[hash(input.fetcher)]], keyValueMap, input.calculator),
+          )
+          .flat();
 
         if (feedValues.length) {
           // calculateFeed is allowed to return different keys
-          const groups = this.groupInputs(feedValues);
+          const groups = FeedProcessor.groupInputs(feedValues);
           for (const key in groups) {
-              const value = this.calculateMean(groups[key], key, feed.precision);
+            const value = FeedProcessor.calculateMean(groups[key], feed.precision);
             keyValueMap[key] = value;
-            leaves.push(this.buildLeaf(key, keyValueMap[key] = value));
+            leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
           }
         } else {
           ignoredMap[ticker] = true;
@@ -159,7 +164,7 @@ class FeedProcessor {
     return result;
   }
 
-  async processFeed(feedFetcher: FeedFetcher, timestamp: number): Promise<any> {
+  async processFeed(feedFetcher: FeedFetcher, timestamp: number): Promise<unknown> {
     const fetcher = this.fetchers[`${feedFetcher.name}Fetcher`];
 
     if (!fetcher) {
@@ -168,14 +173,19 @@ class FeedProcessor {
     }
 
     try {
-      return await fetcher.apply(feedFetcher.params, timestamp) || undefined;
+      return (await fetcher.apply(feedFetcher.params, timestamp)) || undefined;
     } catch (err) {
       this.logger.warn(`Ignored feed fetcher ${JSON.stringify(feedFetcher)} due to an error.`, err);
       return;
     }
   }
 
-  calculateFeed(key: string, value: any, prices: {[key: string]: number}, feedCalculator?: FeedCalculator): FeedOutput[] {
+  calculateFeed(
+    key: string,
+    value: unknown,
+    prices: {[key: string]: number},
+    feedCalculator?: FeedCalculator,
+  ): FeedOutput[] {
     if (!value) {
       return [];
     }
@@ -185,11 +195,11 @@ class FeedProcessor {
     return calculator.apply(key, value, feedCalculator?.params, prices);
   }
 
-  async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<any[]> {
+  async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<unknown[]> {
     return Promise.all(feedFetchers.map((input) => this.processFeed(input, timestamp)));
   }
 
-  async processMultiFeeds(feedFetchers: FeedFetcher[]): Promise<(any)[]> {
+  async processMultiFeeds(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
     if (!feedFetchers.length) {
       return [];
     }
@@ -214,7 +224,7 @@ class FeedProcessor {
     };
   };
 
-  private calculateMean(values: number[], leafLabel: string, precision: number): number {
+  private static calculateMean(values: number[], precision: number): number {
     const multi = Math.pow(10, precision);
 
     return Math.round(price.mean(values) * multi) / multi;
@@ -293,7 +303,7 @@ class FeedProcessor {
     };
   }
 
-  private groupInputs(outputs: FeedOutput[]) {
+  private static groupInputs(outputs: FeedOutput[]) {
     const result: {[key: string]: number[]} = {};
 
     for (const {key, value} of outputs) {

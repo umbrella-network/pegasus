@@ -5,15 +5,15 @@ export default {
     pattern: '^[A-Za-z0-9/*][A-Za-z0-9-:_/*]*$',
   },
   patternProperties: {
-    '.*': { type: 'object', $ref: '#/definitions/feed' },
+    '.*': {type: 'object', $ref: '#/definitions/feed'},
   },
   minProperties: 1,
   definitions: {
     feed: {
       properties: {
-        discrepancy: { type: 'number' },
-        precision: { type: 'number' },
-        inputs: { type: 'array', minItems: 1, items: { $ref: '#/definitions/input' } },
+        discrepancy: {type: 'number'},
+        precision: {type: 'number'},
+        inputs: {type: 'array', minItems: 1, items: {$ref: '#/definitions/input'}},
       },
       required: ['discrepancy', 'precision', 'inputs'],
       additionalProperties: false,
@@ -22,33 +22,34 @@ export default {
       properties: {
         fetcher: {
           oneOf: [
-            { $ref: '#/definitions/GVolImpliedVolatilityFetcher' },
-            { $ref: '#/definitions/CryptoCompareHistoDayFetcher' },
-            { $ref: '#/definitions/CryptoCompareHistoHourFetcher' },
-            { $ref: '#/definitions/CryptoComparePriceFetcher' },
-            { $ref: '#/definitions/CryptoComparePriceWSFetcher' },
-            { $ref: '#/definitions/PolygonIOPriceFetcher' },
-            { $ref: '#/definitions/PolygonIOStockPriceFetcher' },
-            { $ref: '#/definitions/PolygonIOCryptoPriceFetcher' },
-            { $ref: '#/definitions/IEXEnergyFetcher' },
-            { $ref: '#/definitions/BEACPIAverageFetcher' },
-            { $ref: '#/definitions/CoingeckoPriceFetcher' },
-            { $ref: '#/definitions/CoinmarketcapPriceFetcher' },
-            { $ref: '#/definitions/CoinmarketcapHistoHourFetcher' },
-            { $ref: '#/definitions/CoinmarketcapHistoDayFetcher' },
-            { $ref: '#/definitions/OnChainDataFetcher' },
-            { $ref: '#/definitions/KaikoPriceStreamFetcher' },
-            { $ref: '#/definitions/KaikoSpotPriceFetcher' },
-            { $ref: '#/definitions/OptionsPriceFetcher' },
-            { $ref: '#/definitions/YearnVaultTokenPriceFetcher' },
+            {$ref: '#/definitions/GVolImpliedVolatilityFetcher'},
+            {$ref: '#/definitions/CryptoCompareHistoDayFetcher'},
+            {$ref: '#/definitions/CryptoCompareHistoHourFetcher'},
+            {$ref: '#/definitions/CryptoComparePriceFetcher'},
+            {$ref: '#/definitions/CryptoComparePriceWSFetcher'},
+            {$ref: '#/definitions/PolygonIOPriceFetcher'},
+            {$ref: '#/definitions/PolygonIOStockPriceFetcher'},
+            {$ref: '#/definitions/PolygonIOCryptoPriceFetcher'},
+            {$ref: '#/definitions/IEXEnergyFetcher'},
+            {$ref: '#/definitions/BEACPIAverageFetcher'},
+            {$ref: '#/definitions/CoingeckoPriceFetcher'},
+            {$ref: '#/definitions/CoinmarketcapPriceFetcher'},
+            {$ref: '#/definitions/CoinmarketcapHistoHourFetcher'},
+            {$ref: '#/definitions/CoinmarketcapHistoDayFetcher'},
+            {$ref: '#/definitions/OnChainDataFetcher'},
+            {$ref: '#/definitions/KaikoPriceStreamFetcher'},
+            {$ref: '#/definitions/KaikoSpotPriceFetcher'},
+            {$ref: '#/definitions/OptionsPriceFetcher'},
+            {$ref: '#/definitions/YearnVaultTokenPriceFetcher'},
           ],
         },
         calculator: {
           oneOf: [
-            { $ref: '#/definitions/TWAPCalculator' },
-            { $ref: '#/definitions/VWAPCalculator' },
-            { $ref: '#/definitions/IdentityCalculator' },
-            { $ref: '#/definitions/YearnTransformPriceCalculator' },
+            {$ref: '#/definitions/TWAPCalculator'},
+            {$ref: '#/definitions/VWAPCalculator'},
+            {$ref: '#/definitions/IdentityCalculator'},
+            {$ref: '#/definitions/OptionsPriceCalculator'},
+            {$ref: '#/definitions/YearnTransformPriceCalculator'},
           ],
         },
       },
@@ -57,12 +58,12 @@ export default {
     },
     GVolImpliedVolatilityFetcher: {
       properties: {
-        name: { const: 'GVolImpliedVolatility' },
+        name: {const: 'GVolImpliedVolatility'},
         params: {
           type: 'object',
           properties: {
-            query: { type: 'string' },
-            sym: { type: 'string' },
+            query: {type: 'string'},
+            sym: {type: 'string'},
           },
           required: ['query', 'sym'],
           additionalProperties: false,
@@ -73,12 +74,12 @@ export default {
     },
     CryptoComparePriceFetcher: {
       properties: {
-        name: { const: 'CryptoComparePrice' },
+        name: {const: 'CryptoComparePrice'},
         params: {
           type: 'object',
           properties: {
-            fsym: { type: 'string' },
-            tsyms: { type: 'string' },
+            fsym: {type: 'string'},
+            tsyms: {type: 'string'},
           },
           required: ['fsym', 'tsyms'],
           additionalProperties: false,
@@ -89,13 +90,13 @@ export default {
     },
     CryptoComparePriceWSFetcher: {
       properties: {
-        name: { const: 'CryptoComparePriceWS' },
+        name: {const: 'CryptoComparePriceWS'},
         params: {
           type: 'object',
           properties: {
-            fsym: { type: 'string' },
-            tsym: { type: 'string' },
-            freshness: { type: 'number' },
+            fsym: {type: 'string'},
+            tsym: {type: 'string'},
+            freshness: {type: 'number'},
           },
           required: ['fsym', 'tsym'],
           additionalProperties: false,
@@ -106,13 +107,13 @@ export default {
     },
     CryptoCompareHistoHourFetcher: {
       properties: {
-        name: { const: 'CryptoCompareHistoHour' },
+        name: {const: 'CryptoCompareHistoHour'},
         params: {
           type: 'object',
           properties: {
-            fsym: { type: 'string' },
-            tsym: { type: 'string' },
-            limit: { type: 'number' },
+            fsym: {type: 'string'},
+            tsym: {type: 'string'},
+            limit: {type: 'number'},
           },
           required: ['fsym', 'tsym', 'limit'],
           additionalProperties: false,
@@ -123,13 +124,13 @@ export default {
     },
     CryptoCompareHistoDayFetcher: {
       properties: {
-        name: { const: 'CryptoCompareHistoDay' },
+        name: {const: 'CryptoCompareHistoDay'},
         params: {
           type: 'object',
           properties: {
-            fsym: { type: 'string' },
-            tsym: { type: 'string' },
-            limit: { type: 'number' },
+            fsym: {type: 'string'},
+            tsym: {type: 'string'},
+            limit: {type: 'number'},
           },
           required: ['fsym', 'tsym', 'limit'],
           additionalProperties: false,
@@ -140,12 +141,12 @@ export default {
     },
     CoinmarketcapPriceFetcher: {
       properties: {
-        name: { const: 'CoinmarketcapPrice' },
+        name: {const: 'CoinmarketcapPrice'},
         params: {
           type: 'object',
           properties: {
-            symbol: { type: 'string' },
-            convert: { type: 'string' },
+            symbol: {type: 'string'},
+            convert: {type: 'string'},
           },
           required: ['symbol', 'convert'],
           additionalProperties: false,
@@ -156,13 +157,13 @@ export default {
     },
     CoinmarketcapHistoHourFetcher: {
       properties: {
-        name: { const: 'CoinmarketcapHistoHour' },
+        name: {const: 'CoinmarketcapHistoHour'},
         params: {
           type: 'object',
           properties: {
-            symbol: { type: 'string' },
-            convert: { type: 'string' },
-            count: { type: 'number' },
+            symbol: {type: 'string'},
+            convert: {type: 'string'},
+            count: {type: 'number'},
           },
           required: ['symbol', 'convert', 'count'],
           additionalProperties: false,
@@ -173,13 +174,13 @@ export default {
     },
     CoinmarketcapHistoDayFetcher: {
       properties: {
-        name: { const: 'CoinmarketcapHistoDay' },
+        name: {const: 'CoinmarketcapHistoDay'},
         params: {
           type: 'object',
           properties: {
-            symbol: { type: 'string' },
-            convert: { type: 'string' },
-            count: { type: 'number' },
+            symbol: {type: 'string'},
+            convert: {type: 'string'},
+            count: {type: 'number'},
           },
           required: ['symbol', 'convert', 'count'],
           additionalProperties: false,
@@ -190,12 +191,12 @@ export default {
     },
     CoingeckoPriceFetcher: {
       properties: {
-        name: { const: 'CoingeckoPrice' },
+        name: {const: 'CoingeckoPrice'},
         params: {
           type: 'object',
           properties: {
-            id: { type: 'string' },
-            currency: { type: 'string' },
+            id: {type: 'string'},
+            currency: {type: 'string'},
           },
           required: ['id', 'currency'],
           additionalProperties: false,
@@ -206,11 +207,11 @@ export default {
     },
     PolygonIOPriceFetcher: {
       properties: {
-        name: { const: 'PolygonIOPrice' },
+        name: {const: 'PolygonIOPrice'},
         params: {
           type: 'object',
           properties: {
-            sym: { type: 'string' },
+            sym: {type: 'string'},
           },
           required: ['sym'],
           additionalProperties: false,
@@ -221,11 +222,11 @@ export default {
     },
     PolygonIOStockPriceFetcher: {
       properties: {
-        name: { const: 'PolygonIOStockPrice' },
+        name: {const: 'PolygonIOStockPrice'},
         params: {
           type: 'object',
           properties: {
-            sym: { type: 'string' },
+            sym: {type: 'string'},
           },
           required: ['sym'],
           additionalProperties: false,
@@ -236,12 +237,12 @@ export default {
     },
     PolygonIOCryptoPriceFetcher: {
       properties: {
-        name: { const: 'PolygonIOCryptoPrice' },
+        name: {const: 'PolygonIOCryptoPrice'},
         params: {
           type: 'object',
           properties: {
-            fsym: { type: 'string' },
-            tsym: { type: 'string' },
+            fsym: {type: 'string'},
+            tsym: {type: 'string'},
           },
           required: ['fsym', 'tsym'],
           additionalProperties: false,
@@ -252,11 +253,11 @@ export default {
     },
     IEXEnergyFetcher: {
       properties: {
-        name: { const: 'IEXEnergy' },
+        name: {const: 'IEXEnergy'},
         params: {
           type: 'object',
           properties: {
-            sym: { type: 'string' },
+            sym: {type: 'string'},
           },
           required: ['sym'],
           additionalProperties: false,
@@ -267,11 +268,11 @@ export default {
     },
     BEACPIAverageFetcher: {
       properties: {
-        name: { const: 'BEACPIAverage' },
+        name: {const: 'BEACPIAverage'},
         params: {
           type: 'object',
           properties: {
-            months: { type: 'number' },
+            months: {type: 'number'},
           },
           required: ['months'],
           additionalProperties: false,
@@ -282,15 +283,15 @@ export default {
     },
     OnChainDataFetcher: {
       properties: {
-        name: { const: 'OnChainData' },
+        name: {const: 'OnChainData'},
         params: {
           type: 'object',
           properties: {
-            address: { type: 'string' },
-            method: { type: 'string' },
-            inputs: { type: 'array' },
-            outputs: { type: 'array' },
-            args: { type: 'array' },
+            address: {type: 'string'},
+            method: {type: 'string'},
+            inputs: {type: 'array'},
+            outputs: {type: 'array'},
+            args: {type: 'array'},
           },
           required: ['address', 'method', 'inputs', 'outputs', 'args'],
           additionalProperties: false,
@@ -301,13 +302,13 @@ export default {
     },
     KaikoPriceStreamFetcher: {
       properties: {
-        name: { const: 'KaikoPriceStream' },
+        name: {const: 'KaikoPriceStream'},
         params: {
           type: 'object',
           properties: {
-            fsym: { type: 'string' },
-            tsym: { type: 'string' },
-            freshness: { type: 'number' },
+            fsym: {type: 'string'},
+            tsym: {type: 'string'},
+            freshness: {type: 'number'},
           },
           required: ['fsym', 'tsym'],
           additionalProperties: false,
@@ -318,12 +319,12 @@ export default {
     },
     KaikoSpotPriceFetcher: {
       properties: {
-        name: { const: 'KaikoSpotPrice' },
+        name: {const: 'KaikoSpotPrice'},
         params: {
           type: 'object',
           properties: {
-            fsym: { type: 'string' },
-            tsym: { type: 'string' },
+            fsym: {type: 'string'},
+            tsym: {type: 'string'},
           },
           required: ['fsym', 'tsym'],
           additionalProperties: false,
@@ -334,17 +335,17 @@ export default {
     },
     OptionsPriceFetcher: {
       properties: {
-        name: { const: 'OptionsPrice' },
+        name: {const: 'OptionsPrice'},
       },
     },
     YearnVaultTokenPriceFetcher: {
       properties: {
-        name: { const: 'YearnVaultTokenPrice' },
+        name: {const: 'YearnVaultTokenPrice'},
         params: {
           type: 'object',
           properties: {
-            network: { type: 'string' },
-            address: { type: 'string' },
+            network: {type: 'string'},
+            address: {type: 'string'},
           },
           required: ['address'],
           additionalProperties: false,
@@ -355,11 +356,11 @@ export default {
     },
     YearnTransformPriceCalculator: {
       properties: {
-        name: { const: 'YearnTransformPrice' },
+        name: {const: 'YearnTransformPrice'},
         params: {
           type: 'object',
           properties: {
-            tsym: { type: 'string' },
+            tsym: {type: 'string'},
           },
           required: ['tsym'],
           additionalProperties: false,
@@ -368,21 +369,36 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
+    OptionsPriceCalculator: {
+      properties: {
+        name: {const: 'OptionsPrice'},
+        params: {
+          type: 'object',
+          properties: {
+            sym: {type: 'string'},
+          },
+          required: ['sym'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
     IdentityCalculator: {
       properties: {
-        name: { const: 'Identity' },
+        name: {const: 'Identity'},
       },
       additionalProperties: false,
     },
     TWAPCalculator: {
       properties: {
-        name: { const: 'TWAP' },
+        name: {const: 'TWAP'},
       },
       additionalProperties: false,
     },
     VWAPCalculator: {
       properties: {
-        name: { const: 'VWAP' },
+        name: {const: 'VWAP'},
       },
       additionalProperties: false,
     },

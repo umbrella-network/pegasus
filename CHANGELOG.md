@@ -6,10 +6,24 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Add Consensus Optimization to reduce the number of discrepant dropped keys;
+
+## [5.4.0] - 2021-10-13
+### Added
+- Add a `retryStrategy` to the Redis connection, to attempt a re-connection up to a 10-second interval;
+- Add a `maxRetryTime` for Redis re-connection interval. Default 10 seconds (10000 ms);
+- Add options price API key in the /info endpoint;
+
+## [5.3.2] - 2021-09-29
+### Changed
+- Refactored FeedProcessor leaf building to Service Object
+- Add "OP:" to options leaves names
 
 ## [5.3.1] - 2021-09-29
 ### Added
 -  Support new multichain feature on Makefile and github actions
+
 ### Fixed
 - fixed a case where the OptionsPrice Fetcher interrupts minting process when fails a request
 
