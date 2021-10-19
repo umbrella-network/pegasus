@@ -1,22 +1,17 @@
 import Bull, {Queue, Worker} from 'bullmq';
 import {inject, injectable} from 'inversify';
 import IORedis from 'ioredis';
-import Settings from '../types/Settings';
 
 @injectable()
 abstract class BasicWorker {
-  connection: IORedis.Redis;
+  @inject('Redis')
+  connection!: IORedis.Redis;
+
   #queueName!: string;
   #queue!: Bull.Queue;
   #worker!: Bull.Worker;
 
   abstract apply(job: Bull.Job): Promise<void>;
-
-  constructor(@inject('Settings') settings: Settings) {
-    this.connection = new IORedis(settings.redis.url, {
-      retryStrategy: (times) => Math.min(times * 50, settings.redis.maxRetryTime),
-    });
-  }
 
   get queueName(): string {
     return (this.#queueName ||= this.constructor.name);
@@ -31,7 +26,14 @@ abstract class BasicWorker {
   }
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
-    return this.queue.add(this.constructor.name, params, opts);
+    const jobOptions = {
+      removeOnComplete: 100,
+      removeOnFail: 100,
+      stackTraceLimit: 100,
+      ...opts,
+    };
+
+    return this.queue.add(this.queueName, params, jobOptions);
   };
 
   start(): void {
