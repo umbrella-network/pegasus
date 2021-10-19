@@ -1,5 +1,4 @@
 import {inject, injectable} from 'inversify';
-import KaikoPriceStreamClient from '../stream/KaikoPriceStreamClient';
 
 import PriceAggregator from '../services/PriceAggregator';
 import {Pair, PairWithFreshness} from '../types/Feed';
@@ -12,21 +11,21 @@ class PriceRepository {
     this.priceAggregator = priceAggregator;
   }
 
-  savePrice(prefix: string, pair: string, price: number, timestamp: number): Promise<void> {
+  async savePrice(prefix: string, pair: string, price: number, timestamp: number): Promise<void> {
     const formattedPair = pair.toUpperCase().replace('-', '~');
 
     return this.priceAggregator.add(`${prefix}${formattedPair}`, price, timestamp);
   }
 
-  getLatestPrice(
+  async getLatestPrice(
     prefix: string,
-    {fsym, tsym, freshness = KaikoPriceStreamClient.DefaultFreshness}: PairWithFreshness,
+    {fsym, tsym, freshness}: PairWithFreshness,
     timestamp: number,
   ): Promise<number | null> {
     return this.priceAggregator.valueAfter(`${prefix}${fsym}~${tsym}`, timestamp, timestamp - freshness);
   }
 
-  getLatestPrices(
+  async getLatestPrices(
     prefix: string,
     pairs: Pair[],
     maxTimestamp: number,
@@ -44,7 +43,7 @@ class PriceRepository {
     );
   }
 
-  getAllPrices(prefix: string, pair: Pair): Promise<{value: number; timestamp: number}[]> {
+  async getAllPrices(prefix: string, pair: Pair): Promise<{value: number; timestamp: number}[]> {
     return this.priceAggregator.valueTimestamps(`${prefix}${pair.fsym}~${pair.tsym}`);
   }
 }
