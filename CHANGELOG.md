@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- Price Aggregator auto-pruning on insert to prevent current regular OOM issues.
+
+### Added
+- Add Consensus Optimization to reduce the number of discrepant dropped keys;
 
 ## Changed
 - Add Consensus Optimization to reduce the number of discrepant dropped keys;

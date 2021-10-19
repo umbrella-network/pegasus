@@ -1,10 +1,8 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import 'reflect-metadata';
+import './config/setupDotenv';
 
 process.env['NEW_RELIC_ENABLED'] = process.env['NEW_RELIC_ENABLED'] || 'false';
 import 'newrelic';
-
-import 'reflect-metadata';
 
 import {initMongoDB} from './config/initMongoDB';
 import Migrations from "./services/Migrations";
