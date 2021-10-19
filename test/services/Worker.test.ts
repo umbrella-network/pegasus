@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import {Container} from 'inversify';
 import {expect} from 'chai';
-import IORedis from 'ioredis';
+import IORedis, {Redis} from 'ioredis';
 
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import Settings from '../../src/types/Settings';
@@ -22,11 +22,10 @@ describe('Worker', () => {
       },
     } as Settings;
 
-    connection = new IORedis(settings.redis.url);
-
     const container = new Container();
 
     container.bind('Settings').toConstantValue(settings);
+    container.bind<Redis>('Redis').toConstantValue(new IORedis(settings.redis.url));
     container.bind(MockedWorker).to(MockedWorker);
 
     mockedWorker = container.get(MockedWorker);
