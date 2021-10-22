@@ -5,7 +5,7 @@ import SortedMerkleTreeFactory from '../services/SortedMerkleTreeFactory';
 import {ProposedConsensus} from '../types/Consensus';
 import Leaf from '../types/Leaf';
 import {KeyValues, SignedBlock} from '../types/SignedBlock';
-import {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
+import {FeedValue} from '../types/Feed';
 
 export class ProposedConsensusService {
   static apply(block: SignedBlock): ProposedConsensus {
