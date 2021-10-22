@@ -10,7 +10,7 @@ import IORedis, {Redis} from 'ioredis';
 describe('PriceAggregator', () => {
   let priceAggregator: PriceAggregator;
   let settings: Settings;
-  let connection: IORedis.Redis;
+  let connection: Redis;
 
   const symbol = 'AAPL';
 
