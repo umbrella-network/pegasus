@@ -41,7 +41,6 @@ class KaikoPriceStreamClient {
   updatedPricesCount: number;
 
   static readonly Prefix = 'kaiko::';
-  static readonly DefaultFreshness = 3600;
 
   constructor(
     @inject('Settings') settings: Settings,

@@ -92,6 +92,7 @@ const settings: Settings = {
       apiKey: process.env.KAIKO_API_KEY as string,
       rpcUrl: process.env.KAIKO_RPC_URL || 'gateway-v0-grpc.kaiko.ovh:443',
       timeout: parseInt(process.env.KAIKO_TIMEOUT || '5000', 10),
+      priceFreshness: parseInt(process.env.KAIKO_FRESHNESS || '3600', 10),
     },
     optionsPrice: {
       apiKey: process.env.OPTIONS_PRICE_API_KEY as string,

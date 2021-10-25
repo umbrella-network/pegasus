@@ -1,10 +1,12 @@
 import {inject, injectable} from 'inversify';
+import Settings from '../types/Settings';
 
 import PriceAggregator from '../services/PriceAggregator';
 import {Pair, PairWithFreshness} from '../types/Feed';
 
 @injectable()
 class PriceRepository {
+  @inject('Settings') settings!: Settings;
   priceAggregator: PriceAggregator;
 
   constructor(@inject(PriceAggregator) priceAggregator: PriceAggregator) {
@@ -19,7 +21,7 @@ class PriceRepository {
 
   async getLatestPrice(
     prefix: string,
-    {fsym, tsym, freshness}: PairWithFreshness,
+    {fsym, tsym, freshness = this.settings.api.kaiko.priceFreshness}: PairWithFreshness,
     timestamp: number,
   ): Promise<number | null> {
     return this.priceAggregator.valueAfter(`${prefix}${fsym}~${tsym}`, timestamp, timestamp - freshness);
