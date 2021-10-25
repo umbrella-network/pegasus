@@ -87,6 +87,7 @@ type Settings = {
       apiKey: string;
       rpcUrl: string;
       timeout: number;
+      priceFreshness: number;
     };
     optionsPrice: {
       apiKey: string;
