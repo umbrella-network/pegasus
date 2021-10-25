@@ -15,7 +15,7 @@ class CoinmarketcapHistoDayFetcher {
     this.apiKey = settings.api.coinmarketcap.apiKey;
     this.timeout = settings.api.coinmarketcap.timeout;
   }
-  
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async apply(params: any): Promise<[any, number][] | undefined> {
     const sourceUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/ohlcv/historical?symbol=${params.symbol}&convert=${params.convert}&time_period=daily&interval=daily&count=${params.count}&CMC_PRO_API_KEY=${this.apiKey}`;

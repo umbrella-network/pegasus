@@ -1,14 +1,16 @@
 import 'reflect-metadata';
-import {Container} from 'inversify';
 import {expect} from 'chai';
 
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import PriceAggregator from '../../src/services/PriceAggregator';
 import Settings from '../../src/types/Settings';
+import {getTestContainer} from '../helpers/getTestContainer';
+import IORedis, {Redis} from 'ioredis';
 
 describe('PriceAggregator', () => {
   let priceAggregator: PriceAggregator;
   let settings: Settings;
+  let connection: Redis;
 
   const symbol = 'AAPL';
 
@@ -21,10 +23,11 @@ describe('PriceAggregator', () => {
       },
     } as Settings;
 
-    const container = new Container();
-
-    container.bind('Settings').toConstantValue(settings);
+    const container = getTestContainer();
+    connection = new IORedis(settings.redis.url);
+    container.rebind('Settings').toConstantValue(settings);
     container.bind(PriceAggregator).to(PriceAggregator);
+    container.bind<Redis>('Redis').toConstantValue(connection);
 
     priceAggregator = container.get(PriceAggregator);
   });

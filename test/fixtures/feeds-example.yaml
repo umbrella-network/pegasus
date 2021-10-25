@@ -1,0 +1,53 @@
+BTC-USDT:
+  discrepancy: 1.0
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: BTC
+          tsym: USDT
+
+BTC-USD:
+  discrepancy: 1.0
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: BTC
+          tsym: USD
+
+ETH-USDT:
+  discrepancy: 1.0
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: ETH
+          tsym: USDT
+
+ETH-USD:
+  discrepancy: 1.0
+  precision: 2
+  inputs:
+    - fetcher:
+        name: CryptoComparePriceWS
+        params:
+          fsym: ETH
+          tsym: USD
+
+YEARN-FI:*-ETH:
+  discrepancy: 1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: YearnVaultTokenPrice
+        params:
+          address: '0x5081a39b8a5f0e35a8d959395a630b68b74dd30f'
+          network: localhost
+      calculator:
+        name: YearnTransformPrice
+        params:
+          tsym: ETH

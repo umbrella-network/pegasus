@@ -1,3 +1,18 @@
+export interface Feed {
+  discrepancy: number;
+  precision: number;
+  inputs: FeedInput[];
+}
+
+export default interface Feeds {
+  [leafLabel: string]: Feed;
+  // eslint-disable-next-line
+}
+
+export type HexStringWith0x = string;
+
+export type FeedValue = number | HexStringWith0x;
+
 export interface FeedFetcher {
   name: string;
   params?: unknown;
@@ -11,6 +26,11 @@ export interface FeedCalculator {
 export interface FeedInput {
   fetcher: FeedFetcher;
   calculator?: FeedCalculator;
+}
+
+export interface FeedOutput {
+  key: string;
+  value: number;
 }
 
 export interface Pair {
