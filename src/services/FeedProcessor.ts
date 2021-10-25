@@ -60,6 +60,7 @@ class FeedProcessor {
     @inject(calculators.VWAPCalculator) VWAPCalculator: calculators.VWAPCalculator,
     @inject(calculators.YearnTransformPriceCalculator)
     YearnTransformPriceCalculator: calculators.YearnTransformPriceCalculator,
+    @inject(calculators.OptionsPriceCalculator) OptionsPriceCalculator: calculators.OptionsPriceCalculator,
   ) {
     this.fetchers = {
       CryptoCompareHistoHourFetcher,
@@ -78,6 +79,7 @@ class FeedProcessor {
       OnChainDataFetcher,
       KaikoPriceStreamFetcher,
       YearnVaultTokenPriceFetcher,
+      OptionsPriceFetcher,
     };
 
     this.calculators = {
@@ -85,6 +87,7 @@ class FeedProcessor {
       IdentityCalculator,
       VWAPCalculator,
       YearnTransformPriceCalculator,
+      OptionsPriceCalculator,
     };
 
     this.CryptoComparePriceMultiFetcher = CryptoComparePriceMultiFetcher;
