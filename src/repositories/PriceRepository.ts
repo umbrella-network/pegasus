@@ -19,7 +19,7 @@ class PriceRepository {
 
   async getLatestPrice(
     prefix: string,
-    {fsym, tsym, freshness}: PairWithFreshness,
+    {fsym, tsym, freshness = 3600}: PairWithFreshness,
     timestamp: number,
   ): Promise<number | null> {
     return this.priceAggregator.valueAfter(`${prefix}${fsym}~${tsym}`, timestamp, timestamp - freshness);
