@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Change default feeds URLs to BSC feeds files
+- Refactored Options to use Calculator
 
 ## [5.4.0] - 2021-10-13
 ### Added
