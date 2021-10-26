@@ -392,37 +392,161 @@ describe('FeedProcessor', () => {
     expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(38123);
   });
 
-  it('should not return Options Price Fetchers when OPTIONS feed is not present', async () => {
-    const feeds: Feeds = {
-      'BTC-USD': {
-        discrepancy: 1,
-        precision: 2,
-        inputs: [
-          {
-            fetcher: {
-              name: 'KaikoPriceStream',
-              params: {
-                fsym: 'BTC',
-                tsym: 'USD',
-              } as any,
+  describe('Options feeds', () => {
+    beforeEach(() => {
+      mockedFetchers.OptionsPriceFetcher.apply.resolves({
+        'ETH-28OCT21-4250': {
+          callPrice: 0.016044137806534572,
+          iv: 69.63163673462594,
+          putPrice: 0.027246912546743607,
+        },
+        'BTC-05NOV21-66000': {
+          callPrice: 0.029274057826769995,
+          iv: 75.67446534167162,
+          putPrice: 0.08303273994157734,
+        },
+      });
+    });
+
+    it('should not return Options Price Fetchers when OPTIONS feed is not present', async () => {
+      const feeds: Feeds = {
+        'BTC-USD': {
+          discrepancy: 1,
+          precision: 2,
+          inputs: [
+            {
+              fetcher: {
+                name: 'KaikoPriceStream',
+                params: {
+                  fsym: 'BTC',
+                  tsym: 'USD',
+                } as any,
+              },
             },
-          },
-        ],
-      },
-    };
+          ],
+        },
+      };
 
-    mockedFetchers.KaikoPriceStreamFetcher.apply.resolves(38123);
+      mockedFetchers.KaikoPriceStreamFetcher.apply.resolves(38123);
 
-    const [firstClassLeaves, layerTwoLeaves] = await feedProcessor.apply(10, feeds, feeds);
+      const [firstClassLeaves, layerTwoLeaves] = await feedProcessor.apply(10, feeds, feeds);
 
-    const expected = [
-      {
-        label: 'BTC-USD',
-        valueBytes: '0x000000000000000000000000000000000000000000000812a6e793b078cc0000',
-      },
-    ];
+      const expected = [
+        {
+          label: 'BTC-USD',
+          valueBytes: '0x000000000000000000000000000000000000000000000812a6e793b078cc0000',
+        },
+      ];
 
-    expect(firstClassLeaves).to.eql(expected);
-    expect(layerTwoLeaves).to.eql(expected);
+      expect(firstClassLeaves).to.eql(expected);
+      expect(layerTwoLeaves).to.eql(expected);
+    });
+
+    it('should return options with proper prefix', async () => {
+      const feeds: Feeds = {
+        'OP:ETH-*': {
+          discrepancy: 1,
+          precision: 15,
+          inputs: [
+            {
+              fetcher: {
+                name: 'OptionsPrice',
+              },
+              calculator: {
+                name: 'OptionsPrice',
+                params: {
+                  sym: 'ETH',
+                },
+              },
+            },
+          ],
+        },
+      };
+
+      const [result] = await feedProcessor.apply(10, feeds);
+
+      expect(result).to.eql([
+        {
+          label: 'OP:ETH-28OCT21-4250_call_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000000039000eeeaf9958',
+        },
+        {
+          label: 'OP:ETH-28OCT21-4250_iv_price',
+          valueBytes: '0x000000000000000000000000000000000000000000000003c65544af986b8220',
+        },
+        {
+          label: 'OP:ETH-28OCT21-4250_put_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000000060ccec2f9326c0',
+        },
+      ]);
+    });
+
+    it('should return both ETH and BTC with proper feeds config', async () => {
+      const feeds: Feeds = {
+        'OP:BTC-*': {
+          discrepancy: 1,
+          precision: 15,
+          inputs: [
+            {
+              fetcher: {
+                name: 'OptionsPrice',
+              },
+              calculator: {
+                name: 'OptionsPrice',
+                params: {
+                  sym: 'BTC',
+                },
+              },
+            },
+          ],
+        },
+        'OP:ETH-*': {
+          discrepancy: 1,
+          precision: 15,
+          inputs: [
+            {
+              fetcher: {
+                name: 'OptionsPrice',
+              },
+              calculator: {
+                name: 'OptionsPrice',
+                params: {
+                  sym: 'ETH',
+                },
+              },
+            },
+          ],
+        },
+      };
+
+      const [result] = await feedProcessor.apply(10, feeds);
+
+      expect(result).to.eql([
+        {
+          label: 'OP:BTC-05NOV21-66000_call_price',
+          valueBytes: '0x00000000000000000000000000000000000000000000000000680099b9e61c50',
+        },
+        {
+          label: 'OP:BTC-05NOV21-66000_iv_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000041a31b549a9f23da0',
+        },
+        {
+          label: 'OP:BTC-05NOV21-66000_put_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000000126fdd648f1f128',
+        },
+        {
+          label: 'OP:ETH-28OCT21-4250_call_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000000039000eeeaf9958',
+        },
+        {
+          label: 'OP:ETH-28OCT21-4250_iv_price',
+          valueBytes: '0x000000000000000000000000000000000000000000000003c65544af986b8220',
+        },
+        {
+          label: 'OP:ETH-28OCT21-4250_put_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000000060ccec2f9326c0',
+        },
+      ]);
+    });
   });
 });

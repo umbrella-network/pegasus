@@ -21,9 +21,9 @@ class OptionsPriceCalculator {
 
       const outputKey = key.replace('*', key.substr(prefix.length));
 
-      result.push({key: `${outputKey}_call_price`, value: callPrice});
-      result.push({key: `${outputKey}_iv_price`, value: iv});
-      result.push({key: `${outputKey}_put_price`, value: putPrice});
+      result.push({key: `OP:${outputKey}_call_price`, value: callPrice});
+      result.push({key: `OP:${outputKey}_iv_price`, value: iv});
+      result.push({key: `OP:${outputKey}_put_price`, value: putPrice});
     }
 
     return Object.values(result);
