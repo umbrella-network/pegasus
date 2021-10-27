@@ -5,13 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [5.5.0] - 2021-10-25
 ### Fixed
 - Price Aggregator auto-pruning on insert to prevent current regular OOM issues.
 
 ### Added
 - Added Yearn vaults support
 - Add Consensus Optimization to reduce the number of discrepant dropped keys;
+
+### Changed
+- Change default feeds URLs to BSC feeds files
+- Refactored Options to use Calculator
 
 ## [5.4.0] - 2021-10-13
 ### Added
