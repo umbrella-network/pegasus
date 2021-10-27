@@ -1,16 +1,11 @@
 import {inject, injectable} from 'inversify';
-import IORedis from 'ioredis';
+import {Redis} from 'ioredis';
 import {price as Price} from '@umb-network/validator';
-
-import Settings from '../types/Settings';
 
 @injectable()
 class PriceAggregator {
-  connection: IORedis.Redis;
-
-  constructor(@inject('Settings') settings: Settings) {
-    this.connection = new IORedis(settings.redis.url);
-  }
+  @inject('Redis')
+  connection!: Redis;
 
   /**
    * Adds a value with a timestamp to a sorted map
@@ -18,6 +13,7 @@ class PriceAggregator {
   async add(symbol: string, value: number, timestamp: number): Promise<void> {
     try {
       await this.connection.zadd(symbol, timestamp, this.formatValue(value, timestamp));
+      await this.connection.zremrangebyrank(symbol, 0, -101); // prune symbol and keep top 100
     } catch (err) {
       console.error(err, JSON.stringify({symbol, value, timestamp}));
 

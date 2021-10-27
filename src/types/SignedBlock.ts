@@ -1,4 +1,4 @@
-import {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
+import {FeedValue} from './Feed';
 
 export interface KeyValues {
   [key: string]: FeedValue;

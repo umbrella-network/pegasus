@@ -32,6 +32,7 @@ const settings: Settings = {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
   },
   blockchain: {
+    providers: resolveBlockchainProviders(),
     provider: {
       url: process.env.BLOCKCHAIN_PROVIDER_URL || 'http://127.0.0.1:8545',
       privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
@@ -91,6 +92,7 @@ const settings: Settings = {
       apiKey: process.env.KAIKO_API_KEY as string,
       rpcUrl: process.env.KAIKO_RPC_URL || 'gateway-v0-grpc.kaiko.ovh:443',
       timeout: parseInt(process.env.KAIKO_TIMEOUT || '5000', 10),
+      priceFreshness: parseInt(process.env.KAIKO_FRESHNESS || '3600', 10),
     },
     optionsPrice: {
       apiKey: process.env.OPTIONS_PRICE_API_KEY as string,
@@ -99,10 +101,10 @@ const settings: Settings = {
   },
   feedsFile:
     process.env.FEEDS_FILE ||
-    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/eth/feeds.yaml',
+    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feeds.yaml',
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
-    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/eth/feedsOnChain.yaml',
+    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
   statusCheckTimeout: parseInt(process.env.STATUS_CHECK_TIMEOUT || '2000', 10),
   signatureTimeout: parseInt(process.env.SIGNATURE_TIMEOUT || '10000', 10),
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
@@ -110,5 +112,30 @@ const settings: Settings = {
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
   name: process.env.NAME || 'default',
 };
+
+function resolveBlockchainProviders() {
+  return resolveArray((i) => process.env[`BLOCKCHAIN_PROVIDER_${i}_URL`] as string).reduce((map, item, i) => {
+    const name = process.env[`BLOCKCHAIN_PROVIDER_${i}_NAME`] as string;
+    if (name) {
+      map[name] = item;
+    }
+    return map;
+  }, {} as {[name: string]: string});
+}
+
+function resolveArray(iterator: (i: number) => string): string[] {
+  const result = [];
+  for (let i = 0; i < 10000; ++i) {
+    const item = iterator(i);
+
+    if (!item) {
+      break;
+    }
+
+    result.push(item);
+  }
+
+  return result;
+}
 
 export default settings;

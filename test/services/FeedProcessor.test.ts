@@ -5,15 +5,14 @@ import sinon from 'sinon';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {LeafValueCoder} from '@umb-network/toolbox';
-import Feeds from '@umb-network/toolbox/dist/types/Feed';
 
+import Feeds from '../../src/types/Feed';
 import {mockedLogger} from '../mocks/logger';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import Settings from '../../src/types/Settings';
 import {expect} from 'chai';
 import * as fetchers from '../../src/services/fetchers';
-import LeafBuilder from '../../src/services/LeafBuilder';
-import OptionsPriceLeavesBuilder from '../../src/services/OptionsPriceLeavesBuilder';
+import * as calculators from '../../src/services/calculators';
 
 chai.use(chaiAsPromised);
 
@@ -40,11 +39,7 @@ describe('FeedProcessor', () => {
     OnChainDataFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OnChainDataFetcher>,
     KaikoPriceStreamFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.KaikoPriceStreamFetcher>,
     OptionsPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OptionsPriceFetcher>,
-  };
-
-  const leafBuilders = {
-    LeafBuilder,
-    OptionsPriceLeavesBuilder,
+    YearnVaultTokenPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.YearnVaultTokenPriceFetcher>,
   };
 
   let feedProcessor: FeedProcessor;
@@ -65,6 +60,7 @@ describe('FeedProcessor', () => {
     mockedFetchers.BEACPIAverageFetcher = sinon.createStubInstance(fetchers.BEACPIAverageFetcher);
     mockedFetchers.OnChainDataFetcher = sinon.createStubInstance(fetchers.OnChainDataFetcher);
     mockedFetchers.KaikoPriceStreamFetcher = sinon.createStubInstance(fetchers.KaikoPriceStreamFetcher);
+    mockedFetchers.YearnVaultTokenPriceFetcher = sinon.createStubInstance(fetchers.YearnVaultTokenPriceFetcher);
     mockedFetchers.OptionsPriceFetcher = sinon.createStubInstance(fetchers.OptionsPriceFetcher);
 
     const container = new Container();
@@ -110,10 +106,16 @@ describe('FeedProcessor', () => {
     container.bind(fetchers.BEACPIAverageFetcher).toConstantValue(mockedFetchers.BEACPIAverageFetcher as any);
     container.bind(fetchers.OnChainDataFetcher).toConstantValue(mockedFetchers.OnChainDataFetcher as any);
     container.bind(fetchers.KaikoPriceStreamFetcher).toConstantValue(mockedFetchers.KaikoPriceStreamFetcher as any);
+    container
+      .bind(fetchers.YearnVaultTokenPriceFetcher)
+      .toConstantValue(mockedFetchers.YearnVaultTokenPriceFetcher as any);
     container.bind(fetchers.OptionsPriceFetcher).toConstantValue(mockedFetchers.OptionsPriceFetcher as any);
 
-    container.bind(leafBuilders.LeafBuilder).toSelf();
-    container.bind(leafBuilders.OptionsPriceLeavesBuilder).toSelf();
+    container.bind(calculators.TWAPCalculator).toSelf();
+    container.bind(calculators.VWAPCalculator).toSelf();
+    container.bind(calculators.YearnTransformPriceCalculator).toSelf();
+    container.bind(calculators.OptionsPriceCalculator).toSelf();
+    container.bind(calculators.IdentityCalculator).toSelf();
 
     container.bind(FeedProcessor).toSelf();
 
@@ -390,64 +392,161 @@ describe('FeedProcessor', () => {
     expect(LeafValueCoder.decode(leaves[0][0].valueBytes, leaves[0][0].label)).is.a('number').that.equal(38123);
   });
 
-  it('should fetch Options prices only on L2D feeds', async () => {
-    const feeds: Feeds = {
-      'OP:ETH-': {
-        discrepancy: 1,
-        precision: 15,
-        inputs: [
-          {
-            fetcher: {
-              name: 'OptionsPrice',
-            },
-          },
-        ],
-      },
-    };
-
-    mockedFetchers.OptionsPriceFetcher.apply.resolves({
-      'OP:ETH-01OCT21-36000_call_price': 0.555555555555555555555555555555555,
-      'OP:ETH-01OCT21-36000_iv': 0.555555555555555555555555555555555,
-      'OP:ETH-01OCT21-36000_put_price': 0.555555555555555555555555555555555,
+  describe('Options feeds', () => {
+    beforeEach(() => {
+      mockedFetchers.OptionsPriceFetcher.apply.resolves({
+        'ETH-28OCT21-4250': {
+          callPrice: 0.016044137806534572,
+          iv: 69.63163673462594,
+          putPrice: 0.027246912546743607,
+        },
+        'BTC-05NOV21-66000': {
+          callPrice: 0.029274057826769995,
+          iv: 75.67446534167162,
+          putPrice: 0.08303273994157734,
+        },
+      });
     });
 
-    const [firstClassLeaves, layerTwoLeaves] = await feedProcessor.apply(10, feeds, feeds);
-
-    expect(firstClassLeaves).to.be.an('array').of.length(0);
-    expect(layerTwoLeaves).to.be.an('array').of.length(3);
-  });
-
-  it('should not return Options Price Fetchers when OPTIONS feed is not present', async () => {
-    const feeds: Feeds = {
-      'BTC-USD': {
-        discrepancy: 1,
-        precision: 2,
-        inputs: [
-          {
-            fetcher: {
-              name: 'KaikoPriceStream',
-              params: {
-                fsym: 'BTC',
-                tsym: 'USD',
-              } as any,
+    it('should not return Options Price Fetchers when OPTIONS feed is not present', async () => {
+      const feeds: Feeds = {
+        'BTC-USD': {
+          discrepancy: 1,
+          precision: 2,
+          inputs: [
+            {
+              fetcher: {
+                name: 'KaikoPriceStream',
+                params: {
+                  fsym: 'BTC',
+                  tsym: 'USD',
+                } as any,
+              },
             },
-          },
-        ],
-      },
-    };
+          ],
+        },
+      };
 
-    mockedFetchers.KaikoPriceStreamFetcher.apply.resolves(38123);
+      mockedFetchers.KaikoPriceStreamFetcher.apply.resolves(38123);
 
-    const [firstClassLeaves, layerTwoLeaves] = await feedProcessor.apply(10, feeds, feeds);
+      const [firstClassLeaves, layerTwoLeaves] = await feedProcessor.apply(10, feeds, feeds);
 
-    const expected = [
-      {
-        label: 'BTC-USD',
-        valueBytes: '0x000000000000000000000000000000000000000000000812a6e793b078cc0000',
-      },
-    ];
+      const expected = [
+        {
+          label: 'BTC-USD',
+          valueBytes: '0x000000000000000000000000000000000000000000000812a6e793b078cc0000',
+        },
+      ];
 
-    expect(firstClassLeaves).to.eql(expected);
-    expect(layerTwoLeaves).to.eql(expected);
+      expect(firstClassLeaves).to.eql(expected);
+      expect(layerTwoLeaves).to.eql(expected);
+    });
+
+    it('should return options with proper prefix', async () => {
+      const feeds: Feeds = {
+        'OP:ETH-*': {
+          discrepancy: 1,
+          precision: 15,
+          inputs: [
+            {
+              fetcher: {
+                name: 'OptionsPrice',
+              },
+              calculator: {
+                name: 'OptionsPrice',
+                params: {
+                  sym: 'ETH',
+                },
+              },
+            },
+          ],
+        },
+      };
+
+      const [result] = await feedProcessor.apply(10, feeds);
+
+      expect(result).to.eql([
+        {
+          label: 'OP:ETH-28OCT21-4250_call_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000000039000eeeaf9958',
+        },
+        {
+          label: 'OP:ETH-28OCT21-4250_iv_price',
+          valueBytes: '0x000000000000000000000000000000000000000000000003c65544af986b8220',
+        },
+        {
+          label: 'OP:ETH-28OCT21-4250_put_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000000060ccec2f9326c0',
+        },
+      ]);
+    });
+
+    it('should return both ETH and BTC with proper feeds config', async () => {
+      const feeds: Feeds = {
+        'OP:BTC-*': {
+          discrepancy: 1,
+          precision: 15,
+          inputs: [
+            {
+              fetcher: {
+                name: 'OptionsPrice',
+              },
+              calculator: {
+                name: 'OptionsPrice',
+                params: {
+                  sym: 'BTC',
+                },
+              },
+            },
+          ],
+        },
+        'OP:ETH-*': {
+          discrepancy: 1,
+          precision: 15,
+          inputs: [
+            {
+              fetcher: {
+                name: 'OptionsPrice',
+              },
+              calculator: {
+                name: 'OptionsPrice',
+                params: {
+                  sym: 'ETH',
+                },
+              },
+            },
+          ],
+        },
+      };
+
+      const [result] = await feedProcessor.apply(10, feeds);
+
+      expect(result).to.eql([
+        {
+          label: 'OP:BTC-05NOV21-66000_call_price',
+          valueBytes: '0x00000000000000000000000000000000000000000000000000680099b9e61c50',
+        },
+        {
+          label: 'OP:BTC-05NOV21-66000_iv_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000041a31b549a9f23da0',
+        },
+        {
+          label: 'OP:BTC-05NOV21-66000_put_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000000126fdd648f1f128',
+        },
+        {
+          label: 'OP:ETH-28OCT21-4250_call_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000000039000eeeaf9958',
+        },
+        {
+          label: 'OP:ETH-28OCT21-4250_iv_price',
+          valueBytes: '0x000000000000000000000000000000000000000000000003c65544af986b8220',
+        },
+        {
+          label: 'OP:ETH-28OCT21-4250_put_price',
+          valueBytes: '0x0000000000000000000000000000000000000000000000000060ccec2f9326c0',
+        },
+      ]);
+    });
   });
 });

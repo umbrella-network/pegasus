@@ -6,7 +6,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import './boot';
 import Application from './lib/Application';
 import FeedProcessor from './services/FeedProcessor';
-import {loadFeeds} from '@umb-network/toolbox';
+import loadFeeds from './services/loadFeeds';
 import Settings from "./types/Settings";
 import Block from './models/Block';
 import GasEstimator from './services/GasEstimator';
@@ -26,7 +26,7 @@ async function testFeeds(settings: Settings): Promise<void> {
 
   const feeds = await loadFeeds(settings.feedsFile);
 
-  await new Promise((resolve) => setTimeout(resolve, 10000));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   const leaves = await Application.get(FeedProcessor).apply(new TimeService().apply(), feeds);
   console.log('Feeds: ', leaves);

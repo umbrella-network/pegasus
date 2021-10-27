@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 
-import {loadFeeds} from '@umb-network/toolbox';
+import loadFeeds from '../services/loadFeeds';
 import {Pair} from '../types/Feed';
 import Settings from '../types/Settings';
 

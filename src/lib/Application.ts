@@ -6,6 +6,8 @@ import Settings from '../types/Settings';
 import Blockchain from './Blockchain';
 import ChainContract from '../contracts/ChainContract';
 import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
+import {Redis} from 'ioredis';
+import {initRedis} from '../config/initRedis';
 
 class Application {
   private static _instance: Application;
@@ -18,6 +20,11 @@ class Application {
     this.container.bind<ChainContract>(ChainContract).toSelf().inSingletonScope();
     this.container.bind<Blockchain>(Blockchain).toSelf().inSingletonScope();
     this.container.bind<CryptoCompareWSClient>(CryptoCompareWSClient).toSelf().inSingletonScope();
+
+    this.container
+      .bind<Redis>('Redis')
+      .toDynamicValue((ctx) => initRedis(ctx.container.get('Settings')))
+      .inSingletonScope();
   }
 
   public static get instance(): Application {

@@ -1,7 +1,7 @@
 import sort from 'fast-sort';
 import {LeafValueCoder} from '@umb-network/toolbox';
-import Feeds from '@umb-network/toolbox/dist/types/Feed';
 
+import Feeds from '../types/Feed';
 import {calcDiscrepancy} from '../utils/math';
 import {ProposedConsensus} from '../types/Consensus';
 import {Discrepancy} from '../types/Discrepancy';
@@ -18,10 +18,10 @@ export class DiscrepancyFinder {
     leavesFeeds: Feeds,
   ): Discrepancy[] {
     try {
-      const fcdsDisrepancies = this.checkForDiscrepancies(fcds, proposedConsensus.fcds, fcdsFeeds);
-      const disrepancies = this.checkForDiscrepancies(leaves, proposedConsensus.leaves, leavesFeeds);
+      const fcdsDiscrepancies = this.checkForDiscrepancies(fcds, proposedConsensus.fcds, fcdsFeeds);
+      const discrepancies = this.checkForDiscrepancies(leaves, proposedConsensus.leaves, leavesFeeds);
 
-      return disrepancies.concat(fcdsDisrepancies);
+      return discrepancies.concat(fcdsDiscrepancies);
     } catch (err) {
       console.error(err);
       throw err;

@@ -4,9 +4,9 @@ import 'reflect-metadata';
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import {loadFeeds} from '@umb-network/toolbox';
-import Feeds from '@umb-network/toolbox/dist/types/Feed';
-
 import {expect} from 'chai';
+
+import Feeds from '../../src/types/Feed';
 import {mockedLogger} from '../mocks/logger';
 import {testingLogger} from '../helpers/testingLogger';
 

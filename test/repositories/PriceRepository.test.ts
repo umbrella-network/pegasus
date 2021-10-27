@@ -1,11 +1,12 @@
+import 'reflect-metadata';
 import sinon from 'sinon';
 import {expect} from 'chai';
-import {Container} from 'inversify';
 
 import PriceRepository from '../../src/repositories/PriceRepository';
 import PriceAggregator from '../../src/services/PriceAggregator';
 import Settings from '../../src/types/Settings';
 import {PairWithFreshness} from '../../src/types/Feed';
+import {getTestContainer} from '../helpers/getTestContainer';
 
 describe('PriceRepository', () => {
   let settings: Settings;
@@ -17,9 +18,9 @@ describe('PriceRepository', () => {
   beforeEach(() => {
     mockedPriceAggregator = sinon.createStubInstance(PriceAggregator);
 
-    const container = new Container();
+    const container = getTestContainer();
 
-    container.bind('Settings').toConstantValue(settings);
+    container.rebind('Settings').toConstantValue(settings);
     container.bind(PriceRepository).to(PriceRepository);
     container.bind(PriceAggregator).toConstantValue(mockedPriceAggregator as unknown as PriceAggregator);
 

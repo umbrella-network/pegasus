@@ -31,6 +31,7 @@ type Settings = {
       url: string;
       privateKey: string;
     };
+    providers: {[name: string]: string};
     contracts: {
       chain: {
         name: string;
@@ -86,6 +87,7 @@ type Settings = {
       apiKey: string;
       rpcUrl: string;
       timeout: number;
+      priceFreshness: number;
     };
     optionsPrice: {
       apiKey: string;

@@ -2,7 +2,6 @@
 import 'reflect-metadata';
 import BlockMinter from '../../src/services/BlockMinter';
 import SignatureCollector from '../../src/services/SignatureCollector';
-import {Container} from 'inversify';
 import sinon from 'sinon';
 import {expect} from 'chai';
 import {BigNumber, ethers, Wallet} from 'ethers';
@@ -24,6 +23,7 @@ import TimeService from '../../src/services/TimeService';
 import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, timestamp} from '../../src/utils/mining';
 import GasEstimator from '../../src/services/GasEstimator';
 import BlockRepository from '../../src/services/BlockRepository';
+import {getTestContainer} from '../helpers/getTestContainer';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -43,7 +43,7 @@ describe('BlockMinter', () => {
   beforeEach(async () => {
     await getModelForClass(Block).deleteMany({});
 
-    const container = new Container();
+    const container = getTestContainer();
 
     mockedBlockchain = sinon.createStubInstance(Blockchain);
     mockedTimeService = sinon.createStubInstance(TimeService);
@@ -67,7 +67,8 @@ describe('BlockMinter', () => {
       },
     } as Settings;
 
-    container.bind('Logger').toConstantValue(mockedLogger);
+    container.rebind('Logger').toConstantValue(mockedLogger);
+    container.rebind('Settings').toConstantValue(settings);
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
     container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
@@ -76,7 +77,6 @@ describe('BlockMinter', () => {
     container.bind(BlockRepository).toSelf();
     container.bind(ConsensusRunner).toSelf();
     container.bind(TimeService).toConstantValue(mockedTimeService);
-    container.bind('Settings').toConstantValue(settings);
     container.bind(GasEstimator).toConstantValue(mockedGasEstimator);
 
     container.bind(BlockMinter).to(BlockMinter);
