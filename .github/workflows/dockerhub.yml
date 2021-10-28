@@ -22,11 +22,7 @@ jobs:
 
       - name: Extract Docker-image params
         id: docker-params
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          export IMAGE="$ECR_REGISTRY/pegasus"
-          echo "::set-output name=image::$IMAGE"
           echo "::set-output name=version::${{fromJson(steps.package_json.outputs.packageJson).version}}"
 
       - name: Set up QEMU
