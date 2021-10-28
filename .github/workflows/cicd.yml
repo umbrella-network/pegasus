@@ -165,7 +165,7 @@ jobs:
           VERSION: ${{ steps.atifact-reader.outputs.version }}
           BUILDING_ENVIRONMENT: "non-prod/sbx"
         run: >-
-          yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/base/kustomization.yaml
+          yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/deployments/bsc-01/kustomization.yaml
 
       - name: Commit and Push to master for SANDBOX
         env:
@@ -183,7 +183,8 @@ jobs:
           VERSION: ${{ steps.atifact-reader.outputs.version }}
           BUILDING_ENVIRONMENT: ${{ steps.atifact-reader.outputs.environment }}
         run: >-
-          yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/base/kustomization.yaml
+          yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/deployments/bsc-01/kustomization.yaml
+          yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/deployments/bsc-02/kustomization.yaml
 
       - name: Commit, Push and create Pull Request
         env:
