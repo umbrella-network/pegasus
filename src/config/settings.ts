@@ -99,9 +99,7 @@ const settings: Settings = {
       timeout: parseInt(process.env.OPTIONS_PRICE_TIMEOUT || '5000', 10),
     },
   },
-  feedsFile:
-    process.env.FEEDS_FILE ||
-    'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feeds.yaml',
+  feedsFile: getFeedsUrl(),
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
@@ -136,6 +134,19 @@ function resolveArray(iterator: (i: number) => string): string[] {
   }
 
   return result;
+}
+
+function getFeedsUrl() {
+  const feedsFilesURLs: {[key: string]: string} = {
+    prod: 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/',
+    sbx: 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/develop/dev/bsc/',
+    dev: 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/develop/dev/bsc/',
+  };
+
+  const filename = packageJson.version.includes('5.5') ? 'feeds-5.5.yaml' : 'feeds.yaml';
+  const env = (process.env.ENVIRONMENT || 'prod') as string;
+  const url = feedsFilesURLs[env] + filename;
+  return url;
 }
 
 export default settings;
