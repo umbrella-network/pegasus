@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Ability to handle Internal validators separatly.
 - Decouple the docker hub image update from the automatic deployment
 - Consensus Optimization feature flag.
+- Multiple feeds file handler
 
 ## [5.5.0] - 2021-10-25
 ### Fixed
