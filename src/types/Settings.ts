@@ -25,6 +25,7 @@ type Settings = {
   };
   consensus: {
     retries: number;
+    strategy: string;
   };
   blockchain: {
     provider: {

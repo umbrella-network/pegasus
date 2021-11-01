@@ -202,6 +202,50 @@ class ConsensusRunner {
     blockSignerResponses: BlockSignerResponseWithPower[],
     requiredSignatures: number,
   ): ValidatorsResponses {
+    if (this.settings.consensus.strategy == 'optimized') {
+      return this.generateOptimizedConsensus(blockSignerResponses, requiredSignatures);
+    } else {
+      return this.generateSimpleConsensus(blockSignerResponses);
+    }
+  }
+
+  private generateSimpleConsensus(blockSignerResponses: BlockSignerResponseWithPower[]): ValidatorsResponses {
+    const signatures: string[] = [];
+    const discrepanciesKeys: Set<string> = new Set();
+    let powers: BigNumber = BigNumber.from(0);
+
+    blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
+      this.versionCheck(response.version);
+
+      if (response.error) {
+        return;
+      }
+
+      if (response.signature) {
+        signatures.push(response.signature);
+        powers = powers.add(response.power);
+        return;
+      }
+
+      const discrepancies = response.discrepancies || [];
+
+      if (discrepancies.length > 300) {
+        this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
+        return;
+      }
+
+      discrepancies.forEach((discrepancy) => {
+        discrepanciesKeys.add(discrepancy.key);
+      });
+    });
+
+    return {signatures, discrepanciesKeys, powers};
+  }
+
+  private generateOptimizedConsensus(
+    blockSignerResponses: BlockSignerResponseWithPower[],
+    requiredSignatures: number,
+  ): ValidatorsResponses {
     const signatures: string[] = [];
     let powers: BigNumber = BigNumber.from(0);
 

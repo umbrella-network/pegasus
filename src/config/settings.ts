@@ -30,6 +30,7 @@ const settings: Settings = {
   },
   consensus: {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
+    strategy: process.env.CONSENSUS_STRATEGY || 'simple',
   },
   blockchain: {
     providers: resolveBlockchainProviders(),
