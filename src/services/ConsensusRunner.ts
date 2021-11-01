@@ -2,10 +2,9 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
-import {LeafValueCoder} from '@umb-network/toolbox';
-import Feeds, {FeedValue} from '../types/Feed';
+import {LeafValueCoder, loadFeeds} from '@umb-network/toolbox';
+import Feeds, {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
 
-import loadFeeds from '../services/loadFeeds';
 import FeedProcessor from './FeedProcessor';
 import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';
@@ -21,7 +20,6 @@ import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
-import {ConsensusOptimizer, ConsensusOptimizerProps} from './ConsensusOptimizer';
 
 @injectable()
 class ConsensusRunner {
@@ -32,7 +30,6 @@ class ConsensusRunner {
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(BlockRepository) blockRepository!: BlockRepository;
-  @inject(ConsensusOptimizer) consensusOptimizer!: ConsensusOptimizer;
   @inject('Settings') settings!: Settings;
 
   async apply(
@@ -108,10 +105,7 @@ class ConsensusRunner {
       validators,
     );
 
-    const {powers, discrepanciesKeys, signatures} = this.processValidatorsResponses(
-      blockSignerResponsesWithPowers,
-      requiredSignatures,
-    );
+    const {powers, discrepanciesKeys, signatures} = this.processValidatorsResponses(blockSignerResponsesWithPowers);
 
     if (!this.hasConsensus(signatures, requiredSignatures)) {
       return {consensus: null, discrepanciesKeys};
@@ -198,43 +192,36 @@ class ConsensusRunner {
     };
   }
 
-  private processValidatorsResponses(
-    blockSignerResponses: BlockSignerResponseWithPower[],
-    requiredSignatures: number,
-  ): ValidatorsResponses {
+  private processValidatorsResponses(blockSignerResponses: BlockSignerResponseWithPower[]): ValidatorsResponses {
     const signatures: string[] = [];
+    const discrepanciesKeys: Set<string> = new Set();
     let powers: BigNumber = BigNumber.from(0);
 
-    const consensusOptimizerProps: ConsensusOptimizerProps = {
-      participants: [],
-      constraints: {
-        minimumRequiredPower: 1n,
-        minimumRequiredSignatures: Math.max(requiredSignatures - 1, 0),
-      },
-    };
-
-    for (const response of blockSignerResponses) {
+    blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
       this.versionCheck(response.version);
 
-      if (response.error) continue;
-
-      if (response.signature) {
-        powers = powers.add(response.power);
-        signatures.push(response.signature);
-        continue;
+      if (response.error) {
+        return;
       }
 
-      if (!response.validator) continue;
-      if (!response.discrepancies) continue;
+      if (response.signature) {
+        signatures.push(response.signature);
+        powers = powers.add(response.power);
+        return;
+      }
 
-      consensusOptimizerProps.participants.push({
-        address: response.validator,
-        power: response.power.toBigInt(),
-        discrepancies: response.discrepancies.map((d) => d.key),
+      const discrepancies = response.discrepancies || [];
+
+      if (discrepancies.length > 300) {
+        this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
+        return;
+      }
+
+      discrepancies.forEach((discrepancy) => {
+        discrepanciesKeys.add(discrepancy.key);
       });
-    }
+    });
 
-    const discrepanciesKeys = this.consensusOptimizer.apply(consensusOptimizerProps) || new Set<string>();
     return {signatures, discrepanciesKeys, powers};
   }
 
