@@ -12,6 +12,7 @@ import {
   InputParams as CryptoComparePriceMultiFetcherParams,
   OutputValue as CryptoComparePriceMultiFetcherOutputValue,
 } from './fetchers/CryptoComparePriceMultiFetcher';
+import {number} from 'yargs';
 
 interface Fetcher {
   // eslint-disable-next-line
@@ -54,6 +55,7 @@ class FeedProcessor {
     @inject(fetchers.KaikoPriceStreamFetcher) KaikoPriceStreamFetcher: fetchers.KaikoPriceStreamFetcher,
     @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPriceFetcher: fetchers.YearnVaultTokenPriceFetcher,
     @inject(fetchers.OptionsPriceFetcher) OptionsPriceFetcher: fetchers.OptionsPriceFetcher,
+    @inject(fetchers.RandomNumberFetcher) RandomNumberFetcher: fetchers.RandomNumberFetcher,
 
     @inject(calculators.TWAPCalculator) TWAPCalculator: calculators.TWAPCalculator,
     @inject(calculators.IdentityCalculator) IdentityCalculator: calculators.IdentityCalculator,
@@ -80,6 +82,7 @@ class FeedProcessor {
       KaikoPriceStreamFetcher,
       YearnVaultTokenPriceFetcher,
       OptionsPriceFetcher,
+      RandomNumberFetcher,
     };
 
     this.calculators = {
@@ -142,16 +145,18 @@ class FeedProcessor {
           )
           .flat();
 
-        if (feedValues.length) {
+        if (!feedValues.length) {
+          ignoredMap[ticker] = true;
+        } else if (feedValues.length === 1 && typeof feedValues[0].value !== 'number') {
+          leaves.push(this.buildHexadecimalLeaf(feedValues[0].key, feedValues[0].value));
+        } else {
           // calculateFeed is allowed to return different keys
           const groups = FeedProcessor.groupInputs(feedValues);
           for (const key in groups) {
-            const value = FeedProcessor.calculateMean(groups[key], feed.precision);
+            const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
             keyValueMap[key] = value;
-            leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
+            leaves.push(this.buildNumericLeaf(key, (keyValueMap[key] = value)));
           }
-        } else {
-          ignoredMap[ticker] = true;
         }
       });
 
@@ -220,10 +225,17 @@ class FeedProcessor {
     return this.orderCryptoComparePriceMultiOutput(feedFetchers, values);
   }
 
-  private buildLeaf = (label: string, value: number): Leaf => {
+  private buildNumericLeaf = (label: string, value: number): Leaf => {
     return {
       label,
-      valueBytes: `0x${LeafValueCoder.encode(value, label).toString('hex')}`,
+      valueBytes: `0x${LeafValueCoder.encode(value, '').toString('hex')}`,
+    };
+  };
+
+  private buildHexadecimalLeaf = (label: string, value: string): Leaf => {
+    return {
+      label,
+      valueBytes: `0x${LeafValueCoder.encodeHex(value).toString('hex')}`,
     };
   };
 
@@ -307,7 +319,9 @@ class FeedProcessor {
   }
 
   private static groupInputs(outputs: FeedOutput[]) {
-    const result: {[key: string]: number[]} = {};
+    type OutputValue = number | string;
+
+    const result: {[key: string]: OutputValue[]} = {};
 
     for (const {key, value} of outputs) {
       let array = result[key];

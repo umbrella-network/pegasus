@@ -57,12 +57,21 @@ export class DiscrepancyFinder {
 
       const proposedValue = LeafValueCoder.decode(proposedValueBytes, label);
       const value = LeafValueCoder.decode(leaf.valueBytes, label);
-      const discrepancy = DiscrepancyFinder.getDiscrepancy(feeds, leaf);
 
-      const diffPerc = calcDiscrepancy(value, proposedValue, label) * 100.0;
+      if (typeof value === 'number') {
+        // compare numeric values with discrepancy
+        const discrepancy = DiscrepancyFinder.getDiscrepancy(feeds, leaf);
 
-      if (discrepancy < diffPerc) {
-        discrepancies.set(label, diffPerc);
+        const diffPerc = calcDiscrepancy(value, proposedValue, label) * 100.0;
+
+        if (discrepancy < diffPerc) {
+          discrepancies.set(label, diffPerc);
+        }
+      } else {
+        // check for an exact match if the value is not numeric
+        if (value !== proposedValue) {
+          discrepancies.set(label, 100);
+        }
       }
     });
 
