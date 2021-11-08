@@ -19,7 +19,7 @@ export default async function loadFeeds(filePath: string): Promise<Feeds> {
 }
 
 async function processYaml(feedData: string, ignoreInvalid = true): Promise<Feeds> {
-  const [feeds]: any = loadAll(feedData);
+  const [feeds]: any = loadAll(feedData);  // eslint-disable-line
   const result = new Validator().validate(feeds, FeedsSchema);
   if (!result.valid) {
     if (!ignoreInvalid) {
