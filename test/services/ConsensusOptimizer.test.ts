@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import {expect} from 'chai';
 import {Container} from 'inversify';
 import {getTestContainer} from '../helpers/getTestContainer';
+import {loadTestEnv} from '../helpers/loadTestEnv';
 
 describe('#apply', () => {
   let container: Container;

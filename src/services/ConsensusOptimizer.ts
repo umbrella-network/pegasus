@@ -1,6 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Combination} from 'js-combinatorics';
 import {Logger} from 'winston';
+import Settings from '../types/Settings';
 
 type Participant = {
   address: string;
@@ -30,7 +31,8 @@ export class ConsensusOptimizer {
   @inject('Logger')
   logger!: Logger;
 
-  readonly MAX_CANDIDATE_DISCREPANCIES = 300;
+  @inject('Settings')
+  settings!: Settings;
 
   // Objective: find the consensus solution that drops the least amount of keys
   // A consensus is a list of participants that, if certain keys are dropped,
@@ -91,7 +93,7 @@ export class ConsensusOptimizer {
   private selectQualifyingParticipants(participants: Participant[]): Participant[] {
     return participants
       .filter((candidate) => candidate.power != 0n)
-      .filter((candidate) => candidate.discrepancies.length <= this.MAX_CANDIDATE_DISCREPANCIES);
+      .filter((candidate) => candidate.discrepancies.length <= this.settings.consensus.maxDiscrepancies);
   }
 
   private solutionFor(candidates: Participant[]): ConsensusOptimization {

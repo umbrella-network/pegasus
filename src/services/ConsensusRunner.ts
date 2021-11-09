@@ -229,7 +229,7 @@ class ConsensusRunner {
 
       const discrepancies = response.discrepancies || [];
 
-      if (discrepancies.length > 300) {
+      if (discrepancies.length > this.settings.consensus.maxDiscrepancies) {
         this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
         return;
       }

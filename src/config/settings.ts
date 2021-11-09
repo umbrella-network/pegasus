@@ -29,6 +29,7 @@ const settings: Settings = {
     url: process.env.MONGODB_URL || 'mongodb://localhost:27017/pegasus',
   },
   consensus: {
+    maxDiscrepancies: parseInt(process.env.CONSENSUS_MAX_DISCREPANCIES || '300'),
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
     strategy: process.env.CONSENSUS_STRATEGY || 'simple',
   },

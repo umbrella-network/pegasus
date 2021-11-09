@@ -24,6 +24,7 @@ type Settings = {
     url: string;
   };
   consensus: {
+    maxDiscrepancies: number;
     retries: number;
     strategy: string;
   };
