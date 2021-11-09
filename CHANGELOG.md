@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+## [5.5.1] - 2021-10-28
+### Added
+- Ability to handle Internal validators separatly.
+- Decouple the docker hub image update from the automatic deployment
+- Consensus Optimization feature flag.
+- Multiple feeds file handler
+
 ## [5.5.0] - 2021-10-25
 ### Fixed
 - Price Aggregator auto-pruning on insert to prevent current regular OOM issues.
