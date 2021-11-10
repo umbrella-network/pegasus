@@ -164,7 +164,7 @@ jobs:
         env:
           VERSION: ${{ steps.atifact-reader.outputs.version }}
           BUILDING_ENVIRONMENT: "non-prod/sbx"
-        run: >-
+        run: |
           yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/deployments/bsc-01/kustomization.yaml
 
       - name: Commit and Push to master for SANDBOX
@@ -182,7 +182,7 @@ jobs:
         env:
           VERSION: ${{ steps.atifact-reader.outputs.version }}
           BUILDING_ENVIRONMENT: ${{ steps.atifact-reader.outputs.environment }}
-        run: >-
+        run: |
           yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/deployments/bsc-01/kustomization.yaml
           yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/deployments/bsc-02/kustomization.yaml
 
