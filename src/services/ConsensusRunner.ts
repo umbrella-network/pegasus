@@ -45,32 +45,51 @@ class ConsensusRunner {
     let {firstClassLeaves, leaves} = await this.leavesAndFeeds(dataTimestamp);
     let consensus: Consensus | null = null;
     let discrepanciesKeys: Set<string> = new Set();
+    let totalKeyCount: number;
+    let leafKeyCount: number;
+    let fcdKeyCount: number;
+    let discrepantCount: number;
+    const maxRetries = this.settings.consensus.retries;
 
-    for (let i = 0; i < this.settings.consensus.retries; i++) {
-      if (i > 0) {
-        const keys: string[] = [];
-        discrepanciesKeys.forEach((k) => keys.push(k));
-        this.logger.warn(`Dumping discrepancy data (${keys.length}): ${keys.join(', ')}`);
-        ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepanciesKeys));
-        discrepanciesKeys = new Set(); // reset
-      }
-
-      const dataForConsensus: DataForConsensus = await this.getDataForConsensus(
-        dataTimestamp,
-        firstClassLeaves,
-        leaves,
-      );
-
+    for (let i = 0; i < maxRetries; i++) {
+      this.logger.info(`[${blockHeight}] Starting Consensus Round ${i}.`);
+      const dataForConsensus = await this.getDataForConsensus(dataTimestamp, firstClassLeaves, leaves);
       ({consensus, discrepanciesKeys} = await this.runConsensus(dataForConsensus, validators, requiredSignatures));
 
-      if (consensus || discrepanciesKeys.size === 0) {
-        this.logger.info(
-          `step ${i} consensus: ${!!consensus}, discrepanciesKeys: ${discrepanciesKeys.size} of ${
-            dataForConsensus.leaves.length
-          }/${dataForConsensus.fcdKeys.length}`,
-        );
+      leafKeyCount = dataForConsensus.leaves.length;
+      fcdKeyCount = dataForConsensus.fcdKeys.length;
+      totalKeyCount = leafKeyCount + fcdKeyCount;
+      discrepantCount = discrepanciesKeys.size;
+
+      if (consensus) {
+        const message = `
+          [${blockHeight}] Consensus Round ${i} Finished. 
+          Status: SUCCESS | Keys: ${totalKeyCount} (${leafKeyCount} + ${fcdKeyCount} FCDs ) | Missed ${discrepantCount}
+        `;
+        this.logger.info(message);
+
         return consensus;
       }
+
+      if (discrepanciesKeys.size == 0 || i == maxRetries) {
+        const message = `
+          [${blockHeight}] Consensus Round ${i} Finished. 
+          Status: FAILED | Keys: ${totalKeyCount} (${leafKeyCount} + ${fcdKeyCount} FCDs ) | Missed ${discrepantCount}
+        `;
+        this.logger.info(message);
+
+        return consensus;
+      }
+
+      const message = `
+          [${blockHeight}] Consensus Round ${i} Finished. 
+          Status: RETRY | Keys: ${totalKeyCount} (${leafKeyCount} + ${fcdKeyCount} FCDs ) | Missed ${discrepantCount}
+        `;
+
+      this.logger.info(message);
+      this.logger.info(`Dumping discrepancy data (${discrepantCount}): ${Array.of(discrepanciesKeys).join(', ')}`);
+      ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepanciesKeys));
+      discrepanciesKeys = new Set(); // reset
     }
 
     return null;
@@ -232,7 +251,7 @@ class ConsensusRunner {
 
       const discrepancies = response.discrepancies || [];
 
-      if (discrepancies.length > this.settings.consensus.maxDiscrepancies) {
+      if (discrepancies.length > 400) {
         this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
         return;
       }
