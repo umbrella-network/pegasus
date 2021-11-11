@@ -21,10 +21,12 @@ export class ProposedConsensusService {
   }
 
   private static keyValuesToLeaves(keyValues: KeyValues): Leaf[] {
-    return Object.entries(keyValues).map(([label, valueBytes]): Leaf => ({
-      label,
-      valueBytes,
-    }));
+    return Object.entries(keyValues).map(
+      ([label, valueBytes]): Leaf => ({
+        label,
+        valueBytes,
+      }),
+    );
   }
 
   private static recoverSigner(affidavit: string, signature: string): string {
