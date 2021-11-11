@@ -218,10 +218,13 @@ class ConsensusRunner {
       this.versionCheck(response.version);
 
       if (response.error) {
+        this.logger.info(`Discarding ${response.validator} - the response contains an error: ${response.error}`);
+        this.logger.info(`${response.validator} Dump: ${JSON.stringify(response)}`);
         return;
       }
 
       if (response.signature) {
+        this.logger.info(`Adding ${response.validator} signature - ${response.signature}`);
         signatures.push(response.signature);
         powers = powers.add(response.power);
         return;
@@ -237,6 +240,9 @@ class ConsensusRunner {
       discrepancies.forEach((discrepancy) => {
         discrepanciesKeys.add(discrepancy.key);
       });
+
+      this.logger.info(`Discarding ${response.validator} - No valid signature found.`);
+      this.logger.info(`${response.validator} Dump: ${JSON.stringify(response)}`);
     });
 
     return {signatures, discrepanciesKeys, powers};
