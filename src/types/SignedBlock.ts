@@ -1,7 +1,5 @@
-import {FeedValue} from './Feed';
-
 export interface KeyValues {
-  [key: string]: FeedValue;
+  [key: string]: string;
 }
 
 export interface SignedBlock {

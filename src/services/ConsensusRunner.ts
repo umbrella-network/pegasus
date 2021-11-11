@@ -2,8 +2,7 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
-import {LeafValueCoder} from '@umb-network/toolbox';
-import Feeds, {FeedValue} from '../types/Feed';
+import Feeds from '../types/Feed';
 
 import loadFeeds from '../services/loadFeeds';
 import FeedProcessor from './FeedProcessor';
@@ -89,7 +88,7 @@ class ConsensusRunner {
     validators: Validator[],
     requiredSignatures: number,
   ): Promise<{consensus: Consensus | null; discrepanciesKeys: Set<string>}> {
-    const {fcdKeys, fcdValues, leaves} = dataForConsensus;
+    const {fcdKeys, leaves, fcdValues} = dataForConsensus;
 
     const signedBlock: SignedBlock = {
       dataTimestamp: dataForConsensus.dataTimestamp,
@@ -132,10 +131,10 @@ class ConsensusRunner {
   }
 
   private leavesToKeyValues(leaves: Leaf[]): KeyValues {
-    return Object.fromEntries(leaves.map(({label, valueBytes}) => [label, LeafValueCoder.decode(valueBytes, label)]));
+    return Object.fromEntries(leaves.map(({label, valueBytes}) => [label, valueBytes]));
   }
 
-  private fcdToKeyValues(fcdKeys: string[], fcdValues: FeedValue[]): KeyValues {
+  private fcdToKeyValues(fcdKeys: string[], fcdValues: string[]): KeyValues {
     return Object.fromEntries(fcdKeys.map((_, idx) => [fcdKeys[idx], fcdValues[idx]]));
   }
 
@@ -169,11 +168,8 @@ class ConsensusRunner {
   ): Promise<DataForConsensus> {
     const tree = SortedMerkleTreeFactory.apply(sortLeaves(leaves));
     const sortedFirstClassLeaves = sortLeaves(firstClassLeaves);
-    const fcdKeys: string[] = sortedFirstClassLeaves.map(({label}) => label);
-
-    const fcdValues: FeedValue[] = sortedFirstClassLeaves.map(({valueBytes, label}) =>
-      LeafValueCoder.decode(valueBytes, label),
-    );
+    const fcdKeys = sortedFirstClassLeaves.map(({label}) => label);
+    const fcdValues = sortedFirstClassLeaves.map(({valueBytes}) => valueBytes);
 
     const affidavit = generateAffidavit(dataTimestamp, tree.getRoot(), fcdKeys, fcdValues);
 

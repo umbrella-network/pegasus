@@ -55,23 +55,25 @@ export class DiscrepancyFinder {
         return;
       }
 
+      // compare numeric values with discrepancy
+      const discrepancy = DiscrepancyFinder.getDiscrepancy(feeds, leaf);
+
+      // the case when there should be no discrepancy. Simply compare values
+      if (discrepancy === 0) {
+        if (proposedValueBytes !== leaf.valueBytes) {
+          discrepancies.set(label, 100);
+        }
+        return;
+      }
+
+      // decode values and compare with discrepancy
       const proposedValue = LeafValueCoder.decode(proposedValueBytes, label);
       const value = LeafValueCoder.decode(leaf.valueBytes, label);
 
-      if (typeof value === 'number') {
-        // compare numeric values with discrepancy
-        const discrepancy = DiscrepancyFinder.getDiscrepancy(feeds, leaf);
+      const diffPerc = calcDiscrepancy(value, proposedValue, label) * 100.0;
 
-        const diffPerc = calcDiscrepancy(value, proposedValue, label) * 100.0;
-
-        if (discrepancy < diffPerc) {
-          discrepancies.set(label, diffPerc);
-        }
-      } else {
-        // check for an exact match if the value is not numeric
-        if (value !== proposedValue) {
-          discrepancies.set(label, 100);
-        }
+      if (discrepancy < diffPerc) {
+        discrepancies.set(label, diffPerc);
       }
     });
 
@@ -79,6 +81,11 @@ export class DiscrepancyFinder {
   }
 
   private static getDiscrepancy(feeds: Feeds, leaf: Leaf): number {
-    return feeds[leaf.label]?.discrepancy || DEFAULT_DISCREPANCY_VALUE;
+    const {discrepancy = DEFAULT_DISCREPANCY_VALUE} = feeds[leaf.label];
+    if (Number.isInteger(discrepancy)) {
+      return discrepancy;
+    }
+
+    return discrepancy;
   }
 }
