@@ -26,6 +26,7 @@ type Settings = {
   consensus: {
     retries: number;
     strategy: string;
+    discrepancyCutoff: number;
   };
   blockchain: {
     provider: {

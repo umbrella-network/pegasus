@@ -31,6 +31,7 @@ const settings: Settings = {
   consensus: {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
     strategy: process.env.CONSENSUS_STRATEGY || 'simple',
+    discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '400'),
   },
   blockchain: {
     providers: resolveBlockchainProviders(),
