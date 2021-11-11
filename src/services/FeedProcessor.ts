@@ -24,6 +24,13 @@ interface Calculator {
   apply: (key: string, value: any, params: any, ...args: any[]) => FeedOutput[];
 }
 
+interface FetcherError {
+  message?: string;
+  response?: {
+    data: string;
+  };
+}
+
 @injectable()
 class FeedProcessor {
   @inject('Logger') logger!: Logger;
@@ -183,7 +190,9 @@ class FeedProcessor {
     try {
       return (await fetcher.apply(feedFetcher.params, timestamp)) || undefined;
     } catch (err) {
-      this.logger.warn(`Ignored feed fetcher ${JSON.stringify(feedFetcher)} due to an error.`, err);
+      const {message, response} = err as FetcherError;
+      const error = message || JSON.stringify(response?.data);
+      this.logger.warn(`Ignored feed fetcher ${JSON.stringify(feedFetcher)} due to an error. ${error}`);
       return;
     }
   }

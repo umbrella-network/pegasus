@@ -81,7 +81,7 @@ export class DiscrepancyFinder {
   }
 
   private static getDiscrepancy(feeds: Feeds, leaf: Leaf): number {
-    const {discrepancy = DEFAULT_DISCREPANCY_VALUE} = feeds[leaf.label];
+    const {discrepancy = DEFAULT_DISCREPANCY_VALUE} = feeds[leaf.label] || {};
     if (Number.isInteger(discrepancy)) {
       return discrepancy;
     }
