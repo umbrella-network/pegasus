@@ -103,7 +103,7 @@ class ConsensusRunner {
     round: number;
   }): void {
     const totalKeyCount = props.leafKeyCount + props.fcdKeyCount;
-    const maxTotalKeyCount = props.maxLeafKeyCount + props.maxLeafKeyCount;
+    const maxTotalKeyCount = props.maxLeafKeyCount + props.maxFcdKeyCount;
     const consensusYield = maxTotalKeyCount == 0 ? 0.0 : Math.round((totalKeyCount / maxTotalKeyCount) * 10000) / 10000;
 
     const msg = [
