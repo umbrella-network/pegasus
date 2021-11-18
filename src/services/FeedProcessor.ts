@@ -4,7 +4,7 @@ import {MD5 as hash} from 'object-hash';
 import {Logger} from 'winston';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
-import Feeds, {FeedCalculator, FeedFetcher, FeedOutput} from '../types/Feed';
+import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed';
 import Leaf from '../types/Leaf';
 import * as fetchers from './fetchers';
 import * as calculators from './calculators';
@@ -12,7 +12,6 @@ import {
   InputParams as CryptoComparePriceMultiFetcherParams,
   OutputValue as CryptoComparePriceMultiFetcherOutputValue,
 } from './fetchers/CryptoComparePriceMultiFetcher';
-import {number} from 'yargs';
 
 interface Fetcher {
   // eslint-disable-next-line
@@ -154,15 +153,15 @@ class FeedProcessor {
 
         if (!feedValues.length) {
           ignoredMap[ticker] = true;
-        } else if (feedValues.length === 1 && typeof feedValues[0].value !== 'number') {
-          leaves.push(this.buildHexadecimalLeaf(feedValues[0].key, feedValues[0].value));
+        } else if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
+          leaves.push(this.buildLeaf(feedValues[0].key, feedValues[0].value));
         } else {
           // calculateFeed is allowed to return different keys
           const groups = FeedProcessor.groupInputs(feedValues);
           for (const key in groups) {
             const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
             keyValueMap[key] = value;
-            leaves.push(this.buildNumericLeaf(key, (keyValueMap[key] = value)));
+            leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
           }
         }
       });
@@ -234,17 +233,10 @@ class FeedProcessor {
     return this.orderCryptoComparePriceMultiOutput(feedFetchers, values);
   }
 
-  private buildNumericLeaf = (label: string, value: number): Leaf => {
+  private buildLeaf = (label: string, value: FeedValue): Leaf => {
     return {
       label,
-      valueBytes: `0x${LeafValueCoder.encode(value, '').toString('hex')}`,
-    };
-  };
-
-  private buildHexadecimalLeaf = (label: string, value: string): Leaf => {
-    return {
-      label,
-      valueBytes: `0x${LeafValueCoder.encodeHex(value).toString('hex')}`,
+      valueBytes: `0x${LeafValueCoder.encode(value, label).toString('hex')}`,
     };
   };
 

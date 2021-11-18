@@ -59,9 +59,9 @@ export class DiscrepancyFinder {
       const discrepancy = DiscrepancyFinder.getDiscrepancy(feeds, leaf);
 
       // the case when there should be no discrepancy. Simply compare values
-      if (discrepancy === 0) {
+      if (discrepancy === 0 || LeafValueCoder.isFixedValue(label)) {
         if (proposedValueBytes !== leaf.valueBytes) {
-          discrepancies.set(label, 100);
+          discrepancies.set(label, 99);
         }
         return;
       }
