@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Added RandomNumberFetcher
 
+## [5.5.3] - 2021-11-16
+
+### Fixed
+- Settings file URL mapper for production environment
+
+## [5.5.2] - 2021-11-12
+### Added
+- Additional consensus logging.
+
+### Fixed
+- Consensus retry logic.
+
+### Changed
+- Increased consensus discrepancy threshold.
+
 ## [5.5.1] - 2021-10-28
 ### Added
 - Ability to handle Internal validators separatly.

@@ -31,6 +31,7 @@ const settings: Settings = {
   consensus: {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
     strategy: process.env.CONSENSUS_STRATEGY || 'simple',
+    discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '400'),
   },
   blockchain: {
     providers: resolveBlockchainProviders(),
@@ -139,13 +140,13 @@ function resolveArray(iterator: (i: number) => string): string[] {
 
 function getFeedsUrl() {
   const feedsFilesURLs: {[key: string]: string} = {
-    prod: 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/',
+    production: 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/',
     sbx: 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/develop/dev/bsc/',
     dev: 'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/develop/dev/bsc/',
   };
 
   const filename = packageJson.version.includes('5.5') ? 'feeds-5.5.yaml' : 'feeds.yaml';
-  const env = (process.env.ENVIRONMENT || 'prod') as string;
+  const env = (process.env.ENVIRONMENT || 'production') as string;
   const url = feedsFilesURLs[env] + filename;
   return url;
 }

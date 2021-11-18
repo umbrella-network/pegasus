@@ -42,37 +42,78 @@ class ConsensusRunner {
     requiredSignatures: number,
   ): Promise<Consensus | null> {
     let {firstClassLeaves, leaves} = await this.leavesAndFeeds(dataTimestamp);
-    let consensus: Consensus | null = null;
-    let discrepanciesKeys: Set<string> = new Set();
+    let maxLeafKeyCount: number;
+    let maxFcdKeyCount: number;
+    const maxRetries = this.settings.consensus.retries;
 
-    for (let i = 0; i < this.settings.consensus.retries; i++) {
-      if (i > 0) {
-        const keys: string[] = [];
-        discrepanciesKeys.forEach((k) => keys.push(k));
-        this.logger.warn(`Dumping discrepancy data (${keys.length}): ${keys.join(', ')}`);
-        ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepanciesKeys));
-        discrepanciesKeys = new Set(); // reset
-      }
+    for (let i = 0; i < maxRetries; i++) {
+      this.logger.info(`[${blockHeight}] Starting Consensus Round ${i}.`);
+      const dataForConsensus = await this.getDataForConsensus(dataTimestamp, firstClassLeaves, leaves);
+      const consensusRoundResult = await this.runConsensus(dataForConsensus, validators, requiredSignatures);
+      const {consensus, discrepantKeys} = consensusRoundResult;
+      const leafKeyCount = dataForConsensus.leaves.length;
+      const fcdKeyCount = dataForConsensus.fcdKeys.length;
+      const discrepantCount = discrepantKeys.size;
 
-      const dataForConsensus: DataForConsensus = await this.getDataForConsensus(
-        dataTimestamp,
-        firstClassLeaves,
-        leaves,
-      );
+      maxLeafKeyCount ||= leafKeyCount;
+      maxFcdKeyCount ||= fcdKeyCount;
 
-      ({consensus, discrepanciesKeys} = await this.runConsensus(dataForConsensus, validators, requiredSignatures));
+      const logProps = {
+        round: i,
+        blockHeight,
+        leafKeyCount,
+        fcdKeyCount,
+        maxLeafKeyCount,
+        maxFcdKeyCount,
+        discrepantCount,
+      };
 
-      if (consensus || discrepanciesKeys.size === 0) {
-        this.logger.info(
-          `step ${i} consensus: ${!!consensus}, discrepanciesKeys: ${discrepanciesKeys.size} of ${
-            dataForConsensus.leaves.length
-          }/${dataForConsensus.fcdKeys.length}`,
-        );
+      if (consensus) {
+        this.logConsensusResult({status: 'SUCCESS', ...logProps});
         return consensus;
       }
+
+      if (discrepantKeys.size == 0) {
+        this.logConsensusResult({status: 'FAILED', ...logProps});
+        return null;
+      }
+
+      if (i == maxRetries) {
+        this.logConsensusResult({status: 'RETRIES_EXHAUSTED', ...logProps});
+        return null;
+      }
+
+      this.logConsensusResult({status: 'RETRY', ...logProps});
+      this.logger.debug(`Dumping discrepancy data (${discrepantCount}): ${Array.from(discrepantKeys).join(', ')}`);
+      ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepantKeys));
     }
 
     return null;
+  }
+
+  private logConsensusResult(props: {
+    blockHeight: number;
+    status: string;
+    leafKeyCount: number;
+    fcdKeyCount: number;
+    maxLeafKeyCount: number;
+    maxFcdKeyCount: number;
+    discrepantCount: number;
+    round: number;
+  }): void {
+    const totalKeyCount = props.leafKeyCount + props.fcdKeyCount;
+    const maxTotalKeyCount = props.maxLeafKeyCount + props.maxFcdKeyCount;
+    const consensusYield = maxTotalKeyCount == 0 ? 0.0 : Math.round((totalKeyCount / maxTotalKeyCount) * 10000) / 10000;
+
+    const msg = [
+      `[${props.blockHeight}] Consensus Round ${props.round} Finished.`,
+      `Status: ${props.status}`,
+      `| Keys: ${totalKeyCount} (${props.leafKeyCount} + ${props.fcdKeyCount} FCDs)`,
+      `| Missed: ${props.discrepantCount}`,
+      `| Yield: ${consensusYield * 100}%`,
+    ].join(' ');
+
+    this.logger.info(msg);
   }
 
   private async leavesAndFeeds(dataTimestamp: number): Promise<LeavesAndFeeds> {
@@ -87,8 +128,8 @@ class ConsensusRunner {
     dataForConsensus: DataForConsensus,
     validators: Validator[],
     requiredSignatures: number,
-  ): Promise<{consensus: Consensus | null; discrepanciesKeys: Set<string>}> {
-    const {fcdKeys, leaves, fcdValues} = dataForConsensus;
+  ): Promise<{consensus: Consensus | null; discrepantKeys: Set<string>}> {
+    const {fcdKeys, fcdValues, leaves} = dataForConsensus;
 
     const signedBlock: SignedBlock = {
       dataTimestamp: dataForConsensus.dataTimestamp,
@@ -107,13 +148,13 @@ class ConsensusRunner {
       validators,
     );
 
-    const {powers, discrepanciesKeys, signatures} = this.processValidatorsResponses(
+    const {powers, discrepantKeys, signatures} = this.processValidatorsResponses(
       blockSignerResponsesWithPowers,
       requiredSignatures,
     );
 
     if (!this.hasConsensus(signatures, requiredSignatures)) {
-      return {consensus: null, discrepanciesKeys};
+      return {consensus: null, discrepantKeys};
     }
 
     return {
@@ -126,7 +167,7 @@ class ConsensusRunner {
         root: dataForConsensus.root,
         signatures: sortSignaturesBySigner(signatures, dataForConsensus.affidavit),
       },
-      discrepanciesKeys: new Set<string>(),
+      discrepantKeys: new Set<string>(),
     };
   }
 
@@ -207,17 +248,20 @@ class ConsensusRunner {
 
   private generateSimpleConsensus(blockSignerResponses: BlockSignerResponseWithPower[]): ValidatorsResponses {
     const signatures: string[] = [];
-    const discrepanciesKeys: Set<string> = new Set();
+    const discrepantKeys: Set<string> = new Set();
     let powers: BigNumber = BigNumber.from(0);
 
     blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
       this.versionCheck(response.version);
 
       if (response.error) {
+        this.logger.info(`Discarding ${response.validator} - the response contains an error: ${response.error}`);
+        this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
         return;
       }
 
       if (response.signature) {
+        this.logger.info(`Adding ${response.validator} signature - ${response.signature}`);
         signatures.push(response.signature);
         powers = powers.add(response.power);
         return;
@@ -225,17 +269,20 @@ class ConsensusRunner {
 
       const discrepancies = response.discrepancies || [];
 
-      if (discrepancies.length > 300) {
+      if (discrepancies.length > this.settings.consensus.discrepancyCutoff) {
         this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
         return;
       }
 
-      discrepancies.forEach((discrepancy) => {
-        discrepanciesKeys.add(discrepancy.key);
-      });
+      this.logger.info(
+        `Discarding ${response.validator} - No valid signature. Discrepancies: ${discrepancies.length}.`,
+      );
+
+      discrepancies.forEach((discrepancy) => discrepantKeys.add(discrepancy.key));
+      this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
     });
 
-    return {signatures, discrepanciesKeys, powers};
+    return {signatures, discrepantKeys, powers};
   }
 
   private generateOptimizedConsensus(
@@ -274,8 +321,8 @@ class ConsensusRunner {
       });
     }
 
-    const discrepanciesKeys = this.consensusOptimizer.apply(consensusOptimizerProps) || new Set<string>();
-    return {signatures, discrepanciesKeys, powers};
+    const discrepantKeys = this.consensusOptimizer.apply(consensusOptimizerProps) || new Set<string>();
+    return {signatures, discrepantKeys, powers};
   }
 
   private versionCheck(version: string) {

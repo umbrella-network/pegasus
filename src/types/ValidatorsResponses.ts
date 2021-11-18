@@ -2,6 +2,6 @@ import {BigNumber} from 'ethers';
 
 export interface ValidatorsResponses {
   signatures: string[];
-  discrepanciesKeys: Set<string>;
+  discrepantKeys: Set<string>;
   powers: BigNumber;
 }
