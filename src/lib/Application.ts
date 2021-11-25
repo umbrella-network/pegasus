@@ -8,6 +8,11 @@ import ChainContract from '../contracts/ChainContract';
 import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
 import {Redis} from 'ioredis';
 import {initRedis} from '../config/initRedis';
+import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository';
+import PriceRepository from '../repositories/PriceRepository';
+import PairRepository from '../repositories/PairRepository';
+import {CalculatorRepository} from '../repositories/CalculatorRepository';
+import {FeedRepository} from '../repositories/FeedRepository';
 
 class Application {
   private static _instance: Application;
@@ -20,6 +25,11 @@ class Application {
     this.container.bind<ChainContract>(ChainContract).toSelf().inSingletonScope();
     this.container.bind<Blockchain>(Blockchain).toSelf().inSingletonScope();
     this.container.bind<CryptoCompareWSClient>(CryptoCompareWSClient).toSelf().inSingletonScope();
+    this.container.bind(PriceRepository).toSelf().inSingletonScope();
+    this.container.bind(PairRepository).toSelf().inSingletonScope();
+    this.container.bind(FeedFetcherRepository).toSelf().inSingletonScope();
+    this.container.bind(CalculatorRepository).toSelf().inSingletonScope();
+    this.container.bind(FeedRepository).toSelf().inSingletonScope();
 
     this.container
       .bind<Redis>('Redis')

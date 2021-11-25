@@ -7,7 +7,6 @@ import {getModelForClass} from '@typegoose/typegoose';
 import newrelic from 'newrelic';
 
 import ConsensusRunner from './ConsensusRunner';
-import FeedProcessor from './FeedProcessor';
 import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
@@ -32,7 +31,6 @@ class BlockMinter {
   @inject(ConsensusRunner) consensusRunner!: ConsensusRunner;
   @inject(TimeService) timeService!: TimeService;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
-  @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject('Settings') settings!: Settings;

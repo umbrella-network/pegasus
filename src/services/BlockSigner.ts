@@ -1,9 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import loadFeeds from './loadFeeds';
-import Feeds from '../types/Feed';
 
-import FeedProcessor from './FeedProcessor';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
@@ -13,12 +10,13 @@ import {BlockSignerResponse} from '../types/BlockSignerResponse';
 import BlockRepository from './BlockRepository';
 
 import {chainReadyForNewBlock, signAffidavitWithWallet} from '../utils/mining';
-import {LeavesAndFeeds, ProposedConsensus} from '../types/Consensus';
+import {ProposedConsensus} from '../types/Consensus';
 import {ChainStatus} from '../types/ChainStatus';
 import {DiscrepancyFinder} from './DiscrepancyFinder';
 import newrelic from 'newrelic';
 import {Discrepancy} from '../types/Discrepancy';
 import {ProposedConsensusService} from './ProposedConsensusService';
+import {FeedDataService} from './FeedDataService';
 
 @injectable()
 class BlockSigner {
@@ -26,9 +24,9 @@ class BlockSigner {
   @inject('Settings') settings!: Settings;
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
-  @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
+  @inject(FeedDataService) feedDataService!: FeedDataService;
 
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
     const {proposedConsensus, chainAddress, chainStatus} = await this.executeRequireChecks(block);
@@ -37,7 +35,7 @@ class BlockSigner {
       `Request from ${proposedConsensus.signer} to sign a block ~${chainStatus.nextBlockId} with ${proposedConsensus.leaves.length} leaves and ${proposedConsensus.fcdKeys.length} FCDs`,
     );
 
-    const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = await this.leavesAndFeeds(
+    const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = await this.feedDataService.getLeavesAndFeeds(
       proposedConsensus.dataTimestamp,
     );
 
@@ -62,15 +60,6 @@ class BlockSigner {
     this.logger.info(`Signed a block for ${proposedConsensus.signer} at ${block.dataTimestamp}`);
 
     return {signature, discrepancies, version: this.settings.version};
-  }
-
-  async leavesAndFeeds(dataTimestamp: number): Promise<LeavesAndFeeds> {
-    const feeds: Feeds[] = await Promise.all(
-      [this.settings.feedsOnChain, this.settings.feedsFile].map((fileName) => loadFeeds(fileName)),
-    );
-
-    const [firstClassLeaves, leaves] = await this.feedProcessor.apply(dataTimestamp, ...feeds);
-    return {firstClassLeaves, leaves, fcdsFeeds: feeds[0], leavesFeeds: feeds[1]};
   }
 
   private async reportDiscrepancies(discrepancies: Discrepancy[]): Promise<void> {

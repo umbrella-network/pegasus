@@ -33,6 +33,11 @@ const settings: Settings = {
     strategy: process.env.CONSENSUS_STRATEGY || 'simple',
     discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '400'),
   },
+  blockchains: {
+    ethereum: {
+      providerUrl: (<string>process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL || '').split(','),
+    },
+  },
   blockchain: {
     providers: resolveBlockchainProviders(),
     provider: {
@@ -99,6 +104,12 @@ const settings: Settings = {
     optionsPrice: {
       apiKey: process.env.OPTIONS_PRICE_API_KEY as string,
       timeout: parseInt(process.env.OPTIONS_PRICE_TIMEOUT || '5000', 10),
+    },
+    uniswap: {
+      scannerContractId: <string>process.env.UNISWAP_SCANNER_CONTRACT_ID,
+      helperContractId: <string>process.env.UNISWAP_HELPER_CONTRACT_ID,
+      startBlock: parseInt(process.env.UNISWAP_START_BLOCK || '0'),
+      agentStep: parseInt(process.env.UNISWAP_STEP || '100'),
     },
   },
   feedsFile: getFeedsUrl(),
