@@ -21,7 +21,9 @@ import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
-import {ConsensusOptimizer, ConsensusOptimizerProps} from './ConsensusOptimizer';
+import {sleep} from '../lib/sleep';
+import {SimpleConsensusGenerator} from './consensus/SimpleConsensusGenerator';
+import {OptimizedConsensusGenerator} from './consensus/OptimizedConsensusGenerator';
 
 @injectable()
 class ConsensusRunner {
@@ -32,7 +34,8 @@ class ConsensusRunner {
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(BlockRepository) blockRepository!: BlockRepository;
-  @inject(ConsensusOptimizer) consensusOptimizer!: ConsensusOptimizer;
+  @inject(SimpleConsensusGenerator) simpleConsensusGenerator!: SimpleConsensusGenerator;
+  @inject(OptimizedConsensusGenerator) optimizedConsensusGenerator!: OptimizedConsensusGenerator;
   @inject('Settings') settings!: Settings;
 
   async apply(
@@ -72,9 +75,14 @@ class ConsensusRunner {
         this.logConsensusResult({status: 'SUCCESS', ...logProps});
         return consensus;
       } else if (i < maxRetries) {
-        this.logConsensusResult({status: 'RETRY', ...logProps});
-        this.logger.debug(`Dumping discrepancy data (${discrepantCount}): ${Array.from(discrepantKeys).join(', ')}`);
-        ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepantKeys));
+        if (discrepantKeys.size > 0) {
+          this.logger.debug(`Dumping discrepancy data (${discrepantCount}): ${Array.from(discrepantKeys).join(', ')}`);
+          this.logConsensusResult({status: 'DROP_KEYS', ...logProps});
+          ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepantKeys));
+        } else {
+          this.logConsensusResult({status: 'WAIT', ...logProps});
+          await sleep(1000);
+        }
       } else {
         this.logConsensusResult({status: 'FAILED', ...logProps});
         return null;
@@ -97,14 +105,13 @@ class ConsensusRunner {
   }): void {
     const totalKeyCount = props.leafKeyCount + props.fcdKeyCount;
     const maxTotalKeyCount = props.maxLeafKeyCount + props.maxFcdKeyCount;
-    const missedCount = maxTotalKeyCount - totalKeyCount;
     const consensusYield = maxTotalKeyCount == 0 ? 0.0 : Math.round((totalKeyCount / maxTotalKeyCount) * 10000) / 10000;
 
     const msg = [
       `[${props.blockHeight}] Consensus Round ${props.round}/${props.maxRounds} Finished.`,
       `Status: ${props.status}`,
       `| Keys: ${totalKeyCount} (${props.leafKeyCount} + ${props.fcdKeyCount} FCDs)`,
-      `| Missed: ${missedCount}`,
+      `| Missed: ${props.discrepantCount}`,
       `| Yield: ${consensusYield * 100}%`,
     ].join(' ');
 
@@ -158,9 +165,9 @@ class ConsensusRunner {
           power: powers,
           root: dataForConsensus.root,
           signatures: sortSignaturesBySigner(signatures, dataForConsensus.affidavit),
-          status: ConsensusStatus.FAILED
+          status: ConsensusStatus.FAILED,
         },
-        discrepantKeys
+        discrepantKeys,
       };
     }
 
@@ -173,7 +180,7 @@ class ConsensusRunner {
         power: powers,
         root: dataForConsensus.root,
         signatures: sortSignaturesBySigner(signatures, dataForConsensus.affidavit),
-        status: ConsensusStatus.SUCCESS
+        status: ConsensusStatus.SUCCESS,
       },
       discrepantKeys: new Set<string>(),
     };
@@ -251,107 +258,9 @@ class ConsensusRunner {
     requiredSignatures: number,
   ): ValidatorsResponses {
     if (this.settings.consensus.strategy == 'optimized') {
-      return this.generateOptimizedConsensus(blockSignerResponses, requiredSignatures);
+      return this.optimizedConsensusGenerator.apply(blockSignerResponses, requiredSignatures);
     } else {
-      return this.generateSimpleConsensus(blockSignerResponses);
-    }
-  }
-
-  private generateSimpleConsensus(blockSignerResponses: BlockSignerResponseWithPower[]): ValidatorsResponses {
-    const signatures: string[] = [];
-    const discrepantKeys: Set<string> = new Set();
-    let powers: BigNumber = BigNumber.from(0);
-
-    blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
-      this.versionCheck(response.version);
-
-      if (response.error) {
-        this.logger.info(`Discarding ${response.validator} - the response contains an error: ${response.error}`);
-        this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
-        return;
-      }
-
-      if (response.signature) {
-        this.logger.info(`Adding ${response.validator} signature - ${response.signature}`);
-        signatures.push(response.signature);
-        powers = powers.add(response.power);
-        return;
-      }
-
-      const discrepancies = response.discrepancies || [];
-
-      if (discrepancies.length > this.settings.consensus.discrepancyCutoff) {
-        this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
-        return;
-      }
-
-      this.logger.info(
-        `Discarding ${response.validator} - No valid signature. Discrepancies: ${discrepancies.length}.`,
-      );
-
-      discrepancies.forEach((discrepancy) => discrepantKeys.add(discrepancy.key));
-      this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
-    });
-
-    return {signatures, discrepantKeys, powers};
-  }
-
-  private generateOptimizedConsensus(
-    blockSignerResponses: BlockSignerResponseWithPower[],
-    requiredSignatures: number,
-  ): ValidatorsResponses {
-    const signatures: string[] = [];
-    let powers: BigNumber = BigNumber.from(0);
-
-    const consensusOptimizerProps: ConsensusOptimizerProps = {
-      participants: [],
-      constraints: {
-        minimumRequiredPower: 1n,
-        minimumRequiredSignatures: Math.max(requiredSignatures - 1, 0),
-      },
-    };
-
-    for (const response of blockSignerResponses) {
-      this.versionCheck(response.version);
-
-      if (response.error) continue;
-
-      if (response.signature) {
-        powers = powers.add(response.power);
-        signatures.push(response.signature);
-        continue;
-      }
-
-      if (!response.validator) continue;
-      if (!response.discrepancies) continue;
-
-      consensusOptimizerProps.participants.push({
-        address: response.validator,
-        power: response.power.toBigInt(),
-        discrepancies: response.discrepancies.map((d) => d.key),
-      });
-    }
-
-    const discrepantKeys = this.consensusOptimizer.apply(consensusOptimizerProps) || new Set<string>();
-    return {signatures, discrepantKeys, powers};
-  }
-
-  private versionCheck(version: string) {
-    const expected = this.settings.version.split('.');
-
-    if (!version) {
-      this.logger.warn('version check fail: no version');
-      return;
-    }
-
-    const v = version.split('.');
-
-    if (expected[0] !== v[0]) {
-      this.logger.error(`version check fail: expected ${this.settings.version} got ${version}`);
-    } else if (expected[1] !== v[1]) {
-      this.logger.warn(`version check warn: ${this.settings.version} vs ${version}`);
-    } else if (expected[2] !== v[2]) {
-      this.logger.info(`version check: ${this.settings.version} vs ${version}`);
+      return this.simpleConsensusGenerator.apply(blockSignerResponses);
     }
   }
 

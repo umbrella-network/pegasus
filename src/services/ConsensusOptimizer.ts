@@ -43,6 +43,8 @@ export class ConsensusOptimizer {
       constraints: {minimumRequiredSignatures, minimumRequiredPower},
     } = props;
 
+    this.logger.info(`Optimizing consensus with ${props.participants.length} candidates.`);
+
     if (this.everyoneAgrees(participants)) {
       this.logger.info('All participants agree. Keeping all keys.');
       return new Set<string>();

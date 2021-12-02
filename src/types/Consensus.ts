@@ -12,8 +12,8 @@ export interface DataForConsensus {
 }
 
 export enum ConsensusStatus {
-  SUCCESS='SUCCESS',
-  FAILED='FAILED'
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
 }
 
 export type Consensus = {
@@ -25,7 +25,7 @@ export type Consensus = {
   signatures: string[];
   power: BigNumber;
   status: ConsensusStatus;
-}
+};
 
 export interface SignedBlockConsensus {
   dataTimestamp: number;
