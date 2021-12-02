@@ -11,7 +11,12 @@ export interface DataForConsensus {
   root: string;
 }
 
-export interface Consensus {
+export enum ConsensusStatus {
+  SUCCESS='SUCCESS',
+  FAILED='FAILED'
+}
+
+export type Consensus = {
   dataTimestamp: number;
   leaves: Leaf[];
   root: string;
@@ -19,6 +24,7 @@ export interface Consensus {
   fcdValues: FeedValue[];
   signatures: string[];
   power: BigNumber;
+  status: ConsensusStatus;
 }
 
 export interface SignedBlockConsensus {

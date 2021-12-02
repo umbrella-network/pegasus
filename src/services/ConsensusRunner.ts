@@ -15,7 +15,7 @@ import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import Leaf from '../types/Leaf';
 import {BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
-import {Consensus, DataForConsensus, LeavesAndFeeds} from '../types/Consensus';
+import {Consensus, ConsensusStatus, DataForConsensus, LeavesAndFeeds} from '../types/Consensus';
 import Settings from '../types/Settings';
 import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
@@ -43,24 +43,23 @@ class ConsensusRunner {
     requiredSignatures: number,
   ): Promise<Consensus | null> {
     let {firstClassLeaves, leaves} = await this.leavesAndFeeds(dataTimestamp);
-    let maxLeafKeyCount: number;
-    let maxFcdKeyCount: number;
+    let maxLeafKeyCount!: number;
+    let maxFcdKeyCount!: number;
     const maxRetries = this.settings.consensus.retries;
 
     for (let i = 1; i <= maxRetries; i++) {
       this.logger.info(`[${blockHeight}] Starting Consensus Round ${i}.`);
       const dataForConsensus = await this.getDataForConsensus(dataTimestamp, firstClassLeaves, leaves);
-      const consensusRoundResult = await this.runConsensus(dataForConsensus, validators, requiredSignatures);
-      const {consensus, discrepantKeys} = consensusRoundResult;
+      const {consensus, discrepantKeys} = await this.runConsensus(dataForConsensus, validators, requiredSignatures);
       const leafKeyCount = dataForConsensus.leaves.length;
       const fcdKeyCount = dataForConsensus.fcdKeys.length;
       const discrepantCount = discrepantKeys.size;
-
-      maxLeafKeyCount ||= leafKeyCount;
-      maxFcdKeyCount ||= fcdKeyCount;
+      if (!maxLeafKeyCount) maxLeafKeyCount = leafKeyCount;
+      if (!maxFcdKeyCount) maxFcdKeyCount = fcdKeyCount;
 
       const logProps = {
         round: i,
+        maxRounds: maxRetries,
         blockHeight,
         leafKeyCount,
         fcdKeyCount,
@@ -69,24 +68,17 @@ class ConsensusRunner {
         discrepantCount,
       };
 
-      if (consensus) {
+      if (consensus.status == ConsensusStatus.SUCCESS) {
         this.logConsensusResult({status: 'SUCCESS', ...logProps});
         return consensus;
-      }
-
-      if (discrepantKeys.size == 0) {
+      } else if (i < maxRetries) {
+        this.logConsensusResult({status: 'RETRY', ...logProps});
+        this.logger.debug(`Dumping discrepancy data (${discrepantCount}): ${Array.from(discrepantKeys).join(', ')}`);
+        ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepantKeys));
+      } else {
         this.logConsensusResult({status: 'FAILED', ...logProps});
         return null;
       }
-
-      if (i == maxRetries) {
-        this.logConsensusResult({status: 'RETRIES_EXHAUSTED', ...logProps});
-        return null;
-      }
-
-      this.logConsensusResult({status: 'RETRY', ...logProps});
-      this.logger.debug(`Dumping discrepancy data (${discrepantCount}): ${Array.from(discrepantKeys).join(', ')}`);
-      ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepantKeys));
     }
 
     return null;
@@ -94,23 +86,25 @@ class ConsensusRunner {
 
   private logConsensusResult(props: {
     blockHeight: number;
+    maxLeafKeyCount: number;
+    maxFcdKeyCount: number;
+    maxRounds: number;
     status: string;
     leafKeyCount: number;
     fcdKeyCount: number;
-    maxLeafKeyCount: number;
-    maxFcdKeyCount: number;
     discrepantCount: number;
     round: number;
   }): void {
     const totalKeyCount = props.leafKeyCount + props.fcdKeyCount;
     const maxTotalKeyCount = props.maxLeafKeyCount + props.maxFcdKeyCount;
+    const missedCount = maxTotalKeyCount - totalKeyCount;
     const consensusYield = maxTotalKeyCount == 0 ? 0.0 : Math.round((totalKeyCount / maxTotalKeyCount) * 10000) / 10000;
 
     const msg = [
-      `[${props.blockHeight}] Consensus Round ${props.round} Finished.`,
+      `[${props.blockHeight}] Consensus Round ${props.round}/${props.maxRounds} Finished.`,
       `Status: ${props.status}`,
       `| Keys: ${totalKeyCount} (${props.leafKeyCount} + ${props.fcdKeyCount} FCDs)`,
-      `| Missed: ${props.discrepantCount}`,
+      `| Missed: ${missedCount}`,
       `| Yield: ${consensusYield * 100}%`,
     ].join(' ');
 
@@ -129,7 +123,7 @@ class ConsensusRunner {
     dataForConsensus: DataForConsensus,
     validators: Validator[],
     requiredSignatures: number,
-  ): Promise<{consensus: Consensus | null; discrepantKeys: Set<string>}> {
+  ): Promise<{consensus: Consensus; discrepantKeys: Set<string>}> {
     const {fcdKeys, fcdValues, leaves} = dataForConsensus;
 
     const signedBlock: SignedBlock = {
@@ -155,7 +149,19 @@ class ConsensusRunner {
     );
 
     if (!this.hasConsensus(signatures, requiredSignatures)) {
-      return {consensus: null, discrepantKeys};
+      return {
+        consensus: {
+          dataTimestamp: signedBlock.dataTimestamp,
+          leaves,
+          fcdKeys,
+          fcdValues,
+          power: powers,
+          root: dataForConsensus.root,
+          signatures: sortSignaturesBySigner(signatures, dataForConsensus.affidavit),
+          status: ConsensusStatus.FAILED
+        },
+        discrepantKeys
+      };
     }
 
     return {
@@ -167,6 +173,7 @@ class ConsensusRunner {
         power: powers,
         root: dataForConsensus.root,
         signatures: sortSignaturesBySigner(signatures, dataForConsensus.affidavit),
+        status: ConsensusStatus.SUCCESS
       },
       discrepantKeys: new Set<string>(),
     };
