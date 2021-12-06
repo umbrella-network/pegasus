@@ -2,7 +2,7 @@ import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Signature} from 'ethers';
 import {ABI, LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
-import {FeedValue} from '../types/Feed';
+import {FeedValue, HexStringWith0x} from '../types/Feed';
 import {getModelForClass} from '@typegoose/typegoose';
 import newrelic from 'newrelic';
 
@@ -110,7 +110,7 @@ class BlockMinter {
     dataTimestamp: number,
     root: string,
     keys: string[],
-    values: string[],
+    values: HexStringWith0x[],
     signatures: string[],
     chainStatus: ChainStatus,
     nonce?: number,
@@ -164,7 +164,7 @@ class BlockMinter {
     dataTimestamp: number,
     root: string,
     keys: string[],
-    values: string[],
+    values: HexStringWith0x[],
     signatures: string[],
     chainStatus: ChainStatus,
   ): Promise<MintedBlock | null> {

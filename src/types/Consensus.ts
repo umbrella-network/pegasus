@@ -1,12 +1,12 @@
 import {BigNumber} from 'ethers';
-import Feeds from '../types/Feed';
+import Feeds, {HexStringWith0x} from '../types/Feed';
 import Leaf from '../types/Leaf';
 
 export interface DataForConsensus {
   affidavit: string;
   dataTimestamp: number;
   fcdKeys: string[];
-  fcdValues: string[];
+  fcdValues: HexStringWith0x[];
   leaves: Leaf[];
   root: string;
 }
@@ -16,7 +16,7 @@ export interface Consensus {
   leaves: Leaf[];
   root: string;
   fcdKeys: string[];
-  fcdValues: string[];
+  fcdValues: HexStringWith0x[];
   signatures: string[];
   power: BigNumber;
 }

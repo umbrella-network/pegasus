@@ -7,7 +7,7 @@ import Blockchain from '../../lib/Blockchain';
 class RandomNumberFetcher {
   @inject(Blockchain) blockchain!: Blockchain;
 
-  async apply({numBlocks = 10}: any = {}, timestamp: number): Promise<string> {
+  async apply({numBlocks = 10} = {}, timestamp: number): Promise<string> {
     let latest = await this.blockchain.provider.getBlock('latest');
 
     while (latest.timestamp >= timestamp) {

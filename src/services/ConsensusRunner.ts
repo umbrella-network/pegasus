@@ -2,7 +2,7 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
-import Feeds from '../types/Feed';
+import Feeds, {HexStringWith0x} from '../types/Feed';
 
 import loadFeeds from '../services/loadFeeds';
 import FeedProcessor from './FeedProcessor';
@@ -175,7 +175,7 @@ class ConsensusRunner {
     return Object.fromEntries(leaves.map(({label, valueBytes}) => [label, valueBytes]));
   }
 
-  private fcdToKeyValues(fcdKeys: string[], fcdValues: string[]): KeyValues {
+  private fcdToKeyValues(fcdKeys: string[], fcdValues: HexStringWith0x[]): KeyValues {
     return Object.fromEntries(fcdKeys.map((_, idx) => [fcdKeys[idx], fcdValues[idx]]));
   }
 
