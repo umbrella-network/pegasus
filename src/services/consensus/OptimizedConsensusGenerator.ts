@@ -29,10 +29,10 @@ export class OptimizedConsensusGenerator {
     for (const response of blockSignerResponses) {
       this.versionChecker.apply(response.version);
 
-      if (response.error) {
-        this.logger.info(`Discarding ${response.validator} - the response contains an error: ${response.error}`);
-        this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
-        continue;
+      if (response.signature && response.validator && !response.error) {
+        this.logger.info(`Adding ${response.validator} signature - ${response.signature}.`);
+        signatures.push(response.signature);
+        powers = powers.add(response.power);
       }
 
       if (!response.validator) {
@@ -40,12 +40,9 @@ export class OptimizedConsensusGenerator {
         continue;
       }
 
-      if (response.signature) {
-        this.logger.info(`Adding ${response.validator} signature - ${response.signature}.`);
-        signatures.push(response.signature);
-        powers = powers.add(response.power);
-      } else {
-        this.logger.info(`Ignoring ${response.validator} - no signature found.`);
+      if (response.error) {
+        this.logger.info(`${response.validator} - the response contains an error: ${response.error}`);
+        this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
       }
 
       consensusOptimizerProps.participants.push({
