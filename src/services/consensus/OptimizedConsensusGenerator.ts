@@ -21,7 +21,7 @@ export class OptimizedConsensusGenerator {
     const consensusOptimizerProps: ConsensusOptimizerProps = {
       participants: [],
       constraints: {
-        minimumRequiredPower: 1n,
+        minimumRequiredPower: 1n, // TODO: Remove minimum power logic
         minimumRequiredSignatures: Math.max(requiredSignatures - 1, 0),
       },
     };
@@ -41,26 +41,17 @@ export class OptimizedConsensusGenerator {
       }
 
       if (response.signature) {
-        this.logger.info(`Adding ${response.validator} signature - ${response.signature}`);
+        this.logger.info(`Adding ${response.validator} signature - ${response.signature}.`);
         signatures.push(response.signature);
         powers = powers.add(response.power);
-
-        consensusOptimizerProps.participants.push({
-          address: response.validator,
-          power: response.power.toBigInt(),
-          discrepancies: [],
-        });
-
-        continue;
+      } else {
+        this.logger.info(`Ignoring ${response.validator} - no signature found.`);
       }
-
-      const discrepancies = response.discrepancies || [];
-      if (discrepancies.length == 0) continue;
 
       consensusOptimizerProps.participants.push({
         address: response.validator,
         power: response.power.toBigInt(),
-        discrepancies: response.discrepancies.map((d) => d.key),
+        discrepancies: (response.discrepancies || []).map((d) => d.key),
       });
     }
 

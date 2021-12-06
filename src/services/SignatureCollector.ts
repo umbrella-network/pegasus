@@ -1,9 +1,7 @@
 import {inject, injectable} from 'inversify';
 import axios from 'axios';
 import {Logger} from 'winston';
-import {BigNumber} from 'ethers';
 import newrelic from 'newrelic';
-
 import {SignedBlock} from '../types/SignedBlock';
 import Blockchain from '../lib/Blockchain';
 import {Validator} from '../types/Validator';
@@ -11,6 +9,7 @@ import Settings from '../types/Settings';
 import {BlockSignerResponse, BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
 import {recoverSigner} from '../utils/mining';
 import {SignatureCollectionErrorEvent} from '../constants/ReportedMetricsEvents';
+import {Error} from 'mongoose';
 
 @injectable()
 class SignatureCollector {
@@ -19,99 +18,97 @@ class SignatureCollector {
   @inject('Settings') private settings!: Settings;
 
   async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<BlockSignerResponseWithPower[]> {
-    const otherValidators = validators.filter((v) => v.id !== this.blockchain.wallet.address);
+    const self = <Validator>validators.find((v) => v.id === this.blockchain.wallet.address);
+    const participants = validators.filter((v) => v.id !== this.blockchain.wallet.address);
 
-    const collectedSignatures: (BlockSignerResponseWithPower | undefined)[] = await Promise.all(
-      otherValidators.map((validator: Validator) => this.collectSignature(validator, block, affidavit)),
-    );
-
-    const signatures: BlockSignerResponseWithPower[] = [
-      {
-        signature: block.signature,
-        power: validators.filter((v) => v.id === this.blockchain.wallet.address)[0].power,
-        discrepancies: [],
-        version: this.settings.version,
-        validator: this.blockchain.wallet.address,
-      },
-    ];
-
-    let emptyResponses = 0;
-
-    collectedSignatures.forEach((data, i) => {
-      data ? signatures.push({...data, validator: otherValidators[i].id}) : emptyResponses++;
-    });
-
-    if (emptyResponses) {
-      this.logger.warn(`collected ${emptyResponses} empty (not compatible) responses`);
-    }
+    const signatures = [
+      this.getLocalSignature(block, self),
+      await this.getParticipantSignatures(block, participants, affidavit),
+    ].flat();
 
     return signatures;
   }
 
-  private async collectSignature(
-    validator: Validator,
+  private getLocalSignature(block: SignedBlock, self: Validator): BlockSignerResponseWithPower {
+    return {
+      validator: this.blockchain.wallet.address,
+      signature: block.signature,
+      power: self.power,
+      discrepancies: [],
+      version: this.settings.version,
+    };
+  }
+
+  private async getParticipantSignatures(
     block: SignedBlock,
+    participants: Validator[],
     affidavit: string,
-  ): Promise<undefined | BlockSignerResponseWithPower> {
-    const {id, location} = validator;
+  ): Promise<BlockSignerResponseWithPower[]> {
+    const signaturePickups = participants.map((p) => this.getParticipantSignature(block, p, affidavit));
+    const successfulPickups = (await Promise.all(signaturePickups)).filter((s) => s !== undefined);
+    this.logger.info(`Got ${successfulPickups.length} / ${signaturePickups.length} responses.`);
+    return <BlockSignerResponseWithPower[]>successfulPickups;
+  }
+
+  private async getParticipantSignature(
+    block: SignedBlock,
+    validator: Validator,
+    affidavit: string,
+  ): Promise<BlockSignerResponseWithPower | undefined> {
+    const timeout = this.settings.signatureTimeout;
 
     try {
-      // if status check throws, requestSignature will be canceled
       const [blockSignerResponse] = await Promise.all([
-        SignatureCollector.requestSignature(location, block, this.settings.signatureTimeout),
-        SignatureCollector.statusCheck(location, this.settings.statusCheckTimeout),
+        this.requestSignature(block, validator, timeout),
+        this.statusCheck(validator, timeout),
       ]);
 
-      if (
-        (blockSignerResponse.discrepancies.length > 0 || blockSignerResponse.error) &&
-        !blockSignerResponse.signature
-      ) {
-        const errMsg = blockSignerResponse.error || `${blockSignerResponse.discrepancies.length} discrepancies`;
-
-        newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
-          validatorId: id,
-          location: location,
-          error: errMsg,
-        });
-        this.logger.error(`Validator ${id} at ${location} responded with error: ${errMsg}`);
-        return {
-          ...blockSignerResponse,
-          power: BigNumber.from(0),
-        };
+      if (this.isBlockSignerResponseValid(blockSignerResponse)) {
+        // TODO: reconsider if this is necessary since the smart contract already prevents this.
+        this.checkSignature(validator, <string>blockSignerResponse.signature, affidavit);
+        return {...blockSignerResponse, validator: validator.id, power: validator.power};
+      } else {
+        this.logBadSignatureCollection(validator, blockSignerResponse);
+        return {...blockSignerResponse, validator: validator.id, power: validator.power, signature: undefined};
       }
+    } catch (e) {
+      this.logSignatureCollectionException(validator, e);
+    }
 
-      const signerAddress = await recoverSigner(affidavit, blockSignerResponse.signature);
+    return;
+  }
 
-      if (signerAddress !== id) {
-        throw new Error(`Signature does not match validator ${id}`);
-      }
+  private async statusCheck(validator: Validator, timeout: number): Promise<void> {
+    const sourceUrl = `${validator.location}/info`;
 
-      return {
-        ...blockSignerResponse,
-        power: validator.power,
-      };
-    } catch (ex) {
-      newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
-        validatorId: id,
-        location: location,
-        error: ex.message,
-      });
-      this.logger.error(`Can not collect signature at ${location}, error: ${ex.message}`);
+    const response = await axios.get(sourceUrl, {
+      timeoutErrorMessage: `Status check timeout exceeded: ${sourceUrl}`,
+      timeout,
+    });
+
+    if (response.status !== 200) {
+      throw new Error(`Status check failed for validator at ${validator.location}, HTTP: ${response.status}`);
+    }
+
+    const data = JSON.stringify(response.data).toLowerCase();
+    const indexOf = data.indexOf('error');
+
+    if (indexOf >= 0) {
+      const error = data.slice(indexOf, indexOf + 25);
+      throw new Error(`Status check failed for validator at ${validator.location}, error detected: ${error}`);
     }
   }
 
-  private static async requestSignature(
-    location: string,
+  private async requestSignature(
     block: SignedBlock,
+    validator: Validator,
     timeout: number,
   ): Promise<BlockSignerResponse> {
-    const sourceUrl = `${location}/signature`;
+    const sourceUrl = `${validator.location}/signature`;
 
     try {
       const response = await axios.post(sourceUrl, JSON.stringify(block), {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         timeoutErrorMessage: `Signature request timeout exceeded: ${sourceUrl}`,
         timeout,
       });
@@ -126,24 +123,39 @@ class SignatureCollector {
     }
   }
 
-  private static async statusCheck(location: string, timeout: number): Promise<void> {
-    const sourceUrl = `${location}/info`;
+  private logBadSignatureCollection(validator: Validator, blockSignerResponse: BlockSignerResponse): void {
+    const errMsg = blockSignerResponse.error || `${blockSignerResponse.discrepancies.length} discrepancies`;
 
-    const response = await axios.get(sourceUrl, {
-      timeoutErrorMessage: `Status check timeout exceeded: ${sourceUrl}`,
-      timeout,
+    newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
+      validatorId: validator.id,
+      location: validator.location,
+      error: errMsg,
     });
 
-    if (response.status !== 200) {
-      throw Error(`Status check failed for validator at ${location}, HTTP: ${response.status}`);
-    }
+    this.logger.error(`Validator ${validator.id} at ${validator.location} responded with error: ${errMsg}`);
+  }
 
-    const data = JSON.stringify(response.data).toLowerCase();
-    const indexOf = data.indexOf('error');
+  private logSignatureCollectionException(validator: Validator, error: Error): void {
+    newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
+      validatorId: validator.id,
+      location: validator.location,
+      error: error.message,
+    });
 
-    if (indexOf >= 0) {
-      const error = data.slice(indexOf, indexOf + 25);
-      throw Error(`Status check failed for validator at ${location}, error detected: ${error}`);
+    this.logger.error(`Can not collect signature at ${validator.location}, exception: ${error.message}`);
+  }
+
+  private isBlockSignerResponseValid(blockSignerResponse: BlockSignerResponse): boolean {
+    if (blockSignerResponse.error) return false;
+    if (blockSignerResponse.discrepancies.length > 0) return false;
+    return !!blockSignerResponse.signature;
+  }
+
+  private checkSignature(validator: Validator, signature: string, affidavit: string): void {
+    const signerAddress = recoverSigner(affidavit, signature);
+
+    if (signerAddress !== validator.id) {
+      throw new Error(`Signature does not match validator ${validator.id}`);
     }
   }
 }
