@@ -4,6 +4,7 @@ import http from 'http';
 import {Logger} from 'winston';
 import helmet from 'helmet';
 import compression from 'compression';
+import cors from 'cors';
 
 import logger from './logger';
 import Settings from '../types/Settings';
@@ -40,6 +41,7 @@ class Server {
       .use(compression())
       .use(express.json())
       .use(express.urlencoded({extended: true}))
+      .use(cors())
       .use('/blocks', blocksController.router)
       .use('/debug', debugController.router)
       .use('/health', healthController.router)

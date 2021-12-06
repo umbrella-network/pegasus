@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Added RandomNumberFetcher
 
+## [5.5.4] - 2021-11-17
+### Added
+- CORS Support.
+
+### Fixed
+- Consensus Round countdown indexed to 1.
+
 ## [5.5.3] - 2021-11-16
 
 ### Fixed
