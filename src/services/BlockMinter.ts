@@ -1,11 +1,13 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Signature} from 'ethers';
-import {ABI, LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
-import {FeedValue, HexStringWith0x} from '../types/Feed';
+import {ABI, LeafKeyCoder} from '@umb-network/toolbox';
 import {getModelForClass} from '@typegoose/typegoose';
 import newrelic from 'newrelic';
+import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
+import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 
+import {HexStringWith0x} from '../types/Feed';
 import ConsensusRunner from './ConsensusRunner';
 import FeedProcessor from './FeedProcessor';
 import BlockRepository from './BlockRepository';
@@ -22,8 +24,6 @@ import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
 import GasEstimator from './GasEstimator';
-import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
-import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 
 @injectable()
 class BlockMinter {

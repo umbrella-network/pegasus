@@ -2,7 +2,6 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
-import Feeds, {HexStringWith0x} from '../types/Feed';
 
 import loadFeeds from '../services/loadFeeds';
 import FeedProcessor from './FeedProcessor';
@@ -21,6 +20,7 @@ import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
 import {ConsensusOptimizer, ConsensusOptimizerProps} from './ConsensusOptimizer';
+import Feeds, {HexStringWith0x} from '../types/Feed';
 
 @injectable()
 class ConsensusRunner {

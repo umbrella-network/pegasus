@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import { Container } from 'inversify';
+import {Container} from 'inversify';
 import Settings from '../../../src/types/Settings';
-import { expect } from 'chai';
+import chai, {expect} from 'chai';
 import CoinmarketcapHistoDayFetcher from '../../../src/services/fetchers/CoinmarketcapHistoDayFetcher';
 import moxios from 'moxios';
-
-import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
