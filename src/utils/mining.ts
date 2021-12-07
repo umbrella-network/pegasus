@@ -1,8 +1,7 @@
 import {ethers, Wallet} from 'ethers';
 import sort from 'fast-sort';
-import {LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
+import {LeafKeyCoder} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
-import {FeedValue} from '../types/Feed';
 
 import Leaf from '../types/Leaf';
 import {ChainStatus} from '../types/ChainStatus';
@@ -34,19 +33,19 @@ export const signAffidavitWithWallet = async (wallet: Wallet, affidavit: string)
  * @param dataTimestamp
  * @param root
  * @param fcdKeys
- * @param fcdValues {number | string}
+ * @param fcdBytes
  */
 export const generateAffidavit = (
   dataTimestamp: number,
   root: string,
   fcdKeys: string[],
-  fcdValues: FeedValue[],
+  fcdBytes: string[],
 ): string => {
   let testimony = `0x${abiUintEncoder(dataTimestamp, 32)}${remove0x(root)}`;
 
   fcdKeys.forEach((key, i) => {
     testimony += ethers.utils.defaultAbiCoder
-      .encode(['bytes32', 'uint256'], [LeafKeyCoder.encode(key), LeafValueCoder.encode(fcdValues[i], key)])
+      .encode(['bytes32', 'uint256'], [LeafKeyCoder.encode(key), fcdBytes[i]])
       .slice(2);
   });
 

@@ -58,17 +58,14 @@ describe('DiscrepancyFinder', () => {
       const myLeaves = proposedConsensus.fcds.map((fcd) => {
         return {
           label: fcd.label,
-          valueBytes: LeafValueCoder.encode(
-            <number>LeafValueCoder.decode(fcd.valueBytes, fcd.label) + 0.11,
-            fcd.label,
-          ).toString('hex'),
+          valueBytes: '0x6b211212a1234567234567234567234567234567234567234567234567234567',
         };
       });
 
       const discrepancies = DiscrepancyFinder.apply(proposedConsensus, [], myLeaves, feeds, feeds);
 
       expect(discrepancies.length).to.eq(2);
-      expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 0.11});
+      expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 0.24});
       expect(discrepancies[1]).to.eql({key: leaf.label, discrepancy: 100});
     });
 

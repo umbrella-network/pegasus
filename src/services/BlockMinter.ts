@@ -1,11 +1,13 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Signature} from 'ethers';
-import {ABI, LeafKeyCoder, LeafValueCoder} from '@umb-network/toolbox';
-import {FeedValue} from '../types/Feed';
+import {ABI, LeafKeyCoder} from '@umb-network/toolbox';
 import {getModelForClass} from '@typegoose/typegoose';
 import newrelic from 'newrelic';
+import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
+import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 
+import {HexStringWith0x} from '../types/Feed';
 import ConsensusRunner from './ConsensusRunner';
 import FeedProcessor from './FeedProcessor';
 import BlockRepository from './BlockRepository';
@@ -22,7 +24,6 @@ import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
 import GasEstimator from './GasEstimator';
-import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
 
 @injectable()
 class BlockMinter {
@@ -109,7 +110,7 @@ class BlockMinter {
     dataTimestamp: number,
     root: string,
     keys: string[],
-    values: FeedValue[],
+    values: HexStringWith0x[],
     signatures: string[],
     chainStatus: ChainStatus,
     nonce?: number,
@@ -125,7 +126,7 @@ class BlockMinter {
         dataTimestamp,
         root,
         keys.map(LeafKeyCoder.encode),
-        values.map((v, i) => LeafValueCoder.encode(v, keys[i])),
+        values.map((v) => Buffer.from(remove0x(v), 'hex')),
         components.map((sig) => sig.v),
         components.map((sig) => sig.r),
         components.map((sig) => sig.s),
@@ -163,7 +164,7 @@ class BlockMinter {
     dataTimestamp: number,
     root: string,
     keys: string[],
-    values: FeedValue[],
+    values: HexStringWith0x[],
     signatures: string[],
     chainStatus: ChainStatus,
   ): Promise<MintedBlock | null> {

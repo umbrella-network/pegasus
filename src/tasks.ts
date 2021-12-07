@@ -14,6 +14,7 @@ import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer';
 import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
 import KaikoPriceStreamInitializer from './services/KaikoPriceStreamInitializer';
 import TimeService from './services/TimeService';
+import {LeafValueCoder} from '@umb-network/toolbox';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: { type: 'string', demandOption: true },
