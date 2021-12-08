@@ -41,6 +41,7 @@ export default {
             {$ref: '#/definitions/KaikoSpotPriceFetcher'},
             {$ref: '#/definitions/OptionsPriceFetcher'},
             {$ref: '#/definitions/YearnVaultTokenPriceFetcher'},
+            {$ref: '#/definitions/RandomNumberFetcher'},
           ],
         },
         calculator: {
@@ -352,6 +353,18 @@ export default {
         },
       },
       required: ['params'],
+      additionalProperties: false,
+    },
+    RandomNumberFetcher: {
+      properties: {
+        name: {const: 'RandomNumber'},
+        params: {
+          type: 'object',
+          properties: {
+            numBlocks: {type: 'number'},
+          },
+        },
+      },
       additionalProperties: false,
     },
     YearnTransformPriceCalculator: {
