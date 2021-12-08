@@ -90,7 +90,7 @@ describe('CryptoCompareHistoHourFetcher', () => {
       limit: 30,
     });
 
-    expect(moxios.requests.mostRecent().config.headers?.Authorization).to.be.eq('Apikey CRYPTOCOMPARE_API_KEY');
+    expect(moxios.requests.mostRecent().config.headers.Authorization).to.be.eq('Apikey CRYPTOCOMPARE_API_KEY');
 
     expect(result).to.be.an('array').with.lengthOf(2);
     expect(result).to.be.deep.eq([
