@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [6.0.0] - 2021-12-08
+### Added
+- Added RandomNumberFetcher
+
 ## [5.6.1] - 2021-12-08
 ### Removed
 - Reverted RandomNumberFetcher

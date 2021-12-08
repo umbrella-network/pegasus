@@ -1,4 +1,4 @@
-import {HexStringWith0x} from './custom';
+import {HexStringWith0x} from './Feed';
 
 export default interface Leaf {
   label: string;
