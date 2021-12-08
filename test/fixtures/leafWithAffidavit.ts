@@ -1,3 +1,4 @@
+import {LeafValueCoder} from '@umb-network/toolbox';
 import Leaf from '../../src/types/Leaf';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
 import {KeyValues} from '../../src/types/SignedBlock';
@@ -7,18 +8,13 @@ const timestamp = 1621508941;
 
 const leaf: Leaf = {
   label: 'ETH-USD',
-  valueBytes: '0x6b62c4fdd53aa75cfc25b5b0e582b00e1c6c32769ee6b4ce38656687919c0145',
+  valueBytes: '0x' + LeafValueCoder.encode(100, '').toString('hex'),
 };
 
-const affidavit = generateAffidavit(
-  timestamp,
-  SortedMerkleTreeFactory.apply([leaf]).getRoot(),
-  [leaf.label],
-  [leaf.valueBytes],
-);
+const affidavit = generateAffidavit(timestamp, SortedMerkleTreeFactory.apply([leaf]).getRoot(), [leaf.label], [100]);
 
 const fcd: KeyValues = {
-  [leaf.label]: leaf.valueBytes,
+  [leaf.label]: 100,
 };
 
 export const leafWithAffidavit = {

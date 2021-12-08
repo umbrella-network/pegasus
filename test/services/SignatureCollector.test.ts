@@ -48,10 +48,10 @@ describe('SignatureCollector', () => {
     const block: SignedBlock = {
       dataTimestamp: 10,
       fcd: {
-        'ETH-USD': '0xABCD',
+        'ETH-USD': 100,
       },
       leaves: {
-        'ETH-USD': '0xABCD',
+        'ETH-USD': 100,
       },
       signature:
         '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',

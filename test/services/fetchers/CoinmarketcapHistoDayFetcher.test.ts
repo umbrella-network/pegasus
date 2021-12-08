@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import {Container} from 'inversify';
+import { Container } from 'inversify';
 import Settings from '../../../src/types/Settings';
-import chai, {expect} from 'chai';
+import { expect } from 'chai';
 import CoinmarketcapHistoDayFetcher from '../../../src/services/fetchers/CoinmarketcapHistoDayFetcher';
 import moxios from 'moxios';
+
+import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
@@ -100,8 +102,8 @@ describe('CoinmarketcapHistoDayFetcher', () => {
       count: 3,
     });
 
-    expect(moxios.requests.mostRecent().config.headers?.Authorization).to.be.eq('Apikey COINMARKETCAP_API_KEY');
-
+    expect(moxios.requests.mostRecent().config.headers.Authorization).to.be.eq('Apikey COINMARKETCAP_API_KEY');
+    
     expect(result).to.be.an('array').with.lengthOf(2);
     expect(result).to.be.deep.eq([
       [

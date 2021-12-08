@@ -1,7 +1,7 @@
-import {HexStringWith0x} from './Feed';
+import {FeedValue} from './Feed';
 
 export interface KeyValues {
-  [key: string]: HexStringWith0x;
+  [key: string]: FeedValue;
 }
 
 export interface SignedBlock {
