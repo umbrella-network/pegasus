@@ -40,7 +40,6 @@ describe('FeedProcessor', () => {
     KaikoPriceStreamFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.KaikoPriceStreamFetcher>,
     OptionsPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.OptionsPriceFetcher>,
     YearnVaultTokenPriceFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.YearnVaultTokenPriceFetcher>,
-    RandomNumberFetcher: null as unknown as sinon.SinonStubbedInstance<fetchers.RandomNumberFetcher>,
   };
 
   let feedProcessor: FeedProcessor;
@@ -58,7 +57,6 @@ describe('FeedProcessor', () => {
     mockedFetchers.CoinmarketcapPriceFetcher = sinon.createStubInstance(fetchers.CoinmarketcapPriceFetcher);
     mockedFetchers.CoinmarketcapHistoHourFetcher = sinon.createStubInstance(fetchers.CoinmarketcapHistoHourFetcher);
     mockedFetchers.CoinmarketcapHistoDayFetcher = sinon.createStubInstance(fetchers.CoinmarketcapHistoDayFetcher);
-    mockedFetchers.RandomNumberFetcher = sinon.createStubInstance(fetchers.RandomNumberFetcher);
     mockedFetchers.BEACPIAverageFetcher = sinon.createStubInstance(fetchers.BEACPIAverageFetcher);
     mockedFetchers.OnChainDataFetcher = sinon.createStubInstance(fetchers.OnChainDataFetcher);
     mockedFetchers.KaikoPriceStreamFetcher = sinon.createStubInstance(fetchers.KaikoPriceStreamFetcher);
@@ -93,7 +91,6 @@ describe('FeedProcessor', () => {
     container
       .bind(fetchers.PolygonIOStockPriceFetcher)
       .toConstantValue(mockedFetchers.PolygonIOStockPriceFetcher as any);
-    container.bind(fetchers.RandomNumberFetcher).toConstantValue(mockedFetchers.RandomNumberFetcher as any);
     container
       .bind(fetchers.CryptoComparePriceWSFetcher)
       .toConstantValue(mockedFetchers.CryptoComparePriceWSFetcher as any);
