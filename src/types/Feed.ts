@@ -30,7 +30,7 @@ export interface FeedInput {
 
 export interface FeedOutput {
   key: string;
-  value: number;
+  value: number | string;
 }
 
 export interface Pair {
