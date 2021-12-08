@@ -102,7 +102,7 @@ describe('CoinmarketcapHistoDayFetcher', () => {
       count: 3,
     });
 
-    expect(moxios.requests.mostRecent().config.headers.Authorization).to.be.eq('Apikey COINMARKETCAP_API_KEY');
+    expect(moxios.requests.mostRecent().config.headers?.Authorization).to.be.eq('Apikey COINMARKETCAP_API_KEY');
 
     expect(result).to.be.an('array').with.lengthOf(2);
     expect(result).to.be.deep.eq([

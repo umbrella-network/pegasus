@@ -111,7 +111,7 @@ describe('BlockMinter', () => {
 
   describe('#generateAffidavit', () => {
     it('generates affidavit successfully', () => {
-      const affidavit = generateAffidavit(1, ethers.utils.keccak256('0x1234'), ['ETH-USD'], [100]);
+      const affidavit = generateAffidavit(1, ethers.utils.keccak256('0x1234'), ['ETH-USD'], ['0xABCD']);
 
       expect(affidavit)
         .to.be.a('string')
