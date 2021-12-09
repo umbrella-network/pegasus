@@ -39,7 +39,7 @@ class Server {
     this.router = express()
       .use(helmet())
       .use(compression())
-      .use(express.json())
+      .use(express.json({limit: '8mb'}))
       .use(express.urlencoded({extended: true}))
       .use(cors())
       .use('/blocks', blocksController.router)
