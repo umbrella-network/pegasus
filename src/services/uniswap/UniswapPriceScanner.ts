@@ -6,10 +6,11 @@ import {Provider} from '@ethersproject/providers';
 import {UniswapPoolService} from './UniswapPoolService';
 import {BlockchainSymbol} from '../../models/BlockchainSymbol';
 import {Mutex, MutexInterface, withTimeout} from 'async-mutex';
-import {Price, PricesResponse, UniswapV3Helper} from '../../contracts/UniswapV3Helper';
+import {Price, UniswapV3Helper} from '../../contracts/UniswapV3Helper';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
 import {chunk} from 'lodash';
 import {BigNumber} from 'ethers';
+import NodeCache from 'node-cache';
 
 export type UniswapPoolPrice = {
   symbol: string;
@@ -24,6 +25,7 @@ export class UniswapPriceScanner {
 
   settings: Settings;
   provider: Provider;
+  sourceCache: NodeCache;
 
   @inject('Logger') logger!: Logger;
   @inject(UniswapPoolService) poolService!: UniswapPoolService;
@@ -36,6 +38,7 @@ export class UniswapPriceScanner {
   ) {
     this.settings = settings;
     this.provider = <Provider>blockchainProviderRepository.get('ethereum');
+    this.sourceCache = new NodeCache({stdTTL: 60, checkperiod: 60});
     this.lock = withTimeout(new Mutex(), this.maxLockWaitTime);
   }
 
@@ -64,7 +67,7 @@ export class UniswapPriceScanner {
 
         this.log(`Found ${verifiedPools.length} verified pools.`);
 
-        for (const batch of chunk(verifiedPools, 50)) {
+        for (const batch of chunk(verifiedPools, 100)) {
           const prices = await this.getUpdatedPrices(batch);
           await this.savePrices(prices);
         }
@@ -79,9 +82,13 @@ export class UniswapPriceScanner {
     this.logger.info(`[UniswapPriceScanner] ${msg}`);
   }
 
-  // TODO: add caching?
   private async getVerifiedPools(): Promise<BlockchainSymbol[]> {
-    return await this.poolService.getVerifiedPools();
+    let verifiedPools = this.sourceCache.get<BlockchainSymbol[]>('VERIFIED_POOLS');
+    if (verifiedPools) return verifiedPools;
+
+    verifiedPools =  await this.poolService.getVerifiedPools();
+    this.sourceCache.set<BlockchainSymbol[]>('VERIFIED_POOLS', verifiedPools);
+    return verifiedPools;
   }
 
   private async getUpdatedPrices(pools: BlockchainSymbol[]): Promise<UniswapPoolPrice[]> {
@@ -99,16 +106,17 @@ export class UniswapPriceScanner {
 
     const prices = <UniswapPoolPrice[]>qualifyingPools
       .map((pool, i) => this.extractPrice(contractPrices.prices[i], pool, ts))
-      .filter(p => !!p);
+      .filter(p => !!p && p.value != 0);
 
     this.log(`Got ${prices.length} new prices.`);
     return prices;
   }
 
-  // TODO: currently this is breaking with conversion rates of 1-10E30+ (super large numbers).
   private extractPrice(contractPrice: Price, pool: BlockchainSymbol, ts: BigNumber): UniswapPoolPrice | undefined {
     try {
-      const value = contractPrice.price.div('1' + '0'.repeat(18)).toNumber();
+      const digits = 15 - contractPrice.price.div('1' + '0'.repeat(18)).toString().length;
+      const n = digits < 0 ? 0 : digits;
+      const value = contractPrice.price.div('1' + '0'.repeat(18 - n)).toNumber() / 10**n;
       const timestamp = ts.toNumber();
       return { symbol: pool.symbol, value, timestamp };
     } catch (e) {
@@ -122,6 +130,7 @@ export class UniswapPriceScanner {
   }
 
   private async savePrices(prices: UniswapPoolPrice[]): Promise<void> {
+    this.logger.debug(`[UniswapPriceScanner] Saving prices ${JSON.stringify(prices)}`);
     await this.priceService.savePrices(prices);
     this.log(`${prices.length} prices saved.`);
   }

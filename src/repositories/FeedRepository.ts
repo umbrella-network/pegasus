@@ -1,12 +1,12 @@
 import Settings from '../types/Settings';
 import {inject, injectable} from 'inversify';
-import Feeds, {Feed} from '../types/Feed';
+import Feeds from '../types/Feed';
 import fs from 'fs/promises';
 import {Logger} from 'winston';
 import {FeedFactory} from '../factories/FeedFactory';
 import NodeCache from 'node-cache';
 import axios from 'axios';
-import {UniswapPoolService} from '../services/uniswap/UniswapPoolService';
+import {UniswapFeedRepository} from './UniswapFeedRepository';
 
 function isValidURL(string: string): boolean {
   let url;
@@ -25,12 +25,12 @@ export class FeedRepository {
   @inject('Settings') settings!: Settings;
   @inject('Logger') logger!: Logger;
   @inject(FeedFactory) feedFactory!: FeedFactory;
-  @inject(UniswapPoolService) uniswapPoolService!: UniswapPoolService;
+  @inject(UniswapFeedRepository) uniswapFeedRepository!: UniswapFeedRepository;
 
   sourceCache: NodeCache;
 
   constructor() {
-    this.sourceCache = new NodeCache({stdTTL: 100, checkperiod: 120});
+    this.sourceCache = new NodeCache({stdTTL: 120, checkperiod: 120});
   }
 
   async getFcdFeeds(): Promise<Feeds> {
@@ -118,36 +118,9 @@ export class FeedRepository {
     if (cachedFeeds) return cachedFeeds;
 
     let collection: Feeds = {};
-    const pools = await this.uniswapPoolService.getVerifiedPools();
-
-    // TODO: Read Uniswap config from feeds file
-    for (const pool of pools) {
-      const symbols = [pool.tokens[0].symbol, pool.tokens[1].symbol].map((s) => s.toUpperCase());
-
-      for (const tuple of [symbols, symbols.slice().reverse()]) {
-        const symbol = [tuple[0], tuple[1]].join('-');
-
-        const feed: Feed = {
-          discrepancy: 0.5,
-          precision: 2,
-          inputs: [
-            {
-              fetcher: {
-                name: 'UniswapPriceFetcher',
-                params: {
-                  fsym: tuple[0],
-                  tsym: tuple[1],
-                },
-              },
-            },
-          ],
-        };
-
-        collection = this.mergeFeedsIntoCollection({[symbol]: feed}, collection);
-      }
-    }
-
-    this.sourceCache.set<Feeds>('uniswap', collection, 60);
+    const feeds = await this.uniswapFeedRepository.getVerifiedFeeds();
+    feeds.forEach((f) => (collection = this.mergeFeedsIntoCollection({[<string>f.symbol]: f}, collection)));
+    this.sourceCache.set<Feeds>('uniswap', collection);
     return collection;
   }
 

@@ -53,7 +53,7 @@ export class UniswapPoolScanner extends BlockchainScanner {
         const fee = Number(event.fee);
         const symbol = this.uniswapPoolService.getPoolSymbol(pair[0].symbol, pair[1].symbol);
         this.logger.info(`[UniswapPoolScanner] Saving ${symbol}`);
-        await this.uniswapPoolService.upsert({ symbol, tokens, fee });
+        await this.uniswapPoolService.upsert({ symbol, tokens: pair, fee });
       } catch(e) {
         this.logger.error(`[UniswapPoolScanner] Could not get a valid symbol for tokens ${tokens}`);
       }
@@ -81,7 +81,7 @@ export class UniswapPoolScanner extends BlockchainScanner {
 
       if (!tokenSymbols.every(s => s != undefined)) return [];
 
-      return tokenSymbols.map((symbol, i) => ({ symbol, address: addresses[i] }));
+      return tokenSymbols.map((symbol, i) => ({ symbol, address: addresses[i].toLowerCase() }));
     } catch (e) {
       this.logger.error(`[UniswapPoolScanner] Error retrieving symbols for ${addresses}`, e);
       return [];

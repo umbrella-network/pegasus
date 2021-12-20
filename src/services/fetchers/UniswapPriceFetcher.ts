@@ -2,6 +2,7 @@ import {inject, injectable} from 'inversify';
 import {PairWithFreshness} from '../../types/Feed';
 import {UniswapPriceService} from '../uniswap/UniswapPriceService';
 import {UniswapPoolService} from '../uniswap/UniswapPoolService';
+import {Logger} from 'winston';
 
 /*
  1st Problem: dynamically detect whether the Uniswap fetcher can be used for a feed file entry based on
@@ -43,18 +44,38 @@ import {UniswapPoolService} from '../uniswap/UniswapPoolService';
 
 @injectable()
 export class UniswapPriceFetcher {
+  static readonly DEFAULT_FRESHNESS = 3600;
+
+  @inject('Logger') logger!: Logger;
   @inject(UniswapPoolService) poolService!: UniswapPoolService;
   @inject(UniswapPriceService) priceService!: UniswapPriceService;
 
   async apply(pair: PairWithFreshness, timestamp: number): Promise<number> {
-    const { fsym, tsym, freshness } = pair;
-    const poolSymbol = this.poolService.getPoolSymbol(fsym, tsym);
-    const price = await this.priceService.getLatestPrice(poolSymbol, timestamp, timestamp - freshness);
-    if (price) return price;
+    const { fsym, tsym } = pair;
+    const freshness = pair.freshness || UniswapPriceFetcher.DEFAULT_FRESHNESS;
 
-    const reversePoolSymbol = this.poolService.getPoolSymbol(tsym, fsym);
-    const reversePrice = await this.priceService.getLatestPrice(reversePoolSymbol, timestamp, timestamp - freshness);
-    if (reversePrice) return (reversePrice == 0 ? reversePrice : 1 / reversePrice);
+    try {
+      const poolSymbol = this.poolService.getPoolSymbol(fsym, tsym);
+      this.logger.debug(`[UniswapPriceFetcher] Retrieving prices for ${poolSymbol} (direct)`);
+      const price = await this.priceService.getLatestPrice(poolSymbol, timestamp - freshness, timestamp);
+      this.logger.debug(`[UniswapPriceFetcher] Price for ${poolSymbol}: ${price}`);
+      if (price) return price;
+
+      const reversePoolSymbol = this.poolService.getPoolSymbol(tsym, fsym);
+      this.logger.debug(`[UniswapPriceFetcher] Retrieving prices for ${reversePoolSymbol} (reverse)`);
+      const reversePrice = await this.priceService.getLatestPrice(reversePoolSymbol, timestamp - freshness, timestamp);
+      this.logger.debug(`[UniswapPriceFetcher] Price for ${reversePoolSymbol}: ${reversePrice}`);
+      if (reversePrice) return (reversePrice == 0 ? reversePrice : 1 / reversePrice);
+    } catch (e) {
+      this.logger.error(
+        [
+          `[UniswapPriceFetcher] Error retrieving prices for ${fsym}-${tsym}`,
+          `with freshness ${freshness}`,
+          `for timestamp ${timestamp}`
+        ].join(' '),
+        e
+      );
+    }
 
     throw new Error(`[UniswapPriceFetcher] NO recent price for ${fsym}-${tsym}`);
   }

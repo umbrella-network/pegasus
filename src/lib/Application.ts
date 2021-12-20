@@ -13,6 +13,8 @@ import PriceRepository from '../repositories/PriceRepository';
 import PairRepository from '../repositories/PairRepository';
 import {CalculatorRepository} from '../repositories/CalculatorRepository';
 import {FeedRepository} from '../repositories/FeedRepository';
+import {UniswapPoolService} from '../services/uniswap/UniswapPoolService';
+import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository';
 
 class Application {
   private static _instance: Application;
@@ -30,6 +32,8 @@ class Application {
     this.container.bind(FeedFetcherRepository).toSelf().inSingletonScope();
     this.container.bind(CalculatorRepository).toSelf().inSingletonScope();
     this.container.bind(FeedRepository).toSelf().inSingletonScope();
+    this.container.bind(UniswapPoolService).toSelf().inSingletonScope();
+    this.container.bind(BlockchainProviderRepository).toSelf().inSingletonScope();
 
     this.container
       .bind<Redis>('Redis')

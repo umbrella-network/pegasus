@@ -12,7 +12,7 @@ export class FeedFactory {
     this.validator = new Validator();
   }
 
-  // TODO: add Uniswap support
+  // TODO: add Uniswap support in the future
   createCollectionFromYaml(data: string): Feeds {
     const feeds = load(data) as Feeds;
     const validation = this.validate(feeds);

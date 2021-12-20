@@ -29,10 +29,13 @@ class BlockSigner {
   @inject(FeedDataService) feedDataService!: FeedDataService;
 
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
-    const {proposedConsensus, chainAddress, chainStatus} = await this.executeRequireChecks(block);
+    const {proposedConsensus, chainAddress, chainStatus} = await this.check(block);
 
     this.logger.info(
-      `Request from ${proposedConsensus.signer} to sign a block ~${chainStatus.nextBlockId} with ${proposedConsensus.leaves.length} leaves and ${proposedConsensus.fcdKeys.length} FCDs`,
+      [
+        `[BlockSigner] Request from ${proposedConsensus.signer} to sign a block ~${chainStatus.nextBlockId}`,
+        `with ${proposedConsensus.leaves.length} leaves and ${proposedConsensus.fcdKeys.length} FCDs`,
+      ].join(' '),
     );
 
     const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = await this.feedDataService.getLeavesAndFeeds(
@@ -43,6 +46,8 @@ class BlockSigner {
 
     if (discrepancies.length) {
       await this.reportDiscrepancies(discrepancies);
+      this.logger.info(`[BlockSigner] Cannot sign block. Discrepancies found: ${discrepancies.length}`);
+      this.logger.debug(`[BlockSigner] Discrepancies: ${JSON.stringify(discrepancies)}`);
       return {discrepancies, signature: '', version: this.settings.version};
     }
 
@@ -56,31 +61,30 @@ class BlockSigner {
     };
 
     await this.blockRepository.saveBlock(chainAddress, signedBlockConsensus, chainStatus.lastBlockId + 1);
-
-    this.logger.info(`Signed a block for ${proposedConsensus.signer} at ${block.dataTimestamp}`);
-
+    this.logger.info(`[BlockSigner] Signed a block for ${proposedConsensus.signer} at ${block.dataTimestamp}`);
+    this.logger.debug(`[BlockSigner] Signature: ${signature}`);
     return {signature, discrepancies, version: this.settings.version};
   }
 
   private async reportDiscrepancies(discrepancies: Discrepancy[]): Promise<void> {
-    discrepancies.map((d) => {
+    for (const d of discrepancies) {
       const discrepancy: Discrepancy = {key: d.key, discrepancy: Math.round(d.discrepancy * 100) / 100.0};
       newrelic.recordCustomEvent('PriceDiscrepancy', {...discrepancy});
-    });
+    }
   }
 
-  async executeRequireChecks(
+  async check(
     block: SignedBlock,
   ): Promise<{proposedConsensus: ProposedConsensus; chainAddress: string; chainStatus: ChainStatus}> {
     const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
     const [ready, error] = chainReadyForNewBlock(chainStatus, block.dataTimestamp);
 
     if (!ready) {
+      this.logger.error(`[BlockSigner] Not ready, skipping. Error: ${error}`);
       throw Error(error);
     }
 
-    this.logger.info(`Signing a block for ${chainStatus.nextLeader} at ${block.dataTimestamp}...`);
-
+    this.logger.info(`[BlockSigner] Signing a block for ${chainStatus.nextLeader} at ${block.dataTimestamp}...`);
     const proposedConsensus = ProposedConsensusService.apply(block);
 
     if (this.blockchain.wallet.address === proposedConsensus.signer) {
@@ -89,7 +93,11 @@ class BlockSigner {
 
     if (proposedConsensus.signer !== chainStatus.nextLeader) {
       throw Error(
-        `Signature does not belong to the current leader, expected ${chainStatus.nextLeader} got ${proposedConsensus.signer} at block ${chainStatus.blockNumber}/${chainStatus.nextBlockId}`,
+        [
+          'Signature does not belong to the current leader,',
+          `expected ${chainStatus.nextLeader} got ${proposedConsensus.signer}`,
+          `at block ${chainStatus.blockNumber}/${chainStatus.nextBlockId}`,
+        ].join(' '),
       );
     }
 

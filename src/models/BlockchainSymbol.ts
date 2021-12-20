@@ -34,4 +34,7 @@ export class BlockchainSymbol {
 
   @prop()
   meta?: Meta;
+
+  @prop()
+  lastUpdatedAt?: Date;
 }

@@ -7,18 +7,25 @@ import verifiedTokens from './uniswapVerifiedTokens.json';
 export class UniswapPoolService {
   static BLOCKCHAIN_ID = 'ethereum';
   static SYMBOL_TYPE = 'uniswap-pool';
-  static VERIFIED_TOKENS: Set<string> = new Set(verifiedTokens);
+  static VERIFIED_TOKENS: Set<string> = new Set(verifiedTokens.map(s => s.toLowerCase()));
 
   async getVerifiedPools(): Promise<BlockchainSymbol[]> {
     return await getModelForClass(BlockchainSymbol)
-      .find({ ...this.getSymbolBaseFilter(), verified: false })
+      .find({ ...this.getSymbolBaseFilter(), verified: true })
       .exec();
   }
 
   async upsert(props: { symbol: string, tokens: Token[], fee: number }): Promise<BlockchainSymbol> {
     const { symbol, tokens, fee } = props;
     const filter = { ...this.getSymbolBaseFilter(), symbol };
-    const attributes = { ...filter, tokens, verified: this.isVerified(tokens), meta: { fee } };
+
+    const attributes = {
+      ...filter,
+      tokens,
+      lastUpdatedAt: new Date() ,
+      verified: this.isVerified(tokens),
+      meta: { fee }
+    };
 
     return getModelForClass(BlockchainSymbol)
       .findOneAndUpdate(

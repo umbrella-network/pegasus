@@ -105,6 +105,8 @@ type Settings = {
       helperContractId: string;
       startBlock: number;
       agentStep: number;
+      defaultPrecision: number;
+      defaultDiscrepancy: number;
     };
   };
   statusCheckTimeout: number;

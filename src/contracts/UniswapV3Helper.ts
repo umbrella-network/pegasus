@@ -34,7 +34,7 @@ export class UniswapV3Helper {
   }
 
   async translateTokenAddressesToSymbols(tokens: string[]): Promise<string[]> {
-    return this.contract.tokensSymbols(tokens);
+    return (await this.contract.tokensSymbols(tokens)).map((s: string) => s.replace(/\0/g, ''));
   }
 
   async getPrices(props: {tokenA: string; tokenB: string; fee: number}[]): Promise<PricesResponse> {
