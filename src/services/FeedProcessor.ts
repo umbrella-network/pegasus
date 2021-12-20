@@ -4,7 +4,7 @@ import {MD5 as hash} from 'object-hash';
 import {Logger} from 'winston';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
-import Feeds, {FeedCalculator, FeedFetcher, FeedOutput} from '../types/Feed';
+import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed';
 import Leaf from '../types/Leaf';
 import {
   InputParams as CryptoComparePriceMultiFetcherParams,
@@ -82,16 +82,18 @@ class FeedProcessor {
           )
           .flat();
 
-        if (feedValues.length) {
+        if (!feedValues.length) {
+          ignoredMap[ticker] = true;
+        } else if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
+          leaves.push(this.buildLeaf(feedValues[0].key, feedValues[0].value));
+        } else {
           // calculateFeed is allowed to return different keys
           const groups = FeedProcessor.groupInputs(feedValues);
           for (const key in groups) {
-            const value = FeedProcessor.calculateMean(groups[key], feed.precision);
+            const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
             keyValueMap[key] = value;
             leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
           }
-        } else {
-          ignoredMap[ticker] = true;
         }
       });
 
@@ -161,7 +163,7 @@ class FeedProcessor {
     return this.orderCryptoComparePriceMultiOutput(feedFetchers, values);
   }
 
-  private buildLeaf = (label: string, value: number): Leaf => {
+  private buildLeaf = (label: string, value: FeedValue): Leaf => {
     return {
       label,
       valueBytes: `0x${LeafValueCoder.encode(value, label).toString('hex')}`,
@@ -248,7 +250,9 @@ class FeedProcessor {
   }
 
   private static groupInputs(outputs: FeedOutput[]) {
-    const result: {[key: string]: number[]} = {};
+    type OutputValue = number | string;
+
+    const result: {[key: string]: OutputValue[]} = {};
 
     for (const {key, value} of outputs) {
       let array = result[key];

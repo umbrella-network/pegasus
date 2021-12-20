@@ -96,8 +96,8 @@ describe('BlockSigner', () => {
     await expect(
       blockSigner.apply({
         dataTimestamp: 10,
-        fcd: {'ETH-USD': 100},
-        leaves: {'ETH-USD': 100},
+        fcd: {'ETH-USD': '0xABCD'},
+        leaves: {'ETH-USD': '0xABCD'},
         signature,
       }),
     ).to.be.rejectedWith('skipping 1: waiting for next round');

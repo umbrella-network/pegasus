@@ -16,6 +16,7 @@ import KaikoPriceStreamFetcher from './KaikoPriceStreamFetcher';
 import OptionsPriceFetcher from './OptionsPriceFetcher';
 import YearnVaultTokenPriceFetcher from './YearnVaultTokenPriceFetcher';
 import {UniswapPriceFetcher} from './UniswapPriceFetcher';
+import RandomNumberFetcher from './RandomNumberFetcher';
 
 export {
   CryptoComparePriceWSFetcher,
@@ -36,4 +37,5 @@ export {
   OptionsPriceFetcher,
   YearnVaultTokenPriceFetcher,
   UniswapPriceFetcher,
+  RandomNumberFetcher,
 };

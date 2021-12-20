@@ -31,6 +31,7 @@ export class FeedFetcherRepository {
     @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPrice: fetchers.YearnVaultTokenPriceFetcher,
     @inject(fetchers.OptionsPriceFetcher) OptionsPrice: fetchers.OptionsPriceFetcher,
     @inject(fetchers.UniswapPriceFetcher) UniswapPriceFetcher: fetchers.UniswapPriceFetcher,
+    @inject(fetchers.RandomNumberFetcher) RandomNumberFetcher: fetchers.RandomNumberFetcher,
   ) {
     this.collection = {
       CryptoCompareHistoHour,
@@ -51,6 +52,7 @@ export class FeedFetcherRepository {
       YearnVaultTokenPrice,
       OptionsPrice,
       UniswapPriceFetcher,
+      RandomNumberFetcher,
     };
   }
 

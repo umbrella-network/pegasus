@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+## [6.0.1] - 2021-12-09
+### Changed
+- Increased JSON payload size
+
+## [6.0.0] - 2021-12-08
+### Added
+- Added RandomNumberFetcher
+
+## [5.6.1] - 2021-12-08
+### Removed
+- Reverted RandomNumberFetcher
+
+## [5.6.0] - 2021-12-07
+### Added
+- Added RandomNumberFetcher
+
 ## [5.5.4] - 2021-11-17
 ### Added
 - CORS Support.

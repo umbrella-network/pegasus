@@ -2,8 +2,6 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
-import {LeafValueCoder} from '@umb-network/toolbox';
-import {FeedValue} from '../types/Feed';
 import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
@@ -20,6 +18,7 @@ import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
 import {ConsensusOptimizer, ConsensusOptimizerProps} from './ConsensusOptimizer';
 import {FeedDataService} from './FeedDataService';
+import {HexStringWith0x} from '../types/Feed';
 
 @injectable()
 class ConsensusRunner {
@@ -163,10 +162,10 @@ class ConsensusRunner {
   }
 
   private leavesToKeyValues(leaves: Leaf[]): KeyValues {
-    return Object.fromEntries(leaves.map(({label, valueBytes}) => [label, LeafValueCoder.decode(valueBytes, label)]));
+    return Object.fromEntries(leaves.map(({label, valueBytes}) => [label, valueBytes]));
   }
 
-  private fcdToKeyValues(fcdKeys: string[], fcdValues: FeedValue[]): KeyValues {
+  private fcdToKeyValues(fcdKeys: string[], fcdValues: HexStringWith0x[]): KeyValues {
     return Object.fromEntries(fcdKeys.map((_, idx) => [fcdKeys[idx], fcdValues[idx]]));
   }
 
@@ -200,11 +199,8 @@ class ConsensusRunner {
   ): Promise<DataForConsensus> {
     const tree = SortedMerkleTreeFactory.apply(sortLeaves(leaves));
     const sortedFirstClassLeaves = sortLeaves(firstClassLeaves);
-    const fcdKeys: string[] = sortedFirstClassLeaves.map(({label}) => label);
-
-    const fcdValues: FeedValue[] = sortedFirstClassLeaves.map(({valueBytes, label}) =>
-      LeafValueCoder.decode(valueBytes, label),
-    );
+    const fcdKeys = sortedFirstClassLeaves.map(({label}) => label);
+    const fcdValues = sortedFirstClassLeaves.map(({valueBytes}) => valueBytes);
 
     const affidavit = generateAffidavit(dataTimestamp, tree.getRoot(), fcdKeys, fcdValues);
 

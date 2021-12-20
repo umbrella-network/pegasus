@@ -60,12 +60,9 @@ class InfoController {
       name: this.settings.name,
       keys: {
         cryptocompare: InfoController.obfuscate(this.settings.api.cryptocompare.apiKey),
-        coinmarketcap: InfoController.obfuscate(this.settings.api.coinmarketcap.apiKey),
         genesisVolatility: InfoController.obfuscate(this.settings.api.genesisVolatility.apiKey),
         polygonIO: InfoController.obfuscate(this.settings.api.polygonIO.apiKey),
         options: InfoController.obfuscate(this.settings.api.optionsPrice.apiKey),
-        iex: InfoController.obfuscate(this.settings.api.iex.apiKey),
-        bea: InfoController.obfuscate(this.settings.api.bea.apiKey),
       },
     });
   };
