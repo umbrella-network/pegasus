@@ -13,7 +13,7 @@ export abstract class LoopAgent extends BasicAgent {
 
   shutdownGracePeriod = 10000;
   state = AgentState.OFFLINE;
-  tick: number | undefined;
+  interval: number | undefined;
   delay: number | undefined;
 
   abstract async execute(): Promise<void>;
@@ -41,8 +41,8 @@ export abstract class LoopAgent extends BasicAgent {
       if (this.delay) {
         setTimeout(async () => await this.run(), this.delay);
         this.delay = undefined;
-      } else if (this.tick) {
-        setTimeout(async () => await this.run(), this.tick);
+      } else if (this.interval) {
+        setTimeout(async () => await this.run(), this.interval);
       } else {
         setImmediate(async () => await this.run());
       }

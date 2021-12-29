@@ -8,10 +8,7 @@ export class BlockchainProviderFactory {
   private settings!: Settings;
 
   getRpcProvider(url: string): JsonRpcProvider {
-    const match = url.match(/^(http)s?:/i);
-    if (match && match[1] === 'http') {
-      return new JsonRpcProvider(url);
-    }
+    if (url.startsWith('http')) return new JsonRpcProvider(url);
 
     throw new Error(`unsupported URL scheme: ${url}. Please switch to http(s)`);
   }

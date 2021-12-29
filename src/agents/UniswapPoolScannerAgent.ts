@@ -6,7 +6,7 @@ import {UniswapPoolService} from '../services/uniswap/UniswapPoolService';
 @injectable()
 export class UniswapPoolScannerAgent extends LoopAgent {
   backoffTime = 10000;
-  tick = 100;
+  interval = 100;
 
   @inject(UniswapPoolScanner) scanner!: UniswapPoolScanner;
   @inject(UniswapPoolService) poolService!: UniswapPoolService;
