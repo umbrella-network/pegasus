@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import * as fetchers from '../services/fetchers';
 
-interface FeedFetcher {
+export interface FeedFetcher {
   // eslint-disable-next-line
   apply: (params: any, timestamp: number) => Promise<any>;
 }

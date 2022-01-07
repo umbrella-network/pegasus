@@ -133,9 +133,7 @@ class FeedProcessor {
     prices: {[key: string]: number},
     feedCalculator?: FeedCalculator,
   ): FeedOutput[] {
-    if (!value) {
-      return [];
-    }
+    if (!value) return [];
 
     const calculator = <Calculator>this.calculatorRepository.find(feedCalculator?.name || 'Identity');
     return calculator.apply(key, value, feedCalculator?.params, prices);
@@ -146,13 +144,11 @@ class FeedProcessor {
   }
 
   async processMultiFeeds(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
-    if (!feedFetchers.length) {
-      return [];
-    }
+    if (!feedFetchers.length) return [];
 
     const params = this.createComparePriceMultiParams(feedFetchers);
-
     let values: CryptoComparePriceMultiFetcherOutputValue[];
+
     try {
       values = await this.cryptoComparePriceMultiFetcher.apply(params);
     } catch (err) {
