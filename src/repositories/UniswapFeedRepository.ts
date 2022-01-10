@@ -45,8 +45,8 @@ export class UniswapFeedRepository {
   }
 
   private validate(feed: Feed): boolean {
-    if (feed.symbol?.charAt(0) == '$') return false;
+    if (!feed.symbol) return false;
 
-    return true;
+    return !feed.symbol.startsWith('$');
   }
 }
