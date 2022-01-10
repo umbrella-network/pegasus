@@ -14,10 +14,6 @@ export class FeedDataService {
     const fcdFeeds = await this.feedRepository.getFcdFeeds();
     const leafFeeds = await this.feedRepository.getLeafFeeds();
     const feeds = [fcdFeeds, leafFeeds];
-
-    // const feeds: Feeds[] = await Promise.all(
-    //   [this.settings.feedsOnChain, this.settings.feedsFile].map((fileName) => loadFeeds(fileName)),
-    // );
     const [firstClassLeaves, leaves] = await this.feedProcessor.apply(dataTimestamp, ...feeds);
     return {firstClassLeaves, leaves, fcdsFeeds: fcdFeeds, leavesFeeds: leafFeeds};
   }
