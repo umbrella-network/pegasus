@@ -3,49 +3,64 @@ import {JsonRpcProvider, Block} from '@ethersproject/providers';
 import {Logger} from 'winston';
 import Settings from '../types/Settings';
 
+interface ProviderComparand {
+  blockNumber: number;
+  url: string;
+}
+
 @injectable()
 class RPCSelector {
   @inject('Logger') logger!: Logger;
   readonly urls: string[];
+  readonly preferredProviderUrl: string;
 
   constructor(@inject('Settings') settings: Settings) {
     this.urls = settings.blockchain.provider.urls;
+    this.preferredProviderUrl = this.urls[0];
   }
 
   async apply(): Promise<string> {
-    if (this.urls.length > 1) {
-      const providerUrl = await this.getMostUpToDateProvider();
-
-      if (providerUrl) {
-        this.logger.info(`[RPCSelector] Found provider URL ${providerUrl}`);
-        return providerUrl;
-      }
-
-      this.logger.info(`[RPCSelector] No provider with recently minted block found. Using: ${this.urls[0]}`);
+    if (this.urls.length === 1 || (await this.isPreferredProviderUpToDate())) {
+      return this.preferredProviderUrl;
+    } else {
+      this.logger.info(`[RPCSelector] Preferred provider isn't up to date. Comparing other available RPCs.`);
+      const providers = await Promise.all(this.getProviders(this.urls.slice(1)));
+      return this.getMostUpToDateProvider(providers);
     }
-
-    return this.urls[0];
   }
 
-  private async getMostUpToDateProvider(): Promise<string | void> {
-    for (const url of this.urls) {
-      try {
-        const provider = new JsonRpcProvider(url);
-        const block = await provider.getBlock('latest');
-
-        if (this.isBlockRecentlyMinted(block)) {
-          return url;
-        }
-      } catch (e) {
-        this.logger.error(`[RPCSelector] RPC ${url} is failing. Trying the next in line...`);
-      }
+  private async isPreferredProviderUpToDate(): Promise<boolean> {
+    try {
+      const provider = new JsonRpcProvider(this.preferredProviderUrl);
+      const block = await provider.getBlock('latest');
+      return this.isBlockRecentlyMinted(block);
+    } catch (e) {
+      return false;
     }
   }
 
   private isBlockRecentlyMinted(block: Block): boolean {
-    const currentDate = Math.floor(Date.now() / 1000),
+    const currentDateInSeconds = Math.floor(Date.now() / 1000),
       oneMinute = 60;
-    return block.timestamp - (currentDate - oneMinute) <= oneMinute;
+    return block.timestamp - (currentDateInSeconds - oneMinute) <= oneMinute;
+  }
+
+  private getProviders(providersURLs: string[]): Promise<ProviderComparand>[] {
+    return providersURLs.map(async (url) => {
+      try {
+        const provider = new JsonRpcProvider(url);
+        const blockNumber = await provider.getBlockNumber();
+        return {blockNumber, url};
+      } catch (e) {
+        this.logger.info(`[RPCSelector] Failed to get ${url} block number. Reason: ${e.message}`);
+        return {blockNumber: 0, url};
+      }
+    });
+  }
+
+  private getMostUpToDateProvider(providers: ProviderComparand[]): string {
+    const {url} = providers.reduce((acc, cur) => (acc.blockNumber > cur.blockNumber ? acc : cur));
+    return url;
   }
 }
 
