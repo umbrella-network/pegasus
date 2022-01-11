@@ -28,6 +28,7 @@ class Blockchain {
 
   async setLatestProvider(): Promise<void> {
     const provider = await this.rpcSelector.apply();
+    this.logger.info(`[RPCSelector] Found most up to date provider ${provider}`);
     this.provider = new JsonRpcProvider(provider);
   }
 }
