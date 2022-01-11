@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import {LeafValueCoder} from '@umb-network/toolbox';
 
 import Feeds from '../../src/types/Feed';
 import {DiscrepancyFinder} from '../../src/services/DiscrepancyFinder';

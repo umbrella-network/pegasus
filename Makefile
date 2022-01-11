@@ -54,6 +54,8 @@ publish-bsc1:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc01 -n dev
 	
 publish-bsc2:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc02 -n dev
@@ -62,6 +64,8 @@ publish-bsc2:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-bsc02 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc02 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc02 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc02 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc02 -n dev
 
 publish-sbx1:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc01 -n sandbox
@@ -70,6 +74,8 @@ publish-sbx1:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-bsc01 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc01 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n sandbox
+	# @kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc01 -n sandbox
+	# @kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc01 -n sandbox
 	
 auth: assume login update-stg-kubeconfig
 
