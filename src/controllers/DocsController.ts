@@ -1,12 +1,12 @@
 import YAML from 'yamljs';
 import express from 'express';
-import { injectable } from 'inversify';
+import {injectable} from 'inversify';
 import swaggerUi from 'swagger-ui-express';
 
 const swaggerDocument = YAML.load('./src/docs/api.yaml');
 
 @injectable()
-class HeathController {
+class DocsController {
   router: express.Application;
 
   constructor() {
@@ -16,9 +16,9 @@ class HeathController {
         '/',
         swaggerUi.setup(swaggerDocument, {
           explorer: true,
-        })
+        }),
       );
   }
 }
 
-export default HeathController;
+export default DocsController;
