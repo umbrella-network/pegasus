@@ -10,6 +10,12 @@ info:
 servers:
   - url: "http://localhost:3030/"
     description: "local"
+  - url: "https://validators.dev.umb.network/"
+    description: "development"
+  - url: "https://validator2.dev.umb.network"
+    description: "development 2"
+  - url: "https://validator.sbx.umb.network"
+    description: "sandbox"
   - url: "https://validator.umb.network"
     description: "production"
 
@@ -22,6 +28,7 @@ tags:
 - name: "health"
 - name: "signature"
   description: "Request checks for signed block"
+- name: "debug"
 
 paths:
   /blocks/latest:
@@ -56,7 +63,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Block"
-
 
   /blocks/blockId/{blockId}:
     get:
@@ -148,6 +154,7 @@ components:
               type: "boolean"
             __v:
               type: "integer"
+
     Block:
       type: "object"
       properties:
@@ -187,6 +194,7 @@ components:
           type: "string"
         dataLength:
           type: "integer"
+
     SignedBlock:
       type: "object"
       properties:
@@ -204,6 +212,7 @@ components:
               type: "string"
         signature:
           type: "string"
+    
     BlockSignerResponse:
       type: "object"
       properties:
