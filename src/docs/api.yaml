@@ -28,8 +28,7 @@ tags:
 - name: "health"
 - name: "signature"
   description: "Request checks for signed block"
-- name: "debug"
-
+  
 paths:
   /blocks/latest:
     get:
