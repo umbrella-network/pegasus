@@ -2,6 +2,7 @@ tmp
 dist
 node_modules
 tmp
+data
 .idea
 .vscode
 .env*
