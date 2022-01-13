@@ -6,12 +6,15 @@ import 'newrelic';
 
 import {initMongoDB} from './config/initMongoDB';
 import Migrations from "./services/Migrations";
+import ApplicationUpdateService from './services/ApplicationUpdateService';
+import Application from './lib/Application';
+import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
 
-(async () => {
+export async function boot(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { default: settings } = await require('./config/settings');
 
   await initMongoDB(settings);
   await Migrations.apply();
-
-})()
+  await Application.get(ApplicationUpdateService).startUpdate();
+}

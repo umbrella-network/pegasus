@@ -1,4 +1,4 @@
-import './boot';
+import {boot} from './boot';
 import Application from './lib/Application';
 import BlockMintingWorker from './workers/BlockMintingWorker';
 import MetricsWorker from './workers/MetricsWorker';
@@ -6,6 +6,7 @@ import Settings from './types/Settings';
 import {Logger} from 'winston';
 
 (async (): Promise<void> => {
+  await boot();
   const settings: Settings = Application.get('Settings');
   const logger: Logger = Application.get('Logger');
   const blockMintingWorker = Application.get(BlockMintingWorker);

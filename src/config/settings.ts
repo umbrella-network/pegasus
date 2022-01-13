@@ -5,6 +5,13 @@ const packageJson = require('../../package.json');
 
 const settings: Settings = {
   port: parseInt(process.env.PORT || '3000'),
+  application: {
+    root: process.env.NODE_PATH || process.cwd(),
+    autoUpdate: {
+      enabled: process.env.APPLICATION_AUTO_UPDATE_ENABLED == 'true',
+      url: process.env.APPLICATION_UPDATE_URL,
+    },
+  },
   jobs: {
     blockCreation: {
       interval: getTimeSetting(parseInt(process.env.BLOCK_CREATION_JOB_INTERVAL || '10000'), 10000),
