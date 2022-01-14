@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [6.1.0] - 2022-01-13
 ### Added
-- Uniswap Support
+- fetching prices from UniswapV3
 
 ## [6.0.1] - 2021-12-09
 ### Changed
