@@ -14,6 +14,7 @@ import SignatureController from '../controllers/SignatureController';
 import Blockchain from './Blockchain';
 import InfoController from '../controllers/InfoController';
 import DebugController from '../controllers/DebugController';
+import DocsController from '../controllers/DocsController';
 
 @injectable()
 class Server {
@@ -32,6 +33,7 @@ class Server {
     @inject(BlocksController) blocksController: BlocksController,
     @inject(SignatureController) signatureController: SignatureController,
     @inject(InfoController) infoController: InfoController,
+    @inject(DocsController) docsController: DocsController,
   ) {
     this.port = settings.port;
     this.logger = logger;
@@ -46,7 +48,8 @@ class Server {
       .use('/debug', debugController.router)
       .use('/health', healthController.router)
       .use('/signature', signatureController.router)
-      .use('/info', infoController.router);
+      .use('/info', infoController.router)
+      .use('/docs', docsController.router);
 
     this.server = http.createServer(this.router);
     this.blockchain = blockchain;
