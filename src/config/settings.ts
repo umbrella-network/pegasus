@@ -158,9 +158,11 @@ function resolveArray(iterator: (i: number) => string): string[] {
 }
 
 function getProvidersURLs(): string[] {
-  return (process.env.BLOCKCHAIN_PROVIDER_URL || 'http://127.0.0.1:8545')
+  const urls = `${process.env.BLOCKCHAIN_PROVIDER_URL},${process.env.BLOCKCHAIN_PROVIDER_URLS}`
     .split(',')
     .filter((url) => url.startsWith('http'));
+
+  return urls.length > 0 ? urls : ['http://127.0.0.1:8545'];
 }
 
 export default settings;
