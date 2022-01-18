@@ -1,11 +1,12 @@
 import {inject, injectable} from 'inversify';
 import {Redis} from 'ioredis';
 import {price as Price} from '@umb-network/validator';
+import {Logger} from 'winston';
 
 @injectable()
 class PriceAggregator {
-  @inject('Redis')
-  connection!: Redis;
+  @inject('Logger') logger!: Logger;
+  @inject('Redis') connection!: Redis;
 
   /**
    * Adds a value with a timestamp to a sorted map
@@ -14,10 +15,10 @@ class PriceAggregator {
     try {
       await this.connection.zadd(symbol, timestamp, this.formatValue(value, timestamp));
       await this.connection.zremrangebyrank(symbol, 0, -101); // prune symbol and keep top 100
-    } catch (err) {
-      console.error(err, JSON.stringify({symbol, value, timestamp}));
-
-      throw err;
+    } catch (e) {
+      this.logger.debug(JSON.stringify({symbol, value, timestamp}));
+      this.logger.error(e);
+      throw e;
     }
   }
 
@@ -29,10 +30,10 @@ class PriceAggregator {
       const result = await this.connection.zrevrangebyscore(symbol, `(${beforeTimestamp}`, '-inf', 'LIMIT', 0, 1);
 
       return result.length ? this.parseValue(result[0]) : null;
-    } catch (err) {
-      console.error(err, JSON.stringify({symbol, beforeTimestamp}));
-
-      throw err;
+    } catch (e) {
+      this.logger.debug(JSON.stringify({symbol, beforeTimestamp}));
+      this.logger.error(e);
+      throw e;
     }
   }
 
@@ -51,10 +52,10 @@ class PriceAggregator {
       );
 
       return result.length ? this.parseValue(result[0]) : null;
-    } catch (err) {
-      console.error(err, JSON.stringify({symbol, beforeTimestamp}));
-
-      throw err;
+    } catch (e) {
+      this.logger.debug(JSON.stringify({symbol, beforeTimestamp}));
+      this.logger.error(e);
+      throw e;
     }
   }
 
@@ -66,10 +67,10 @@ class PriceAggregator {
       const result = await this.connection.zrevrangebyscore(symbol, `(${beforeTimestamp}`, '-inf', 'LIMIT', 0, 1);
 
       return result.length ? this.parseValueTimestamp(result[0]) : null;
-    } catch (err) {
-      console.error(err, JSON.stringify({symbol, beforeTimestamp}));
-
-      throw err;
+    } catch (e) {
+      this.logger.debug(JSON.stringify({symbol, beforeTimestamp}));
+      this.logger.error(e);
+      throw e;
     }
   }
 
@@ -81,10 +82,10 @@ class PriceAggregator {
       const vt = await this.connection.zrevrangebyscore(symbol, '+inf', '-inf');
 
       return vt.map(this.parseValueTimestamp);
-    } catch (err) {
-      console.error(err, JSON.stringify({symbol}));
-
-      throw err;
+    } catch (e) {
+      this.logger.debug(JSON.stringify({symbol}));
+      this.logger.error(e);
+      throw e;
     }
   }
 

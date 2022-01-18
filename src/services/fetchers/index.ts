@@ -15,6 +15,7 @@ import OnChainDataFetcher from './OnChainDataFetcher';
 import KaikoPriceStreamFetcher from './KaikoPriceStreamFetcher';
 import OptionsPriceFetcher from './OptionsPriceFetcher';
 import YearnVaultTokenPriceFetcher from './YearnVaultTokenPriceFetcher';
+import {UniswapPriceFetcher} from './UniswapPriceFetcher';
 import RandomNumberFetcher from './RandomNumberFetcher';
 
 export {
@@ -35,5 +36,6 @@ export {
   KaikoPriceStreamFetcher,
   OptionsPriceFetcher,
   YearnVaultTokenPriceFetcher,
+  UniswapPriceFetcher,
   RandomNumberFetcher,
 };

@@ -7,10 +7,10 @@ const settings: Settings = {
   port: parseInt(process.env.PORT || '3000'),
   jobs: {
     blockCreation: {
-      interval: parseInt(process.env.BLOCK_CREATION_JOB_INTERVAL || '1000'),
+      interval: getTimeSetting(parseInt(process.env.BLOCK_CREATION_JOB_INTERVAL || '10000'), 10000),
       lock: {
         name: process.env.BLOCK_CREATION_LOCK_NAME || 'lock::BlockCreation',
-        ttl: parseInt(process.env.BLOCK_CREATION_LOCK_TTL || '60'),
+        ttl: getTimeSetting(parseInt(process.env.BLOCK_CREATION_LOCK_TTL || '60'), 60),
       },
     },
     metricsReporting: {
@@ -31,7 +31,12 @@ const settings: Settings = {
   consensus: {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
     strategy: process.env.CONSENSUS_STRATEGY || 'simple',
-    discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '400'),
+    discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '800'),
+  },
+  blockchains: {
+    ethereum: {
+      providerUrl: (<string>process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL || '').split(','),
+    },
   },
   blockchain: {
     providers: resolveBlockchainProviders(),
@@ -100,6 +105,14 @@ const settings: Settings = {
       apiKey: process.env.OPTIONS_PRICE_API_KEY as string,
       timeout: parseInt(process.env.OPTIONS_PRICE_TIMEOUT || '5000', 10),
     },
+    uniswap: {
+      scannerContractId: <string>process.env.UNISWAP_SCANNER_CONTRACT_ID,
+      helperContractId: <string>process.env.UNISWAP_HELPER_CONTRACT_ID,
+      startBlock: parseInt(process.env.UNISWAP_START_BLOCK || '0'),
+      agentStep: parseInt(process.env.UNISWAP_STEP || '1000'),
+      defaultPrecision: Number(process.env.UNISWAP_DEFAULT_PRECISION || '0.5'),
+      defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '2'),
+    },
   },
   feedsFile:
     process.env.FEEDS_FILE ||
@@ -108,12 +121,16 @@ const settings: Settings = {
     process.env.FEEDS_ON_CHAIN_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
   statusCheckTimeout: parseInt(process.env.STATUS_CHECK_TIMEOUT || '2000', 10),
-  signatureTimeout: parseInt(process.env.SIGNATURE_TIMEOUT || '10000', 10),
+  signatureTimeout: getTimeSetting(parseInt(process.env.SIGNATURE_TIMEOUT || '20000', 10), 20000),
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
   version: packageJson.version,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
   name: process.env.NAME || 'default',
 };
+
+function getTimeSetting(value: number, min: number): number {
+  return value > min ? value : min;
+}
 
 function resolveBlockchainProviders() {
   return resolveArray((i) => process.env[`BLOCKCHAIN_PROVIDER_${i}_URL`] as string).reduce((map, item, i) => {
