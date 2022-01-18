@@ -1,5 +1,10 @@
 type Settings = {
   port: number;
+  application: {
+    root: string;
+    OTAUpdates: boolean;
+    updateUrl?: string;
+  },
   jobs: {
     blockCreation: {
       interval: number;

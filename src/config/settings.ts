@@ -1,10 +1,16 @@
 import Settings from '../types/Settings';
+import path from 'path';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
 
 const settings: Settings = {
   port: parseInt(process.env.PORT || '3000'),
+  application: {
+    root: process.env.NODE_PATH || process.cwd(),
+    OTAUpdates: (process.env.APPLICATION_OTA_UPDATES == 'true'),
+    updateUrl: process.env.APPLICATION_UPDATE_URL
+  },
   jobs: {
     blockCreation: {
       interval: getTimeSetting(parseInt(process.env.BLOCK_CREATION_JOB_INTERVAL || '10000'), 10000),

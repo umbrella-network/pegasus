@@ -1,5 +1,8 @@
-import './boot';
+import {boot} from './boot';
 import Application from './lib/Application';
 import Server from './lib/Server';
 
-Application.get(Server).start();
+(async () => {
+  await boot()
+  Application.get(Server).start();
+})();

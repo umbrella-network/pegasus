@@ -1,20 +1,24 @@
-import './boot';
+import {boot} from './boot';
 import yargs from 'yargs';
 import Application from './lib/Application';
 import BlockMintingWorker from './workers/BlockMintingWorker';
 import MetricsWorker from './workers/MetricsWorker';
 
-const argv = yargs(process.argv.slice(2)).options({
-  worker: { type: 'string', demandOption: true }
-}).argv;
+(async () => {
+  await boot();
 
-switch (argv.worker) {
-  case 'BlockMintingWorker': {
-    Application.get(BlockMintingWorker).start();
-    break;
+  const argv = yargs(process.argv.slice(2)).options({
+    worker: { type: 'string', demandOption: true }
+  }).argv;
+
+  switch (argv.worker) {
+    case 'BlockMintingWorker': {
+      Application.get(BlockMintingWorker).start();
+      break;
+    }
+    case 'MetricsWorker': {
+      Application.get(MetricsWorker).start();
+      break;
+    }
   }
-  case 'MetricsWorker': {
-    Application.get(MetricsWorker).start();
-    break;
-  }
-}
+})()
