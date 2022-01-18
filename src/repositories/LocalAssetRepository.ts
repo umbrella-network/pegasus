@@ -12,14 +12,15 @@ export class LocalAssetRepository {
   async read(relativePath: string): Promise<string | undefined> {
     try {
       const fullPath = this.getPath(relativePath);
+      this.logger.debug(`[LocalAssetRepository] Loading ${fullPath}`);
       return await fs.promises.readFile(fullPath, 'utf8');
     } catch (e) {
-      this.logger.error(`[LocalFileRepository] File ${relativePath} not found locally`);
+      this.logger.error(`[LocalAssetRepository] File ${relativePath} not found locally`);
       return;
     }
   }
-  
+
   private getPath(relativePath: string): string {
-    return path.join(this.settings.application.root, relativePath);
+    return path.join(this.settings.application.root, 'data', relativePath);
   }
 }

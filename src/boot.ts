@@ -6,7 +6,7 @@ import 'newrelic';
 
 import {initMongoDB} from './config/initMongoDB';
 import Migrations from "./services/Migrations";
-import ApplicationUpdateAgent from './services/ApplicationUpdateAgent';
+import ApplicationUpdateService from './services/ApplicationUpdateService';
 import Application from './lib/Application';
 
 export async function boot(): Promise<void> {
@@ -15,5 +15,5 @@ export async function boot(): Promise<void> {
 
   await initMongoDB(settings);
   await Migrations.apply();
-  await Application.get(ApplicationUpdateAgent).startUpdate();
+  await Application.get(ApplicationUpdateService).startUpdate();
 }

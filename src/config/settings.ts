@@ -1,5 +1,4 @@
 import Settings from '../types/Settings';
-import path from 'path';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
@@ -8,8 +7,10 @@ const settings: Settings = {
   port: parseInt(process.env.PORT || '3000'),
   application: {
     root: process.env.NODE_PATH || process.cwd(),
-    OTAUpdates: (process.env.APPLICATION_OTA_UPDATES == 'true'),
-    updateUrl: process.env.APPLICATION_UPDATE_URL
+    autoUpdate: {
+      enabled: process.env.APPLICATION_AUTO_UPDATE_ENABLED == 'true',
+      url: process.env.APPLICATION_UPDATE_URL,
+    },
   },
   jobs: {
     blockCreation: {

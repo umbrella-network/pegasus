@@ -2,9 +2,11 @@ type Settings = {
   port: number;
   application: {
     root: string;
-    OTAUpdates: boolean;
-    updateUrl?: string;
-  },
+    autoUpdate: {
+      enabled: boolean;
+      url?: string;
+    };
+  };
   jobs: {
     blockCreation: {
       interval: number;
