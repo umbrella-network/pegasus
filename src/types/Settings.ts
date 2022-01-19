@@ -35,7 +35,7 @@ type Settings = {
   };
   blockchain: {
     provider: {
-      url: string;
+      urls: string[];
       privateKey: string;
     };
     providers: {[name: string]: string};

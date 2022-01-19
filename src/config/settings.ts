@@ -41,7 +41,7 @@ const settings: Settings = {
   blockchain: {
     providers: resolveBlockchainProviders(),
     provider: {
-      url: process.env.BLOCKCHAIN_PROVIDER_URL || 'http://127.0.0.1:8545',
+      urls: getProvidersURLs(),
       privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
     },
     contracts: {
@@ -155,6 +155,14 @@ function resolveArray(iterator: (i: number) => string): string[] {
   }
 
   return result;
+}
+
+function getProvidersURLs(): string[] {
+  const urls = `${process.env.BLOCKCHAIN_PROVIDER_URL},${process.env.BLOCKCHAIN_PROVIDER_URLS}`
+    .split(',')
+    .filter((url) => url.startsWith('http'));
+
+  return urls.length > 0 ? urls : ['http://127.0.0.1:8545'];
 }
 
 export default settings;
