@@ -7,6 +7,7 @@ import {expect} from 'chai';
 import {BigNumber, ethers, Wallet} from 'ethers';
 import mongoose from 'mongoose';
 import {getModelForClass} from '@typegoose/typegoose';
+import {JsonRpcProvider} from '@ethersproject/providers';
 
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
@@ -297,12 +298,93 @@ describe('BlockMinter', () => {
       expect(blocksCount).to.be.eq(0, 'BlockMinter saved some blocks to database');
     });
 
+    it('does not save block to database if balance is lower than estimateGas', async () => {
+      const {leaf, affidavit} = leafWithAffidavit;
+      const wallet = Wallet.createRandom();
+      const signature = await signAffidavitWithWallet(wallet, affidavit);
+      const providerDefault = new JsonRpcProvider('http://127.0.0.1:8545');
+
+      mockedBlockchain.wallet = wallet;
+      mockedBlockchain.wallet = mockedBlockchain.wallet.connect(providerDefault);
+      mockedBlockchain.wallet.getBalance = async () => BigNumber.from(0);
+      mockedBlockchain.wallet.provider.estimateGas = async () => BigNumber.from(1);
+
+      mockedTimeService.apply.returns(10);
+      mockedGasEstimator.apply.resolves({min: 10, estimation: 10, max: 10, avg: 10});
+
+      mockedChainContract.resolveStatus.resolves([
+        '0x123',
+        {
+          blockNumber: BigNumber.from(1),
+          timePadding: 0,
+          lastBlockId: 1,
+          nextBlockId: 1,
+          nextLeader: wallet.address,
+          validators: [wallet.address],
+          locations: ['abc'],
+          lastDataTimestamp: 1,
+          powers: [BigNumber.from(1)],
+          staked: BigNumber.from(1),
+          minSignatures: 1,
+        },
+      ]);
+
+      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+
+      mockedFeedProcessor.apply.resolves([
+        [leaf, leaf],
+        [leaf, leaf],
+      ]);
+
+      mockedSignatureCollector.apply.resolves([
+        {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
+      ]);
+
+      mockedChainContract.submit.resolves({
+        wait: () =>
+          Promise.resolve({
+            status: 1,
+            transactionHash: '123',
+            logs: [
+              {
+                transactionIndex: 0,
+                blockNumber: 6618,
+                transactionHash: '0x17063b26e48f5d9862688aac0ce693e2dfc4d8d9f230573c331e6616d7a85b55',
+                address: '0xc4905364b78a742ccce7B890A89514061E47068D',
+                topics: [
+                  '0x5f11830295067c4bcc7d02d4e3b048cd7427be50a3aeb6afc9d3d559ee64bcfa',
+                  '0x000000000000000000000000998cb7821e605cc16b6174e7c50e19adb2dd2fb0',
+                ],
+                data: '0x000000000000000000000000000000000000000000000000000000000000033f00000000000000000000000000000000000000000000000029a2241af62c00000000000000000000000000000000000000000000000000001bc16d674ec80000',
+                logIndex: 1,
+                blockHash: '0x7422c3bf9cda4cd91e282a495945d4b4ff310a06a67614e806bf6bb244527225',
+              },
+            ],
+          }),
+      } as any);
+
+      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
+      const executeTxSpy = sinon.spy(blockMinter, <any>'executeTx');
+
+      await blockMinter.apply();
+
+      const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
+      expect(executeTxSpy.notCalled).to.be.true;
+      expect(blocksCount).to.be.eq(0, 'BlockMinter saved some blocks to database');
+    });
+
     it('saves block to database if submitting finished successfully', async () => {
       const {leaf, affidavit} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(wallet, affidavit);
+      const providerDefault = new JsonRpcProvider('http://127.0.0.1:8545');
 
       mockedBlockchain.wallet = wallet;
+      mockedBlockchain.wallet = mockedBlockchain.wallet.connect(providerDefault);
+      mockedBlockchain.wallet.getBalance = async () => BigNumber.from(10);
+      mockedBlockchain.wallet.provider.estimateGas = async () => BigNumber.from(1);
 
       mockedTimeService.apply.returns(10);
       mockedGasEstimator.apply.resolves({min: 10, estimation: 10, max: 10, avg: 10});
@@ -374,8 +456,12 @@ describe('BlockMinter', () => {
 
         const wallet = Wallet.createRandom();
         const signature = await signAffidavitWithWallet(wallet, affidavit);
+        const providerDefault = new JsonRpcProvider('http://127.0.0.1:8545');
 
         mockedBlockchain.wallet = wallet;
+        mockedBlockchain.wallet = mockedBlockchain.wallet.connect(providerDefault);
+        mockedBlockchain.wallet.getBalance = async () => BigNumber.from(10);
+        mockedBlockchain.wallet.provider.estimateGas = async () => BigNumber.from(1);
 
         mockedBlockchain.wallet.getTransactionCount = async () => 1;
 
