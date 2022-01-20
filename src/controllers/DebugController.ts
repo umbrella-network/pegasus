@@ -185,7 +185,9 @@ class DebugController {
   };
 
   feeds = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
-    const dataTimestamp = request.params.timestamp ? parseInt(request.params.timestamp, 10) : Math.floor(Date.now() / 1000);
+    const dataTimestamp = request.params.timestamp
+      ? parseInt(request.params.timestamp, 10)
+      : Math.floor(Date.now() / 1000);
 
     try {
       let fetchFeedsMs = Date.now();
@@ -222,7 +224,7 @@ class DebugController {
     }
 
     response.sendStatus(403);
-  }
+  };
 }
 
 export default DebugController;

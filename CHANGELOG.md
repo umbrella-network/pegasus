@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [6.1.1] - 2021-01-20
+### Changed
+- /debug/feeds endpoint
+
 ## [6.0.1] - 2021-12-09
 ### Changed
 - Increased JSON payload size
