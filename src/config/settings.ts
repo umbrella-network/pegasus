@@ -100,6 +100,9 @@ const settings: Settings = {
       apiKey: process.env.OPTIONS_PRICE_API_KEY as string,
       timeout: parseInt(process.env.OPTIONS_PRICE_TIMEOUT || '5000', 10),
     },
+    debug: {
+      apiKey: process.env.DEBUG_API_KEY as string,
+    },
   },
   feedsFile:
     process.env.FEEDS_FILE ||

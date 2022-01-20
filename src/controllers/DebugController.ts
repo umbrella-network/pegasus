@@ -14,6 +14,9 @@ import KaikoPriceStreamClient from '../stream/KaikoPriceStreamClient';
 import KaikoPriceStreamInitializer from '../services/KaikoPriceStreamInitializer';
 import PairRepository from '../repositories/PairRepository';
 import PriceRepository from '../repositories/PriceRepository';
+import Feeds from '../types/Feed';
+import loadFeeds from '../services/loadFeeds';
+import FeedProcessor from '../services/FeedProcessor';
 
 @injectable()
 class DebugController {
@@ -30,6 +33,7 @@ class DebugController {
   @inject(KaikoPriceStreamInitializer) kaikoPriceStreamInitializer!: KaikoPriceStreamInitializer;
   @inject(PairRepository) pairRepository!: PairRepository;
   @inject(PriceRepository) priceRepository!: PriceRepository;
+  @inject(FeedProcessor) feedProcessor!: FeedProcessor;
 
   constructor(@inject('Settings') settings: Settings) {
     this.router = express
@@ -41,7 +45,8 @@ class DebugController {
       .get('/price-aggregator/polygon/stock/prices/:sym', this.polygonStockPrices)
       .get('/price-aggregator/polygon/stock/latest', this.polygonIOStockLatest)
       .get('/price-aggregator/kaiko/latest', this.kaikoPriceLatest)
-      .get('/price-aggregator/kaiko/prices/:fsym/:tsym', this.kaikoPrices);
+      .get('/price-aggregator/kaiko/prices/:fsym/:tsym', this.kaikoPrices)
+      .get('/feeds', this.extractAuthorizationToken, this.feeds);
 
     this.settings = settings;
   }
@@ -178,6 +183,46 @@ class DebugController {
       next(err);
     }
   };
+
+  feeds = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+    const dataTimestamp = request.params.timestamp ? parseInt(request.params.timestamp, 10) : Math.floor(Date.now() / 1000);
+
+    try {
+      let fetchFeedsMs = Date.now();
+      const feeds: Feeds[] = await Promise.all(
+        [this.settings.feedsOnChain, this.settings.feedsFile].map((fileName) => loadFeeds(fileName)),
+      );
+      fetchFeedsMs = Date.now() - fetchFeedsMs;
+
+      let processFeedsMs = Date.now();
+      const [firstClassLeaves, leaves] = await this.feedProcessor.apply(dataTimestamp, ...feeds);
+      processFeedsMs = Date.now() - processFeedsMs;
+
+      response.send({
+        firstClassLeaves,
+        leaves,
+        dataTimestamp,
+        fetchFeedsMs,
+        processFeedsMs,
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  extractAuthorizationToken = (request: Request, response: Response, next: NextFunction): void => {
+    const bearerHeader = request.headers.authorization;
+
+    if (bearerHeader) {
+      const bearer = bearerHeader.split(' ')[1];
+      if (bearer === this.settings.api.debug.apiKey) {
+        next();
+        return;
+      }
+    }
+
+    response.sendStatus(403);
+  }
 }
 
 export default DebugController;
