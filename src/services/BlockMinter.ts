@@ -4,7 +4,7 @@ import {BigNumber, ethers, Signature} from 'ethers';
 import {ABI, LeafKeyCoder} from '@umb-network/toolbox';
 import {getModelForClass} from '@typegoose/typegoose';
 import newrelic from 'newrelic';
-import {TransactionResponse, TransactionReceipt, TransactionRequest} from '@ethersproject/providers';
+import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 
 import {HexStringWith0x} from '../types/Feed';
@@ -29,12 +29,12 @@ class BlockMinter {
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
   @inject(ConsensusRunner) consensusRunner!: ConsensusRunner;
-  @inject(GasEstimator) gasEstimator!: GasEstimator;
   @inject(TimeService) timeService!: TimeService;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject('Settings') settings!: Settings;
+  @inject(GasEstimator) gasEstimator!: GasEstimator;
 
   async apply(): Promise<void> {
     // await this.blockchain.setLatestProvider();
@@ -132,13 +132,7 @@ class BlockMinter {
         nonce,
       );
 
-    const txRequest: TransactionRequest = {
-      from: this.blockchain.wallet.address,
-      nonce,
-      gasPrice: gasMetrics.estimation,
-    };
-
-    const isBalanceEnough = await this.getIsBalanceEnough(txRequest);
+    const isBalanceEnough = await this.getIsBalanceEnough(gasMetrics.estimation);
     if (!isBalanceEnough) {
       throw new Error('Balance is not enough for this transaction.');
     }
@@ -292,9 +286,9 @@ class BlockMinter {
     return ready;
   }
 
-  private async getIsBalanceEnough(txRequest: TransactionRequest): Promise<boolean> {
+  private async getIsBalanceEnough(gasEstimation: number): Promise<boolean> {
     const balance = await this.blockchain.wallet.getBalance();
-    const estimate = await this.blockchain.wallet.provider.estimateGas(txRequest);
+    const estimate = BigNumber.from(gasEstimation);
 
     this.logger.info(
       `Wallet address: ${this.blockchain.wallet.address} - Wallet balance: ${balance} - Estimated Transaction Gas Fee: ${estimate}`,

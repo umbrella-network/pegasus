@@ -7,7 +7,6 @@ import {expect} from 'chai';
 import {BigNumber, ethers, Wallet} from 'ethers';
 import mongoose from 'mongoose';
 import {getModelForClass} from '@typegoose/typegoose';
-import {JsonRpcProvider} from '@ethersproject/providers';
 
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
@@ -302,12 +301,9 @@ describe('BlockMinter', () => {
       const {leaf, affidavit} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(wallet, affidavit);
-      const providerDefault = new JsonRpcProvider('http://127.0.0.1:8545');
 
       mockedBlockchain.wallet = wallet;
-      mockedBlockchain.wallet = mockedBlockchain.wallet.connect(providerDefault);
       mockedBlockchain.wallet.getBalance = async () => BigNumber.from(0);
-      mockedBlockchain.wallet.provider.estimateGas = async () => BigNumber.from(1);
 
       mockedTimeService.apply.returns(10);
       mockedGasEstimator.apply.resolves({min: 10, estimation: 10, max: 10, avg: 10});
@@ -379,12 +375,9 @@ describe('BlockMinter', () => {
       const {leaf, affidavit} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(wallet, affidavit);
-      const providerDefault = new JsonRpcProvider('http://127.0.0.1:8545');
 
       mockedBlockchain.wallet = wallet;
-      mockedBlockchain.wallet = mockedBlockchain.wallet.connect(providerDefault);
       mockedBlockchain.wallet.getBalance = async () => BigNumber.from(10);
-      mockedBlockchain.wallet.provider.estimateGas = async () => BigNumber.from(1);
 
       mockedTimeService.apply.returns(10);
       mockedGasEstimator.apply.resolves({min: 10, estimation: 10, max: 10, avg: 10});
@@ -456,12 +449,10 @@ describe('BlockMinter', () => {
 
         const wallet = Wallet.createRandom();
         const signature = await signAffidavitWithWallet(wallet, affidavit);
-        const providerDefault = new JsonRpcProvider('http://127.0.0.1:8545');
 
         mockedBlockchain.wallet = wallet;
-        mockedBlockchain.wallet = mockedBlockchain.wallet.connect(providerDefault);
+
         mockedBlockchain.wallet.getBalance = async () => BigNumber.from(10);
-        mockedBlockchain.wallet.provider.estimateGas = async () => BigNumber.from(1);
 
         mockedBlockchain.wallet.getTransactionCount = async () => 1;
 
