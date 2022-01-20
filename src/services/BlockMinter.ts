@@ -132,7 +132,7 @@ class BlockMinter {
         nonce,
       );
 
-    const isBalanceEnough = await this.getIsBalanceEnough(gasMetrics.estimation);
+    const isBalanceEnough = await this.checkIsBalanceEnough(gasMetrics.estimation);
     if (!isBalanceEnough) {
       throw new Error('Balance is not enough for this transaction.');
     }
@@ -286,11 +286,11 @@ class BlockMinter {
     return ready;
   }
 
-  private async getIsBalanceEnough(gasEstimation: number): Promise<boolean> {
+  private async checkIsBalanceEnough(gasEstimation: number): Promise<boolean> {
     const balance = await this.blockchain.wallet.getBalance();
     const estimate = BigNumber.from(gasEstimation);
 
-    this.logger.info(
+    this.logger.debug(
       `Wallet address: ${this.blockchain.wallet.address} - Wallet balance: ${balance} - Estimated Transaction Gas Fee: ${estimate}`,
     );
 
