@@ -1,12 +1,30 @@
 import {Container, interfaces} from 'inversify';
-import {getContainer} from './getContainer';
+import {Logger} from 'winston';
+import settings from '../config/settings';
+import logger from './logger';
+import Settings from '../types/Settings';
+import Blockchain from './Blockchain';
+import ChainContract from '../contracts/ChainContract';
+import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
+import {Redis} from 'ioredis';
+import {initRedis} from '../config/initRedis';
 
 class Application {
   private static _instance: Application;
   private container: Container;
 
   private constructor() {
-    this.container = getContainer();
+    this.container = new Container({autoBindInjectable: true});
+    this.container.bind<Settings>('Settings').toConstantValue(settings);
+    this.container.bind<Logger>('Logger').toConstantValue(logger);
+    this.container.bind<ChainContract>(ChainContract).toSelf().inSingletonScope();
+    this.container.bind<Blockchain>(Blockchain).toSelf().inSingletonScope();
+    this.container.bind<CryptoCompareWSClient>(CryptoCompareWSClient).toSelf().inSingletonScope();
+
+    this.container
+      .bind<Redis>('Redis')
+      .toDynamicValue((ctx) => initRedis(ctx.container.get('Settings')))
+      .inSingletonScope();
   }
 
   public static get instance(): Application {

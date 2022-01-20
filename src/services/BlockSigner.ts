@@ -1,6 +1,9 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
+import loadFeeds from './loadFeeds';
+import Feeds from '../types/Feed';
 
+import FeedProcessor from './FeedProcessor';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
@@ -10,13 +13,12 @@ import {BlockSignerResponse} from '../types/BlockSignerResponse';
 import BlockRepository from './BlockRepository';
 
 import {chainReadyForNewBlock, signAffidavitWithWallet} from '../utils/mining';
-import {ProposedConsensus} from '../types/Consensus';
+import {LeavesAndFeeds, ProposedConsensus} from '../types/Consensus';
 import {ChainStatus} from '../types/ChainStatus';
 import {DiscrepancyFinder} from './DiscrepancyFinder';
 import newrelic from 'newrelic';
 import {Discrepancy} from '../types/Discrepancy';
 import {ProposedConsensusService} from './ProposedConsensusService';
-import {FeedDataService} from './FeedDataService';
 
 @injectable()
 class BlockSigner {
@@ -24,21 +26,18 @@ class BlockSigner {
   @inject('Settings') settings!: Settings;
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
+  @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
-  @inject(FeedDataService) feedDataService!: FeedDataService;
 
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
-    const {proposedConsensus, chainAddress, chainStatus} = await this.check(block);
+    const {proposedConsensus, chainAddress, chainStatus} = await this.executeRequireChecks(block);
 
     this.logger.info(
-      [
-        `[BlockSigner] Request from ${proposedConsensus.signer} to sign a block ~${chainStatus.nextBlockId}`,
-        `with ${proposedConsensus.leaves.length} leaves and ${proposedConsensus.fcdKeys.length} FCDs`,
-      ].join(' '),
+      `Request from ${proposedConsensus.signer} to sign a block ~${chainStatus.nextBlockId} with ${proposedConsensus.leaves.length} leaves and ${proposedConsensus.fcdKeys.length} FCDs`,
     );
 
-    const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = await this.feedDataService.getLeavesAndFeeds(
+    const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = await this.leavesAndFeeds(
       proposedConsensus.dataTimestamp,
     );
 
@@ -46,8 +45,6 @@ class BlockSigner {
 
     if (discrepancies.length) {
       await this.reportDiscrepancies(discrepancies);
-      this.logger.info(`[BlockSigner] Cannot sign block. Discrepancies found: ${discrepancies.length}`);
-      this.logger.debug(`[BlockSigner] Discrepancies: ${JSON.stringify(discrepancies)}`);
       return {discrepancies, signature: '', version: this.settings.version};
     }
 
@@ -61,30 +58,40 @@ class BlockSigner {
     };
 
     await this.blockRepository.saveBlock(chainAddress, signedBlockConsensus, chainStatus.lastBlockId + 1);
-    this.logger.info(`[BlockSigner] Signed a block for ${proposedConsensus.signer} at ${block.dataTimestamp}`);
-    this.logger.debug(`[BlockSigner] Signature: ${signature}`);
+
+    this.logger.info(`Signed a block for ${proposedConsensus.signer} at ${block.dataTimestamp}`);
+
     return {signature, discrepancies, version: this.settings.version};
   }
 
-  private async reportDiscrepancies(discrepancies: Discrepancy[]): Promise<void> {
-    for (const d of discrepancies) {
-      const discrepancy: Discrepancy = {key: d.key, discrepancy: Math.round(d.discrepancy * 100) / 100.0};
-      newrelic.recordCustomEvent('PriceDiscrepancy', {...discrepancy});
-    }
+  async leavesAndFeeds(dataTimestamp: number): Promise<LeavesAndFeeds> {
+    const feeds: Feeds[] = await Promise.all(
+      [this.settings.feedsOnChain, this.settings.feedsFile].map((fileName) => loadFeeds(fileName)),
+    );
+
+    const [firstClassLeaves, leaves] = await this.feedProcessor.apply(dataTimestamp, ...feeds);
+    return {firstClassLeaves, leaves, fcdsFeeds: feeds[0], leavesFeeds: feeds[1]};
   }
 
-  async check(
+  private async reportDiscrepancies(discrepancies: Discrepancy[]): Promise<void> {
+    discrepancies.map((d) => {
+      const discrepancy: Discrepancy = {key: d.key, discrepancy: Math.round(d.discrepancy * 100) / 100.0};
+      newrelic.recordCustomEvent('PriceDiscrepancy', {...discrepancy});
+    });
+  }
+
+  async executeRequireChecks(
     block: SignedBlock,
   ): Promise<{proposedConsensus: ProposedConsensus; chainAddress: string; chainStatus: ChainStatus}> {
     const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
     const [ready, error] = chainReadyForNewBlock(chainStatus, block.dataTimestamp);
 
     if (!ready) {
-      this.logger.error(`[BlockSigner] Not ready, skipping. Error: ${error}`);
       throw Error(error);
     }
 
-    this.logger.info(`[BlockSigner] Signing a block for ${chainStatus.nextLeader} at ${block.dataTimestamp}...`);
+    this.logger.info(`Signing a block for ${chainStatus.nextLeader} at ${block.dataTimestamp}...`);
+
     const proposedConsensus = ProposedConsensusService.apply(block);
 
     if (this.blockchain.wallet.address === proposedConsensus.signer) {
@@ -93,11 +100,7 @@ class BlockSigner {
 
     if (proposedConsensus.signer !== chainStatus.nextLeader) {
       throw Error(
-        [
-          'Signature does not belong to the current leader,',
-          `expected ${chainStatus.nextLeader} got ${proposedConsensus.signer}`,
-          `at block ${chainStatus.blockNumber}/${chainStatus.nextBlockId}`,
-        ].join(' '),
+        `Signature does not belong to the current leader, expected ${chainStatus.nextLeader} got ${proposedConsensus.signer} at block ${chainStatus.blockNumber}/${chainStatus.nextBlockId}`,
       );
     }
 

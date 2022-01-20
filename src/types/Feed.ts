@@ -1,5 +1,4 @@
 export interface Feed {
-  symbol?: string;
   discrepancy: number;
   precision: number;
   inputs: FeedInput[];
