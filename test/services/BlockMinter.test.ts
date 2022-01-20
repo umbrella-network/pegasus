@@ -368,7 +368,7 @@ describe('BlockMinter', () => {
 
       const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
       expect(executeTxSpy.notCalled).to.be.true;
-      expect(blocksCount).to.be.eq(0, 'BlockMinter saved some blocks to database');
+      expect(blocksCount).to.be.eq(0);
     });
 
     it('saves block to database if submitting finished successfully', async () => {
