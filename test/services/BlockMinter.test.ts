@@ -25,7 +25,6 @@ import GasEstimator from '../../src/services/GasEstimator';
 import BlockRepository from '../../src/services/BlockRepository';
 import {getTestContainer} from '../helpers/getTestContainer';
 
-// TODO: This is a unit test - we should not be calling the real ConsensusRunner.
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let mockedChainContract: sinon.SinonStubbedInstance<ChainContract>;

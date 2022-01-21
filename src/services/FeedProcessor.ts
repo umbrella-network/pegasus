@@ -6,13 +6,17 @@ import {LeafValueCoder} from '@umb-network/toolbox';
 
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed';
 import Leaf from '../types/Leaf';
+import * as fetchers from './fetchers';
+import * as calculators from './calculators';
 import {
   InputParams as CryptoComparePriceMultiFetcherParams,
   OutputValue as CryptoComparePriceMultiFetcherOutputValue,
 } from './fetchers/CryptoComparePriceMultiFetcher';
-import {CalculatorRepository} from '../repositories/CalculatorRepository';
-import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository';
-import {CryptoComparePriceMultiFetcher} from './fetchers';
+
+interface Fetcher {
+  // eslint-disable-next-line
+  apply: (params: any, timestamp: number) => Promise<any>;
+}
 
 interface Calculator {
   // eslint-disable-next-line
@@ -29,9 +33,74 @@ interface FetcherError {
 @injectable()
 class FeedProcessor {
   @inject('Logger') logger!: Logger;
-  @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
-  @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
-  @inject(CryptoComparePriceMultiFetcher) cryptoComparePriceMultiFetcher!: CryptoComparePriceMultiFetcher;
+
+  fetchers: {[key: string]: Fetcher};
+  calculators: {[key: string]: Calculator};
+
+  CryptoComparePriceMultiFetcher: fetchers.CryptoComparePriceMultiFetcher;
+
+  constructor(
+    @inject(fetchers.CryptoCompareHistoHourFetcher)
+    CryptoCompareHistoHourFetcher: fetchers.CryptoCompareHistoHourFetcher,
+    @inject(fetchers.CryptoCompareHistoDayFetcher) CryptoCompareHistoDayFetcher: fetchers.CryptoCompareHistoDayFetcher,
+    @inject(fetchers.CryptoComparePriceMultiFetcher)
+    CryptoComparePriceMultiFetcher: fetchers.CryptoComparePriceMultiFetcher,
+    @inject(fetchers.GVolImpliedVolatilityFetcher) GVolImpliedVolatilityFetcher: fetchers.GVolImpliedVolatilityFetcher,
+    @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPriceFetcher: fetchers.PolygonIOStockPriceFetcher,
+    @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOPriceFetcher: fetchers.PolygonIOStockPriceFetcher,
+    @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPriceFetcher: fetchers.PolygonIOCryptoPriceFetcher,
+    @inject(fetchers.CryptoComparePriceWSFetcher) CryptoComparePriceWSFetcher: fetchers.CryptoComparePriceWSFetcher,
+    @inject(fetchers.IEXEnergyFetcher) IEXEnergyFetcher: fetchers.IEXEnergyFetcher,
+    @inject(fetchers.CoingeckoPriceFetcher) CoingeckoPriceFetcher: fetchers.CoingeckoPriceFetcher,
+    @inject(fetchers.CoinmarketcapPriceFetcher) CoinmarketcapPriceFetcher: fetchers.CoinmarketcapPriceFetcher,
+    @inject(fetchers.CoinmarketcapHistoHourFetcher)
+    CoinmarketcapHistoHourFetcher: fetchers.CoinmarketcapHistoHourFetcher,
+    @inject(fetchers.CoinmarketcapHistoDayFetcher) CoinmarketcapHistoDayFetcher: fetchers.CoinmarketcapHistoDayFetcher,
+    @inject(fetchers.BEACPIAverageFetcher) BEACPIAverageFetcher: fetchers.BEACPIAverageFetcher,
+    @inject(fetchers.OnChainDataFetcher) OnChainDataFetcher: fetchers.OnChainDataFetcher,
+    @inject(fetchers.KaikoPriceStreamFetcher) KaikoPriceStreamFetcher: fetchers.KaikoPriceStreamFetcher,
+    @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPriceFetcher: fetchers.YearnVaultTokenPriceFetcher,
+    @inject(fetchers.OptionsPriceFetcher) OptionsPriceFetcher: fetchers.OptionsPriceFetcher,
+    @inject(fetchers.RandomNumberFetcher) RandomNumberFetcher: fetchers.RandomNumberFetcher,
+
+    @inject(calculators.TWAPCalculator) TWAPCalculator: calculators.TWAPCalculator,
+    @inject(calculators.IdentityCalculator) IdentityCalculator: calculators.IdentityCalculator,
+    @inject(calculators.VWAPCalculator) VWAPCalculator: calculators.VWAPCalculator,
+    @inject(calculators.YearnTransformPriceCalculator)
+    YearnTransformPriceCalculator: calculators.YearnTransformPriceCalculator,
+    @inject(calculators.OptionsPriceCalculator) OptionsPriceCalculator: calculators.OptionsPriceCalculator,
+  ) {
+    this.fetchers = {
+      CryptoCompareHistoHourFetcher,
+      GVolImpliedVolatilityFetcher,
+      CryptoCompareHistoDayFetcher,
+      PolygonIOPriceFetcher,
+      PolygonIOStockPriceFetcher,
+      PolygonIOCryptoPriceFetcher,
+      CryptoComparePriceWSFetcher,
+      IEXEnergyFetcher,
+      CoingeckoPriceFetcher,
+      CoinmarketcapPriceFetcher,
+      CoinmarketcapHistoHourFetcher,
+      CoinmarketcapHistoDayFetcher,
+      BEACPIAverageFetcher,
+      OnChainDataFetcher,
+      KaikoPriceStreamFetcher,
+      YearnVaultTokenPriceFetcher,
+      OptionsPriceFetcher,
+      RandomNumberFetcher,
+    };
+
+    this.calculators = {
+      TWAPCalculator,
+      IdentityCalculator,
+      VWAPCalculator,
+      YearnTransformPriceCalculator,
+      OptionsPriceCalculator,
+    };
+
+    this.CryptoComparePriceMultiFetcher = CryptoComparePriceMultiFetcher;
+  }
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     // collect unique inputs
@@ -110,10 +179,10 @@ class FeedProcessor {
   }
 
   async processFeed(feedFetcher: FeedFetcher, timestamp: number): Promise<unknown> {
-    const fetcher = this.feedFetcherRepository.find(feedFetcher.name);
+    const fetcher = this.fetchers[`${feedFetcher.name}Fetcher`];
 
     if (!fetcher) {
-      this.logger.debug(`No fetcher specified for ${feedFetcher.name}`);
+      this.logger.warn(`No fetcher specified for ${feedFetcher.name}`);
       return;
     }
 
@@ -122,7 +191,7 @@ class FeedProcessor {
     } catch (err) {
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);
-      this.logger.debug(`Ignored feed fetcher ${JSON.stringify(feedFetcher)} due to an error. ${error}`);
+      this.logger.warn(`Ignored feed fetcher ${JSON.stringify(feedFetcher)} due to an error. ${error}`);
       return;
     }
   }
@@ -133,9 +202,12 @@ class FeedProcessor {
     prices: {[key: string]: number},
     feedCalculator?: FeedCalculator,
   ): FeedOutput[] {
-    if (!value) return [];
+    if (!value) {
+      return [];
+    }
 
-    const calculator = <Calculator>this.calculatorRepository.find(feedCalculator?.name || 'Identity');
+    const calculator: Calculator = this.calculators[`${feedCalculator?.name || 'Identity'}Calculator`];
+
     return calculator.apply(key, value, feedCalculator?.params, prices);
   }
 
@@ -144,13 +216,15 @@ class FeedProcessor {
   }
 
   async processMultiFeeds(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
-    if (!feedFetchers.length) return [];
+    if (!feedFetchers.length) {
+      return [];
+    }
 
     const params = this.createComparePriceMultiParams(feedFetchers);
-    let values: CryptoComparePriceMultiFetcherOutputValue[];
 
+    let values: CryptoComparePriceMultiFetcherOutputValue[];
     try {
-      values = await this.cryptoComparePriceMultiFetcher.apply(params);
+      values = await this.CryptoComparePriceMultiFetcher.apply(params);
     } catch (err) {
       this.logger.warn(`Ignored CryptoComparePriceMulti feed with ${JSON.stringify(params)} due to an error.`, err);
       return [];

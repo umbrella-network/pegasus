@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [6.1.0] - 2022-01-13
-### Added
-- fetching prices from UniswapV3
+## [6.0.2] - 2022-01-21
+### Removed
+- uniswapV3 integration
 
 ## [6.0.1] - 2021-12-09
 ### Changed
