@@ -95,6 +95,9 @@ type Settings = {
       apiKey: string;
       timeout: number;
     };
+    debug: {
+      apiKey: string;
+    };
   };
   statusCheckTimeout: number;
   signatureTimeout: number;

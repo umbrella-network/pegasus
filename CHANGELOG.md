@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [6.0.3] - 2021-01-21
+### Added
+- /debug/feeds endpoint
+
 ## [6.0.2] - 2022-01-21
 ### Removed
 - uniswapV3 integration
