@@ -3,12 +3,15 @@ import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import path from 'path';
 import axios from 'axios';
+import fs from 'fs';
 
 export type Manifest = {assets: Asset[]};
 
+// TODO: add a simple checksum-based version control to manage selective downloads
+// The current implementation will always re-download all files in the new manifest
 export type Asset = {
-  remoteUrl: string;
-  localPath: string;
+  url: string;
+  path: string;
 };
 
 @injectable()
@@ -26,7 +29,7 @@ export default class ApplicationUpdateService {
 
     this.logger.info('[ApplicationUpdateAgent] Looking for updates...');
     this.logger.debug(`[ApplicationUpdateAgent] Manifest URL: ${manifestUrl}`);
-    this.logger.debug(`[ApplicationUpdateAgent] Local Data Path: ${this.getDataPath()}`);
+    this.logger.debug(`[ApplicationUpdateAgent] Local Data Path: ${this.getDataPathPrefix()}`);
 
     let manifest: Manifest | undefined;
 
@@ -69,7 +72,7 @@ export default class ApplicationUpdateService {
     }
   }
 
-  getDataPath(): string {
+  getDataPathPrefix(): string {
     return path.join(this.settings.application.root, './data');
   }
 
@@ -78,19 +81,20 @@ export default class ApplicationUpdateService {
   }
 
   private async updateAsset(asset: Asset): Promise<void> {
-    const response = await axios.get(asset.remoteUrl);
+    const response = await axios.get(asset.url);
 
     if (![200, 201, 301].includes(response.status)) {
       this.logger.error(
-        `[ApplicationUpdateAgent] Asset "${asset.remoteUrl}" Download Failed. HTTP Status: ${response.status}`,
+        `[ApplicationUpdateAgent] Asset "${asset.url}" Download Failed. HTTP Status: ${response.status}`,
       );
 
       this.logger.debug(`[ApplicationUpdateAgent] HTTP Response: `, JSON.stringify(response));
       return;
     }
 
-    // TODO
-    // const content = <string>response.data;
-    // const fullLocalPath = path.join(this.getDataPath(), asset.localPath);
+    const content = JSON.stringify(response.data);
+    const fullLocalPath = path.join(this.getDataPathPrefix(), asset.path);
+    await fs.promises.mkdir(path.dirname(fullLocalPath), {recursive: true});
+    await fs.promises.writeFile(fullLocalPath, content);
   }
 }

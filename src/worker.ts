@@ -3,6 +3,7 @@ import yargs from 'yargs';
 import Application from './lib/Application';
 import BlockMintingWorker from './workers/BlockMintingWorker';
 import MetricsWorker from './workers/MetricsWorker';
+import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
 
 (async () => {
   await boot();
@@ -21,4 +22,6 @@ import MetricsWorker from './workers/MetricsWorker';
       break;
     }
   }
+
+  Application.get(ApplicationUpdateAgent).start();
 })()

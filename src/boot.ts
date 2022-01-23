@@ -8,6 +8,7 @@ import {initMongoDB} from './config/initMongoDB';
 import Migrations from "./services/Migrations";
 import ApplicationUpdateService from './services/ApplicationUpdateService';
 import Application from './lib/Application';
+import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
 
 export async function boot(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

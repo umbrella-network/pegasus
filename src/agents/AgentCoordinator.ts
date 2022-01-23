@@ -3,6 +3,7 @@ import {BasicAgent} from './BasicAgent';
 import {UniswapPoolScannerAgent} from './UniswapPoolScannerAgent';
 import {UniswapPriceScannerAgent} from './UniswapPriceScannerAgent';
 import {Logger} from 'winston';
+import ApplicationUpdateService from '../services/ApplicationUpdateService';
 
 @injectable()
 export class AgentCoordinator {
@@ -11,7 +12,7 @@ export class AgentCoordinator {
 
   constructor(
     @inject(UniswapPoolScannerAgent) UniswapPoolScannerAgent: UniswapPoolScannerAgent,
-    @inject(UniswapPriceScannerAgent) UniswapPriceScannerAgent: UniswapPriceScannerAgent,
+    @inject(UniswapPriceScannerAgent) UniswapPriceScannerAgent: UniswapPriceScannerAgent
   ) {
     this.agents = {
       UniswapPoolScannerAgent,
