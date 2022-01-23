@@ -8,7 +8,8 @@ const settings: Settings = {
   application: {
     root: process.env.NODE_PATH || process.cwd(),
     autoUpdate: {
-      enabled: process.env.APPLICATION_AUTO_UPDATE_ENABLED == 'true',
+      // enabled: process.env.APPLICATION_AUTO_UPDATE_ENABLED == 'true',
+      enabled: true,
       // url: process.env.APPLICATION_UPDATE_URL,
       url: 'https://umbnet-dev.s3.us-east-2.amazonaws.com/pegasus/ota/manifest.json?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEDkaDGV1LWNlbnRyYWwtMSJHMEUCIQCDdv7axdl12UuYVvykF%2ByHbsnNgOzbIz%2FUd6n3vW9M%2BwIgEi1%2FF1AW%2FYZ4wV13ZG%2BrWoHYTpIgiNd9kR4OAQvS0osq%2BwIIYhABGgwwMDgyMDU2ODQyMDciDJJ%2Fs6TALYNIfPzjgyrYAgYJttCeZmx0EsLiuqwSDw4QYs%2BMiD65j%2Bc%2Fo67L1HWJT%2Fp%2FBbDM%2BZhruKBU7wWkX0Zylx%2BZFwQ42EEKbikDUYK752dRs89L7%2BWDEj8mUlC3C86jA9Jz6bBKTqtvvxmo1RkedoCx9T1tthnG%2BKM5lea7eGjo0ogWcpglaHOlKegKjor5%2FgGtE2tKHNi%2BTIHZ4s9qoyWPyjJoOMhwXJQDU8oKqhLg0bLnivYoH%2B9edw%2BJiAaGEkVVp9euGV9bdI7%2BvPBa7iytKtgOZQeHZFt1Ey%2BRKykqifIqIqIsNa2ZFBt8HrjRnslEd8ISL0yrtp7D3w5MIgEOvsuksseoc5R1hRCVFlIWyek%2Fig5By4jFUAsKX3SQFb139HayffbE2KadUsXI8gGO99hh9puVTg7KEhNe9m1o8FHvlmLOX3wp5xCnglchAcuDv%2BxEDRSQZ3PEC1gIK09hSu6cMJiEto8GOrMCs0CLjX4OoHIGUgsH%2BQQGbnPZA8mwWZYwp%2F8DjU13ACKWwR94plDeem0JY7S2ACtUmex1aFQRWl8964LpImA6UfjjA4KtdSlHJkJjcL9UwpVjHzYz1BLM4gi2ZhaLDFkG5onxpFrIHW1BqAQMA1N8y9n6CQCTYRYMHPX3nQ%2Fchnvcvqlse2PHYBiWkKdGuYuRKIeCmr0pqsSLvI3X97T4LY4RLUCkwod8aTLdzEeqZDgouBtBoo%2BrpOPLZZb1fmUijsjZlCdb8kmPtQbt0kVjqYP7gHoFwkd76uizU08%2BTZlQqRs5o4nKNIp0ASmxudoSOy6GNAdemGLZnmWmNJdd3IrxPHBVJfyL3yPLlbQiGg%2B35Gx4pwx4X%2B4Q7oqrOaCxORIFv%2FM09RvBnc0jl72EcRjygA%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20220123T164424Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=ASIAQD2IYZXX2772UH4K%2F20220123%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=2c2944829794744ca0ccec986444c31cc3eadeb10c16e06c00d53a0099bd69a3',
     },

@@ -20,6 +20,8 @@ export default class ApplicationUpdateService {
   @inject('Logger') logger!: Logger;
 
   async startUpdate(): Promise<void> {
+    if (!this.settings.application.autoUpdate.enabled) return;
+
     const manifestUrl = this.settings.application.autoUpdate.url;
 
     if (!manifestUrl) {
