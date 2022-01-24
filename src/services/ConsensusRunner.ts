@@ -269,6 +269,8 @@ class ConsensusRunner {
 
       const discrepancies = response.discrepancies || [];
 
+      this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
+
       if (discrepancies.length > this.settings.consensus.discrepancyCutoff) {
         this.logger.warn(`Validator ${response.validator} ignored because of ${discrepancies.length} discrepancies`);
         return;
@@ -279,7 +281,6 @@ class ConsensusRunner {
       );
 
       discrepancies.forEach((discrepancy) => discrepantKeys.add(discrepancy.key));
-      this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
     });
 
     return {signatures, discrepantKeys, powers};
