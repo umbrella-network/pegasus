@@ -22,10 +22,4 @@ export class UniswapPoolScannerAgent extends LoopAgent {
       this.sleep(this.backoffTime);
     }
   }
-
-  async onStart(): Promise<void> {
-    this.logger.info('[UniswapPoolScannerAgent] Updating Pool Verification Status');
-    await this.poolService.updatePoolVerificationStatus();
-    this.logger.info('[UniswapPoolScannerAgent] Starting Uniswap Pool Scanner.');
-  }
 }
