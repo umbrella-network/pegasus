@@ -2,8 +2,8 @@ import {inject, injectable} from 'inversify';
 import {BasicAgent} from './BasicAgent';
 import {UniswapPoolScannerAgent} from './UniswapPoolScannerAgent';
 import {UniswapPriceScannerAgent} from './UniswapPriceScannerAgent';
-import {Logger} from 'winston';
 import {UniswapVerificationAgent} from './UniswapVerificationAgent';
+import {Logger} from 'winston';
 
 @injectable()
 export class AgentCoordinator {
