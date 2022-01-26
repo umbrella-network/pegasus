@@ -93,8 +93,6 @@ describe('BlockMinter', () => {
 
     container.bind(BlockMinter).to(BlockMinter);
 
-    // loggerWarnSpy = sinon.spy(mockedLogger, 'warn');
-
     blockMinter = container.get(BlockMinter);
   });
 
@@ -438,7 +436,6 @@ describe('BlockMinter', () => {
       it('retries submitTx with different nonce', async () => {
         const {leaf, affidavit} = leafWithAffidavit;
 
-        // const wallet = Wallet.createRandom();
         const signature = await signAffidavitWithWallet(wallet, affidavit);
 
         mockedBlockchain.wallet = wallet;
