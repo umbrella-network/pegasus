@@ -7,18 +7,6 @@ info:
   contact:
     email: "nm@umb.network"
 
-servers:
-  - url: "http://localhost:3030/"
-    description: "local"
-  - url: "https://validators.dev.umb.network/"
-    description: "development"
-  - url: "https://validator2.dev.umb.network"
-    description: "development 2"
-  - url: "https://validator.sbx.umb.network"
-    description: "sandbox"
-  - url: "https://validator.umb.network"
-    description: "production"
-
 security:
   - bearerAuth: []
 
