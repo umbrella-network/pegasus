@@ -65,8 +65,8 @@ const settings: Settings = {
       minGasPrice: parseInt(process.env.MIN_GAS_PRICE || '5000000000', 10),
       maxGasPrice: parseInt(process.env.MAX_GAS_PRICE || '10000000000', 10),
       mintBalance: {
-        warningLimit: process.env.AVALANCHE_BALANCE_WARN || '0.15',
-        errorLimit: process.env.AVALANCHE_BALANCE_ERROR || '0.015',
+        warningLimit: process.env.BALANCE_WARN || '0.15',
+        errorLimit: process.env.BALANCE_ERROR || '0.015',
       },
     },
   },
