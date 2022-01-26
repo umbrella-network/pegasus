@@ -24,6 +24,7 @@ import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
 import GasEstimator from './GasEstimator';
 import {parseEther} from 'ethers/lib/utils';
+
 @injectable()
 class BlockMinter {
   @inject('Logger') logger!: Logger;
