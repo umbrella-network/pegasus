@@ -5,10 +5,11 @@ import path from 'path';
 import axios from 'axios';
 import fs from 'fs';
 
-export type Manifest = {assets: Asset[]};
+export type Manifest = {
+  timestamp: Date;
+  assets: Asset[];
+};
 
-// TODO: add a simple checksum-based version control to manage selective downloads
-// The current implementation will always re-download all files in the new manifest
 export type Asset = {
   url: string;
   path: string;
@@ -18,6 +19,10 @@ export type Asset = {
 export default class ApplicationUpdateService {
   @inject('Settings') settings!: Settings;
   @inject('Logger') logger!: Logger;
+
+  currentManifest?: Manifest;
+
+  private readonly SUCCESS_CODES = [200, 201, 301];
 
   async startUpdate(): Promise<void> {
     if (!this.settings.application.autoUpdate.enabled) return;
@@ -33,34 +38,42 @@ export default class ApplicationUpdateService {
     this.logger.debug(`[ApplicationUpdateAgent] Manifest URL: ${manifestUrl}`);
     this.logger.debug(`[ApplicationUpdateAgent] Local Data Path: ${this.getDataPathPrefix()}`);
 
-    let manifest: Manifest | undefined;
-
-    try {
-      manifest = await this.loadManifest(manifestUrl);
-
-      if (!manifest) {
-        this.logger.info('[ApplicationUpdateAgent] No manifest found');
-        return;
-      }
-    } catch (e) {
-      this.logger.error(`[ApplicationUpdateAgent] Manifest parsing error`);
-      this.logger.debug(`[ApplicationUpdateAgent] Error: `, e);
-      return;
-    }
+    const manifest = await this.getLatestManifest(manifestUrl);
+    if (!manifest) return;
 
     try {
       await this.processManifest(manifest);
+      this.currentManifest = manifest;
     } catch (e) {
       this.logger.error('[ApplicationManifestAgent] Manifest processing error');
       this.logger.debug('[ApplicationManifestAgent] Error: ', e);
     }
   }
 
-  private async loadManifest(url: string): Promise<Manifest | undefined> {
+  private async getLatestManifest(url: string): Promise<Manifest | undefined> {
+    try {
+      const manifest = await this.downloadManifest(url);
+
+      if (!manifest) {
+        this.logger.info('[ApplicationUpdateAgent] No manifest found');
+        return;
+      }
+
+      if (manifest.timestamp == this.currentManifest?.timestamp) return;
+
+      return manifest;
+    } catch (e) {
+      this.logger.error(`[ApplicationUpdateAgent] Manifest parsing error`);
+      this.logger.debug(`[ApplicationUpdateAgent] Error: `, e);
+      return;
+    }
+  }
+
+  private async downloadManifest(url: string): Promise<Manifest | undefined> {
     try {
       const response = await axios.get(url);
 
-      if (![200, 201, 301].includes(response.status)) {
+      if (!this.SUCCESS_CODES.includes(response.status)) {
         this.logger.error(`[ApplicationUpdateAgent] Manifest Download Failed. HTTP Status: ${response.status}`);
         this.logger.debug(`[ApplicationUpdateAgent] HTTP Response: `, JSON.stringify(response));
         return;
@@ -74,7 +87,7 @@ export default class ApplicationUpdateService {
     }
   }
 
-  getDataPathPrefix(): string {
+  private getDataPathPrefix(): string {
     return path.join(this.settings.application.root, './data');
   }
 

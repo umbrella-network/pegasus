@@ -6,11 +6,13 @@ import {MongoDBPriceRepository} from '../../repositories/MongoDBPriceRepository'
 export class UniswapPriceService {
   @inject(MongoDBPriceRepository) priceRepository!: MongoDBPriceRepository;
 
+  private readonly SOURCE = 'uniswapv3';
+
   async savePrices(prices: UniswapPoolPrice[]): Promise<void> {
     await this
       .priceRepository
       .saveBatch(prices.map(p => ({
-        source: 'uniswapv3',
+        source: this.SOURCE,
         symbol: p.symbol,
         value: p.value,
         timestamp: new Date(p.timestamp * 1000)
@@ -19,7 +21,7 @@ export class UniswapPriceService {
 
   async getLatestPrice(symbol: string, from: number, to: number): Promise<number | undefined> {
     return await this.priceRepository.getLatestPrice({
-      source: 'uniswapv3',
+      source: this.SOURCE,
       symbol,
       timestamp: { from: new Date(from * 1000), to: new Date(to * 1000) }
     });

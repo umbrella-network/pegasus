@@ -4,6 +4,7 @@ type Settings = {
     root: string;
     autoUpdate: {
       enabled: boolean;
+      interval?: number;
       url?: string;
     };
   };
@@ -114,6 +115,7 @@ type Settings = {
       agentStep: number;
       defaultPrecision: number;
       defaultDiscrepancy: number;
+      verificationInterval: number;
     };
   };
   statusCheckTimeout: number;

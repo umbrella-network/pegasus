@@ -25,8 +25,8 @@ export class MongoDBPriceRepository {
 
       operations.push({
         updateOne: {
-          filter: {source: source, symbol, timestamp},
-          update: {source: source, symbol, timestamp, value, expireAt},
+          filter: {source, symbol, timestamp},
+          update: {source, symbol, timestamp, value, expireAt},
           upsert: true,
           new: true,
         },
@@ -78,6 +78,6 @@ export class MongoDBPriceRepository {
       )
       .exec();
 
-    return price ? price.value : undefined;
+    return price?.value;
   }
 }
