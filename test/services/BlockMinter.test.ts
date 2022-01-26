@@ -34,7 +34,6 @@ describe('BlockMinter', () => {
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
   let mockedGasEstimator: sinon.SinonStubbedInstance<GasEstimator>;
-  let loggerWarnSpy: sinon.SinonSpy<any>;
   let settings: Settings;
   let blockMinter: BlockMinter;
   let wallet: Wallet;
