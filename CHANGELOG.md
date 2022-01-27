@@ -10,9 +10,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Swagger documentation on /docs.
 - Added RPC Selection before minting
 
+## [6.1.1] - 2022-01-27
+### Added
+- Reapply Uniswap
+
 ## [6.1.0] - 2022-01-13
 ### Added
 - fetching prices from UniswapV3
+
+## [6.0.4] - 2021-01-24
+### Added
+- dump validators response in debug mode 
+
+## [6.0.3] - 2021-01-21
+### Added
+- /debug/feeds endpoint
+
+## [6.0.2] - 2022-01-21
+### Removed
+- uniswapV3 integration
 
 ## [6.0.1] - 2021-12-09
 ### Changed

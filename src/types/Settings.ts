@@ -100,6 +100,9 @@ type Settings = {
       apiKey: string;
       timeout: number;
     };
+    debug: {
+      apiKey: string;
+    };
     uniswap: {
       scannerContractId: string;
       helperContractId: string;
