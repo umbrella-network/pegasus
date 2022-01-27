@@ -5,8 +5,6 @@ import chaiAsPromised from 'chai-as-promised';
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
 import ChainContract from '../../src/contracts/ChainContract';
-import FeedProcessor from '../../src/services/FeedProcessor';
-import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
 import Settings from '../../src/types/Settings';
 import ConsensusRunner from '../../src/services/ConsensusRunner';
 import TimeService from '../../src/services/TimeService';
@@ -18,6 +16,7 @@ import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse';
 import {signAffidavitWithWallet} from '../../src/utils/mining';
 import {getTestContainer} from '../helpers/getTestContainer';
+import {FeedDataService} from '../../src/services/FeedDataService';
 
 chai.use(chaiAsPromised);
 
@@ -25,10 +24,10 @@ describe('ConsensusRunner', () => {
   let settings: Settings;
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let mockedChainContract: sinon.SinonStubbedInstance<ChainContract>;
-  let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedBlockRepository: sinon.SinonStubbedInstance<BlockRepository>;
+  let mockedFeedDataService: sinon.SinonStubbedInstance<FeedDataService>;
 
   let consensusRunner: ConsensusRunner;
 
@@ -37,10 +36,10 @@ describe('ConsensusRunner', () => {
 
     mockedBlockchain = sinon.createStubInstance(Blockchain);
     mockedChainContract = sinon.createStubInstance(ChainContract);
-    mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
     mockedTimeService = sinon.createStubInstance(TimeService);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedBlockRepository = sinon.createStubInstance(BlockRepository);
+    mockedFeedDataService = sinon.createStubInstance(FeedDataService);
 
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
@@ -59,20 +58,21 @@ describe('ConsensusRunner', () => {
     container.bind(BlockRepository).toConstantValue(mockedBlockRepository as unknown as BlockRepository);
     container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
-    container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
-    container.bind(SortedMerkleTreeFactory).toSelf();
-
-    container.bind(ConsensusRunner).to(ConsensusRunner);
+    container.bind(FeedDataService).toConstantValue(mockedFeedDataService);
 
     consensusRunner = container.get(ConsensusRunner);
   });
 
   it('return empty object when not enough votes', async () => {
     mockedBlockchain.wallet = Wallet.createRandom();
-
     const {leaf, affidavit} = leafWithAffidavit;
 
-    mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+    mockedFeedDataService.getLeavesAndFeeds.resolves({
+      firstClassLeaves: [leaf],
+      leaves: [leaf],
+      fcdsFeeds: {},
+      leavesFeeds: {},
+    });
 
     mockedSignatureCollector.apply.resolves([
       {
@@ -99,10 +99,7 @@ describe('ConsensusRunner', () => {
 
   it('return empty object when not enough signatures', async () => {
     mockedBlockchain.wallet = Wallet.createRandom();
-
     const {leaf, affidavit} = leafWithAffidavit;
-
-    mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 
     mockedSignatureCollector.apply.resolves([
       {
@@ -112,6 +109,13 @@ describe('ConsensusRunner', () => {
         version: '1',
       },
     ] as BlockSignerResponseWithPower[]);
+
+    mockedFeedDataService.getLeavesAndFeeds.resolves({
+      firstClassLeaves: [leaf],
+      leaves: [leaf],
+      fcdsFeeds: {},
+      leavesFeeds: {},
+    });
 
     const dataTimestamp = 1621509082;
     const blockHeight = 234;
@@ -141,7 +145,12 @@ describe('ConsensusRunner', () => {
       },
     ] as BlockSignerResponseWithPower[]);
 
-    mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+    mockedFeedDataService.getLeavesAndFeeds.resolves({
+      firstClassLeaves: [leaf],
+      leaves: [leaf],
+      fcdsFeeds: {},
+      leavesFeeds: {},
+    });
 
     const dataTimestamp = 1621509082;
     const blockHeight = 234;
@@ -173,7 +182,12 @@ describe('ConsensusRunner', () => {
 
     const {leaf} = leafWithAffidavit;
 
-    mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+    mockedFeedDataService.getLeavesAndFeeds.resolves({
+      firstClassLeaves: [leaf],
+      leaves: [leaf],
+      fcdsFeeds: {},
+      leavesFeeds: {},
+    });
 
     const dataTimestamp = 1621509082;
     const blockHeight = 234;

@@ -11,7 +11,12 @@ class SortedMerkleTreeFactory {
     const treeData: KeyValuePairs = {};
 
     sortedLeaves.forEach((leaf) => {
-      treeData[leaf.label] = Buffer.from(remove0x(leaf.valueBytes), 'hex');
+      try {
+        treeData[leaf.label] = Buffer.from(remove0x(leaf.valueBytes), 'hex');
+      } catch (e) {
+        // TODO: This class is injectable but is being used as a static - refactor into a service object.
+        // otherwise we cannot inject loggers, etc.
+      }
     });
 
     return new SortedMerkleTree(treeData);
