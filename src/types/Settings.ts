@@ -28,6 +28,11 @@ type Settings = {
     strategy: string;
     discrepancyCutoff: number;
   };
+  blockchains: {
+    [key: string]: {
+      providerUrl: string[];
+    };
+  };
   blockchain: {
     provider: {
       url: string;
@@ -97,6 +102,14 @@ type Settings = {
     };
     debug: {
       apiKey: string;
+    };
+    uniswap: {
+      scannerContractId: string;
+      helperContractId: string;
+      startBlock: number;
+      agentStep: number;
+      defaultPrecision: number;
+      defaultDiscrepancy: number;
     };
   };
   statusCheckTimeout: number;

@@ -9,7 +9,6 @@ import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 
 import {HexStringWith0x} from '../types/Feed';
 import ConsensusRunner from './ConsensusRunner';
-import FeedProcessor from './FeedProcessor';
 import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
@@ -33,7 +32,6 @@ class BlockMinter {
   @inject(ConsensusRunner) consensusRunner!: ConsensusRunner;
   @inject(TimeService) timeService!: TimeService;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
-  @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject('Settings') settings!: Settings;

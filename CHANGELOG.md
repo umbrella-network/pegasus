@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [6.1.1] - 2022-01-27
+### Added
+- Reapply Uniswap
+
+## [6.1.0] - 2022-01-13
+### Added
+- fetching prices from UniswapV3
+
 ## [6.0.4] - 2021-01-24
 ### Added
 - dump validators response in debug mode 

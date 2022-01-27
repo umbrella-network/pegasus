@@ -2,9 +2,6 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
-
-import loadFeeds from '../services/loadFeeds';
-import FeedProcessor from './FeedProcessor';
 import BlockRepository from './BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
@@ -13,14 +10,15 @@ import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import Leaf from '../types/Leaf';
 import {BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
-import {Consensus, DataForConsensus, LeavesAndFeeds} from '../types/Consensus';
+import {Consensus, DataForConsensus} from '../types/Consensus';
 import Settings from '../types/Settings';
 import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
 import {ConsensusOptimizer, ConsensusOptimizerProps} from './ConsensusOptimizer';
-import Feeds, {HexStringWith0x} from '../types/Feed';
+import {FeedDataService} from './FeedDataService';
+import {HexStringWith0x} from '../types/Feed';
 
 @injectable()
 class ConsensusRunner {
@@ -29,8 +27,8 @@ class ConsensusRunner {
   @inject(ChainContract) chainContract!: ChainContract;
   @inject(TimeService) timeService!: TimeService;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
-  @inject(FeedProcessor) feedProcessor!: FeedProcessor;
   @inject(BlockRepository) blockRepository!: BlockRepository;
+  @inject(FeedDataService) feedDataService!: FeedDataService;
   @inject(ConsensusOptimizer) consensusOptimizer!: ConsensusOptimizer;
   @inject('Settings') settings!: Settings;
 
@@ -41,7 +39,7 @@ class ConsensusRunner {
     staked: BigNumber,
     requiredSignatures: number,
   ): Promise<Consensus | null> {
-    let {firstClassLeaves, leaves} = await this.leavesAndFeeds(dataTimestamp);
+    let {firstClassLeaves, leaves} = await this.feedDataService.getLeavesAndFeeds(dataTimestamp);
     let maxLeafKeyCount: number;
     let maxFcdKeyCount: number;
     const maxRetries = this.settings.consensus.retries;
@@ -114,14 +112,6 @@ class ConsensusRunner {
     ].join(' ');
 
     this.logger.info(msg);
-  }
-
-  private async leavesAndFeeds(dataTimestamp: number): Promise<LeavesAndFeeds> {
-    const feeds: Feeds[] = await Promise.all(
-      [this.settings.feedsOnChain, this.settings.feedsFile].map((fileName) => loadFeeds(fileName)),
-    );
-    const [firstClassLeaves, leaves] = await this.feedProcessor.apply(dataTimestamp, ...feeds);
-    return {firstClassLeaves, leaves, fcdsFeeds: feeds[0], leavesFeeds: feeds[1]};
   }
 
   private async runConsensus(
