@@ -30,13 +30,13 @@ export default class ApplicationUpdateService {
     const manifestUrl = this.settings.application.autoUpdate.url;
 
     if (!manifestUrl) {
-      this.logger.debug('[ApplicationUpdateAgent] Skipping updates, no URL configured');
+      this.logger.debug('[ApplicationUpdateService] Skipping updates, no URL configured');
       return;
     }
 
-    this.logger.info('[ApplicationUpdateAgent] Looking for updates...');
-    this.logger.debug(`[ApplicationUpdateAgent] Manifest URL: ${manifestUrl}`);
-    this.logger.debug(`[ApplicationUpdateAgent] Local Data Path: ${this.getDataPathPrefix()}`);
+    this.logger.info('[ApplicationUpdateService] Looking for updates...');
+    this.logger.debug(`[ApplicationUpdateService] Manifest URL: ${manifestUrl}`);
+    this.logger.debug(`[ApplicationUpdateService] Local Data Path: ${this.getDataPathPrefix()}`);
 
     const manifest = await this.getLatestManifest(manifestUrl);
     if (!manifest) return;
@@ -44,9 +44,10 @@ export default class ApplicationUpdateService {
     try {
       await this.processManifest(manifest);
       this.currentManifest = manifest;
+      this.logger.info(`[ApplicationUpdateService] Update complete.`);
     } catch (e) {
-      this.logger.error('[ApplicationManifestAgent] Manifest processing error');
-      this.logger.debug('[ApplicationManifestAgent] Error: ', e);
+      this.logger.error('[ApplicationUpdateService] Manifest processing error');
+      this.logger.debug('[ApplicationUpdateService] Error: ', e);
     }
   }
 
@@ -55,16 +56,19 @@ export default class ApplicationUpdateService {
       const manifest = await this.downloadManifest(url);
 
       if (!manifest) {
-        this.logger.info('[ApplicationUpdateAgent] No manifest found');
+        this.logger.info('[ApplicationUpdateService] No manifest found');
         return;
       }
 
-      if (manifest.timestamp == this.currentManifest?.timestamp) return;
+      if (manifest.timestamp == this.currentManifest?.timestamp) {
+        this.logger.debug(`[ApplicationUpdateService] No new update manifest found, skipping download.`);
+        return;
+      }
 
       return manifest;
     } catch (e) {
-      this.logger.error(`[ApplicationUpdateAgent] Manifest parsing error`);
-      this.logger.debug(`[ApplicationUpdateAgent] Error: `, e);
+      this.logger.error(`[ApplicationUpdateService] Manifest parsing error`);
+      this.logger.debug(`[ApplicationUpdateService] Error: `, e);
       return;
     }
   }
@@ -74,15 +78,15 @@ export default class ApplicationUpdateService {
       const response = await axios.get(url);
 
       if (!this.SUCCESS_CODES.includes(response.status)) {
-        this.logger.error(`[ApplicationUpdateAgent] Manifest Download Failed. HTTP Status: ${response.status}`);
-        this.logger.debug(`[ApplicationUpdateAgent] HTTP Response: `, JSON.stringify(response));
+        this.logger.error(`[ApplicationUpdateService] Manifest Download Failed. HTTP Status: ${response.status}`);
+        this.logger.debug(`[ApplicationUpdateService] HTTP Response: `, JSON.stringify(response));
         return;
       }
 
       return response.data;
     } catch (e) {
-      this.logger.error(`[ApplicationUpdateAgent] Manifest Download Failed`);
-      this.logger.debug(`[ApplicationUpdateAgent] Error: `, e);
+      this.logger.error(`[ApplicationUpdateService] Manifest Download Failed`);
+      this.logger.debug(`[ApplicationUpdateService] Error: `, e);
       return;
     }
   }
@@ -96,14 +100,15 @@ export default class ApplicationUpdateService {
   }
 
   private async updateAsset(asset: Asset): Promise<void> {
+    this.logger.debug(`[ApplicationUpdateService] Updating asset: ${JSON.stringify(asset)}`);
     const response = await axios.get(asset.url);
 
     if (![200, 201, 301].includes(response.status)) {
       this.logger.error(
-        `[ApplicationUpdateAgent] Asset "${asset.url}" Download Failed. HTTP Status: ${response.status}`,
+        `[ApplicationUpdateService] Asset "${asset.url}" Download Failed. HTTP Status: ${response.status}`,
       );
 
-      this.logger.debug(`[ApplicationUpdateAgent] HTTP Response: `, JSON.stringify(response));
+      this.logger.debug(`[ApplicationUpdateService] HTTP Response: `, JSON.stringify(response));
       return;
     }
 
