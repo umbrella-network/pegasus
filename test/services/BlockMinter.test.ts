@@ -24,7 +24,7 @@ import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, t
 import GasEstimator from '../../src/services/GasEstimator';
 import BlockRepository from '../../src/services/BlockRepository';
 import {getTestContainer} from '../helpers/getTestContainer';
-import {Logger, parseEther} from 'ethers/lib/utils';
+import {parseEther} from 'ethers/lib/utils';
 
 // TODO: This is a unit test - we should not be calling the real ConsensusRunner.
 describe('BlockMinter', () => {
