@@ -43,7 +43,7 @@ type Settings = {
   };
   blockchain: {
     provider: {
-      url: string;
+      urls: string[];
       privateKey: string;
     };
     providers: {[name: string]: string};
@@ -107,6 +107,9 @@ type Settings = {
     optionsPrice: {
       apiKey: string;
       timeout: number;
+    };
+    debug: {
+      apiKey: string;
     };
     uniswap: {
       scannerContractId: string;

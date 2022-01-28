@@ -1,0 +1,220 @@
+openapi: 3.0.0
+info:
+  description: "Umbrella Network Validator API"
+  version: "5.3.2"
+  title: "Umbrella Network Validator API"
+  termsOfService: "https://umb.network"
+  contact:
+    email: "nm@umb.network"
+
+security:
+  - bearerAuth: []
+
+tags:
+- name: "blocks"
+  description: "Block info"
+- name: "health"
+- name: "signature"
+  description: "Request checks for signed block"
+  
+paths:
+  /blocks/latest:
+    get:
+      tags:
+      - "blocks"
+      summary: "Lastest block"
+      responses:
+        "200":
+          description: "Latest block info"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LatestBlock"
+
+  /blocks/{blockId}:
+    get:
+      tags:
+      - "blocks"
+      summary: "Block info"
+      parameters:
+      - name: "blockId"
+        in: "path"
+        description: "ID of block"
+        required: true
+        schema:
+          type: "integer"
+      responses:
+        "200":
+          description: "Block info"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+
+  /blocks/blockId/{blockId}:
+    get:
+      tags:
+      - "blocks"
+      summary: "Block info"
+      parameters:
+      - name: "blockId"
+        in: "path"
+        description: "ID of block"
+        required: true
+        schema:
+          type: "integer"
+      responses:
+        "200":
+          description: "Block info"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+
+  /signature:
+    post:
+      tags:
+      - "signature"
+      summary: "Request checks for signed block"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignedBlock"
+      responses:
+        "200":
+          description: "Block info"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlockSignerResponse"
+
+  /health:
+    get:
+      tags:
+      - "health"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    LatestBlock:
+      type: "object"
+      properties:
+        data:
+          type: "object"
+          properties:
+            fcdKeys:
+              type: "array"
+              items:
+                type: "string"
+            _id:
+              type: "string"
+            chainAddress:
+              type: "string"
+            dataTimestamp:
+              type: "string"
+              format: "date-time"
+            timestamp:
+              type: "string"
+              format: "date-time"
+            blockId:
+              type: "integer"
+            root:
+              type: "string"
+            data:
+              type: "object"
+              properties:
+                eth-usd:
+                  type: "string"
+            minted:
+              type: "boolean"
+            __v:
+              type: "integer"
+
+    Block:
+      type: "object"
+      properties:
+        data:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              fcdKeys:
+                type: "array"
+                items:
+                  type: "string"
+              _id:
+                type: "string"
+              chainAddress:
+                type: "string"
+              dataTimestamp:
+                type: "string"
+                format: "date-time"
+              timestamp:
+                type: "string"
+                format: "date-time"
+              blockId:
+                type: "integer"
+              root:
+                type: "string"
+              data:
+                type: "object"
+                properties:
+                  eth-usd:
+                    type: "string"
+              minted:
+                type: "boolean"
+              __v:
+                type: "integer"
+        version:
+          type: "string"
+        dataLength:
+          type: "integer"
+
+    SignedBlock:
+      type: "object"
+      properties:
+        dataTimestamp:
+          type: "integer"
+        fcd:
+          type: "object"
+          properties:
+            ETH-USD:
+              type: "string"
+        leaves:
+          type: "object"
+          properties:
+            ETH-USD:
+              type: "string"
+        signature:
+          type: "string"
+    
+    BlockSignerResponse:
+      type: "object"
+      properties:
+        error:
+          type: "string"
+        signature:
+          type: "string"
+        discrepancies:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              key:
+                type: "string"
+              discrepancy:
+                type: "number"
+        version:
+          type: "string"
