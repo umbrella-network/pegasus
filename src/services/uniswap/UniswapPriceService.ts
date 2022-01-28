@@ -1,23 +1,29 @@
 import {inject, injectable} from 'inversify';
-import PriceAggregator from '../PriceAggregator';
 import {UniswapPoolPrice} from './UniswapPriceScanner';
+import {MongoDBPriceRepository} from '../../repositories/MongoDBPriceRepository';
 
 @injectable()
 export class UniswapPriceService {
-  @inject(PriceAggregator) priceAggregator!: PriceAggregator;
+  @inject(MongoDBPriceRepository) priceRepository!: MongoDBPriceRepository;
+
+  private readonly SOURCE = 'uniswapv3';
 
   async savePrices(prices: UniswapPoolPrice[]): Promise<void> {
-    for (const price of prices) {
-      await this.priceAggregator.add(this.getPriceId(price.symbol), price.value, price.timestamp);
-    }
+    await this
+      .priceRepository
+      .saveBatch(prices.map(p => ({
+        source: this.SOURCE,
+        symbol: p.symbol,
+        value: p.value,
+        timestamp: new Date(p.timestamp * 1000)
+      })));
   }
 
   async getLatestPrice(symbol: string, from: number, to: number): Promise<number | undefined> {
-    const latestPrice = await this.priceAggregator.valueAfter(this.getPriceId(symbol), to, from);
-    return latestPrice == null ? undefined : latestPrice;
-  }
-
-  getPriceId(symbol: string): string {
-    return `uniswap::${symbol}`;
+    return await this.priceRepository.getLatestPrice({
+      source: this.SOURCE,
+      symbol,
+      timestamp: { from: new Date(from * 1000), to: new Date(to * 1000) }
+    });
   }
 }

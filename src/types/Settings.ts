@@ -1,5 +1,13 @@
 type Settings = {
   port: number;
+  application: {
+    root: string;
+    autoUpdate: {
+      enabled: boolean;
+      interval?: number;
+      url?: string;
+    };
+  };
   jobs: {
     blockCreation: {
       interval: number;
@@ -110,6 +118,7 @@ type Settings = {
       agentStep: number;
       defaultPrecision: number;
       defaultDiscrepancy: number;
+      verificationInterval: number;
     };
   };
   statusCheckTimeout: number;

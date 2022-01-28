@@ -1,10 +1,19 @@
 import Settings from '../types/Settings';
+import {parseInt} from 'lodash';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
 
 const settings: Settings = {
   port: parseInt(process.env.PORT || '3000'),
+  application: {
+    root: process.env.NODE_PATH || process.cwd(),
+    autoUpdate: {
+      enabled: process.env.APPLICATION_AUTO_UPDATE_ENABLED == 'true',
+      url: process.env.APPLICATION_AUTO_UPDATE_URL,
+      interval: getTimeSetting(parseInt(process.env.APPLICATION_AUTO_UPDATE_INTERVAL || '1800000'), 1000),
+    },
+  },
   jobs: {
     blockCreation: {
       interval: getTimeSetting(parseInt(process.env.BLOCK_CREATION_JOB_INTERVAL || '10000'), 10000),
@@ -115,6 +124,7 @@ const settings: Settings = {
       agentStep: parseInt(process.env.UNISWAP_STEP || '1000'),
       defaultPrecision: Number(process.env.UNISWAP_DEFAULT_PRECISION || '0.5'),
       defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '2'),
+      verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
     },
   },
   feedsFile:
