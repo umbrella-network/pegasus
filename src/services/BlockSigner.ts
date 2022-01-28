@@ -29,7 +29,7 @@ class BlockSigner {
   @inject(FeedDataService) feedDataService!: FeedDataService;
 
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
-    await this.blockchain.setLatestProvider();
+    // await this.blockchain.setLatestProvider();
     const {proposedConsensus, chainAddress, chainStatus} = await this.check(block);
 
     this.logger.info(
