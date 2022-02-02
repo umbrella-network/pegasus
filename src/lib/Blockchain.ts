@@ -1,21 +1,29 @@
 import {JsonRpcProvider, Provider} from '@ethersproject/providers';
+import {RPCSelector} from '@umb-network/toolbox';
 import {inject, injectable} from 'inversify';
 import {Wallet} from 'ethers';
 import {Logger} from 'winston';
 
 import Settings from '../types/Settings';
-import RPCSelector from '../services/RPCSelector';
+
+enum RPCSelectionStrategies {
+  BY_BLOCK_NUMBER = 'BLOCK_NUMBER',
+  BY_TIMESTAMP = 'TIMESTAMP',
+}
 
 @injectable()
 class Blockchain {
-  @inject(RPCSelector) rpcSelector!: RPCSelector;
   @inject('Logger') logger!: Logger;
   provider!: Provider;
   wallet!: Wallet;
+  providersUrls!: string[];
+  selectionStrategy!: string;
 
   constructor(@inject('Settings') settings: Settings) {
     this.provider = new JsonRpcProvider(settings.blockchain.provider.urls[0]);
     this.wallet = new Wallet(settings.blockchain.provider.privateKey, this.provider);
+    this.providersUrls = settings.blockchain.provider.urls;
+    this.selectionStrategy = settings.rpcSelectionStrategy;
   }
 
   async getBlockNumber(): Promise<number> {
@@ -27,8 +35,13 @@ class Blockchain {
   }
 
   async setLatestProvider(): Promise<void> {
-    const provider = await this.rpcSelector.apply();
-    this.logger.info(`[RPCSelector] Found most up to date provider ${provider}`);
+    const rpcSelector = new RPCSelector(this.providersUrls);
+
+    const provider =
+      this.selectionStrategy === RPCSelectionStrategies.BY_BLOCK_NUMBER
+        ? await rpcSelector.selectByLatestBlockNumber()
+        : await rpcSelector.selectByTimestamp();
+
     this.provider = new JsonRpcProvider(provider);
   }
 }
