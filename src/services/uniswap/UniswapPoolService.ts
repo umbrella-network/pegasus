@@ -13,7 +13,7 @@ export class UniswapPoolService {
   @inject(LocalAssetRepository) localAssetRepository!: LocalAssetRepository;
 
   constructor() {
-    this.verifiedTokenCache = new NodeCache();
+    this.verifiedTokenCache = new NodeCache({ stdTTL: 600 });
   }
 
   async getVerifiedPools(): Promise<BlockchainSymbol[]> {

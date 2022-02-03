@@ -1,5 +1,4 @@
 import Settings from '../types/Settings';
-import {parseInt} from 'lodash';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
@@ -92,7 +91,7 @@ const settings: Settings = {
       apiKey: process.env.POLYGON_IO_API_KEY as string,
       priceUpdateCronRule: process.env.POLYGON_IO_PRICE_UPDATE_CRON_RULE || '* * * * *', // every minute
       truncateCronRule: process.env.POLYGON_IO_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
-      timeout: parseInt(process.env.POLYGON_IO_TIMEOUT || '5000', 10),
+      timeout: parseInt(process.env.POLYGON_IO_TIMEOUT || '20000', 10),
       truncateIntervalMinutes: parseInt(process.env.POLYGON_IO_TRUNCATE_INTERVAL_MINUTES || '60', 10),
       reconnectTimeout: parseInt(process.env.POLYGON_IO_RECONNECT_TIMEOUT || '30000', 10),
     },
@@ -122,8 +121,8 @@ const settings: Settings = {
       helperContractId: <string>process.env.UNISWAP_HELPER_CONTRACT_ID,
       startBlock: parseInt(process.env.UNISWAP_START_BLOCK || '0'),
       agentStep: parseInt(process.env.UNISWAP_STEP || '1000'),
-      defaultPrecision: Number(process.env.UNISWAP_DEFAULT_PRECISION || '0.5'),
-      defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '2'),
+      defaultPrecision: Number(process.env.UNISWAP_DEFAULT_PRECISION || '6'),
+      defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '1.0'),
       verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
     },
   },
@@ -133,8 +132,8 @@ const settings: Settings = {
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
-  statusCheckTimeout: parseInt(process.env.STATUS_CHECK_TIMEOUT || '2000', 10),
-  signatureTimeout: getTimeSetting(parseInt(process.env.SIGNATURE_TIMEOUT || '20000', 10), 20000),
+  statusCheckTimeout: parseInt(process.env.STATUS_CHECK_TIMEOUT || '5000', 10),
+  signatureTimeout: getTimeSetting(parseInt(process.env.SIGNATURE_TIMEOUT || '30000', 10), 20000),
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
   version: packageJson.version,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
