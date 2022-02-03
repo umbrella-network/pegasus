@@ -1,5 +1,7 @@
 import Settings from '../types/Settings';
-import packageJson from '../../package.json';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const packageJson = require('../../package.json');
 
 const settings: Settings = {
   port: parseInt(process.env.PORT || '3000'),
