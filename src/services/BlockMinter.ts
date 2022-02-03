@@ -40,7 +40,7 @@ class BlockMinter {
 
   async apply(): Promise<void> {
     await this.checkBalanceIsEnough();
-    // await this.blockchain.setLatestProvider();
+    await this.blockchain.setLatestProvider();
     const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
 
     if (!this.isLeader(chainStatus)) return;
