@@ -1,3 +1,4 @@
+import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies';
 import Settings from '../types/Settings';
 import {TimeoutCodes} from '../types/TimeoutCodes';
 import {timeoutWithCode} from '../utils/request';
@@ -133,7 +134,7 @@ const settings: Settings = {
       verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
     },
   },
-  rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || 'BLOCK_NUMBER',
+  rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
   feedsFile:
     process.env.FEEDS_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feeds.yaml',

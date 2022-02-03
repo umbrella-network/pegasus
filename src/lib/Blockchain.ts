@@ -5,11 +5,7 @@ import {Wallet} from 'ethers';
 import {Logger} from 'winston';
 
 import Settings from '../types/Settings';
-
-enum RPCSelectionStrategies {
-  BY_BLOCK_NUMBER = 'BLOCK_NUMBER',
-  BY_TIMESTAMP = 'TIMESTAMP',
-}
+import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies';
 
 @injectable()
 class Blockchain {
