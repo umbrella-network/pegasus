@@ -44,6 +44,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Uniswap MongoDB price management 
 - Swagger documentation on /docs.
 - Added RPC Selection before minting
+- Added `RPC_SELECTION_STRATEGY` in env
+
+### Changed
+- Updated @umb-network/toolbox to 5.6.0-alpha.1
 
 ## [6.1.1] - 2022-01-27
 ### Added
