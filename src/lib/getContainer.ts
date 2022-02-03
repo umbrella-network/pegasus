@@ -15,6 +15,7 @@ import {UniswapPoolService} from '../services/uniswap/UniswapPoolService';
 import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository';
 import {Redis} from 'ioredis';
 import {initRedis} from '../config/initRedis';
+import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -30,6 +31,7 @@ export function getContainer(): Container {
   container.bind(FeedRepository).toSelf().inSingletonScope();
   container.bind(UniswapPoolService).toSelf().inSingletonScope();
   container.bind(BlockchainProviderRepository).toSelf().inSingletonScope();
+  container.bind(MongoDBPriceRepository).toSelf().inSingletonScope();
 
   container
     .bind<Redis>('Redis')

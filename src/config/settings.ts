@@ -5,6 +5,14 @@ const packageJson = require('../../package.json');
 
 const settings: Settings = {
   port: parseInt(process.env.PORT || '3000'),
+  application: {
+    root: process.env.NODE_PATH || process.cwd(),
+    autoUpdate: {
+      enabled: process.env.APPLICATION_AUTO_UPDATE_ENABLED == 'true',
+      url: process.env.APPLICATION_AUTO_UPDATE_URL,
+      interval: getTimeSetting(parseInt(process.env.APPLICATION_AUTO_UPDATE_INTERVAL || '1800000'), 1000),
+    },
+  },
   jobs: {
     blockCreation: {
       interval: getTimeSetting(parseInt(process.env.BLOCK_CREATION_JOB_INTERVAL || '10000'), 10000),
@@ -41,7 +49,7 @@ const settings: Settings = {
   blockchain: {
     providers: resolveBlockchainProviders(),
     provider: {
-      url: process.env.BLOCKCHAIN_PROVIDER_URL || 'http://127.0.0.1:8545',
+      urls: getProvidersURLs(),
       privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
     },
     contracts: {
@@ -83,7 +91,7 @@ const settings: Settings = {
       apiKey: process.env.POLYGON_IO_API_KEY as string,
       priceUpdateCronRule: process.env.POLYGON_IO_PRICE_UPDATE_CRON_RULE || '* * * * *', // every minute
       truncateCronRule: process.env.POLYGON_IO_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
-      timeout: parseInt(process.env.POLYGON_IO_TIMEOUT || '5000', 10),
+      timeout: parseInt(process.env.POLYGON_IO_TIMEOUT || '20000', 10),
       truncateIntervalMinutes: parseInt(process.env.POLYGON_IO_TRUNCATE_INTERVAL_MINUTES || '60', 10),
       reconnectTimeout: parseInt(process.env.POLYGON_IO_RECONNECT_TIMEOUT || '30000', 10),
     },
@@ -113,8 +121,9 @@ const settings: Settings = {
       helperContractId: <string>process.env.UNISWAP_HELPER_CONTRACT_ID,
       startBlock: parseInt(process.env.UNISWAP_START_BLOCK || '0'),
       agentStep: parseInt(process.env.UNISWAP_STEP || '1000'),
-      defaultPrecision: Number(process.env.UNISWAP_DEFAULT_PRECISION || '0.5'),
-      defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '2'),
+      defaultPrecision: Number(process.env.UNISWAP_DEFAULT_PRECISION || '6'),
+      defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '1.0'),
+      verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
     },
   },
   feedsFile:
@@ -123,8 +132,8 @@ const settings: Settings = {
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
-  statusCheckTimeout: parseInt(process.env.STATUS_CHECK_TIMEOUT || '2000', 10),
-  signatureTimeout: getTimeSetting(parseInt(process.env.SIGNATURE_TIMEOUT || '20000', 10), 20000),
+  statusCheckTimeout: parseInt(process.env.STATUS_CHECK_TIMEOUT || '5000', 10),
+  signatureTimeout: getTimeSetting(parseInt(process.env.SIGNATURE_TIMEOUT || '30000', 10), 20000),
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
   version: packageJson.version,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
@@ -158,6 +167,14 @@ function resolveArray(iterator: (i: number) => string): string[] {
   }
 
   return result;
+}
+
+function getProvidersURLs(): string[] {
+  const urls = `${process.env.BLOCKCHAIN_PROVIDER_URL},${process.env.BLOCKCHAIN_PROVIDER_URLS}`
+    .split(',')
+    .filter((url) => url.startsWith('http'));
+
+  return urls.length > 0 ? urls : ['http://127.0.0.1:8545'];
 }
 
 export default settings;

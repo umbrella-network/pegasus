@@ -230,60 +230,6 @@ kubectl logs pegasus-worker-74cffb4588-dmrbs -n dev -f
 kubectl set env deployment/pegasus-worker REGISTRY_CONTRACT_ADDRESS='0x622c7725a8D1103E44F89341A6358A0e811Df0a5' -n dev
 ```
 
-# API
+# API Reference
 
-`http://localhost:3030/blocks/latest`:
-`http://localhost:3030/blocks/3`:
-
-```json
-{
-  "data": {
-    "fcdKeys": [
-      [
-        "eth-eur",
-        "eth-usd"
-      ]
-    ],
-    "fcdValues": [
-      481.92,
-      587.56
-    ],
-    "_id": "83620f18-a289-4f04-b7c4-1eea3d416a7c",
-    "timestamp": "2020-12-16T09:01:51.015Z",
-    "height": 3,
-    "root": "0x8817cbe7d10306b7991cc85aefcddc750c2f6be82b2b81193a138be92c777d42",
-    "data": {
-      "eth-usd": 587.56,
-      "eth-eur": 481.92,
-      "eth-usdt": 587.25,
-      "usdt-eur": 0.8217,
-      "usdt-usd": 1.001,
-      "wbtc-usd": 19477.16,
-      "aave-usd": 81.66,
-      "yfi-usd": 24665.35,
-      "uni-usd": 3.346,
-      "comp-usd": 155.55
-    },
-    "__v": 0
-  }
-}
-```
-
-`http://localhost:3030/info`:
-
-```json
-{
-  "validator": "0x...",
-  "contractRegistryAddress": "0x...",
-  "validatorRegistryAddress":"0x...",
-  "chainContractAddress":"0x...",
-  "version":"0.3.2",
-  "name": "default"
-}
-```
-
-`http://localhost:3030/health`:
-
-```text
-pong
-```
+We document our API using swagger. Access `http://localhost:3003/docs` after the server starts to explore the available endpoints. 

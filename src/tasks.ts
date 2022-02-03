@@ -1,9 +1,8 @@
-import 'dotenv';
+import {boot} from './boot';
 import yargs from 'yargs';
 import {EventEmitter} from 'events';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import './boot';
 import Application from './lib/Application';
 import FeedProcessor from './services/FeedProcessor';
 import loadFeeds from './services/loadFeeds';
@@ -14,11 +13,11 @@ import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer';
 import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
 import KaikoPriceStreamInitializer from './services/KaikoPriceStreamInitializer';
 import TimeService from './services/TimeService';
-import {LeafValueCoder} from '@umb-network/toolbox';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: { type: 'string', demandOption: true },
 }).argv;
+
 
 async function testFeeds(settings: Settings): Promise<void> {
   await Application.get(PolygonIOPriceInitializer).apply();
@@ -46,6 +45,7 @@ const ev = new EventEmitter();
 ev.on('done', () => process.exit());
 
 (async () => {
+  await boot();
   const settings: Settings = Application.get('Settings');
 
   switch (argv.task) {

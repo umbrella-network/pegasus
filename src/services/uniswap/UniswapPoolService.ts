@@ -1,13 +1,20 @@
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {BlockchainSymbol, Token} from '../../models/BlockchainSymbol';
 import {getModelForClass} from '@typegoose/typegoose';
-import verifiedTokens from './uniswapVerifiedTokens.json';
+import NodeCache from 'node-cache';
+import {LocalAssetRepository} from '../../repositories/LocalAssetRepository';
 
 @injectable()
 export class UniswapPoolService {
   static BLOCKCHAIN_ID = 'ethereum';
   static SYMBOL_TYPE = 'uniswap-pool';
-  static VERIFIED_TOKENS: Set<string> = new Set(verifiedTokens.map(s => s.toLowerCase()));
+
+  verifiedTokenCache: NodeCache;
+  @inject(LocalAssetRepository) localAssetRepository!: LocalAssetRepository;
+
+  constructor() {
+    this.verifiedTokenCache = new NodeCache({ stdTTL: 600 });
+  }
 
   async getVerifiedPools(): Promise<BlockchainSymbol[]> {
     return await getModelForClass(BlockchainSymbol)
@@ -23,7 +30,7 @@ export class UniswapPoolService {
       ...filter,
       tokens,
       lastUpdatedAt: new Date() ,
-      verified: this.isVerified(tokens),
+      verified: (await this.isVerified(tokens)),
       meta: { fee }
     };
 
@@ -42,7 +49,7 @@ export class UniswapPoolService {
       .exec();
 
     for (const pool of unverifiedPools) {
-      if (!this.isVerified(pool.tokens)) continue;
+      if (!(await this.isVerified(pool.tokens))) continue;
 
       pool.verified = true;
       await pool.save()
@@ -57,7 +64,18 @@ export class UniswapPoolService {
     return [from, to].map(s => s.toLowerCase()).join('~');
   }
 
-  isVerified(tokens: Token[]): boolean {
-    return tokens.every(t => UniswapPoolService.VERIFIED_TOKENS.has(t.address));
+  async isVerified(tokens: Token[]): Promise<boolean> {
+    const verifiedTokens = await this.getVerifiedTokens();
+    return tokens.every(t => verifiedTokens.has(t.address));
+  }
+
+  private async getVerifiedTokens(): Promise<Set<string>> {
+    if (this.verifiedTokenCache.has('tokens')) return <Set<string>> this.verifiedTokenCache.get('tokens');
+
+    const data = <string> (await this.localAssetRepository.read('uniswapVerifiedTokens.json'));
+    const parsedData = <string[]>JSON.parse(data);
+    const tokens = new Set(parsedData.map(s => s.toLowerCase()));
+    this.verifiedTokenCache.set<Set<string>>('tokens', tokens);
+    return tokens;
   }
 }
