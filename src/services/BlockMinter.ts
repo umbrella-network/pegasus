@@ -23,6 +23,7 @@ import {chainReadyForNewBlock} from '../utils/mining';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
 import GasEstimator from './GasEstimator';
+import {parseEther} from 'ethers/lib/utils';
 
 @injectable()
 class BlockMinter {
@@ -38,6 +39,7 @@ class BlockMinter {
   @inject(GasEstimator) gasEstimator!: GasEstimator;
 
   async apply(): Promise<void> {
+    await this.checkBalanceIsEnough();
     // await this.blockchain.setLatestProvider();
     const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
 
@@ -280,6 +282,20 @@ class BlockMinter {
     const [ready, error] = chainReadyForNewBlock(chainStatus, dataTimestamp);
     error && this.logger.info(error);
     return ready;
+  }
+
+  private async checkBalanceIsEnough(): Promise<void> {
+    const balance = await this.blockchain.wallet.getBalance();
+
+    const {errorLimit, warningLimit} = this.settings.blockchain.transactions.mintBalance;
+
+    if (balance.lt(parseEther(errorLimit))) {
+      throw new Error(`Balance is lower than ${errorLimit}`);
+    }
+
+    if (balance.lt(parseEther(warningLimit))) {
+      this.logger.warn(`Balance is lower than ${warningLimit}`);
+    }
   }
 
   private static async getLastSubmittedBlock(): Promise<Block | undefined> {

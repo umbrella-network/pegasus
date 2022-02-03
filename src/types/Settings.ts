@@ -59,6 +59,10 @@ type Settings = {
       waitForBlockTime: number;
       minGasPrice: number;
       maxGasPrice: number;
+      mintBalance: {
+        warningLimit: string;
+        errorLimit: string;
+      };
     };
   };
   api: {

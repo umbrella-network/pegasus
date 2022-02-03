@@ -64,6 +64,10 @@ const settings: Settings = {
       waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000'),
       minGasPrice: parseInt(process.env.MIN_GAS_PRICE || '5000000000', 10),
       maxGasPrice: parseInt(process.env.MAX_GAS_PRICE || '10000000000', 10),
+      mintBalance: {
+        warningLimit: process.env.BALANCE_WARN || '0.1',
+        errorLimit: process.env.BALANCE_ERROR || '0.003',
+      },
     },
   },
   api: {

@@ -24,6 +24,7 @@ import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, t
 import GasEstimator from '../../src/services/GasEstimator';
 import BlockRepository from '../../src/services/BlockRepository';
 import {getTestContainer} from '../helpers/getTestContainer';
+import {parseEther} from 'ethers/lib/utils';
 
 // TODO: This is a unit test - we should not be calling the real ConsensusRunner.
 describe('BlockMinter', () => {
@@ -35,6 +36,7 @@ describe('BlockMinter', () => {
   let mockedGasEstimator: sinon.SinonStubbedInstance<GasEstimator>;
   let settings: Settings;
   let blockMinter: BlockMinter;
+  let wallet: Wallet;
 
   before(async () => {
     const config = loadTestEnv();
@@ -64,9 +66,17 @@ describe('BlockMinter', () => {
       blockchain: {
         transactions: {
           waitForBlockTime: 1000,
+          mintBalance: {
+            warningLimit: '0.15',
+            errorLimit: '0.015',
+          },
         },
       },
     } as Settings;
+
+    wallet = Wallet.createRandom();
+    mockedBlockchain.wallet = wallet;
+    mockedBlockchain.wallet.getBalance = async () => parseEther('10');
 
     container.rebind('Logger').toConstantValue(mockedLogger);
     container.rebind('Settings').toConstantValue(settings);
@@ -146,9 +156,6 @@ describe('BlockMinter', () => {
 
   describe('#apply', () => {
     it('does not try to get new feed data if you are not the leader', async () => {
-      const wallet = Wallet.createRandom();
-      mockedBlockchain.wallet = wallet;
-
       mockedChainContract.resolveStatus.resolves([
         '0x123',
         {
@@ -172,9 +179,6 @@ describe('BlockMinter', () => {
     });
 
     it('does not try to get new feed data if there is the same round', async () => {
-      const wallet = Wallet.createRandom();
-      mockedBlockchain.wallet = wallet;
-
       mockedChainContract.resolveStatus.resolves([
         '0x123',
         {
@@ -199,10 +203,7 @@ describe('BlockMinter', () => {
 
     it('passes right arguments to SignatureCollector', async () => {
       const {leaf, affidavit, fcd, timestamp} = leafWithAffidavit;
-      const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(wallet, affidavit);
-
-      mockedBlockchain.wallet = wallet;
 
       mockedTimeService.apply.returns(timestamp);
 
@@ -253,7 +254,6 @@ describe('BlockMinter', () => {
 
     it('does not save block to database if submitting finished unsuccessfully', async () => {
       const {leaf, affidavit} = leafWithAffidavit;
-      const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedBlockchain.wallet = wallet;
@@ -297,12 +297,75 @@ describe('BlockMinter', () => {
       expect(blocksCount).to.be.eq(0, 'BlockMinter saved some blocks to database');
     });
 
+    it('does not save block to database if balance is lower than mintBalance.errorLimit', async () => {
+      const executeTxSpy = sinon.spy(blockMinter, <any>'executeTx');
+
+      let error = undefined;
+
+      mockedBlockchain.wallet.getBalance = async () => parseEther('0');
+
+      try {
+        await blockMinter.apply();
+      } catch (err) {
+        error = err;
+      }
+      const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
+
+      expect(error).to.be.instanceOf(Error);
+      expect(error.message).to.be.equal('Balance is lower than 0.015');
+      expect(executeTxSpy.notCalled).to.be.true;
+      expect(blocksCount).to.be.eq(0);
+    });
+
+    it('does log message if balance is between mintBalance.warningLimit and mintBalance.errorLimit', async () => {
+      const {leaf, affidavit, timestamp} = leafWithAffidavit;
+      const signature = await signAffidavitWithWallet(wallet, affidavit);
+
+      mockedBlockchain.wallet.getBalance = async () => parseEther('0.10');
+
+      mockedTimeService.apply.returns(timestamp);
+
+      mockedChainContract.resolveStatus.resolves([
+        '0x123',
+        {
+          blockNumber: BigNumber.from(1),
+          timePadding: 1,
+          lastBlockId: 0,
+          nextBlockId: 1,
+          nextLeader: wallet.address,
+          validators: [wallet.address],
+          locations: ['abc'],
+          lastDataTimestamp: 1,
+          powers: [BigNumber.from(1)],
+          staked: BigNumber.from(1),
+          minSignatures: 1,
+        },
+      ]);
+
+      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+      mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
+
+      mockedSignatureCollector.apply.resolves([
+        {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
+      ]);
+
+      const loggerSpy = sinon.spy(mockedLogger, 'warn');
+
+      await blockMinter.apply();
+
+      expect(loggerSpy.called).to.be.true;
+      loggerSpy.restore();
+    });
+
     it('saves block to database if submitting finished successfully', async () => {
       const {leaf, affidavit} = leafWithAffidavit;
-      const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedBlockchain.wallet = wallet;
+      mockedBlockchain.wallet.getBalance = async () => parseEther('10');
 
       mockedTimeService.apply.returns(10);
       mockedGasEstimator.apply.resolves({min: 10, estimation: 10, max: 10, avg: 10});
@@ -372,10 +435,11 @@ describe('BlockMinter', () => {
       it('retries submitTx with different nonce', async () => {
         const {leaf, affidavit} = leafWithAffidavit;
 
-        const wallet = Wallet.createRandom();
         const signature = await signAffidavitWithWallet(wallet, affidavit);
 
         mockedBlockchain.wallet = wallet;
+
+        mockedBlockchain.wallet.getBalance = async () => parseEther('10');
 
         mockedBlockchain.wallet.getTransactionCount = async () => 1;
 
