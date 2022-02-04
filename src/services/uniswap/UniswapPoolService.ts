@@ -72,9 +72,16 @@ export class UniswapPoolService {
   private async getVerifiedTokens(): Promise<Set<string>> {
     if (this.verifiedTokenCache.has('tokens')) return <Set<string>> this.verifiedTokenCache.get('tokens');
 
-    const data = <string> (await this.localAssetRepository.read('uniswapVerifiedTokens.json'));
-    const parsedData = <string[]>JSON.parse(data);
-    const tokens = new Set(parsedData.map(s => s.toLowerCase()));
+    let tokens: Set<string>;
+
+    try {
+      const data = <string> (await this.localAssetRepository.read('uniswapVerifiedTokens.json'));
+      const parsedData = <string[]>JSON.parse(data);
+      tokens = new Set(parsedData.map(s => s.toLowerCase()));
+    } catch (e) {
+      tokens = new Set<string>();
+    }
+
     this.verifiedTokenCache.set<Set<string>>('tokens', tokens);
     return tokens;
   }
