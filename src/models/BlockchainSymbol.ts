@@ -15,6 +15,7 @@ export type Token = {
 @index({type: 1})
 @index({blockchainId: 1})
 @index({verified: 1})
+@index({blockchainId: 1, type: 1, verified: 1})
 @modelOptions({options: {allowMixed: Severity.ALLOW}})
 export class BlockchainSymbol {
   @prop({required: true})
