@@ -132,7 +132,7 @@ const settings: Settings = {
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
-  statusCheckTimeout: parseInt(process.env.STATUS_CHECK_TIMEOUT || '5000', 10),
+  statusCheckTimeout: getTimeSetting(parseInt(process.env.STATUS_CHECK_TIMEOUT || '10000', 10), 10000),
   signatureTimeout: getTimeSetting(parseInt(process.env.SIGNATURE_TIMEOUT || '30000', 10), 20000),
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
   version: packageJson.version,
