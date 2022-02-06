@@ -19,7 +19,8 @@ class SignatureCollector {
   @inject('Settings') private settings!: Settings;
 
   async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<BlockSignerResponseWithPower[]> {
-    const otherValidators = validators.filter((v) => v.id !== this.blockchain.wallet.address);
+    const ourAddress = this.blockchain.wallet.address.toLowerCase();
+    const otherValidators = validators.filter((v) => v.id !== ourAddress);
 
     const collectedSignatures: (BlockSignerResponseWithPower | undefined)[] = await Promise.all(
       otherValidators.map((validator: Validator) => this.collectSignature(validator, block, affidavit)),
@@ -28,10 +29,10 @@ class SignatureCollector {
     const signatures: BlockSignerResponseWithPower[] = [
       {
         signature: block.signature,
-        power: validators.filter((v) => v.id === this.blockchain.wallet.address)[0].power,
+        power: validators.filter((v) => v.id === ourAddress)[0].power,
         discrepancies: [],
         version: this.settings.version,
-        validator: this.blockchain.wallet.address,
+        validator: ourAddress,
       },
     ];
 
@@ -90,13 +91,14 @@ class SignatureCollector {
         ...blockSignerResponse,
         power: validator.power,
       };
-    } catch (ex) {
+    } catch (e) {
       newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
         validatorId: id,
         location: location,
-        error: ex.message,
+        error: (<Error>e).message,
       });
-      this.logger.error(`Can not collect signature at ${location}, error: ${ex.message}`);
+
+      this.logger.error(`Can not collect signature at ${location}, error: ${(<Error>e).message}`);
     }
   }
 
@@ -107,23 +109,15 @@ class SignatureCollector {
   ): Promise<BlockSignerResponse> {
     const sourceUrl = `${location}/signature`;
 
-    try {
-      const response = await axios.post(sourceUrl, JSON.stringify(block), {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeoutErrorMessage: `Signature request timeout exceeded: ${sourceUrl}`,
-        timeout,
-      });
+    const response = await axios.post(sourceUrl, JSON.stringify(block), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      timeoutErrorMessage: `Signature request timeout exceeded: ${sourceUrl}`,
+      timeout,
+    });
 
-      return response.data;
-    } catch (err) {
-      if (err.response?.data) {
-        throw new Error(err.response.data.error || err.response.data);
-      }
-
-      throw err;
-    }
+    return response.data;
   }
 
   private static async statusCheck(location: string, timeout: number): Promise<void> {

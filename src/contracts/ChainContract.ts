@@ -26,7 +26,7 @@ class ChainContract {
   resolveValidators(chainStatus: ChainStatus): Validator[] {
     return chainStatus.validators.map((address, i) => {
       return {
-        id: address,
+        id: address.toLowerCase(),
         location: chainStatus.locations[i],
         power: chainStatus.powers[i],
       };

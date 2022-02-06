@@ -16,7 +16,7 @@ export abstract class LoopAgent extends BasicAgent {
   interval: number | undefined;
   delay: number | undefined;
 
-  abstract async execute(): Promise<void>;
+  abstract execute(): Promise<void>;
 
   async start(): Promise<void> {
     process.on('SIGTERM', this.shutdown);

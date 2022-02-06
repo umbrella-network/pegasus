@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Swagger documentation on /docs.
 - Added RPC Selection before minting
 
+## [6.1.2] - 2022-02-02
+### Changed
+- include `package-lock.json`
+
+### Fixed
+- make sure we do not call ourselves for signature
+
+
 ## [6.1.1] - 2022-01-27
 ### Added
 - Reapply Uniswap
