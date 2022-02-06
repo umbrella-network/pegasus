@@ -140,7 +140,7 @@ describe('BlockMinter', () => {
 
       const signersAddress = recoverSigner(affidavit, signedAffidavit);
 
-      expect(signersAddress).to.be.eq(wallet.address);
+      expect(signersAddress).to.be.eq(wallet.address.toLowerCase());
     });
   });
 
