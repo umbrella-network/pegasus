@@ -1,4 +1,6 @@
 import Settings from '../types/Settings';
+import {TimeoutCodes} from '../types/TimeoutCodes';
+import {timeoutWithCode} from '../utils/request';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
@@ -73,7 +75,7 @@ const settings: Settings = {
   api: {
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
-      timeout: parseInt(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', 10),
+      timeout: timeoutWithCode(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', TimeoutCodes.CRYPTOCOMPARE),
       reconnectTimeoutHours: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_TIMEOUT_HOURS || '4', 10),
       resubscribeTimeoutMinutes: parseInt(process.env.CRYPTOCOMPARE_RESUBSCRIBE_INTERVAL_MINUTES || '5', 10),
       truncateCronRule: process.env.CRYPTOCOMPARE_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
@@ -81,41 +83,41 @@ const settings: Settings = {
       reconnectTimeout: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_TIMEOUT || '30000', 10),
     },
     coingecko: {
-      timeout: parseInt(process.env.COINGECKO_TIMEOUT || '5000', 10),
+      timeout: timeoutWithCode(process.env.COINGECKO_TIMEOUT || '5000', TimeoutCodes.COINGECKO),
     },
     coinmarketcap: {
       apiKey: process.env.COINMARKETCAP_API_KEY as string,
-      timeout: parseInt(process.env.COINMARKETCAP_TIMEOUT || '5000', 10),
+      timeout: timeoutWithCode(process.env.COINMARKETCAP_TIMEOUT || '5000', TimeoutCodes.COINMARKETCAP),
     },
     genesisVolatility: {
       apiKey: process.env.GENESIS_VOLATILITY_API_KEY as string,
-      timeout: parseInt(process.env.GENESIS_VOLATILITY_TIMEOUT || '5000', 10),
+      timeout: timeoutWithCode(process.env.GENESIS_VOLATILITY_TIMEOUT || '5000', TimeoutCodes.GENESISVOLATILITY),
     },
     polygonIO: {
       apiKey: process.env.POLYGON_IO_API_KEY as string,
       priceUpdateCronRule: process.env.POLYGON_IO_PRICE_UPDATE_CRON_RULE || '* * * * *', // every minute
       truncateCronRule: process.env.POLYGON_IO_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
-      timeout: parseInt(process.env.POLYGON_IO_TIMEOUT || '20000', 10),
+      timeout: timeoutWithCode(process.env.POLYGON_IO_TIMEOUT || '20000', TimeoutCodes.POLYGON_IO),
       truncateIntervalMinutes: parseInt(process.env.POLYGON_IO_TRUNCATE_INTERVAL_MINUTES || '60', 10),
       reconnectTimeout: parseInt(process.env.POLYGON_IO_RECONNECT_TIMEOUT || '30000', 10),
     },
     iex: {
       apiKey: process.env.IEX_API_KEY as string,
-      timeout: parseInt(process.env.IEX_TIMEOUT || '5000', 10),
+      timeout: timeoutWithCode(process.env.IEX_TIMEOUT || '5000', TimeoutCodes.IEX),
     },
     bea: {
       apiKey: process.env.BAE_API_KEY as string,
-      timeout: parseInt(process.env.BAE_TIMEOUT || '5000', 10),
+      timeout: timeoutWithCode(process.env.BAE_TIMEOUT || '5000', TimeoutCodes.BEA),
     },
     kaiko: {
       apiKey: process.env.KAIKO_API_KEY as string,
       rpcUrl: process.env.KAIKO_RPC_URL || 'gateway-v0-grpc.kaiko.ovh:443',
-      timeout: parseInt(process.env.KAIKO_TIMEOUT || '5000', 10),
+      timeout: timeoutWithCode(process.env.KAIKO_TIMEOUT || '5000', TimeoutCodes.KAIKO),
       priceFreshness: parseInt(process.env.KAIKO_FRESHNESS || '3600', 10),
     },
     optionsPrice: {
       apiKey: process.env.OPTIONS_PRICE_API_KEY as string,
-      timeout: parseInt(process.env.OPTIONS_PRICE_TIMEOUT || '5000', 10),
+      timeout: timeoutWithCode(process.env.OPTIONS_PRICE_TIMEOUT || '5000', TimeoutCodes.OPTIONS_PRICE),
     },
     debug: {
       apiKey: process.env.DEBUG_API_KEY as string,
@@ -136,8 +138,14 @@ const settings: Settings = {
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
-  statusCheckTimeout: getTimeSetting(parseInt(process.env.STATUS_CHECK_TIMEOUT || '10000', 10), 10000),
-  signatureTimeout: getTimeSetting(parseInt(process.env.SIGNATURE_TIMEOUT || '30000', 10), 20000),
+  statusCheckTimeout: timeoutWithCode(
+    getTimeSetting(parseInt(process.env.STATUS_CHECK_TIMEOUT || '10000', 10), 10000),
+    TimeoutCodes.STATUS_CHECK_TIMEOUT,
+  ),
+  signatureTimeout: timeoutWithCode(
+    getTimeSetting(parseInt(process.env.SIGNATURE_TIMEOUT || '30000', 10), 20000),
+    TimeoutCodes.SIGNATURE_TIMEOUT,
+  ),
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
   version: packageJson.version,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
