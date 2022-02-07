@@ -19,7 +19,8 @@ class SignatureCollector {
   @inject('Settings') private settings!: Settings;
 
   async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<BlockSignerResponseWithPower[]> {
-    const otherValidators = validators.filter((v) => v.id !== this.blockchain.wallet.address);
+    const ourAddress = this.blockchain.wallet.address.toLowerCase();
+    const otherValidators = validators.filter((v) => v.id !== ourAddress);
 
     const collectedSignatures: (BlockSignerResponseWithPower | undefined)[] = await Promise.all(
       otherValidators.map((validator: Validator) => this.collectSignature(validator, block, affidavit)),
@@ -28,10 +29,10 @@ class SignatureCollector {
     const signatures: BlockSignerResponseWithPower[] = [
       {
         signature: block.signature,
-        power: validators.filter((v) => v.id === this.blockchain.wallet.address)[0].power,
+        power: validators.filter((v) => v.id === ourAddress)[0].power,
         discrepancies: [],
         version: this.settings.version,
-        validator: this.blockchain.wallet.address,
+        validator: ourAddress,
       },
     ];
 
@@ -80,10 +81,17 @@ class SignatureCollector {
         };
       }
 
-      const signerAddress = await recoverSigner(affidavit, blockSignerResponse.signature);
+      const signerAddress = recoverSigner(affidavit, blockSignerResponse.signature);
 
       if (signerAddress !== id) {
-        throw new Error(`Signature does not match validator ${id}`);
+        this.logger.error(`Signature does not match validator ${id}`);
+
+        return {
+          ...blockSignerResponse,
+          signature: '',
+          error: `Signature does not match validator ${id}`,
+          power: BigNumber.from(0),
+        };
       }
 
       return {
