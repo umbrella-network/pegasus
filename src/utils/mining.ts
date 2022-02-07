@@ -20,7 +20,7 @@ export const recoverSigner = (affidavit: string, signature: string): string => {
     signature,
   );
 
-  return ethers.utils.computeAddress(pubKey);
+  return ethers.utils.computeAddress(pubKey).toLowerCase();
 };
 
 export const signAffidavitWithWallet = async (wallet: Wallet, affidavit: string): Promise<string> => {

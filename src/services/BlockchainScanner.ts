@@ -21,7 +21,7 @@ export abstract class BlockchainScanner {
   step!: number;
   provider!: Provider;
 
-  abstract async apply(fromBlock: number, toBlock: number): Promise<boolean>;
+  abstract apply(fromBlock: number, toBlock: number): Promise<boolean>;
 
   async run(): Promise<Result> {
     const fromBlock = await this.getMarker();
