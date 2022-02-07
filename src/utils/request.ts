@@ -1,6 +1,8 @@
-// eslint-disable-next-line
-export const mapParams = (params: any) => {
-  // eslint-disable-next-line
+import {TimeoutCodes} from '../types/TimeoutCodes';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+export const mapParams = (params: any): string => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const objects: any[] = [];
   Object.keys(params)
     .filter((item) => item)
@@ -22,4 +24,12 @@ export const mapParams = (params: any) => {
     return `${accumulator ? `${accumulator}&` : accumulator}${key}=${value}`;
   }, '');
   return string && `?${string}`;
+};
+
+export const timeoutWithCode = (n: number | string, code: TimeoutCodes): number => {
+  const t = typeof n === 'number' ? n : parseInt(n, 10);
+  const maximumCodeValue = 10 ** (Object.keys(TimeoutCodes).length / 2).toString(10).length;
+  if (t < maximumCodeValue) throw Error(`timeout must be > ${maximumCodeValue}, got ${t}`);
+
+  return Math.trunc(t / maximumCodeValue) * maximumCodeValue + code;
 };

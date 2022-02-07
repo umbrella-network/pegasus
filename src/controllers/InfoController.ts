@@ -4,6 +4,7 @@ import express, {Request, Response} from 'express';
 import Settings from '../types/Settings';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
+import {TimeoutCodes} from '../types/TimeoutCodes';
 
 @injectable()
 class InfoController {
@@ -64,6 +65,7 @@ class InfoController {
         polygonIO: InfoController.obfuscate(this.settings.api.polygonIO.apiKey),
         options: InfoController.obfuscate(this.settings.api.optionsPrice.apiKey),
       },
+      timeoutCodes: TimeoutCodes,
     });
   };
 }
