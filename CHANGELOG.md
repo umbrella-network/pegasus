@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [6.3.0] - 2022-02-07
 ### Added
+- Check if gas is enough before execute transaction
 - unique codes for timeouts
 
 ## [6.2.3] - 2022-02-07
