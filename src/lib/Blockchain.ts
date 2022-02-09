@@ -10,12 +10,14 @@ import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies';
 @injectable()
 class Blockchain {
   @inject('Logger') logger!: Logger;
+  readonly settings!: Settings;
   provider!: Provider;
   wallet!: Wallet;
   providersUrls!: string[];
   selectionStrategy!: string;
 
   constructor(@inject('Settings') settings: Settings) {
+    this.settings = settings;
     this.provider = new JsonRpcProvider(settings.blockchain.provider.urls[0]);
     this.wallet = new Wallet(settings.blockchain.provider.privateKey, this.provider);
     this.providersUrls = settings.blockchain.provider.urls;
@@ -31,7 +33,7 @@ class Blockchain {
   }
 
   async setLatestProvider(): Promise<void> {
-    const rpcSelector = new RPCSelector(this.providersUrls);
+    const rpcSelector = new RPCSelector(this.providersUrls, {timeout: 1500, maxTimestampDiff: 60000});
 
     const provider =
       this.selectionStrategy === RPCSelectionStrategies.BY_BLOCK_NUMBER
@@ -39,6 +41,7 @@ class Blockchain {
         : await rpcSelector.selectByTimestamp();
 
     this.provider = new JsonRpcProvider(provider);
+    this.wallet = new Wallet(this.settings.blockchain.provider.privateKey, this.provider);
   }
 }
 

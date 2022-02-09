@@ -44,6 +44,8 @@ class ConsensusRunner {
     let maxFcdKeyCount: number;
     const maxRetries = this.settings.consensus.retries;
 
+    await this.blockchain.setLatestProvider();
+
     for (let i = 1; i <= maxRetries; i++) {
       this.logger.info(`[${blockHeight}] Starting Consensus Round ${i}.`);
       const dataForConsensus = await this.getDataForConsensus(dataTimestamp, firstClassLeaves, leaves);
