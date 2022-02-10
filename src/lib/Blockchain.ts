@@ -18,10 +18,25 @@ class Blockchain {
 
   constructor(@inject('Settings') settings: Settings) {
     this.settings = settings;
-    this.provider = new JsonRpcProvider(settings.blockchain.provider.urls[0]);
-    this.wallet = new Wallet(settings.blockchain.provider.privateKey, this.provider);
     this.providersUrls = settings.blockchain.provider.urls;
+    this.constructProvider();
+    this.wallet = new Wallet(settings.blockchain.provider.privateKey, this.provider);
     this.selectionStrategy = settings.rpcSelectionStrategy;
+  }
+
+  private constructProvider() {
+    for (const url of this.providersUrls) {
+      try {
+        this.provider = new JsonRpcProvider(url);
+        break;
+      } catch (err) {
+        this.logger.info(`[Blockchain] Failed to instantiate ${url}. ${err}.`);
+      }
+    }
+
+    if (!this.provider) {
+      this.provider = new JsonRpcProvider(this.providersUrls[0]);
+    }
   }
 
   async getBlockNumber(): Promise<number> {
