@@ -71,7 +71,7 @@
     "@newrelic/publish-sourcemap": "~5.0.1",
     "@typegoose/typegoose": "~8.3.0",
     "@types/node-schedule": "~1.3.1",
-    "@umb-network/toolbox": "~4.2.0",
+    "@umb-network/toolbox": "github:umbrella-network/canvas#feature/support-int",
     "@umb-network/validator": "~0.4.0",
     "async-mutex": "^0.3.2",
     "axios": "~0.21.1",
