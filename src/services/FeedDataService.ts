@@ -11,8 +11,11 @@ export class FeedDataService {
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
 
   async getLeavesAndFeeds(dataTimestamp: number): Promise<LeavesAndFeeds> {
-    const fcdFeeds = await this.feedRepository.getFcdFeeds();
-    const leafFeeds = await this.feedRepository.getLeafFeeds();
+    const [fcdFeeds, leafFeeds] = await Promise.all([
+      this.feedRepository.getFcdFeeds(),
+      this.feedRepository.getLeafFeeds(),
+    ]);
+
     const feeds = [fcdFeeds, leafFeeds];
     const [firstClassLeaves, leaves] = await this.feedProcessor.apply(dataTimestamp, ...feeds);
     return {firstClassLeaves, leaves, fcdsFeeds: fcdFeeds, leavesFeeds: leafFeeds};
