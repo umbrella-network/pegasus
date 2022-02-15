@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - unique codes for timeouts
 
+### Changed
+- optimize `/info` endpoint calls
+
 ## [6.2.3] - 2022-02-07
 ### Fixed
 - make sure we do not call ourselves for signature
