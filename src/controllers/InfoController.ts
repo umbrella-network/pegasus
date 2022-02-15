@@ -4,6 +4,7 @@ import express, {Request, Response} from 'express';
 import Settings from '../types/Settings';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
+import {TimeoutCodes} from '../types/TimeoutCodes';
 
 @injectable()
 class InfoController {
@@ -64,7 +65,20 @@ class InfoController {
         polygonIO: InfoController.obfuscate(this.settings.api.polygonIO.apiKey),
         options: InfoController.obfuscate(this.settings.api.optionsPrice.apiKey),
       },
+      timeoutCodes: this.getFormattedTimeoutCodes(),
     });
+  };
+
+  private getFormattedTimeoutCodes = () => {
+    const formattedTimeoutCodes: {[key: string]: number} = {};
+
+    for (const enumValue in TimeoutCodes) {
+      if (isNaN(Number(enumValue))) {
+        formattedTimeoutCodes[String(enumValue)] = Number(TimeoutCodes[enumValue]);
+      }
+    }
+
+    return formattedTimeoutCodes;
   };
 }
 

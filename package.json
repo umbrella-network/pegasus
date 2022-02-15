@@ -1,12 +1,12 @@
 {
   "name": "pegasus",
-  "version": "6.2.3",
+  "version": "6.3.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/umbrella-network/pegasus.git"
   },
   "scripts": {
-    "lint": "eslint ./src/**/*.ts ./test/**/*.ts --max-warnings=6",
+    "lint": "eslint ./src/**/*.ts ./test/**/*.ts --max-warnings=0",
     "lint:fix": "eslint ./src/**/*.ts ./test/**/*.ts --fix",
     "prettier": "prettier --config .prettierrc ./src/**/*.ts ./test/**/*.ts --check",
     "prettier:format": "prettier --config .prettierrc ./src/**/*.ts ./test/**/*.ts --write",
