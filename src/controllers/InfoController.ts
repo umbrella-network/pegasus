@@ -55,8 +55,20 @@ class InfoController {
         polygonIO: InfoController.obfuscate(this.settings.api.polygonIO.apiKey),
         options: InfoController.obfuscate(this.settings.api.optionsPrice.apiKey),
       },
-      timeoutCodes: TimeoutCodes,
+      timeoutCodes: this.getFormattedTimeoutCodes(),
     });
+  };
+
+  private getFormattedTimeoutCodes = () => {
+    const formattedTimeoutCodes: {[key: string]: number} = {};
+
+    for (const enumValue in TimeoutCodes) {
+      if (isNaN(Number(enumValue))) {
+        formattedTimeoutCodes[String(enumValue)] = Number(TimeoutCodes[enumValue]);
+      }
+    }
+
+    return formattedTimeoutCodes;
   };
 }
 
