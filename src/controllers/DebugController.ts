@@ -15,8 +15,8 @@ import KaikoPriceStreamInitializer from '../services/KaikoPriceStreamInitializer
 import PairRepository from '../repositories/PairRepository';
 import PriceRepository from '../repositories/PriceRepository';
 import Feeds from '../types/Feed';
-import loadFeeds from '../services/loadFeeds';
 import FeedProcessor from '../services/FeedProcessor';
+import {FeedRepository} from '../repositories/FeedRepository';
 
 @injectable()
 class DebugController {
@@ -33,6 +33,7 @@ class DebugController {
   @inject(KaikoPriceStreamInitializer) kaikoPriceStreamInitializer!: KaikoPriceStreamInitializer;
   @inject(PairRepository) pairRepository!: PairRepository;
   @inject(PriceRepository) priceRepository!: PriceRepository;
+  @inject(FeedRepository) feedRepository!: FeedRepository;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
 
   constructor(@inject('Settings') settings: Settings) {
@@ -191,9 +192,8 @@ class DebugController {
 
     try {
       let fetchFeedsMs = Date.now();
-      const feeds: Feeds[] = await Promise.all(
-        [this.settings.feedsOnChain, this.settings.feedsFile].map((fileName) => loadFeeds(fileName)),
-      );
+      const feeds: Feeds[] = await Promise.all([this.feedRepository.getFcdFeeds(), this.feedRepository.getLeafFeeds()]);
+
       fetchFeedsMs = Date.now() - fetchFeedsMs;
 
       let processFeedsMs = Date.now();

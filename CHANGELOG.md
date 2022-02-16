@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [6.3.1] - 2022-02-16
+### Fixed
+- DebugController::feeds to include uniswap prices
+
 ## [6.3.0] - 2022-02-07
 ### Added
 - Check if gas is enough before execute transaction
