@@ -12,7 +12,7 @@ import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 
-describe.only('PolygonIOStockSnapshotFetcher', () => {
+describe('PolygonIOStockSnapshotFetcher', () => {
   let settings: Settings;
 
   let polygonIOStockSnapshotFetcher: PolygonIOStockSnapshotFetcher;
