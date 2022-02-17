@@ -11,6 +11,15 @@ export type SavePriceProps = {
   expireAt?: Date;
 };
 
+export type LatestPriceProps = {
+  source: string;
+  symbol: string;
+  timestamp: {
+    from: Date;
+    to: Date;
+  };
+};
+
 // TODO: This should replace and deprecate the current PriceRepository
 @injectable()
 export class MongoDBPriceRepository {
@@ -49,14 +58,7 @@ export class MongoDBPriceRepository {
       .exec();
   }
 
-  async getLatestPrice(props: {
-    source: string;
-    symbol: string;
-    timestamp: {
-      from: Date;
-      to: Date;
-    };
-  }): Promise<number | undefined> {
+  async getLatestPrice(props: LatestPriceProps): Promise<number | undefined> {
     const {
       source,
       symbol,
@@ -79,5 +81,46 @@ export class MongoDBPriceRepository {
       .exec();
 
     return price?.value;
+  }
+
+  async bulkGetLatestPrices(props: LatestPriceProps[]): Promise<Price[]> {
+    let from: Date;
+    let to: Date;
+    const symbols: string[] = [];
+
+    for (const op of props) {
+      from ||= op.timestamp.from;
+      from = op.timestamp.from < from ? op.timestamp.from : from;
+      to ||= op.timestamp.to;
+      to = op.timestamp.to > to ? op.timestamp.to : to;
+      symbols.push(op.symbol);
+    }
+
+    return await getModelForClass(Price)
+      .aggregate([
+        {
+          $sort: {timestamp: -1},
+        },
+        {
+          $group: {
+            _id: '$source/$symbol',
+            timestamp: {$last: '$timestamp'},
+            id: {$first: '$_id'},
+            source: {$first: '$source'},
+            symbol: {$first: '$symbol'},
+            value: {$first: '$value'},
+          },
+        },
+        {
+          $project: {
+            _id: '$id',
+            source: '$source',
+            symbol: '$symbol',
+            value: '$value',
+            timestamp: '$timestamp',
+          },
+        },
+      ])
+      .exec();
   }
 }

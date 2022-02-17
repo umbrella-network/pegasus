@@ -18,8 +18,9 @@ class SignatureCollector {
   @inject('Settings') private settings!: Settings;
 
   async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<BlockSignerResponseWithPower[]> {
-    const self = <Validator>validators.find((v) => v.id === this.blockchain.wallet.address);
-    const participants = validators.filter((v) => v.id !== this.blockchain.wallet.address);
+    const selfAddress = this.blockchain.wallet.address.toLowerCase();
+    const self = <Validator>validators.find((v) => v.id === selfAddress);
+    const participants = validators.filter((v) => v.id !== selfAddress);
 
     return [
       this.getLocalSignature(block, self),
@@ -29,7 +30,7 @@ class SignatureCollector {
 
   private getLocalSignature(block: SignedBlock, self: Validator): BlockSignerResponseWithPower {
     return {
-      validator: this.blockchain.wallet.address,
+      validator: self.id,
       signature: block.signature,
       power: self.power,
       discrepancies: [],
@@ -43,9 +44,14 @@ class SignatureCollector {
     affidavit: string,
   ): Promise<BlockSignerResponseWithPower[]> {
     const signaturePickups = participants.map((p) => this.getParticipantSignature(block, p, affidavit));
-    const successfulPickups = (await Promise.all(signaturePickups)).filter((s) => s !== undefined);
-    this.logger.info(`Got ${successfulPickups.length} / ${signaturePickups.length} responses.`);
-    return <BlockSignerResponseWithPower[]>successfulPickups;
+    const blockSignerResponses = await Promise.all(signaturePickups);
+    const unsignedResponses = blockSignerResponses.filter((s) => s === undefined);
+
+    this.logger.info(
+      `[SignatureCollector] Got ${blockSignerResponses.length} responses, ${unsignedResponses.length} unsigned`,
+    );
+
+    return <BlockSignerResponseWithPower[]>blockSignerResponses;
   }
 
   private async getParticipantSignature(
@@ -53,19 +59,16 @@ class SignatureCollector {
     validator: Validator,
     affidavit: string,
   ): Promise<BlockSignerResponseWithPower | undefined> {
-    const timeout = this.settings.signatureTimeout;
-
     try {
       const [blockSignerResponse] = await Promise.all([
-        this.requestSignature(block, validator, timeout),
-        this.statusCheck(validator, timeout),
+        this.requestSignature(block, validator, this.settings.signatureTimeout),
+        this.statusCheck(validator, this.settings.statusCheckTimeout),
       ]);
 
       if (this.isBlockSignerResponseValid(blockSignerResponse)) {
         // TODO: reconsider if this is necessary since the smart contract already prevents this.
         this.checkSignature(validator, <string>blockSignerResponse.signature, affidavit);
-        const signature = blockSignerResponse.signature;
-        return {...blockSignerResponse, validator: validator.id, power: validator.power, signature};
+        return {...blockSignerResponse, validator: validator.id, power: validator.power};
       } else {
         this.logBadSignatureCollection(validator, blockSignerResponse);
         return {...blockSignerResponse, validator: validator.id, power: validator.power, signature: undefined};
@@ -141,7 +144,9 @@ class SignatureCollector {
       error: error.message,
     });
 
-    this.logger.error(`Can not collect signature at ${validator.location}, exception: ${error.message}`);
+    this.logger.error(
+      `[SignatureCollector] Can not collect signature at ${validator.location}, exception: ${error.message}`,
+    );
   }
 
   private isBlockSignerResponseValid(blockSignerResponse: BlockSignerResponse): boolean {
@@ -160,8 +165,6 @@ class SignatureCollector {
 }
 
 export default SignatureCollector;
-
-
 
 // import {inject, injectable} from 'inversify';
 // import axios from 'axios';

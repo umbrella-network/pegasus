@@ -48,7 +48,7 @@ class ConsensusRunner {
     const maxRetries = this.settings.consensus.retries;
 
     for (let i = 1; i <= maxRetries; i++) {
-      this.logger.info(`[${blockHeight}] Starting Consensus Round ${i}.`);
+      this.logger.info(`[ConsensusRunner] - (${blockHeight}) Starting Consensus Round ${i}.`);
       const dataForConsensus = await this.getDataForConsensus(dataTimestamp, firstClassLeaves, leaves);
       const {consensus, discrepantKeys} = await this.runConsensus(dataForConsensus, validators, requiredSignatures);
       const leafKeyCount = dataForConsensus.leaves.length;
@@ -72,9 +72,13 @@ class ConsensusRunner {
         this.logConsensusResult({status: 'SUCCESS', ...logProps});
         return consensus;
       } else if (i < maxRetries && discrepantKeys.size > 0) {
-        this.logger.debug(`Dumping discrepancy data (${discrepantCount}): ${Array.from(discrepantKeys).join(', ')}`);
+        this.logger.debug(
+          `[ConsensusRunner] Dumping discrepancy data (${discrepantCount}): ${Array.from(discrepantKeys).join(', ')}`,
+        );
         this.logConsensusResult({status: 'RETRY', ...logProps});
         ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepantKeys));
+        // TODO: Remove or make configurable
+        await sleep(5000);
       } else {
         this.logConsensusResult({status: 'FAILED', ...logProps});
         return null;
@@ -100,7 +104,7 @@ class ConsensusRunner {
     const consensusYield = maxTotalKeyCount == 0 ? 0.0 : Math.round((totalKeyCount / maxTotalKeyCount) * 10000) / 10000;
 
     const msg = [
-      `[${props.blockHeight}] Consensus Round ${props.round}/${props.maxRounds} Finished.`,
+      `[ConsensusRunner] (${props.blockHeight}) Consensus Round ${props.round}/${props.maxRounds} Finished.`,
       `Status: ${props.status}`,
       `| Keys: ${totalKeyCount} (${props.leafKeyCount} + ${props.fcdKeyCount} FCDs)`,
       `| Missed: ${props.discrepantCount}`,
@@ -125,7 +129,7 @@ class ConsensusRunner {
     };
 
     this.logger.info(
-      `Running consensus at ${dataForConsensus.dataTimestamp} with ${validators.length} validators, ${leaves.length} leaves, ${fcdKeys.length} FCDs`,
+      `[ConsensusRunner] Running consensus at ${dataForConsensus.dataTimestamp} with ${validators.length} validators, ${leaves.length} leaves, ${fcdKeys.length} FCDs`,
     );
 
     const blockSignerResponsesWithPowers = await this.signatureCollector.apply(
@@ -180,7 +184,9 @@ class ConsensusRunner {
 
   private hasConsensus(signatures: string[], requiredSignatures: number): boolean {
     if (signatures.length < requiredSignatures) {
-      this.logger.info(`Not enough signatures: got ${signatures.length}, required: ${requiredSignatures}`);
+      this.logger.info(
+        `[ConsensusRunner] Not enough signatures: got ${signatures.length}, required: ${requiredSignatures}`,
+      );
       return false;
     }
 
