@@ -18,9 +18,8 @@ class PolygonIOStockSnapshotFetcher {
     this.timeout = settings.api.polygonIO.timeout;
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   async apply({symbols}: {symbols: string[]}, raw = false): Promise<SnapshotResponse | number[]> {
-    const tickerBatches = this.splitIntoSmallerBatches(symbols, this.maxBatchSize);
+    const tickerBatches = this.splitIntoBatchesOfSize(symbols, this.maxBatchSize);
 
     this.logger.debug('Calling polygon snapshot');
 
@@ -54,7 +53,7 @@ class PolygonIOStockSnapshotFetcher {
     return JSONPath({json: data, path: valuePath});
   };
 
-  private splitIntoSmallerBatches = (symbols: string[], maxBatchSize: number): string[] => {
+  private splitIntoBatchesOfSize = (symbols: string[], maxBatchSize: number): string[] => {
     const batches = [];
     const symbolsCopy = [...symbols];
 

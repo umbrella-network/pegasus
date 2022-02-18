@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 import Settings from '../../../src/types/Settings';
 import {expect} from 'chai';
