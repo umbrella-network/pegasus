@@ -91,7 +91,6 @@ describe('PolygonIOStockSnapshotFetcher', () => {
             'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=UVXY&apiKey=POLYGON_IO_API_KEY',
             {
               status: 404,
-              response: ticker1,
             },
           );
           moxios.stubRequest(
@@ -105,7 +104,8 @@ describe('PolygonIOStockSnapshotFetcher', () => {
           await expect(polygonIOStockSnapshotFetcher.apply({symbols: ['VIXY', 'UVXY']}, true)).to.rejectedWith(Error);
         });
       });
-      describe('when none request fails', () => {
+
+      describe('when all requests succeed', () => {
         beforeEach(() => {
           moxios.stubRequest(
             `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=UVXY&apiKey=POLYGON_IO_API_KEY`,
@@ -122,6 +122,7 @@ describe('PolygonIOStockSnapshotFetcher', () => {
             },
           );
         });
+
         describe('when raw param is true', () => {
           it('responds with the requests tickers merged in one tickers array', async () => {
             const result = await polygonIOStockSnapshotFetcher.apply({symbols: ['UVXY', 'VIXY']}, true);
@@ -131,6 +132,7 @@ describe('PolygonIOStockSnapshotFetcher', () => {
             });
           });
         });
+
         describe('when raw param is false', () => {
           it('response the requests tickers lastPrice.p in an array', async () => {
             const result = await polygonIOStockSnapshotFetcher.apply({symbols: ['UVXY', 'VIXY']}, false);
