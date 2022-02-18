@@ -13,8 +13,28 @@ chai.use(chaiAsPromised);
 
 describe('PolygonIOStockSnapshotFetcher', () => {
   let settings: Settings;
-
   let polygonIOStockSnapshotFetcher: PolygonIOStockSnapshotFetcher;
+
+  const ticker1 = {
+    ticker: 'UVXY',
+    lastTrade: {
+      p: 10.1,
+      t: 12,
+    },
+  };
+  const ticker2 = {
+    ticker: 'VIXY',
+    lastTrade: {
+      p: 20.02,
+      t: 12,
+    },
+  };
+  const responseExample1 = {
+    tickers: [ticker1],
+  };
+  const responseExample2 = {
+    tickers: [ticker2],
+  };
 
   beforeEach(async () => {
     moxios.install();
@@ -44,13 +64,9 @@ describe('PolygonIOStockSnapshotFetcher', () => {
 
   describe('#apply', () => {
     describe('when one request is done', () => {
-      it('response an array of tickers object', async () => {
+      it('responds with an array of ticker objects', async () => {
         const responseExample = {
-          tickers: [
-            {
-              ticker: 'UVXY',
-            },
-          ],
+          tickers: [ticker1],
         };
 
         moxios.stubRequest(
@@ -64,42 +80,26 @@ describe('PolygonIOStockSnapshotFetcher', () => {
         const result = await polygonIOStockSnapshotFetcher.apply({symbols: ['UVXY']}, true);
 
         expect(result).to.eql({
-          tickers: [{ticker: 'UVXY'}],
+          tickers: [ticker1],
         });
       });
     });
 
-    describe('when multiple request are done', () => {
+    describe('when performing multiple requests', () => {
       describe('when one of the request fails', () => {
         it('throws an Error', async () => {
-          const responseExample = {
-            tickers: [
-              {
-                ticker: 'UVXY',
-              },
-            ],
-          };
-
           moxios.stubRequest(
             'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=UVXY&apiKey=POLYGON_IO_API_KEY',
             {
               status: 404,
-              response: responseExample,
+              response: ticker1,
             },
           );
-          const responseExample2 = {
-            tickers: [
-              {
-                ticker: 'VIXY',
-              },
-            ],
-          };
-
           moxios.stubRequest(
             'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=VIXY&apiKey=POLYGON_IO_API_KEY',
             {
               status: 200,
-              response: responseExample2,
+              response: ticker2,
             },
           );
 
@@ -107,88 +107,36 @@ describe('PolygonIOStockSnapshotFetcher', () => {
         });
       });
       describe('when none request fails', () => {
+        beforeEach(() => {
+          moxios.stubRequest(
+            `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=UVXY&apiKey=POLYGON_IO_API_KEY`,
+            {
+              status: 200,
+              response: responseExample1,
+            },
+          );
+          moxios.stubRequest(
+            `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=VIXY&apiKey=POLYGON_IO_API_KEY`,
+            {
+              status: 200,
+              response: responseExample2,
+            },
+          );
+        });
         describe('when raw param is true', () => {
-          it('response the requests tickers merged in one tickers array', async () => {
-            const responseExample1 = {
-              tickers: [
-                {
-                  ticker: 'UVXY',
-                },
-              ],
-            };
-            const responseExample2 = {
-              tickers: [
-                {
-                  ticker: 'VIXY',
-                },
-              ],
-            };
-
-            moxios.stubRequest(
-              `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=UVXY&apiKey=POLYGON_IO_API_KEY`,
-              {
-                status: 200,
-                response: responseExample1,
-              },
-            );
-            moxios.stubRequest(
-              `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=VIXY&apiKey=POLYGON_IO_API_KEY`,
-              {
-                status: 200,
-                response: responseExample2,
-              },
-            );
-
+          it('responds with the requests tickers merged in one tickers array', async () => {
             const result = await polygonIOStockSnapshotFetcher.apply({symbols: ['UVXY', 'VIXY']}, true);
 
             expect(result).to.eql({
-              tickers: [{ticker: 'UVXY'}, {ticker: 'VIXY'}],
+              tickers: [ticker1, ticker2],
             });
           });
-          describe('when raw param is false', () => {
-            it('response the requests tickers lastPrice.p in an array', async () => {
-              const responseExample1 = {
-                tickers: [
-                  {
-                    ticker: 'UVXY',
-                    lastTrade: {
-                      p: 10.1,
-                      t: 12,
-                    },
-                  },
-                ],
-              };
-              const responseExample2 = {
-                tickers: [
-                  {
-                    ticker: 'VIXY',
-                    lastTrade: {
-                      p: 20.02,
-                      t: 12,
-                    },
-                  },
-                ],
-              };
+        });
+        describe('when raw param is false', () => {
+          it('response the requests tickers lastPrice.p in an array', async () => {
+            const result = await polygonIOStockSnapshotFetcher.apply({symbols: ['UVXY', 'VIXY']}, false);
 
-              moxios.stubRequest(
-                `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=UVXY&apiKey=POLYGON_IO_API_KEY`,
-                {
-                  status: 200,
-                  response: responseExample1,
-                },
-              );
-              moxios.stubRequest(
-                `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=VIXY&apiKey=POLYGON_IO_API_KEY`,
-                {
-                  status: 200,
-                  response: responseExample2,
-                },
-              );
-
-              const result = await polygonIOStockSnapshotFetcher.apply({symbols: ['UVXY', 'VIXY']}, false);
-
-              expect(result).to.eql([10.1, 20.02]);
-            });
+            expect(result).to.eql([ticker1.lastTrade.p, ticker2.lastTrade.p]);
           });
         });
       });
