@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import {Container} from 'inversify';
 import Settings from '../../../src/types/Settings';
 import {expect} from 'chai';
 import PolygonIOStockSnapshotFetcher from '../../../src/services/fetchers/PolygonIOStockSnapshotFetcher';
 import moxios from 'moxios';
 
-import {mockedLogger} from '../../mocks/logger';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import {getTestContainer} from '../../helpers/getTestContainer';
 
 chai.use(chaiAsPromised);
 
@@ -20,7 +19,7 @@ describe('PolygonIOStockSnapshotFetcher', () => {
   beforeEach(async () => {
     moxios.install();
 
-    const container = new Container();
+    const container = getTestContainer();
 
     settings = {
       api: {
@@ -32,8 +31,7 @@ describe('PolygonIOStockSnapshotFetcher', () => {
       },
     } as Settings;
 
-    container.bind('Logger').toConstantValue(mockedLogger);
-    container.bind('Settings').toConstantValue(settings);
+    container.rebind('Settings').toConstantValue(settings);
 
     container.bind(PolygonIOStockSnapshotFetcher).toSelf();
 
