@@ -20,19 +20,19 @@ class PolygonIOStockSnapshotFetcher {
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   async apply({symbols}: any, raw = false): Promise<SnapshotResponse | number[]> {
-    const tickersBatches = this.splitIntoSmallerBatches(symbols, this.maxBatchSize);
+    const tickerBatches = this.splitIntoSmallerBatches(symbols, this.maxBatchSize);
 
     this.logger.debug('Calling polygon snapshot');
 
-    const snapshot = await this.getSnapshot(tickersBatches);
+    const snapshot = await this.getSnapshot(tickerBatches);
     const mergedSnapshot = {tickers: this.mergeData(snapshot)};
 
     return raw ? mergedSnapshot : (this.extractValues(mergedSnapshot, '$.tickers[*].lastTrade.p') as number[]);
   }
 
-  private async getSnapshot(tickersBatches: string[]): Promise<SnapshotDataResponse[]> {
+  private async getSnapshot(tickerBatches: string[]): Promise<SnapshotDataResponse[]> {
     return Promise.all(
-      tickersBatches.map(async (tickers: string) => {
+      tickerBatches.map(async (tickers: string) => {
         const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=${tickers}&apiKey=${this.apiKey}`;
 
         const response = await axios.get(sourceUrl, {
