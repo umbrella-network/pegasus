@@ -19,7 +19,7 @@ class PolygonIOStockSnapshotFetcher {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
-  async apply({symbols}: any, raw = false): Promise<SnapshotResponse | number[]> {
+  async apply({symbols}: {symbols: string[]}, raw = false): Promise<SnapshotResponse | number[]> {
     const tickerBatches = this.splitIntoSmallerBatches(symbols, this.maxBatchSize);
 
     this.logger.debug('Calling polygon snapshot');
