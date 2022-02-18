@@ -56,7 +56,7 @@ class PolygonIOStockSnapshotFetcher {
 
   private splitIntoSmallerBatches = (symbols: string[], maxBatchSize: number): string[] => {
     const batches = [];
-    const symbolsCopy = symbols;
+    const symbolsCopy = [...symbols];
 
     while (symbolsCopy.length) {
       batches.push(symbolsCopy.splice(0, maxBatchSize).join(','));
