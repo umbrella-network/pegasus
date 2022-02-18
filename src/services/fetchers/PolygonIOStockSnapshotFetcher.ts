@@ -64,8 +64,15 @@ class PolygonIOStockSnapshotFetcher {
     return batches;
   };
 
-  private mergeData = (snapshot: SnapshotDataResponse[]): Ticker[] =>
-    snapshot.reduce((acc: Ticker[], curr: SnapshotDataResponse) => acc.concat(curr.data.tickers), []);
+  private mergeData = (snapshot: SnapshotDataResponse[]): Ticker[] => {
+    let acc: Ticker[] = [];
+
+    for (let i = 0; i < snapshot.length; i++) {
+      acc = [...acc, ...snapshot[i].data.tickers];
+    }
+
+    return acc;
+  };
 }
 
 export interface Ticker {
