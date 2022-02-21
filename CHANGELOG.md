@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [6.4.0] - 2022-02-21
+### Added
+- Divide the Polygon snapshot list into batches
+
+### Changed
+- optimize `/info` endpoint calls
+
 ## [6.3.0] - 2022-02-07
 ### Added
 - Check if gas is enough before execute transaction

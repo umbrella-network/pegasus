@@ -29,25 +29,15 @@ class InfoController {
   };
 
   info = async (request: Request, response: Response): Promise<void> => {
-    let validatorAddress, chainContractAddress, network;
+    const [validatorP, chainContractP, networkP] = await Promise.allSettled([
+      this.blockchain.wallet.getAddress(),
+      this.chainContract.resolveAddress(),
+      this.blockchain.provider.getNetwork(),
+    ]);
 
-    try {
-      validatorAddress = await this.blockchain.wallet.getAddress();
-    } catch (e) {
-      validatorAddress = e;
-    }
-
-    try {
-      chainContractAddress = await this.chainContract.resolveAddress();
-    } catch (e) {
-      chainContractAddress = e;
-    }
-
-    try {
-      network = await this.blockchain.provider.getNetwork();
-    } catch (e) {
-      network = e;
-    }
+    const validatorAddress = validatorP.status === 'fulfilled' ? validatorP.value : validatorP.reason;
+    const chainContractAddress = chainContractP.status === 'fulfilled' ? chainContractP.value : chainContractP.reason;
+    const network = networkP.status === 'fulfilled' ? networkP.value : networkP.reason;
 
     response.send({
       feedsOnChain: this.settings.feedsOnChain,
