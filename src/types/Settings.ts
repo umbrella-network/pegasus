@@ -93,6 +93,7 @@ type Settings = {
       truncateIntervalMinutes: number;
       timeout: number;
       reconnectTimeout: number;
+      maxBatchSize: number;
     };
     bea: {
       apiKey: string;
