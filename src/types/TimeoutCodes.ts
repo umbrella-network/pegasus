@@ -10,4 +10,5 @@ export enum TimeoutCodes {
   OPTIONS_PRICE,
   STATUS_CHECK_TIMEOUT,
   SIGNATURE_TIMEOUT,
+  ARTH,
 }

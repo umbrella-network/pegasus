@@ -103,6 +103,9 @@ type Settings = {
       apiKey: string;
       timeout: number;
     };
+    arthCoin: {
+      timeout: number;
+    };
     kaiko: {
       apiKey: string;
       rpcUrl: string;

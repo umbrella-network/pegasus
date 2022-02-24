@@ -106,6 +106,9 @@ const settings: Settings = {
       apiKey: process.env.IEX_API_KEY as string,
       timeout: timeoutWithCode(process.env.IEX_TIMEOUT || '5000', TimeoutCodes.IEX),
     },
+    arthCoin: {
+      timeout: timeoutWithCode(process.env.ARTH_TIMEOUT || '5000', TimeoutCodes.ARTH),
+    },
     bea: {
       apiKey: process.env.BAE_API_KEY as string,
       timeout: timeoutWithCode(process.env.BAE_TIMEOUT || '5000', TimeoutCodes.BEA),

@@ -14,6 +14,7 @@ import BEACPIAverageFetcher from './BEACPIAverageFetcher';
 import OnChainDataFetcher from './OnChainDataFetcher';
 import KaikoPriceStreamFetcher from './KaikoPriceStreamFetcher';
 import OptionsPriceFetcher from './OptionsPriceFetcher';
+import ArthCoinPriceFetcher from './ArthCoinPriceFetcher';
 import YearnVaultTokenPriceFetcher from './YearnVaultTokenPriceFetcher';
 import {UniswapPriceFetcher} from './UniswapPriceFetcher';
 import RandomNumberFetcher from './RandomNumberFetcher';
@@ -35,6 +36,7 @@ export {
   OnChainDataFetcher,
   KaikoPriceStreamFetcher,
   OptionsPriceFetcher,
+  ArthCoinPriceFetcher,
   YearnVaultTokenPriceFetcher,
   UniswapPriceFetcher,
   RandomNumberFetcher,

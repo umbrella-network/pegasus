@@ -30,6 +30,7 @@ export class FeedFetcherRepository {
     @inject(fetchers.KaikoPriceStreamFetcher) KaikoPriceStream: fetchers.KaikoPriceStreamFetcher,
     @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPrice: fetchers.YearnVaultTokenPriceFetcher,
     @inject(fetchers.OptionsPriceFetcher) OptionsPrice: fetchers.OptionsPriceFetcher,
+    @inject(fetchers.ArthCoinPriceFetcher) ArthCoinPrice: fetchers.ArthCoinPriceFetcher,
     @inject(fetchers.UniswapPriceFetcher) UniswapPriceFetcher: fetchers.UniswapPriceFetcher,
     @inject(fetchers.RandomNumberFetcher) RandomNumber: fetchers.RandomNumberFetcher,
   ) {
@@ -51,6 +52,7 @@ export class FeedFetcherRepository {
       KaikoPriceStream,
       YearnVaultTokenPrice,
       OptionsPrice,
+      ArthCoinPrice,
       UniswapPriceFetcher,
       RandomNumber,
     };
