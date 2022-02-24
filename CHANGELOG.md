@@ -6,8 +6,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Added
-- Divide the Polygon snapshot list into batches
 
 ## [6.4.0] - 2022-02-21
 ### Added
@@ -20,9 +18,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Check if gas is enough before execute transaction
 - unique codes for timeouts
-
-### Changed
-- optimize `/info` endpoint calls
 
 ## [6.2.3] - 2022-02-07
 ### Fixed
