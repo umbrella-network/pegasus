@@ -22,6 +22,10 @@ class ArthCoinPriceFetcher {
         timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
       });
 
+      if (!Object.keys(response.data).length) {
+        throw Error(`Empty response`);
+      }
+
       return response.data[params.id];
     } catch (err) {
       this.logger.warn(`Skipping ArthCoinPrice fetcher: ${err}`);

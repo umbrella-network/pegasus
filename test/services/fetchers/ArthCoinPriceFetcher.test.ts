@@ -12,7 +12,7 @@ import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 
-describe.only('ArthCoinPriceFetcher', () => {
+describe('ArthCoinPriceFetcher', () => {
   let settings: Settings;
 
   let arthCoinPriceFetcher: ArthCoinPriceFetcher;
