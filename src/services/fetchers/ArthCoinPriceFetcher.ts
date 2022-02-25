@@ -4,24 +4,6 @@ import {Logger} from 'winston';
 
 import Settings from '../../types/Settings';
 
-export interface OptionsEntries {
-  [key: string]: {
-    callPrice: number;
-    iv: number;
-    putPrice: number;
-  };
-}
-
-interface ArthCoinPriceResponse {
-  data: {
-    [key: string]: {
-      callPrice: number;
-      iv: number;
-      putPrice: number;
-    };
-  };
-}
-
 @injectable()
 class ArthCoinPriceFetcher {
   private timeout: number;
@@ -31,8 +13,7 @@ class ArthCoinPriceFetcher {
     this.timeout = settings.api.arthCoin.timeout;
   }
 
-  async apply(): Promise<OptionsEntries> {
-    console.log('\n\nAAAAAAAAA\n\n');
+  async apply(params: {id: string}): Promise<number | undefined> {
     const sourceUrl = 'https://gmu.arthcoin.com/gmu';
 
     try {
@@ -41,24 +22,11 @@ class ArthCoinPriceFetcher {
         timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
       });
 
-      console.log('response DATA: ', response.data, '\n\n');
-
-      return ArthCoinPriceFetcher.parseOptionPrices(response.data);
+      return response.data[params.id];
     } catch (err) {
       this.logger.warn(`Skipping ArthCoinPrice fetcher: ${err}`);
-      return Promise.resolve({});
+      return Promise.resolve(undefined);
     }
-  }
-
-  private static parseOptionPrices({data: options}: ArthCoinPriceResponse) {
-    const optionsEntries: OptionsEntries = {};
-
-    for (const key in options) {
-      const {callPrice, iv, putPrice} = options[key];
-      optionsEntries[key] = {callPrice, iv, putPrice};
-    }
-
-    return optionsEntries;
   }
 }
 

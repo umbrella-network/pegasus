@@ -22,6 +22,7 @@ export default {
       properties: {
         fetcher: {
           oneOf: [
+            {$ref: '#/definitions/ArthCoinPriceFetcher'},
             {$ref: '#/definitions/GVolImpliedVolatilityFetcher'},
             {$ref: '#/definitions/CryptoCompareHistoDayFetcher'},
             {$ref: '#/definitions/CryptoCompareHistoHourFetcher'},
@@ -337,6 +338,11 @@ export default {
     OptionsPriceFetcher: {
       properties: {
         name: {const: 'OptionsPrice'},
+      },
+    },
+    ArthCoinPriceFetcher: {
+      properties: {
+        name: {const: 'ArthCoinPrice'},
       },
     },
     YearnVaultTokenPriceFetcher: {
