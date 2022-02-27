@@ -82,45 +82,4 @@ export class MongoDBPriceRepository {
 
     return price?.value;
   }
-
-  async bulkGetLatestPrices(props: LatestPriceProps[]): Promise<Price[]> {
-    let from: Date;
-    let to: Date;
-    const symbols: string[] = [];
-
-    for (const op of props) {
-      from ||= op.timestamp.from;
-      from = op.timestamp.from < from ? op.timestamp.from : from;
-      to ||= op.timestamp.to;
-      to = op.timestamp.to > to ? op.timestamp.to : to;
-      symbols.push(op.symbol);
-    }
-
-    return await getModelForClass(Price)
-      .aggregate([
-        {
-          $sort: {timestamp: -1},
-        },
-        {
-          $group: {
-            _id: '$source/$symbol',
-            timestamp: {$last: '$timestamp'},
-            id: {$first: '$_id'},
-            source: {$first: '$source'},
-            symbol: {$first: '$symbol'},
-            value: {$first: '$value'},
-          },
-        },
-        {
-          $project: {
-            _id: '$id',
-            source: '$source',
-            symbol: '$symbol',
-            value: '$value',
-            timestamp: '$timestamp',
-          },
-        },
-      ])
-      .exec();
-  }
 }

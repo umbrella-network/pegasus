@@ -45,7 +45,7 @@ class SignatureCollector {
   ): Promise<BlockSignerResponseWithPower[]> {
     const signaturePickups = participants.map((p) => this.getParticipantSignature(block, p, affidavit));
     const blockSignerResponses = await Promise.all(signaturePickups);
-    const unsignedResponses = blockSignerResponses.filter((s) => s === undefined);
+    const unsignedResponses = blockSignerResponses.filter((s) => !s?.signature);
 
     this.logger.info(
       `[SignatureCollector] Got ${blockSignerResponses.length} responses, ${unsignedResponses.length} unsigned`,
@@ -74,6 +74,7 @@ class SignatureCollector {
         return {...blockSignerResponse, validator: validator.id, power: validator.power, signature: undefined};
       }
     } catch (e) {
+      this.logger.error('[SignatureCollector] Signature collection failed.');
       this.logSignatureCollectionException(validator, e);
     }
 
@@ -134,7 +135,9 @@ class SignatureCollector {
       error: errMsg,
     });
 
-    this.logger.error(`Validator ${validator.id} at ${validator.location} responded with error: ${errMsg}`);
+    this.logger.error(
+      `[SignatureCollector] Validator ${validator.id} at ${validator.location} responded with error: ${errMsg}`,
+    );
   }
 
   private logSignatureCollectionException(validator: Validator, error: Error): void {

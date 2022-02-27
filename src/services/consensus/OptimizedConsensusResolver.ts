@@ -27,21 +27,23 @@ export class OptimizedConsensusResolver {
     };
 
     for (const response of blockSignerResponses) {
+      if (!response.version) continue;
+
       this.versionChecker.apply(response.version);
 
       if (response.signature && response.validator && !response.error) {
-        this.logger.info(`Adding ${response.validator} signature - ${response.signature}.`);
+        this.logger.info(`[OptimizedConsensusResolver] Adding ${response.validator} signature - ${response.signature}.`);
         signatures.push(response.signature);
         powers = powers.add(response.power);
       }
 
       if (!response.validator) {
-        this.logger.info(`Validator lacks an address, skipping...`);
+        this.logger.info(`[OptimizedConsensusResolver] Validator lacks an address, skipping...`);
         continue;
       }
 
       if (response.error) {
-        this.logger.info(`${response.validator} - the response contains an error: ${response.error}`);
+        this.logger.info(`[OptimizedConsensusResolver] ${response.validator} - the response contains an error: ${response.error}`);
         this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
       }
 
@@ -53,6 +55,7 @@ export class OptimizedConsensusResolver {
     }
 
     const discrepantKeys = this.consensusOptimizer.apply(consensusOptimizerProps) || new Set<string>();
+    this.logger.info(`[OptimizedConsensusResolver] Discrepancies ${JSON.stringify(discrepantKeys)}`);
     return {signatures, discrepantKeys, powers};
   }
 }

@@ -1,12 +1,10 @@
 import {inject, injectable} from 'inversify';
 import {UniswapPoolPrice} from './UniswapPriceScanner';
 import {MongoDBPriceRepository} from '../../repositories/MongoDBPriceRepository';
-import {UniswapBatchPriceRetriever} from './UniswapBatchPriceRetriever';
 
 @injectable()
 export class UniswapPriceService {
   @inject(MongoDBPriceRepository) priceRepository!: MongoDBPriceRepository;
-  @inject(UniswapBatchPriceRetriever) batchPriceRetriever!: UniswapBatchPriceRetriever;
 
   private readonly SOURCE = 'uniswapv3';
 
@@ -22,15 +20,10 @@ export class UniswapPriceService {
   }
 
   async getLatestPrice(symbol: string, from: number, to: number): Promise<number | undefined> {
-    return await this.batchPriceRetriever.getLatestPrice({
+    return await this.priceRepository.getLatestPrice({
       source: this.SOURCE,
       symbol,
-      timestamp: {from: new Date(from * 1000), to: new Date(to * 1000)}
+      timestamp: { from: new Date(from * 1000), to: new Date(to * 1000) }
     });
-    // return await this.priceRepository.getLatestPrice({
-    //   source: this.SOURCE,
-    //   symbol,
-    //   timestamp: { from: new Date(from * 1000), to: new Date(to * 1000) }
-    // });
   }
 }

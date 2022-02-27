@@ -18,6 +18,8 @@ export class SimpleConsensusResolver {
     let powers: BigNumber = BigNumber.from(0);
 
     blockSignerResponses.forEach((response: BlockSignerResponseWithPower) => {
+      if (!response.version) return;
+
       this.versionChecker.apply(response.version);
 
       if (response.error) {
