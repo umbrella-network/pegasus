@@ -22,17 +22,17 @@ export class OptimizedConsensusResolver {
       participants: [],
       constraints: {
         minimumRequiredPower: 1n, // TODO: Remove minimum power logic
-        minimumRequiredSignatures: Math.max(requiredSignatures - 1, 0),
+        minimumRequiredSignatures: requiredSignatures,
       },
     };
 
     for (const response of blockSignerResponses) {
-      if (!response.version) continue;
+      if (!response?.version) continue;
 
-      this.versionChecker.apply(response.version);
+      this.versionChecker.apply(response?.version);
 
       if (response.signature && response.validator && !response.error) {
-        this.logger.info(`[OptimizedConsensusResolver] Adding ${response.validator} signature - ${response.signature}.`);
+        this.logger.info(`[OptimizedConsensusResolver] Adding ${response.validator} with signature: ${response.signature}.`);
         signatures.push(response.signature);
         powers = powers.add(response.power);
       }
@@ -49,13 +49,13 @@ export class OptimizedConsensusResolver {
 
       consensusOptimizerProps.participants.push({
         address: response.validator,
-        power: response.power.toBigInt(),
+        power: response.power?.toBigInt() || 0n,
         discrepancies: (response.discrepancies || []).map((d) => d.key),
       });
     }
 
     const discrepantKeys = this.consensusOptimizer.apply(consensusOptimizerProps) || new Set<string>();
-    this.logger.info(`[OptimizedConsensusResolver] Discrepancies ${JSON.stringify(discrepantKeys)}`);
+    this.logger.debug(`[OptimizedConsensusResolver] Discrepancies ${JSON.stringify(discrepantKeys)}`);
     return {signatures, discrepantKeys, powers};
   }
 }

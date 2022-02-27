@@ -10,13 +10,14 @@ export class VersionChecker {
   @inject('Settings')
   private settings!: Settings;
 
-  apply(version: string): void {
-    const expected = this.settings.version.split('.');
-
+  apply(version: string | undefined): void {
     if (!version) {
       this.logger.warn('version check fail: no version');
       return;
     }
+
+    const expected = this.settings.version?.split('.');
+    if (!expected) return;
 
     const v = version.split('.');
 
