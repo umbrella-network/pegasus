@@ -1,15 +1,19 @@
 import axios from 'axios';
-import {inject, injectable} from "inversify";
+import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import Settings from '../../types/Settings';
 
+export interface OptionsValues {
+  callPrice: number;
+  iv: number;
+  putPrice: number;
+  gamma: number;
+  callDelta: number;
+  putDelta: number;
+}
 export interface OptionsEntries {
-  [key: string]: {
-    callPrice: number,
-    iv: number,
-    putPrice: number,
-  };
+  [key: string]: OptionsValues;
 }
 
 interface OptionsPriceResponse {
@@ -18,8 +22,11 @@ interface OptionsPriceResponse {
       callPrice: number;
       iv: number;
       putPrice: number;
-    }
-  }
+      gamma: number;
+      callDelta: number;
+      putDelta: number;
+    };
+  };
 }
 
 @injectable()
@@ -28,9 +35,7 @@ class OptionsPriceFetcher {
   private timeout: number;
   @inject('Logger') logger!: Logger;
 
-  constructor(
-    @inject('Settings') settings: Settings,
-  ) {
+  constructor(@inject('Settings') settings: Settings) {
     this.apiKey = settings.api.optionsPrice.apiKey;
     this.timeout = settings.api.optionsPrice.timeout;
   }
@@ -39,28 +44,17 @@ class OptionsPriceFetcher {
     const sourceUrl = 'https://options-api.umb.network/options';
 
     try {
-      const response = await axios.get(sourceUrl, {
+      const response: {data: OptionsPriceResponse} = await axios.get(sourceUrl, {
         timeout: this.timeout,
         timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-        headers: {'Authorization': `Bearer ${this.apiKey}`}
-      })
+        headers: {Authorization: `Bearer ${this.apiKey}`},
+      });
 
-      return OptionsPriceFetcher.parseOptionPrices(response.data);
+      return response.data.data;
     } catch (err) {
-      this.logger.warn(`Skipping OptionsPrice fetcher: ${err}`)
-      return Promise.resolve({})
+      this.logger.warn(`Skipping OptionsPrice fetcher: ${err}`);
+      return Promise.resolve({});
     }
-  }
-
-  private static parseOptionPrices({ data: options }: OptionsPriceResponse) {
-    const optionsEntries: OptionsEntries = {}
-
-    for (const key in options) {
-      const {callPrice, iv, putPrice} = options[key];
-      optionsEntries[key] = {callPrice, iv, putPrice};
-    }
-
-    return optionsEntries
   }
 }
 

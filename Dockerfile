@@ -1,6 +1,6 @@
 FROM node:16-alpine
 
-RUN apk add bash git make g++
+RUN apk add --no-cache bash git make g++
 
 WORKDIR /app
 
