@@ -126,6 +126,7 @@ type Settings = {
       verificationInterval: number;
     };
   };
+  rpcSelectionStrategy: string;
   statusCheckTimeout: number;
   signatureTimeout: number;
   dataTimestampOffsetSeconds: number;

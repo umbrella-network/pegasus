@@ -39,8 +39,8 @@ class BlockMinter {
   @inject(GasEstimator) gasEstimator!: GasEstimator;
 
   async apply(): Promise<void> {
+    await this.blockchain.setLatestProvider();
     await this.checkBalanceIsEnough();
-    // await this.blockchain.setLatestProvider();
     const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
 
     if (!this.isLeader(chainStatus)) return;
@@ -280,7 +280,7 @@ class BlockMinter {
 
   private async canMint(chainStatus: ChainStatus, dataTimestamp: number): Promise<boolean> {
     const [ready, error] = chainReadyForNewBlock(chainStatus, dataTimestamp);
-    error && this.logger.info(error);
+    error && this.logger.info(`An error occurred while checking if is avaiable to mint ${error}`);
     return ready;
   }
 
