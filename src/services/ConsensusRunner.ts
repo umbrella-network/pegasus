@@ -78,7 +78,7 @@ class ConsensusRunner {
         this.logConsensusResult({status: 'RETRY', ...logProps});
         ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepantKeys));
         // TODO: Remove or make configurable
-        await sleep(5000);
+        await sleep(1000);
       } else {
         this.logConsensusResult({status: 'FAILED', ...logProps});
         return null;

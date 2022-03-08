@@ -67,7 +67,7 @@ describe('SignatureCollector', () => {
     expect(blockSignerResponseWithPower[0].signature).to.be.a('string').that.is.eq(block.signature);
   });
 
-  it('returns no signatures if signer addresses does not match', async () => {
+  it('returns no external signatures if signer addresses does not match', async () => {
     const {affidavit, fcd} = leafWithAffidavit;
 
     mockedBlockchain.wallet = Wallet.createRandom();

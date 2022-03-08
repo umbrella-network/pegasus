@@ -40,21 +40,18 @@ const settings: Settings = {
   },
   consensus: {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
-    // strategy: process.env.CONSENSUS_STRATEGY || 'simple',
-    strategy: 'optimized',
+    strategy: process.env.CONSENSUS_STRATEGY || 'simple',
     discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '800'),
   },
   blockchains: {
     ethereum: {
-      // providerUrl: (<string>process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL || '').split(','),
-      providerUrl: ['https://mainnet.infura.io/v3/41367ca5932343298b672cd60fddc01d'],
+      providerUrl: (<string>process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL || '').split(','),
     },
   },
   blockchain: {
     providers: resolveBlockchainProviders(),
     provider: {
-      // urls: getProvidersURLs(),
-      urls: ['https://data-seed-prebsc-1-s2.binance.org:8545/'],
+      urls: getProvidersURLs(),
       privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
     },
     contracts: {

@@ -191,6 +191,7 @@ describe('ConsensusRunner', () => {
 
     const dataTimestamp = 1621509082;
     const blockHeight = 234;
+
     const validators: Validator[] = [
       {
         location: 'http://abc.zyz',
@@ -198,10 +199,10 @@ describe('ConsensusRunner', () => {
         id: '123',
       },
     ];
+    
     const staked = BigNumber.from(20);
-
-    expect(
-      (await consensusRunner.apply(dataTimestamp, blockHeight, validators, staked, 1))?.dataTimestamp,
-    ).to.be.equals(undefined);
+    const result = await consensusRunner.apply(dataTimestamp, blockHeight, validators, staked, 1);
+    expect(result).to.not.be.undefined;
+    expect(result?.dataTimestamp).to.be.equals(undefined);
   });
 });

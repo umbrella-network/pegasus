@@ -25,7 +25,7 @@ class SignatureCollector {
     return [
       this.getLocalSignature(block, self),
       await this.getParticipantSignatures(block, participants, affidavit),
-    ].flat();
+    ].flat().filter(s => !!s);
   }
 
   private getLocalSignature(block: SignedBlock, self: Validator): BlockSignerResponseWithPower {
@@ -44,7 +44,7 @@ class SignatureCollector {
     affidavit: string,
   ): Promise<BlockSignerResponseWithPower[]> {
     const signaturePickups = participants.map((p) => this.getParticipantSignature(block, p, affidavit));
-    const blockSignerResponses = await Promise.all(signaturePickups);
+    const blockSignerResponses = (await Promise.all(signaturePickups));
     const unsignedResponses = blockSignerResponses.filter((s) => !s?.signature);
 
     this.logger.info(
@@ -60,18 +60,20 @@ class SignatureCollector {
     affidavit: string,
   ): Promise<BlockSignerResponseWithPower | undefined> {
     try {
-      const [blockSignerResponse] = await Promise.all([
+      const [response] = await Promise.all([
         this.requestSignature(block, validator, this.settings.signatureTimeout),
         this.statusCheck(validator, this.settings.statusCheckTimeout),
       ]);
 
-      if (this.isBlockSignerResponseValid(blockSignerResponse)) {
+      if (this.isBlockSignerResponseValid(response)) {
         // TODO: reconsider if this is necessary since the smart contract already prevents this.
-        this.checkSignature(validator, <string>blockSignerResponse.signature, affidavit);
-        return {...blockSignerResponse, validator: validator.id, power: validator.power};
+        this.checkSignature(validator, <string>response.signature, affidavit);
+        return {...response, validator: validator.id, power: validator.power};
+      } else if (!response.error) {
+        this.logBadSignatureCollection(validator, response);
+        return {...response, validator: validator.id, power: validator.power, signature: undefined};
       } else {
-        this.logBadSignatureCollection(validator, blockSignerResponse);
-        return {...blockSignerResponse, validator: validator.id, power: validator.power, signature: undefined};
+        this.logBadSignatureCollection(validator, response);
       }
     } catch (e) {
       this.logger.error('[SignatureCollector] Signature collection failed.');
