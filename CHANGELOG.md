@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - make sure we do not call ourselves for signature
 - fix sorting signatures (no case sensitivity)
+- Check if balance is enough before execute transaction
+- Added `RPC_SELECTION_STRATEGY` in env
+
+### Changed
+- Re-enable RPC Selection before minting/signing
+- Updated @umb-network/toolbox to 5.6.0-alpha.1
 
 ## [6.2.2] - 2022-02-04
 ### Changed
@@ -32,7 +38,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Ensures that the UniswapPoolScanner agent can start without OTA enabled
 - Uniswap Verified Pool optimized query index
-
 ## [6.2.0] - 2022-01-28
 ### Added
 - Uniswap OTA updates

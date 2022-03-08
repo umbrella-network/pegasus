@@ -1,32 +1,39 @@
 import {injectable} from 'inversify';
+import {snakeCase} from 'lodash';
 
 import {FeedOutput} from '../../types/Feed';
-import {OptionsEntries} from '../fetchers/OptionsPriceFetcher';
+import {OptionsEntries, OptionsValues} from '../fetchers/OptionsPriceFetcher';
+
+const SIGNED_NUMBER_PREFIX = 'SN_';
+const CHAIN_PREFIX_LENGTH = 4;
 
 @injectable()
 class OptionsPriceCalculator {
-  apply(key: string, values: OptionsEntries, params: any): FeedOutput[] {
-    const {sym} = params;
+  apply(_: string, values: OptionsEntries, params: {sym: string}): FeedOutput[] {
+    const chainSpecificEntries = this.getChainSpecificEntries(values, params.sym);
+    return this.formatOptionsEntries(chainSpecificEntries);
+  }
 
-    const prefix = `${sym}-`;
+  private getChainSpecificEntries(entries: OptionsEntries, chain: string): [string, OptionsValues][] {
+    return Object.entries(entries).filter(([key]) => key.startsWith(chain));
+  }
 
+  private formatOptionsEntries(entries: [string, OptionsValues][]): FeedOutput[] {
     const result: FeedOutput[] = [];
 
-    for (const key in values) {
-      if (!key.startsWith(prefix)) {
-        continue;
+    for (const [optionKey, entryValues] of entries) {
+      const key = this.getKeyWithoutPrefix(optionKey);
+      for (const [optionParam, value] of Object.entries(entryValues)) {
+        const param = snakeCase(optionParam);
+        result.push({key: `${SIGNED_NUMBER_PREFIX}${key}_${param}`, value: value});
       }
-
-      const {callPrice, iv, putPrice} = values[key];
-
-      const outputKey = key.replace('*', key.substr(prefix.length));
-
-      result.push({key: `OP:${outputKey}_call_price`, value: callPrice});
-      result.push({key: `OP:${outputKey}_iv_price`, value: iv});
-      result.push({key: `OP:${outputKey}_put_price`, value: putPrice});
     }
 
-    return Object.values(result);
+    return result;
+  }
+
+  private getKeyWithoutPrefix(key: string): string {
+    return key.replace('*', key.substring(CHAIN_PREFIX_LENGTH));
   }
 }
 
