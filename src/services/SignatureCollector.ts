@@ -22,10 +22,9 @@ class SignatureCollector {
     const self = <Validator>validators.find((v) => v.id === selfAddress);
     const participants = validators.filter((v) => v.id !== selfAddress);
 
-    return [
-      this.getLocalSignature(block, self),
-      await this.getParticipantSignatures(block, participants, affidavit),
-    ].flat().filter(s => !!s);
+    return [this.getLocalSignature(block, self), await this.getParticipantSignatures(block, participants, affidavit)]
+      .flat()
+      .filter((s) => !!s);
   }
 
   private getLocalSignature(block: SignedBlock, self: Validator): BlockSignerResponseWithPower {
@@ -44,7 +43,7 @@ class SignatureCollector {
     affidavit: string,
   ): Promise<BlockSignerResponseWithPower[]> {
     const signaturePickups = participants.map((p) => this.getParticipantSignature(block, p, affidavit));
-    const blockSignerResponses = (await Promise.all(signaturePickups));
+    const blockSignerResponses = await Promise.all(signaturePickups);
     const unsignedResponses = blockSignerResponses.filter((s) => !s?.signature);
 
     this.logger.info(

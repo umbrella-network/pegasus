@@ -199,7 +199,7 @@ describe('ConsensusRunner', () => {
         id: '123',
       },
     ];
-    
+
     const staked = BigNumber.from(20);
     const result = await consensusRunner.apply(dataTimestamp, blockHeight, validators, staked, 1);
     expect(result).to.not.be.undefined;
