@@ -59,7 +59,7 @@ jobs:
           IMAGE: ${{ steps.docker-params.outputs.image }}
           IMAGE_GIT_TAG: ${{ steps.docker-params.outputs.commit_version }}
           IMAGE_VERSION_TAG: ${{ steps.docker-params.outputs.version }}
-          IMAGE_GIT_TAG_SBX: ${{ steps.docker-params.outputs.commit_version }}
+          IMAGE_GIT_TAG_SBX: ${{ steps.docker-params.outputs.commit_version }}_sbx
         run: |
           docker build -t $IMAGE:$IMAGE_VERSION_TAG -t $IMAGE:$IMAGE_GIT_TAG -t $IMAGE:${{ steps.building-params.outputs.environment }} -t $IMAGE:IMAGE_GIT_TAG_SBX -t $IMAGE:sandbox .
           docker push $IMAGE:$IMAGE_VERSION_TAG
