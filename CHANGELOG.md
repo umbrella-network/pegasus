@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [6.5.1] - 2022-03-09
+### Fixed
+- Update Git workflows when merging to main
 ## [6.5.0] - 2022-03-08
 ### Added
 - Added `RPC_SELECTION_STRATEGY` in env
