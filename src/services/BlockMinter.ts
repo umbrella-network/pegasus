@@ -280,7 +280,7 @@ class BlockMinter {
 
   private async canMint(chainStatus: ChainStatus, dataTimestamp: number): Promise<boolean> {
     const [ready, error] = chainReadyForNewBlock(chainStatus, dataTimestamp);
-    error && this.logger.info(`An error occurred while checking if is avaiable to mint ${error}`);
+    error && this.logger.info(`[BlockMinter] Error while checking if is available to mint ${error}`);
     return ready;
   }
 

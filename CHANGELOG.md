@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [6.5.0] - 2022-03-08
+### Added
+- Added `RPC_SELECTION_STRATEGY` in env
+
+### Changed
+- Updated options prices feeds to include new fields
+- Upgrade SDK to 5.7.0
+- Changed Blockchain class to use RPC selection from SDK
+- Check if balance is enough before execute transaction
+- Re-enable RPC Selection before minting/signing
+
+### Removed
+- Removed RPCSelector class
+
 ## [6.4.0] - 2022-02-21
 ### Added
 - Divide the Polygon snapshot list into batches
