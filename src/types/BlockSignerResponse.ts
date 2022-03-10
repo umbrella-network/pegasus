@@ -3,7 +3,7 @@ import {BigNumber} from 'ethers';
 
 export interface BlockSignerResponse {
   error?: string;
-  signature: string;
+  signature?: string;
   discrepancies: Discrepancy[];
   version: string;
 }

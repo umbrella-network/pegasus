@@ -11,6 +11,15 @@ export type SavePriceProps = {
   expireAt?: Date;
 };
 
+export type LatestPriceProps = {
+  source: string;
+  symbol: string;
+  timestamp: {
+    from: Date;
+    to: Date;
+  };
+};
+
 // TODO: This should replace and deprecate the current PriceRepository
 @injectable()
 export class MongoDBPriceRepository {
@@ -49,14 +58,7 @@ export class MongoDBPriceRepository {
       .exec();
   }
 
-  async getLatestPrice(props: {
-    source: string;
-    symbol: string;
-    timestamp: {
-      from: Date;
-      to: Date;
-    };
-  }): Promise<number | undefined> {
+  async getLatestPrice(props: LatestPriceProps): Promise<number | undefined> {
     const {
       source,
       symbol,

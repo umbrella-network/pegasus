@@ -99,4 +99,34 @@ describe('#apply', () => {
       expect(result).to.include('kp2');
     });
   });
+
+  describe('when processing a simple disagreement', () => {
+    before(() => {
+      props = {
+        participants: [
+          {
+            address: 'VALIDATOR_1',
+            power: 1n,
+            discrepancies: [],
+          },
+          {
+            address: 'VALIDATOR_2',
+            power: 1n,
+            discrepancies: ['kp1', 'kp2'],
+          },
+        ],
+        constraints: {
+          minimumRequiredPower: 1n,
+          minimumRequiredSignatures: 2,
+        },
+      };
+    });
+
+    it('returns the keys to be excluded to achieve the best consensus', () => {
+      result = subject(props);
+      expect(result).to.have.length(2);
+      expect(result).to.include('kp1');
+      expect(result).to.include('kp2');
+    });
+  });
 });
