@@ -20,7 +20,7 @@ import {FeedDataService} from './FeedDataService';
 import {HexStringWith0x} from '../types/Feed';
 import {SimpleConsensusResolver} from './consensus/SimpleConsensusResolver';
 import {OptimizedConsensusResolver} from './consensus/OptimizedConsensusResolver';
-import {sleep} from '../lib/sleep';
+import {sleep} from '../utils/sleep';
 
 @injectable()
 class ConsensusRunner {
@@ -77,8 +77,7 @@ class ConsensusRunner {
         );
         this.logConsensusResult({status: 'RETRY', ...logProps});
         ({firstClassLeaves, leaves} = this.removeIgnoredKeys(firstClassLeaves, leaves, discrepantKeys));
-        // TODO: Remove or make configurable
-        await sleep(1000);
+        await sleep(this.settings.consensus.roundInterval);
       } else {
         this.logConsensusResult({status: 'FAILED', ...logProps});
         return null;

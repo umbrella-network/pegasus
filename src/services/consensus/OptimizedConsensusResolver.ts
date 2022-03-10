@@ -1,11 +1,11 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
+import {BigNumber} from 'ethers';
+import {ConsensusOptimizer, ConsensusOptimizerProps} from '../ConsensusOptimizer';
 import Settings from '../../types/Settings';
 import {VersionChecker} from './VersionChecker';
 import {BlockSignerResponseWithPower} from '../../types/BlockSignerResponse';
 import {ValidatorsResponses} from '../../types/ValidatorsResponses';
-import {BigNumber} from 'ethers';
-import {ConsensusOptimizer, ConsensusOptimizerProps} from '../ConsensusOptimizer';
 
 @injectable()
 export class OptimizedConsensusResolver {

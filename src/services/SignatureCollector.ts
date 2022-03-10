@@ -9,7 +9,6 @@ import Settings from '../types/Settings';
 import {BlockSignerResponse, BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
 import {recoverSigner} from '../utils/mining';
 import {SignatureCollectionErrorEvent} from '../constants/ReportedMetricsEvents';
-import {Error} from 'mongoose';
 
 @injectable()
 class SignatureCollector {
