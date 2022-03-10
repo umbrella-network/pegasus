@@ -68,7 +68,7 @@ class ConsensusRunner {
         discrepantCount,
       };
 
-      if (consensus.status == ConsensusStatus.SUCCESS) {
+      if (consensus.status === ConsensusStatus.SUCCESS) {
         this.logConsensusResult({status: 'SUCCESS', ...logProps});
         return consensus;
       } else if (i < maxRetries && discrepantKeys.size > 0) {
