@@ -35,6 +35,7 @@ type Settings = {
     retries: number;
     strategy: string;
     discrepancyCutoff: number;
+    roundInterval: number;
   };
   blockchains: {
     [key: string]: {

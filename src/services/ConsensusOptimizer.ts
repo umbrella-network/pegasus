@@ -44,7 +44,7 @@ export class ConsensusOptimizer {
     } = props;
 
     if (this.everyoneAgrees(participants)) {
-      this.logger.info('All participants agree. Keeping all keys.');
+      this.logger.info('[ConsensusOptimizer] All participants agree. Keeping all keys.');
       return new Set<string>();
     }
 
@@ -52,9 +52,9 @@ export class ConsensusOptimizer {
     // Also remove validators with power = 0
     const candidates: Participant[] = this.selectQualifyingParticipants(participants);
     if (candidates.length < minimumRequiredSignatures) {
-      this.logger.info('Not enough candidates to achieve consensus');
-      this.logger.info(`Additional Signatures Required: ${minimumRequiredSignatures}`);
-      this.logger.info(`Additional Qualifying Candidates Found: ${candidates.length}`);
+      this.logger.info('[ConsensusOptimizer] Not enough candidates to achieve consensus');
+      this.logger.info(`[ConsensusOptimizer] Additional Signatures Required: ${minimumRequiredSignatures}`);
+      this.logger.info(`[ConsensusOptimizer] Additional Qualifying Candidates Found: ${candidates.length}`);
       return;
     }
 
@@ -62,7 +62,7 @@ export class ConsensusOptimizer {
 
     // iterate over the combination of validators
     // starting with the quantity necessary to achieve consensus
-    for (let k = minimumRequiredSignatures; k < candidates.length; k++) {
+    for (let k = minimumRequiredSignatures; k <= candidates.length; k++) {
       const combinations = new Combination(candidates, k);
 
       for (let n = 0; n < combinations.length; n++) {
@@ -83,6 +83,7 @@ export class ConsensusOptimizer {
       if (solution) return solution.dropKeys;
     }
 
+    this.logger.info('[ConsensusOptimizer] No solution found.');
     return;
   }
 

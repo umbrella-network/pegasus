@@ -3,6 +3,11 @@ import {BigNumber} from 'ethers';
 import Feeds, {HexStringWith0x} from '../types/Feed';
 import Leaf from '../types/Leaf';
 
+export enum ConsensusStatus {
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+}
+
 export interface DataForConsensus {
   affidavit: string;
   dataTimestamp: number;
@@ -20,6 +25,7 @@ export interface Consensus {
   fcdValues: HexStringWith0x[];
   signatures: string[];
   power: BigNumber;
+  status: ConsensusStatus;
 }
 
 export interface SignedBlockConsensus {
