@@ -136,7 +136,8 @@ const settings: Settings = {
     },
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
-  feedsCacheRefreshCronRule: process.env.FEEDS_CACHE_REFRESH_CRON_RULE || '*/5 * * * *', // every five minutes
+  feedsCacheRefreshCronRule:
+    process.env.FEEDS_CACHE_REFRESH_CRON_RULE !== undefined ? process.env.FEEDS_CACHE_REFRESH_CRON_RULE : '*/5 * * * *', // every five minutes
   feedsFile:
     process.env.FEEDS_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feeds.yaml',

@@ -104,12 +104,14 @@ function createUrlCache<T>(parse: ParseData<T>, cacheRefreshCronRule: string) {
 
         return data;
       } catch (err) {
-        if (prevData) {
-          if (err.response.status === 304) {
-            return prevData;
-          } else if (ignoreErrors) {
-            return prevData;
-          }
+        if (!prevData) {
+          throw err;
+        }
+
+        if (err.response.status === 304) {
+          return prevData;
+        } else if (ignoreErrors) {
+          return prevData;
         }
 
         throw err;
