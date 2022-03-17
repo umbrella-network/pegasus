@@ -136,14 +136,14 @@ const settings: Settings = {
     },
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
-  feedsCacheRefreshCronRule:
-    process.env.FEEDS_CACHE_REFRESH_CRON_RULE !== undefined ? process.env.FEEDS_CACHE_REFRESH_CRON_RULE : '*/5 * * * *', // every five minutes
   feedsFile:
     process.env.FEEDS_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feeds.yaml',
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
+  feedsCacheRefreshCronRule:
+    process.env.FEEDS_CACHE_REFRESH_CRON_RULE !== undefined ? process.env.FEEDS_CACHE_REFRESH_CRON_RULE : '*/5 * * * *', // every five minutes
   statusCheckTimeout: timeoutWithCode(
     getTimeSetting(parseInt(process.env.STATUS_CHECK_TIMEOUT || '10000', 10), 10000),
     TimeoutCodes.STATUS_CHECK_TIMEOUT,
