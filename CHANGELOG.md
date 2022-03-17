@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Changed
+- Update `name` env to use `NEW_RELIC_APP_NAME`
 - Updated the way logs are shown in Uniswap price Scanner
 
 ## [7.0.0] - 2022-03-11

@@ -153,7 +153,7 @@ const settings: Settings = {
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
   version: packageJson.version,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
-  name: process.env.NAME || 'default',
+  name: process.env.NEW_RELIC_APP_NAME || process.env.NAME || 'default',
 };
 
 function getTimeSetting(value: number, min: number): number {
