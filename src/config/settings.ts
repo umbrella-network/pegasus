@@ -142,6 +142,7 @@ const settings: Settings = {
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
+  feedsCacheRefreshCronRule: process.env.FEEDS_CACHE_REFRESH_CRON_RULE ?? '*/5 * * * *', // every five minutes
   statusCheckTimeout: timeoutWithCode(
     getTimeSetting(parseInt(process.env.STATUS_CHECK_TIMEOUT || '10000', 10), 10000),
     TimeoutCodes.STATUS_CHECK_TIMEOUT,

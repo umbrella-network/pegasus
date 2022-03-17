@@ -3,6 +3,8 @@ import 'reflect-metadata';
 import {expect} from 'chai';
 import mongoose from 'mongoose';
 
+import '../../src/config/setupDotenv';
+
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import BlockRepository from '../../src/services/BlockRepository';
 import Block from '../../src/models/Block';
