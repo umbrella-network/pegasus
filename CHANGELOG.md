@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Better signature collection & discrepancy handling
 
+### Changed
+- Optimized loadFeeds function to use etag and caching
+
 ## [6.5.1] - 2022-03-09
 ### Fixed
 - Update Git workflows when merging to main

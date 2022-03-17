@@ -128,6 +128,7 @@ type Settings = {
     };
   };
   rpcSelectionStrategy: string;
+  feedsCacheRefreshCronRule: string;
   statusCheckTimeout: number;
   signatureTimeout: number;
   dataTimestampOffsetSeconds: number;

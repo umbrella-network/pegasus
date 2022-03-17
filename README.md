@@ -85,6 +85,9 @@ FEEDS_FILE=
 # Path to a file with On-Chain definitions
 FEEDS_ON_CHAIN_FILE=
 
+# A corn rule that allows for caching the feeds file
+FEEDS_CACHE_REFRESH_CRON_RULE=
+
 # AWS repository for docker containers (dev only)
 AWS_REPOSITORY=
 

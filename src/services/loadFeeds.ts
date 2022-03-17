@@ -2,19 +2,23 @@ import fs from 'fs';
 import {Validator} from 'jsonschema';
 import {loadAll} from 'js-yaml';
 import axios from 'axios';
+import schedule from 'node-schedule';
 
 import Feeds from '../types/Feed';
 import FeedsSchema from '../config/feeds-schema';
+import settings from '../config/settings';
 
-const urlCache = createUrlCache();
+const urlCache = createUrlCache(processYaml, settings.feedsCacheRefreshCronRule);
 
 export default async function loadFeeds(filePath: string): Promise<Feeds> {
-  try {
-    new URL(filePath);
+  return isUrl(filePath) ? await urlCache.loadFromURL(filePath) : await processYaml(await loadFromFile(filePath), true);
+}
 
-    return await processYaml(await urlCache.loadFromURL(filePath, true));
+export function isUrl(path: string): boolean {
+  try {
+    return !!new URL(path);
   } catch (err) {
-    return await processYaml(await loadFromFile(filePath));
+    return false;
   }
 }
 
@@ -51,21 +55,38 @@ async function loadFromFile(filePath: string): Promise<string> {
   });
 }
 
-function createUrlCache() {
-  const etagCache: {[url: string]: string} = {};
-  const dataCache: {[etag: string]: string} = {};
+type ParseData<T> = (data: string) => T;
+
+function createUrlCache<T>(parse: ParseData<T>, cacheRefreshCronRule: string) {
+  const etagCache = new Map<string, string>();
+  const dataCache = new Map<string, T>();
+  const cachedUrls = new Set<string>();
+
+  if (cacheRefreshCronRule) {
+    schedule.scheduleJob(cacheRefreshCronRule, () => {
+      cachedUrls.clear();
+    });
+  }
 
   return {
-    loadFromURL: async (url: string, ignoreErrors = true): Promise<string> => {
-      const etag = etagCache[url];
-      const prevData = dataCache[etag];
+    loadFromURL: async (url: string, ignoreErrors = true): Promise<T> => {
+      const prevData = dataCache.get(url);
+
+      if (cacheRefreshCronRule && cachedUrls.has(url) && prevData) {
+        return prevData;
+      }
+
+      const etag = etagCache.get(url) || '';
+      const randomToken = (Math.random() + 1).toString(36).substring(7);
 
       try {
-        const response = await axios.get(url);
+        const response = await axios.get(`${url}?token=${randomToken}`, {
+          headers: {
+            'If-None-Match': etag,
+          },
+        });
 
-        if (response.status === 304) {
-          return prevData;
-        } else if (response.status !== 200) {
+        if (response.status !== 200) {
           throw new Error(response.data);
         }
 
@@ -75,13 +96,20 @@ function createUrlCache() {
 
         const {etag: nextEtag} = response.headers;
 
-        etagCache[url] = nextEtag;
-        dataCache[nextEtag] = response.data;
+        const data = parse(response.data);
 
-        return response.data;
+        etagCache.set(url, nextEtag);
+        dataCache.set(url, data);
+        cachedUrls.add(url);
+
+        return data;
       } catch (err) {
-        if (ignoreErrors) {
-          return prevData;
+        if (prevData) {
+          if (err.response.status === 304) {
+            return prevData;
+          } else if (ignoreErrors) {
+            return prevData;
+          }
         }
 
         throw err;

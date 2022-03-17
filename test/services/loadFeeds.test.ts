@@ -36,7 +36,8 @@ describe('LoadFeeds', () => {
 
     it('returns the proper object representation', async () => {
       const data = fs.readFileSync('test/fixtures/feeds-example.yaml', 'utf8');
-      moxios.stubRequest('https://google.com/feeds.json', {
+
+      moxios.stubRequest(new RegExp('https:\\/\\/google.com\\/feeds.json\\?token=.*'), {
         status: 200,
         headers: {
           etag: '123',
