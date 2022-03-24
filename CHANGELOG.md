@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Add New Relic event `IncludedL2DLeaves` to keep track of the amount of leaves inserted in each block.
+
 ### Changed
 - Update `name` env to use `NEW_RELIC_APP_NAME`
 - Updated the way logs are shown in Uniswap price Scanner

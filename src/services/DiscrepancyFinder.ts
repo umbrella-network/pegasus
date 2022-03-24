@@ -16,12 +16,12 @@ export class DiscrepancyFinder {
     leaves: Leaf[],
     fcdsFeeds: Feeds,
     leavesFeeds: Feeds,
-  ): Discrepancy[] {
+  ): [Discrepancy[], Discrepancy[]] {
     try {
       const fcdsDiscrepancies = this.checkForDiscrepancies(fcds, proposedConsensus.fcds, fcdsFeeds);
-      const discrepancies = this.checkForDiscrepancies(leaves, proposedConsensus.leaves, leavesFeeds);
+      const l2dDiscrepancies = this.checkForDiscrepancies(leaves, proposedConsensus.leaves, leavesFeeds);
 
-      return discrepancies.concat(fcdsDiscrepancies);
+      return [fcdsDiscrepancies, l2dDiscrepancies];
     } catch (err) {
       console.error(err);
       throw err;

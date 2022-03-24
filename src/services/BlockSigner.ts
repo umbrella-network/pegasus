@@ -43,7 +43,15 @@ class BlockSigner {
       proposedConsensus.dataTimestamp,
     );
 
-    const discrepancies = DiscrepancyFinder.apply(proposedConsensus, firstClassLeaves, leaves, fcdsFeeds, leavesFeeds);
+    const [fcdDiscrepancies, l2dDiscrepancies] = DiscrepancyFinder.apply(
+      proposedConsensus,
+      firstClassLeaves,
+      leaves,
+      fcdsFeeds,
+      leavesFeeds,
+    );
+
+    const discrepancies = fcdDiscrepancies.concat(l2dDiscrepancies);
 
     if (discrepancies.length) {
       await this.reportDiscrepancies(discrepancies);

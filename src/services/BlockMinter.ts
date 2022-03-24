@@ -24,6 +24,7 @@ import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
 import GasEstimator from './GasEstimator';
 import {parseEther} from 'ethers/lib/utils';
+import {sleep} from '../utils/sleep';
 
 @injectable()
 class BlockMinter {
@@ -68,7 +69,7 @@ class BlockMinter {
 
     if (!consensus) {
       this.logger.warn(
-        `No consensus for block ${chainStatus.blockNumber}/${chainStatus.nextBlockId} at  ${dataTimestamp}`,
+        `No consensus for block ${chainStatus.blockNumber}/${chainStatus.nextBlockId} at ${dataTimestamp}`,
       );
       return;
     }
@@ -89,7 +90,10 @@ class BlockMinter {
     if (mintedBlock) {
       const {hash, logMint} = mintedBlock;
       this.logger.info(`New Block ${logMint.blockId} minted with TX ${hash}`);
-      await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId.toNumber(), true);
+      await Promise.all([
+        this.reportIncludedLeaves(consensus.leaves.length, nextBlockId),
+        this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId.toNumber(), true),
+      ]);
     }
   }
 
@@ -204,7 +208,7 @@ class BlockMinter {
 
     while (currentBlockNumber === newBlockNumber) {
       this.logger.info(`waitUntilNextBlock: current ${currentBlockNumber}, new ${newBlockNumber}.`);
-      await BlockMinter.sleep(this.settings.blockchain.transactions.waitForBlockTime);
+      await sleep(this.settings.blockchain.transactions.waitForBlockTime);
       newBlockNumber = await this.blockchain.getBlockNumber();
     }
 
@@ -224,8 +228,6 @@ class BlockMinter {
 
     return {tx, receipt: await Promise.race([tx.wait(), BlockMinter.txTimeout(timeoutMs)]), timeoutMs};
   }
-
-  private static sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
   private static isNonceError(e: Error): boolean {
     return e.message.includes('nonce has already been used');
@@ -282,6 +284,10 @@ class BlockMinter {
     const [ready, error] = chainReadyForNewBlock(chainStatus, dataTimestamp);
     error && this.logger.info(`[BlockMinter] Error while checking if is available to mint ${error}`);
     return ready;
+  }
+
+  private async reportIncludedLeaves(amount: number, blockId: number): Promise<void> {
+    newrelic.recordCustomEvent('IncludedL2DLeaves', {amount, blockId});
   }
 
   private async checkBalanceIsEnough(): Promise<void> {

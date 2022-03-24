@@ -40,68 +40,120 @@ describe('DiscrepancyFinder', () => {
     proposedConsensus = ProposedConsensusService.apply(block);
   });
 
-  it('return empty array when no discrepancy', () => {
-    const discrepancies = DiscrepancyFinder.apply(
-      proposedConsensus,
-      proposedConsensus.fcds,
-      proposedConsensus.leaves,
-      feeds,
-      feeds,
-    );
+  it('returns 2 arrays of FCD and L2D discrepancies', () => {
+    const [fcdDiscrepancies, l2dDiscrepancies] = DiscrepancyFinder.apply(proposedConsensus, [], [], feeds, feeds);
 
-    expect(discrepancies.length).to.eq(0);
+    expect(fcdDiscrepancies).to.be.an('array');
+    expect(l2dDiscrepancies).to.be.an('array');
   });
 
-  describe('return discrepancy', () => {
-    it('when all our data are different', () => {
-      const myLeaves = proposedConsensus.fcds.map((fcd) => {
-        return {
-          label: fcd.label,
-          valueBytes: '0x6b211212a1234567234567234567234567234567234567234567234567234567',
-        };
-      });
+  describe('when there are no discrepancies', () => {
+    it('returns no discrepancies for FCD and L2D', () => {
+      const [fcdDiscrepancies, l2dDiscrepancies] = DiscrepancyFinder.apply(
+        proposedConsensus,
+        proposedConsensus.fcds,
+        proposedConsensus.leaves,
+        feeds,
+        feeds,
+      );
 
-      const discrepancies = DiscrepancyFinder.apply(proposedConsensus, [], myLeaves, feeds, feeds);
+      const discrepancies = fcdDiscrepancies.concat(l2dDiscrepancies);
 
-      expect(discrepancies.length).to.eq(2);
-      expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 0.24});
-      expect(discrepancies[1]).to.eql({key: leaf.label, discrepancy: 100});
+      expect(discrepancies.length).to.eq(0);
+    });
+  });
+
+  describe('when there are discrepancies', () => {
+    it('returns FCD and L2D discrepancies', () => {
+      const [fcdDiscrepancies, l2dDiscrepancies] = DiscrepancyFinder.apply(proposedConsensus, [], [], feeds, feeds);
+
+      expect(fcdDiscrepancies).to.have.lengthOf(1);
+      expect(l2dDiscrepancies).to.have.lengthOf(1);
     });
 
-    it('when we missing fcds', () => {
-      const myFcds = proposedConsensus.fcds.map((fcd) => {
-        return {
-          label: fcd.label + '-DIFFERENT',
-          valueBytes: fcd.valueBytes,
-        };
+    describe('and FCD leaves are not provided', () => {
+      it('returns the L2D discrepancies', () => {
+        const myFcds = proposedConsensus.fcds.map((fcd) => {
+          return {
+            label: fcd.label + '-DIFFERENT',
+            valueBytes: fcd.valueBytes,
+          };
+        });
+
+        const [fcdDiscrepancies, l2dDiscrepancies] = DiscrepancyFinder.apply(
+          proposedConsensus,
+          myFcds,
+          proposedConsensus.leaves,
+          feeds,
+          feeds,
+        );
+
+        const discrepancies = fcdDiscrepancies.concat(l2dDiscrepancies);
+
+        expect(discrepancies.length).to.eq(1);
+        expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
       });
-
-      const discrepancies = DiscrepancyFinder.apply(proposedConsensus, myFcds, proposedConsensus.leaves, feeds, feeds);
-
-      expect(discrepancies.length).to.eq(1);
-      expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
     });
 
-    it('when we missing leaves', () => {
-      const myFcds = proposedConsensus.fcds.map((fcd) => {
-        return {
-          label: fcd.label + '-DIFFERENT',
-          valueBytes: fcd.valueBytes,
-        };
+    describe('and L2D leaves are not provided', () => {
+      it('returns the FCD discrepancies', () => {
+        const myFcds = proposedConsensus.fcds.map((fcd) => {
+          return {
+            label: fcd.label + '-DIFFERENT',
+            valueBytes: fcd.valueBytes,
+          };
+        });
+
+        const [fcdDiscrepancies, l2dDiscrepancies] = DiscrepancyFinder.apply(
+          proposedConsensus,
+          proposedConsensus.fcds,
+          myFcds,
+          feeds,
+          feeds,
+        );
+
+        const discrepancies = fcdDiscrepancies.concat(l2dDiscrepancies);
+
+        expect(discrepancies.length).to.eq(1);
+        expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
       });
-
-      const discrepancies = DiscrepancyFinder.apply(proposedConsensus, proposedConsensus.fcds, myFcds, feeds, feeds);
-
-      expect(discrepancies.length).to.eq(1);
-      expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
     });
 
-    it('when we have no data', () => {
-      const discrepancies = DiscrepancyFinder.apply(proposedConsensus, [], [], feeds, feeds);
+    describe('and all of our data is different', () => {
+      it('returns full discrepancies for FCD and L2D', () => {
+        const myLeaves = proposedConsensus.fcds.map((fcd) => {
+          return {
+            label: fcd.label,
+            valueBytes: '0x6b211212a1234567234567234567234567234567234567234567234567234567',
+          };
+        });
 
-      expect(discrepancies.length).to.eq(2);
-      expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
-      expect(discrepancies[1]).to.eql({key: leaf.label, discrepancy: 100});
+        const [fcdDiscrepancies, l2dDiscrepancies] = DiscrepancyFinder.apply(
+          proposedConsensus,
+          [],
+          myLeaves,
+          feeds,
+          feeds,
+        );
+
+        const discrepancies = fcdDiscrepancies.concat(l2dDiscrepancies);
+
+        expect(discrepancies.length).to.eq(2);
+        expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
+        expect(discrepancies[1]).to.eql({key: leaf.label, discrepancy: 0.24});
+      });
+    });
+
+    describe('and no leaves are not provided', () => {
+      it('returns full discrepancies for FCD and L2D', () => {
+        const [fcdDiscrepancies, l2dDiscrepancies] = DiscrepancyFinder.apply(proposedConsensus, [], [], feeds, feeds);
+
+        const discrepancies = fcdDiscrepancies.concat(l2dDiscrepancies);
+
+        expect(discrepancies.length).to.eq(2);
+        expect(discrepancies[0]).to.eql({key: leaf.label, discrepancy: 100});
+        expect(discrepancies[1]).to.eql({key: leaf.label, discrepancy: 100});
+      });
     });
   });
 });
