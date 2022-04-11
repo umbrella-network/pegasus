@@ -2,6 +2,7 @@ import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies';
 import Settings from '../types/Settings';
 import {TimeoutCodes} from '../types/TimeoutCodes';
 import {timeoutWithCode} from '../utils/request';
+import './setupDotenv';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
