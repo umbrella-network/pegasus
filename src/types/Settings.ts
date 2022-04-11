@@ -83,6 +83,7 @@ type Settings = {
     };
     coingecko: {
       timeout: number;
+      maxBatchSize: number;
     };
     genesisVolatility: {
       apiKey: string;
