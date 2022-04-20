@@ -42,6 +42,7 @@ const settings: Settings = {
   },
   consensus: {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
+    aggregator: process.env.CONSENSUS_AGGREGATOR || 'original',
     strategy: process.env.CONSENSUS_STRATEGY || 'simple',
     discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '800'),
     roundInterval: parseInt(process.env.CONSENSUS_ROUND_INTERVAL || '1000'),

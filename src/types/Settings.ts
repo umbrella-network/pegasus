@@ -33,6 +33,7 @@ type Settings = {
   };
   consensus: {
     retries: number;
+    aggregator: string;
     strategy: string;
     discrepancyCutoff: number;
     roundInterval: number;
