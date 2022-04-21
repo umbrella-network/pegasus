@@ -14,13 +14,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated the way logs are shown in Uniswap price Scanner
 - Enabled BlockSigner unit test
 - Enabled FeedProcessor unit test
+- Optimized loadFeeds function to use etag and caching
 
 ## [7.0.0] - 2022-03-11
 ### Added
 - Better signature collection & discrepancy handling
-
-### Changed
-- Optimized loadFeeds function to use etag and caching
 
 ## [6.5.1] - 2022-03-09
 ### Fixed
