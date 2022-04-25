@@ -25,7 +25,7 @@
     "start:agent": "node dist/agent.js",
     "start:scheduler": "node dist/scheduler.js",
     "task": "node dist/tasks.js",
-    "test": "cross-env NODE_ENV=testing mocha",
+    "test": "cross-env NODE_ENV=testing mocha --exit",
     "list:top:cryptopairs": "ts-node src/scripts/listTopCryptoPairs.ts"
   },
   "devDependencies": {
