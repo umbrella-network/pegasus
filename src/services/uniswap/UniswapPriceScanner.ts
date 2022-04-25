@@ -16,6 +16,7 @@ export type UniswapPoolPrice = {
   symbol: string;
   value: number;
   timestamp: number;
+  raw?: string;
 }
 
 @injectable()
@@ -106,13 +107,22 @@ export class UniswapPriceScanner {
 
     const prices = <UniswapPoolPrice[]>qualifyingPools
       .map((pool, i) => this.extractPrice(contractPrices.prices[i], pool, ts))
-      .filter(p => !!p && p.value != 0);
+      
+    const validPrices = prices.filter(p => !!p && p.value != 0);
+    const invalidPrices = prices.filter(p => p.raw);
 
-    this.log(`Got ${prices.length} new prices.`);
-    return prices;
+    if (invalidPrices.length > 0) {
+      this.logger.debug([
+        `[UniswapPriceScanner] Could not convert prices for`,
+        invalidPrices.map(p => `${p.symbol} - (${p.raw})`).join(', ')
+      ].join(' '));
+    }
+
+    this.log(`Got ${validPrices.length} new prices.`);
+    return validPrices;
   }
 
-  private extractPrice(contractPrice: Price, pool: BlockchainSymbol, ts: BigNumber): UniswapPoolPrice | undefined {
+  private extractPrice(contractPrice: Price, pool: BlockchainSymbol, ts: BigNumber): UniswapPoolPrice {
     try {
       const digits = 15 - contractPrice.price.div('1' + '0'.repeat(18)).toString().length;
       const n = digits < 0 ? 0 : digits;
@@ -120,13 +130,8 @@ export class UniswapPriceScanner {
       const timestamp = ts.toNumber();
       return { symbol: pool.symbol, value, timestamp };
     } catch (e) {
-      this.logger.warn([
-          `[UniswapPriceScanner] Cannot convert price for pool ${pool.symbol}`,
-          `(${contractPrice.price.toString()}), skipping...`
-        ].join(' '));
+      return { symbol: pool.symbol, value: 0, timestamp: 0, raw: contractPrice.price.toString() };
     }
-
-    return;
   }
 
   private async savePrices(prices: UniswapPoolPrice[]): Promise<void> {

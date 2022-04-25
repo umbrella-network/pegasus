@@ -2,6 +2,7 @@ import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies';
 import Settings from '../types/Settings';
 import {TimeoutCodes} from '../types/TimeoutCodes';
 import {timeoutWithCode} from '../utils/request';
+import './setupDotenv';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
@@ -41,6 +42,7 @@ const settings: Settings = {
   },
   consensus: {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
+    aggregator: process.env.CONSENSUS_AGGREGATOR || 'original',
     strategy: process.env.CONSENSUS_STRATEGY || 'simple',
     discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '800'),
     roundInterval: parseInt(process.env.CONSENSUS_ROUND_INTERVAL || '1000'),
@@ -142,6 +144,7 @@ const settings: Settings = {
   feedsOnChain:
     process.env.FEEDS_ON_CHAIN_FILE ||
     'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/bsc/feedsOnChain.yaml',
+  feedsCacheRefreshCronRule: process.env.FEEDS_CACHE_REFRESH_CRON_RULE ?? '*/5 * * * *', // every five minutes
   statusCheckTimeout: timeoutWithCode(
     getTimeSetting(parseInt(process.env.STATUS_CHECK_TIMEOUT || '10000', 10), 10000),
     TimeoutCodes.STATUS_CHECK_TIMEOUT,
@@ -153,7 +156,7 @@ const settings: Settings = {
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
   version: packageJson.version,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
-  name: process.env.NAME || 'default',
+  name: process.env.NEW_RELIC_APP_NAME || process.env.NAME || 'default',
 };
 
 function getTimeSetting(value: number, min: number): number {

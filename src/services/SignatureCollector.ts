@@ -135,7 +135,7 @@ class SignatureCollector {
       error: errMsg,
     });
 
-    this.logger.error(
+    this.logger.warn(
       `[SignatureCollector] Validator ${validator.id} at ${validator.location} responded with error: ${errMsg}`,
     );
   }

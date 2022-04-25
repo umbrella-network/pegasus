@@ -48,15 +48,16 @@ jobs:
           echo -n "" > ./.testing.env;
           echo "MONGODB_URL=mongodb://localhost:27017/pegasus" >> ./.testing.env;
           echo "REDIS_URL=redis://localhost:6379" >> ./.testing.env;
+          echo "FEEDS_CACHE_REFRESH_CRON_RULE=''" >> ./.testing.env;
 
       - name: Run unit tests
         run: npm run test
-  
+
   remote_tests:
     runs-on: ubuntu-latest
     needs: tests
     if: github.ref == 'refs/heads/develop'
-    
+
     steps:
       - name: Call Reff App Test for Develop
         run: |

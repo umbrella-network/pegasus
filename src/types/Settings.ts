@@ -33,6 +33,7 @@ type Settings = {
   };
   consensus: {
     retries: number;
+    aggregator: string;
     strategy: string;
     discrepancyCutoff: number;
     roundInterval: number;
@@ -128,6 +129,7 @@ type Settings = {
     };
   };
   rpcSelectionStrategy: string;
+  feedsCacheRefreshCronRule: string;
   statusCheckTimeout: number;
   signatureTimeout: number;
   dataTimestampOffsetSeconds: number;

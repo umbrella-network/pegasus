@@ -2,13 +2,13 @@ import 'reflect-metadata';
 import {expect} from 'chai';
 
 import {loadTestEnv} from '../helpers/loadTestEnv';
-import PriceAggregator from '../../src/services/PriceAggregator';
+import {RedisPriceAggregator} from '../../src/services/RedisPriceAggregator';
 import Settings from '../../src/types/Settings';
 import {getTestContainer} from '../helpers/getTestContainer';
 import IORedis, {Redis} from 'ioredis';
 
-describe('PriceAggregator', () => {
-  let priceAggregator: PriceAggregator;
+describe('RedisPriceAggregator', () => {
+  let priceAggregator: RedisPriceAggregator;
   let settings: Settings;
   let connection: Redis;
 
@@ -26,10 +26,10 @@ describe('PriceAggregator', () => {
     const container = getTestContainer();
     connection = new IORedis(settings.redis.url);
     container.rebind('Settings').toConstantValue(settings);
-    container.bind(PriceAggregator).to(PriceAggregator);
+    container.bind(RedisPriceAggregator).to(RedisPriceAggregator);
     container.bind<Redis>('Redis').toConstantValue(connection);
 
-    priceAggregator = container.get(PriceAggregator);
+    priceAggregator = container.get(RedisPriceAggregator);
   });
 
   after(async () => {
