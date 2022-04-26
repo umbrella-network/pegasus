@@ -11,7 +11,7 @@ import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
 import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer';
 import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
 import PairRepository from '../repositories/PairRepository';
-import PriceRepository from '../repositories/PriceRepository';
+import {PriceRepository} from '../repositories/PriceRepository';
 import Feeds from '../types/Feed';
 import loadFeeds from '../services/loadFeeds';
 import FeedProcessor from '../services/FeedProcessor';

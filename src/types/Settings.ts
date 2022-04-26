@@ -30,6 +30,10 @@ type Settings = {
   };
   mongodb: {
     url: string;
+    indexTTL: {
+      priceTTL: number;
+      datumTTL: number;
+    };
   };
   consensus: {
     retries: number;
@@ -107,6 +111,7 @@ type Settings = {
       verificationInterval: number;
     };
     priceFreshness: number;
+    fetcherInterval: number;
   };
   rpcSelectionStrategy: string;
   feedsCacheRefreshCronRule: string;

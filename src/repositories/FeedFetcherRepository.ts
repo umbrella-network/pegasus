@@ -14,10 +14,6 @@ export class FeedFetcherRepository {
     @inject(fetchers.CryptoCompareHistoHourFetcher)
     CryptoCompareHistoHour: fetchers.CryptoCompareHistoHourFetcher,
     @inject(fetchers.CryptoCompareHistoDayFetcher) CryptoCompareHistoDay: fetchers.CryptoCompareHistoDayFetcher,
-    @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPrice: fetchers.PolygonIOStockPriceFetcher,
-    @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOPrice: fetchers.PolygonIOStockPriceFetcher,
-    @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPrice: fetchers.PolygonIOCryptoPriceFetcher,
-    @inject(fetchers.CryptoComparePriceWSFetcher) CryptoComparePriceWS: fetchers.CryptoComparePriceWSFetcher,
     @inject(fetchers.OnChainDataFetcher) OnChainData: fetchers.OnChainDataFetcher,
     @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPrice: fetchers.YearnVaultTokenPriceFetcher,
     @inject(fetchers.OptionsPriceFetcher) OptionsPrice: fetchers.OptionsPriceFetcher,
@@ -27,10 +23,6 @@ export class FeedFetcherRepository {
     this.collection = {
       CryptoCompareHistoHour,
       CryptoCompareHistoDay,
-      PolygonIOStockPrice,
-      PolygonIOPrice,
-      PolygonIOCryptoPrice,
-      CryptoComparePriceWS,
       OnChainData,
       YearnVaultTokenPrice,
       OptionsPrice,

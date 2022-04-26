@@ -119,6 +119,14 @@ npm run start
 npm run start:dev
 ```
 
+## Run Agents
+```shell script
+npm run start:dev:agent
+
+# run only FeedAgent agent
+npm run start:dev:agent -- --agent FeedAgent
+```
+
 # Testing
 
 Setup a testing dotenv file (`.testing.env`) with local configuration values and set MONDODB_URL for use local instance. 

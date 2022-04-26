@@ -1,109 +1,81 @@
 import 'reflect-metadata';
-import sinon from 'sinon';
 import {expect} from 'chai';
 
-import PriceRepository from '../../src/repositories/PriceRepository';
-import PriceAggregator from '../../src/services/PriceAggregator';
-import Settings from '../../src/types/Settings';
-import {PairWithFreshness} from '../../src/types/Feed';
+import {PriceRepository} from '../../src/repositories/PriceRepository';
 import {getTestContainer} from '../helpers/getTestContainer';
+import {loadTestEnv} from '../helpers/loadTestEnv';
+import {getModelForClass, mongoose} from '@typegoose/typegoose';
+import {Price} from '../../src/models/Price';
 
 describe('PriceRepository', () => {
-  let settings: Settings;
   let priceRepository: PriceRepository;
-  let mockedPriceAggregator: sinon.SinonStubbedInstance<PriceAggregator>;
 
-  const prefix = 'test::';
+  const source = 'test';
+
+  before(async () => {
+    const config = loadTestEnv();
+    await mongoose.connect(config.MONGODB_URL, {useNewUrlParser: true, useUnifiedTopology: true});
+  });
 
   beforeEach(() => {
-    mockedPriceAggregator = sinon.createStubInstance(PriceAggregator);
-
     const container = getTestContainer();
 
-    container.rebind('Settings').toConstantValue(settings);
     container.bind(PriceRepository).to(PriceRepository);
-    container.bind(PriceAggregator).toConstantValue(mockedPriceAggregator as unknown as PriceAggregator);
 
     priceRepository = container.get(PriceRepository);
   });
 
-  describe('savePrice', () => {
-    it('calls aggregator with proper data format', async () => {
-      const pair = 'fsym1-tsym1';
-      const price = 10000;
-      const timestamp = Date.now();
-
-      await priceRepository.savePrice(prefix, pair, price, timestamp);
-
-      const expectedKey = `${prefix}${pair.toUpperCase().replace('-', '~')}`;
-
-      expect(mockedPriceAggregator.add.calledWithExactly(expectedKey, price, timestamp)).to.be.true;
-    });
+  afterEach(async () => {
+    await getModelForClass(Price).deleteMany({});
   });
 
-  describe('getLatestPrice', () => {
-    it('calls aggregator and returns a number', async () => {
-      const pair: PairWithFreshness = {
-        fsym: 'FSYM1',
-        tsym: 'TSYM1',
-        freshness: 1000,
-      };
-
-      const timestamp = 20000;
-
-      mockedPriceAggregator.valueAfter.resolves(1000);
-
-      const value = await priceRepository.getLatestPrice(prefix, pair, timestamp);
-
-      const expectedKey = `${prefix}${pair.fsym}~${pair.tsym}`;
-
-      expect(mockedPriceAggregator.valueAfter.getCall(0).args).to.eql([expectedKey, 20000, 19000]);
-      expect(value).to.eq(1000);
-    });
+  after(async () => {
+    await mongoose.connection.close();
   });
 
-  describe('getLatestPrices', () => {
-    it('calls aggregator the exact number of times with the exact parameters', async () => {
-      const pair1: PairWithFreshness = {
-        fsym: 'FSYM1',
-        tsym: 'TSYM1',
-        freshness: 1000,
-      };
+  describe('saveBatch', () => {
+    describe('when duplicated prices are given', () => {
+      it('saves only once', async () => {
+        const timestamp = new Date();
+        const price = {source: 'test1', symbol: 'fsym1-tsym1', value: 200, timestamp};
 
-      const pair2: PairWithFreshness = {
-        fsym: 'FSYM2',
-        tsym: 'TSYM2',
-        freshness: 1000,
-      };
+        const prices = [price, price];
 
-      const pairs = [pair1, pair2];
-      const timestamp = 100000;
+        await priceRepository.saveBatch(prices);
 
-      mockedPriceAggregator.valueTimestamp.resolves();
+        const priceCount = await getModelForClass(Price).countDocuments({}).exec();
 
-      await priceRepository.getLatestPrices(prefix, pairs, timestamp);
+        expect(priceCount).to.be.eq(1);
+      });
+    });
 
-      const expectedArgs = [
-        ['test::FSYM1~TSYM1', timestamp],
-        ['test::FSYM2~TSYM2', timestamp],
-      ];
-      mockedPriceAggregator.valueTimestamp.getCalls().forEach((call, idx) => {
-        expect(call.args).to.be.eql(expectedArgs[idx]);
+    describe('when diferent prices are given', () => {
+      it('calls aggregator with proper data format', async () => {
+        const timestamp = new Date();
+        const price1 = {source: 'test1', symbol: 'fsym1-tsym1', value: 200, timestamp};
+        const price2 = {source: 'test2', symbol: 'fsym2-tsym2', value: 300, timestamp};
+
+        const prices = [price1, price2];
+
+        await priceRepository.saveBatch(prices);
+
+        const priceCount = await getModelForClass(Price).countDocuments({}).exec();
+
+        expect(priceCount).to.be.eq(2);
       });
     });
   });
 
-  describe('getAllPrices', () => {
-    it('calls aggregator with the proper parameters', async () => {
-      const pair: PairWithFreshness = {
-        fsym: 'FSYM1',
-        tsym: 'TSYM1',
-        freshness: 1000,
-      };
+  describe('getLatestPrice', () => {
+    it('resolves price from latest symbol', async () => {
+      const symbol = 'fsym1-tsym1';
+      const value = 10000;
+      const timestamp = new Date();
 
-      await priceRepository.getAllPrices(prefix, pair);
+      await priceRepository.saveBatch([{source, symbol, value, timestamp}]);
 
-      expect(mockedPriceAggregator.valueTimestamps.calledWith(`${prefix}${pair.fsym}~${pair.tsym}`)).to.be.true;
+      const latestPrice = await priceRepository.getLatestPrice({source, symbol, timestamp: {from: timestamp}});
+      expect(latestPrice).to.eq(value);
     });
   });
 });

@@ -8,7 +8,7 @@ class PolygonIOPriceFetcher {
 
   async apply({sym}: {sym: string}, timestamp: number): Promise<number> {
     const price = await this.polygonIOStockPriceService.getLatestPrice(sym, timestamp);
-    if (price !== null) {
+    if (price) {
       return price;
     }
 

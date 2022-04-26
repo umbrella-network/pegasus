@@ -1,11 +1,11 @@
 import {inject, injectable} from 'inversify';
 
 import {UniswapPoolPrice} from './UniswapPriceScanner';
-import {MongoDBPriceRepository} from '../../repositories/MongoDBPriceRepository';
+import {PriceRepository} from '../../repositories/PriceRepository';
 
 @injectable()
 export class UniswapPriceService {
-  @inject(MongoDBPriceRepository) priceRepository!: MongoDBPriceRepository;
+  @inject(PriceRepository) priceRepository!: PriceRepository;
 
   private readonly SOURCE = 'uniswapv3';
 
