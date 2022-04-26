@@ -1,9 +1,6 @@
 import CryptoComparePriceMultiFetcher from './CryptoComparePriceMultiFetcher';
 import CryptoCompareHistoHourFetcher from './CryptoCompareHistoHourFetcher';
 import CryptoCompareHistoDayFetcher from './CryptoCompareHistoDayFetcher';
-import CryptoComparePriceWSFetcher from './CryptoComparePriceWSFetcher';
-import PolygonIOCryptoPriceFetcher from './PolygonIOCryptoPriceFetcher';
-import PolygonIOStockPriceFetcher from './PolygonIOStockPriceFetcher';
 import YearnVaultTokenPriceFetcher from './YearnVaultTokenPriceFetcher';
 import CoingeckoPriceMultiFetcher from './CoingeckoPriceMultiFetcher';
 import {UniswapPriceFetcher} from './UniswapPriceFetcher';
@@ -15,9 +12,6 @@ export {
   CryptoComparePriceMultiFetcher,
   CryptoCompareHistoDayFetcher,
   CryptoCompareHistoHourFetcher,
-  CryptoComparePriceWSFetcher,
-  PolygonIOStockPriceFetcher,
-  PolygonIOCryptoPriceFetcher,
   YearnVaultTokenPriceFetcher,
   CoingeckoPriceMultiFetcher,
   OptionsPriceFetcher,

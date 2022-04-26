@@ -8,7 +8,7 @@ class PolygonIOCryptoPriceFetcher {
 
   async apply({fsym, tsym}: {fsym: string; tsym: string}, timestamp: number): Promise<number> {
     const price = await this.polygonIOCryptoPriceService.getLatestPrice({fsym, tsym}, timestamp);
-    if (price !== null) {
+    if (price) {
       return price;
     }
 

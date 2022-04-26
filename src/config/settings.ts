@@ -100,6 +100,10 @@ const settings: Settings = {
   },
   mongodb: {
     url: process.env.MONGODB_URL || 'mongodb://localhost:27017/pegasus',
+    indexTTL: {
+      priceTTL: parseInt(process.env.PRICE_TTL as string) || 60 * 60,
+      datumTTL: parseInt(process.env.DATUM_TTL as string) || 60 * 60,
+    },
   },
   consensus: {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
@@ -182,6 +186,7 @@ const settings: Settings = {
       verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
     },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
+    fetcherInterval: getTimeSetting(parseInt(process.env.FETCHER_INTERVAL || '1800000'), 1000),
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
   feedsFile:
