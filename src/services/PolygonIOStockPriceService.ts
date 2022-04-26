@@ -22,13 +22,15 @@ class PolygonIOStockPriceService {
 
   static readonly Source = 'polygonIOStockPrice';
 
+  static readonly Source = 'polygonIOStockPrice';
+
   priceUpdateJob?: Job;
 
   subscriptions = {} as {[symbol: string]: boolean};
 
   async getLatestPrice(sym: string, timestamp: number): Promise<number | undefined> {
     return this.priceRepository.getLatestPrice({
-      symbol: `${PolygonIOStockPriceService.Prefix}${sym}`,
+      symbol: sym,
       source: PolygonIOStockPriceService.Source,
       timestamp: {
         to: new Date(timestamp * 1000),
@@ -57,7 +59,7 @@ class PolygonIOStockPriceService {
     this.priceRepository
       .saveBatch([
         {
-          symbol: `${PolygonIOStockPriceService.Prefix}${symbol}`,
+          symbol: symbol,
           source: PolygonIOStockPriceService.Source,
           value: price,
           timestamp: new Date(timestamp * 1000),
@@ -153,7 +155,7 @@ class PolygonIOStockPriceService {
       symbols.map(async (sym) => {
         const valueTimestamp = await this.priceRepository.getValueAndTimestamp({
           source: PolygonIOStockPriceService.Source,
-          symbol: `${PolygonIOStockPriceService.Prefix}${sym}`,
+          symbol: sym,
           timestamp: {
             to: new Date(beforeTimestamp * 1000),
           },
