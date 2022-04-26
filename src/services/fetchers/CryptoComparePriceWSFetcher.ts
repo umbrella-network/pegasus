@@ -9,7 +9,7 @@ class CryptoComparePriceWSFetcher {
 
   async apply(pair: PairWithFreshness, timestamp: number): Promise<number> {
     const price = await this.cryptoCompareWSClient.getLatestPrice(pair, timestamp);
-    if (price !== null) {
+    if (price) {
       return price;
     }
 

@@ -198,6 +198,14 @@ npm run start
 npm run start:dev
 ```
 
+## Run Agents
+```shell script
+npm run start:dev:agent
+
+# run only FeedAgent agent
+npm run start:dev:agent -- --agent FeedAgent
+```
+
 ## Edit On-Chain and L2 definitions 
 
 ```shell script

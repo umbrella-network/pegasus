@@ -1,18 +1,31 @@
 import {inject, injectable} from 'inversify';
 
 import KaikoPriceStreamClient from '../../stream/KaikoPriceStreamClient';
-import PriceRepository from '../../repositories/PriceRepository';
 import {PairWithFreshness} from '../../types/Feed';
+import {PriceRepository} from '../../repositories/PriceRepository';
 
 @injectable()
 class KaikoPriceStreamFetcher {
   @inject(PriceRepository) priceRepository!: PriceRepository;
 
-  async apply(pair: PairWithFreshness, timestamp: number): Promise<number> {
-    const prefix = KaikoPriceStreamClient.Prefix;
-    const price = await this.priceRepository.getLatestPrice(prefix, pair, timestamp);
+  static readonly DefaultFreshness = 3600;
 
-    if (price !== null) {
+  async apply(
+    pair: PairWithFreshness,
+    timestamp: number,
+    freshness = KaikoPriceStreamFetcher.DefaultFreshness,
+  ): Promise<number> {
+    const afterTimestamp = timestamp - freshness;
+    const price = await this.priceRepository.getLatestPrice({
+      source: KaikoPriceStreamClient.Source,
+      symbol: `${pair.fsym}-${pair.tsym}`,
+      timestamp: {
+        from: new Date(afterTimestamp * 1000),
+        to: new Date(timestamp * 1000),
+      },
+    });
+
+    if (price) {
       return price;
     }
 

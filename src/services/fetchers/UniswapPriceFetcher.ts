@@ -28,7 +28,6 @@ import {Logger} from 'winston';
   * Then we return the reverse price (BTC-USDT = 1 / USDT-BTC)
 */
 
-
 /*
   To fetch prices for verified Uniswap pools even if they are not in the feeds file.
 
@@ -51,7 +50,7 @@ export class UniswapPriceFetcher {
   @inject(UniswapPriceService) priceService!: UniswapPriceService;
 
   async apply(pair: PairWithFreshness, timestamp: number): Promise<number> {
-    const { fsym, tsym } = pair;
+    const {fsym, tsym} = pair;
     const freshness = pair.freshness || UniswapPriceFetcher.DEFAULT_FRESHNESS;
 
     try {
@@ -65,15 +64,15 @@ export class UniswapPriceFetcher {
       this.logger.debug(`[UniswapPriceFetcher] Retrieving prices for ${reversePoolSymbol} (reverse)`);
       const reversePrice = await this.priceService.getLatestPrice(reversePoolSymbol, timestamp - freshness, timestamp);
       this.logger.debug(`[UniswapPriceFetcher] Price for ${reversePoolSymbol}: ${reversePrice}`);
-      if (reversePrice) return (reversePrice == 0 ? reversePrice : 1 / reversePrice);
+      if (reversePrice) return reversePrice == 0 ? reversePrice : 1 / reversePrice;
     } catch (e) {
       this.logger.error(
         [
           `[UniswapPriceFetcher] Error retrieving prices for ${fsym}-${tsym}`,
           `with freshness ${freshness}`,
-          `for timestamp ${timestamp}`
+          `for timestamp ${timestamp}`,
         ].join(' '),
-        e
+        e,
       );
     }
 

@@ -13,7 +13,7 @@ import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
 import KaikoPriceStreamClient from '../stream/KaikoPriceStreamClient';
 import KaikoPriceStreamInitializer from '../services/KaikoPriceStreamInitializer';
 import PairRepository from '../repositories/PairRepository';
-import PriceRepository from '../repositories/PriceRepository';
+import {PriceRepository} from '../repositories/PriceRepository';
 import Feeds from '../types/Feed';
 import loadFeeds from '../services/loadFeeds';
 import FeedProcessor from '../services/FeedProcessor';
@@ -162,7 +162,7 @@ class DebugController {
       response.send(
         sort(
           await this.priceRepository.getLatestPrices(
-            KaikoPriceStreamClient.Prefix,
+            KaikoPriceStreamClient.Source,
             pairs,
             parseInt(beforeTimestamp, 10) || this.timeService.apply(),
           ),
@@ -178,7 +178,7 @@ class DebugController {
     const {fsym, tsym} = request.params as {fsym: string; tsym: string};
 
     try {
-      response.send(await this.priceRepository.getAllPrices(KaikoPriceStreamClient.Prefix, {fsym, tsym}));
+      response.send(await this.priceRepository.getValueTimestamps(KaikoPriceStreamClient.Source, `${fsym}-${tsym}`));
     } catch (err) {
       next(err);
     }

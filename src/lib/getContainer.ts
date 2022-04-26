@@ -6,7 +6,6 @@ import logger from './logger';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from './Blockchain';
 import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
-import PriceRepository from '../repositories/PriceRepository';
 import PairRepository from '../repositories/PairRepository';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository';
 import {CalculatorRepository} from '../repositories/CalculatorRepository';
@@ -15,7 +14,7 @@ import {UniswapPoolService} from '../services/uniswap/UniswapPoolService';
 import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository';
 import {Redis} from 'ioredis';
 import {initRedis} from '../config/initRedis';
-import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository';
+import {PriceRepository} from '../repositories/PriceRepository';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -24,14 +23,13 @@ export function getContainer(): Container {
   container.bind<ChainContract>(ChainContract).toSelf().inSingletonScope();
   container.bind<Blockchain>(Blockchain).toSelf().inSingletonScope();
   container.bind<CryptoCompareWSClient>(CryptoCompareWSClient).toSelf().inSingletonScope();
-  container.bind(PriceRepository).toSelf().inSingletonScope();
   container.bind(PairRepository).toSelf().inSingletonScope();
   container.bind(FeedFetcherRepository).toSelf().inSingletonScope();
   container.bind(CalculatorRepository).toSelf().inSingletonScope();
   container.bind(FeedRepository).toSelf().inSingletonScope();
   container.bind(UniswapPoolService).toSelf().inSingletonScope();
   container.bind(BlockchainProviderRepository).toSelf().inSingletonScope();
-  container.bind(MongoDBPriceRepository).toSelf().inSingletonScope();
+  container.bind(PriceRepository).toSelf().inSingletonScope();
 
   container
     .bind<Redis>('Redis')
