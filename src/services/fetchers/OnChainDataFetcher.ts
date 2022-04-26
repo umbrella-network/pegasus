@@ -26,12 +26,8 @@ class OnChainDataFetcher {
         name: params.method,
         type: 'function',
         stateMutability: 'view',
-        inputs: params.inputs.map((type) => {
-          return {type};
-        }),
-        outputs: params.outputs.map((type) => {
-          return {type};
-        }),
+        inputs: params.inputs.map((type) => ({type})),
+        outputs: params.outputs.map((type) => ({type})),
       },
     ];
 
