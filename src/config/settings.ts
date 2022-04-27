@@ -88,6 +88,7 @@ const settings: Settings = {
     },
     coingecko: {
       timeout: timeoutWithCode(process.env.COINGECKO_TIMEOUT || '5000', TimeoutCodes.COINGECKO),
+      maxBatchSize: parseInt(process.env.POLYGON_MAX_BATCH_SIZE || '500', 10),
     },
     coinmarketcap: {
       apiKey: process.env.COINMARKETCAP_API_KEY as string,
