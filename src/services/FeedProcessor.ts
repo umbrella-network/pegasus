@@ -43,7 +43,6 @@ class FeedProcessor {
       );
     });
 
-    // separate inputs that can be fetched in one external api call
     const {singleInputs, multiInputs} = this.separateInputs(uniqueFeedFetcherMap);
 
     const inputIndexByHash: {[hash: string]: number} = {};
@@ -158,7 +157,9 @@ class FeedProcessor {
   }
 
   /**
-   * Separates inputs that belong to CryptoComparePriceMulti and others
+   * Separate fetchers into two different arrays
+   * @return singleInputs will be fetched each with one API call
+   * @return multiInputs will be aggregated by the respective processor to be fetched in one API call
    */
   private separateInputs(uniqueFeedFetcherMap: {[hash: string]: FeedFetcher}) {
     const multiFetchingInputsNames = ['CryptoComparePrice', 'CoingeckoPrice'];
