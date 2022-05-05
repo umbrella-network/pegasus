@@ -1,11 +1,11 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
-import {BigNumber, ethers, Signature} from 'ethers';
-import {ABI, LeafKeyCoder} from '@umb-network/toolbox';
-import {getModelForClass} from '@typegoose/typegoose';
 import newrelic from 'newrelic';
+import {BigNumber, ethers, Signature} from 'ethers';
 import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
+import {ABI, LeafKeyCoder, GasEstimator} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
+import {getModelForClass} from '@typegoose/typegoose';
 
 import {HexStringWith0x} from '../types/Feed';
 import ConsensusRunner from './ConsensusRunner';
@@ -20,10 +20,9 @@ import {ChainStatus} from '../types/ChainStatus';
 import Settings from '../types/Settings';
 import {LogMint} from '../types/events';
 import {chainReadyForNewBlock} from '../utils/mining';
+import {sleep} from '../utils/sleep';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
-import GasEstimator from './GasEstimator';
-import {parseEther} from 'ethers/lib/utils';
 
 @injectable()
 class BlockMinter {
@@ -36,7 +35,6 @@ class BlockMinter {
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject('Settings') settings!: Settings;
-  @inject(GasEstimator) gasEstimator!: GasEstimator;
 
   async apply(): Promise<void> {
     await this.blockchain.setLatestProvider();
@@ -118,7 +116,8 @@ class BlockMinter {
   ) {
     const components = signatures.map((signature) => BlockMinter.splitSignature(signature));
 
-    const gasMetrics = await this.gasEstimator.apply();
+    const {minGasPrice, maxGasPrice} = this.settings.blockchain.transactions;
+    const gasMetrics = await GasEstimator.apply(this.blockchain.provider, minGasPrice, maxGasPrice);
 
     this.logger.info(`Submitting tx, gas metrics: ${GasEstimator.printable(gasMetrics)}`);
 
@@ -131,7 +130,7 @@ class BlockMinter {
         components.map((sig) => sig.v),
         components.map((sig) => sig.r),
         components.map((sig) => sig.s),
-        gasMetrics.estimation,
+        gasMetrics.gasPrice,
         nonce,
       );
 
@@ -139,7 +138,7 @@ class BlockMinter {
 
     if (!receipt) {
       this.logger.warn(`canceling tx ${tx.hash}`);
-      await this.cancelPendingTransaction(gasMetrics.estimation, chainStatus.timePadding).catch(this.logger.warn);
+      await this.cancelPendingTransaction(gasMetrics.gasPrice, chainStatus.timePadding).catch(this.logger.warn);
 
       throw new Error(`mint TX timeout: ${timeoutMs}ms`);
     }
@@ -173,7 +172,7 @@ class BlockMinter {
       try {
         return await this.submitTx(dataTimestamp, root, keys, values, signatures, chainStatus);
       } catch (e) {
-        if (!BlockMinter.isNonceError(e)) {
+        if (!BlockMinter.isNonceError(<Error>e)) {
           throw e;
         }
         const lastNonce = await this.blockchain.wallet.getTransactionCount('latest');
@@ -181,7 +180,7 @@ class BlockMinter {
         return await this.submitTx(dataTimestamp, root, keys, values, signatures, chainStatus, lastNonce + 1);
       }
     } catch (e) {
-      const err = await this.handleTimestampDiscrepancyError(e, dataTimestamp);
+      const err = await this.handleTimestampDiscrepancyError(<Error>e, dataTimestamp);
 
       newrelic.noticeError(err);
       this.logger.error(err);
@@ -204,7 +203,7 @@ class BlockMinter {
 
     while (currentBlockNumber === newBlockNumber) {
       this.logger.info(`waitUntilNextBlock: current ${currentBlockNumber}, new ${newBlockNumber}.`);
-      await BlockMinter.sleep(this.settings.blockchain.transactions.waitForBlockTime);
+      await sleep(this.settings.blockchain.transactions.waitForBlockTime);
       newBlockNumber = await this.blockchain.getBlockNumber();
     }
 
@@ -225,8 +224,6 @@ class BlockMinter {
     return {tx, receipt: await Promise.race([tx.wait(), BlockMinter.txTimeout(timeoutMs)]), timeoutMs};
   }
 
-  private static sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-
   private static isNonceError(e: Error): boolean {
     return e.message.includes('nonce has already been used');
   }
@@ -241,7 +238,8 @@ class BlockMinter {
   }
 
   private async cancelPendingTransaction(prevGasPrice: number, timePadding: number): Promise<boolean> {
-    const gasMetrics = await this.gasEstimator.apply();
+    const {minGasPrice, maxGasPrice} = this.settings.blockchain.transactions;
+    const gasMetrics = await GasEstimator.apply(this.blockchain.provider, minGasPrice, maxGasPrice);
 
     const txData = {
       from: this.blockchain.wallet.address,
@@ -249,7 +247,7 @@ class BlockMinter {
       value: BigNumber.from(0),
       nonce: await this.blockchain.wallet.getTransactionCount('latest'),
       gasLimit: 21000,
-      gasPrice: Math.max(gasMetrics.estimation, prevGasPrice) * 2,
+      gasPrice: Math.max(gasMetrics.gasPrice, prevGasPrice) * 2,
     };
 
     this.logger.warn('Sending canceling tx', {nonce: txData.nonce, gasPrice: txData.gasPrice});
@@ -289,11 +287,11 @@ class BlockMinter {
 
     const {errorLimit, warningLimit} = this.settings.blockchain.transactions.mintBalance;
 
-    if (balance.lt(parseEther(errorLimit))) {
+    if (balance.lt(ethers.utils.parseEther(errorLimit))) {
       throw new Error(`Balance is lower than ${errorLimit}`);
     }
 
-    if (balance.lt(parseEther(warningLimit))) {
+    if (balance.lt(ethers.utils.parseEther(warningLimit))) {
       this.logger.warn(`Balance is lower than ${warningLimit}`);
     }
   }

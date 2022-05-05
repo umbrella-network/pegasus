@@ -2,22 +2,22 @@ import {boot} from './boot';
 import yargs from 'yargs';
 import {EventEmitter} from 'events';
 import {getModelForClass} from '@typegoose/typegoose';
+import {GasEstimator} from '@umb-network/toolbox';
 
 import Application from './lib/Application';
 import FeedProcessor from './services/FeedProcessor';
 import loadFeeds from './services/loadFeeds';
-import Settings from "./types/Settings";
+import Settings from './types/Settings';
 import Block from './models/Block';
-import GasEstimator from './services/GasEstimator';
 import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer';
 import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
 import KaikoPriceStreamInitializer from './services/KaikoPriceStreamInitializer';
 import TimeService from './services/TimeService';
+import Blockchain from './lib/Blockchain';
 
 const argv = yargs(process.argv.slice(2)).options({
-  task: { type: 'string', demandOption: true },
+  task: {type: 'string', demandOption: true},
 }).argv;
-
 
 async function testFeeds(settings: Settings): Promise<void> {
   await Application.get(PolygonIOPriceInitializer).apply();
@@ -37,8 +37,10 @@ async function dbCleanUp(): Promise<void> {
   await blockModel.collection.deleteMany({});
 }
 
-async function estimateGasPrice(): Promise<void> {
-  await Application.get(GasEstimator).apply();
+async function estimateGasPrice(settings: Settings): Promise<void> {
+  const blockchain = Application.get(Blockchain);
+  const {minGasPrice, maxGasPrice} = settings.blockchain.transactions;
+  await GasEstimator.apply(blockchain.provider, minGasPrice, maxGasPrice);
 }
 
 const ev = new EventEmitter();
@@ -61,10 +63,9 @@ ev.on('done', () => process.exit());
     }
 
     case 'estimate:gas-price': {
-      await estimateGasPrice();
+      await estimateGasPrice(settings);
       ev.emit('done');
       break;
     }
   }
 })();
-
