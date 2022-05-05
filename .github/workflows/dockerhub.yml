@@ -4,12 +4,10 @@ on:
 jobs:  
   publish_dockerhub:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/tags/*.*.*'
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
-        with:
-          ref: main
 
       - name: Analyze JSON Package
         id: package_json
