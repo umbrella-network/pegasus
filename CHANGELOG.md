@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Publish different pegasus versions to dockerhub using tags
+
 ## [7.2.0] - 2022-04-28
 ### Added
 - Coingecko multi price fetcher
