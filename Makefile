@@ -50,8 +50,10 @@ login:
 publish-bsc1:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bsc01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-worker-bsc01 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-metrics-worker-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-metrics-worker-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-minting-worker-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-minting-worker-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc01 -n dev
@@ -60,8 +62,10 @@ publish-bsc1:
 publish-bsc2:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc02 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bsc02 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-worker-bsc02 -n dev
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-bsc02 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-metrics-worker-bsc02 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-metrics-worker-bsc02 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-minting-worker-bsc02 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-minting-worker-bsc02 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc02 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc02 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc02 -n dev
@@ -70,8 +74,10 @@ publish-bsc2:
 publish-sbx1:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc01 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bsc01 -n sandbox
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-worker-bsc01 -n sandbox
-	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-worker-bsc01 -n sandbox
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-metrics-worker-bsc01 -n sandbox
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-metrics-worker-bsc01 -n sandbox
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-minting-worker-bsc01 -n sandbox
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-minting-worker-bsc01 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc01 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc01 -n sandbox
