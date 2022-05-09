@@ -39,7 +39,6 @@ class BlockMinter {
   @inject(GasEstimator) gasEstimator!: GasEstimator;
 
   async apply(): Promise<void> {
-    await this.blockchain.setLatestProvider();
     await this.checkBalanceIsEnough();
     const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
 
