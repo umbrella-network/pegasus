@@ -7,6 +7,7 @@ import {expect} from 'chai';
 import {BigNumber, ethers, Wallet} from 'ethers';
 import mongoose from 'mongoose';
 import {getModelForClass} from '@typegoose/typegoose';
+import {GasEstimator} from '@umb-network/toolbox';
 
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
@@ -21,7 +22,6 @@ import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import TimeService from '../../src/services/TimeService';
 import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, timestamp} from '../../src/utils/mining';
-import GasEstimator from '../../src/services/GasEstimator';
 import BlockRepository from '../../src/services/BlockRepository';
 import {getTestContainer} from '../helpers/getTestContainer';
 import {parseEther} from 'ethers/lib/utils';
@@ -33,12 +33,15 @@ describe('BlockMinter', () => {
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
-  let mockedGasEstimator: sinon.SinonStubbedInstance<GasEstimator>;
   let settings: Settings;
   let blockMinter: BlockMinter;
   let wallet: Wallet;
 
   before(async () => {
+    sinon
+      .stub(GasEstimator, 'apply')
+      .resolves({isTxType2: true, min: 10, baseFeePerGas: 10, max: 10, avg: 10, gasPrice: 10});
+
     const config = loadTestEnv();
     await mongoose.connect(config.MONGODB_URL, {useNewUrlParser: true, useUnifiedTopology: true});
   });
@@ -53,7 +56,6 @@ describe('BlockMinter', () => {
     mockedChainContract = sinon.createStubInstance(ChainContract);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
-    mockedGasEstimator = sinon.createStubInstance(GasEstimator);
 
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
@@ -88,7 +90,6 @@ describe('BlockMinter', () => {
     container.bind(BlockRepository).toSelf();
     container.bind(ConsensusRunner).toSelf();
     container.bind(TimeService).toConstantValue(mockedTimeService);
-    container.bind(GasEstimator).toConstantValue(mockedGasEstimator);
 
     container.bind(BlockMinter).to(BlockMinter);
 
@@ -368,7 +369,6 @@ describe('BlockMinter', () => {
       mockedBlockchain.wallet.getBalance = async () => parseEther('10');
 
       mockedTimeService.apply.returns(10);
-      mockedGasEstimator.apply.resolves({min: 10, estimation: 10, max: 10, avg: 10});
 
       mockedChainContract.resolveStatus.resolves([
         '0x123',
@@ -444,7 +444,6 @@ describe('BlockMinter', () => {
         mockedBlockchain.wallet.getTransactionCount = async () => 1;
 
         mockedTimeService.apply.returns(10);
-        mockedGasEstimator.apply.resolves({min: 10, estimation: 10, max: 10, avg: 10});
 
         mockedChainContract.resolveStatus.resolves([
           '0x123',
