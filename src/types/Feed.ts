@@ -34,6 +34,13 @@ export interface FeedOutput {
   value: number | string;
 }
 
+export interface FeedPrice {
+  symbol: string;
+  value: number;
+  source: string;
+  timestamp: Date;
+}
+
 export interface Pair {
   fsym: string;
   tsym: string;
@@ -49,4 +56,12 @@ export interface OnChainCall {
   inputs: string[];
   outputs: string[];
   args: string[];
+}
+
+export interface FeedsInputFetcher {
+  [hash: string]: FeedFetcher;
+}
+
+export interface FeedsInputHash {
+  [hash: string]: number;
 }

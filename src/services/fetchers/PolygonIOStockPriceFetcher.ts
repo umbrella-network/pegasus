@@ -8,7 +8,7 @@ class PolygonIOPriceFetcher {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   async apply({sym}: any, timestamp: number): Promise<number> {
     const price = await this.polygonIOStockPriceService.getLatestPrice(sym, timestamp);
-    if (price !== null) {
+    if (price) {
       return price;
     }
 

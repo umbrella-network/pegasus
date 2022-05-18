@@ -12,8 +12,8 @@ import {Pair} from '../types/Feed';
 
 import {price} from '@umb-network/validator';
 
-import PriceRepository from '../repositories/PriceRepository';
 import TimeService from '../services/TimeService';
+import {PriceRepository} from '../repositories/PriceRepository';
 
 const PERSISTANCE_AGGREGATION_PERIOD_MS = 5000;
 const LOG_PREFIX = 'Kaiko Stream:';
@@ -30,7 +30,6 @@ class KaikoPriceStreamClient {
   @inject('Logger') logger!: Logger;
 
   settings: Settings;
-  priceRepository: PriceRepository;
   timeService: TimeService;
   // eslint-disable-next-line
   readonly connMap: Map<string, any> = new Map();
@@ -42,14 +41,12 @@ class KaikoPriceStreamClient {
 
   static readonly Prefix = 'kaiko::';
 
-  constructor(
-    @inject('Settings') settings: Settings,
-    @inject(TimeService) timeService: TimeService,
-    @inject(PriceRepository) priceRepository: PriceRepository,
-  ) {
+  static readonly Source = 'kaiokoPriceStreamClient';
+
+  @inject(PriceRepository) priceRepository!: PriceRepository;
+  constructor(@inject('Settings') settings: Settings, @inject(TimeService) timeService: TimeService) {
     this.timeService = timeService;
     this.settings = settings;
-    this.priceRepository = priceRepository;
     this.updatedPricesCount = 0;
     this.healthCheckIntervalId = 0;
   }
@@ -167,7 +164,14 @@ class KaikoPriceStreamClient {
         Object.keys(buffer).forEach((key) => {
           const timestamp = Math.floor(Date.now() / 1000);
           this.priceRepository
-            .savePrice(KaikoPriceStreamClient.Prefix, key, this.calculateMean(buffer[key]), timestamp)
+            .saveBatch([
+              {
+                symbol: key,
+                source: KaikoPriceStreamClient.Source,
+                value: this.calculateMean(buffer[key]),
+                timestamp: new Date(timestamp * 1000),
+              },
+            ])
             .then(() => this.updatedPricesCount++);
         });
         buffer = {};

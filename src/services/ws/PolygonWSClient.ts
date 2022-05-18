@@ -1,21 +1,21 @@
 import {inject, injectable} from 'inversify';
-import schedule, {Job} from 'node-schedule';
+import {Job} from 'node-schedule';
 
 import WSClient from './WSClient';
 import Settings from '../../types/Settings';
 import {Pair, PairWithFreshness} from '../../types/Feed';
-import PriceAggregator from '../PriceAggregator';
 import TimeService from '../TimeService';
 import Timeout from '../../utils/timeout';
 import StatsDClient from '../../lib/StatsDClient';
+import {PriceRepository} from '../../repositories/PriceRepository';
 
 @injectable()
 class PolygonWSClient extends WSClient {
-  priceAggregator: PriceAggregator;
-
   timeService: TimeService;
 
   static readonly Prefix = 'piow::';
+
+  static readonly Source = 'polygonWSClient';
 
   static readonly DefaultFreshness = 3600;
 
@@ -31,25 +31,29 @@ class PolygonWSClient extends WSClient {
 
   subscriptions: {[subscription: string]: Pair} = {};
 
-  constructor(
-    @inject('Settings') settings: Settings,
-    @inject(TimeService) timeService: TimeService,
-    @inject(PriceAggregator) priceAggregator: PriceAggregator,
-  ) {
+  @inject(PriceRepository) priceRepository!: PriceRepository;
+  constructor(@inject('Settings') settings: Settings, @inject(TimeService) timeService: TimeService) {
     super(`wss://socket.polygon.io/crypto`, settings.api.polygonIO.reconnectTimeout);
 
     this.timeService = timeService;
     this.settings = settings;
-    this.priceAggregator = priceAggregator;
   }
 
-  async getLatestPrice(pair: PairWithFreshness, timestamp: number): Promise<number | null> {
+  async getLatestPrice(pair: PairWithFreshness, timestamp: number): Promise<number | undefined> {
     const aggregatorKey = PolygonWSClient.aggregatorKey(pair);
+    const afterTimestamp = timestamp - pair.freshness;
 
-    return await this.priceAggregator.valueAfter(aggregatorKey, timestamp, timestamp - pair.freshness);
+    return this.priceRepository.getLatestPrice({
+      symbol: aggregatorKey,
+      source: PolygonWSClient.Source,
+      timestamp: {
+        from: new Date(afterTimestamp * 1000),
+        to: new Date(timestamp * 1000),
+      },
+    });
   }
 
-  onAggregate({pair: symbol, e: timestamp, c: price}: {pair: string, e: number, c: number}): void {
+  onAggregate({pair: symbol, e: timestamp, c: price}: {pair: string; e: number; c: number}): void {
     timestamp = Math.floor(timestamp / 1000);
     const [fsym, tsym] = symbol.split('-');
 
@@ -58,7 +62,16 @@ class PolygonWSClient extends WSClient {
     StatsDClient?.gauge(`pol.XA.${fsym}-${tsym}`, price);
     this.logger.info(`${aggregatorKey}: ${price} at ${timestamp}`);
 
-    this.priceAggregator.add(aggregatorKey, price, timestamp).catch(this.logger.error);
+    this.priceRepository
+      .saveBatch([
+        {
+          symbol: aggregatorKey,
+          source: PolygonWSClient.Source,
+          value: price,
+          timestamp: new Date(timestamp * 1000),
+        },
+      ])
+      .catch(this.logger.error);
   }
 
   onOpen(): void {
@@ -77,11 +90,6 @@ class PolygonWSClient extends WSClient {
       this.close();
     });
 
-    this.truncateJob = schedule.scheduleJob(this.settings.api.cryptocompare.truncateCronRule, () => {
-      this.logger.info(`truncating prices...`);
-      this.truncatePriceAggregator().catch(this.logger.warn);
-    });
-
     const subscriptions = this.subscriptions;
     this.subscriptions = {};
     this.updateSubscription(subscriptions);
@@ -91,10 +99,9 @@ class PolygonWSClient extends WSClient {
     this.connected = true;
   }
 
-  protected onClose() {
+  protected onClose(): void {
     super.onClose();
 
-    this.truncateJob?.cancel();
     this.reconnectJob?.cancel();
 
     this.connected = false;
@@ -145,8 +152,12 @@ class PolygonWSClient extends WSClient {
   }
 
   private updateSubscription(subscriptions: {[subscription: string]: Pair}) {
-    const toUnsubscribe = Object.entries(this.subscriptions).filter(([k]) => !subscriptions[k]).map(([,v]) => v);
-    const toSubscribe = Object.entries(subscriptions).filter(([k]) => !this.subscriptions[k]).map(([,v]) => v);
+    const toUnsubscribe = Object.entries(this.subscriptions)
+      .filter(([k]) => !subscriptions[k])
+      .map(([, v]) => v);
+    const toSubscribe = Object.entries(subscriptions)
+      .filter(([k]) => !this.subscriptions[k])
+      .map(([, v]) => v);
 
     this.subscriptions = subscriptions;
 
@@ -154,7 +165,7 @@ class PolygonWSClient extends WSClient {
       return;
     }
 
-    this.unsubscribeSubscriptions(toUnsubscribe, true);
+    this.unsubscribeSubscriptions(toUnsubscribe);
 
     this.subscribeSubscriptions(toSubscribe);
   }
@@ -165,55 +176,33 @@ class PolygonWSClient extends WSClient {
     }
 
     pairs.forEach(({fsym, tsym}) => {
-      console.log(`XA.${fsym}-${tsym}`)
-      this.socket?.send(JSON.stringify({
-        action: 'subscribe',
-        params: `XA.${fsym}-${tsym}`,
-      }));
+      console.log(`XA.${fsym}-${tsym}`);
+      this.socket?.send(
+        JSON.stringify({
+          action: 'subscribe',
+          params: `XA.${fsym}-${tsym}`,
+        }),
+      );
     });
   }
 
-  private unsubscribeSubscriptions(pairs: Pair[], cleanUp: boolean) {
+  private unsubscribeSubscriptions(pairs: Pair[]) {
     if (!pairs.length) {
       return;
     }
 
-    if (cleanUp) {
-      for (const pair of pairs) {
-        this.priceAggregator.cleanUp(PolygonWSClient.aggregatorKey(pair)).catch(this.logger.warn);
-      }
-    }
-
     pairs.forEach(({fsym, tsym}) => {
-      this.socket?.send(JSON.stringify({
-        action: 'unsubscribe',
-        params: `XA.${fsym}-${tsym}`,
-      }));
+      this.socket?.send(
+        JSON.stringify({
+          action: 'unsubscribe',
+          params: `XA.${fsym}-${tsym}`,
+        }),
+      );
     });
   }
 
-  private async truncatePriceAggregator(): Promise<void> {
-    const beforeTimestamp = this.timeService.apply() - this.settings.api.cryptocompare.truncateIntervalMinutes * 60;
-
-    this.logger.info(`Truncating Polygon crypto prices before ${beforeTimestamp}...`);
-
-    await Promise.all(Object.values(this.subscriptions).map(async (pair) => {
-      const aggregatorKey = PolygonWSClient.aggregatorKey(pair);
-
-      // find a value before a particular timestamp
-      const valueTimestamp = await this.priceAggregator.valueTimestamp(aggregatorKey, beforeTimestamp);
-      if (!valueTimestamp) {
-        // no values to truncate
-        return;
-      }
-
-      // delete all values before the one we have just found
-      await this.priceAggregator.cleanUp(aggregatorKey, valueTimestamp.timestamp);
-    }));
-  }
-
   private static aggregatorKey({fsym, tsym}: Pair) {
-    return `${PolygonWSClient.Prefix}${fsym}~${tsym}`;
+    return `${fsym}-${tsym}`;
   }
 }
 
