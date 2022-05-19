@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - WS fetcher saves in mongoDB instead of saving in Redis
+- Save prices and data in batch sized by settings
 
 ### Removed
 - MongoDBPriceAggregator, PriceAggregator and RedisPriceAggregator

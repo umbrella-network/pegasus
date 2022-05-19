@@ -1,11 +1,12 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
+
 import {FeedRepository} from '../repositories/FeedRepository';
 import FeedDataProcessor from './FeedDataProcessor';
 import Settings from '../types/Settings';
-import {PriceRepository} from '../repositories/PriceRepository';
-import {DatumRepository} from '../repositories/DatumRepository';
-import {Logger} from 'winston';
 import Feeds, {FeedInput} from '../types/Feed';
+import {PriceService} from './PriceService';
+import {DatumService} from './DatumService';
 
 @injectable()
 export class FeedDataCollector {
@@ -13,8 +14,8 @@ export class FeedDataCollector {
   @inject('Logger') logger!: Logger;
   @inject(FeedRepository) feedRepository!: FeedRepository;
   @inject(FeedDataProcessor) feedDataProcessor!: FeedDataProcessor;
-  @inject(PriceRepository) priceRepository!: PriceRepository;
-  @inject(DatumRepository) datumRepository!: DatumRepository;
+  @inject(PriceService) priceService!: PriceService;
+  @inject(DatumService) datumService!: DatumService;
 
   async run(): Promise<void> {
     const [fcdFeeds, leafFeeds] = await Promise.all([
@@ -33,7 +34,7 @@ export class FeedDataCollector {
 
     const {data, prices} = await this.feedDataProcessor.apply(timestamp, feeds);
 
-    await Promise.all([this.priceRepository.saveBatch(prices), this.datumRepository.saveBatch(data)]);
+    await Promise.all([this.priceService.savePrices(prices), this.datumService.saveData(data)]);
   }
 
   private mergeFeedHttpInputs(...feeds: Feeds[]): Feeds {
