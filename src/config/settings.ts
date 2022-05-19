@@ -104,6 +104,8 @@ const settings: Settings = {
       priceTTL: parseInt(process.env.PRICE_TTL as string) || 60 * 60,
       datumTTL: parseInt(process.env.DATUM_TTL as string) || 60 * 60,
     },
+    priceBatchSize: parseInt(process.env.PRICE_BATCH_SIZE || '200'),
+    datumBatchSize: parseInt(process.env.DATUM_BATCH_SIZE || '200'),
   },
   consensus: {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),

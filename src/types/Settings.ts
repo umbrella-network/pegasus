@@ -60,6 +60,8 @@ type Settings = {
       priceTTL: number;
       datumTTL: number;
     };
+    priceBatchSize: number;
+    datumBatchSize: number;
   };
   consensus: {
     retries: number;
