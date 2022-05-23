@@ -109,20 +109,17 @@ export class UniswapPriceScanner {
       .map((pool, i) => this.extractPrice(contractPrices.prices[i], pool, ts))
       
     const validPrices = prices.filter(p => !!p && p.value != 0);
-    const invalidPrices = prices.filter(p => p.raw);
-
-    if (invalidPrices.length > 0) {
-      this.logger.debug([
-        `[UniswapPriceScanner] Could not convert prices for`,
-        invalidPrices.map(p => `${p.symbol} - (${p.raw})`).join(', ')
-      ].join(' '));
-    }
 
     this.log(`Got ${validPrices.length} new prices.`);
     return validPrices;
   }
 
-  private extractPrice(contractPrice: Price, pool: BlockchainSymbol, ts: BigNumber): UniswapPoolPrice {
+  private extractPrice(contractPrice: Price, pool: BlockchainSymbol, ts: BigNumber): UniswapPoolPrice | undefined {
+    if (!contractPrice.success) {
+      this.logger.info(`[UniswapPriceScanner] ignored unsuccessful price ${pool.symbol}`);
+      return undefined;
+    }
+
     try {
       const digits = 15 - contractPrice.price.div('1' + '0'.repeat(18)).toString().length;
       const n = digits < 0 ? 0 : digits;
@@ -130,7 +127,7 @@ export class UniswapPriceScanner {
       const timestamp = ts.toNumber();
       return { symbol: pool.symbol, value, timestamp };
     } catch (e) {
-      return { symbol: pool.symbol, value: 0, timestamp: 0, raw: contractPrice.price.toString() };
+      return undefined;
     }
   }
 
