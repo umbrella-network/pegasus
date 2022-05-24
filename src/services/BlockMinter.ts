@@ -5,7 +5,6 @@ import {BigNumber, ethers, Signature} from 'ethers';
 import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
 import {ABI, LeafKeyCoder, GasEstimator} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
-import {getModelForClass} from '@typegoose/typegoose';
 
 import {HexStringWith0x} from '../types/Feed';
 import ConsensusRunner from './ConsensusRunner';
@@ -15,7 +14,6 @@ import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import TimeService from './TimeService';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
-import Block from '../models/Block';
 import {ChainStatus} from '../types/ChainStatus';
 import Settings from '../types/Settings';
 import {LogMint} from '../types/events';
@@ -197,8 +195,8 @@ class BlockMinter {
   }
 
   private async waitUntilNextBlock(currentBlockNumber: number): Promise<number> {
-    // it would be nice to subscribe for blockNumber, but we forcing http for RPC
-    // this is not pretty solution, but we using proxy, so infura calls should not increase
+    // it would be nice to subscribe for blockNumber, but we're forcing http for RPC
+    // this is not pretty solution, but we're using proxy, so infura calls should not increase
     let newBlockNumber = await this.blockchain.getBlockNumber();
 
     while (currentBlockNumber === newBlockNumber) {
@@ -294,13 +292,6 @@ class BlockMinter {
     if (balance.lt(ethers.utils.parseEther(warningLimit))) {
       this.logger.warn(`Balance is lower than ${warningLimit}`);
     }
-  }
-
-  private static async getLastSubmittedBlock(): Promise<Block | undefined> {
-    // sorting by timestamp because blockId can change eg blocks can be reverted
-    // so latest submitted not necessary can be the one with highest blockId
-    const blocks: Block[] = await getModelForClass(Block).find({}).limit(1).sort({timestamp: -1}).exec();
-    return blocks[0];
   }
 }
 
