@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.3.1] - 2022-05-23
+### Changed
+- Uniswap agent only gets successful prices
+
 ## [7.3.0] - 2022-05-12
 ### Added
 - Publish different pegasus versions to dockerhub using tags
