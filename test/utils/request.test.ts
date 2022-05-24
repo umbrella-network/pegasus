@@ -1,4 +1,5 @@
 import {expect} from 'chai';
+
 import {timeoutWithCode} from '../../src/utils/request';
 import {TimeoutCodes} from '../../src/types/TimeoutCodes';
 

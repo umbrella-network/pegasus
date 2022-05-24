@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import { Container } from 'inversify';
-import Settings from '../../../src/types/Settings';
-import { expect } from 'chai';
-import CryptoCompareHistoHourFetcher from '../../../src/services/fetchers/CryptoCompareHistoHourFetcher';
+import {Container} from 'inversify';
+import {expect} from 'chai';
 import moxios from 'moxios';
-
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+
+import Settings from '../../../src/types/Settings';
+import CryptoCompareHistoHourFetcher from '../../../src/services/fetchers/CryptoCompareHistoHourFetcher';
 
 chai.use(chaiAsPromised);
 

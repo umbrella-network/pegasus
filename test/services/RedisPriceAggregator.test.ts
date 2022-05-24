@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import {expect} from 'chai';
+import IORedis, {Redis} from 'ioredis';
 
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import {RedisPriceAggregator} from '../../src/services/RedisPriceAggregator';
 import Settings from '../../src/types/Settings';
 import {getTestContainer} from '../helpers/getTestContainer';
-import IORedis, {Redis} from 'ioredis';
 
 describe('RedisPriceAggregator', () => {
   let priceAggregator: RedisPriceAggregator;

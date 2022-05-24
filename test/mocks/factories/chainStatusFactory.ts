@@ -1,5 +1,6 @@
 import {BigNumber} from 'ethers';
 import {Factory} from 'rosie';
+
 import {ChainStatus} from '../../../src/types/ChainStatus';
 
 export const chainStatusFactory = Factory.define<ChainStatus>('LeavesAndFeeds')

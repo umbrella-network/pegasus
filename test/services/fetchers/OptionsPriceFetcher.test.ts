@@ -1,14 +1,14 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
-import { Container } from 'inversify';
-import Settings from '../../../src/types/Settings';
-import { expect } from 'chai';
-import OptionsPriceFetcher from '../../../src/services/fetchers/OptionsPriceFetcher'
+import {Container} from 'inversify';
+import {expect} from 'chai';
 import moxios from 'moxios';
-
-import {mockedLogger} from '../../mocks/logger';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+
+import Settings from '../../../src/types/Settings';
+import OptionsPriceFetcher from '../../../src/services/fetchers/OptionsPriceFetcher';
+import {mockedLogger} from '../../mocks/logger';
 
 chai.use(chaiAsPromised);
 
@@ -48,7 +48,7 @@ describe('OptionsPriceFetcher', () => {
     it('returns the formatted options', async () => {
       const responseExample = {
         data: {
-          "ETH-17SEP21-3500": {
+          'ETH-17SEP21-3500': {
             callPrice: 0.123,
             putPrice: 0.123,
             iv: 71.123,

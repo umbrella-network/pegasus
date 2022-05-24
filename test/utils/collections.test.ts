@@ -1,4 +1,5 @@
 import {expect} from 'chai';
+
 import {mergeArrays, splitIntoBatches} from '../../src/utils/collections';
 
 describe('collections', () => {
