@@ -109,7 +109,7 @@ class CryptoCompareWSClient extends WSClient {
     this.updateSubscription(subscriptions);
   }
 
-  protected onClose() {
+  protected onClose(): void {
     super.onClose();
 
     this.truncateJob?.cancel();
