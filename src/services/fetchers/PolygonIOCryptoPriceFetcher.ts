@@ -6,7 +6,7 @@ import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService';
 class PolygonIOCryptoPriceFetcher {
   @inject(PolygonIOCryptoPriceService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceService;
 
-  async apply({fsym, tsym}: any, timestamp: number): Promise<number> {
+  async apply({fsym, tsym}: {fsym: string; tsym: string}, timestamp: number): Promise<number> {
     const price = await this.polygonIOCryptoPriceService.getLatestPrice({fsym, tsym}, timestamp);
     if (price !== null) {
       return price;

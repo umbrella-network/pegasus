@@ -11,7 +11,6 @@ import Settings from './types/Settings';
 import Block from './models/Block';
 import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer';
 import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
-import KaikoPriceStreamInitializer from './services/KaikoPriceStreamInitializer';
 import TimeService from './services/TimeService';
 import Blockchain from './lib/Blockchain';
 
@@ -22,7 +21,6 @@ const argv = yargs(process.argv.slice(2)).options({
 async function testFeeds(settings: Settings): Promise<void> {
   await Application.get(PolygonIOPriceInitializer).apply();
   await Application.get(CryptoCompareWSInitializer).apply();
-  await Application.get(KaikoPriceStreamInitializer).apply();
 
   const feeds = await loadFeeds(settings.feedsFile);
 

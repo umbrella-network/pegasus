@@ -1,6 +1,7 @@
 import {inject, injectable} from 'inversify';
-import {BasicAgent} from './BasicAgent';
 import {Logger} from 'winston';
+
+import {BasicAgent} from './BasicAgent';
 
 export enum AgentState {
   ONLINE = 'ONLINE',

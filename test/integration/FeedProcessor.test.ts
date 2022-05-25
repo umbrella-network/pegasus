@@ -63,14 +63,6 @@ const feedsFetcher = [
     name: 'CryptoComparePrice',
   },
   {
-    apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: 'CoinmarketcapPrice',
-  },
-  {
-    apiKey: 'IEX_API_KEY',
-    name: 'IEXEnergy',
-  },
-  {
     apiKey: null,
     name: 'CoingeckoPrice',
   },

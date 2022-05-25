@@ -77,17 +77,9 @@ type Settings = {
       truncateIntervalMinutes: number;
       reconnectTimeout: number;
     };
-    coinmarketcap: {
-      apiKey: string;
-      timeout: number;
-    };
     coingecko: {
       timeout: number;
       maxBatchSize: number;
-    };
-    genesisVolatility: {
-      apiKey: string;
-      timeout: number;
     };
     polygonIO: {
       apiKey: string;
@@ -98,18 +90,7 @@ type Settings = {
       reconnectTimeout: number;
       maxBatchSize: number;
     };
-    bea: {
-      apiKey: string;
-      timeout: number;
-    };
-    iex: {
-      apiKey: string;
-      timeout: number;
-    };
     kaiko: {
-      apiKey: string;
-      rpcUrl: string;
-      timeout: number;
       priceFreshness: number;
     };
     optionsPrice: {

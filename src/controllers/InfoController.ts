@@ -51,7 +51,6 @@ class InfoController {
       name: this.settings.name,
       keys: {
         cryptocompare: InfoController.obfuscate(this.settings.api.cryptocompare.apiKey),
-        genesisVolatility: InfoController.obfuscate(this.settings.api.genesisVolatility.apiKey),
         polygonIO: InfoController.obfuscate(this.settings.api.polygonIO.apiKey),
         options: InfoController.obfuscate(this.settings.api.optionsPrice.apiKey),
       },

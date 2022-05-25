@@ -9,9 +9,7 @@ class CryptoComparePriceMultiFetcher {
   private apiKey: string;
   private timeout: number;
 
-  constructor(
-    @inject('Settings') settings: Settings
-  ) {
+  constructor(@inject('Settings') settings: Settings) {
     this.apiKey = settings.api.cryptocompare.apiKey;
     this.timeout = settings.api.cryptocompare.timeout;
   }
@@ -19,12 +17,14 @@ class CryptoComparePriceMultiFetcher {
   async apply(params: InputParams): Promise<OutputValue[]> {
     const {fsyms, tsyms} = params;
 
-    const sourceUrl =  `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${fsyms.join(',')}&tsyms=${tsyms.join(',')}`
+    const sourceUrl = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${fsyms.join(',')}&tsyms=${tsyms.join(
+      ',',
+    )}`;
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
       timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-      headers: {'Authorization': `Apikey ${this.apiKey}`}
+      headers: {Authorization: `Apikey ${this.apiKey}`},
     });
 
     if (response.status !== 200) {
@@ -50,18 +50,18 @@ class CryptoComparePriceMultiFetcher {
     });
 
     return valuePairs;
-  }
+  };
 }
 
 export interface OutputValue {
-  fsym: string,
-  tsym: string,
-  value: number,
+  fsym: string;
+  tsym: string;
+  value: number;
 }
 
 export interface InputParams {
-  fsyms: string[],
-  tsyms: string[],
+  fsyms: string[];
+  tsyms: string[];
 }
 
 export default CryptoComparePriceMultiFetcher;

@@ -9,14 +9,12 @@ class PolygonIOSingleCryptoPriceFetcher {
   private apiKey: string;
   private timeout: number;
 
-  constructor(
-    @inject('Settings') settings: Settings
-  ) {
+  constructor(@inject('Settings') settings: Settings) {
     this.apiKey = settings.api.polygonIO.apiKey;
     this.timeout = settings.api.polygonIO.timeout;
   }
 
-  async apply({fsym, tsym}: any, raw = false): Promise<SinglePriceResponse | number> {
+  async apply({fsym, tsym}: {fsym: string; tsym: string}, raw = false): Promise<SinglePriceResponse | number> {
     const sourceUrl = `https://api.polygon.io/v1/last/crypto/${fsym}/${tsym}?apiKey=${this.apiKey}`;
 
     const response = await axios.get(sourceUrl, {
@@ -28,22 +26,21 @@ class PolygonIOSingleCryptoPriceFetcher {
       throw new Error(response.data);
     }
 
-    return raw ? response.data as SinglePriceResponse : this.extractValue(response.data, '$.last.price');
+    return raw ? (response.data as SinglePriceResponse) : this.extractValue(response.data, '$.last.price');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extractValue = (data: any, valuePath: string): number => {
     return JSONPath({json: data, path: valuePath})[0];
-  }
+  };
 }
-
 
 export interface SinglePriceResponse {
   symbol: string;
   last: {
-    price: number,
-    timestamp: number,
-  },
+    price: number;
+    timestamp: number;
+  };
 }
 
 export default PolygonIOSingleCryptoPriceFetcher;
