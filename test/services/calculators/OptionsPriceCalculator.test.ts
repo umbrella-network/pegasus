@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import {Container} from 'inversify';
+import {expect} from 'chai';
+
 import Settings from '../../../src/types/Settings';
 import OptionsPriceCalculator from '../../../src/services/calculators/OptionsPriceCalculator';
-
 import {mockedLogger} from '../../mocks/logger';
-import {expect} from 'chai';
 
 describe('OptionsPriceCalculator', () => {
   let settings: Settings;

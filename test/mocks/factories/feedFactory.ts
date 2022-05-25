@@ -1,5 +1,6 @@
 import {FeedInput} from '@umb-network/toolbox/dist/types/Feed';
 import {Factory} from 'rosie';
+
 import {Feed} from '../../../src/types/Feed';
 
 export const feedInputFactory = Factory.define<FeedInput>('feedInput').attr('fetcher', {name: 'TestFetcher'});

@@ -2,6 +2,8 @@ import 'reflect-metadata';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import {BigNumber, Wallet} from 'ethers';
+
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
 import ChainContract from '../../src/contracts/ChainContract';
@@ -11,7 +13,6 @@ import TimeService from '../../src/services/TimeService';
 import SignatureCollector from '../../src/services/SignatureCollector';
 import BlockRepository from '../../src/services/BlockRepository';
 import {Validator} from '../../src/types/Validator';
-import {BigNumber, Wallet} from 'ethers';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse';
 import {signAffidavitWithWallet} from '../../src/utils/mining';

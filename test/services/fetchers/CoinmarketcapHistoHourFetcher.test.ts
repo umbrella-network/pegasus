@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import { Container } from 'inversify';
-import Settings from '../../../src/types/Settings';
-import { expect } from 'chai';
-import CoinmarketcapHistoHourFetcher from '../../../src/services/fetchers/CoinmarketcapHistoHourFetcher';
+import {Container} from 'inversify';
+import {expect} from 'chai';
 import moxios from 'moxios';
-
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+
+import Settings from '../../../src/types/Settings';
+import CoinmarketcapHistoHourFetcher from '../../../src/services/fetchers/CoinmarketcapHistoHourFetcher';
 
 chai.use(chaiAsPromised);
 
@@ -43,52 +42,55 @@ describe('CoinmarketcapHistoDayFetcher', () => {
 
   it('sends valid request and correctly transforms response from coinmarketcap', async () => {
     const responseExample = {
-      "status": {
-        "timestamp": "2021-06-28T11:43:18.035Z",
-        "error_code": 0,
-        "error_message": null,
-        "elapsed": 26,
-        "credit_count": 1,
-        "notice": null
+      status: {
+        timestamp: '2021-06-28T11:43:18.035Z',
+        error_code: 0,
+        error_message: null,
+        elapsed: 26,
+        credit_count: 1,
+        notice: null,
       },
-      "data": {
-        "id": 8874,
-        "name": "DAFI Protocol",
-        "symbol": "DAFI",
-        "quotes": [{
-          "time_open": "2021-06-28T09:00:00.000Z",
-          "time_close": "2021-06-28T09:59:59.999Z",
-          "time_high": "2021-06-28T09:01:07.000Z",
-          "time_low": "2021-06-28T09:58:08.000Z",
-          "quote": {
-            "USD": {
-              "open": 0.01984605072496,
-              "high": 0.01984762671449,
-              "low": 0.01944127705114,
-              "close": 0.01945004331444,
-              "volume": null,
-              "market_cap": 5771640.72,
-              "timestamp": "2021-06-28T09:59:59.999Z"
-            }
-          }
-        }, {
-          "time_open": "2021-06-28T10:00:00.000Z",
-          "time_close": "2021-06-28T10:59:59.999Z",
-          "time_high": "2021-06-28T10:03:07.000Z",
-          "time_low": "2021-06-28T10:51:07.000Z",
-          "quote": {
-            "USD": {
-              "open": 0.01944665532293,
-              "high": 0.01952834955751,
-              "low": 0.01898509065852,
-              "close": 0.01912046509562,
-              "volume": null,
-              "market_cap": 5673841.09,
-              "timestamp": "2021-06-28T10:59:59.999Z"
-            }
-          }
-        }]
-      }
+      data: {
+        id: 8874,
+        name: 'DAFI Protocol',
+        symbol: 'DAFI',
+        quotes: [
+          {
+            time_open: '2021-06-28T09:00:00.000Z',
+            time_close: '2021-06-28T09:59:59.999Z',
+            time_high: '2021-06-28T09:01:07.000Z',
+            time_low: '2021-06-28T09:58:08.000Z',
+            quote: {
+              USD: {
+                open: 0.01984605072496,
+                high: 0.01984762671449,
+                low: 0.01944127705114,
+                close: 0.01945004331444,
+                volume: null,
+                market_cap: 5771640.72,
+                timestamp: '2021-06-28T09:59:59.999Z',
+              },
+            },
+          },
+          {
+            time_open: '2021-06-28T10:00:00.000Z',
+            time_close: '2021-06-28T10:59:59.999Z',
+            time_high: '2021-06-28T10:03:07.000Z',
+            time_low: '2021-06-28T10:51:07.000Z',
+            quote: {
+              USD: {
+                open: 0.01944665532293,
+                high: 0.01952834955751,
+                low: 0.01898509065852,
+                close: 0.01912046509562,
+                volume: null,
+                market_cap: 5673841.09,
+                timestamp: '2021-06-28T10:59:59.999Z',
+              },
+            },
+          },
+        ],
+      },
     };
 
     moxios.stubRequest(/https:\/\/pro-api.coinmarketcap.com\/v1\/cryptocurrency.*/, {

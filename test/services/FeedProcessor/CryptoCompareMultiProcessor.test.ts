@@ -1,8 +1,8 @@
 import {expect} from 'chai';
+import sinon, {createStubInstance} from 'sinon';
 
 import {FeedFetcher} from '../../../src/types/Feed';
 import {getTestContainer} from '../../helpers/getTestContainer';
-import sinon, {createStubInstance} from 'sinon';
 import CryptoCompareMultiProcessor from '../../../src/services/FeedProcessor/CryptoCompareMultiProcessor';
 import CryptoCompareMultiPriceFetcher, {
   OutputValue,

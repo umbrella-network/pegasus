@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import Settings from '../../../src/types/Settings';
 import {expect} from 'chai';
-import PolygonIOStockSnapshotFetcher from '../../../src/services/fetchers/PolygonIOStockSnapshotFetcher';
 import moxios from 'moxios';
-
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+
+import Settings from '../../../src/types/Settings';
+import PolygonIOStockSnapshotFetcher from '../../../src/services/fetchers/PolygonIOStockSnapshotFetcher';
 import {getTestContainer} from '../../helpers/getTestContainer';
 
 chai.use(chaiAsPromised);

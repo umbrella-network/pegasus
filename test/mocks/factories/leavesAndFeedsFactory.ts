@@ -1,4 +1,5 @@
 import {Factory} from 'rosie';
+
 import {LeavesAndFeeds} from '../../../src/types/Consensus';
 
 export const leavesAndFeedsFactory = Factory.define<LeavesAndFeeds>('LeavesAndFeeds')

@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
 import {expect} from 'chai';
 import mongoose from 'mongoose';
 
 import '../../src/config/setupDotenv';
-
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import BlockRepository from '../../src/services/BlockRepository';
 import Block from '../../src/models/Block';
@@ -72,7 +70,9 @@ describe('BlockRepository', () => {
     expect(blockFromDb?.blockId).to.be.eq(1);
     expect(blockFromDb?.fcdKeys).to.be.deep.eq(['ETH-USD', 'USD-ETH']);
     // is undefined or an empty object
-    expect(blockFromDb?.data).to.satisfies((data: any) => data === undefined || Object.keys(data).length === 0);
+    expect(blockFromDb?.data).to.satisfies(
+      (data: Record<string, string>) => data === undefined || Object.keys(data).length === 0,
+    );
     expect(blockFromDb?.root).to.be.eq('0x00');
     expect(blockFromDb?.timestamp).to.be.a('Date');
   });
