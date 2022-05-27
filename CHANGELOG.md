@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Changed
+- Created api price freshness settings
+
 ## [7.3.1] - 2022-05-23
 ### Changed
 - Uniswap agent only gets successful prices

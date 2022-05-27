@@ -21,7 +21,7 @@ class PriceRepository {
 
   async getLatestPrice(
     prefix: string,
-    {fsym, tsym, freshness = this.settings.api.kaiko.priceFreshness}: PairWithFreshness,
+    {fsym, tsym, freshness = this.settings.api.priceFreshness}: PairWithFreshness,
     timestamp: number,
   ): Promise<number | null> {
     return this.priceAggregator.valueAfter(`${prefix}${fsym}~${tsym}`, timestamp, timestamp - freshness);

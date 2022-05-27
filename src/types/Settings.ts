@@ -90,9 +90,6 @@ type Settings = {
       reconnectTimeout: number;
       maxBatchSize: number;
     };
-    kaiko: {
-      priceFreshness: number;
-    };
     optionsPrice: {
       apiKey: string;
       timeout: number;
@@ -109,6 +106,7 @@ type Settings = {
       defaultDiscrepancy: number;
       verificationInterval: number;
     };
+    priceFreshness: number;
   };
   rpcSelectionStrategy: string;
   feedsCacheRefreshCronRule: string;
