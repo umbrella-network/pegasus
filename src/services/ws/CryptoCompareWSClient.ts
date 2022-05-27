@@ -4,7 +4,7 @@ import schedule, {Job} from 'node-schedule';
 import WSClient from './WSClient';
 import Settings from '../../types/Settings';
 import {Pair, PairWithFreshness} from '../../types/Feed';
-import StatsDClient from '../../lib/StatsDClient'
+import StatsDClient from '../../lib/StatsDClient';
 import PriceAggregator from '../PriceAggregator';
 import TimeService from '../TimeService';
 import Timeout from '../../utils/timeout';
@@ -50,17 +50,28 @@ class CryptoCompareWSClient extends WSClient {
     @inject(TimeService) timeService: TimeService,
     @inject(PriceAggregator) priceAggregator: PriceAggregator,
   ) {
-    super(`wss://streamer.cryptocompare.com/v2?api_key=${settings.api.cryptocompare.apiKey}`, settings.api.cryptocompare.reconnectTimeout);
+    super(
+      `wss://streamer.cryptocompare.com/v2?api_key=${settings.api.cryptocompare.apiKey}`,
+      settings.api.cryptocompare.reconnectTimeout,
+    );
 
     this.timeService = timeService;
     this.settings = settings;
     this.priceAggregator = priceAggregator;
   }
 
-  async getLatestPrice({fsym, tsym, freshness = CryptoCompareWSClient.DefaultFreshness}: PairWithFreshness, timestamp: number): Promise<number | null> {
-    return await this.priceAggregator.valueAfter(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, timestamp, timestamp - freshness);
+  async getLatestPrice(
+    {fsym, tsym, freshness = CryptoCompareWSClient.DefaultFreshness}: PairWithFreshness,
+    timestamp: number,
+  ): Promise<number | null> {
+    return await this.priceAggregator.valueAfter(
+      `${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`,
+      timestamp,
+      timestamp - freshness,
+    );
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
   onAggregate(payload: any): void {
     const {FROMSYMBOL: fsym, TOSYMBOL: tsym, MEDIAN: median, LASTUPDATE: timestamp} = payload;
 
@@ -75,14 +86,16 @@ class CryptoCompareWSClient extends WSClient {
     StatsDClient?.gauge(`cpm.${fsym}-${tsym}`, median);
     this.logger.debug(`${subscription}: ${median} at ${timestamp}`);
 
-    this.priceAggregator.add(`${CryptoCompareWSClient.Prefix}${subscription}`, median, timestamp).catch(this.logger.error);
+    this.priceAggregator
+      .add(`${CryptoCompareWSClient.Prefix}${subscription}`, median, timestamp)
+      .catch(this.logger.error);
   }
 
   onOpen(): void {
     super.onOpen();
   }
 
-  onConnected(event: unknown): void {
+  onConnected(): void {
     this.connected = true;
 
     this.staleReconnectJob = new Timeout(70, () => {
@@ -175,8 +188,8 @@ class CryptoCompareWSClient extends WSClient {
   }
 
   private updateSubscription(subscriptions: {[subscription: string]: Pair}) {
-    const toUnsubscribe = Object.keys(this.subscriptions).filter(x => !subscriptions[x]);
-    const toSubscribe = Object.keys(subscriptions).filter(x => !this.subscriptions[x]);
+    const toUnsubscribe = Object.keys(this.subscriptions).filter((x) => !subscriptions[x]);
+    const toSubscribe = Object.keys(subscriptions).filter((x) => !this.subscriptions[x]);
 
     this.subscriptions = subscriptions;
 
@@ -194,10 +207,12 @@ class CryptoCompareWSClient extends WSClient {
       return;
     }
 
-    this.socket?.send(JSON.stringify({
-      action: 'SubAdd',
-      subs: subscriptions.map((subscription) => `5~CCCAGG~${subscription}`),
-    }));
+    this.socket?.send(
+      JSON.stringify({
+        action: 'SubAdd',
+        subs: subscriptions.map((subscription) => `5~CCCAGG~${subscription}`),
+      }),
+    );
   }
 
   private unsubscribeSubscriptions(subscriptions: string[], cleanUp: boolean) {
@@ -211,10 +226,12 @@ class CryptoCompareWSClient extends WSClient {
       }
     }
 
-    this.socket?.send(JSON.stringify({
-      action: 'SubRemove',
-      subs: subscriptions.map((subscription) => `5~CCCAGG~${subscription}`),
-    }));
+    this.socket?.send(
+      JSON.stringify({
+        action: 'SubRemove',
+        subs: subscriptions.map((subscription) => `5~CCCAGG~${subscription}`),
+      }),
+    );
   }
 
   private async checkStaleSubscriptions(): Promise<void> {
@@ -252,29 +269,37 @@ class CryptoCompareWSClient extends WSClient {
 
     this.logger.info(`Truncating CryptoCompare prices before ${beforeTimestamp}...`);
 
-    await Promise.all(Object.keys(this.subscriptions).map(async (subscription) => {
-      const key = `${CryptoCompareWSClient.Prefix}${subscription}`;
+    await Promise.all(
+      Object.keys(this.subscriptions).map(async (subscription) => {
+        const key = `${CryptoCompareWSClient.Prefix}${subscription}`;
 
-      // find a value before a particular timestamp
-      const valueTimestamp = await this.priceAggregator.valueTimestamp(key, beforeTimestamp);
-      if (!valueTimestamp) {
-        // no values to truncate
-        return;
-      }
+        // find a value before a particular timestamp
+        const valueTimestamp = await this.priceAggregator.valueTimestamp(key, beforeTimestamp);
+        if (!valueTimestamp) {
+          // no values to truncate
+          return;
+        }
 
-      // delete all values before the one we have just found
-      await this.priceAggregator.cleanUp(key, valueTimestamp.timestamp);
-    }));
+        // delete all values before the one we have just found
+        await this.priceAggregator.cleanUp(key, valueTimestamp.timestamp);
+      }),
+    );
   }
 
   public async allPrices({fsym, tsym}: Pair): Promise<{value: number; timestamp: number}[]> {
     return this.priceAggregator.valueTimestamps(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`);
   }
 
-  public async latestPrices(pairs: Pair[], beforeTimestamp: number): Promise<{symbol: string; value: number; timestamp: number}[]> {
+  public async latestPrices(
+    pairs: Pair[],
+    beforeTimestamp: number,
+  ): Promise<{symbol: string; value: number; timestamp: number}[]> {
     return await Promise.all(
       pairs.map(async ({fsym, tsym}) => {
-        const valueTimestamp = await this.priceAggregator.valueTimestamp(`${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`, beforeTimestamp);
+        const valueTimestamp = await this.priceAggregator.valueTimestamp(
+          `${CryptoCompareWSClient.Prefix}${fsym}~${tsym}`,
+          beforeTimestamp,
+        );
 
         const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
         return {

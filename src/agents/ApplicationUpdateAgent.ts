@@ -1,4 +1,5 @@
 import {inject, injectable} from 'inversify';
+
 import {LoopAgent} from './LoopAgent';
 import ApplicationUpdateService from '../services/ApplicationUpdateService';
 import Settings from '../types/Settings';

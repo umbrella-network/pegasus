@@ -1,23 +1,24 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
+import {chunk} from 'lodash';
+import {BigNumber} from 'ethers';
+import NodeCache from 'node-cache';
+import {Provider} from '@ethersproject/providers';
+
 import {UniswapPriceService} from './UniswapPriceService';
 import Settings from '../../types/Settings';
-import {Provider} from '@ethersproject/providers';
 import {UniswapPoolService} from './UniswapPoolService';
 import {BlockchainSymbol} from '../../models/BlockchainSymbol';
 import {Mutex, MutexInterface, withTimeout} from 'async-mutex';
 import {Price, UniswapV3Helper} from '../../contracts/UniswapV3Helper';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
-import {chunk} from 'lodash';
-import {BigNumber} from 'ethers';
-import NodeCache from 'node-cache';
 
 export type UniswapPoolPrice = {
   symbol: string;
   value: number;
   timestamp: number;
   raw?: string;
-}
+};
 
 @injectable()
 export class UniswapPriceScanner {
@@ -45,7 +46,7 @@ export class UniswapPriceScanner {
 
   async start(): Promise<void> {
     this.log('Starting Price Scanner');
-    this.provider.on('block', async (blockNumber) => await this.processBlock(blockNumber))
+    this.provider.on('block', async (blockNumber) => await this.processBlock(blockNumber));
   }
 
   private async processBlock(blockNumber: number): Promise<void> {
@@ -72,7 +73,7 @@ export class UniswapPriceScanner {
           const prices = await this.getUpdatedPrices(batch);
           await this.savePrices(prices);
         }
-      } catch(e) {
+      } catch (e) {
         this.logger.error(`[UniswapPriceScanner] Error retrieving prices, skipping...`);
         this.logger.error('[UniswapPriceScanner]', e);
       }
@@ -87,28 +88,29 @@ export class UniswapPriceScanner {
     let verifiedPools = this.sourceCache.get<BlockchainSymbol[]>('VERIFIED_POOLS');
     if (verifiedPools) return verifiedPools;
 
-    verifiedPools =  await this.poolService.getVerifiedPools();
+    verifiedPools = await this.poolService.getVerifiedPools();
     this.sourceCache.set<BlockchainSymbol[]>('VERIFIED_POOLS', verifiedPools);
     return verifiedPools;
   }
 
   private async getUpdatedPrices(pools: BlockchainSymbol[]): Promise<UniswapPoolPrice[]> {
-    const qualifyingPools = pools.filter(p => !!p.meta?.fee);
+    const qualifyingPools = pools.filter((p) => !!p.meta?.fee);
 
-    const contractPriceProps = qualifyingPools.map(p => ({
+    const contractPriceProps = qualifyingPools.map((p) => ({
       tokenA: p.tokens[0].address,
       tokenB: p.tokens[1].address,
-      fee: <number>p.meta?.fee
+      fee: <number>p.meta?.fee,
     }));
 
     this.logger.debug(`[UniswapPriceScanner] Input: ${JSON.stringify(contractPriceProps)}`);
     const contractPrices = await this.uniswapV3Helper.getPrices(contractPriceProps);
     const ts = contractPrices.timestamp;
 
-    const prices = <UniswapPoolPrice[]>qualifyingPools
-      .map((pool, i) => this.extractPrice(contractPrices.prices[i], pool, ts))
-      
-    const validPrices = prices.filter(p => !!p && p.value != 0);
+    const prices = <UniswapPoolPrice[]>(
+      qualifyingPools.map((pool, i) => this.extractPrice(contractPrices.prices[i], pool, ts))
+    );
+
+    const validPrices = prices.filter((p) => !!p && p.value != 0);
 
     this.log(`Got ${validPrices.length} new prices.`);
     return validPrices;
@@ -123,9 +125,9 @@ export class UniswapPriceScanner {
     try {
       const digits = 15 - contractPrice.price.div('1' + '0'.repeat(18)).toString().length;
       const n = digits < 0 ? 0 : digits;
-      const value = contractPrice.price.div('1' + '0'.repeat(18 - n)).toNumber() / 10**n;
+      const value = contractPrice.price.div('1' + '0'.repeat(18 - n)).toNumber() / 10 ** n;
       const timestamp = ts.toNumber();
-      return { symbol: pool.symbol, value, timestamp };
+      return {symbol: pool.symbol, value, timestamp};
     } catch (e) {
       return undefined;
     }

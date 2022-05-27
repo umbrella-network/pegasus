@@ -1,4 +1,5 @@
 import {inject, injectable} from 'inversify';
+
 import {UniswapPoolScanner} from '../services/uniswap/UniswapPoolScanner';
 import {LoopAgent} from './LoopAgent';
 import {UniswapPoolService} from '../services/uniswap/UniswapPoolService';

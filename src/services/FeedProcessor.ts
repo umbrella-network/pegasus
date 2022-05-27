@@ -99,12 +99,6 @@ class FeedProcessor {
       result.push(leaves);
     });
 
-    const ignored = Object.keys(ignoredMap);
-
-    if (ignored.length) {
-      ////// this.logger.warn(`Ignored: ${JSON.stringify(ignored)}`);
-    }
-
     return result;
   }
 

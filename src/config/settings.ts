@@ -90,14 +90,6 @@ const settings: Settings = {
       timeout: timeoutWithCode(process.env.COINGECKO_TIMEOUT || '5000', TimeoutCodes.COINGECKO),
       maxBatchSize: parseInt(process.env.POLYGON_MAX_BATCH_SIZE || '500', 10),
     },
-    coinmarketcap: {
-      apiKey: process.env.COINMARKETCAP_API_KEY as string,
-      timeout: timeoutWithCode(process.env.COINMARKETCAP_TIMEOUT || '5000', TimeoutCodes.COINMARKETCAP),
-    },
-    genesisVolatility: {
-      apiKey: process.env.GENESIS_VOLATILITY_API_KEY as string,
-      timeout: timeoutWithCode(process.env.GENESIS_VOLATILITY_TIMEOUT || '5000', TimeoutCodes.GENESISVOLATILITY),
-    },
     polygonIO: {
       apiKey: process.env.POLYGON_IO_API_KEY as string,
       priceUpdateCronRule: process.env.POLYGON_IO_PRICE_UPDATE_CRON_RULE || '* * * * *', // every minute
@@ -107,18 +99,7 @@ const settings: Settings = {
       reconnectTimeout: parseInt(process.env.POLYGON_IO_RECONNECT_TIMEOUT || '30000', 10),
       maxBatchSize: parseInt(process.env.POLYGON_MAX_BATCH_SIZE || '500', 10),
     },
-    iex: {
-      apiKey: process.env.IEX_API_KEY as string,
-      timeout: timeoutWithCode(process.env.IEX_TIMEOUT || '5000', TimeoutCodes.IEX),
-    },
-    bea: {
-      apiKey: process.env.BAE_API_KEY as string,
-      timeout: timeoutWithCode(process.env.BAE_TIMEOUT || '5000', TimeoutCodes.BEA),
-    },
     kaiko: {
-      apiKey: process.env.KAIKO_API_KEY as string,
-      rpcUrl: process.env.KAIKO_RPC_URL || 'gateway-v0-grpc.kaiko.ovh:443',
-      timeout: timeoutWithCode(process.env.KAIKO_TIMEOUT || '5000', TimeoutCodes.KAIKO),
       priceFreshness: parseInt(process.env.KAIKO_FRESHNESS || '3600', 10),
     },
     optionsPrice: {

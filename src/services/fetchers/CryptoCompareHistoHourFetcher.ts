@@ -3,16 +3,14 @@ import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
 
 import Settings from '../../types/Settings';
-import {mapParams} from "../../utils/request";
+import {mapParams} from '../../utils/request';
 
 @injectable()
 class CryptoCompareHistoHourFetcher {
   private apiKey: string;
   private timeout: number;
 
-  constructor(
-    @inject('Settings') settings: Settings
-  ) {
+  constructor(@inject('Settings') settings: Settings) {
     this.apiKey = settings.api.cryptocompare.apiKey;
     this.timeout = settings.api.cryptocompare.timeout;
   }
@@ -24,7 +22,7 @@ class CryptoCompareHistoHourFetcher {
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
       timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-      headers: {'Authorization': `Apikey ${this.apiKey}`}
+      headers: {Authorization: `Apikey ${this.apiKey}`},
     });
 
     if (response.status !== 200) {
@@ -35,20 +33,21 @@ class CryptoCompareHistoHourFetcher {
       throw new Error(response.data.Message);
     }
 
-    return this.extractValue(response.data, '$.[:0]').map(({high, low, open, close, volumefrom: volume}) => ([
+    return this.extractValue(response.data, '$.[:0]').map(({high, low, open, close, volumefrom: volume}) => [
       {
         high,
         low,
         open,
-        close
-      }, volume
-    ]));
+        close,
+      },
+      volume,
+    ]);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extractValue = (data: any, valuePath: string): any[] => {
     return JSONPath({json: data, path: valuePath});
-  }
+  };
 }
 
 export default CryptoCompareHistoHourFetcher;
