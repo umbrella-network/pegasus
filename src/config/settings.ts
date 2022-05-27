@@ -99,9 +99,6 @@ const settings: Settings = {
       reconnectTimeout: parseInt(process.env.POLYGON_IO_RECONNECT_TIMEOUT || '30000', 10),
       maxBatchSize: parseInt(process.env.POLYGON_MAX_BATCH_SIZE || '500', 10),
     },
-    kaiko: {
-      priceFreshness: parseInt(process.env.KAIKO_FRESHNESS || '3600', 10),
-    },
     optionsPrice: {
       apiKey: process.env.OPTIONS_PRICE_API_KEY as string,
       timeout: timeoutWithCode(process.env.OPTIONS_PRICE_TIMEOUT || '5000', TimeoutCodes.OPTIONS_PRICE),
@@ -118,6 +115,7 @@ const settings: Settings = {
       defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '1.0'),
       verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
     },
+    priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
   feedsFile:
