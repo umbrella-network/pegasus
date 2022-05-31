@@ -7,7 +7,7 @@ import {price} from '@umb-network/validator';
 
 @injectable()
 export class LeafFactory {
-  buildFromFeedData(props: {label: string, feed: Feed, data: FeedDatum[]}): Leaf {
+  buildFromFeedData(props: {label: string; feed: Feed; data: FeedDatum[]}): Leaf {
     const {label, feed, data} = props;
     if (this.isFixedValue(label, data)) return this.buildLeaf(label, data[0].value);
 
@@ -26,7 +26,7 @@ export class LeafFactory {
   }
 
   private resolveValue(feed: Feed, data: FeedDatum[]): number {
-    const values = data.filter(d => typeof d.value == 'number').map(d => d.value as number);
+    const values = data.filter((d) => typeof d.value == 'number').map((d) => d.value as number);
     return this.calculateMean(values, feed.precision);
   }
 
