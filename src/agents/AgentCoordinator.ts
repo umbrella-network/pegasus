@@ -6,6 +6,7 @@ import {UniswapPoolScannerAgent} from './UniswapPoolScannerAgent';
 import {UniswapPriceScannerAgent} from './UniswapPriceScannerAgent';
 import {UniswapVerificationAgent} from './UniswapVerificationAgent';
 import {FeedAgent} from './FeedAgent';
+import {BlockMintingAgent} from './BlockMintingAgent';
 
 @injectable()
 export class AgentCoordinator {
@@ -17,12 +18,14 @@ export class AgentCoordinator {
     @inject(UniswapPriceScannerAgent) UniswapPriceScannerAgent: UniswapPriceScannerAgent,
     @inject(UniswapVerificationAgent) UniswapVerificationAgent: UniswapVerificationAgent,
     @inject(FeedAgent) FeedAgent: FeedAgent,
+    @inject(BlockMintingAgent) BlockMintingAgent: BlockMintingAgent,
   ) {
     this.agents = {
       UniswapPoolScannerAgent,
       UniswapPriceScannerAgent,
       UniswapVerificationAgent,
       FeedAgent,
+      BlockMintingAgent,
     };
   }
 
