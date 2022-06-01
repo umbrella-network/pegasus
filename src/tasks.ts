@@ -1,18 +1,19 @@
-import {boot} from './boot';
+import {GasEstimator} from '@umb-network/toolbox';
+import {getModelForClass} from '@typegoose/typegoose';
 import yargs from 'yargs';
 import {EventEmitter} from 'events';
-import {getModelForClass} from '@typegoose/typegoose';
-import {GasEstimator} from '@umb-network/toolbox';
 
+import {boot} from './boot';
 import Application from './lib/Application';
 import FeedProcessor from './services/FeedProcessor';
-import loadFeeds from './services/loadFeeds';
-import Settings from './types/Settings';
-import Block from './models/Block';
 import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer';
 import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
+import Block from './models/Block';
+import Settings from './types/Settings';
 import TimeService from './services/TimeService';
+import loadFeeds from './services/loadFeeds';
 import Blockchain from './lib/Blockchain';
+import {CompareValidatorService} from './services/validators/CompareValidatorService';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: {type: 'string', demandOption: true},
@@ -59,9 +60,17 @@ ev.on('done', () => process.exit());
       ev.emit('done');
       break;
     }
-
     case 'estimate:gas-price': {
       await estimateGasPrice(settings);
+      ev.emit('done');
+      break;
+    }
+    case 'compare-debug': {
+      try {
+        await Application.get(CompareValidatorService).apply();
+      } catch (err) {
+        console.error(err);
+      }
       ev.emit('done');
       break;
     }

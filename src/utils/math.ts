@@ -7,7 +7,7 @@ const calcFixedDiscrepancy = (val1: string, val2: string): number => {
   return val1bn.sub(val2).div(val1bn.add(val2)).abs().mul(2).toNumber();
 };
 
-const calcNumberDiscrepancy = (val1: number, val2: number): number => {
+export const calcNumberDiscrepancy = (val1: number, val2: number): number => {
   return (2 * Math.abs(val1 - val2)) / (val1 + val2);
 };
 
