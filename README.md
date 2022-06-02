@@ -10,39 +10,21 @@ Visit the [Umbrella Network](https://umbrella-network.readme.io/docs/umbrella-ne
 
 # Description
 
-Umbrella Validator fetches data from third-party data sources, agrees with other validators in the sidechain on the right values, and submits the data to the blockchain
+Umbrella Validator fetches data from third-party data sources, agrees with other validators in the sidechain on the right values, and submits the data to the blockchain.
 
-# Setup
+# Prerequisites
 
-Install packages.
+## Hardware Requirements
 
-```shell script
-npm install
-```
+Hardware requirements are light. The only heavy part is you'll need a blockchain node connection. You can use a machine with as little as 10GB of storage and 2GB of RAM.
 
-Setup a dotenv file (`.env`) with local configuration values. 
-```shell script
-cp example.env .env
-```
+## Validator Requirements
 
-# Docker Install
+- docker - [Install](https://docs.docker.com/engine/install/)
+- docker-compose - [Install](https://docs.docker.com/compose/install/)
 
-Make sure docker is installed on the machine. Check if `docker info` is available.
-
-## Run core services (redis and MongoDB) through docker-compose
-
-```shell script
-docker-compose -f docker-compose.core.yml up
-
-# alternatively
-docker-compose up db cache
-
-# run with a custom env file
-docker-compose -f docker-compose.core.yml --env-file=.env
-
-# alternatively
-docker-compose -f docker-compose.core.yml up db cache
-```
+In order to run scheduler, worker and API separately you need nodejs and npm.
+- node >= 16 - [Install](https://nodejs.org/en/download/)
 
 # Network
 
@@ -51,27 +33,78 @@ Instructions how to run blockchain locally you can find in [phoenix](https://git
 - deploy smart contracts to local blockchain node
 - get address of Chain and keys for validator
 
-# Commands
+# Run Validator 
 
-## Building
+There are two docker compose file: `docker-compose.yml` and `docker-compose.core.yml`
+- docker-compose.yml: It starts mongodb, redis, schedulers, workers and api.
+- docker-compose-core.yml: It starts mongodb and redis.
 
-First, compile the application:
+In the section **Run Validator Fully** you will need to use `docker-compose.yml`.
+In the section **Run Validator Separately** you will need to use `docker-compose.core.yml`.
+
+**NOTE** For `docker-compose.yml` you need to replace the MONGO_URL and REDIS_URL settings to work with docker.
+
 ```shell script
-npm run build
+echo 'MONGODB_URL=mongodb://db:27017/pegasus'>> .env
+echo 'REDIS_URL=redis://cache:6379' >> .env
 ```
 
-## Local QA with multiple validators
+## Run Validator Fully 
+
+### Local QA
 
 One-line command:
 ```shell script
+cp example.env .env
+docker-compose --env-file=.env build && docker-compose --env-file=.env
+```
+
+### Local QA with multiple validators
+
+It is the same previous command but you can specify different envs.
+
+One-line command:
+```shell script
+#node 1
 cp example.env .env.node1
 docker-compose --env-file=.env.node1 build && docker-compose --env-file=.env.node1 up -d
 
+#node 2
 cp example.env .env.node2
 docker-compose --env-file=.env.node2 build && docker-compose --env-file=.env.node2 up -d
 
+#node 3
 cp example.env .env.node3
 docker-compose --env-file=.env.node3 build && docker-compose --env-file=.env.node3 up -d
+```
+
+## Run Validator Separately
+
+### Setup
+
+Install packages.
+
+```shell script
+npm install
+```
+
+Build
+```shell script
+npm build 
+```
+
+Setup a dotenv file (`.env`) with local configuration values. 
+```shell script
+cp example.env .env
+```
+
+### Run core services (redis and MongoDB) through docker-compose
+
+```shell script
+docker-compose -f docker-compose.core.yml up
+
+# run with a custom env file
+docker-compose --env-file=.env -f docker-compose.core.yml  up
 ```
 
 ## Run the worker service
@@ -143,6 +176,35 @@ npm run test
 echo 'AWS_REPOSITORY=...' >> .env
 make
 ```
+
+# Create your own fetcher
+
+## Create Fetcher
+
+Fetchers is responsible to fetch data. You can use HTTP or WS protocols.
+
+### HTTP
+
+1. Add the new fetcher under `src/services/fetchers` this class must have apply method that does the fetch for a specif endpoint. Refer to `src/services/fetchers/CryptoCompareHistoDayFetcher.ts` for more details;
+2. Export the new fetcher at `src/services/fetchers/index.ts`;
+3. Add the new fetcher in collection object at `src/repositories/FeedFetcherRepository.ts`, it will be used on `src/services/FeedProcessor.ts`.
+
+### WS
+
+1. Create a WS Client at `src/services/ws`, check `src/services/ws/CryptoCompareWSClient.ts` to get more details;
+2. Create a initializer at `src/services`, check `src/services/CryptoCompareWSInitializer.ts` to get more details;
+3. At `src/tasks.ts` start the initializer. Check how `PolygonIOPriceInitializer` and `CryptoCompareWSInitializer` initialize;
+4. Add the new fetcher under `src/services/fetchers` this class must have apply method that does the fetch for a specific data source. Refer to `src/services/fetchers/CryptoCompareHistoDayFetcher.ts` for more details;
+5. Export the new fetcher at `src/services/fetchers/index.ts`;
+6. Add the new fetcher in collection object at `src/repositories/FeedFetcherRepository.ts`, it will be used on `src/services/FeedProcessor.ts`.
+
+## Create Calculator
+
+Calculators are responsible to receive data and return it formatted.
+
+1. Create the new calculator on `src/services/calculators`, check `src/services/calculators/OptionsPriceCalculator.ts` to get more details;
+2. Export the new calculator at `src/services/calculators/index.ts`;
+3. Add the new calculator in collection object at `src/repositories/CalculatorRepository.ts`, it will be used on `src/services/FeedProcessor.ts`.
 
 # API Reference
 
