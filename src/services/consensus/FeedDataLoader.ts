@@ -46,7 +46,7 @@ export class FeedDataLoader {
       .aggregate([
         {
           $match: {
-            timestamp: {$gte: props.startsAt, $lt: props.endsAt}
+            timestamp: {$gte: props.startsAt, $lt: props.endsAt} // TODO: check if we should use $lte
           }
         },
         {
@@ -55,11 +55,11 @@ export class FeedDataLoader {
         {
           $group: {
             _id: {source: '$source', symbol: '$symbol'},
-            doc: {$first: '$$ROOT'}
+            doc: {$last: '$$ROOT'} // TODO: check if this is returning the latest
           }
         },
         {
-          $replaceRoot: {$newRoot: "$doc"}
+          $replaceRoot: {$newRoot: '$doc'}
         }
       ]).exec();
   }

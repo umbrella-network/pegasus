@@ -16,7 +16,7 @@ import {DiscrepancyFinder} from './DiscrepancyFinder';
 import newrelic from 'newrelic';
 import {Discrepancy} from '../types/Discrepancy';
 import {ProposedConsensusService} from './ProposedConsensusService';
-import {FeedDataService} from './FeedDataService';
+import {ConsensusDataService} from './ConsensusDataService';
 
 @injectable()
 class BlockSigner {
@@ -26,7 +26,7 @@ class BlockSigner {
   @inject(ChainContract) chainContract!: ChainContract;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
-  @inject(FeedDataService) feedDataService!: FeedDataService;
+  @inject(ConsensusDataService) consensusDataService!: ConsensusDataService;
 
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
     await this.blockchain.setLatestProvider();
@@ -39,7 +39,7 @@ class BlockSigner {
       ].join(' '),
     );
 
-    const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = await this.feedDataService.getLeavesAndFeeds(
+    const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = await this.consensusDataService.getLeavesAndFeeds(
       proposedConsensus.dataTimestamp,
     );
 
