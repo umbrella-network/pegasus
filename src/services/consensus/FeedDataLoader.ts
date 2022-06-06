@@ -32,7 +32,10 @@ export class FeedDataLoader {
     const [prices] = await Promise.all([
       this.getData<Price>({ model: Price, startsAt: props.startsAt, endsAt: props.endsAt })
     ]);
-    // load data
+    // TODO: consider injecting Uniswap here
+    // INPUT: [{symbol: 'BTC~USD', source: 'uniswapv3', value: 10.0}]
+    // OUTPUT: [{symbol: 'BTC~USD', source: 'uniswapv3', value: 10.0}, {symbol: 'USD~BTC', source: 'uniswapv3', value: 0.1}]
+    // group data
     return this.groupAndFilterBySymbol({prices, activeSymbols});
   }
 
