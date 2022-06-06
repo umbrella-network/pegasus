@@ -5,7 +5,7 @@ import Settings from '../types/Settings';
 import {LeavesAndFeeds} from '../types/Consensus';
 
 @injectable()
-export class FeedDataService {
+export class ConsensusDataService {
   @inject('Settings') settings!: Settings;
   @inject(FeedRepository) feedRepository!: FeedRepository;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;

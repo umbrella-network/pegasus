@@ -16,7 +16,7 @@ import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
-import {FeedDataService} from './FeedDataService';
+import {ConsensusDataService} from './ConsensusDataService';
 import {HexStringWith0x} from '../types/Feed';
 import {SimpleConsensusResolver} from './consensus/SimpleConsensusResolver';
 import {OptimizedConsensusResolver} from './consensus/OptimizedConsensusResolver';
@@ -30,7 +30,7 @@ class ConsensusRunner {
   @inject(TimeService) timeService!: TimeService;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(BlockRepository) blockRepository!: BlockRepository;
-  @inject(FeedDataService) feedDataService!: FeedDataService;
+  @inject(ConsensusDataService) consensusDataService!: ConsensusDataService;
   @inject(SimpleConsensusResolver) simpleConsensusResolver!: SimpleConsensusResolver;
   @inject(OptimizedConsensusResolver) optimizedConsensusResolver!: OptimizedConsensusResolver;
   @inject('Settings') settings!: Settings;
@@ -41,7 +41,7 @@ class ConsensusRunner {
     staked: BigNumber,
     requiredSignatures: number,
   ): Promise<Consensus | null> {
-    let {firstClassLeaves, leaves} = await this.feedDataService.getLeavesAndFeeds(dataTimestamp);
+    let {firstClassLeaves, leaves} = await this.consensusDataService.getLeavesAndFeeds(dataTimestamp);
     let maxLeafKeyCount!: number;
     let maxFcdKeyCount!: number;
     const maxRetries = this.settings.consensus.retries;

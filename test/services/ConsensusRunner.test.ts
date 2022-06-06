@@ -17,7 +17,7 @@ import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse';
 import {signAffidavitWithWallet} from '../../src/utils/mining';
 import {getTestContainer} from '../helpers/getTestContainer';
-import {FeedDataService} from '../../src/services/FeedDataService';
+import {ConsensusDataService} from '../../src/services/ConsensusDataService';
 
 chai.use(chaiAsPromised);
 
@@ -28,7 +28,7 @@ describe('ConsensusRunner', () => {
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedBlockRepository: sinon.SinonStubbedInstance<BlockRepository>;
-  let mockedFeedDataService: sinon.SinonStubbedInstance<FeedDataService>;
+  let mockedFeedDataService: sinon.SinonStubbedInstance<ConsensusDataService>;
 
   let consensusRunner: ConsensusRunner;
 
@@ -40,7 +40,7 @@ describe('ConsensusRunner', () => {
     mockedTimeService = sinon.createStubInstance(TimeService);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedBlockRepository = sinon.createStubInstance(BlockRepository);
-    mockedFeedDataService = sinon.createStubInstance(FeedDataService);
+    mockedFeedDataService = sinon.createStubInstance(ConsensusDataService);
 
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
@@ -59,7 +59,7 @@ describe('ConsensusRunner', () => {
     container.bind(BlockRepository).toConstantValue(mockedBlockRepository as unknown as BlockRepository);
     container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
-    container.bind(FeedDataService).toConstantValue(mockedFeedDataService);
+    container.bind(ConsensusDataService).toConstantValue(mockedFeedDataService);
 
     consensusRunner = container.get(ConsensusRunner);
   });
