@@ -12,7 +12,7 @@ import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {signAffidavitWithWallet} from '../../src/utils/mining';
 import {getTestContainer} from '../helpers/getTestContainer';
 import BlockRepository from '../../src/services/BlockRepository';
-import {FeedDataService} from '../../src/services/FeedDataService';
+import {ConsensusDataService} from '../../src/services/ConsensusDataService';
 import {leavesAndFeedsFactory} from '../mocks/factories/leavesAndFeedsFactory';
 import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';
 import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
@@ -36,7 +36,7 @@ describe('BlockSigner', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let mockedChainContract: sinon.SinonStubbedInstance<ChainContract>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
-  let mockedFeedDataService: sinon.SinonStubbedInstance<FeedDataService>;
+  let mockedFeedDataService: sinon.SinonStubbedInstance<ConsensusDataService>;
   let mockedBlockRepository: sinon.SinonStubbedInstance<BlockRepository>;
   let mockedMultiChainStatusResolver: sinon.SinonStubbedInstance<MultiChainStatusResolver>;
   let blockSigner: BlockSigner;
@@ -47,13 +47,13 @@ describe('BlockSigner', () => {
     mockedBlockchain = sinon.createStubInstance(Blockchain);
     mockedChainContract = sinon.createStubInstance(ChainContract);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
-    mockedFeedDataService = sinon.createStubInstance(FeedDataService);
+    mockedFeedDataService = sinon.createStubInstance(ConsensusDataService);
     mockedBlockRepository = sinon.createStubInstance(BlockRepository);
     mockedMultiChainStatusResolver = sinon.createStubInstance(MultiChainStatusResolver);
 
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(BlockRepository).toConstantValue(mockedBlockRepository);
-    container.bind(FeedDataService).toConstantValue(mockedFeedDataService);
+    container.bind(ConsensusDataService).toConstantValue(mockedFeedDataService);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
     container.bind(MultiChainStatusResolver).toConstantValue(mockedMultiChainStatusResolver);
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);

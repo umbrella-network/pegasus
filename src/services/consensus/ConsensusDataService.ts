@@ -17,7 +17,7 @@ export class ConsensusDataService {
   @inject(FeedDataLoader) feedDataLoader!: FeedDataLoader;
   @inject(ConsensusDataGenerator) consensusDataGenerator!: ConsensusDataGenerator;
 
-  async getDataForConsensus(timestamp: number): Promise<LeavesAndFeeds> {
+  async getLeavesAndFeeds(timestamp: number): Promise<LeavesAndFeeds> {
     const [startsAt, endsAt] = this.getTimeframe(timestamp);
     const [fcdFeeds, leafFeeds] = await this.getActiveFeedMaps();
     const feeds = this.joinFeedMaps([fcdFeeds, leafFeeds]);

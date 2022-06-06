@@ -7,7 +7,7 @@ import Leaf from '../types/Leaf';
 import {Logger} from 'winston';
 
 @injectable()
-export class FeedDataService {
+export class ConsensusDataService {
   @inject('Settings') settings!: Settings;
   @inject(FeedRepository) feedRepository!: FeedRepository;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
