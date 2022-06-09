@@ -15,7 +15,7 @@ export class LeafFactory {
   }
 
   private isFixedValue(label: string, data: FeedDatum[]): boolean {
-    return data.length == 1 && LeafValueCoder.isFixedValue(label);
+    return data?.length === 1 && LeafValueCoder.isFixedValue(label);
   }
 
   private buildLeaf(label: string, value: FeedValue): Leaf {

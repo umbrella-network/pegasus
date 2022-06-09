@@ -1,13 +1,15 @@
 import {injectable} from 'inversify';
+
 import {Feed} from '../../types/Feed';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Price} from '../../models/Price';
+import {Datum} from '../../models/Datum';
 
 export type FeedDataLoaderProps = {
   startsAt: Date;
   endsAt: Date;
   feeds: Feed[];
-}
+};
 
 export type FeedDatum = {
   source: string;
@@ -27,58 +29,58 @@ export class FeedDataLoader {
   async apply(props: FeedDataLoaderProps): Promise<FeedData> {
     // get active symbols
     const activeSymbols = this.getActiveSymbols(props.feeds);
-    // TODO: add support for Datum
     // load prices & data
-    const [prices] = await Promise.all([
-      this.getData<Price>({ model: Price, startsAt: props.startsAt, endsAt: props.endsAt })
+    const [prices, data] = await Promise.all([
+      this.getData<Price>({model: Price, startsAt: props.startsAt, endsAt: props.endsAt}),
+      this.getData<Datum>({model: Datum, startsAt: props.startsAt, endsAt: props.endsAt}),
     ]);
+
     // TODO: consider injecting Uniswap here
-    // INPUT: [{symbol: 'BTC~USD', source: 'uniswapv3', value: 10.0}]
-    // OUTPUT: [{symbol: 'BTC~USD', source: 'uniswapv3', value: 10.0}, {symbol: 'USD~BTC', source: 'uniswapv3', value: 0.1}]
-    // group data
-    return this.groupAndFilterBySymbol({prices, activeSymbols});
+    const pricesGrouped = this.groupAndFilterBySymbol<Price>({data: prices, activeSymbols});
+    const dataGrouped = this.groupAndFilterBySymbol<Datum>({data, activeSymbols});
+
+    return {...pricesGrouped, ...dataGrouped};
   }
 
   private getActiveSymbols(feeds: Feed[]): Set<string> {
-    return feeds
-      .reduce((acc, e) => (e.symbol ? acc.add(e.symbol) : acc), new Set<string>());
+    return feeds.reduce((acc, e) => (e.symbol ? acc.add(e.symbol) : acc), new Set<string>());
   }
 
-  private async getData<T>(props: {model: typeof Price, startsAt: Date, endsAt: Date}): Promise<T[]> {
+  private async getData<T>(props: {model: new () => T; startsAt: Date; endsAt: Date}): Promise<T[]> {
     return await getModelForClass(props.model)
       .aggregate([
         {
           $match: {
-            timestamp: {$gte: props.startsAt, $lt: props.endsAt} // TODO: check if we should use $lte
-          }
+            timestamp: {$gte: props.startsAt, $lt: props.endsAt},
+          },
         },
         {
-          $sort: {timestamp: 1}
+          $sort: {timestamp: 1},
         },
         {
           $group: {
             _id: {source: '$source', symbol: '$symbol'},
-            doc: {$last: '$$ROOT'} // TODO: check if this is returning the latest
-          }
+            doc: {$last: '$$ROOT'},
+          },
         },
         {
-          $replaceRoot: {$newRoot: '$doc'}
-        }
-      ]).exec();
+          $replaceRoot: {newRoot: '$doc'},
+        },
+      ])
+      .exec();
   }
 
-  // TODO: add Datum support
-  private groupAndFilterBySymbol(props: {prices: Price[], activeSymbols: Set<string>}): FeedData {
-    const feedData = props.prices
-      .reduce(
-        (acc, e) => {
-          if (!props.activeSymbols.has(e.symbol)) return acc;
+  private groupAndFilterBySymbol<T extends Datum | Price>(props: {data: T[]; activeSymbols: Set<string>}): FeedData {
+    const feedData = props.data.reduce((acc, e) => {
+      if (!props.activeSymbols.has(e.symbol.replace('~', '-').toUpperCase())) return acc;
 
-          (acc[e.symbol] ||= []).push({source: e.source, value: e.value, timestamp: e.timestamp})
-          return acc
-        },
-        <FeedData> {}
-      );
+      (acc[e.symbol.replace('~', '-').toUpperCase()] ||= []).push({
+        source: e.source,
+        value: e.value,
+        timestamp: e.timestamp,
+      });
+      return acc;
+    }, <FeedData>{});
 
     return feedData;
   }
