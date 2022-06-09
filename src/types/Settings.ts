@@ -41,6 +41,7 @@ type Settings = {
     strategy: string;
     discrepancyCutoff: number;
     roundInterval: number;
+    mintInterval: number;
   };
   blockchains: {
     [key: string]: {

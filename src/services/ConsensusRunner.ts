@@ -16,7 +16,7 @@ import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
-import {ConsensusDataService} from './ConsensusDataService';
+import {ConsensusDataService} from './consensus/ConsensusDataService';
 import {HexStringWith0x} from '../types/Feed';
 import {SimpleConsensusResolver} from './consensus/SimpleConsensusResolver';
 import {OptimizedConsensusResolver} from './consensus/OptimizedConsensusResolver';

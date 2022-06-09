@@ -30,8 +30,8 @@ export class ConsensusDataService {
 
   private getTimeframe(timestamp: number): Date[] {
     return [
-      dayjs.unix(timestamp).subtract(this.settings.consensus.roundInterval, 'millisecond').toDate(),
-      dayjs.unix(timestamp).toDate()
+      dayjs.unix(timestamp).subtract(this.settings.consensus.mintInterval, 'millisecond').toDate(),
+      dayjs.unix(timestamp).toDate(),
     ];
   }
 
@@ -40,7 +40,15 @@ export class ConsensusDataService {
   }
 
   private joinFeedMaps(feedMaps: Feeds[]): Feed[] {
-    return feedMaps.map(e => Object.values(e)).flat()
+    const uniqueFeeds: Feed[] = [];
+
+    feedMaps.forEach((feed: Feeds) => {
+      Object.keys(feed).forEach((key: string) => {
+        uniqueFeeds.push({symbol: key, ...JSON.parse(JSON.stringify(feed[key]))});
+      });
+    });
+
+    return uniqueFeeds;
   }
 
   // This is inefficient, but necessary to maintain the output format of this service.
@@ -48,6 +56,6 @@ export class ConsensusDataService {
   // The computational cost is also relatively small, even though we iterate over the input array twice.
   private filterLeaves(consensusData: Leaf[], feeds: Feeds): Leaf[] {
     const symbols = new Set<string>(Object.keys(feeds));
-    return consensusData.filter(leaf => symbols.has(leaf.label));
+    return consensusData.filter((leaf) => symbols.has(leaf.label));
   }
 }
