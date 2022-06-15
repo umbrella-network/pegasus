@@ -33,6 +33,7 @@ services:
     build: .
     entrypoint: npm run start:scheduler
     depends_on:
+      - db
       - cache
     networks:
       - umbrella-network
@@ -72,18 +73,22 @@ services:
       - KAIKO_API_KEY=${KAIKO_API_KEY}
       - OPTIONS_PRICE_API_KEY=${OPTIONS_PRICE_API_KEY}
   db:
-    image: alpine:latest
-    command: echo "no db implementation"
+    image: mongo
+    command: mongod --quiet --logpath /dev/null
+    volumes:
+      - ./tmp/${COMPOSE_PROJECT_NAME}/fs/mongo:/data/db
+    ports:
+      - "${MONGO_PORT}:27017"
     networks:
       - core-network
+
   cache:
-    image: alpine:latest
-    command: echo "no cache implementation"
-    networks:
-      - core-network
-  timeseries:
-    image: alpine:latest
-    command: echo "no timeseries implementation"
+    image: redis:5.0-alpine
+    command: redis-server
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./tmp/${COMPOSE_PROJECT_NAME}/fs/redis:/data
     networks:
       - core-network
 networks:

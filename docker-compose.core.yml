@@ -21,14 +21,5 @@ services:
       - ./tmp/${COMPOSE_PROJECT_NAME}/fs/redis:/data
     networks:
       - core-network
-
-  timeseries:
-    image: influxdb:latest
-    ports:
-      - "8086:8086"
-    volumes:
-      - ./tmp/${COMPOSE_PROJECT_NAME}/fs/influx:/data
-    networks:
-      - core-network
 networks:
   core-network:
