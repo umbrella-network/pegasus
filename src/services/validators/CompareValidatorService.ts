@@ -41,10 +41,38 @@ export class CompareValidatorService {
     return res.data;
   }
 
+  private compareValueBytes(label: string, value1: string, value2: string) {
+    if (LeafValueCoder.isFixedValue(label)) {
+      return value1 === value2;
+    }
+
+    const n1 = LeafValueCoder.decode(value1, label) as number;
+    const n2 = LeafValueCoder.decode(value2, label) as number;
+
+    const disc = calcNumberDiscrepancy(n1, n2) * 100;
+
+    return disc < 1;
+  }
+
+  private minIndex(values: number[]) {
+    return values.indexOf(Math.min(...values));
+  }
+
+  private maxIndex(values: number[]) {
+    return values.indexOf(Math.max(...values));
+  }
+
+  private average(values: number[]) {
+    return values.reduce((a, b) => a + b) / values.length;
+  }
+
   private async compareValidators(validators: string[]): Promise<void> {
     console.log(`Comparing ${validators}`);
 
     const timestamp = Math.floor(Date.now() / 1000);
+    const limitBetweenTimestamp = 10;
+
+    console.log('Limit between Date pairs: ', limitBetweenTimestamp);
 
     const responses = await Promise.all(
       validators.map((url) => this.getDataPairs(`${url}/debug/feeds?timestamp=${timestamp}`)),
@@ -57,14 +85,15 @@ export class CompareValidatorService {
     const allMaps: Map<string, string>[] = [];
     const allKeys = new Set<string>();
 
-    if (this.minIndex(allDataTimestamps) !== this.maxIndex(allDataTimestamps)) {
-      throw new Error('Data pairs should be calculated for the same timestamp');
-    }
-
     responses.forEach(({dataTimestamp, fetchFeedsMs, processFeedsMs, leaves, firstClassLeaves}, i) => {
       allDataTimestamps.push(dataTimestamp);
       allFetchFeedsMs.push(fetchFeedsMs);
       allProcessFeedsMs.push(processFeedsMs);
+      const gap = this.maxIndex(allDataTimestamps) - this.minIndex(allDataTimestamps);
+
+      if (gap >= limitBetweenTimestamp) {
+        throw new Error(`Data pairs timestamp difference is bigger than ${limitBetweenTimestamp}`);
+      }
 
       leaves.forEach(({label, valueBytes}: any) => {
         allKeys.add(label);
@@ -109,20 +138,7 @@ export class CompareValidatorService {
           valueBytes = nextValueBytes;
         }
 
-        const compareValueBytes = (value1: string, value2: string) => {
-          if (LeafValueCoder.isFixedValue(label)) {
-            return value1 === value2;
-          }
-
-          const n1 = LeafValueCoder.decode(value1, label) as number;
-          const n2 = LeafValueCoder.decode(value2, label) as number;
-
-          const disc = calcNumberDiscrepancy(n1, n2) * 100;
-
-          return disc < 1;
-        };
-
-        if (!nextValueBytes || !compareValueBytes(valueBytes!, nextValueBytes)) {
+        if (!nextValueBytes || !this.compareValueBytes(label, valueBytes!, nextValueBytes)) {
           discrepancies.add(label);
 
           console.log(`${label}*****`);
@@ -141,17 +157,5 @@ export class CompareValidatorService {
 
     console.log(`Total ${discrepancies.size} discrepancies:`);
     console.log(discrepancies);
-  }
-
-  private minIndex(values: number[]) {
-    return values.indexOf(Math.min(...values));
-  }
-
-  private maxIndex(values: number[]) {
-    return values.indexOf(Math.max(...values));
-  }
-
-  private average(values: number[]) {
-    return values.reduce((a, b) => a + b) / values.length;
   }
 }
