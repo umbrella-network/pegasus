@@ -105,6 +105,7 @@ const settings: Settings = {
     },
     debug: {
       apiKey: process.env.DEBUG_API_KEY as string,
+      validators: process.env.DEBUG_VALIDATORS as string,
     },
     uniswap: {
       scannerContractId: <string>process.env.UNISWAP_SCANNER_CONTRACT_ID,

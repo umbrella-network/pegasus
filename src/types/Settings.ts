@@ -96,6 +96,7 @@ type Settings = {
     };
     debug: {
       apiKey: string;
+      validators: string;
     };
     uniswap: {
       scannerContractId: string;

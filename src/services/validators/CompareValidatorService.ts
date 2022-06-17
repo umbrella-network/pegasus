@@ -1,34 +1,20 @@
-import axios from 'axios';
 import {LeafValueCoder} from '@umb-network/toolbox';
+import axios from 'axios';
+import {injectable} from 'inversify';
 
 import {calcNumberDiscrepancy} from '../../utils/math';
-import {injectable} from 'inversify';
+// import {validators} from '../../../validators';
 
 @injectable()
 export class CompareValidatorService {
   async apply(): Promise<void> {
-    await this.compareValidators([
-      //'http://localhost:3000',
-      'https://validator.umb.network',
-      'https://validator2.umb.network',
-      'https://umb.stakers.world',
-      'https://razumv-umb.razumv.tech',
-      'https://umb.anorak.technology',
-      'https://markusrichard-umb.markusrichard.tech',
-      'https://santanika-umb.santanika.tech',
-      'https://staging.umbvnode.com',
-      'https://umb.hashquark.io',
-      'https://umbrella.infinitystones.us',
-      'https://umb-api.staking.rocks',
-      // 'https://umb.validator.gunu-node.com',
-      // 'https://umbrella-api.validatrium.club',
-      'https://umbnode.blockchainliverpool.com',
-      'https://umbnode.nova-tech.io',
-      'https://umbvalidator.roadhosts.com',
-      'https://umbrella.artemahr.tech',
-      'https://umb.web3.in.ua',
-      'https://umbrella-node.gateomega.com',
-    ]);
+    const validators = process.env.DEBUG_VALIDATORS;
+
+    if (!validators) {
+      throw new Error('No validators found. Please, create validators.ts file exporting validators URLs array');
+    }
+
+    await this.compareValidators(validators.split(','));
   }
 
   private async getDataPairs(url: string) {
