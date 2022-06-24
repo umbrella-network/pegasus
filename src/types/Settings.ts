@@ -1,3 +1,17 @@
+export type BlockchainSettings = {
+  providerUrl?: string;
+  contractRegistryAddress: string;
+  transactions: {
+    waitForBlockTime: number;
+    minGasPrice: number;
+    maxGasPrice: number;
+    mintBalance: {
+      warningLimit: string;
+      errorLimit: string;
+    };
+  };
+};
+
 type Settings = {
   port: number;
   application: {
@@ -48,6 +62,9 @@ type Settings = {
       urls: string[];
       privateKey: string;
     };
+    masterChain: {
+      chainId: string;
+    };
     providers: {[name: string]: string};
     contracts: {
       chain: {
@@ -66,6 +83,10 @@ type Settings = {
         errorLimit: string;
       };
     };
+    multiChains: {
+      bsc: BlockchainSettings;
+    };
+    resolveStatusTimeout: number;
   };
   api: {
     cryptocompare: {

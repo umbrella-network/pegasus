@@ -25,12 +25,33 @@ import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, t
 import BlockRepository from '../../src/services/BlockRepository';
 import {getTestContainer} from '../helpers/getTestContainer';
 import {parseEther} from 'ethers/lib/utils';
+import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
+import {IResolveStatus} from '../../src/types/MultiChain';
+
+const allStates: IResolveStatus = {
+  isAnySuccess: true,
+  validators: [
+    {
+      id: '0xdc3ebc37da53a644d67e5e3b5ba4eef88d969d5c',
+      location: 'https://validator.dev.umb.network',
+      power: BigNumber.from(1),
+    },
+    {
+      id: '0x998cb7821e605cc16b6174e7c50e19adb2dd2fb0',
+      location: 'https://validator2.dev.umb.network',
+      power: BigNumber.from(1),
+    },
+  ],
+  nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
+  resolved: [],
+};
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let mockedChainContract: sinon.SinonStubbedInstance<ChainContract>;
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
+  let mockedMultiChainStatusResolver: sinon.SinonStubbedInstance<MultiChainStatusResolver>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
   let settings: Settings;
   let blockMinter: BlockMinter;
@@ -55,6 +76,7 @@ describe('BlockMinter', () => {
     mockedChainContract = sinon.createStubInstance(ChainContract);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
+    mockedMultiChainStatusResolver = sinon.createStubInstance(MultiChainStatusResolver);
 
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
@@ -83,11 +105,12 @@ describe('BlockMinter', () => {
     container.rebind('Settings').toConstantValue(settings);
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
-    container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
-    container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
+    container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector);
+    container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor);
     container.bind(SortedMerkleTreeFactory).toSelf();
     container.bind(BlockRepository).toSelf();
     container.bind(ConsensusRunner).toSelf();
+    container.bind(MultiChainStatusResolver).toConstantValue(mockedMultiChainStatusResolver);
     container.bind(TimeService).toConstantValue(mockedTimeService);
 
     container.bind(BlockMinter).to(BlockMinter);
@@ -156,46 +179,54 @@ describe('BlockMinter', () => {
 
   describe('#apply', () => {
     it('does not try to get new feed data if you are not the leader', async () => {
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
+      allStates.resolved = [
         {
-          blockNumber: BigNumber.from(1),
-          timePadding: 10,
-          lastBlockId: 1,
-          nextBlockId: 2,
-          nextLeader: Wallet.createRandom().address,
-          validators: [wallet.address, 'leader'],
-          locations: ['abc'],
-          lastDataTimestamp: timestamp(),
-          powers: [BigNumber.from(1)],
-          staked: BigNumber.from(1),
-          minSignatures: 1,
+          chainAddress: '0x123',
+          chainStatus: {
+            blockNumber: BigNumber.from(1),
+            timePadding: 10,
+            lastBlockId: 1,
+            nextBlockId: 2,
+            nextLeader: Wallet.createRandom().address,
+            validators: [wallet.address, 'leader'],
+            locations: ['abc'],
+            lastDataTimestamp: timestamp(),
+            powers: [BigNumber.from(1)],
+            staked: BigNumber.from(1),
+            minSignatures: 1,
+          },
+          chainId: 'bsc',
         },
-      ]);
+      ];
 
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
       await blockMinter.apply();
 
       expect(mockedFeedProcessor.apply.notCalled).to.be.true;
     });
 
     it('does not try to get new feed data if there is the same round', async () => {
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
+      allStates.resolved = [
         {
-          blockNumber: BigNumber.from(1),
-          timePadding: 100,
-          lastBlockId: 1,
-          nextBlockId: 1,
-          nextLeader: wallet.address,
-          validators: [wallet.address],
-          locations: ['abc'],
-          lastDataTimestamp: timestamp(),
-          powers: [BigNumber.from(1)],
-          staked: BigNumber.from(1),
-          minSignatures: 1,
+          chainAddress: '0x123',
+          chainStatus: {
+            blockNumber: BigNumber.from(1),
+            timePadding: 100,
+            lastBlockId: 1,
+            nextBlockId: 1,
+            nextLeader: wallet.address,
+            validators: [wallet.address],
+            locations: ['abc'],
+            lastDataTimestamp: timestamp(),
+            powers: [BigNumber.from(1)],
+            staked: BigNumber.from(1),
+            minSignatures: 1,
+          },
+          chainId: 'bsc',
         },
-      ]);
+      ];
 
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
       await blockMinter.apply();
 
       expect(mockedFeedProcessor.apply.notCalled).to.be.true;
@@ -207,23 +238,27 @@ describe('BlockMinter', () => {
 
       mockedTimeService.apply.returns(timestamp);
 
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
+      allStates.resolved = [
         {
-          blockNumber: BigNumber.from(1),
-          timePadding: 1,
-          lastBlockId: 0,
-          nextBlockId: 1,
-          nextLeader: wallet.address,
-          validators: [wallet.address],
-          locations: ['abc'],
-          lastDataTimestamp: 1,
-          powers: [BigNumber.from(1)],
-          staked: BigNumber.from(1),
-          minSignatures: 1,
+          chainAddress: '0x123',
+          chainStatus: {
+            blockNumber: BigNumber.from(1),
+            timePadding: 1,
+            lastBlockId: 0,
+            nextBlockId: 1,
+            nextLeader: wallet.address,
+            validators: [wallet.address],
+            locations: ['abc'],
+            lastDataTimestamp: 1,
+            powers: [BigNumber.from(1)],
+            staked: BigNumber.from(1),
+            minSignatures: 1,
+          },
+          chainId: 'bsc',
         },
-      ]);
+      ];
 
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
       mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
@@ -260,23 +295,27 @@ describe('BlockMinter', () => {
 
       mockedTimeService.apply.returns(10);
 
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
+      allStates.resolved = [
         {
-          blockNumber: BigNumber.from(1),
-          timePadding: 1,
-          lastBlockId: 0,
-          nextBlockId: 1,
-          nextLeader: wallet.address,
-          validators: [wallet.address],
-          locations: ['abc'],
-          lastDataTimestamp: 1,
-          powers: [BigNumber.from(1)],
-          staked: BigNumber.from(1),
-          minSignatures: 1,
+          chainAddress: '0x123',
+          chainStatus: {
+            blockNumber: BigNumber.from(1),
+            timePadding: 1,
+            lastBlockId: 0,
+            nextBlockId: 1,
+            nextLeader: wallet.address,
+            validators: [wallet.address],
+            locations: ['abc'],
+            lastDataTimestamp: 1,
+            powers: [BigNumber.from(1)],
+            staked: BigNumber.from(1),
+            minSignatures: 1,
+          },
+          chainId: 'bsc',
         },
-      ]);
+      ];
 
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
       mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
@@ -325,23 +364,27 @@ describe('BlockMinter', () => {
 
       mockedTimeService.apply.returns(timestamp);
 
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
+      allStates.resolved = [
         {
-          blockNumber: BigNumber.from(1),
-          timePadding: 1,
-          lastBlockId: 0,
-          nextBlockId: 1,
-          nextLeader: wallet.address,
-          validators: [wallet.address],
-          locations: ['abc'],
-          lastDataTimestamp: 1,
-          powers: [BigNumber.from(1)],
-          staked: BigNumber.from(1),
-          minSignatures: 1,
+          chainAddress: '0x123',
+          chainStatus: {
+            blockNumber: BigNumber.from(1),
+            timePadding: 1,
+            lastBlockId: 0,
+            nextBlockId: 1,
+            nextLeader: wallet.address,
+            validators: [wallet.address],
+            locations: ['abc'],
+            lastDataTimestamp: 1,
+            powers: [BigNumber.from(1)],
+            staked: BigNumber.from(1),
+            minSignatures: 1,
+          },
+          chainId: 'bsc',
         },
-      ]);
+      ];
 
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
       mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
@@ -369,23 +412,27 @@ describe('BlockMinter', () => {
 
       mockedTimeService.apply.returns(10);
 
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
+      allStates.resolved = [
         {
-          blockNumber: BigNumber.from(1),
-          timePadding: 0,
-          lastBlockId: 1,
-          nextBlockId: 1,
-          nextLeader: wallet.address,
-          validators: [wallet.address],
-          locations: ['abc'],
-          lastDataTimestamp: 1,
-          powers: [BigNumber.from(1)],
-          staked: BigNumber.from(1),
-          minSignatures: 1,
+          chainAddress: '0x123',
+          chainStatus: {
+            blockNumber: BigNumber.from(1),
+            timePadding: 0,
+            lastBlockId: 1,
+            nextBlockId: 1,
+            nextLeader: wallet.address,
+            validators: [wallet.address],
+            locations: ['abc'],
+            lastDataTimestamp: 1,
+            powers: [BigNumber.from(1)],
+            staked: BigNumber.from(1),
+            minSignatures: 1,
+          },
+          chainId: 'bsc',
         },
-      ]);
+      ];
 
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
 
       mockedFeedProcessor.apply.resolves([
@@ -443,24 +490,27 @@ describe('BlockMinter', () => {
         mockedBlockchain.wallet.getTransactionCount = async () => 1;
 
         mockedTimeService.apply.returns(10);
-
-        mockedChainContract.resolveStatus.resolves([
-          '0x123',
+        allStates.resolved = [
           {
-            blockNumber: BigNumber.from(1),
-            timePadding: 0,
-            lastBlockId: 1,
-            nextBlockId: 1,
-            nextLeader: wallet.address,
-            validators: [wallet.address],
-            locations: ['abc'],
-            lastDataTimestamp: 1,
-            powers: [BigNumber.from(1)],
-            staked: BigNumber.from(1),
-            minSignatures: 1,
+            chainAddress: '0x123',
+            chainStatus: {
+              blockNumber: BigNumber.from(1),
+              timePadding: 0,
+              lastBlockId: 1,
+              nextBlockId: 1,
+              nextLeader: wallet.address,
+              validators: [wallet.address],
+              locations: ['abc'],
+              lastDataTimestamp: 1,
+              powers: [BigNumber.from(1)],
+              staked: BigNumber.from(1),
+              minSignatures: 1,
+            },
+            chainId: 'bsc',
           },
-        ]);
+        ];
 
+        mockedMultiChainStatusResolver.apply.resolves(allStates);
         mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
 
         mockedChainContract.submit.rejects({
