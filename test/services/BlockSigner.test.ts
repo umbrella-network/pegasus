@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import {Wallet} from 'ethers';
+import {BigNumber, Wallet} from 'ethers';
 
 import BlockSigner from '../../src/services/BlockSigner';
 import Blockchain from '../../src/lib/Blockchain';
@@ -15,8 +15,28 @@ import BlockRepository from '../../src/services/BlockRepository';
 import {FeedDataService} from '../../src/services/FeedDataService';
 import {leavesAndFeedsFactory} from '../mocks/factories/leavesAndFeedsFactory';
 import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';
+import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
+import {IResolveStatus} from '../../src/types/MultiChain';
 
 chai.use(chaiAsPromised);
+
+const allStates: IResolveStatus = {
+  isAnySuccess: true,
+  validators: [
+    {
+      id: '0xdc3ebc37da53a644d67e5e3b5ba4eef88d969d5c',
+      location: 'https://validator.dev.umb.network',
+      power: BigNumber.from(1),
+    },
+    {
+      id: '0x998cb7821e605cc16b6174e7c50e19adb2dd2fb0',
+      location: 'https://validator2.dev.umb.network',
+      power: BigNumber.from(1),
+    },
+  ],
+  nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
+  resolved: [],
+};
 
 describe('BlockSigner', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -24,6 +44,7 @@ describe('BlockSigner', () => {
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedFeedDataService: sinon.SinonStubbedInstance<FeedDataService>;
   let mockedBlockRepository: sinon.SinonStubbedInstance<BlockRepository>;
+  let mockedMultiChainStatusResolver: sinon.SinonStubbedInstance<MultiChainStatusResolver>;
 
   let blockSigner: BlockSigner;
 
@@ -35,11 +56,13 @@ describe('BlockSigner', () => {
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
     mockedFeedDataService = sinon.createStubInstance(FeedDataService);
     mockedBlockRepository = sinon.createStubInstance(BlockRepository);
+    mockedMultiChainStatusResolver = sinon.createStubInstance(MultiChainStatusResolver);
 
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(BlockRepository).toConstantValue(mockedBlockRepository);
     container.bind(FeedDataService).toConstantValue(mockedFeedDataService);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
+    container.bind(MultiChainStatusResolver).toConstantValue(mockedMultiChainStatusResolver);
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
     container.bind(BlockSigner).to(BlockSigner);
 
@@ -59,14 +82,19 @@ describe('BlockSigner', () => {
         '0x631a4e7c2311787c7da16377b77f24bdd12a293dd7956789f1b5c6b16fe1e262',
       );
 
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
-        chainStatusFactory.build({
-          nextLeader: nextLeader.address,
-          validators: [Wallet.createRandom().address],
-          lastDataTimestamp: timestamp(),
-        }),
-      ]);
+      allStates.resolved = [
+        {
+          chainAddress: '0x123',
+          chainStatus: chainStatusFactory.build({
+            nextLeader: nextLeader.address,
+            validators: [Wallet.createRandom().address],
+            lastDataTimestamp: timestamp(),
+          }),
+          chainId: 'bsc',
+        },
+      ];
+
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
 
       await expect(
         blockSigner.apply({
@@ -87,10 +115,16 @@ describe('BlockSigner', () => {
       const nextLeader = Wallet.createRandom().address;
 
       mockedBlockchain.wallet = Wallet.createRandom();
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
-        chainStatusFactory.build({nextLeader: nextLeader, validators: [wallet.address]}),
-      ]);
+
+      allStates.resolved = [
+        {
+          chainAddress: '0x123',
+          chainStatus: chainStatusFactory.build({nextLeader: nextLeader, validators: [wallet.address]}),
+          chainId: 'bsc',
+        },
+      ];
+
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
 
       await expect(
         blockSigner.apply({
@@ -112,10 +146,15 @@ describe('BlockSigner', () => {
       const signature = await signAffidavitWithWallet(wallet, affidavit);
       mockedBlockchain.wallet = wallet;
 
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
-        chainStatusFactory.build({nextLeader: wallet.address, validators: [wallet.address]}),
-      ]);
+      allStates.resolved = [
+        {
+          chainAddress: '0x123',
+          chainStatus: chainStatusFactory.build({nextLeader: wallet.address, validators: [wallet.address]}),
+          chainId: 'bsc',
+        },
+      ];
+
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
 
       await expect(
         blockSigner.apply({
@@ -137,10 +176,15 @@ describe('BlockSigner', () => {
         const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
         mockedBlockchain.wallet = wallet;
 
-        mockedChainContract.resolveStatus.resolves([
-          '0x123',
-          chainStatusFactory.build({nextLeader: leaderWallet.address, validators: [wallet.address]}),
-        ]);
+        allStates.resolved = [
+          {
+            chainAddress: '0x123',
+            chainStatus: chainStatusFactory.build({nextLeader: leaderWallet.address, validators: [wallet.address]}),
+            chainId: 'bsc',
+          },
+        ];
+
+        mockedMultiChainStatusResolver.apply.resolves(allStates);
 
         mockedFeedDataService.getLeavesAndFeeds.resolves(
           leavesAndFeedsFactory.build({
@@ -176,10 +220,15 @@ describe('BlockSigner', () => {
         const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
         mockedBlockchain.wallet = wallet;
 
-        mockedChainContract.resolveStatus.resolves([
-          '0x123',
-          chainStatusFactory.build({nextLeader: leaderWallet.address, validators: [wallet.address]}),
-        ]);
+        allStates.resolved = [
+          {
+            chainAddress: '0x123',
+            chainStatus: chainStatusFactory.build({nextLeader: leaderWallet.address, validators: [wallet.address]}),
+            chainId: 'bsc',
+          },
+        ];
+
+        mockedMultiChainStatusResolver.apply.resolves(allStates);
 
         mockedFeedDataService.getLeavesAndFeeds.resolves(leavesAndFeedsFactory.build());
 

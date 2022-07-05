@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- Created service to fetch state from a list of chainIds
+
 ### Changed
 - Created api price freshness settings
 

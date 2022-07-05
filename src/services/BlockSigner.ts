@@ -17,6 +17,7 @@ import newrelic from 'newrelic';
 import {Discrepancy} from '../types/Discrepancy';
 import {ProposedConsensusService} from './ProposedConsensusService';
 import {FeedDataService} from './FeedDataService';
+import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
 
 @injectable()
 class BlockSigner {
@@ -24,6 +25,7 @@ class BlockSigner {
   @inject('Settings') settings!: Settings;
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
+  @inject(MultiChainStatusResolver) multiChainStatusResolver!: MultiChainStatusResolver;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject(FeedDataService) feedDataService!: FeedDataService;
@@ -77,7 +79,15 @@ class BlockSigner {
   async check(
     block: SignedBlock,
   ): Promise<{proposedConsensus: ProposedConsensus; chainAddress: string; chainStatus: ChainStatus}> {
-    const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
+    const {isAnySuccess, resolved} = await this.multiChainStatusResolver.apply();
+    const {chainAddress, chainStatus} = resolved[0];
+
+    if (!isAnySuccess || !chainStatus) {
+      const message = '[BlockSigner] No chain status resolved.';
+      this.logger.error(message);
+      throw Error(message);
+    }
+
     const [ready, error] = chainReadyForNewBlock(chainStatus, block.dataTimestamp);
 
     if (!ready) {

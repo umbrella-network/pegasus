@@ -21,6 +21,7 @@ import {chainReadyForNewBlock} from '../utils/mining';
 import {sleep} from '../utils/sleep';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
+import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
 
 @injectable()
 class BlockMinter {
@@ -28,6 +29,7 @@ class BlockMinter {
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
   @inject(ConsensusRunner) consensusRunner!: ConsensusRunner;
+  @inject(MultiChainStatusResolver) multiChainStatusResolver!: MultiChainStatusResolver;
   @inject(TimeService) timeService!: TimeService;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
@@ -37,7 +39,14 @@ class BlockMinter {
   async apply(): Promise<void> {
     await this.blockchain.setLatestProvider();
     await this.checkBalanceIsEnough();
-    const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
+    const {isAnySuccess, resolved} = await this.multiChainStatusResolver.apply();
+    const {chainAddress, chainStatus} = resolved[0];
+
+    if (!isAnySuccess || !chainStatus) {
+      const message = '[BlockMinter] No chain status resolved.';
+      this.logger.error(message);
+      throw Error(message);
+    }
 
     if (!this.isLeader(chainStatus)) return;
 

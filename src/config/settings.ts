@@ -58,6 +58,9 @@ const settings: Settings = {
       urls: getProvidersURLs(),
       privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
     },
+    masterChain: {
+      chainId: 'bsc',
+    },
     contracts: {
       chain: {
         name: 'Chain',
@@ -75,6 +78,21 @@ const settings: Settings = {
         errorLimit: process.env.BALANCE_ERROR || '0.003',
       },
     },
+    multiChains: {
+      bsc: {
+        contractRegistryAddress: process.env.REGISTRY_CONTRACT_ADDRESS as string,
+        transactions: {
+          waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000'),
+          minGasPrice: parseInt(process.env.MIN_GAS_PRICE || '5000000000', 10),
+          maxGasPrice: parseInt(process.env.MAX_GAS_PRICE || '10000000000', 10),
+          mintBalance: {
+            warningLimit: process.env.BALANCE_WARN || '0.1',
+            errorLimit: process.env.BALANCE_ERROR || '0.003',
+          },
+        },
+      },
+    },
+    resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '30000'),
   },
   api: {
     cryptocompare: {
