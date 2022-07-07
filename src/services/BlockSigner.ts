@@ -80,14 +80,14 @@ class BlockSigner {
     block: SignedBlock,
   ): Promise<{proposedConsensus: ProposedConsensus; chainAddress: string; chainStatus: ChainStatus}> {
     const {isAnySuccess, resolved} = await this.multiChainStatusResolver.apply();
-    const {chainAddress, chainStatus} = resolved[0];
 
-    if (!isAnySuccess || !chainStatus) {
+    if (!isAnySuccess || resolved.length === 0) {
       const message = '[BlockSigner] No chain status resolved.';
       this.logger.error(message);
       throw Error(message);
     }
 
+    const {chainAddress, chainStatus} = resolved[0];
     const [ready, error] = chainReadyForNewBlock(chainStatus, block.dataTimestamp);
 
     if (!ready) {

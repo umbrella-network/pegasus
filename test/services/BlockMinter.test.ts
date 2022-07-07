@@ -27,6 +27,7 @@ import {getTestContainer} from '../helpers/getTestContainer';
 import {parseEther} from 'ethers/lib/utils';
 import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
 import {IResolveStatus} from '../../src/types/MultiChain';
+import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepository';
 
 const allStates: IResolveStatus = {
   isAnySuccess: true,
@@ -53,6 +54,7 @@ describe('BlockMinter', () => {
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedMultiChainStatusResolver: sinon.SinonStubbedInstance<MultiChainStatusResolver>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
+  let mockedConsensusDataRepository: sinon.SinonStubbedInstance<ConsensusDataRepository>;
   let settings: Settings;
   let blockMinter: BlockMinter;
   let wallet: Wallet;
@@ -77,6 +79,7 @@ describe('BlockMinter', () => {
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
     mockedMultiChainStatusResolver = sinon.createStubInstance(MultiChainStatusResolver);
+    mockedConsensusDataRepository = sinon.createStubInstance(ConsensusDataRepository);
 
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
@@ -112,6 +115,7 @@ describe('BlockMinter', () => {
     container.bind(ConsensusRunner).toSelf();
     container.bind(MultiChainStatusResolver).toConstantValue(mockedMultiChainStatusResolver);
     container.bind(TimeService).toConstantValue(mockedTimeService);
+    container.bind(ConsensusDataRepository).toConstantValue(mockedConsensusDataRepository);
 
     container.bind(BlockMinter).to(BlockMinter);
 

@@ -22,6 +22,7 @@ import {sleep} from '../utils/sleep';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
 import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
+import {ConsensusDataRepository} from '../repositories/ConsensusDataRepository';
 
 @injectable()
 class BlockMinter {
@@ -34,19 +35,22 @@ class BlockMinter {
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
+  @inject(ConsensusDataRepository) consensusDataRepository!: ConsensusDataRepository;
   @inject('Settings') settings!: Settings;
 
   async apply(): Promise<void> {
     await this.blockchain.setLatestProvider();
     await this.checkBalanceIsEnough();
-    const {isAnySuccess, resolved} = await this.multiChainStatusResolver.apply();
-    const {chainAddress, chainStatus} = resolved[0];
 
-    if (!isAnySuccess || !chainStatus) {
+    const {isAnySuccess, resolved} = await this.multiChainStatusResolver.apply();
+
+    if (!isAnySuccess || resolved.length === 0) {
       const message = '[BlockMinter] No chain status resolved.';
       this.logger.error(message);
       throw Error(message);
     }
+
+    const {chainAddress, chainStatus} = resolved[0];
 
     if (!this.isLeader(chainStatus)) return;
 
@@ -77,6 +81,13 @@ class BlockMinter {
       );
       return;
     }
+
+    await this.consensusDataRepository.save({
+      ...consensus,
+      timestamp: consensus.dataTimestamp,
+      chainIds: resolved.map((chain) => chain.chainId),
+      timePadding: chainStatus.timePadding,
+    });
 
     this.logger.info(
       `Minting a block with ${consensus.signatures.length} signatures, ${consensus.leaves.length} leaves, ${consensus.fcdKeys.length} FCDs`,
