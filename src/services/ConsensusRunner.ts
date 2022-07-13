@@ -49,7 +49,7 @@ class ConsensusRunner {
 
     for (let i = 1; i <= maxRetries; i++) {
       this.logger.info(`[ConsensusRunner] (${blockHeight}) Starting Consensus Round ${i}.`);
-      const dataForConsensus = await this.getDataForConsensus(dataTimestamp, firstClassLeaves, leaves);
+      const dataForConsensus = this.getDataForConsensus(dataTimestamp, firstClassLeaves, leaves);
       const {consensus, discrepantKeys} = await this.runConsensus(dataForConsensus, validators, requiredSignatures);
       const leafKeyCount = dataForConsensus.leaves.length;
       const fcdKeyCount = dataForConsensus.fcdKeys.length;
@@ -206,11 +206,7 @@ class ConsensusRunner {
     */
   }
 
-  private async getDataForConsensus(
-    dataTimestamp: number,
-    firstClassLeaves: Leaf[],
-    leaves: Leaf[],
-  ): Promise<DataForConsensus> {
+  private getDataForConsensus(dataTimestamp: number, firstClassLeaves: Leaf[], leaves: Leaf[]): DataForConsensus {
     const tree = SortedMerkleTreeFactory.apply(sortLeaves(leaves));
     const sortedFirstClassLeaves = sortLeaves(firstClassLeaves);
     const fcdKeys = sortedFirstClassLeaves.map(({label}) => label);
