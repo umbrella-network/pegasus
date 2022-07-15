@@ -79,15 +79,13 @@ class BlockSigner {
   async check(
     block: SignedBlock,
   ): Promise<{proposedConsensus: ProposedConsensus; chainAddress: string; chainStatus: ChainStatus}> {
-    const {isAnySuccess, resolved} = await this.multiChainStatusResolver.apply();
+    const {chainsStatuses} = await this.multiChainStatusResolver.apply();
 
-    if (!isAnySuccess || resolved.length === 0) {
-      const message = '[BlockSigner] No chain status resolved.';
-      this.logger.error(message);
-      throw Error(message);
+    if (chainsStatuses.length === 0) {
+      throw Error('[BlockSigner] No chain status resolved.');
     }
 
-    const {chainAddress, chainStatus} = resolved[0];
+    const {chainAddress, chainStatus} = chainsStatuses[0];
     const [ready, error] = chainReadyForNewBlock(chainStatus, block.dataTimestamp);
 
     if (!ready) {

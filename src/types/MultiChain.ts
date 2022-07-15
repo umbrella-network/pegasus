@@ -1,15 +1,14 @@
 import {ChainStatus} from './ChainStatus';
-import {Validator} from './Validator';
 
-export interface ChainStatusResolved {
+export interface ChainStatusWithAddress {
   chainId: string;
   chainAddress: string;
   chainStatus: ChainStatus;
 }
 
-export interface IResolveStatus {
-  isAnySuccess: boolean;
-  validators: Validator[] | undefined;
+export interface ChainsStatuses {
+  validators: string[];
   nextLeader: string | undefined;
-  resolved: ChainStatusResolved[];
+  chainsStatuses: ChainStatusWithAddress[];
+  chainsIdsReadyForBlock: string[];
 }

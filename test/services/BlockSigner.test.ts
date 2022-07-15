@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import {BigNumber, Wallet} from 'ethers';
+import {Wallet} from 'ethers';
 
 import BlockSigner from '../../src/services/BlockSigner';
 import Blockchain from '../../src/lib/Blockchain';
@@ -16,26 +16,15 @@ import {FeedDataService} from '../../src/services/FeedDataService';
 import {leavesAndFeedsFactory} from '../mocks/factories/leavesAndFeedsFactory';
 import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';
 import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
-import {IResolveStatus} from '../../src/types/MultiChain';
+import {ChainsStatuses} from '../../src/types/MultiChain';
 
 chai.use(chaiAsPromised);
 
-const allStates: IResolveStatus = {
-  isAnySuccess: true,
-  validators: [
-    {
-      id: '0xdc3ebc37da53a644d67e5e3b5ba4eef88d969d5c',
-      location: 'https://validator.dev.umb.network',
-      power: BigNumber.from(1),
-    },
-    {
-      id: '0x998cb7821e605cc16b6174e7c50e19adb2dd2fb0',
-      location: 'https://validator2.dev.umb.network',
-      power: BigNumber.from(1),
-    },
-  ],
+const allStates: ChainsStatuses = {
+  validators: ['0xabctest', '0xdfgtest'],
   nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
-  resolved: [],
+  chainsStatuses: [],
+  chainsIdsReadyForBlock: [],
 };
 
 describe('BlockSigner', () => {
@@ -82,7 +71,7 @@ describe('BlockSigner', () => {
         '0x631a4e7c2311787c7da16377b77f24bdd12a293dd7956789f1b5c6b16fe1e262',
       );
 
-      allStates.resolved = [
+      allStates.chainsStatuses = [
         {
           chainAddress: '0x123',
           chainStatus: chainStatusFactory.build({
@@ -116,7 +105,7 @@ describe('BlockSigner', () => {
 
       mockedBlockchain.wallet = Wallet.createRandom();
 
-      allStates.resolved = [
+      allStates.chainsStatuses = [
         {
           chainAddress: '0x123',
           chainStatus: chainStatusFactory.build({nextLeader: nextLeader, validators: [wallet.address]}),
@@ -146,7 +135,7 @@ describe('BlockSigner', () => {
       const signature = await signAffidavitWithWallet(wallet, affidavit);
       mockedBlockchain.wallet = wallet;
 
-      allStates.resolved = [
+      allStates.chainsStatuses = [
         {
           chainAddress: '0x123',
           chainStatus: chainStatusFactory.build({nextLeader: wallet.address, validators: [wallet.address]}),
@@ -176,7 +165,7 @@ describe('BlockSigner', () => {
         const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
         mockedBlockchain.wallet = wallet;
 
-        allStates.resolved = [
+        allStates.chainsStatuses = [
           {
             chainAddress: '0x123',
             chainStatus: chainStatusFactory.build({nextLeader: leaderWallet.address, validators: [wallet.address]}),
@@ -220,7 +209,7 @@ describe('BlockSigner', () => {
         const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
         mockedBlockchain.wallet = wallet;
 
-        allStates.resolved = [
+        allStates.chainsStatuses = [
           {
             chainAddress: '0x123',
             chainStatus: chainStatusFactory.build({nextLeader: leaderWallet.address, validators: [wallet.address]}),

@@ -17,7 +17,6 @@ import Blockchain from '../lib/Blockchain';
 import {ChainStatus} from '../types/ChainStatus';
 import Settings from '../types/Settings';
 import {LogMint} from '../types/events';
-import {chainReadyForNewBlock} from '../utils/mining';
 import {sleep} from '../utils/sleep';
 import {MintedBlock} from '../types/MintedBlock';
 import {FailedTransactionEvent} from '../constants/ReportedMetricsEvents';
@@ -42,22 +41,22 @@ class BlockMinter {
     await this.blockchain.setLatestProvider();
     await this.checkBalanceIsEnough();
 
-    const {isAnySuccess, resolved} = await this.multiChainStatusResolver.apply();
+    const {chainsStatuses, chainsIdsReadyForBlock} = await this.multiChainStatusResolver.apply();
 
-    if (!isAnySuccess || resolved.length === 0) {
+    if (chainsStatuses.length === 0) {
       const message = '[BlockMinter] No chain status resolved.';
       this.logger.error(message);
       throw Error(message);
     }
 
-    const {chainAddress, chainStatus} = resolved[0];
+    const {chainAddress, chainStatus} = chainsStatuses[0];
 
     if (!this.isLeader(chainStatus)) return;
 
     const dataTimestamp = this.timeService.apply(this.settings.dataTimestampOffsetSeconds);
     const {nextBlockId} = chainStatus;
 
-    if (!(await this.canMint(chainStatus, dataTimestamp))) {
+    if (chainsIdsReadyForBlock.length === 0) {
       return;
     }
 
@@ -85,7 +84,7 @@ class BlockMinter {
     await this.consensusDataRepository.save({
       ...consensus,
       timestamp: consensus.dataTimestamp,
-      chainIds: resolved.map((chain) => chain.chainId),
+      chainIds: chainsIdsReadyForBlock,
       timePadding: chainStatus.timePadding,
     });
 
@@ -292,12 +291,6 @@ class BlockMinter {
 
     const {minter, staked, blockId, power} = logMint.args;
     return {minter, staked, blockId, power};
-  }
-
-  private async canMint(chainStatus: ChainStatus, dataTimestamp: number): Promise<boolean> {
-    const [ready, error] = chainReadyForNewBlock(chainStatus, dataTimestamp);
-    error && this.logger.info(`[BlockMinter] Error while checking if is available to mint ${error}`);
-    return ready;
   }
 
   private async checkBalanceIsEnough(): Promise<void> {
