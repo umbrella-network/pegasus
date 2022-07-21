@@ -6,32 +6,32 @@ import Settings from '../../types/Settings';
 import {ChainContractRepository} from '../../repositories/ChainContractRepository';
 import {promiseWithTimeout} from '../../utils/promiseWithTimeout';
 import {ChainsIds} from '../../types/ChainsIds';
-import {ChainStatusResolved, IResolveStatus} from '../../types/MultiChain';
-import {ChainStatus} from 'src/types/ChainStatus';
+import {ChainStatusWithAddress, ChainsStatuses} from '../../types/MultiChain';
+import {ChainStatus} from '../../types/ChainStatus';
+import TimeService from '../TimeService';
+import {MultiChainStatusProcessor} from './MultiChainStatusProcessor';
 
 @injectable()
 export class MultiChainStatusResolver {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
   @inject(ChainContractRepository) chainContractRepository!: ChainContractRepository;
+  @inject(MultiChainStatusProcessor) multiChainStatusProcessor!: MultiChainStatusProcessor;
+  @inject(TimeService) timeService!: TimeService;
 
-  private masterChainContract!: ChainContract;
   private chainContractList: {chainId: string; contract: ChainContract}[] = [];
 
-  constructor(
-    @inject(ChainContractRepository) chainContractRepository: ChainContractRepository,
-    @inject('Settings') settings: Settings,
-  ) {
-    this.masterChainContract = <ChainContract>chainContractRepository.get(settings.blockchain.masterChain.chainId);
+  constructor(@inject(ChainContractRepository) chainContractRepository: ChainContractRepository) {
     this.chainContractRepository = chainContractRepository;
     this.setChainContractList();
   }
 
-  async apply(): Promise<IResolveStatus> {
+  async apply(): Promise<ChainsStatuses> {
     const result = await Promise.allSettled(this.getResolveStatusWithTimeout());
-    const chainStatusResolved = result.reduce(this.getChainStatusResolved, []);
+    const chainStatusWithAddress = result.reduce(this.getChainStatusWithAddress, []);
+    const dataTimestamp = this.timeService.apply(this.settings.dataTimestampOffsetSeconds);
 
-    return this.processStates(chainStatusResolved);
+    return this.multiChainStatusProcessor.apply(chainStatusWithAddress, dataTimestamp);
   }
 
   private getResolveStatusWithTimeout = (): Promise<[string, ChainStatus]>[] => {
@@ -46,11 +46,11 @@ export class MultiChainStatusResolver {
     this.logger.error(`[MultiChainStatusResolver] chain ${chainId} failed to get status. ${reason}`);
   };
 
-  private getChainStatusResolved = (
-    acc: ChainStatusResolved[],
+  private getChainStatusWithAddress = (
+    acc: ChainStatusWithAddress[],
     curr: PromiseSettledResult<[string, ChainStatus]>,
     i: number,
-  ): ChainStatusResolved[] => {
+  ): ChainStatusWithAddress[] => {
     const chainId = this.chainContractList[i].chainId;
 
     if (curr.status === 'rejected') {
@@ -79,20 +79,4 @@ export class MultiChainStatusResolver {
       }
     });
   };
-
-  private getMasterChainStatus = (successful: ChainStatusResolved[]): ChainStatus | undefined => {
-    const masterChain = successful.find((success) => success.chainId === this.settings.blockchain.masterChain.chainId);
-    return masterChain?.chainStatus;
-  };
-
-  private processStates(chainStatusResolved: ChainStatusResolved[]): IResolveStatus {
-    const masterChainStatus = this.getMasterChainStatus(chainStatusResolved);
-
-    return {
-      isAnySuccess: chainStatusResolved.length > 0,
-      validators: masterChainStatus ? this.masterChainContract.resolveValidators(masterChainStatus) : undefined,
-      nextLeader: masterChainStatus?.nextLeader,
-      resolved: chainStatusResolved,
-    };
-  }
 }
