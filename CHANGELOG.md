@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.4.0] - 2022-07-21
+
 ### Added
 - Created service to fetch state from a list of chainIds
 - `LeaderSelector` service
