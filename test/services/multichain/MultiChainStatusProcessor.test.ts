@@ -1,22 +1,20 @@
 import 'reflect-metadata';
 import {expect} from 'chai';
+import sinon from 'sinon';
 
 import {getTestContainer} from '../../helpers/getTestContainer';
 import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor';
 import {ChainsIds} from '../../../src/types/ChainsIds';
 import {ChainStatusWithAddress} from '../../../src/types/MultiChain';
-import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
+import {chainStatusWithAddressFactory, chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
 
 describe('MultiChainStatusProcessor', () => {
-  let multiChainStatusProcessor: MultiChainStatusProcessor;
   let chainStatusWithAddress: ChainStatusWithAddress[];
+  let multiChainStatusProcessor: MultiChainStatusProcessor;
+  const bscChainStatus = chainStatusWithAddressFactory.build();
 
   chainStatusWithAddress = [
-    {
-      chainId: 'bsc',
-      chainAddress: '0x123',
-      chainStatus: chainStatusFactory.build(),
-    },
+    bscChainStatus,
     {
       chainId: 'avax',
       chainAddress: '0x456',
@@ -24,7 +22,7 @@ describe('MultiChainStatusProcessor', () => {
     },
   ];
 
-  beforeEach(async () => {
+  beforeEach(() => {
     const container = getTestContainer();
     container.bind(MultiChainStatusProcessor).toSelf();
     multiChainStatusProcessor = container.get(MultiChainStatusProcessor);

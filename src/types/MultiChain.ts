@@ -6,9 +6,9 @@ export interface ChainStatusWithAddress {
   chainStatus: ChainStatus;
 }
 
-export interface ChainsStatuses {
+export interface MultiChainStatuses {
   validators: string[];
-  nextLeader: string | undefined;
+  nextLeader: string;
   chainsStatuses: ChainStatusWithAddress[];
   chainsIdsReadyForBlock: string[];
 }

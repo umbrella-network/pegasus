@@ -12,13 +12,15 @@ import {Wallet} from 'ethers';
 import {timestamp} from '../../../src/utils/mining';
 import {ChainsIds} from '../../../src/types/ChainsIds';
 import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor';
-import {ChainsStatuses} from '../../../src/types/MultiChain';
+import {MultiChainStatuses} from '../../../src/types/MultiChain';
+import TimeService from '../../../src/services/TimeService';
 
 describe('MultiChainStatusResolver', () => {
   let mockedChainContractRepository: sinon.SinonStubbedInstance<ChainContractRepository>;
   let mockedMultiChainStatusProcessor: sinon.SinonStubbedInstance<MultiChainStatusProcessor>;
   let multiChainStatusResolver: MultiChainStatusResolver;
   const nextLeader = Wallet.createRandom();
+  const timeService = new TimeService();
 
   beforeEach(async () => {
     const container = getTestContainer();
@@ -45,9 +47,9 @@ describe('MultiChainStatusResolver', () => {
 
   describe('when all promises are resolved', () => {
     beforeEach(() => {
-      const chainStatusWithAddress: ChainsStatuses = {
+      const chainStatusWithAddress: MultiChainStatuses = {
         validators: ['0xabctest'],
-        nextLeader: '0xaebd',
+        nextLeader: '1',
         chainsStatuses: [
           {
             chainId: 'bsc',
@@ -62,7 +64,7 @@ describe('MultiChainStatusResolver', () => {
     });
 
     it('returns the chainsStatuses for all chains', async () => {
-      const result = await multiChainStatusResolver.apply();
+      const result = await multiChainStatusResolver.apply(timeService.apply());
 
       Object.values(ChainsIds).forEach((chain, i) => {
         expect(result.chainsStatuses[i]).to.includes({chainId: chain});
