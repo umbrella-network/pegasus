@@ -13,7 +13,3 @@ export interface ChainStatus {
   staked: BigNumber;
   minSignatures: number;
 }
-
-export interface ChainStatusExtended extends ChainStatus {
-  masterChain: boolean;
-}

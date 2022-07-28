@@ -2,6 +2,7 @@ import {BigNumber} from 'ethers';
 import {Factory} from 'rosie';
 
 import {ChainStatus} from '../../../src/types/ChainStatus';
+import {ChainStatusWithAddress, MultiChainStatuses} from '../../../src/types/MultiChain';
 
 export const chainStatusFactory = Factory.define<ChainStatus>('LeavesAndFeeds')
   .attr('blockNumber', BigNumber.from(132153))
@@ -15,3 +16,14 @@ export const chainStatusFactory = Factory.define<ChainStatus>('LeavesAndFeeds')
   .attr('powers', [BigNumber.from(1)])
   .attr('staked', BigNumber.from(1))
   .attr('minSignatures', 1);
+
+export const chainStatusWithAddressFactory = Factory.define<ChainStatusWithAddress>('ChainStatusWithAddress')
+  .attr('chainAddress', '0xabc123')
+  .attr('chainId', 'bsc')
+  .attr('chainStatus', chainStatusFactory.build());
+
+export const multiChainStatusesFactory = Factory.define<MultiChainStatuses>('MultiChainStatuses')
+  .attr('nextLeader', '0xaebd')
+  .attr('validators', ['0xaebd', '0xabctest'])
+  .attr('chainsIdsReadyForBlock', ['bsc'])
+  .attr('chainsStatuses', [chainStatusWithAddressFactory.build()]);

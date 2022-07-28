@@ -26,10 +26,10 @@ import BlockRepository from '../../src/services/BlockRepository';
 import {getTestContainer} from '../helpers/getTestContainer';
 import {parseEther} from 'ethers/lib/utils';
 import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
-import {ChainsStatuses} from '../../src/types/MultiChain';
+import {MultiChainStatuses} from '../../src/types/MultiChain';
 import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepository';
 
-const allStates: ChainsStatuses = {
+const allStates: MultiChainStatuses = {
   validators: ['0xabctest', '0xdeftest'],
   nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
   chainsStatuses: [],
@@ -252,6 +252,7 @@ describe('BlockMinter', () => {
           chainId: 'bsc',
         },
       ];
+      allStates.nextLeader = wallet.address;
 
       allStates.chainsIdsReadyForBlock = ['bsc'];
       mockedMultiChainStatusResolver.apply.resolves(allStates);
@@ -430,6 +431,7 @@ describe('BlockMinter', () => {
         },
       ];
 
+      allStates.nextLeader = wallet.address;
       allStates.chainsIdsReadyForBlock = ['bsc'];
       mockedMultiChainStatusResolver.apply.resolves(allStates);
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
@@ -509,6 +511,7 @@ describe('BlockMinter', () => {
           },
         ];
 
+        allStates.nextLeader = wallet.address;
         allStates.chainsIdsReadyForBlock = ['bsc'];
         mockedMultiChainStatusResolver.apply.resolves(allStates);
         mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);

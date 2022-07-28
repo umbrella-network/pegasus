@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Created api price freshness settings
+- Use LeaderSelector to get leader when sign and mint a block
 
 ## [7.3.1] - 2022-05-23
 ### Changed

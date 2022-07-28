@@ -40,8 +40,11 @@ class BlockMinter {
   async apply(): Promise<void> {
     await this.blockchain.setLatestProvider();
     await this.checkBalanceIsEnough();
+    const dataTimestamp = this.timeService.apply(this.settings.dataTimestampOffsetSeconds);
 
-    const {chainsStatuses, chainsIdsReadyForBlock} = await this.multiChainStatusResolver.apply();
+    const {chainsStatuses, chainsIdsReadyForBlock, nextLeader} = await this.multiChainStatusResolver.apply(
+      dataTimestamp,
+    );
 
     if (chainsStatuses.length === 0) {
       const message = '[BlockMinter] No chain status resolved.';
@@ -49,16 +52,16 @@ class BlockMinter {
       throw Error(message);
     }
 
-    const {chainAddress, chainStatus} = chainsStatuses[0];
-
-    if (!this.isLeader(chainStatus)) return;
-
-    const dataTimestamp = this.timeService.apply(this.settings.dataTimestampOffsetSeconds);
-    const {nextBlockId} = chainStatus;
-
     if (chainsIdsReadyForBlock.length === 0) {
+      this.logger.info(`[BlockMinter] None of the chains is ready for data at ${dataTimestamp}...`);
       return;
     }
+
+    const {chainAddress, chainStatus} = chainsStatuses[0];
+
+    if (!this.isLeader(nextLeader, dataTimestamp)) return;
+
+    const {nextBlockId} = chainStatus;
 
     this.logger.info(
       `Proposing new block for block: ${chainStatus.blockNumber}/${nextBlockId.toString()} at ${dataTimestamp}...`,
@@ -108,11 +111,9 @@ class BlockMinter {
     }
   }
 
-  private isLeader(chainStatus: ChainStatus): boolean {
-    const {blockNumber, nextBlockId, nextLeader} = chainStatus;
-
+  private isLeader(nextLeader: string, dataTimestamp: number): boolean {
     this.logger.info(
-      `Next leader for ${blockNumber}/${nextBlockId}: ${nextLeader}, ${nextLeader === this.blockchain.wallet.address}`,
+      `Next leader for ${dataTimestamp}: ${nextLeader}, ${nextLeader === this.blockchain.wallet.address}`,
     );
 
     return nextLeader === this.blockchain.wallet.address;

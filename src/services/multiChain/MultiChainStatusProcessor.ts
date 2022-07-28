@@ -2,20 +2,21 @@ import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings';
-import {ChainStatusWithAddress, ChainsStatuses} from '../../types/MultiChain';
-import {ChainStatus} from '../../types/ChainStatus';
+import {ChainStatusWithAddress, MultiChainStatuses} from '../../types/MultiChain';
 import {chainReadyForNewBlock} from '../../utils/mining';
+import LeaderSelector from './LeaderSelector';
+import {ChainStatus} from '../../types/ChainStatus';
 
 @injectable()
 export class MultiChainStatusProcessor {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
 
-  apply(chainStatuses: ChainStatusWithAddress[], dataTimestamp: number): ChainsStatuses {
+  apply(chainStatuses: ChainStatusWithAddress[], dataTimestamp: number): MultiChainStatuses {
     return this.processStates(chainStatuses, dataTimestamp);
   }
 
-  private findMasterChainStatus = (chainStatuses: ChainStatusWithAddress[]): ChainStatus => {
+  private findMasterChain = (chainStatuses: ChainStatusWithAddress[]): ChainStatus => {
     const masterChain = chainStatuses.find(
       (chainStatus) => chainStatus.chainId === this.settings.blockchain.masterChain.chainId,
     );
@@ -25,16 +26,16 @@ export class MultiChainStatusProcessor {
     return masterChain.chainStatus;
   };
 
-  private processStates(chainsStatuses: ChainStatusWithAddress[], dataTimestamp: number): ChainsStatuses {
-    const masterChainStatus = this.findMasterChainStatus(chainsStatuses);
+  private processStates(chainsStatuses: ChainStatusWithAddress[], dataTimestamp: number): MultiChainStatuses {
+    const masterChainStatus = this.findMasterChain(chainsStatuses);
 
     const chainsIdsReadyForBlock = chainsStatuses
       .filter((chain) => this.canMint(chain, dataTimestamp))
       .map((chain) => chain.chainId);
 
     return {
-      validators: masterChainStatus?.validators,
-      nextLeader: masterChainStatus?.nextLeader,
+      validators: masterChainStatus.validators,
+      nextLeader: LeaderSelector.apply(dataTimestamp, masterChainStatus),
       chainsStatuses,
       chainsIdsReadyForBlock,
     };

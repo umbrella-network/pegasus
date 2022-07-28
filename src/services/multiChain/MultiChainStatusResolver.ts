@@ -6,9 +6,8 @@ import Settings from '../../types/Settings';
 import {ChainContractRepository} from '../../repositories/ChainContractRepository';
 import {promiseWithTimeout} from '../../utils/promiseWithTimeout';
 import {ChainsIds} from '../../types/ChainsIds';
-import {ChainStatusWithAddress, ChainsStatuses} from '../../types/MultiChain';
+import {ChainStatusWithAddress, MultiChainStatuses} from '../../types/MultiChain';
 import {ChainStatus} from '../../types/ChainStatus';
-import TimeService from '../TimeService';
 import {MultiChainStatusProcessor} from './MultiChainStatusProcessor';
 
 @injectable()
@@ -17,7 +16,6 @@ export class MultiChainStatusResolver {
   @inject('Settings') settings!: Settings;
   @inject(ChainContractRepository) chainContractRepository!: ChainContractRepository;
   @inject(MultiChainStatusProcessor) multiChainStatusProcessor!: MultiChainStatusProcessor;
-  @inject(TimeService) timeService!: TimeService;
 
   private chainContractList: {chainId: string; contract: ChainContract}[] = [];
 
@@ -26,11 +24,9 @@ export class MultiChainStatusResolver {
     this.setChainContractList();
   }
 
-  async apply(): Promise<ChainsStatuses> {
+  async apply(dataTimestamp: number): Promise<MultiChainStatuses> {
     const result = await Promise.allSettled(this.getResolveStatusWithTimeout());
     const chainStatusWithAddress = result.reduce(this.getChainStatusWithAddress, []);
-    const dataTimestamp = this.timeService.apply(this.settings.dataTimestampOffsetSeconds);
-
     return this.multiChainStatusProcessor.apply(chainStatusWithAddress, dataTimestamp);
   }
 
