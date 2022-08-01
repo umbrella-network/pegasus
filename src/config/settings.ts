@@ -32,6 +32,18 @@ const settings: Settings = {
         ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),
       },
     },
+    blockDispatcher: {
+      bsc: {
+        interval: parseInt(
+          process.env.BSC_DISPATCHER_INTERVAL || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
+          10,
+        ),
+        lockTTL: getTimeSetting(
+          parseInt(process.env.BSC_DISPATCHER_LOCK_TTL || process.env.BLOCK_CREATION_LOCK_TTL || '60'),
+          60,
+        ),
+      },
+    },
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
@@ -80,14 +92,19 @@ const settings: Settings = {
     },
     multiChains: {
       bsc: {
-        contractRegistryAddress: process.env.REGISTRY_CONTRACT_ADDRESS as string,
+        startBlockNumber: parseInt(
+          process.env.BSC_START_BLOCK_NUMBER || process.env.START_BLOCK_NUMBER || '-100000',
+          10,
+        ),
+        contractRegistryAddress:
+          process.env.BSC_REGISTRY_CONTRACT_ADDRESS || (process.env.REGISTRY_CONTRACT_ADDRESS as string),
         transactions: {
-          waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000'),
-          minGasPrice: parseInt(process.env.MIN_GAS_PRICE || '5000000000', 10),
-          maxGasPrice: parseInt(process.env.MAX_GAS_PRICE || '10000000000', 10),
+          waitForBlockTime: parseInt(process.env.BSC_WAIT_FOR_BLOCK_TIME || process.env.WAIT_FOR_BLOCK_TIME || '1000'),
+          minGasPrice: parseInt(process.env.BSC_MIN_GAS_PRICE || process.env.MIN_GAS_PRICE || '5000000000', 10),
+          maxGasPrice: parseInt(process.env.BSC_MAX_GAS_PRICE || process.env.MAX_GAS_PRICE || '10000000000', 10),
           mintBalance: {
-            warningLimit: process.env.BALANCE_WARN || '0.1',
-            errorLimit: process.env.BALANCE_ERROR || '0.003',
+            warningLimit: process.env.BSC_BALANCE_WARN || process.env.BALANCE_WARN || '0.1',
+            errorLimit: process.env.BSC_BALANCE_ERROR || process.env.BALANCE_ERROR || '0.003',
           },
         },
       },

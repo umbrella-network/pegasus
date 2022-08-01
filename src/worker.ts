@@ -4,17 +4,22 @@ import Application from './lib/Application';
 import BlockMintingWorker from './workers/BlockMintingWorker';
 import MetricsWorker from './workers/MetricsWorker';
 import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
+import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
 
 (async () => {
   await boot();
 
   const argv = yargs(process.argv.slice(2)).options({
-    worker: { type: 'string', demandOption: true }
+    worker: {type: 'string', demandOption: true},
   }).argv;
 
   switch (argv.worker) {
     case 'BlockMintingWorker': {
       Application.get(BlockMintingWorker).start();
+      break;
+    }
+    case 'BlockDispatcherWorker': {
+      Application.get(BlockDispatcherWorker).start();
       break;
     }
     case 'MetricsWorker': {
@@ -24,4 +29,4 @@ import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
   }
 
   Application.get(ApplicationUpdateAgent).start();
-})()
+})();

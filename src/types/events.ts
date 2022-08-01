@@ -6,3 +6,9 @@ export type LogMint = {
   staked: BigNumber;
   power: BigNumber;
 };
+
+export type LogRegistered = {
+  destination: string;
+  bytes32: string;
+  anchor: number;
+};

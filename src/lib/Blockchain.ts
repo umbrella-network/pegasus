@@ -7,6 +7,11 @@ import {Logger} from 'winston';
 import Settings, {BlockchainSettings} from '../types/Settings';
 import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies';
 
+export type BlockchainProps = {
+  chainId: string;
+  settings: Settings;
+};
+
 @injectable()
 class Blockchain {
   @inject('Logger') logger!: Logger;

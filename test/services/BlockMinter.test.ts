@@ -26,10 +26,10 @@ import BlockRepository from '../../src/services/BlockRepository';
 import {getTestContainer} from '../helpers/getTestContainer';
 import {parseEther} from 'ethers/lib/utils';
 import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
-import {MultiChainStatuses} from '../../src/types/MultiChain';
+import {ChainsStatuses} from '../../src/types/ChainStatus';
 import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepository';
 
-const allStates: MultiChainStatuses = {
+const allStates: ChainsStatuses = {
   validators: ['0xabctest', '0xdeftest'],
   nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
   chainsStatuses: [],
@@ -85,6 +85,9 @@ describe('BlockMinter', () => {
             warningLimit: '0.15',
             errorLimit: '0.015',
           },
+        },
+        masterChain: {
+          chainId: 'bsc',
         },
       },
     } as Settings;
@@ -332,211 +335,6 @@ describe('BlockMinter', () => {
 
       const blocksCount = await getModelForClass(Block).count({}).exec();
       expect(blocksCount).to.be.eq(0, 'BlockMinter saved some blocks to database');
-    });
-
-    it('does not save block to database if balance is lower than mintBalance.errorLimit', async () => {
-      const executeTxSpy = sinon.spy(blockMinter, <any>'executeTx');
-
-      let error = undefined;
-
-      mockedBlockchain.wallet.getBalance = async () => parseEther('0');
-
-      try {
-        await blockMinter.apply();
-      } catch (err) {
-        error = err;
-      }
-      const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
-
-      expect(error).to.be.instanceOf(Error);
-      expect(error.message).to.be.equal('Balance is lower than 0.015');
-      expect(executeTxSpy.notCalled).to.be.true;
-      expect(blocksCount).to.be.eq(0);
-    });
-
-    it('does log message if balance is between mintBalance.warningLimit and mintBalance.errorLimit', async () => {
-      const {leaf, affidavit, timestamp} = leafWithAffidavit;
-      const signature = await signAffidavitWithWallet(wallet, affidavit);
-
-      mockedBlockchain.wallet.getBalance = async () => parseEther('0.10');
-
-      mockedTimeService.apply.returns(timestamp);
-
-      allStates.chainsStatuses = [
-        {
-          chainAddress: '0x123',
-          chainStatus: {
-            blockNumber: BigNumber.from(1),
-            timePadding: 1,
-            lastBlockId: 0,
-            nextBlockId: 1,
-            nextLeader: wallet.address,
-            validators: [wallet.address],
-            locations: ['abc'],
-            lastDataTimestamp: 1,
-            powers: [BigNumber.from(1)],
-            staked: BigNumber.from(1),
-            minSignatures: 1,
-          },
-          chainId: 'bsc',
-        },
-      ];
-
-      allStates.chainsIdsReadyForBlock = ['bsc'];
-      mockedMultiChainStatusResolver.apply.resolves(allStates);
-      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
-      mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
-      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
-
-      mockedSignatureCollector.apply.resolves([
-        {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
-      ]);
-
-      const loggerSpy = sinon.spy(mockedLogger, 'warn');
-
-      await blockMinter.apply();
-
-      expect(loggerSpy.called).to.be.true;
-      loggerSpy.restore();
-    });
-
-    it('saves block to database if submitting finished successfully', async () => {
-      const {leaf, affidavit} = leafWithAffidavit;
-      const signature = await signAffidavitWithWallet(wallet, affidavit);
-
-      mockedBlockchain.wallet = wallet;
-      mockedBlockchain.wallet.getBalance = async () => parseEther('10');
-
-      mockedTimeService.apply.returns(10);
-
-      allStates.chainsStatuses = [
-        {
-          chainAddress: '0x123',
-          chainStatus: {
-            blockNumber: BigNumber.from(1),
-            timePadding: 0,
-            lastBlockId: 1,
-            nextBlockId: 1,
-            nextLeader: wallet.address,
-            validators: [wallet.address],
-            locations: ['abc'],
-            lastDataTimestamp: 1,
-            powers: [BigNumber.from(1)],
-            staked: BigNumber.from(1),
-            minSignatures: 1,
-          },
-          chainId: 'bsc',
-        },
-      ];
-
-      allStates.nextLeader = wallet.address;
-      allStates.chainsIdsReadyForBlock = ['bsc'];
-      mockedMultiChainStatusResolver.apply.resolves(allStates);
-      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
-
-      mockedFeedProcessor.apply.resolves([
-        [leaf, leaf],
-        [leaf, leaf],
-      ]);
-
-      mockedSignatureCollector.apply.resolves([
-        {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
-      ]);
-
-      mockedChainContract.submit.resolves({
-        wait: () =>
-          Promise.resolve({
-            status: 1,
-            transactionHash: '123',
-            logs: [
-              {
-                transactionIndex: 0,
-                blockNumber: 6618,
-                transactionHash: '0x17063b26e48f5d9862688aac0ce693e2dfc4d8d9f230573c331e6616d7a85b55',
-                address: '0xc4905364b78a742ccce7B890A89514061E47068D',
-                topics: [
-                  '0x5f11830295067c4bcc7d02d4e3b048cd7427be50a3aeb6afc9d3d559ee64bcfa',
-                  '0x000000000000000000000000998cb7821e605cc16b6174e7c50e19adb2dd2fb0',
-                ],
-                data: '0x000000000000000000000000000000000000000000000000000000000000033f00000000000000000000000000000000000000000000000029a2241af62c00000000000000000000000000000000000000000000000000001bc16d674ec80000',
-                logIndex: 1,
-                blockHash: '0x7422c3bf9cda4cd91e282a495945d4b4ff310a06a67614e806bf6bb244527225',
-              },
-            ],
-          }),
-      } as any);
-
-      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
-
-      await blockMinter.apply();
-
-      const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
-      expect(blocksCount).to.be.eq(1);
-    });
-
-    describe('when it fails to submit transaction', () => {
-      it('retries submitTx with different nonce', async () => {
-        const {leaf, affidavit} = leafWithAffidavit;
-
-        const signature = await signAffidavitWithWallet(wallet, affidavit);
-
-        mockedBlockchain.wallet = wallet;
-
-        mockedBlockchain.wallet.getBalance = async () => parseEther('10');
-
-        mockedBlockchain.wallet.getTransactionCount = async () => 1;
-
-        mockedTimeService.apply.returns(10);
-        allStates.chainsStatuses = [
-          {
-            chainAddress: '0x123',
-            chainStatus: {
-              blockNumber: BigNumber.from(1),
-              timePadding: 0,
-              lastBlockId: 1,
-              nextBlockId: 1,
-              nextLeader: wallet.address,
-              validators: [wallet.address],
-              locations: ['abc'],
-              lastDataTimestamp: 1,
-              powers: [BigNumber.from(1)],
-              staked: BigNumber.from(1),
-              minSignatures: 1,
-            },
-            chainId: 'bsc',
-          },
-        ];
-
-        allStates.nextLeader = wallet.address;
-        allStates.chainsIdsReadyForBlock = ['bsc'];
-        mockedMultiChainStatusResolver.apply.resolves(allStates);
-        mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
-
-        mockedChainContract.submit.rejects({
-          message: 'nonce has already been used',
-        });
-
-        mockedFeedProcessor.apply.resolves([
-          [leaf, leaf],
-          [leaf, leaf],
-        ]);
-
-        mockedSignatureCollector.apply.resolves([
-          {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
-        ]);
-
-        const loggerSpy = sinon.spy(mockedLogger, 'warn');
-        const submitTxSpy = sinon.spy(blockMinter, <any>'submitTx');
-
-        await blockMinter.apply();
-
-        expect(submitTxSpy.calledTwice).to.be.true;
-        expect(loggerSpy.calledOnceWith(sinon.match('Submit tx with nonce 1 failed. Retrying with 2'))).to.be.true;
-      });
     });
   });
 });

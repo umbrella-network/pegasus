@@ -1,17 +1,17 @@
 import 'reflect-metadata';
 import {expect} from 'chai';
-import sinon from 'sinon';
 
 import {getTestContainer} from '../../helpers/getTestContainer';
 import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor';
 import {ChainsIds} from '../../../src/types/ChainsIds';
-import {ChainStatusWithAddress} from '../../../src/types/MultiChain';
+import {ChainStatusWithAddress} from '../../../src/types/ChainStatus';
 import {chainStatusWithAddressFactory, chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
 
 describe('MultiChainStatusProcessor', () => {
   let chainStatusWithAddress: ChainStatusWithAddress[];
   let multiChainStatusProcessor: MultiChainStatusProcessor;
   const bscChainStatus = chainStatusWithAddressFactory.build();
+  const chainsIds = Object.values(ChainsIds);
 
   chainStatusWithAddress = [
     bscChainStatus,
@@ -32,7 +32,7 @@ describe('MultiChainStatusProcessor', () => {
     it('returns the chainsIdsReadyForBlock for all chains', async () => {
       const result = await multiChainStatusProcessor.apply(chainStatusWithAddress, 10);
 
-      Object.values(ChainsIds).forEach((chain, i) => {
+      chainsIds.forEach((chain, i) => {
         expect(result.chainsStatuses[i]).to.includes({chainId: chain});
       });
 
@@ -61,7 +61,7 @@ describe('MultiChainStatusProcessor', () => {
     it('returns the chainsIdsReadyForBlock for the one chain that can mint', async () => {
       const result = await multiChainStatusProcessor.apply(chainStatusWithAddress, 10);
 
-      Object.values(ChainsIds).forEach((chain, i) => {
+      chainsIds.forEach((chain, i) => {
         expect(result.chainsStatuses[i]).to.includes({chainId: chain});
       });
 

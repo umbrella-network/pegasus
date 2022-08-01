@@ -1,4 +1,7 @@
+import {ChainsIds} from './ChainsIds';
+
 export type BlockchainSettings = {
+  startBlockNumber: number;
   providerUrl?: string;
   contractRegistryAddress: string;
   transactions: {
@@ -10,6 +13,11 @@ export type BlockchainSettings = {
       errorLimit: string;
     };
   };
+};
+
+export type BlockDispatcherSettings = {
+  interval: number;
+  lockTTL: number;
 };
 
 type Settings = {
@@ -36,6 +44,9 @@ type Settings = {
         name: string;
         ttl: number;
       };
+    };
+    blockDispatcher: {
+      bsc: BlockDispatcherSettings;
     };
   };
   redis: {
@@ -84,7 +95,7 @@ type Settings = {
       };
     };
     multiChains: {
-      bsc: BlockchainSettings;
+      [key in ChainsIds]: BlockchainSettings;
     };
     resolveStatusTimeout: number;
   };

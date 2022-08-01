@@ -1,18 +1,17 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
 import {expect} from 'chai';
+import {Wallet} from 'ethers';
 
 import {getTestContainer} from '../../helpers/getTestContainer';
 import {MultiChainStatusResolver} from '../../../src/services/multiChain/MultiChainStatusResolver';
-
 import {ChainContractRepository} from '../../../src/repositories/ChainContractRepository';
 import ChainContract from '../../../src/contracts/ChainContract';
 import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
-import {Wallet} from 'ethers';
 import {timestamp} from '../../../src/utils/mining';
 import {ChainsIds} from '../../../src/types/ChainsIds';
 import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor';
-import {MultiChainStatuses} from '../../../src/types/MultiChain';
+import {ChainsStatuses} from '../../../src/types/ChainStatus';
 import TimeService from '../../../src/services/TimeService';
 
 describe('MultiChainStatusResolver', () => {
@@ -21,6 +20,7 @@ describe('MultiChainStatusResolver', () => {
   let multiChainStatusResolver: MultiChainStatusResolver;
   const nextLeader = Wallet.createRandom();
   const timeService = new TimeService();
+  const chainsIds = Object.values(ChainsIds);
 
   beforeEach(async () => {
     const container = getTestContainer();
@@ -47,7 +47,7 @@ describe('MultiChainStatusResolver', () => {
 
   describe('when all promises are resolved', () => {
     beforeEach(() => {
-      const chainStatusWithAddress: MultiChainStatuses = {
+      const chainStatusWithAddress: ChainsStatuses = {
         validators: ['0xabctest'],
         nextLeader: '1',
         chainsStatuses: [
@@ -66,11 +66,11 @@ describe('MultiChainStatusResolver', () => {
     it('returns the chainsStatuses for all chains', async () => {
       const result = await multiChainStatusResolver.apply(timeService.apply());
 
-      Object.values(ChainsIds).forEach((chain, i) => {
+      chainsIds.forEach((chain, i) => {
         expect(result.chainsStatuses[i]).to.includes({chainId: chain});
       });
 
-      expect(result.chainsIdsReadyForBlock).to.deep.equal(Object.values(ChainsIds));
+      expect(result.chainsIdsReadyForBlock).to.deep.equal(chainsIds);
     });
   });
 });
