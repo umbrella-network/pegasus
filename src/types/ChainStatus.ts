@@ -13,3 +13,24 @@ export interface ChainStatus {
   staked: BigNumber;
   minSignatures: number;
 }
+
+export interface SolanaChainStatus {
+  blockNumber: BigNumber;
+  timePadding: number;
+  lastDataTimestamp: number;
+  lastId: number;
+  nextBlockId: number;
+}
+
+export interface ChainStatusWithAddress {
+  chainId: string;
+  chainAddress: string;
+  chainStatus: ChainStatus;
+}
+
+export interface ChainsStatuses {
+  validators: string[];
+  nextLeader: string;
+  chainsStatuses: ChainStatusWithAddress[];
+  chainsIdsReadyForBlock: string[];
+}

@@ -6,7 +6,7 @@ import Settings from '../../types/Settings';
 import {ChainContractRepository} from '../../repositories/ChainContractRepository';
 import {promiseWithTimeout} from '../../utils/promiseWithTimeout';
 import {ChainsIds} from '../../types/ChainsIds';
-import {ChainStatusWithAddress, MultiChainStatuses} from '../../types/MultiChain';
+import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus';
 import {ChainStatus} from '../../types/ChainStatus';
 import {MultiChainStatusProcessor} from './MultiChainStatusProcessor';
 
@@ -16,15 +16,18 @@ export class MultiChainStatusResolver {
   @inject('Settings') settings!: Settings;
   @inject(ChainContractRepository) chainContractRepository!: ChainContractRepository;
   @inject(MultiChainStatusProcessor) multiChainStatusProcessor!: MultiChainStatusProcessor;
-
   private chainContractList: {chainId: string; contract: ChainContract}[] = [];
 
-  constructor(@inject(ChainContractRepository) chainContractRepository: ChainContractRepository) {
+  constructor(
+    @inject(ChainContractRepository) chainContractRepository: ChainContractRepository,
+    @inject('Settings') settings: Settings,
+  ) {
+    this.settings = settings;
     this.chainContractRepository = chainContractRepository;
     this.setChainContractList();
   }
 
-  async apply(dataTimestamp: number): Promise<MultiChainStatuses> {
+  async apply(dataTimestamp: number): Promise<ChainsStatuses> {
     const result = await Promise.allSettled(this.getResolveStatusWithTimeout());
     const chainStatusWithAddress = result.reduce(this.getChainStatusWithAddress, []);
     return this.multiChainStatusProcessor.apply(chainStatusWithAddress, dataTimestamp);

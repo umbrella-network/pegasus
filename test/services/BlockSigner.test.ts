@@ -16,11 +16,11 @@ import {FeedDataService} from '../../src/services/FeedDataService';
 import {leavesAndFeedsFactory} from '../mocks/factories/leavesAndFeedsFactory';
 import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';
 import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
-import {MultiChainStatuses} from '../../src/types/MultiChain';
+import {ChainsStatuses} from '../../src/types/ChainStatus';
 
 chai.use(chaiAsPromised);
 
-const allStates: MultiChainStatuses = {
+const allStates: ChainsStatuses = {
   validators: ['0xabctest', '0xdfgtest'],
   nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
   chainsStatuses: [],

@@ -37,7 +37,6 @@ class ConsensusRunner {
 
   async apply(
     dataTimestamp: number,
-    blockHeight: number,
     validators: Validator[],
     staked: BigNumber,
     requiredSignatures: number,
@@ -48,7 +47,7 @@ class ConsensusRunner {
     const maxRetries = this.settings.consensus.retries;
 
     for (let i = 1; i <= maxRetries; i++) {
-      this.logger.info(`[ConsensusRunner] (${blockHeight}) Starting Consensus Round ${i}.`);
+      this.logger.info(`[ConsensusRunner] Starting Consensus Round ${i}.`);
       const dataForConsensus = this.getDataForConsensus(dataTimestamp, firstClassLeaves, leaves);
       const {consensus, discrepantKeys} = await this.runConsensus(dataForConsensus, validators, requiredSignatures);
       const leafKeyCount = dataForConsensus.leaves.length;
@@ -60,7 +59,6 @@ class ConsensusRunner {
       const logProps = {
         round: i,
         maxRounds: maxRetries,
-        blockHeight,
         leafKeyCount,
         fcdKeyCount,
         maxLeafKeyCount,
@@ -88,7 +86,6 @@ class ConsensusRunner {
   }
 
   private logConsensusResult(props: {
-    blockHeight: number;
     maxRounds: number;
     status: string;
     leafKeyCount: number;
@@ -103,7 +100,7 @@ class ConsensusRunner {
     const consensusYield = maxTotalKeyCount == 0 ? 0.0 : Math.round((totalKeyCount / maxTotalKeyCount) * 10000) / 10000;
 
     const msg = [
-      `[ConsensusRunner] (${props.blockHeight}) Consensus Round ${props.round}/${props.maxRounds} Finished.`,
+      `[ConsensusRunner] Consensus Round ${props.round}/${props.maxRounds} Finished.`,
       `Status: ${props.status}`,
       `| Keys: ${totalKeyCount} (${props.leafKeyCount} + ${props.fcdKeyCount} FCDs)`,
       `| Missed: ${props.discrepantCount}`,

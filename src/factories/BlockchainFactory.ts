@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 
-import {ChainsIds} from 'src/types/ChainsIds';
-import Settings from 'src/types/Settings';
+import {ChainsIds} from '../types/ChainsIds';
+import Settings from '../types/Settings';
 import Blockchain from '../lib/Blockchain';
 
 export interface BlockchainFactoryProps {

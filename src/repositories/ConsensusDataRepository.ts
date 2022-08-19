@@ -3,22 +3,12 @@ import {getModelForClass} from '@typegoose/typegoose';
 import dayjs from 'dayjs';
 
 import ConsensusData from '../models/ConsensusData';
-import {HexStringWith0x} from '../types/custom';
-
-export type SaveConsensusDataProps = {
-  root: string;
-  chainIds: string[];
-  signatures: string[];
-  fcdKeys: string[];
-  fcdValues: HexStringWith0x[];
-  timestamp: number;
-  timePadding: number;
-};
+import {ConsensusDataProps} from '../types/Consensus';
 
 @injectable()
 export class ConsensusDataRepository {
-  async save(props: SaveConsensusDataProps): Promise<ConsensusData> {
-    const {root, chainIds, signatures, fcdKeys, fcdValues, timestamp, timePadding} = props;
+  async save(props: ConsensusDataProps): Promise<ConsensusData> {
+    const {root, chainIds, signatures, fcdKeys, fcdValues, dataTimestamp, timePadding, leaves} = props;
     const consensusDataTTL = timePadding - 1;
     const expireAt = dayjs().add(consensusDataTTL, 'second').toDate();
     const ConsensusDataModel = getModelForClass(ConsensusData);
@@ -28,9 +18,10 @@ export class ConsensusDataRepository {
       root,
       chainIds,
       signatures,
+      leaves,
       fcdKeys,
       fcdValues,
-      timestamp,
+      dataTimestamp,
       expireAt,
     });
 
