@@ -65,7 +65,7 @@ import {ChainsIds} from './types/ChainsIds';
     }
   };
 
-  for (const chainId of Object.values(ChainsIds)) {
+  for (const chainId of Object.keys(settings.blockchain.multiChains)) {
     const blockDispatcherSettings: BlockDispatcherSettings = (<Record<string, BlockDispatcherSettings>>(
       settings.jobs.blockDispatcher
     ))[chainId];

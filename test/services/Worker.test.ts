@@ -20,6 +20,23 @@ describe('Worker', () => {
       redis: {
         url: config.REDIS_URL,
       },
+      blockchain: {
+        multiChains: {
+          bsc: {
+            startBlockNumber: 0,
+            contractRegistryAddress: '0xabc',
+            transactions: {
+              waitForBlockTime: 0,
+              minGasPrice: 1,
+              maxGasPrice: 1,
+              mintBalance: {
+                warningLimit: '0,05',
+                errorLimit: '0,005',
+              },
+            },
+          },
+        },
+      },
     } as Settings;
 
     connection = new IORedis(settings.redis.url);
