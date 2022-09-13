@@ -9,15 +9,27 @@ import {ChainStatus} from '../../types/ChainStatus';
 */
 class LeaderSelector {
   static apply(consensusTimestamp: number, masterChainStatus: ChainStatus): string {
+    if (masterChainStatus.validators.length == 0) {
+      return '';
+    }
+
     return LeaderSelector.getLeaderAddressAtTime(consensusTimestamp, masterChainStatus);
   }
 
   static getLeaderAddressAtTime = (consensusTimestamp: number, masterChainStatus: ChainStatus): string => {
+    if (masterChainStatus.validators.length == 0) {
+      return '';
+    }
+
     const validatorIndex = LeaderSelector.getLeaderIndex(consensusTimestamp, masterChainStatus);
     return masterChainStatus.validators[validatorIndex];
   };
 
   static getLeaderIndex = (consensusTimestamp: number, masterChainStatus: ChainStatus): number => {
+    if (masterChainStatus.validators.length == 0) {
+      return -1;
+    }
+
     return Math.trunc(consensusTimestamp / masterChainStatus.timePadding) % masterChainStatus.validators.length;
   };
 }
