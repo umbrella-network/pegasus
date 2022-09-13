@@ -56,8 +56,18 @@ describe('MultiChainStatusResolver', () => {
             chainAddress: '0x123',
             chainStatus: chainStatusFactory.build(),
           },
+          {
+            chainId: 'avax',
+            chainAddress: '0x345',
+            chainStatus: chainStatusFactory.build(),
+          },
+          {
+            chainId: 'polygon',
+            chainAddress: '0x345',
+            chainStatus: chainStatusFactory.build(),
+          },
         ],
-        chainsIdsReadyForBlock: ['bsc'],
+        chainsIdsReadyForBlock: ['bsc', 'avax', 'polygon'],
       };
 
       mockedMultiChainStatusProcessor.apply.returns(chainStatusWithAddress);
@@ -66,11 +76,11 @@ describe('MultiChainStatusResolver', () => {
     it('returns the chainsStatuses for all chains', async () => {
       const result = await multiChainStatusResolver.apply(timeService.apply());
 
-      chainsIds.forEach((chain, i) => {
-        expect(result.chainsStatuses[i]).to.includes({chainId: chain});
+      chainsIds.forEach((chain) => {
+        expect(result.chainsStatuses.some((chainStatus) => chainStatus.chainId === chain)).to.be.true;
       });
 
-      expect(result.chainsIdsReadyForBlock).to.deep.equal(chainsIds);
+      expect(result.chainsIdsReadyForBlock).to.have.members(chainsIds);
     });
   });
 });

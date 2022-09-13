@@ -17,6 +17,11 @@ describe('MultiChainStatusProcessor', () => {
     bscChainStatus,
     {
       chainId: 'avax',
+      chainAddress: '0x123',
+      chainStatus: chainStatusFactory.build(),
+    },
+    {
+      chainId: 'polygon',
       chainAddress: '0x456',
       chainStatus: chainStatusFactory.build(),
     },
@@ -32,11 +37,11 @@ describe('MultiChainStatusProcessor', () => {
     it('returns the chainsIdsReadyForBlock for all chains', async () => {
       const result = await multiChainStatusProcessor.apply(chainStatusWithAddress, 10);
 
-      chainsIds.forEach((chain, i) => {
-        expect(result.chainsStatuses[i]).to.includes({chainId: chain});
+      chainsIds.forEach((chain) => {
+        expect(result.chainsStatuses.some((chainStatus) => chainStatus.chainId === chain)).to.be.true;
       });
 
-      expect(result.chainsIdsReadyForBlock).to.deep.equal(['bsc', 'avax']);
+      expect(result.chainsIdsReadyForBlock).to.have.members(chainsIds);
     });
   });
 
@@ -50,6 +55,13 @@ describe('MultiChainStatusProcessor', () => {
         },
         {
           chainId: 'avax',
+          chainAddress: '0x678',
+          chainStatus: chainStatusFactory.build({
+            lastDataTimestamp: 100,
+          }),
+        },
+        {
+          chainId: 'polygon',
           chainAddress: '0x456',
           chainStatus: chainStatusFactory.build({
             lastDataTimestamp: 100,
@@ -61,8 +73,8 @@ describe('MultiChainStatusProcessor', () => {
     it('returns the chainsIdsReadyForBlock for the one chain that can mint', async () => {
       const result = await multiChainStatusProcessor.apply(chainStatusWithAddress, 10);
 
-      chainsIds.forEach((chain, i) => {
-        expect(result.chainsStatuses[i]).to.includes({chainId: chain});
+      chainsIds.forEach((chain) => {
+        expect(result.chainsStatuses.some((chainStatus) => chainStatus.chainId === chain)).to.be.true;
       });
 
       expect(result.chainsIdsReadyForBlock).to.deep.equal(['bsc']);

@@ -24,7 +24,6 @@ describe('Worker', () => {
       blockchain: {
         multiChains: {
           bsc: {
-            startBlockNumber: 0,
             contractRegistryAddress: '0xabc',
             transactions: {
               waitForBlockTime: 0,

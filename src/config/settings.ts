@@ -39,6 +39,18 @@ const settings: Settings = {
           10,
         ),
       },
+      polygon: {
+        interval: parseInt(
+          process.env.POLYGON_DISPATCHER_INTERVAL || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
+          10,
+        ),
+      },
+      avax: {
+        interval: parseInt(
+          process.env.AVALANCHE_DISPATCHER_INTERVAL || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
+          10,
+        ),
+      },
     },
   },
   redis: {
@@ -88,10 +100,6 @@ const settings: Settings = {
     },
     multiChains: {
       bsc: {
-        startBlockNumber: parseInt(
-          process.env.BSC_START_BLOCK_NUMBER || process.env.START_BLOCK_NUMBER || '-100000',
-          10,
-        ),
         contractRegistryAddress:
           process.env.BSC_REGISTRY_CONTRACT_ADDRESS || (process.env.REGISTRY_CONTRACT_ADDRESS as string),
         transactions: {
@@ -101,6 +109,32 @@ const settings: Settings = {
           mintBalance: {
             warningLimit: process.env.BSC_BALANCE_WARN || process.env.BALANCE_WARN || '0.1',
             errorLimit: process.env.BSC_BALANCE_ERROR || process.env.BALANCE_ERROR || '0.003',
+          },
+        },
+      },
+      polygon: {
+        contractRegistryAddress: process.env.POLYGON_REGISTRY_CONTRACT_ADDRESS,
+        providerUrl: process.env.POLYGON_BLOCKCHAIN_PROVIDER_URL, // we can't have default providers set up
+        transactions: {
+          waitForBlockTime: parseInt(process.env.POLYGON_WAIT_FOR_BLOCK_TIME || '1000'),
+          minGasPrice: parseInt(process.env.POLYGON_MIN_GAS_PRICE || '1000000000', 10),
+          maxGasPrice: parseInt(process.env.POLYGON_MAX_GAS_PRICE || '500000000000', 10),
+          mintBalance: {
+            warningLimit: process.env.POLYGON_BALANCE_WARN || '0.01',
+            errorLimit: process.env.POLYGON_BALANCE_ERROR || '0.001',
+          },
+        },
+      },
+      avax: {
+        contractRegistryAddress: process.env.AVALANCHE_REGISTRY_CONTRACT_ADDRESS,
+        providerUrl: process.env.AVALANCHE_BLOCKCHAIN_PROVIDER_URL, // we can't have default providers set up
+        transactions: {
+          waitForBlockTime: parseInt(process.env.AVALANCHE_WAIT_FOR_BLOCK_TIME || '1000'),
+          minGasPrice: parseInt(process.env.AVALANCHE_MIN_GAS_PRICE || '25000000000', 10),
+          maxGasPrice: parseInt(process.env.AVALANCHE_MAX_GAS_PRICE || '250000000000', 10),
+          mintBalance: {
+            warningLimit: process.env.AVALANCHE_BALANCE_WARN || '0.5',
+            errorLimit: process.env.AVALANCHE_BALANCE_ERROR || '0.008',
           },
         },
       },

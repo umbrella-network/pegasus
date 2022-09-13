@@ -1,9 +1,8 @@
 import {ChainsIds} from './ChainsIds';
 
 export type BlockchainSettings = {
-  startBlockNumber: number;
   providerUrl?: string;
-  contractRegistryAddress: string;
+  contractRegistryAddress?: string;
   transactions: {
     waitForBlockTime: number;
     minGasPrice: number;
@@ -46,6 +45,8 @@ type Settings = {
     };
     blockDispatcher: {
       bsc: BlockDispatcherSettings;
+      polygon: BlockDispatcherSettings;
+      avax: BlockDispatcherSettings;
     };
   };
   redis: {

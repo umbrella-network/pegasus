@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Created service to fetch state from a list of chainIds
 - `LeaderSelector` service
 - Created ConsensusData model
+- Dispatch polygon and avalanche blocks
 
 ### Changed
 - Created api price freshness settings

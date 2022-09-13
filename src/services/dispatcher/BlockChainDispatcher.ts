@@ -7,6 +7,8 @@ import {BlockchainRepository} from '../../repositories/BlockchainRepository';
 import Settings from '../../types/Settings';
 import {TChainsIds} from '../../types/ChainsIds';
 import Blockchain from '../../lib/Blockchain';
+import {PolygonBlockDispatcher} from './PolygonBlockDispatcher';
+import {AvalancheBlockDispatcher} from './AvalancheBlockDispatcher';
 
 export type BlockChainDispatcherProps = {
   chainId: TChainsIds;
@@ -20,9 +22,15 @@ export class BlockChainDispatcher {
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject('Settings') private readonly settings!: Settings;
 
-  constructor(@inject(BSCBlockDispatcher) bscBlockDispatcher: BSCBlockDispatcher) {
+  constructor(
+    @inject(BSCBlockDispatcher) bscBlockDispatcher: BSCBlockDispatcher,
+    @inject(PolygonBlockDispatcher) polygonBlockDispatcher: PolygonBlockDispatcher,
+    @inject(AvalancheBlockDispatcher) avalancheBlockDispatcher: AvalancheBlockDispatcher,
+  ) {
     this.dispatchers = {
       bsc: bscBlockDispatcher,
+      polygon: polygonBlockDispatcher,
+      avax: avalancheBlockDispatcher,
     };
   }
 
