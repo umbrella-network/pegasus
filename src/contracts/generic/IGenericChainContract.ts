@@ -17,7 +17,6 @@ export type GenericForeignChainContractProps = {
 export interface IGenericChainContract {
   readonly settings: Settings;
   readonly blockchain: IGenericBlockchain;
-  address: string;
 
   submit(
     dataTimestamp: number,
@@ -27,6 +26,7 @@ export interface IGenericChainContract {
     blockId: number,
   ): Promise<TransactionResult>;
 
+  address(): string;
   resolveContract(): void;
   resolveStatus(): Promise<[address: string, status: SolanaChainStatus]>;
   blocksCountOffset(): Promise<number>;

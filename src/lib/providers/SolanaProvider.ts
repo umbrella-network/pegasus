@@ -59,4 +59,10 @@ export class SolanaProvider implements IProvider {
     // this will get updated, if we integrate program-derived nonces
     return 0;
   }
+
+  async call(transaction: { to: string; data: string }): Promise<string> {
+    // this is only needed for new chain architecture detection
+    // once we create new chain for solana, we will need to implement this method
+    throw new Error('solana.call not supported yet');
+  }
 }

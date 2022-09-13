@@ -6,4 +6,5 @@ export interface IProvider {
   getBalance(address: string): Promise<BigNumber>;
   getNetwork(): NetworkStatus;
   getTransactionCount(address: string): Promise<number>;
+  call(transaction: { to: string; data: string }): Promise<string>;
 }

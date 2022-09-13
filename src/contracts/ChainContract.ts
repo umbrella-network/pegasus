@@ -19,6 +19,10 @@ class ChainContract {
     this.blockchain = blockchain;
   }
 
+  async address(): Promise<string> {
+    return this.resolveAddress();
+  }
+
   async resolveStatus(): Promise<[address: string, status: ChainStatus]> {
     const contract = await this.resolveContract();
     return Promise.all([contract.address, contract.getStatus()]);
