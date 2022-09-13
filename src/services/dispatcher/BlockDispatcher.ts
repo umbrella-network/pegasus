@@ -1,7 +1,7 @@
 import {inject, injectable, postConstruct} from 'inversify';
 import {Logger} from 'winston';
 import newrelic from 'newrelic';
-import {ABI, GasEstimator, LeafKeyCoder, TxSender} from '@umb-network/toolbox';
+import {ABI, GasEstimator, LeafKeyCoder} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
 import {parseEther} from 'ethers/lib/utils';
@@ -20,10 +20,8 @@ import {MintedBlock} from '../../types/MintedBlock';
 import {LogMint} from '../../types/events';
 import {sleep} from '../../utils/sleep';
 import BlockRepository from '../BlockRepository';
-import ConsensusData from '../../models/ConsensusData';
 import {ConsensusDataRepository} from '../../repositories/ConsensusDataRepository';
-import {chainReadyForNewBlock} from '../../utils/mining';
-import {ChainsIds} from '../../types/ChainsIds';
+import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds';
 import {CanMint} from '../CanMint';
 
 @injectable()
@@ -37,9 +35,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
 
   readonly chainId!: ChainsIds;
-  protected txSender!: TxSender;
   protected blockchain!: Blockchain;
-  protected homeBlockchain!: Blockchain;
   protected chainContract!: ChainContract;
 
   @postConstruct()
@@ -53,6 +49,12 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   };
 
   apply = async (): Promise<void> => {
+    if (!await this.isDispatcherArchitecture()) {
+      this.logger.info(`[${this.chainId}] OLD chain architecture detected`);
+      await sleep(60_000); // slow down execution
+      return;
+    }
+
     await this.checkBalanceIsEnough(this.chainId);
     const consensus = await this.consensusDataRepository.read();
 
@@ -91,22 +93,51 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     return e.message.includes('nonce has already been used');
   }
 
-  private canMint = async (consensus: ConsensusData, chainStatus: ChainStatus): Promise<boolean> => {
-    const [, error] = chainReadyForNewBlock(chainStatus, consensus.dataTimestamp);
-
-    if (error) {
-      this.logger.warn(`[${this.chainId}] chain is not available to mint ${error}`);
-      return false;
-    }
-
-    return true;
-  };
-
   private checkBalanceIsEnough = async (chainId: ChainsIds): Promise<void> => {
     const balance = await this.blockchain.wallet.getBalance();
     const toCurrency = parseEther;
 
     this.testBalanceThreshold(chainId, balance, toCurrency, this.blockchain.wallet.address);
+  };
+
+  private isDispatcherArchitecture = async (): Promise<boolean> => {
+    try {
+      if (this.chainId == this.settings.blockchain.masterChain.chainId) {
+        // homechain is compatible with multichain
+        return true;
+      }
+
+      const nonEvm = NonEvmChainsIds.includes(this.chainId);
+
+      if (nonEvm) {
+        // when non evm start to support dispatching, simply remove this check
+        return false;
+      }
+
+      const blockchain = nonEvm
+        ? this.blockchainRepository.getGeneric(this.chainId)
+        : this.blockchainRepository.get(this.chainId);
+
+      const contract = nonEvm
+        ? this.chainContractRepository.get(this.chainId)
+        : this.chainContractRepository.getGeneric(this.chainId);
+
+      let address = await contract.address();
+
+      if (!address) {
+        await contract.resolveContract();
+        address = await contract.address();
+      }
+
+      const data = ethers.utils.id('VERSION()').slice(0, 10);
+
+      const provider = await blockchain.getProvider();
+      const version = await provider.call({ to: address, data });
+      const versionWithDispatcher = 2;
+      return parseInt(version.toString(), 16) == versionWithDispatcher;
+    } catch (ignore) {
+      return false;
+    }
   };
 
   private testBalanceThreshold = (

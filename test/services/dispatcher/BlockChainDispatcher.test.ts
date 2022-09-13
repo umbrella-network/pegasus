@@ -27,6 +27,7 @@ import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
 import * as mining from '../../../src/utils/mining';
 import {transactionResponseFactory} from '../../mocks/factories/transactionResponseFactory';
 import {transactionReceiptFactory} from '../../mocks/factories/transactionReceiptFactory';
+import {ChainsIds} from '../../../src/types/ChainsIds';
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -83,6 +84,9 @@ describe('BlockChainDispatcher', () => {
       },
       version: '1.0.0',
       blockchain: {
+        masterChain: {
+          chainId: ChainsIds.BSC,
+        },
         multiChains: {
           bsc: {
             transactions: {

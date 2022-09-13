@@ -5,13 +5,12 @@ import {Program} from '@project-serum/anchor';
 import {PublicKey, SystemProgram, TransactionResponse} from '@solana/web3.js';
 import {BigNumber} from 'ethers';
 
-import Settings from '../../types/Settings';
 import {IGenericBlockchain} from '../../lib/blockchains/IGenericBlockchain';
 import {SolanaProvider} from '../../lib/providers/SolanaProvider';
 import {SolanaWallet} from '../../lib/wallets/SolanaWallet';
 import {Chain, IDL} from '../SolanaChainProgram';
 import {sleep} from '../../utils/sleep';
-import {IGenericChainContract, GenericForeignChainContractProps, TransactionResult} from './IGenericChainContract';
+import {IGenericChainContract, TransactionResult} from './IGenericChainContract';
 import {derivePDAFromBlockId, getPublicKeyForSeed, derivePDAFromFCDKey, encodeDataValue} from '../../utils/solana';
 import {SolanaChainStatus} from '../../types/ChainStatus';
 
@@ -21,7 +20,8 @@ export class SolanaChainContract implements IGenericChainContract {
 
   readonly settings: any;
   readonly blockchain: IGenericBlockchain;
-  address: string;
+
+  private contractAddress: string;
 
   private chainProgramId!: PublicKey;
   private chainProgram!: Program<Chain>;
@@ -31,7 +31,11 @@ export class SolanaChainContract implements IGenericChainContract {
   constructor(props: any) {
     this.blockchain = props.blockchain;
     this.settings = props.settings;
-    this.address = '';
+    this.contractAddress = '';
+  }
+
+  address(): string {
+    return this.contractAddress;
   }
 
   async submit(
@@ -141,7 +145,7 @@ export class SolanaChainContract implements IGenericChainContract {
     this.chainProgram = new Program(IDL, this.chainProgramId, (<SolanaProvider>this.blockchain.getProvider()).provider);
     this.statusPda = await getPublicKeyForSeed('status', this.chainProgramId);
     this.authorityPda = await getPublicKeyForSeed('authority', this.chainProgramId);
-    this.address = this.chainProgramId.toBase58();
+    this.contractAddress = this.chainProgramId.toBase58();
   }
 
   async isFCDInitialized(key: string): Promise<boolean> {
