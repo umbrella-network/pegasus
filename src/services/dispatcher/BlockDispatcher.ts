@@ -49,7 +49,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   };
 
   apply = async (): Promise<void> => {
-    if (!await this.isDispatcherArchitecture()) {
+    if (!(await this.isDispatcherArchitecture())) {
       this.logger.info(`[${this.chainId}] OLD chain architecture detected`);
       await sleep(60_000); // slow down execution
       return;
@@ -119,8 +119,8 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
         : this.blockchainRepository.get(this.chainId);
 
       const contract = nonEvm
-        ? this.chainContractRepository.get(this.chainId)
-        : this.chainContractRepository.getGeneric(this.chainId);
+        ? this.chainContractRepository.getGeneric(this.chainId)
+        : this.chainContractRepository.get(this.chainId);
 
       let address = await contract.address();
 
@@ -132,10 +132,11 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
       const data = ethers.utils.id('VERSION()').slice(0, 10);
 
       const provider = await blockchain.getProvider();
-      const version = await provider.call({ to: address, data });
+      const version = await provider.call({to: address, data});
       const versionWithDispatcher = 2;
       return parseInt(version.toString(), 16) == versionWithDispatcher;
-    } catch (ignore) {
+    } catch (err) {
+      this.logger.error(`[${this.chainId}] check version failed: ${err}`);
       return false;
     }
   };
