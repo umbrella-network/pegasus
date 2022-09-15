@@ -60,7 +60,14 @@ class ChainContract {
 
   resolveContract = async (): Promise<Contract> => {
     if (!this.registry) {
-      this.registry = new ContractRegistry(this.blockchain.getProvider(), this.blockchain.getContractRegistryAddress());
+      if (!this.blockchain.getContractRegistryAddress()) {
+        throw new Error(`${this.blockchain.chainId} no valid contract registry address`);
+      }
+
+      this.registry = new ContractRegistry(
+        this.blockchain.getProvider(),
+        this.blockchain.getContractRegistryAddress() as string,
+      );
     }
 
     const chainAddress = await this.registry.getAddress(this.settings.blockchain.contracts.chain.name);

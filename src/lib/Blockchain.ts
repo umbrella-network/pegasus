@@ -17,8 +17,8 @@ class Blockchain {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
   readonly chainId!: string;
-  readonly chainSettings!: BlockchainSettings;
   readonly isMasterChain!: boolean;
+  chainSettings!: BlockchainSettings;
   provider!: Provider;
   wallet!: Wallet;
   providersUrls!: string[];
@@ -79,7 +79,12 @@ class Blockchain {
     return this.provider;
   }
 
-  getContractRegistryAddress(): string {
+  getContractRegistryAddress(): string | undefined {
+    if (!this.chainSettings.contractRegistryAddress) {
+      console.error(`[${this.chainId}] No contract registry address set`);
+      return;
+    }
+
     return this.chainSettings.contractRegistryAddress;
   }
 }
