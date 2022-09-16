@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import {Container} from 'inversify';
 import {expect} from 'chai';
 import IORedis, {Redis} from 'ioredis';
 
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import Settings from '../../src/types/Settings';
 import MockedWorker from '../mocks/worker';
+import {getTestContainer} from '../helpers/getTestContainer';
 
 describe('Worker', () => {
   let mockedWorker: MockedWorker;
@@ -15,6 +15,7 @@ describe('Worker', () => {
 
   before(async () => {
     const config = loadTestEnv();
+    const container = getTestContainer();
 
     settings = {
       redis: {
@@ -40,9 +41,8 @@ describe('Worker', () => {
     } as Settings;
 
     connection = new IORedis(settings.redis.url);
-    const container = new Container();
 
-    container.bind('Settings').toConstantValue(settings);
+    container.rebind('Settings').toConstantValue(settings);
     container.bind<Redis>('Redis').toConstantValue(connection);
     container.bind(MockedWorker).to(MockedWorker);
 

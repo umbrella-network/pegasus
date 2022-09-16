@@ -17,7 +17,6 @@ export type BlockchainSettings = {
 
 export type BlockDispatcherSettings = {
   interval: number;
-  lockTTL: number;
 };
 
 type Settings = {

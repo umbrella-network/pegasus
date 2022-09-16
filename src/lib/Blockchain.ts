@@ -79,10 +79,9 @@ class Blockchain {
     return this.provider;
   }
 
-  getContractRegistryAddress(): string | undefined {
+  getContractRegistryAddress(): string {
     if (!this.chainSettings.contractRegistryAddress) {
-      console.error(`[${this.chainId}] No contract registry address set`);
-      return;
+      throw new Error(`[${this.chainId}] No contract registry address set`);
     }
 
     return this.chainSettings.contractRegistryAddress;
