@@ -168,7 +168,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     nonce?: number,
   ) {
     const components = signatures.map((signature) => BlockDispatcher.splitSignature(signature));
-    const {minGasPrice, maxGasPrice} = this.settings.blockchain.transactions;
+    const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
     const gasMetrics = await GasEstimator.apply(this.blockchain.provider, minGasPrice, maxGasPrice);
 
     this.logger.info(`[${this.chainId}] Submitting tx, gas metrics: ${GasEstimator.printable(gasMetrics)}`);
@@ -287,7 +287,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   }
 
   private async cancelPendingTransaction(prevGasPrice: number, timePadding: number): Promise<boolean> {
-    const {minGasPrice, maxGasPrice} = this.settings.blockchain.transactions;
+    const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
     const gasMetrics = await GasEstimator.apply(this.blockchain.provider, minGasPrice, maxGasPrice);
 
     const txData = {

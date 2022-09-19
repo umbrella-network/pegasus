@@ -7,7 +7,6 @@ import BlockMintingWorker from './workers/BlockMintingWorker';
 import MetricsWorker from './workers/MetricsWorker';
 import Settings, {BlockDispatcherSettings} from './types/Settings';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
-import {ChainsIds} from './types/ChainsIds';
 
 (async (): Promise<void> => {
   await boot();
@@ -16,6 +15,7 @@ import {ChainsIds} from './types/ChainsIds';
   const blockMintingWorker = Application.get(BlockMintingWorker);
   const metricsWorker = Application.get(MetricsWorker);
   const blockDispatcherWorker = Application.get(BlockDispatcherWorker);
+  const jobCode = String(Math.floor(Math.random() * 1000));
   logger.info('[Scheduler] Starting scheduler...');
 
   setInterval(async () => {
@@ -42,21 +42,17 @@ import {ChainsIds} from './types/ChainsIds';
     );
   }, settings.jobs.blockCreation.interval);
 
-  const scheduleBlockReplication = async (
-    blockDispatcherSettings: BlockDispatcherSettings,
-    chainId: string,
-  ): Promise<void> => {
-    logger.info('[Scheduler] Scheduling BlockDispatcherWorker');
+  const scheduleBlockDispatching = async (chainId: string): Promise<void> => {
+    logger.info(`[${chainId}] Scheduling BlockDispatcherWorker dispatcher-${chainId}`);
     try {
       await blockDispatcherWorker.enqueue(
         {
           chainId,
-          lockTTL: blockDispatcherSettings.lockTTL,
-          interval: blockDispatcherSettings.interval,
         },
         {
           removeOnComplete: true,
           removeOnFail: true,
+          jobId: `dispatcher-${chainId}-${jobCode}`,
         },
       );
     } catch (e) {
@@ -70,9 +66,6 @@ import {ChainsIds} from './types/ChainsIds';
       settings.jobs.blockDispatcher
     ))[chainId];
 
-    setInterval(
-      async () => scheduleBlockReplication(blockDispatcherSettings, chainId),
-      blockDispatcherSettings.interval,
-    );
+    setInterval(async () => scheduleBlockDispatching(chainId), blockDispatcherSettings.interval);
   }
 })();

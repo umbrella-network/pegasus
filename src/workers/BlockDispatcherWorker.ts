@@ -2,20 +2,16 @@ import {inject, injectable} from 'inversify';
 import Bull from 'bullmq';
 
 import {BlockChainDispatcher} from '../services/dispatcher/BlockChainDispatcher';
-import {SingletonWorker} from './SingletonWorker';
 import {TChainsIds} from '../types/ChainsIds';
+import BasicWorker from './BasicWorker';
 
 @injectable()
-export class BlockDispatcherWorker extends SingletonWorker {
+export class BlockDispatcherWorker extends BasicWorker {
   @inject(BlockChainDispatcher) dispatcher!: BlockChainDispatcher;
 
   apply = async (job: Bull.Job): Promise<void> => {
-    const interval = parseInt(job.data.interval);
-    const lockTTL = parseInt(job.data.lockTTL);
     const chainId = job.data.chainId as TChainsIds;
-    if (this.isStale(job, interval)) return;
-
-    await this.synchronizeWork(chainId, lockTTL, async () => this.execute(chainId));
+    await this.execute(chainId);
   };
 
   private execute = async (chainId: TChainsIds): Promise<void> => {

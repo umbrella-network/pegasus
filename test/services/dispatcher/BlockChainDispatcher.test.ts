@@ -70,11 +70,6 @@ describe('BlockChainDispatcher', () => {
         gasPrice: 10,
       });
 
-    mockedChainContract = sinon.createStubInstance(ChainContract);
-    mockedBlockchain = sinon.createStubInstance(Blockchain);
-    mockedChainContractRepository = sinon.createStubInstance(ChainContractRepository);
-    mockedBlockchainRepository = sinon.createStubInstance(BlockchainRepository);
-
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
       feedsOnChain: 'test/feeds/feedsOnChain.yaml',
@@ -91,6 +86,8 @@ describe('BlockChainDispatcher', () => {
           bsc: {
             transactions: {
               waitForBlockTime: 1000,
+              minGasPrice: 5000000000,
+              maxGasPrice: 10000000000,
               mintBalance: {
                 warningLimit: '0.15',
                 errorLimit: '0.015',
@@ -108,7 +105,13 @@ describe('BlockChainDispatcher', () => {
       },
     } as Settings;
 
+    mockedChainContract = sinon.createStubInstance(ChainContract);
+    mockedBlockchain = sinon.createStubInstance(Blockchain);
+    mockedChainContractRepository = sinon.createStubInstance(ChainContractRepository);
+    mockedBlockchainRepository = sinon.createStubInstance(BlockchainRepository);
+
     wallet = Wallet.createRandom();
+    mockedBlockchain.chainSettings = settings.blockchain.multiChains.bsc;
     mockedBlockchain.wallet = wallet;
     mockedBlockchain.wallet.getBalance = async () => parseEther('10');
     mockedBlockchain.getBlockNumber.onCall(0).resolves(10);

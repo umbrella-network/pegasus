@@ -38,10 +38,6 @@ const settings: Settings = {
           process.env.BSC_DISPATCHER_INTERVAL || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
           10,
         ),
-        lockTTL: getTimeSetting(
-          parseInt(process.env.BSC_DISPATCHER_LOCK_TTL || process.env.BLOCK_CREATION_LOCK_TTL || '60'),
-          60,
-        ),
       },
     },
   },
