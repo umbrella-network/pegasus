@@ -5,6 +5,7 @@ import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
 import ChainContract from '../contracts/ChainContract';
 import {BlockchainRepository} from './BlockchainRepository';
 import {IGenericChainContract} from 'src/contracts/generic/IGenericChainContract';
+import {Logger} from 'winston';
 
 export type ChainContractCollection = {
   [key: string]: ChainContract | IGenericChainContract | undefined;
@@ -16,15 +17,21 @@ export class ChainContractRepository {
 
   constructor(
     @inject('Settings') settings: Settings,
+    @inject('Logger') logger: Logger,
     @inject(BlockchainRepository) blockchainRepository: BlockchainRepository,
   ) {
     Object.values(ChainsIds).forEach((chainId) => {
-      const blockchain = blockchainRepository.get(chainId);
+      try {
+        const blockchain = blockchainRepository.get(chainId);
 
-      this.collection[chainId] =
-        blockchain.provider && blockchain.getContractRegistryAddress()
-          ? new ChainContract(settings, blockchain)
-          : undefined;
+        this.collection[chainId] =
+          blockchain.provider && blockchain.getContractRegistryAddress()
+            ? new ChainContract(settings, blockchain)
+            : undefined;
+      } catch (e) {
+        this.collection[chainId] = undefined;
+        logger.error(`[${chainId}] ${e.message}`);
+      }
     });
   }
 
