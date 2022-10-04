@@ -7,7 +7,6 @@ export interface Feed {
 
 export default interface Feeds {
   [leafLabel: string]: Feed;
-  // eslint-disable-next-line
 }
 
 export type HexStringWith0x = string;

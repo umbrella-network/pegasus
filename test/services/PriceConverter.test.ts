@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import {expect} from 'chai';
+
 import PriceConverter from '../../src/services/PriceConverter';
 
 describe('PriceConverter', () => {

@@ -28,6 +28,17 @@ export interface Consensus {
   status: ConsensusStatus;
 }
 
+export type ConsensusDataProps = {
+  root: string;
+  chainIds: string[];
+  signatures: string[];
+  fcdKeys: string[];
+  fcdValues: HexStringWith0x[];
+  leaves: Leaf[];
+  dataTimestamp: number;
+  timePadding: number;
+};
+
 export interface SignedBlockConsensus {
   dataTimestamp: number;
   leaves: Leaf[];

@@ -1,8 +1,8 @@
 import {expect} from 'chai';
+import sinon, {createStubInstance} from 'sinon';
 
 import {FeedFetcher} from '../../../src/types/Feed';
 import {getTestContainer} from '../../helpers/getTestContainer';
-import sinon, {createStubInstance} from 'sinon';
 import CoingeckoMultiProcessor from '../../../src/services/FeedProcessor/CoingeckoMultiProcessor';
 import CoingeckoMultiPriceFetcher, {OutputValues} from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher';
 

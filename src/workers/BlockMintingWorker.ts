@@ -1,27 +1,20 @@
 import Bull from 'bullmq';
-import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import newrelic from 'newrelic';
 
 import BlockMinter from '../services/BlockMinter';
 import BasicWorker from './BasicWorker';
-import Settings from '../types/Settings';
 import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
 import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer';
-import KaikoPriceStreamInitializer from '../services/KaikoPriceStreamInitializer';
 
 @injectable()
 class BlockMintingWorker extends BasicWorker {
-  @inject('Logger') logger!: Logger;
-  @inject('Settings') settings!: Settings;
   @inject(BlockMinter) blockMinter!: BlockMinter;
   @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
   @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
-  @inject(KaikoPriceStreamInitializer) kaikoPriceStreamInitializer!: KaikoPriceStreamInitializer;
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
     const isLocked = await this.connection.get(this.settings.jobs.blockCreation.lock.name);
-
     if (isLocked) return;
 
     return this.queue.add(this.constructor.name, params, opts);
@@ -65,12 +58,6 @@ class BlockMintingWorker extends BasicWorker {
     });
 
     this.cryptoCompareWSInitializer.apply().catch((err: Error) => {
-      newrelic.noticeError(err);
-      this.logger.error(err);
-      process.exit(1);
-    });
-
-    this.kaikoPriceStreamInitializer.apply().catch((err: Error) => {
       newrelic.noticeError(err);
       this.logger.error(err);
       process.exit(1);

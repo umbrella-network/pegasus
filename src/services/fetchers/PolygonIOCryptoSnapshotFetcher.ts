@@ -9,19 +9,15 @@ class PolygonIOCryptoSnapshotFetcher {
   private apiKey: string;
   private timeout: number;
 
-  constructor(
-    @inject('Settings') settings: Settings
-  ) {
+  constructor(@inject('Settings') settings: Settings) {
     this.apiKey = settings.api.polygonIO.apiKey;
     this.timeout = settings.api.polygonIO.timeout;
   }
 
-  /**
-   * @param symbols X:BTCUSD, ...
-   * @param raw
-   */
-  async apply({symbols}: any, raw = false): Promise<SnapshotResponse | number[]> {
-    const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers?tickers=${symbols.join(',')}&apiKey=${this.apiKey}`;
+  async apply({symbols}: {symbols: string[]}, raw = false): Promise<SnapshotResponse | number[]> {
+    const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers?tickers=${symbols.join(
+      ',',
+    )}&apiKey=${this.apiKey}`;
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
@@ -32,25 +28,27 @@ class PolygonIOCryptoSnapshotFetcher {
       throw new Error(response.data);
     }
 
-    return raw ? (response.data as SnapshotResponse) : this.extractValues(response.data, '$.tickers[*].lastTrade.p') as number[];
+    return raw
+      ? (response.data as SnapshotResponse)
+      : (this.extractValues(response.data, '$.tickers[*].lastTrade.p') as number[]);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extractValues = (data: any, valuePath: string): number[] => {
     return JSONPath({json: data, path: valuePath});
-  }
+  };
 }
 
 export interface Ticker {
   ticker: string;
   lastTrade: {
-    p: number,
-    t: number,
-  },
+    p: number;
+    t: number;
+  };
 }
 
 export interface SnapshotResponse {
-  tickers: Ticker[],
+  tickers: Ticker[];
 }
 
 export default PolygonIOCryptoSnapshotFetcher;

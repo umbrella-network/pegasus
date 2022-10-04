@@ -2,6 +2,7 @@ import {inject, injectable} from 'inversify';
 import {Contract} from 'ethers';
 import {TransactionResponse} from '@ethersproject/providers';
 import {ABI, ContractRegistry} from '@umb-network/toolbox';
+
 import Settings from '../types/Settings';
 import Blockchain from '../lib/Blockchain';
 import {ChainStatus} from '../types/ChainStatus';
@@ -16,6 +17,10 @@ class ChainContract {
   constructor(@inject('Settings') settings: Settings, @inject(Blockchain) blockchain: Blockchain) {
     this.settings = settings;
     this.blockchain = blockchain;
+  }
+
+  async address(): Promise<string> {
+    return this.resolveAddress();
   }
 
   async resolveStatus(): Promise<[address: string, status: ChainStatus]> {
@@ -55,14 +60,11 @@ class ChainContract {
 
   resolveContract = async (): Promise<Contract> => {
     if (!this.registry) {
-      this.registry = new ContractRegistry(
-        this.blockchain.provider,
-        this.settings.blockchain.contracts.registry.address,
-      );
+      this.registry = new ContractRegistry(this.blockchain.getProvider(), this.blockchain.getContractRegistryAddress());
     }
 
     const chainAddress = await this.registry.getAddress(this.settings.blockchain.contracts.chain.name);
-    return new Contract(chainAddress, ABI.chainAbi, this.blockchain.provider);
+    return new Contract(chainAddress, ABI.chainAbi, this.blockchain.getProvider());
   };
 }
 

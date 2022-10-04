@@ -14,12 +14,18 @@ class RandomNumberFetcher {
       latest = await this.blockchain.provider.getBlock(latest.number - 1);
     }
 
-    const blocks = await Promise.all([...new Array(numBlocks - 1)]
-      .map((_, i) => this.blockchain.provider.getBlock(latest.number - numBlocks + i + 1)));
+    const blocks = await Promise.all(
+      [...new Array(numBlocks - 1)].map((_, i) => this.blockchain.provider.getBlock(latest.number - numBlocks + i + 1)),
+    );
 
     blocks.push(latest);
 
-    return utils.keccak256(utils.defaultAbiCoder.encode(blocks.map(() => 'bytes32'), blocks.map((block) => block.hash)));
+    return utils.keccak256(
+      utils.defaultAbiCoder.encode(
+        blocks.map(() => 'bytes32'),
+        blocks.map((block) => block.hash),
+      ),
+    );
   }
 }
 

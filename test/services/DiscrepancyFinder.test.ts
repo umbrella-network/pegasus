@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import {Wallet} from 'ethers';
 
 import Feeds from '../../src/types/Feed';
 import {DiscrepancyFinder} from '../../src/services/DiscrepancyFinder';
-import {Wallet} from 'ethers';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {signAffidavitWithWallet} from '../../src/utils/mining';
 import {ProposedConsensusService} from '../../src/services/ProposedConsensusService';

@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import {ethers} from 'ethers';
+
 import {signAffidavitWithWallet, sortSignaturesBySigner} from '../../src/utils/mining';
 
 describe('sortSignaturesBySigner', () => {

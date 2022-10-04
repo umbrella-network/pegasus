@@ -32,6 +32,14 @@ const settings: Settings = {
         ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),
       },
     },
+    blockDispatcher: {
+      bsc: {
+        interval: parseInt(
+          process.env.BSC_DISPATCHER_INTERVAL || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
+          10,
+        ),
+      },
+    },
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
@@ -58,6 +66,9 @@ const settings: Settings = {
       urls: getProvidersURLs(),
       privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
     },
+    masterChain: {
+      chainId: 'bsc',
+    },
     contracts: {
       chain: {
         name: 'Chain',
@@ -75,6 +86,26 @@ const settings: Settings = {
         errorLimit: process.env.BALANCE_ERROR || '0.003',
       },
     },
+    multiChains: {
+      bsc: {
+        startBlockNumber: parseInt(
+          process.env.BSC_START_BLOCK_NUMBER || process.env.START_BLOCK_NUMBER || '-100000',
+          10,
+        ),
+        contractRegistryAddress:
+          process.env.BSC_REGISTRY_CONTRACT_ADDRESS || (process.env.REGISTRY_CONTRACT_ADDRESS as string),
+        transactions: {
+          waitForBlockTime: parseInt(process.env.BSC_WAIT_FOR_BLOCK_TIME || process.env.WAIT_FOR_BLOCK_TIME || '1000'),
+          minGasPrice: parseInt(process.env.BSC_MIN_GAS_PRICE || process.env.MIN_GAS_PRICE || '5000000000', 10),
+          maxGasPrice: parseInt(process.env.BSC_MAX_GAS_PRICE || process.env.MAX_GAS_PRICE || '10000000000', 10),
+          mintBalance: {
+            warningLimit: process.env.BSC_BALANCE_WARN || process.env.BALANCE_WARN || '0.1',
+            errorLimit: process.env.BSC_BALANCE_ERROR || process.env.BALANCE_ERROR || '0.003',
+          },
+        },
+      },
+    },
+    resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '30000'),
   },
   api: {
     cryptocompare: {
@@ -90,14 +121,6 @@ const settings: Settings = {
       timeout: timeoutWithCode(process.env.COINGECKO_TIMEOUT || '5000', TimeoutCodes.COINGECKO),
       maxBatchSize: parseInt(process.env.POLYGON_MAX_BATCH_SIZE || '500', 10),
     },
-    coinmarketcap: {
-      apiKey: process.env.COINMARKETCAP_API_KEY as string,
-      timeout: timeoutWithCode(process.env.COINMARKETCAP_TIMEOUT || '5000', TimeoutCodes.COINMARKETCAP),
-    },
-    genesisVolatility: {
-      apiKey: process.env.GENESIS_VOLATILITY_API_KEY as string,
-      timeout: timeoutWithCode(process.env.GENESIS_VOLATILITY_TIMEOUT || '5000', TimeoutCodes.GENESISVOLATILITY),
-    },
     polygonIO: {
       apiKey: process.env.POLYGON_IO_API_KEY as string,
       priceUpdateCronRule: process.env.POLYGON_IO_PRICE_UPDATE_CRON_RULE || '* * * * *', // every minute
@@ -106,20 +129,6 @@ const settings: Settings = {
       truncateIntervalMinutes: parseInt(process.env.POLYGON_IO_TRUNCATE_INTERVAL_MINUTES || '60', 10),
       reconnectTimeout: parseInt(process.env.POLYGON_IO_RECONNECT_TIMEOUT || '30000', 10),
       maxBatchSize: parseInt(process.env.POLYGON_MAX_BATCH_SIZE || '500', 10),
-    },
-    iex: {
-      apiKey: process.env.IEX_API_KEY as string,
-      timeout: timeoutWithCode(process.env.IEX_TIMEOUT || '5000', TimeoutCodes.IEX),
-    },
-    bea: {
-      apiKey: process.env.BAE_API_KEY as string,
-      timeout: timeoutWithCode(process.env.BAE_TIMEOUT || '5000', TimeoutCodes.BEA),
-    },
-    kaiko: {
-      apiKey: process.env.KAIKO_API_KEY as string,
-      rpcUrl: process.env.KAIKO_RPC_URL || 'gateway-v0-grpc.kaiko.ovh:443',
-      timeout: timeoutWithCode(process.env.KAIKO_TIMEOUT || '5000', TimeoutCodes.KAIKO),
-      priceFreshness: parseInt(process.env.KAIKO_FRESHNESS || '3600', 10),
     },
     optionsPrice: {
       apiKey: process.env.OPTIONS_PRICE_API_KEY as string,
@@ -137,6 +146,7 @@ const settings: Settings = {
       defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '1.0'),
       verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
     },
+    priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
   feedsFile:

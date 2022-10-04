@@ -12,7 +12,6 @@ import FeedProcessor from '../../src/services/FeedProcessor';
 import {IdentityCalculator} from '../../src/services/calculators';
 import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory';
 import Leaf from '../../src/types/Leaf';
-
 import CryptoCompareMultiProcessor from '../../src/services/FeedProcessor/CryptoCompareMultiProcessor';
 import CoingeckoMultiProcessor from '../../src/services/FeedProcessor/CoingeckoMultiProcessor';
 

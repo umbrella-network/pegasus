@@ -1,5 +1,6 @@
-import {LoopAgent} from './LoopAgent';
 import {inject, injectable} from 'inversify';
+
+import {LoopAgent} from './LoopAgent';
 import {UniswapPoolService} from '../services/uniswap/UniswapPoolService';
 import Settings from '../types/Settings';
 

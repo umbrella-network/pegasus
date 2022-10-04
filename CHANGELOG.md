@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.4.0] - 2022-09-26
+### Added
+- Created service to fetch state from a list of chainIds
+- `LeaderSelector` service
+- Created ConsensusData model
+
+### Changed
+- Created api price freshness settings
+- Use LeaderSelector to get leader when sign and mint a block
+- Run workers in concurrency mode
+
 ## [7.3.1] - 2022-05-23
 ### Changed
 - Uniswap agent only gets successful prices

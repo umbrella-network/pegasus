@@ -1,9 +1,8 @@
 import 'reflect-metadata';
-
-import FeedProcessor from '../../src/services/FeedProcessor';
 import {loadFeeds} from '@umb-network/toolbox';
 import {expect} from 'chai';
 
+import FeedProcessor from '../../src/services/FeedProcessor';
 import {sleep} from '../../src/utils/sleep';
 import Feeds, {FeedInput} from '../../src/types/Feed';
 import {mockedLogger} from '../mocks/logger';
@@ -62,14 +61,6 @@ const feedsFetcher = [
   {
     apiKey: 'CRYPTOCOMPARE_API_KEY',
     name: 'CryptoComparePrice',
-  },
-  {
-    apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: 'CoinmarketcapPrice',
-  },
-  {
-    apiKey: 'IEX_API_KEY',
-    name: 'IEXEnergy',
   },
   {
     apiKey: null,

@@ -7,14 +7,14 @@ abstract class WSClient {
   @inject('Logger') logger!: Logger;
 
   started = false;
-  open = false
+  open = false;
   url: string;
   reconnectTimout: number;
   symbols: Set<string> = new Set<string>();
 
   socket?: WebSocket;
 
-  protected constructor(url: string, reconnectTimout= 5000) {
+  protected constructor(url: string, reconnectTimout = 5000) {
     this.url = url;
     this.reconnectTimout = reconnectTimout;
   }
@@ -84,13 +84,13 @@ abstract class WSClient {
     };
   }
 
-  stop() {
+  stop(): void {
     this.started = false;
 
     this.socket?.close();
   }
 
-  close() {
+  close(): void {
     this.socket?.close(0, 'closed manually');
   }
 }

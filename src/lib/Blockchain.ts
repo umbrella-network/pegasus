@@ -1,25 +1,41 @@
 import {JsonRpcProvider, Provider} from '@ethersproject/providers';
 import {RPCSelector} from '@umb-network/toolbox';
 import {inject, injectable} from 'inversify';
-import {Wallet} from 'ethers';
+import {ethers, Wallet} from 'ethers';
 import {Logger} from 'winston';
 
-import Settings from '../types/Settings';
+import Settings, {BlockchainSettings} from '../types/Settings';
 import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies';
+
+export type BlockchainProps = {
+  chainId: string;
+  settings: Settings;
+};
 
 @injectable()
 class Blockchain {
   @inject('Logger') logger!: Logger;
-  readonly settings!: Settings;
+  @inject('Settings') settings!: Settings;
+  readonly chainId!: string;
+  readonly isMasterChain!: boolean;
+  chainSettings!: BlockchainSettings;
   provider!: Provider;
   wallet!: Wallet;
   providersUrls!: string[];
   selectionStrategy!: string;
 
-  constructor(@inject('Settings') settings: Settings) {
-    this.settings = settings;
+  constructor(@inject('Settings') settings: Settings, chainId = settings.blockchain.masterChain.chainId) {
+    this.chainId = chainId;
+    this.isMasterChain = chainId === settings.blockchain.masterChain.chainId;
+    this.chainSettings = (<Record<string, BlockchainSettings>>settings.blockchain.multiChains)[chainId];
     this.providersUrls = settings.blockchain.provider.urls;
-    this.constructProvider();
+
+    if (this.isMasterChain) {
+      this.constructProvider();
+    } else {
+      this.provider = ethers.providers.getDefaultProvider(this.chainSettings.providerUrl);
+    }
+
     this.wallet = new Wallet(settings.blockchain.provider.privateKey, this.provider);
     this.selectionStrategy = settings.rpcSelectionStrategy;
   }
@@ -57,6 +73,18 @@ class Blockchain {
 
     this.provider = new JsonRpcProvider(provider);
     this.wallet = new Wallet(this.settings.blockchain.provider.privateKey, this.provider);
+  }
+
+  getProvider(): Provider {
+    return this.provider;
+  }
+
+  getContractRegistryAddress(): string {
+    if (!this.chainSettings.contractRegistryAddress) {
+      throw new Error(`[${this.chainId}] No contract registry address set`);
+    }
+
+    return this.chainSettings.contractRegistryAddress;
   }
 }
 

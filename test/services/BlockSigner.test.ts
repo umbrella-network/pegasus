@@ -9,14 +9,25 @@ import Blockchain from '../../src/lib/Blockchain';
 import ChainContract from '../../src/contracts/ChainContract';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
-import {signAffidavitWithWallet, timestamp} from '../../src/utils/mining';
+import {signAffidavitWithWallet} from '../../src/utils/mining';
 import {getTestContainer} from '../helpers/getTestContainer';
 import BlockRepository from '../../src/services/BlockRepository';
 import {FeedDataService} from '../../src/services/FeedDataService';
 import {leavesAndFeedsFactory} from '../mocks/factories/leavesAndFeedsFactory';
 import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';
+import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
+import {ChainsStatuses} from '../../src/types/ChainStatus';
 
 chai.use(chaiAsPromised);
+
+const allStates: ChainsStatuses = {
+  validators: ['0xabctest', '0xdfgtest'],
+  nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
+  chainsStatuses: [],
+  chainsIdsReadyForBlock: [],
+};
+
+const timePadding = 10;
 
 describe('BlockSigner', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -24,7 +35,7 @@ describe('BlockSigner', () => {
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedFeedDataService: sinon.SinonStubbedInstance<FeedDataService>;
   let mockedBlockRepository: sinon.SinonStubbedInstance<BlockRepository>;
-
+  let mockedMultiChainStatusResolver: sinon.SinonStubbedInstance<MultiChainStatusResolver>;
   let blockSigner: BlockSigner;
 
   before(async () => {
@@ -35,11 +46,13 @@ describe('BlockSigner', () => {
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
     mockedFeedDataService = sinon.createStubInstance(FeedDataService);
     mockedBlockRepository = sinon.createStubInstance(BlockRepository);
+    mockedMultiChainStatusResolver = sinon.createStubInstance(MultiChainStatusResolver);
 
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(BlockRepository).toConstantValue(mockedBlockRepository);
     container.bind(FeedDataService).toConstantValue(mockedFeedDataService);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
+    container.bind(MultiChainStatusResolver).toConstantValue(mockedMultiChainStatusResolver);
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
     container.bind(BlockSigner).to(BlockSigner);
 
@@ -50,32 +63,34 @@ describe('BlockSigner', () => {
     sinon.restore();
   });
 
-  describe('when chain is not ready', () => {
+  describe('when no chain is ready', () => {
     it('throws an error', async () => {
-      mockedBlockchain.wallet = Wallet.createRandom();
-      const nextLeader = Wallet.createRandom();
-      const signature = await signAffidavitWithWallet(
-        nextLeader,
-        '0x631a4e7c2311787c7da16377b77f24bdd12a293dd7956789f1b5c6b16fe1e262',
-      );
+      const {affidavit, fcd, timestamp} = leafWithAffidavit;
+      const leaderWallet = Wallet.createRandom();
+      const wallet = Wallet.createRandom();
+      const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
+      mockedBlockchain.wallet = wallet;
 
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
-        chainStatusFactory.build({
-          nextLeader: nextLeader.address,
-          validators: [Wallet.createRandom().address],
-          lastDataTimestamp: timestamp(),
-        }),
-      ]);
+      allStates.chainsStatuses = [
+        {
+          chainAddress: '0x123',
+          chainStatus: chainStatusFactory.build({validators: [leaderWallet.address]}),
+          chainId: 'bsc',
+        },
+      ];
+
+      allStates.nextLeader = leaderWallet.address;
+
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
 
       await expect(
         blockSigner.apply({
-          dataTimestamp: 10,
-          fcd: {'ETH-USD': '0xABCD'},
-          leaves: {'ETH-USD': '0xABCD'},
-          signature,
+          dataTimestamp: timestamp,
+          fcd: fcd,
+          leaves: fcd,
+          signature: signature,
         }),
-      ).to.be.rejectedWith('skipping 1: waiting for next round');
+      ).to.be.rejectedWith(`[BlockSigner] None of the chains is ready for data at ${timestamp}`);
     });
   });
 
@@ -87,17 +102,29 @@ describe('BlockSigner', () => {
       const nextLeader = Wallet.createRandom().address;
 
       mockedBlockchain.wallet = Wallet.createRandom();
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
-        chainStatusFactory.build({nextLeader: nextLeader, validators: [wallet.address]}),
-      ]);
+
+      allStates.chainsStatuses = [
+        {
+          chainAddress: '0x123',
+          chainStatus: chainStatusFactory.build({
+            timePadding,
+            validators: [nextLeader, wallet.address],
+            lastDataTimestamp: timestamp - timePadding,
+          }),
+          chainId: 'bsc',
+        },
+      ];
+
+      allStates.nextLeader = nextLeader;
+      allStates.chainsIdsReadyForBlock = ['bsc'];
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
 
       await expect(
         blockSigner.apply({
           dataTimestamp: timestamp,
-          fcd: fcd,
+          fcd,
           leaves: fcd,
-          signature: signature,
+          signature,
         }),
       ).to.be.rejectedWith(
         `Signature does not belong to the current leader, expected ${nextLeader} got ${wallet.address}`,
@@ -112,10 +139,16 @@ describe('BlockSigner', () => {
       const signature = await signAffidavitWithWallet(wallet, affidavit);
       mockedBlockchain.wallet = wallet;
 
-      mockedChainContract.resolveStatus.resolves([
-        '0x123',
-        chainStatusFactory.build({nextLeader: wallet.address, validators: [wallet.address]}),
-      ]);
+      allStates.chainsStatuses = [
+        {
+          chainAddress: '0x123',
+          chainStatus: chainStatusFactory.build({nextLeader: wallet.address, validators: [wallet.address]}),
+          chainId: 'bsc',
+        },
+      ];
+
+      allStates.chainsIdsReadyForBlock = ['bsc'];
+      mockedMultiChainStatusResolver.apply.resolves(allStates);
 
       await expect(
         blockSigner.apply({
@@ -124,7 +157,7 @@ describe('BlockSigner', () => {
           leaves: fcd,
           signature: signature,
         }),
-      ).to.be.rejectedWith('You should not call yourself for signature.');
+      ).to.be.rejectedWith('[BlockSigner] You should not call yourself for signature.');
     });
   });
 
@@ -137,10 +170,21 @@ describe('BlockSigner', () => {
         const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
         mockedBlockchain.wallet = wallet;
 
-        mockedChainContract.resolveStatus.resolves([
-          '0x123',
-          chainStatusFactory.build({nextLeader: leaderWallet.address, validators: [wallet.address]}),
-        ]);
+        allStates.chainsStatuses = [
+          {
+            chainAddress: '0x123',
+            chainStatus: chainStatusFactory.build({
+              timePadding,
+              validators: [leaderWallet.address],
+              lastDataTimestamp: timestamp - timePadding,
+            }),
+            chainId: 'bsc',
+          },
+        ];
+
+        allStates.nextLeader = leaderWallet.address;
+        allStates.chainsIdsReadyForBlock = ['bsc'];
+        mockedMultiChainStatusResolver.apply.resolves(allStates);
 
         mockedFeedDataService.getLeavesAndFeeds.resolves(
           leavesAndFeedsFactory.build({
@@ -176,10 +220,17 @@ describe('BlockSigner', () => {
         const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
         mockedBlockchain.wallet = wallet;
 
-        mockedChainContract.resolveStatus.resolves([
-          '0x123',
-          chainStatusFactory.build({nextLeader: leaderWallet.address, validators: [wallet.address]}),
-        ]);
+        allStates.chainsStatuses = [
+          {
+            chainAddress: '0x123',
+            chainStatus: chainStatusFactory.build({validators: [leaderWallet.address]}),
+            chainId: 'bsc',
+          },
+        ];
+
+        allStates.nextLeader = leaderWallet.address;
+        allStates.chainsIdsReadyForBlock = ['bsc'];
+        mockedMultiChainStatusResolver.apply.resolves(allStates);
 
         mockedFeedDataService.getLeavesAndFeeds.resolves(leavesAndFeedsFactory.build());
 

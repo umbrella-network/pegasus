@@ -1,6 +1,7 @@
 import {inject, injectable} from 'inversify';
-import {BasicAgent} from './BasicAgent';
 import {Logger} from 'winston';
+
+import {BasicAgent} from './BasicAgent';
 import {UniswapPriceScanner} from '../services/uniswap/UniswapPriceScanner';
 
 @injectable()

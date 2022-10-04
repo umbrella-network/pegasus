@@ -1,3 +1,24 @@
+import {ChainsIds} from './ChainsIds';
+
+export type BlockchainSettings = {
+  startBlockNumber: number;
+  providerUrl?: string;
+  contractRegistryAddress: string;
+  transactions: {
+    waitForBlockTime: number;
+    minGasPrice: number;
+    maxGasPrice: number;
+    mintBalance: {
+      warningLimit: string;
+      errorLimit: string;
+    };
+  };
+};
+
+export type BlockDispatcherSettings = {
+  interval: number;
+};
+
 type Settings = {
   port: number;
   application: {
@@ -22,6 +43,9 @@ type Settings = {
         name: string;
         ttl: number;
       };
+    };
+    blockDispatcher: {
+      bsc: BlockDispatcherSettings;
     };
   };
   redis: {
@@ -48,6 +72,9 @@ type Settings = {
       urls: string[];
       privateKey: string;
     };
+    masterChain: {
+      chainId: string;
+    };
     providers: {[name: string]: string};
     contracts: {
       chain: {
@@ -66,6 +93,10 @@ type Settings = {
         errorLimit: string;
       };
     };
+    multiChains: {
+      [key in ChainsIds]: BlockchainSettings;
+    };
+    resolveStatusTimeout: number;
   };
   api: {
     cryptocompare: {
@@ -77,17 +108,9 @@ type Settings = {
       truncateIntervalMinutes: number;
       reconnectTimeout: number;
     };
-    coinmarketcap: {
-      apiKey: string;
-      timeout: number;
-    };
     coingecko: {
       timeout: number;
       maxBatchSize: number;
-    };
-    genesisVolatility: {
-      apiKey: string;
-      timeout: number;
     };
     polygonIO: {
       apiKey: string;
@@ -97,20 +120,6 @@ type Settings = {
       timeout: number;
       reconnectTimeout: number;
       maxBatchSize: number;
-    };
-    bea: {
-      apiKey: string;
-      timeout: number;
-    };
-    iex: {
-      apiKey: string;
-      timeout: number;
-    };
-    kaiko: {
-      apiKey: string;
-      rpcUrl: string;
-      timeout: number;
-      priceFreshness: number;
     };
     optionsPrice: {
       apiKey: string;
@@ -128,6 +137,7 @@ type Settings = {
       defaultDiscrepancy: number;
       verificationInterval: number;
     };
+    priceFreshness: number;
   };
   rpcSelectionStrategy: string;
   feedsCacheRefreshCronRule: string;

@@ -1,8 +1,9 @@
 import 'reflect-metadata';
-import {ConsensusOptimizer, ConsensusOptimizerProps} from '../../src/services/ConsensusOptimizer';
 import sinon from 'sinon';
 import {expect} from 'chai';
 import {Container} from 'inversify';
+
+import {ConsensusOptimizer, ConsensusOptimizerProps} from '../../src/services/ConsensusOptimizer';
 import {getTestContainer} from '../helpers/getTestContainer';
 
 describe('#apply', () => {

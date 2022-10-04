@@ -1,12 +1,11 @@
 import dotenv from 'dotenv';
-import chai from 'chai';
+import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-
-import loadFeeds from '../../src/services/loadFeeds';
 import moxios from 'moxios';
 import * as fs from 'fs';
 
-const expect = chai.expect;
+import loadFeeds from '../../src/services/loadFeeds';
+
 chai.use(chaiAsPromised);
 
 dotenv.config();

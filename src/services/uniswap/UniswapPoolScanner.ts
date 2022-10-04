@@ -1,21 +1,22 @@
 import {inject, injectable} from 'inversify';
+import {Provider} from '@ethersproject/providers';
+import {chunk} from 'lodash';
+
 import Settings from '../../types/Settings';
 import {UniswapV3Factory} from '../../contracts/UniswapV3Factory';
 import {UniswapPoolService} from './UniswapPoolService';
 import {BlockchainScanner} from '../BlockchainScanner';
 import {UniswapV3Helper} from '../../contracts/UniswapV3Helper';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
-import {Provider} from '@ethersproject/providers';
 import {Token} from '../../models/BlockchainSymbol';
-import {chunk} from 'lodash';
 
 export type UniswapPoolCreatedEvent = {
-  token0: string,
-  token1: string,
-  fee: bigint,
-  pool: string,
-  anchor: number
-}
+  token0: string;
+  token1: string;
+  fee: bigint;
+  pool: string;
+  anchor: number;
+};
 
 @injectable()
 export class UniswapPoolScanner extends BlockchainScanner {
@@ -42,7 +43,7 @@ export class UniswapPoolScanner extends BlockchainScanner {
     const events = await this.getPoolCreatedEvents(fromBlock, toBlock);
     if (events.length == 0) return true;
 
-    const addresses = events.map(e => [e.token1, e.token0]).flat();
+    const addresses = events.map((e) => [e.token1, e.token0]).flat();
     const tokens = await this.getTokens(addresses);
     const tokenPairs = chunk(tokens, 2);
 
@@ -53,8 +54,8 @@ export class UniswapPoolScanner extends BlockchainScanner {
         const fee = Number(event.fee);
         const symbol = this.uniswapPoolService.getPoolSymbol(pair[0].symbol, pair[1].symbol);
         this.logger.info(`[UniswapPoolScanner] Saving ${symbol}`);
-        await this.uniswapPoolService.upsert({ symbol, tokens: pair, fee });
-      } catch(e) {
+        await this.uniswapPoolService.upsert({symbol, tokens: pair, fee});
+      } catch (e) {
         this.logger.error(`[UniswapPoolScanner] Could not get a valid symbol for tokens ${tokens}`);
       }
     }
@@ -79,9 +80,9 @@ export class UniswapPoolScanner extends BlockchainScanner {
         tokenSymbols = tokenSymbols.concat(batchSymbols);
       }
 
-      if (!tokenSymbols.every(s => s != undefined)) return [];
+      if (!tokenSymbols.every((s) => s != undefined)) return [];
 
-      return tokenSymbols.map((symbol, i) => ({ symbol, address: addresses[i].toLowerCase() }));
+      return tokenSymbols.map((symbol, i) => ({symbol, address: addresses[i].toLowerCase()}));
     } catch (e) {
       this.logger.error(`[UniswapPoolScanner] Error retrieving symbols for ${addresses}`, e);
       return [];

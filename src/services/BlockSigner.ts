@@ -9,7 +9,7 @@ import {SignedBlock} from '../types/SignedBlock';
 import {BlockSignerResponse} from '../types/BlockSignerResponse';
 import BlockRepository from './BlockRepository';
 
-import {chainReadyForNewBlock, signAffidavitWithWallet} from '../utils/mining';
+import {signAffidavitWithWallet} from '../utils/mining';
 import {ProposedConsensus} from '../types/Consensus';
 import {ChainStatus} from '../types/ChainStatus';
 import {DiscrepancyFinder} from './DiscrepancyFinder';
@@ -17,6 +17,7 @@ import newrelic from 'newrelic';
 import {Discrepancy} from '../types/Discrepancy';
 import {ProposedConsensusService} from './ProposedConsensusService';
 import {FeedDataService} from './FeedDataService';
+import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
 
 @injectable()
 class BlockSigner {
@@ -24,6 +25,7 @@ class BlockSigner {
   @inject('Settings') settings!: Settings;
   @inject(Blockchain) blockchain!: Blockchain;
   @inject(ChainContract) chainContract!: ChainContract;
+  @inject(MultiChainStatusResolver) multiChainStatusResolver!: MultiChainStatusResolver;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject(FeedDataService) feedDataService!: FeedDataService;
@@ -77,29 +79,35 @@ class BlockSigner {
   async check(
     block: SignedBlock,
   ): Promise<{proposedConsensus: ProposedConsensus; chainAddress: string; chainStatus: ChainStatus}> {
-    const [chainAddress, chainStatus] = await this.chainContract.resolveStatus();
-    const [ready, error] = chainReadyForNewBlock(chainStatus, block.dataTimestamp);
-
-    if (!ready) {
-      this.logger.error(`[BlockSigner] Not ready, skipping. Error: ${error}`);
-      throw Error(error);
-    }
-
-    this.logger.info(`[BlockSigner] Signing a block for ${chainStatus.nextLeader} at ${block.dataTimestamp}...`);
     const proposedConsensus = ProposedConsensusService.apply(block);
 
-    if (this.blockchain.wallet.address === proposedConsensus.signer) {
-      throw Error('You should not call yourself for signature.');
+    const {chainsStatuses, nextLeader, chainsIdsReadyForBlock} = await this.multiChainStatusResolver.apply(
+      proposedConsensus.dataTimestamp,
+    );
+
+    if (chainsStatuses.length === 0) {
+      throw Error('[BlockSigner] No chain status resolved.');
     }
 
-    if (proposedConsensus.signer !== chainStatus.nextLeader) {
+    const {chainAddress, chainStatus} = chainsStatuses[0];
+    this.logger.info(`[BlockSigner] Signing a block for ${nextLeader} at ${block.dataTimestamp}...`);
+
+    if (this.blockchain.wallet.address === proposedConsensus.signer) {
+      throw Error('[BlockSigner] You should not call yourself for signature.');
+    }
+
+    if (proposedConsensus.signer !== nextLeader) {
       throw Error(
         [
           'Signature does not belong to the current leader,',
-          `expected ${chainStatus.nextLeader} got ${proposedConsensus.signer}`,
+          `expected ${nextLeader} got ${proposedConsensus.signer}`,
           `at block ${chainStatus.blockNumber}/${chainStatus.nextBlockId}`,
         ].join(' '),
       );
+    }
+
+    if (chainsIdsReadyForBlock.length === 0) {
+      throw Error(`[BlockSigner] None of the chains is ready for data at ${proposedConsensus.dataTimestamp}`);
     }
 
     return {proposedConsensus, chainAddress, chainStatus};
