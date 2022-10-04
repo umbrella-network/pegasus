@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [7.4.1] - 2022-09-26
+## [7.4.2] - 2022-10-04
+### Changed
+- Skip CoingeckoPriceMultiFetcher tests.
+
+## [7.4.1] - 2022-10-04
 ### Added
 - Added new pub key on action: `CI`.
 
