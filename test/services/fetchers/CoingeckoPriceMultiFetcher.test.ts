@@ -15,7 +15,7 @@ describe('CoingeckoPriceMultiFetcher', () => {
     {currency: 'BTC', id: 'umbrella-network'},
   ];
 
-  describe('#apply', () => {
+  describe.skip('#apply', () => {
     describe('when fetching valid keys', () => {
       it('returns the same length of inputs', async () => {
         const outputs = await fetcher.apply(multiInputs);
