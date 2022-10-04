@@ -10,4 +10,9 @@
 - [ ] Documentation or guides were updated (slab, readme)
 - [ ] Version was updated on `package.json` (releases/hotfixes)
 
-<!-- Remember to squash all commits before merging -->
+## Checklist before merge
+
+- [ ] **there are no errors in logs in any workers**
+- [ ] new blocks are being discovered and marked as finalized
+- [ ] foreign blocks are being dispatched
+- [ ] squash all commits before merging
