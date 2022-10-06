@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.4.3] - 2022-10-04
+### Fix
+- Use old isLeader selection when chain architecture is not for dispatcher worker.
+
 ## [7.4.2] - 2022-10-04
 ### Changed
 - Skip CoingeckoPriceMultiFetcher tests.

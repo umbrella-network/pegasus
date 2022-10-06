@@ -34,7 +34,6 @@ abstract class BasicWorker {
   get concurrency(): number {
     let workersCount = Object.keys(this.settings.blockchain.multiChains).length;
     workersCount += 2; // MetricsWorker + BlockMintingWorker
-    console.log('workersCount: ', workersCount);
     return workersCount;
   }
 
