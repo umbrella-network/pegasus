@@ -28,6 +28,7 @@ import {parseEther} from 'ethers/lib/utils';
 import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
 import {ChainsStatuses} from '../../src/types/ChainStatus';
 import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepository';
+import {MultichainArchitectureDetector} from '../../src/services/MultichainArchitectureDetector';
 
 const allStates: ChainsStatuses = {
   validators: ['0xabctest', '0xdeftest'],
@@ -44,6 +45,7 @@ describe('BlockMinter', () => {
   let mockedMultiChainStatusResolver: sinon.SinonStubbedInstance<MultiChainStatusResolver>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
   let mockedConsensusDataRepository: sinon.SinonStubbedInstance<ConsensusDataRepository>;
+  let mockedMultichainArchitectureDetector: sinon.SinonStubbedInstance<MultichainArchitectureDetector>;
   let settings: Settings;
   let blockMinter: BlockMinter;
   let wallet: Wallet;
@@ -69,6 +71,7 @@ describe('BlockMinter', () => {
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
     mockedMultiChainStatusResolver = sinon.createStubInstance(MultiChainStatusResolver);
     mockedConsensusDataRepository = sinon.createStubInstance(ConsensusDataRepository);
+    mockedMultichainArchitectureDetector = sinon.createStubInstance(MultichainArchitectureDetector);
 
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
@@ -108,6 +111,7 @@ describe('BlockMinter', () => {
     container.bind(MultiChainStatusResolver).toConstantValue(mockedMultiChainStatusResolver);
     container.bind(TimeService).toConstantValue(mockedTimeService);
     container.bind(ConsensusDataRepository).toConstantValue(mockedConsensusDataRepository);
+    container.bind(MultichainArchitectureDetector).toConstantValue(mockedMultichainArchitectureDetector);
 
     container.bind(BlockMinter).to(BlockMinter);
 
@@ -117,6 +121,10 @@ describe('BlockMinter', () => {
   after(async () => {
     await getModelForClass(Block).deleteMany({});
     await mongoose.connection.close();
+  });
+
+  afterEach(() => {
+    sinon.restore();
   });
 
   describe('#sortLeaves', () => {
@@ -335,6 +343,100 @@ describe('BlockMinter', () => {
 
       const blocksCount = await getModelForClass(Block).count({}).exec();
       expect(blocksCount).to.be.eq(0, 'BlockMinter saved some blocks to database');
+    });
+
+    describe('when chain contract is old', () => {
+      beforeEach(() => {
+        mockedMultichainArchitectureDetector.apply.resolves(false);
+        allStates.chainsStatuses = [
+          {
+            chainAddress: '0x123',
+            chainStatus: {
+              blockNumber: BigNumber.from(1),
+              timePadding: 10,
+              lastBlockId: 1,
+              nextBlockId: 2,
+              nextLeader: wallet.address,
+              validators: [wallet.address, 'leader'],
+              locations: ['abc'],
+              lastDataTimestamp: timestamp(),
+              powers: [BigNumber.from(1)],
+              staked: BigNumber.from(1),
+              minSignatures: 1,
+            },
+            chainId: 'bsc',
+          },
+        ];
+
+        allStates.chainsIdsReadyForBlock = ['bsc'];
+        mockedMultiChainStatusResolver.apply.resolves(allStates);
+      });
+
+      it('select leader based on bsc chainStatus', async () => {
+        const {leaf, affidavit, timestamp} = leafWithAffidavit;
+        const signature = await signAffidavitWithWallet(wallet, affidavit);
+
+        mockedTimeService.apply.returns(timestamp);
+        mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+        mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+        mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
+        mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
+        mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
+
+        mockedSignatureCollector.apply.resolves([
+          {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
+        ]);
+        const loggerSpy = sinon.spy(mockedLogger, 'info');
+        await blockMinter.apply();
+        expect(loggerSpy).to.have.calledWith(`[OLD] Next leader for ${BigNumber.from(1)}/2: ${wallet.address}, true`);
+      });
+    });
+
+    describe('when chain contract is new', () => {
+      beforeEach(() => {
+        mockedMultichainArchitectureDetector.apply.resolves(true);
+        allStates.chainsStatuses = [
+          {
+            chainAddress: '0x123',
+            chainStatus: {
+              blockNumber: BigNumber.from(1),
+              timePadding: 10,
+              lastBlockId: 1,
+              nextBlockId: 2,
+              nextLeader: wallet.address,
+              validators: [wallet.address, 'leader'],
+              locations: ['abc'],
+              lastDataTimestamp: timestamp(),
+              powers: [BigNumber.from(1)],
+              staked: BigNumber.from(1),
+              minSignatures: 1,
+            },
+            chainId: 'bsc',
+          },
+        ];
+
+        allStates.chainsIdsReadyForBlock = ['bsc'];
+        mockedMultiChainStatusResolver.apply.resolves(allStates);
+      });
+
+      it('select leader based on bsc chainStatus', async () => {
+        const {leaf, affidavit, timestamp} = leafWithAffidavit;
+        const signature = await signAffidavitWithWallet(wallet, affidavit);
+
+        mockedTimeService.apply.returns(timestamp);
+        mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+        mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
+        mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
+        mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
+        mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
+
+        mockedSignatureCollector.apply.resolves([
+          {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
+        ]);
+        const loggerSpy = sinon.spy(mockedLogger, 'info');
+        await blockMinter.apply();
+        expect(loggerSpy).to.have.calledWith(`Next leader for ${timestamp}: ${allStates.nextLeader}, false`);
+      });
     });
   });
 });

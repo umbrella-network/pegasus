@@ -21,8 +21,9 @@ import {LogMint} from '../../types/events';
 import {sleep} from '../../utils/sleep';
 import BlockRepository from '../BlockRepository';
 import {ConsensusDataRepository} from '../../repositories/ConsensusDataRepository';
-import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds';
+import {ChainsIds} from '../../types/ChainsIds';
 import {CanMint} from '../CanMint';
+import {MultichainArchitectureDetector} from '../MultichainArchitectureDetector';
 
 @injectable()
 export abstract class BlockDispatcher implements IBlockChainDispatcher {
@@ -33,6 +34,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   @inject(CanMint) CanMint!: CanMint;
   @inject(ConsensusDataRepository) consensusDataRepository!: ConsensusDataRepository;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
+  @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
 
   readonly chainId!: ChainsIds;
   protected blockchain!: Blockchain;
@@ -49,7 +51,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   };
 
   apply = async (): Promise<void> => {
-    if (!(await this.isDispatcherArchitecture())) {
+    if (!(await this.useDispatcher(this.chainId))) {
       this.logger.info(`[${this.chainId}] OLD chain architecture detected`);
       await sleep(60_000); // slow down execution
       return;
@@ -98,47 +100,6 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     const toCurrency = parseEther;
 
     this.testBalanceThreshold(chainId, balance, toCurrency, this.blockchain.wallet.address);
-  };
-
-  private isDispatcherArchitecture = async (): Promise<boolean> => {
-    try {
-      if (this.chainId == this.settings.blockchain.masterChain.chainId) {
-        // homechain is compatible with multichain
-        return true;
-      }
-
-      const nonEvm = NonEvmChainsIds.includes(this.chainId);
-
-      if (nonEvm) {
-        // when non evm start to support dispatching, simply remove this check
-        return false;
-      }
-
-      const blockchain = nonEvm
-        ? this.blockchainRepository.getGeneric(this.chainId)
-        : this.blockchainRepository.get(this.chainId);
-
-      const contract = nonEvm
-        ? this.chainContractRepository.getGeneric(this.chainId)
-        : this.chainContractRepository.get(this.chainId);
-
-      let address = await contract.address();
-
-      if (!address) {
-        await contract.resolveContract();
-        address = await contract.address();
-      }
-
-      const data = ethers.utils.id('VERSION()').slice(0, 10);
-
-      const provider = await blockchain.getProvider();
-      const version = await provider.call({to: address, data});
-      const versionWithDispatcher = 2;
-      return parseInt(version.toString(), 16) == versionWithDispatcher;
-    } catch (err) {
-      this.logger.error(`[${this.chainId}] check version failed: ${err}`);
-      return false;
-    }
   };
 
   private testBalanceThreshold = (
@@ -323,5 +284,14 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
 
     const {minter, staked, blockId, power} = logMint.args;
     return {minter, staked, blockId, power};
+  }
+
+  private async useDispatcher(chainId: ChainsIds): Promise<boolean> {
+    if (chainId == this.settings.blockchain.masterChain.chainId) {
+      // homechain is compatible with multichain
+      return true;
+    }
+
+    return this.multichainArchitectureDetector.apply(chainId);
   }
 }
