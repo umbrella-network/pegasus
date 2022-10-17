@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [7.4.4] - 2022-10-14
 ### Fixed
 - Ensure dispatcher does not submit same consensus twice
+- Ensure leader selection is backward compatible
 
 ## [7.4.3] - 2022-10-04
 ### Fixed

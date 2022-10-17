@@ -12,9 +12,7 @@ import Settings from '../types/Settings';
 import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
 import {ConsensusDataRepository} from '../repositories/ConsensusDataRepository';
 import {MultiChainStatusProcessor} from './multiChain/MultiChainStatusProcessor';
-import {ChainStatus} from '../types/ChainStatus';
 import {MultichainArchitectureDetector} from './MultichainArchitectureDetector';
-import {ChainsIds} from '../types/ChainsIds';
 
 @injectable()
 class BlockMinter {
@@ -51,12 +49,13 @@ class BlockMinter {
       return;
     }
 
-    const masterChainStatus = this.multiChainStatusProcessor.findMasterChain(chainsStatuses);
-
-    if (!(await this.isLeader(nextLeader, dataTimestamp, masterChainStatus))) return;
+    if (!this.isLeader(nextLeader, dataTimestamp)) {
+      return;
+    }
 
     this.logger.info(`Starting consensus at: ${dataTimestamp}`);
 
+    const masterChainStatus = this.multiChainStatusProcessor.findMasterChain(chainsStatuses);
     const validators = this.chainContract.resolveValidators(masterChainStatus);
 
     const consensus = await this.consensusRunner.apply(
@@ -80,26 +79,9 @@ class BlockMinter {
     this.logger.info(`consensus for ${dataTimestamp} successful`);
   }
 
-  private async isLeader(nextLeader: string, dataTimestamp: number, masterChainStatus: ChainStatus): Promise<boolean> {
-    // TODO remove after update all external validators to 7.4.3
-    if (!(await this.multichainArchitectureDetector.apply(ChainsIds.BSC))) {
-      return this.isLeaderLegacy(masterChainStatus);
-    }
-
+  private isLeader(nextLeader: string, dataTimestamp: number): boolean {
     this.logger.info(
       `Next leader for ${dataTimestamp}: ${nextLeader}, ${nextLeader === this.blockchain.wallet.address}`,
-    );
-
-    return nextLeader === this.blockchain.wallet.address;
-  }
-
-  private isLeaderLegacy(chainStatus: ChainStatus): boolean {
-    const {blockNumber, nextBlockId, nextLeader} = chainStatus;
-
-    this.logger.info(
-      `[OLD] Next leader for ${blockNumber}/${nextBlockId}: ${nextLeader}, ${
-        nextLeader === this.blockchain.wallet.address
-      }`,
     );
 
     return nextLeader === this.blockchain.wallet.address;

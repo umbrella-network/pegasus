@@ -5,11 +5,11 @@ import {BSCBlockDispatcher} from './BSCBlockDispatcher';
 import {IBlockChainDispatcher} from './IBlockChainDispatcher';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository';
 import Settings from '../../types/Settings';
-import {TChainsIds} from '../../types/ChainsIds';
+import {ChainsIds} from '../../types/ChainsIds';
 import Blockchain from '../../lib/Blockchain';
 
 export type BlockChainDispatcherProps = {
-  chainId: TChainsIds;
+  chainId: ChainsIds;
 };
 
 @injectable()

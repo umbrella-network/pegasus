@@ -3,6 +3,7 @@ import Settings from '../types/Settings';
 import {TimeoutCodes} from '../types/TimeoutCodes';
 import {timeoutWithCode} from '../utils/request';
 import './setupDotenv';
+import {ChainsIds} from '../types/ChainsIds';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
@@ -67,7 +68,7 @@ const settings: Settings = {
       privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
     },
     masterChain: {
-      chainId: 'bsc',
+      chainId: ChainsIds.BSC,
     },
     contracts: {
       chain: {

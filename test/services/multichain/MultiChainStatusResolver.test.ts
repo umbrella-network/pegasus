@@ -60,7 +60,7 @@ describe('MultiChainStatusResolver', () => {
         chainsIdsReadyForBlock: ['bsc'],
       };
 
-      mockedMultiChainStatusProcessor.apply.returns(chainStatusWithAddress);
+      mockedMultiChainStatusProcessor.apply.returns(Promise.resolve(chainStatusWithAddress));
     });
 
     it('returns the chainsStatuses for all chains', async () => {

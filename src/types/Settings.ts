@@ -73,7 +73,7 @@ type Settings = {
       privateKey: string;
     };
     masterChain: {
-      chainId: string;
+      chainId: ChainsIds;
     };
     providers: {[name: string]: string};
     contracts: {

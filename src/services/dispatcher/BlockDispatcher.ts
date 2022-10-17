@@ -68,7 +68,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     }
 
     if (this.submitTxMonitor.wasDataSubmitted(this.chainId, consensus.dataTimestamp)) {
-      this.logger.info(`[${this.chainId}] Block ${consensus.dataTimestamp} already submitted`);
+      this.logger.info(`[${this.chainId}] Block for ${consensus.dataTimestamp} already submitted`);
       return ;
     }
 
