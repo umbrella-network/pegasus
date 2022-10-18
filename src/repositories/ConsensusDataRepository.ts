@@ -9,7 +9,7 @@ import {ConsensusDataProps} from '../types/Consensus';
 export class ConsensusDataRepository {
   async save(props: ConsensusDataProps): Promise<ConsensusData> {
     const {root, chainIds, signatures, fcdKeys, fcdValues, dataTimestamp, timePadding, leaves} = props;
-    const consensusDataTTL = timePadding - 1;
+    const consensusDataTTL = timePadding * 10;
     const expireAt = dayjs().add(consensusDataTTL, 'second').toDate();
     const ConsensusDataModel = getModelForClass(ConsensusData);
     await ConsensusDataModel.deleteMany({});

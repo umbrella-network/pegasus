@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
+import fs from 'fs';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import {BigNumber, ethers, Wallet} from 'ethers';
@@ -28,6 +29,7 @@ import * as mining from '../../../src/utils/mining';
 import {transactionResponseFactory} from '../../mocks/factories/transactionResponseFactory';
 import {transactionReceiptFactory} from '../../mocks/factories/transactionReceiptFactory';
 import {ChainsIds} from '../../../src/types/ChainsIds';
+import {SubmitTxMonitor} from "../../../src/services/SubmitTxMonitor";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -51,6 +53,12 @@ describe('BlockChainDispatcher', () => {
   });
 
   beforeEach(async () => {
+    try {
+      fs.unlinkSync(new SubmitTxMonitor().monitorFile(ChainsIds.BSC));
+    } catch (e) {
+      // ok
+    }
+
     await getModelForClass(Block).deleteMany({});
     await getModelForClass(ConsensusData).deleteMany({});
     await consensusDataRepository.save({...consensusDataFactory.build(), timePadding: 1});

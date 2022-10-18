@@ -3,17 +3,18 @@ import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings';
 import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus';
-import LeaderSelector from './LeaderSelector';
 import {ChainStatus} from '../../types/ChainStatus';
 import {CanMint} from '../CanMint';
+import {LeaderSelectorCompatible} from "./LeaderSelectorCompatible";
 
 @injectable()
 export class MultiChainStatusProcessor {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
-  @inject(CanMint) CanMint!: CanMint;
+  @inject(CanMint) canMint!: CanMint;
+  @inject(LeaderSelectorCompatible) leaderSelectorCompatible!: LeaderSelectorCompatible;
 
-  apply(chainStatuses: ChainStatusWithAddress[], dataTimestamp: number): ChainsStatuses {
+  async apply(chainStatuses: ChainStatusWithAddress[], dataTimestamp: number): Promise<ChainsStatuses> {
     return this.processStates(chainStatuses, dataTimestamp);
   }
 
@@ -27,16 +28,16 @@ export class MultiChainStatusProcessor {
     return masterChain.chainStatus;
   };
 
-  private processStates(chainsStatuses: ChainStatusWithAddress[], dataTimestamp: number): ChainsStatuses {
+  private async processStates(chainsStatuses: ChainStatusWithAddress[], dataTimestamp: number): Promise<ChainsStatuses> {
     const masterChainStatus = this.findMasterChain(chainsStatuses);
 
     const chainsIdsReadyForBlock = chainsStatuses
-      .filter((chain) => this.CanMint.apply({chainStatus: chain.chainStatus, dataTimestamp, chainId: chain.chainId}))
+      .filter((chain) => this.canMint.apply({chainStatus: chain.chainStatus, dataTimestamp, chainId: chain.chainId}))
       .map((chain) => chain.chainId);
 
     return {
       validators: masterChainStatus.validators,
-      nextLeader: LeaderSelector.apply(dataTimestamp, masterChainStatus),
+      nextLeader: await this.leaderSelectorCompatible.apply(dataTimestamp, masterChainStatus),
       chainsStatuses,
       chainsIdsReadyForBlock,
     };
