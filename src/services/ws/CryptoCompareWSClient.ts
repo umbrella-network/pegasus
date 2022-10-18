@@ -95,7 +95,8 @@ class CryptoCompareWSClient extends WSClient {
     super.onOpen();
   }
 
-  onConnected(): void {
+  onConnected(event: unknown): void {
+    this.logger.info(`WS connected ${JSON.stringify(event)}`);
     this.connected = true;
 
     this.staleReconnectJob = new Timeout(70, () => {

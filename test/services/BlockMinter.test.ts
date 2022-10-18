@@ -371,25 +371,6 @@ describe('BlockMinter', () => {
         allStates.chainsIdsReadyForBlock = ['bsc'];
         mockedMultiChainStatusResolver.apply.resolves(allStates);
       });
-
-      it('select leader based on bsc chainStatus', async () => {
-        const {leaf, affidavit, timestamp} = leafWithAffidavit;
-        const signature = await signAffidavitWithWallet(wallet, affidavit);
-
-        mockedTimeService.apply.returns(timestamp);
-        mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
-        mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
-        mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
-        mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
-        mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
-
-        mockedSignatureCollector.apply.resolves([
-          {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
-        ]);
-        const loggerSpy = sinon.spy(mockedLogger, 'info');
-        await blockMinter.apply();
-        expect(loggerSpy).to.have.calledWith(`[OLD] Next leader for ${BigNumber.from(1)}/2: ${wallet.address}, true`);
-      });
     });
 
     describe('when chain contract is new', () => {

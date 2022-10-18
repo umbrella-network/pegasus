@@ -1,6 +1,6 @@
 {
   "name": "pegasus",
-  "version": "7.4.3",
+  "version": "7.4.4",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/umbrella-network/pegasus.git"

@@ -24,6 +24,7 @@ import {ConsensusDataRepository} from '../../repositories/ConsensusDataRepositor
 import {ChainsIds} from '../../types/ChainsIds';
 import {CanMint} from '../CanMint';
 import {MultichainArchitectureDetector} from '../MultichainArchitectureDetector';
+import {SubmitTxMonitor} from "../SubmitTxMonitor";
 
 @injectable()
 export abstract class BlockDispatcher implements IBlockChainDispatcher {
@@ -31,7 +32,8 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   @inject(ChainContractRepository) chainContractRepository!: ChainContractRepository;
   @inject('Settings') settings!: Settings;
   @inject(BlockRepository) blockRepository!: BlockRepository;
-  @inject(CanMint) CanMint!: CanMint;
+  @inject(CanMint) canMint!: CanMint;
+  @inject(SubmitTxMonitor) submitTxMonitor!: SubmitTxMonitor;
   @inject(ConsensusDataRepository) consensusDataRepository!: ConsensusDataRepository;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
@@ -65,14 +67,19 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
       return;
     }
 
+    if (this.submitTxMonitor.wasDataSubmitted(this.chainId, consensus.dataTimestamp)) {
+      this.logger.info(`[${this.chainId}] Block for ${consensus.dataTimestamp} already submitted`);
+      return ;
+    }
+
     const [chainAddress, chainStatus] = await this.getStatus();
 
-    if (!(await this.CanMint.apply({dataTimestamp: consensus.dataTimestamp, chainStatus, chainId: this.chainId}))) {
+    if (!this.canMint.apply({dataTimestamp: consensus.dataTimestamp, chainStatus, chainId: this.chainId})) {
       return;
     }
 
     this.logger.info(
-      `[${this.chainId}] Minting a block with ${consensus.signatures.length} signatures, ${consensus.leaves.length} leaves, ${consensus.fcdKeys.length} FCDs`,
+      `[${this.chainId}] Minting a block ${consensus.dataTimestamp} with ${consensus.signatures.length} signatures, ${consensus.leaves.length} leaves, ${consensus.fcdKeys.length} FCDs`,
     );
 
     const mintedBlock = await this.mint(
@@ -87,6 +94,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     if (mintedBlock) {
       const {hash, logMint} = mintedBlock;
       this.logger.info(`[${this.chainId}] New Block ${logMint.blockId} minted with TX ${hash}`);
+      this.submitTxMonitor.saveTx(this.chainId, consensus.dataTimestamp, hash);
       await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId.toNumber(), true);
     }
   };
