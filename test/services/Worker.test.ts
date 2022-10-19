@@ -66,13 +66,13 @@ describe('Worker', () => {
     }
 
     let items = await connection.keys('bull:MockedWorker:*');
-    expect(items.length).to.be.eq(14);
+    expect(items.length).to.be.eq(15);
 
     await mockedWorker.resume();
     await timer(1000);
 
     items = await connection.keys('bull:MockedWorker:*');
-    expect(items.length).to.be.eq(14);
+    expect(items.length).to.be.eq(15);
   });
 
   it('enqueues jobs and delete them', async () => {
