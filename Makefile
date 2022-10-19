@@ -7,7 +7,7 @@ CRED_TMP := /tmp/.credentials.tmp
 DURATION := 900
 AWS_REGION := us-east-2
 
-default: build-dev
+default: build-dev1
 
 assume:
 	@aws sts assume-role --profile umb-master \
@@ -27,10 +27,6 @@ update-stg-kubeconfig:
 	@aws --profile umb-staging configure set aws_session_token $$(cat ${CRED_TMP} | jq -r '.SessionToken' )
 	@aws --profile umb-staging --region us-east-2 eks update-kubeconfig --kubeconfig ~/.kube/config-staging --name umb_staging
 
-
-build-dev:
-	@echo "## Building the docker image ##"
-	@docker buildx build  --push --platform linux/amd64 -t "$(DEVELOP)1" -t "$(DEVELOP)2" .;\
 
 build-dev1:
 	@echo "## Building the docker image for validator 1 ##"
@@ -90,8 +86,6 @@ publish-sbx1:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc01 -n sandbox
 	
 auth: assume login update-stg-kubeconfig
-
-dev: auth build-dev publish-bsc1 publish-bsc2
 
 sbx: auth build-sbx publish-sbx1
 
