@@ -30,7 +30,7 @@ export default class ApplicationUpdateService {
     const manifestUrl = this.settings.application.autoUpdate.url;
 
     if (!manifestUrl) {
-      this.logger.debug('[ApplicationUpdateService] Skipping updates, no URL configured');
+      this.logger.info('[ApplicationUpdateService] Skipping updates, no URL configured');
       return;
     }
 
@@ -61,7 +61,7 @@ export default class ApplicationUpdateService {
       }
 
       if (manifest.timestamp == this.currentManifest?.timestamp) {
-        this.logger.debug(`[ApplicationUpdateService] No new update manifest found, skipping download.`);
+        this.logger.info(`[ApplicationUpdateService] No new update manifest found, skipping download.`);
         return;
       }
 
