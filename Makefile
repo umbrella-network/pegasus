@@ -91,8 +91,6 @@ publish-sbx1:
 	
 auth: assume login update-stg-kubeconfig
 
-dev: auth build-dev publish-bsc1 publish-bsc2
-
 sbx: auth build-sbx publish-sbx1
 
 dev-validator1: auth build-dev1 publish-bsc1
