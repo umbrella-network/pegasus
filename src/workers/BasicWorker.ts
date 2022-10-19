@@ -1,4 +1,4 @@
-import Bull, {QueueScheduler, Queue, Worker} from 'bullmq';
+import Bull, {Queue, Worker} from 'bullmq';
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import IORedis from 'ioredis';
@@ -14,7 +14,6 @@ abstract class BasicWorker {
 
   #queueName!: string;
   #queue!: Bull.Queue;
-  #queueScheduler!: Bull.QueueScheduler;
   #worker!: Bull.Worker;
 
   abstract apply(job: Bull.Job): Promise<void>;
@@ -24,11 +23,12 @@ abstract class BasicWorker {
   }
 
   get queue(): Bull.Queue {
-    return (this.#queue ||= new Queue(this.queueName, {connection: this.connection}));
-  }
-
-  get queueScheduler(): Bull.QueueScheduler {
-    return (this.#queueScheduler ||= new QueueScheduler(this.queueName, {connection: this.connection}));
+    return (this.#queue ||= new Queue(this.queueName, {
+      connection: {
+        host: this.connection.options.host,
+        port: this.connection.options.port,
+      },
+    }));
   }
 
   get concurrency(): number {
@@ -39,7 +39,10 @@ abstract class BasicWorker {
 
   get worker(): Bull.Worker {
     return (this.#worker ||= new Worker(this.queueName, this.apply, {
-      connection: this.connection,
+      connection: {
+        host: this.connection.options.host,
+        port: this.connection.options.port,
+      },
       concurrency: this.concurrency,
     }));
   }
@@ -63,7 +66,6 @@ abstract class BasicWorker {
 
   private shutdown = async () => {
     await this.worker.close(true);
-    await this.queueScheduler.close();
     process.exit(0);
   };
 }
