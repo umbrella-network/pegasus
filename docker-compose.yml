@@ -71,7 +71,34 @@ services:
       - IEX_API_KEY=${IEX_API_KEY}
       - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY}
       - KAIKO_API_KEY=${KAIKO_API_KEY}
-      - OPTIONS_PRICE_API_KEY=${OPTIONS_PRICE_API_KEY}
+      - OPTIONS_PRICE_API_KEY=${OPTIONS_PRICE_API_KEY} 
+  dispatcher:
+   build: .
+   entrypoint: npm run start:worker -- --worker BlockDispatcherWorker
+   depends_on:
+     - cache
+     - db
+   networks:
+     - umbrella-network
+     - core-network
+   environment:
+     - NAME=${COMPOSE_PROJECT_NAME}
+     - VALIDATOR_PRIVATE_KEY=${VALIDATOR_PRIVATE_KEY}
+     - MONGODB_URL=${MONGODB_URL}
+     - REDIS_URL=${REDIS_URL}
+     - BLOCKCHAIN_PROVIDER_URL=${BLOCKCHAIN_PROVIDER_URL}
+     - REGISTRY_CONTRACT_ADDRESS=${REGISTRY_CONTRACT_ADDRESS}
+     - BLOCK_CREATION_JOB_INTERVAL=${BLOCK_CREATION_JOB_INTERVAL}
+     - GAS_PRICE=${GAS_PRICE}
+     - FEEDS_FILE=${FEEDS_FILE}
+     - FEEDS_ON_CHAIN_FILE=${FEEDS_ON_CHAIN_FILE}
+     - CRYPTOCOMPARE_API_KEY=${CRYPTOCOMPARE_API_KEY}
+     - GENESIS_VOLATILITY_API_KEY=${GENESIS_VOLATILITY_API_KEY}
+     - POLYGON_IO_API_KEY=${POLYGON_IO_API_KEY}
+     - IEX_API_KEY=${IEX_API_KEY}
+     - COINMARKETCAP_API_KEY=${COINMARKETCAP_API_KEY}
+     - KAIKO_API_KEY=${KAIKO_API_KEY}
+     - OPTIONS_PRICE_API_KEY=${OPTIONS_PRICE_API_KEY}
   db:
     image: mongo
     command: mongod --quiet --logpath /dev/null
