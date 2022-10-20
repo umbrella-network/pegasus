@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.4.6] - 2022-10-20
+### Changed
+- Updated docker compose to include block dispatcher
+
 ## [7.4.5] - 2022-10-19
 ### Changed
 - Upgrade BullMQ to ~2.3.2
