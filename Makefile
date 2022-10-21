@@ -7,7 +7,6 @@ CRED_TMP := /tmp/.credentials.tmp
 DURATION := 900
 AWS_REGION := us-east-2
 
-default: build-dev
 
 assume:
 	@aws sts assume-role --profile umb-master \
@@ -90,8 +89,6 @@ publish-sbx1:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc01 -n sandbox
 	
 auth: assume login update-stg-kubeconfig
-
-dev: auth build-dev publish-bsc1 publish-bsc2
 
 sbx: auth build-sbx publish-sbx1
 
