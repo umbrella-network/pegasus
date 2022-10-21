@@ -7,7 +7,6 @@ CRED_TMP := /tmp/.credentials.tmp
 DURATION := 900
 AWS_REGION := us-east-2
 
-default: build-dev1
 
 assume:
 	@aws sts assume-role --profile umb-master \
