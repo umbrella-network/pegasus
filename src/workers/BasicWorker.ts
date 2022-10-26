@@ -1,14 +1,14 @@
 import Bull, {Queue, Worker} from 'bullmq';
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
-import IORedis from 'ioredis';
+import {Redis} from 'ioredis';
 import Settings from 'src/types/Settings';
 
 @injectable()
 abstract class BasicWorker {
   @inject('Logger') logger!: Logger;
   @inject('Redis')
-  connection!: IORedis.Redis;
+  connection!: Redis;
   @inject('Settings')
   settings!: Settings;
 
@@ -24,10 +24,7 @@ abstract class BasicWorker {
 
   get queue(): Bull.Queue {
     return (this.#queue ||= new Queue(this.queueName, {
-      connection: {
-        host: this.connection.options.host,
-        port: this.connection.options.port,
-      },
+      connection: this.connection.options,
     }));
   }
 
@@ -39,10 +36,7 @@ abstract class BasicWorker {
 
   get worker(): Bull.Worker {
     return (this.#worker ||= new Worker(this.queueName, this.apply, {
-      connection: {
-        host: this.connection.options.host,
-        port: this.connection.options.port,
-      },
+      connection: this.connection.options,
       concurrency: this.concurrency,
     }));
   }
