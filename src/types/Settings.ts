@@ -1,7 +1,7 @@
 import {ChainsIds} from './ChainsIds';
 
 export type BlockchainSettings = {
-  startBlockNumber: number;
+  startBlockNumber?: number;
   providerUrl?: string;
   contractRegistryAddress: string;
   transactions: {
@@ -45,7 +45,7 @@ type Settings = {
       };
     };
     blockDispatcher: {
-      bsc: BlockDispatcherSettings;
+      [key in ChainsIds]: BlockDispatcherSettings;
     };
   };
   redis: {

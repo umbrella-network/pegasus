@@ -206,6 +206,12 @@ Calculators are responsible to receive data and return it formatted.
 2. Export the new calculator at `src/services/calculators/index.ts`;
 3. Add the new calculator in collection object at `src/repositories/CalculatorRepository.ts`, it will be used on `src/services/FeedProcessor.ts`.
 
+## Add new dispatcher
+1. Add new chainId on `src/types/ChainsIds.ts`.
+2. Add the new settings on `src/config/settings.ts`.
+3. Create the Dispatcher class under `src/services/dispatcher/` folder (see `src/services/dispatcher/BSCBlockDispatcher.ts`).
+4. Add the dispatcher instance inside `this.dispatcher` in the constructor method on `src/services/dispatcher/BlockChainDispatcher.ts`
+
 # API Reference
 
 We document our API using swagger. Access `http://localhost:3003/docs` after the server starts to explore the available endpoints. 
