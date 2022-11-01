@@ -40,6 +40,12 @@ const settings: Settings = {
           10,
         ),
       },
+      avax: {
+        interval: parseInt(
+          process.env.AVALANCHE_DISPATCHER_INTERVAL || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
+          10,
+        ),
+      },
     },
   },
   redis: {
@@ -102,6 +108,19 @@ const settings: Settings = {
           mintBalance: {
             warningLimit: process.env.BSC_BALANCE_WARN || process.env.BALANCE_WARN || '0.1',
             errorLimit: process.env.BSC_BALANCE_ERROR || process.env.BALANCE_ERROR || '0.003',
+          },
+        },
+      },
+      avax: {
+        contractRegistryAddress: process.env.AVALANCHE_REGISTRY_CONTRACT_ADDRESS as string,
+        providerUrl: process.env.AVALANCHE_BLOCKCHAIN_PROVIDER_URL, // we can't have default providers set up
+        transactions: {
+          waitForBlockTime: parseInt(process.env.AVALANCHE_WAIT_FOR_BLOCK_TIME || '1000'),
+          minGasPrice: parseInt(process.env.AVALANCHE_MIN_GAS_PRICE || '25000000000', 10),
+          maxGasPrice: parseInt(process.env.AVALANCHE_MAX_GAS_PRICE || '250000000000', 10),
+          mintBalance: {
+            warningLimit: process.env.AVALANCHE_BALANCE_WARN || '0.5',
+            errorLimit: process.env.AVALANCHE_BALANCE_ERROR || '0.008',
           },
         },
       },

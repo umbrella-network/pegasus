@@ -9,7 +9,6 @@ import {ChainContractRepository} from '../../../src/repositories/ChainContractRe
 import ChainContract from '../../../src/contracts/ChainContract';
 import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
 import {timestamp} from '../../../src/utils/mining';
-import {ChainsIds} from '../../../src/types/ChainsIds';
 import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor';
 import {ChainsStatuses} from '../../../src/types/ChainStatus';
 import TimeService from '../../../src/services/TimeService';
@@ -20,7 +19,6 @@ describe('MultiChainStatusResolver', () => {
   let multiChainStatusResolver: MultiChainStatusResolver;
   const nextLeader = Wallet.createRandom();
   const timeService = new TimeService();
-  const chainsIds = Object.values(ChainsIds);
 
   beforeEach(async () => {
     const container = getTestContainer();
@@ -65,12 +63,8 @@ describe('MultiChainStatusResolver', () => {
 
     it('returns the chainsStatuses for all chains', async () => {
       const result = await multiChainStatusResolver.apply(timeService.apply());
-
-      chainsIds.forEach((chain, i) => {
-        expect(result.chainsStatuses[i]).to.includes({chainId: chain});
-      });
-
-      expect(result.chainsIdsReadyForBlock).to.deep.equal(chainsIds);
+      expect(result.chainsStatuses[0]).to.includes({chainId: 'bsc'});
+      expect(result.chainsIdsReadyForBlock).to.deep.equal(['bsc']);
     });
   });
 });
