@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.4.8] - 2022-11-02
+### Changed
+- display uniswap contract addresses in `info/` endpoint
+
 ## [7.4.7] - 2022-10-26
 ### Fixed
 - Use connections options to connect on Redis

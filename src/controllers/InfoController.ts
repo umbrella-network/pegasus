@@ -45,6 +45,10 @@ class InfoController {
       validator: validatorAddress,
       contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
       chainContractAddress: chainContractAddress,
+      uniswap: {
+        helperContractId: this.settings.api.uniswap.helperContractId,
+        scannerContractId: this.settings.api.uniswap.scannerContractId,
+      },
       version: this.settings.version,
       environment: this.settings.environment,
       network,
