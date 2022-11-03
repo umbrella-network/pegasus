@@ -12,7 +12,7 @@ import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {signAffidavitWithWallet} from '../../src/utils/mining';
 import {getTestContainer} from '../helpers/getTestContainer';
 import BlockRepository from '../../src/services/BlockRepository';
-import {ConsensusDataService} from '../../src/services/ConsensusDataService';
+import {ConsensusDataService} from '../../src/services/consensus/ConsensusDataService';
 import {leavesAndFeedsFactory} from '../mocks/factories/leavesAndFeedsFactory';
 import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';
 import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';

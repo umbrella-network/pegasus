@@ -2,8 +2,28 @@ import Leaf from '../../src/types/Leaf';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
 import {KeyValues} from '../../src/types/SignedBlock';
 import {generateAffidavit} from '../../src/utils/mining';
+import Feeds from '../../src/types/Feed';
 
 const timestamp = 1621508941;
+
+const feed: Feeds = {
+  'ETH-USD': {
+    symbol: 'ETH-USD',
+    discrepancy: 1,
+    precision: 2,
+    inputs: [
+      {
+        fetcher: {
+          name: 'CryptoComparePriceWS',
+          params: {
+            fsym: 'ETH',
+            tsym: 'USD',
+          },
+        },
+      },
+    ],
+  },
+};
 
 const leaf: Leaf = {
   label: 'ETH-USD',
@@ -26,4 +46,5 @@ export const leafWithAffidavit = {
   affidavit,
   fcd,
   timestamp,
+  feed,
 };
