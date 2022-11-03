@@ -19,7 +19,7 @@ class FeedDataProcessor {
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<{data: FeedDatum[]; prices: FeedPrice[]}> {
-    console.log('START FeedDataColector');
+    this.logger.debug('[FeedDataProcessor] #apply');
     const uniqueFeedFetcherMap = this.createUniqueFeedFetcherMap(feedsArray);
 
     const {singleInputs, multiInputs} = this.separateInputs(uniqueFeedFetcherMap);

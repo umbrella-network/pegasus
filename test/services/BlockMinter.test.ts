@@ -25,6 +25,7 @@ import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, t
 import BlockRepository from '../../src/services/BlockRepository';
 import {getTestContainer} from '../helpers/getTestContainer';
 import {parseEther} from 'ethers/lib/utils';
+import {ConsensusDataService} from '../../src/services/consensus/ConsensusDataService';
 
 describe('BlockMinter', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -32,6 +33,7 @@ describe('BlockMinter', () => {
   let mockedSignatureCollector: sinon.SinonStubbedInstance<SignatureCollector>;
   let mockedFeedProcessor: sinon.SinonStubbedInstance<FeedProcessor>;
   let mockedTimeService: sinon.SinonStubbedInstance<TimeService>;
+  let mockedConsensusDataService: sinon.SinonStubbedInstance<ConsensusDataService>;
   let settings: Settings;
   let blockMinter: BlockMinter;
   let wallet: Wallet;
@@ -55,6 +57,7 @@ describe('BlockMinter', () => {
     mockedChainContract = sinon.createStubInstance(ChainContract);
     mockedSignatureCollector = sinon.createStubInstance(SignatureCollector);
     mockedFeedProcessor = sinon.createStubInstance(FeedProcessor);
+    mockedConsensusDataService = sinon.createStubInstance(ConsensusDataService);
 
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
@@ -85,6 +88,7 @@ describe('BlockMinter', () => {
     container.bind(ChainContract).toConstantValue(mockedChainContract);
     container.bind(SignatureCollector).toConstantValue(mockedSignatureCollector as unknown as SignatureCollector);
     container.bind(FeedProcessor).toConstantValue(mockedFeedProcessor as unknown as FeedProcessor);
+    container.bind(ConsensusDataService).toConstantValue(mockedConsensusDataService);
     container.bind(SortedMerkleTreeFactory).toSelf();
     container.bind(BlockRepository).toSelf();
     container.bind(ConsensusRunner).toSelf();
@@ -202,10 +206,21 @@ describe('BlockMinter', () => {
     });
 
     it('passes right arguments to SignatureCollector', async () => {
-      const {leaf, affidavit, fcd, timestamp} = leafWithAffidavit;
+      const {leaf, affidavit, fcd, timestamp, feed} = leafWithAffidavit;
       const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedTimeService.apply.returns(timestamp);
+      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
+
+      mockedConsensusDataService.getLeavesAndFeeds.resolves({
+        firstClassLeaves: [leaf],
+        leaves: [leaf],
+        fcdsFeeds: feed,
+        leavesFeeds: feed,
+      });
 
       mockedChainContract.resolveStatus.resolves([
         '0x123',
@@ -223,12 +238,6 @@ describe('BlockMinter', () => {
           minSignatures: 1,
         },
       ]);
-
-      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
-      mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
-      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
 
       mockedSignatureCollector.apply.resolves([
         {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
@@ -253,12 +262,16 @@ describe('BlockMinter', () => {
     });
 
     it('does not save block to database if submitting finished unsuccessfully', async () => {
-      const {leaf, affidavit} = leafWithAffidavit;
+      const {leaf, affidavit, feed} = leafWithAffidavit;
       const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedBlockchain.wallet = wallet;
 
       mockedTimeService.apply.returns(10);
+      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
 
       mockedChainContract.resolveStatus.resolves([
         '0x123',
@@ -277,18 +290,17 @@ describe('BlockMinter', () => {
         },
       ]);
 
-      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
-      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
+      mockedConsensusDataService.getLeavesAndFeeds.resolves({
+        firstClassLeaves: [leaf],
+        leaves: [leaf],
+        fcdsFeeds: feed,
+        leavesFeeds: feed,
+      });
 
-      mockedFeedProcessor.apply.resolves([
-        [leaf, leaf],
-        [leaf, leaf],
-      ]);
       mockedSignatureCollector.apply.resolves([
         {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
       ]);
+
       mockedChainContract.submit.rejects(); // throw error when trying to submit minted block
 
       await blockMinter.apply();
@@ -318,12 +330,15 @@ describe('BlockMinter', () => {
     });
 
     it('does log message if balance is between mintBalance.warningLimit and mintBalance.errorLimit', async () => {
-      const {leaf, affidavit, timestamp} = leafWithAffidavit;
+      const {leaf, affidavit, timestamp, feed} = leafWithAffidavit;
       const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedBlockchain.wallet.getBalance = async () => parseEther('0.10');
-
       mockedTimeService.apply.returns(timestamp);
+      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
+      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
+      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
 
       mockedChainContract.resolveStatus.resolves([
         '0x123',
@@ -342,11 +357,12 @@ describe('BlockMinter', () => {
         },
       ]);
 
-      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
-      mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
-      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
+      mockedConsensusDataService.getLeavesAndFeeds.resolves({
+        firstClassLeaves: [leaf],
+        leaves: [leaf],
+        fcdsFeeds: feed,
+        leavesFeeds: feed,
+      });
 
       mockedSignatureCollector.apply.resolves([
         {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
@@ -361,13 +377,13 @@ describe('BlockMinter', () => {
     });
 
     it('saves block to database if submitting finished successfully', async () => {
-      const {leaf, affidavit} = leafWithAffidavit;
+      const {leaf, affidavit, feed} = leafWithAffidavit;
       const signature = await signAffidavitWithWallet(wallet, affidavit);
 
       mockedBlockchain.wallet = wallet;
       mockedBlockchain.wallet.getBalance = async () => parseEther('10');
-
       mockedTimeService.apply.returns(10);
+      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
 
       mockedChainContract.resolveStatus.resolves([
         '0x123',
@@ -386,12 +402,12 @@ describe('BlockMinter', () => {
         },
       ]);
 
-      mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
-
-      mockedFeedProcessor.apply.resolves([
-        [leaf, leaf],
-        [leaf, leaf],
-      ]);
+      mockedConsensusDataService.getLeavesAndFeeds.resolves({
+        firstClassLeaves: [leaf],
+        leaves: [leaf],
+        fcdsFeeds: feed,
+        leavesFeeds: feed,
+      });
 
       mockedSignatureCollector.apply.resolves([
         {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
@@ -432,17 +448,14 @@ describe('BlockMinter', () => {
 
     describe('when it fails to submit transaction', () => {
       it('retries submitTx with different nonce', async () => {
-        const {leaf, affidavit} = leafWithAffidavit;
-
+        const {leaf, affidavit, feed} = leafWithAffidavit;
         const signature = await signAffidavitWithWallet(wallet, affidavit);
 
         mockedBlockchain.wallet = wallet;
-
         mockedBlockchain.wallet.getBalance = async () => parseEther('10');
-
         mockedBlockchain.wallet.getTransactionCount = async () => 1;
-
         mockedTimeService.apply.returns(10);
+        mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
 
         mockedChainContract.resolveStatus.resolves([
           '0x123',
@@ -461,16 +474,16 @@ describe('BlockMinter', () => {
           },
         ]);
 
-        mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
-
         mockedChainContract.submit.rejects({
           message: 'nonce has already been used',
         });
 
-        mockedFeedProcessor.apply.resolves([
-          [leaf, leaf],
-          [leaf, leaf],
-        ]);
+        mockedConsensusDataService.getLeavesAndFeeds.resolves({
+          firstClassLeaves: [leaf],
+          leaves: [leaf],
+          fcdsFeeds: feed,
+          leavesFeeds: feed,
+        });
 
         mockedSignatureCollector.apply.resolves([
           {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},

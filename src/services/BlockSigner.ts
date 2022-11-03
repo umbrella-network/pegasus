@@ -16,7 +16,7 @@ import {DiscrepancyFinder} from './DiscrepancyFinder';
 import newrelic from 'newrelic';
 import {Discrepancy} from '../types/Discrepancy';
 import {ProposedConsensusService} from './ProposedConsensusService';
-import {ConsensusDataService} from './ConsensusDataService';
+import {ConsensusDataService} from './consensus/ConsensusDataService';
 
 @injectable()
 class BlockSigner {
