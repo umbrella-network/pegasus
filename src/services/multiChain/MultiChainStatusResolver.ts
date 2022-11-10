@@ -67,7 +67,9 @@ export class MultiChainStatusResolver {
   };
 
   private setChainContractList = (): void => {
-    Object.values(ChainsIds).forEach((chainId) => {
+    const keys = Object.keys(this.settings.blockchain.multiChains) as ChainsIds[];
+
+    keys.forEach((chainId) => {
       const chainContract = <ChainContract>this.chainContractRepository?.get(chainId);
 
       if (chainContract) {

@@ -24,7 +24,7 @@ import {ConsensusDataRepository} from '../../repositories/ConsensusDataRepositor
 import {ChainsIds} from '../../types/ChainsIds';
 import {CanMint} from '../CanMint';
 import {MultichainArchitectureDetector} from '../MultichainArchitectureDetector';
-import {SubmitTxMonitor} from "../SubmitTxMonitor";
+import {SubmitTxMonitor} from '../SubmitTxMonitor';
 
 @injectable()
 export abstract class BlockDispatcher implements IBlockChainDispatcher {
@@ -69,7 +69,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
 
     if (this.submitTxMonitor.wasDataSubmitted(this.chainId, consensus.dataTimestamp)) {
       this.logger.info(`[${this.chainId}] Block for ${consensus.dataTimestamp} already submitted`);
-      return ;
+      return;
     }
 
     const [chainAddress, chainStatus] = await this.getStatus();
@@ -116,7 +116,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     toCurrency: (amount: string) => BigNumber,
     address: string,
   ) => {
-    const {errorLimit, warningLimit} = this.settings.blockchain.multiChains[chainId].transactions.mintBalance;
+    const {errorLimit, warningLimit} = this.blockchain.chainSettings.transactions.mintBalance;
 
     if (balance.lt(toCurrency(errorLimit))) {
       throw new Error(`[${chainId}] Balance (${address.slice(0, 10)}) is lower than ${errorLimit}`);

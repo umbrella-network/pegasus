@@ -5,6 +5,7 @@ import {IGenericBlockchain} from '../lib/blockchains/IGenericBlockchain';
 import {BlockchainFactory} from '../factories/BlockchainFactory';
 import Settings from '../types/Settings';
 import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
+import {Logger} from 'winston';
 
 export type BlockchainCollection = {
   [key: string]: Blockchain | IGenericBlockchain;
@@ -13,17 +14,20 @@ export type BlockchainCollection = {
 @injectable()
 export class BlockchainRepository {
   @inject('Settings') settings!: Settings;
+  @inject('Logger') logger!: Logger;
   private collection: BlockchainCollection = {};
 
   constructor(@inject('Settings') settings: Settings) {
-    Object.values(ChainsIds).forEach((chainId) => {
+    const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
+
+    keys.forEach((chainId) => {
       this.collection[chainId] = BlockchainFactory.create({chainId, settings});
     });
   }
 
   get(id: string): Blockchain {
     if (!this.collection[id]) {
-      throw Error(`[BlockchainRepository] Blockchain ${id} does not exists`);
+      this.logger.warn(`[BlockchainRepository] Blockchain ${id} does not exists`);
     }
 
     return <Blockchain>this.collection[id];

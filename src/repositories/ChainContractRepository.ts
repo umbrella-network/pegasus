@@ -20,7 +20,9 @@ export class ChainContractRepository {
     @inject('Logger') logger: Logger,
     @inject(BlockchainRepository) blockchainRepository: BlockchainRepository,
   ) {
-    Object.values(ChainsIds).forEach((chainId) => {
+    const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
+
+    keys.forEach((chainId) => {
       try {
         const blockchain = blockchainRepository.get(chainId);
 
