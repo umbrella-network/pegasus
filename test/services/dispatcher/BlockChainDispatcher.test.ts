@@ -29,7 +29,7 @@ import * as mining from '../../../src/utils/mining';
 import {transactionResponseFactory} from '../../mocks/factories/transactionResponseFactory';
 import {transactionReceiptFactory} from '../../mocks/factories/transactionReceiptFactory';
 import {ChainsIds} from '../../../src/types/ChainsIds';
-import {SubmitTxMonitor} from "../../../src/services/SubmitTxMonitor";
+import {SubmitTxMonitor} from '../../../src/services/SubmitTxMonitor';
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -119,7 +119,7 @@ describe('BlockChainDispatcher', () => {
     mockedBlockchainRepository = sinon.createStubInstance(BlockchainRepository);
 
     wallet = Wallet.createRandom();
-    mockedBlockchain.chainSettings = settings.blockchain.multiChains.bsc;
+    mockedBlockchain.chainSettings = settings.blockchain.multiChains.bsc!;
     mockedBlockchain.wallet = wallet;
     mockedBlockchain.wallet.getBalance = async () => parseEther('10');
     mockedBlockchain.getBlockNumber.onCall(0).resolves(10);

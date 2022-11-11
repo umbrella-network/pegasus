@@ -1,12 +1,71 @@
 import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies';
-import Settings from '../types/Settings';
+import Settings, {BlockchainSettings, BlockDispatcherSettings} from '../types/Settings';
 import {TimeoutCodes} from '../types/TimeoutCodes';
 import {timeoutWithCode} from '../utils/request';
 import './setupDotenv';
-import {ChainsIds} from '../types/ChainsIds';
+import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
+
+const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
+  bsc: {
+    contractRegistryAddress: process.env.REGISTRY_CONTRACT_ADDRESS,
+    transactions: {
+      waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000', 10),
+      minGasPrice: 2000000000,
+      maxGasPrice: 500000000000,
+      mintBalance: {
+        warningLimit: '0.6',
+        errorLimit: '0.06',
+      },
+    },
+  },
+  avax: {
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 25000000000,
+      maxGasPrice: 250000000000,
+      mintBalance: {
+        warningLimit: '0.5',
+        errorLimit: '0.008',
+      },
+    },
+  },
+  polygon: {
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 1000000000,
+      maxGasPrice: 500000000000,
+      mintBalance: {
+        warningLimit: '0.5',
+        errorLimit: '0.02',
+      },
+    },
+  },
+  arbitrum: {
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 500000000,
+      maxGasPrice: 250000000000,
+      mintBalance: {
+        warningLimit: '0.5',
+        errorLimit: '0.01',
+      },
+    },
+  },
+  ethereum: {
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 2000000000,
+      maxGasPrice: 500000000000,
+      mintBalance: {
+        warningLimit: '0.6',
+        errorLimit: '0.06',
+      },
+    },
+  },
+};
 
 const settings: Settings = {
   port: parseInt(process.env.PORT || '3000'),
@@ -33,14 +92,7 @@ const settings: Settings = {
         ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),
       },
     },
-    blockDispatcher: {
-      bsc: {
-        interval: parseInt(
-          process.env.BSC_DISPATCHER_INTERVAL || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
-          10,
-        ),
-      },
-    },
+    blockDispatcher: resolveBlockDispatcherSettings(),
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
@@ -87,25 +139,7 @@ const settings: Settings = {
         errorLimit: process.env.BALANCE_ERROR || '0.003',
       },
     },
-    multiChains: {
-      bsc: {
-        startBlockNumber: parseInt(
-          process.env.BSC_START_BLOCK_NUMBER || process.env.START_BLOCK_NUMBER || '-100000',
-          10,
-        ),
-        contractRegistryAddress:
-          process.env.BSC_REGISTRY_CONTRACT_ADDRESS || (process.env.REGISTRY_CONTRACT_ADDRESS as string),
-        transactions: {
-          waitForBlockTime: parseInt(process.env.BSC_WAIT_FOR_BLOCK_TIME || process.env.WAIT_FOR_BLOCK_TIME || '1000'),
-          minGasPrice: parseInt(process.env.BSC_MIN_GAS_PRICE || process.env.MIN_GAS_PRICE || '5000000000', 10),
-          maxGasPrice: parseInt(process.env.BSC_MAX_GAS_PRICE || process.env.MAX_GAS_PRICE || '10000000000', 10),
-          mintBalance: {
-            warningLimit: process.env.BSC_BALANCE_WARN || process.env.BALANCE_WARN || '0.1',
-            errorLimit: process.env.BSC_BALANCE_ERROR || process.env.BALANCE_ERROR || '0.003',
-          },
-        },
-      },
-    },
+    multiChains: resolveMultichainSettings(),
     resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '30000'),
   },
   api: {
@@ -206,6 +240,68 @@ function getProvidersURLs(): string[] {
     .filter((url) => url.startsWith('http'));
 
   return urls.length > 0 ? urls : ['http://127.0.0.1:8545'];
+}
+
+function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettings>> {
+  const multichains: Partial<Record<ChainsIds, BlockchainSettings>> = {};
+  let chain: ChainsIdsKeys;
+
+  for (chain of Object.keys(ChainsIds) as ChainsIdsKeys[]) {
+    if (
+      !process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] &&
+      !defaultByChain[ChainsIds[chain]]?.contractRegistryAddress
+    )
+      continue;
+
+    multichains[ChainsIds[chain]] = {
+      contractRegistryAddress:
+        process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] || defaultByChain[ChainsIds[chain]]?.contractRegistryAddress,
+      providerUrl: process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`],
+      transactions: {
+        waitForBlockTime:
+          parseInt(process.env[`${chain}_WAIT_FOR_BLOCK_TIME`] as string, 10) ||
+          defaultByChain[ChainsIds[chain]].transactions.waitForBlockTime,
+        minGasPrice:
+          parseInt(process.env[`${chain}_MIN_GAS_PRICE`] as string, 10) ||
+          defaultByChain[ChainsIds[chain]].transactions.minGasPrice,
+        maxGasPrice:
+          parseInt(process.env[`${chain}_MAX_GAS_PRICE`] as string, 10) ||
+          defaultByChain[ChainsIds[chain]].transactions.maxGasPrice,
+        mintBalance: {
+          warningLimit:
+            process.env[`${chain}_BALANCE_WARN`] ||
+            defaultByChain[ChainsIds[chain]].transactions.mintBalance.warningLimit,
+          errorLimit:
+            process.env[`${chain}_BALANCE_ERROR`] ||
+            defaultByChain[ChainsIds[chain]].transactions.mintBalance.errorLimit,
+        },
+      },
+    };
+  }
+
+  return multichains;
+}
+
+function resolveBlockDispatcherSettings(): Partial<Record<ChainsIds, BlockDispatcherSettings>> {
+  const blockDispatchers: Partial<Record<ChainsIds, BlockDispatcherSettings>> = {};
+  let chain: ChainsIdsKeys;
+
+  for (chain of Object.keys(ChainsIds) as ChainsIdsKeys[]) {
+    if (
+      !process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] &&
+      !defaultByChain[ChainsIds[chain]]?.contractRegistryAddress
+    )
+      continue;
+
+    blockDispatchers[ChainsIds[chain]] = {
+      interval: parseInt(
+        process.env[`${chain}_DISPATCHER_INTERVAL`] || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
+        10,
+      ),
+    };
+  }
+
+  return blockDispatchers;
 }
 
 export default settings;

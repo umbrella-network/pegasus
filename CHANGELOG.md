@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.5.0] - 2022-11-10
+### Changed
+- Start chain dispatcher based on settings
+
+### Added
+- Dispatch avalanche blocks 
+
 ## [7.4.7] - 2022-10-26
 ### Fixed
 - Use connections options to connect on Redis

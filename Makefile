@@ -27,10 +27,6 @@ update-stg-kubeconfig:
 	@aws --profile umb-staging --region us-east-2 eks update-kubeconfig --kubeconfig ~/.kube/config-staging --name umb_staging
 
 
-build-dev:
-	@echo "## Building the docker image ##"
-	@docker buildx build  --push --platform linux/amd64 -t "$(DEVELOP)1" -t "$(DEVELOP)2" .;\
-
 build-dev1:
 	@echo "## Building the docker image for validator 1 ##"
 	@docker buildx build  --push --platform linux/amd64 -t "$(DEVELOP)1" .;\

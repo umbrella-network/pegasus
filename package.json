@@ -1,6 +1,6 @@
 {
   "name": "pegasus",
-  "version": "7.4.7",
+  "version": "7.5.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/umbrella-network/pegasus.git"
@@ -39,7 +39,7 @@
     "@types/express-serve-static-core": "4.17.30",
     "@types/google-protobuf": "^3.7.4",
     "@types/js-yaml": "~4.0.1",
-    "@types/lodash": "~4.14.178",
+    "@types/lodash": "4.14.178",
     "@types/mocha": "~9.1.0",
     "@types/moxios": "~0.4.9",
     "@types/newrelic": "~7.0.0",
