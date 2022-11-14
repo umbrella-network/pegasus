@@ -1,10 +1,11 @@
 import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
 
-import Settings from '../types/Settings';
+import Settings, {BlockchainInfoSettings, BlockchainSettings} from '../types/Settings';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import {TimeoutCodes} from '../types/TimeoutCodes';
+import {ChainsIds} from 'src/types/ChainsIds';
 
 @injectable()
 class InfoController {
@@ -45,6 +46,12 @@ class InfoController {
       validator: validatorAddress,
       contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
       chainContractAddress: chainContractAddress,
+      uniswap: {
+        helperContractId: this.settings.api.uniswap.helperContractId,
+        scannerContractId: this.settings.api.uniswap.scannerContractId,
+      },
+      masterChain: this.getMasterchainSettings(),
+      chains: this.getMultichainsSettings(),
       version: this.settings.version,
       environment: this.settings.environment,
       network,
@@ -68,6 +75,33 @@ class InfoController {
     }
 
     return formattedTimeoutCodes;
+  };
+
+  private getMasterchainSettings = (): Partial<Record<ChainsIds, BlockchainInfoSettings>> => {
+    const masterChainSettings: Partial<Record<ChainsIds, BlockchainInfoSettings>> = {};
+
+    masterChainSettings[this.settings.blockchain.masterChain.chainId] = {
+      contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
+      providerUrl: this.settings.blockchain.provider.urls[0]?.substring(0, 30),
+    };
+
+    return masterChainSettings;
+  };
+
+  private getMultichainsSettings = (): Partial<Record<ChainsIds, BlockchainInfoSettings>> => {
+    const chainSettings: Partial<Record<ChainsIds, BlockchainInfoSettings>> = {};
+    const chainEntries = Object.entries(this.settings.blockchain.multiChains) as [ChainsIds, BlockchainSettings][];
+
+    chainEntries
+      .filter(([key]) => key !== this.settings.blockchain.masterChain.chainId)
+      .map<void>((chain) => {
+        chainSettings[chain[0]] = {
+          contractRegistryAddress: chain[1].contractRegistryAddress,
+          providerUrl: chain[1]?.providerUrl?.substring(0, 30),
+        };
+      });
+
+    return chainSettings;
   };
 }
 
