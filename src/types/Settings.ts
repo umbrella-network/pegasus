@@ -14,6 +14,11 @@ export type BlockchainSettings = {
   };
 };
 
+export type BlockchainInfoSettings = {
+  providerUrl?: string;
+  contractRegistryAddress?: string;
+};
+
 export type BlockDispatcherSettings = {
   interval: number;
 };

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.6.0] - 2022-11-10
+### Added
+- display registry and rpc over multichain settings in `/info` endpoint
+- display uniswap contract addresses in `/info` endpoint
+
 ## [7.5.0] - 2022-11-10
 ### Changed
 - Start chain dispatcher based on settings
