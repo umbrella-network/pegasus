@@ -4,7 +4,7 @@ import Settings from '../types/Settings';
 import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
 import ChainContract from '../contracts/ChainContract';
 import {BlockchainRepository} from './BlockchainRepository';
-import {IGenericChainContract} from 'src/contracts/generic/IGenericChainContract';
+import {IGenericChainContract} from '../contracts/generic/IGenericChainContract';
 import {Logger} from 'winston';
 
 export type ChainContractCollection = {

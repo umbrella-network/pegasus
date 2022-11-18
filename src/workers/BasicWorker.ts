@@ -2,7 +2,7 @@ import Bull, {Queue, Worker} from 'bullmq';
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import {Redis} from 'ioredis';
-import Settings from 'src/types/Settings';
+import Settings from '../types/Settings';
 
 @injectable()
 abstract class BasicWorker {
