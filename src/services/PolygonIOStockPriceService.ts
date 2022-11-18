@@ -22,8 +22,6 @@ class PolygonIOStockPriceService {
 
   static readonly Source = 'polygonIOStockPrice';
 
-  static readonly Source = 'polygonIOStockPrice';
-
   priceUpdateJob?: Job;
 
   subscriptions = {} as {[symbol: string]: boolean};
