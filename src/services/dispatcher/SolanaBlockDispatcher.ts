@@ -5,7 +5,7 @@ import {TransactionResult} from '../../contracts/generic/IGenericChainContract';
 import TimeService from '../TimeService';
 import {FeedValue} from '@umb-network/toolbox/dist/types/Feed';
 import {SolanaChainContract} from '../../contracts/generic/SolanaChainContract';
-import Block from 'src/models/Block';
+import Block from '../../models/Block';
 
 export const initializedFCDKeys = [
   'AAVE-USD',

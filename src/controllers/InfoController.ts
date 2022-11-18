@@ -5,7 +5,7 @@ import Settings, {BlockchainInfoSettings, BlockchainSettings} from '../types/Set
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import {TimeoutCodes} from '../types/TimeoutCodes';
-import {ChainsIds} from 'src/types/ChainsIds';
+import {ChainsIds} from '../types/ChainsIds';
 
 @injectable()
 class InfoController {
