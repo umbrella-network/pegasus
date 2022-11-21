@@ -20,14 +20,11 @@ class FeedDataProcessor {
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<{data: FeedDatum[]; prices: FeedPrice[]}> {
     this.logger.debug('[FeedDataProcessor] #apply');
+
     const uniqueFeedFetcherMap = this.createUniqueFeedFetcherMap(feedsArray);
-
     const {singleInputs, multiInputs} = this.separateInputs(uniqueFeedFetcherMap);
-
     const inputIndexByHash = this.createInputByHash(singleInputs, multiInputs);
-
     const values = (await this.getProcessedFeeds(singleInputs, multiInputs, timestamp)) as FeedsInputHash;
-
     const {data, prices} = this.calculateDataFromFeeds(feedsArray, values, inputIndexByHash, timestamp);
 
     return {data, prices};

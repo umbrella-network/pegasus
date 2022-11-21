@@ -45,7 +45,7 @@ import {FeedDataWorker} from './workers/FeedDataWorker';
   }, settings.jobs.blockCreation.interval);
 
   setInterval(async () => {
-    logger.info('[Scheduler] Scheduling FeedAgent');
+    logger.info('[Scheduler] Scheduling FeedDataWorker');
 
     await feedDataWorker.enqueue(
       {},

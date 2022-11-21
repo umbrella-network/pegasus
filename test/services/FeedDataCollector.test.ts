@@ -131,7 +131,7 @@ describe('FeedDataCollector', () => {
       it('logs and error message', async () => {
         const loggerSpy = sinon.spy(mockedLogger, 'error');
 
-        await feedDataCollector.run();
+        await feedDataCollector.apply();
         expect(loggerSpy.called).to.be.true;
       });
     });
@@ -146,7 +146,7 @@ describe('FeedDataCollector', () => {
       it('calls feedDataProcessor with merged feeds that uses http fetcher', async () => {
         const timestamp = Math.floor(Date.now() / 1000);
 
-        await feedDataCollector.run();
+        await feedDataCollector.apply();
 
         expect(feedDataProcessor.apply.calledWith(timestamp, sinon.match(mergedHttpFeeds))).to.be.true;
       });

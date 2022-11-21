@@ -9,7 +9,6 @@ import {AgentCoordinator} from '../../src/agents/AgentCoordinator';
 import {UniswapPoolScannerAgent} from '../../src/agents/UniswapPoolScannerAgent';
 import {UniswapVerificationAgent} from '../../src/agents/UniswapVerificationAgent';
 import {UniswapPriceScannerAgent} from '../../src/agents/UniswapPriceScannerAgent';
-import {FeedAgent} from '../../src/agents/FeedAgent';
 
 chai.use(chaiAsPromised);
 
@@ -18,7 +17,6 @@ describe('AgentCoordinator', () => {
   let mockedUniswapPoolScannerAgent: sinon.SinonStubbedInstance<UniswapPoolScannerAgent>;
   let mockedUniswapPriceScannerAgent: sinon.SinonStubbedInstance<UniswapPriceScannerAgent>;
   let mockedUniswapVerificationAgent: sinon.SinonStubbedInstance<UniswapVerificationAgent>;
-  let mockedFeedAgent: sinon.SinonStubbedInstance<FeedAgent>;
 
   beforeEach(async () => {
     const container = getTestContainer();
@@ -26,12 +24,10 @@ describe('AgentCoordinator', () => {
     mockedUniswapPoolScannerAgent = sinon.createStubInstance(UniswapPoolScannerAgent);
     mockedUniswapPriceScannerAgent = sinon.createStubInstance(UniswapPriceScannerAgent);
     mockedUniswapVerificationAgent = sinon.createStubInstance(UniswapVerificationAgent);
-    mockedFeedAgent = sinon.createStubInstance(FeedAgent);
 
     container.bind(UniswapPoolScannerAgent).toConstantValue(mockedUniswapPoolScannerAgent);
     container.bind(UniswapPriceScannerAgent).toConstantValue(mockedUniswapPriceScannerAgent);
     container.bind(UniswapVerificationAgent).toConstantValue(mockedUniswapVerificationAgent);
-    container.bind(FeedAgent).toConstantValue(mockedFeedAgent);
     container.rebind('Logger').toConstantValue(mockedLogger);
 
     agentCoordinator = container.get(AgentCoordinator);
@@ -45,10 +41,10 @@ describe('AgentCoordinator', () => {
     describe('when an agentId is given', () => {
       it('calls only the agent given', async () => {
         const loggerSpy = sinon.spy(mockedLogger, 'info');
-        await agentCoordinator.start('FeedAgent');
+        await agentCoordinator.start('UniswapPoolScannerAgent');
 
         expect(loggerSpy.called).to.be.true;
-        expect(mockedFeedAgent.start.called).to.be.true;
+        expect(mockedUniswapPoolScannerAgent.start.called).to.be.true;
       });
     });
 
@@ -58,7 +54,6 @@ describe('AgentCoordinator', () => {
           mockedUniswapPoolScannerAgent,
           mockedUniswapPriceScannerAgent,
           mockedUniswapVerificationAgent,
-          mockedFeedAgent,
         ];
         const loggerSpy = sinon.spy(mockedLogger, 'info');
 
