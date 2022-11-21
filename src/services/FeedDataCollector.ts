@@ -17,7 +17,7 @@ export class FeedDataCollector {
   @inject(PriceService) priceService!: PriceService;
   @inject(DatumService) datumService!: DatumService;
 
-  async run(): Promise<void> {
+  async apply(): Promise<void> {
     const [fcdFeeds, leafFeeds] = await Promise.all([
       this.feedRepository.getFcdFeeds(),
       this.feedRepository.getLeafFeeds(),

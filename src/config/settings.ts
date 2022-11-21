@@ -92,6 +92,9 @@ const settings: Settings = {
         ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),
       },
     },
+    fetcher: {
+      interval: getTimeSetting(parseInt(process.env.FETCHER_INTERVAL || '1800000'), 1000),
+    },
     blockDispatcher: resolveBlockDispatcherSettings(),
   },
   redis: {
@@ -189,7 +192,6 @@ const settings: Settings = {
       verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
     },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
-    fetcherInterval: getTimeSetting(parseInt(process.env.FETCHER_INTERVAL || '1800000'), 1000),
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
   feedsFile:

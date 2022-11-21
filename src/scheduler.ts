@@ -7,6 +7,7 @@ import BlockMintingWorker from './workers/BlockMintingWorker';
 import MetricsWorker from './workers/MetricsWorker';
 import Settings, {BlockDispatcherSettings} from './types/Settings';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
+import {FeedDataWorker} from './workers/FeedDataWorker';
 
 (async (): Promise<void> => {
   await boot();
@@ -15,6 +16,7 @@ import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
   const blockMintingWorker = Application.get(BlockMintingWorker);
   const metricsWorker = Application.get(MetricsWorker);
   const blockDispatcherWorker = Application.get(BlockDispatcherWorker);
+  const feedDataWorker = Application.get(FeedDataWorker);
   const jobCode = String(Math.floor(Math.random() * 1000));
   logger.info('[Scheduler] Starting scheduler...');
 
@@ -41,6 +43,19 @@ import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
       },
     );
   }, settings.jobs.blockCreation.interval);
+
+  setInterval(async () => {
+    logger.info('[Scheduler] Scheduling FeedAgent');
+
+    await feedDataWorker.enqueue(
+      {},
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
+        jobId: `feed-worker-${jobCode}`,
+      },
+    );
+  }, settings.jobs.fetcher.interval);
 
   const scheduleBlockDispatching = async (chainId: string): Promise<void> => {
     logger.info(`[${chainId}] Scheduling BlockDispatcherWorker dispatcher-${chainId}`);

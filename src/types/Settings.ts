@@ -48,6 +48,9 @@ type Settings = {
         ttl: number;
       };
     };
+    fetcher: {
+      interval: number;
+    };
     blockDispatcher: Partial<Record<ChainsIds, BlockDispatcherSettings>>;
   };
   redis: {
@@ -145,7 +148,6 @@ type Settings = {
       verificationInterval: number;
     };
     priceFreshness: number;
-    fetcherInterval: number;
   };
   rpcSelectionStrategy: string;
   feedsCacheRefreshCronRule: string;

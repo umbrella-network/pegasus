@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Added
-- Create FeedAgent
+- Create FeedDataWorker
 - Create FeedDataProcessor to get price and data calculated
 
 ### Changed
