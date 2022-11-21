@@ -1,5 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
+import newrelic from 'newrelic';
 
 import {FeedRepository} from '../repositories/FeedRepository';
 import FeedDataProcessor from './FeedDataProcessor';
@@ -7,6 +8,8 @@ import Settings from '../types/Settings';
 import Feeds, {FeedInput} from '../types/Feed';
 import {PriceService} from './PriceService';
 import {DatumService} from './DatumService';
+import CryptoCompareWSInitializer from './CryptoCompareWSInitializer';
+import PolygonIOPriceInitializer from './PolygonIOPriceInitializer';
 
 @injectable()
 export class FeedDataCollector {
@@ -16,8 +19,12 @@ export class FeedDataCollector {
   @inject(FeedDataProcessor) feedDataProcessor!: FeedDataProcessor;
   @inject(PriceService) priceService!: PriceService;
   @inject(DatumService) datumService!: DatumService;
+  @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
+  @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
 
   async apply(): Promise<void> {
+    this.initializeWSFetchers();
+
     const [fcdFeeds, leafFeeds] = await Promise.all([
       this.feedRepository.getFcdFeeds(),
       this.feedRepository.getLeafFeeds(),
@@ -34,6 +41,20 @@ export class FeedDataCollector {
 
     await Promise.all([this.priceService.savePrices(prices), this.datumService.saveData(data)]);
   }
+
+  private initializeWSFetchers = (): void => {
+    this.polygonIOPriceInitializer.apply().catch((err: Error) => {
+      newrelic.noticeError(err);
+      this.logger.error(err);
+      process.exit(1);
+    });
+
+    this.cryptoCompareWSInitializer.apply().catch((err: Error) => {
+      newrelic.noticeError(err);
+      this.logger.error(err);
+      process.exit(1);
+    });
+  };
 
   private mergeFeedHttpInputs(...feeds: Feeds[]): Feeds {
     const uniqueFeeds: Feeds = {};

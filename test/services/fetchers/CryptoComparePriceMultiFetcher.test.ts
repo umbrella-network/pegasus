@@ -4,7 +4,7 @@ import Application from '../../../src/lib/Application';
 import {InputParams, OutputValue} from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher';
 import CryptoComparePriceMultiFetcher from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher';
 
-describe('CryptoComparePriceMultiFetcher', () => {
+describe.only('CryptoComparePriceMultiFetcher', () => {
   const params: InputParams = {
     fsyms: ['UMB', 'BTC'],
     tsyms: ['USD', 'EUR'],

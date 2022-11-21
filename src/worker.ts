@@ -5,6 +5,7 @@ import BlockMintingWorker from './workers/BlockMintingWorker';
 import MetricsWorker from './workers/MetricsWorker';
 import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
+import {FeedDataWorker} from './workers/FeedDataWorker';
 
 (async () => {
   await boot();
@@ -20,6 +21,10 @@ import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
     }
     case 'BlockDispatcherWorker': {
       Application.get(BlockDispatcherWorker).start();
+      break;
+    }
+    case 'FeedDataWorker': {
+      Application.get(FeedDataWorker).start();
       break;
     }
     case 'MetricsWorker': {

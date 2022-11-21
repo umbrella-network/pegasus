@@ -1,17 +1,12 @@
 import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
-import newrelic from 'newrelic';
 
 import BlockMinter from '../services/BlockMinter';
 import BasicWorker from './BasicWorker';
-import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
-import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer';
 
 @injectable()
 class BlockMintingWorker extends BasicWorker {
   @inject(BlockMinter) blockMinter!: BlockMinter;
-  @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
-  @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
     const isLocked = await this.connection.get(this.settings.jobs.blockCreation.lock.name);
@@ -50,18 +45,6 @@ class BlockMintingWorker extends BasicWorker {
 
   start = (): void => {
     super.start();
-
-    this.polygonIOPriceInitializer.apply().catch((err: Error) => {
-      newrelic.noticeError(err);
-      this.logger.error(err);
-      process.exit(1);
-    });
-
-    this.cryptoCompareWSInitializer.apply().catch((err: Error) => {
-      newrelic.noticeError(err);
-      this.logger.error(err);
-      process.exit(1);
-    });
   };
 }
 
