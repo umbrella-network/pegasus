@@ -4,7 +4,6 @@ import newrelic from 'newrelic';
 import {ABI, GasEstimator, LeafKeyCoder} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
-import {parseEther} from 'ethers/lib/utils';
 import {BigNumber, ethers, Signature} from 'ethers';
 
 import {ChainStatus} from '../../types/ChainStatus';
@@ -25,6 +24,7 @@ import {ChainsIds} from '../../types/ChainsIds';
 import {CanMint} from '../CanMint';
 import {MultichainArchitectureDetector} from '../MultichainArchitectureDetector';
 import {SubmitTxMonitor} from '../SubmitTxMonitor';
+import {BalanceService} from '../wallet/BalanceService';
 
 @injectable()
 export abstract class BlockDispatcher implements IBlockChainDispatcher {
@@ -37,6 +37,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   @inject(ConsensusDataRepository) consensusDataRepository!: ConsensusDataRepository;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
+  @inject(BalanceService) balanceService!: BalanceService;
 
   readonly chainId!: ChainsIds;
   protected blockchain!: Blockchain;
@@ -59,7 +60,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
       return;
     }
 
-    await this.checkBalanceIsEnough(this.chainId);
+    await this.balanceService.checkBalanceIsEnough(this.blockchain, this.chainId);
     const consensus = await this.consensusDataRepository.read();
 
     if (!consensus) {
@@ -102,30 +103,6 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   protected static isNonceError(e: Error): boolean {
     return e.message.includes('nonce has already been used');
   }
-
-  private checkBalanceIsEnough = async (chainId: ChainsIds): Promise<void> => {
-    const balance = await this.blockchain.wallet.getBalance();
-    const toCurrency = parseEther;
-
-    this.testBalanceThreshold(chainId, balance, toCurrency, this.blockchain.wallet.address);
-  };
-
-  private testBalanceThreshold = (
-    chainId: ChainsIds,
-    balance: BigNumber,
-    toCurrency: (amount: string) => BigNumber,
-    address: string,
-  ) => {
-    const {errorLimit, warningLimit} = this.blockchain.chainSettings.transactions.mintBalance;
-
-    if (balance.lt(toCurrency(errorLimit))) {
-      throw new Error(`[${chainId}] Balance (${address.slice(0, 10)}) is lower than ${errorLimit}`);
-    }
-
-    if (balance.lt(toCurrency(warningLimit))) {
-      this.logger.warn(`[${chainId}] Balance (${address.slice(0, 10)}) is lower than ${warningLimit}`);
-    }
-  };
 
   private async submitTx(
     dataTimestamp: number,

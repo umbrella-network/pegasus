@@ -82,6 +82,19 @@ describe('BlockMinter', () => {
       },
       version: '1.0.0',
       blockchain: {
+        multiChains: {
+          bsc: {
+            transactions: {
+              waitForBlockTime: 1000,
+              minGasPrice: 5000000000,
+              maxGasPrice: 10000000000,
+              mintBalance: {
+                warningLimit: '0.15',
+                errorLimit: '0.015',
+              },
+            },
+          },
+        },
         transactions: {
           waitForBlockTime: 1000,
           mintBalance: {
@@ -96,6 +109,8 @@ describe('BlockMinter', () => {
     } as Settings;
 
     wallet = Wallet.createRandom();
+    mockedBlockchain.chainSettings = settings.blockchain.multiChains.bsc!;
+    mockedBlockchain.wallet = wallet;
     mockedBlockchain.wallet = wallet;
     mockedBlockchain.wallet.getBalance = async () => parseEther('10');
 
@@ -182,6 +197,53 @@ describe('BlockMinter', () => {
   });
 
   describe('#apply', () => {
+    describe('when balance is lower than mintBalance.errorLimit', () => {
+      beforeEach(() => {
+        mockedBlockchain.wallet.getBalance = async () => parseEther('0');
+      });
+
+      it('throws an error', async () => {
+        await expect(blockMinter.apply()).to.be.rejectedWith(
+          `[bsc] Balance (${wallet.address.slice(0, 10)}) is lower than 0.015`,
+        );
+      });
+    });
+
+    describe('when balance is lower than mintBalance.warnLimit', () => {
+      beforeEach(() => {
+        mockedMultichainArchitectureDetector.apply.resolves(true);
+        allStates.chainsStatuses = [
+          {
+            chainAddress: '0x123',
+            chainStatus: {
+              blockNumber: BigNumber.from(1),
+              timePadding: 10,
+              lastBlockId: 1,
+              nextBlockId: 2,
+              nextLeader: wallet.address,
+              validators: [wallet.address, 'leader'],
+              locations: ['abc'],
+              lastDataTimestamp: timestamp(),
+              powers: [BigNumber.from(1)],
+              staked: BigNumber.from(1),
+              minSignatures: 1,
+            },
+            chainId: 'bsc',
+          },
+        ];
+
+        allStates.chainsIdsReadyForBlock = ['bsc'];
+        mockedMultiChainStatusResolver.apply.resolves(allStates);
+        mockedBlockchain.wallet.getBalance = async () => parseEther('0.1');
+      });
+
+      it('logs a warning message', async () => {
+        const loggerSpy = sinon.spy(mockedLogger, 'warn');
+        await blockMinter.apply();
+        expect(loggerSpy).to.have.been.calledWith(`[bsc] Balance (${wallet.address.slice(0, 10)}) is lower than 0.15`);
+      });
+    });
+
     it('does not try to get new feed data if you are not the leader', async () => {
       allStates.chainsStatuses = [
         {

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.6.1] - 2022-11-22
+### Changed
+- Check balance before run consensus
+
 ## [7.6.0] - 2022-11-10
 ### Added
 - display registry and rpc over multichain settings in `/info` endpoint

@@ -13,6 +13,7 @@ import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
 import {ConsensusDataRepository} from '../repositories/ConsensusDataRepository';
 import {MultiChainStatusProcessor} from './multiChain/MultiChainStatusProcessor';
 import {MultichainArchitectureDetector} from './MultichainArchitectureDetector';
+import {BalanceService} from './wallet/BalanceService';
 
 @injectable()
 class BlockMinter {
@@ -28,9 +29,11 @@ class BlockMinter {
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject(ConsensusDataRepository) consensusDataRepository!: ConsensusDataRepository;
   @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
+  @inject(BalanceService) balanceService!: BalanceService;
   @inject('Settings') settings!: Settings;
 
   async apply(): Promise<void> {
+    await this.balanceService.checkBalanceIsEnough(this.blockchain, this.settings.blockchain.masterChain.chainId);
     await this.blockchain.setLatestProvider();
     const dataTimestamp = this.timeService.apply(this.settings.dataTimestampOffsetSeconds);
 
