@@ -93,7 +93,7 @@ const settings: Settings = {
       },
     },
     fetcher: {
-      interval: getTimeSetting(parseInt(process.env.FETCHER_INTERVAL || '1800000'), 1000),
+      interval: getTimeSetting(parseInt(process.env.FETCHER_INTERVAL || '30000'), 1000),
     },
     blockDispatcher: resolveBlockDispatcherSettings(),
   },
@@ -116,7 +116,7 @@ const settings: Settings = {
     strategy: process.env.CONSENSUS_STRATEGY || 'simple',
     discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '800'),
     roundInterval: parseInt(process.env.CONSENSUS_ROUND_INTERVAL || '1000'),
-    mintInterval: parseInt(process.env.MINT_INTERVAL || '60000'),
+    mintInterval: parseInt(process.env.MINT_INTERVAL || '120000'),
   },
   blockchains: {
     ethereum: {

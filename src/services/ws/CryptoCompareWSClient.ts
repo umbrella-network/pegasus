@@ -85,8 +85,6 @@ class CryptoCompareWSClient extends WSClient {
     StatsDClient?.gauge(`cpm.${fsym}-${tsym}`, median);
     this.logger.debug(`${subscription}: ${median} at ${timestamp}`);
 
-    console.log('median: ', median);
-
     this.priceRepository
       .saveBatch([
         {

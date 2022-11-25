@@ -30,7 +30,7 @@ abstract class BasicWorker {
 
   get concurrency(): number {
     let workersCount = Object.keys(this.settings.blockchain.multiChains).length;
-    workersCount += 2; // MetricsWorker + BlockMintingWorker
+    workersCount += 3; // MetricsWorker + BlockMintingWorker + FeedDataWorker
     return workersCount;
   }
 

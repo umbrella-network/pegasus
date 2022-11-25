@@ -13,7 +13,7 @@ export class UniswapPriceService {
     await this.priceRepository.saveBatch(
       prices.map((p) => ({
         source: UniswapPriceService.SOURCE,
-        symbol: p.symbol,
+        symbol: p.symbol.toUpperCase(),
         value: p.value,
         timestamp: new Date(p.timestamp * 1000),
       })),
@@ -23,7 +23,7 @@ export class UniswapPriceService {
   async getLatestPrice(symbol: string, from: number, to: number): Promise<number | undefined> {
     return await this.priceRepository.getLatestPrice({
       source: UniswapPriceService.SOURCE,
-      symbol,
+      symbol: symbol.toUpperCase(),
       timestamp: {from: new Date(from * 1000), to: new Date(to * 1000)},
     });
   }

@@ -22,9 +22,15 @@ export class ConsensusDataService {
     const [fcdFeeds, leafFeeds] = await this.getActiveFeedMaps();
     const feeds = this.joinFeedMaps([fcdFeeds, leafFeeds]);
     const data = await this.feedDataLoader.apply({feeds, startsAt, endsAt});
+    console.log('[ConsesusDataService] data: ', JSON.stringify(data));
+    console.log('[ConsesusDataService] feeds: ', JSON.stringify(feeds));
     const consensusData = await this.consensusDataGenerator.apply({feeds, data});
     const firstClassLeaves = this.filterLeaves(consensusData, fcdFeeds);
+    console.log('[ConsesusDataService] firstClassLeaves: ', JSON.stringify(firstClassLeaves));
     const leaves = this.filterLeaves(consensusData, leafFeeds);
+    console.log('[ConsesusDataService] consensusData: ', JSON.stringify(consensusData));
+    console.log('[ConsesusDataService] leafFeeds: ', JSON.stringify(leafFeeds));
+    console.log('[ConsesusDataService] leaves: ', JSON.stringify(leaves));
     return {firstClassLeaves, leaves, fcdsFeeds: fcdFeeds, leavesFeeds: leafFeeds};
   }
 

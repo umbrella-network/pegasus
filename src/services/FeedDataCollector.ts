@@ -36,6 +36,7 @@ export class FeedDataCollector {
     }
 
     const feeds = this.mergeFeedHttpInputs(fcdFeeds, leafFeeds);
+    console.log('feeds: ', feeds);
     const timestamp = Math.floor(Date.now() / 1000);
     const {data, prices} = await this.feedDataProcessor.apply(timestamp, feeds);
 

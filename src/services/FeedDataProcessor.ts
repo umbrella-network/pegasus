@@ -104,6 +104,8 @@ class FeedDataProcessor {
           )
           .flat();
 
+        console.log('[FeedDataProcessor] feedValues: ', JSON.stringify(feedValues));
+
         if (!feedValues.length) {
           ignoredMap[ticker] = true;
         } else if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].symbol)) {
@@ -138,6 +140,7 @@ class FeedDataProcessor {
 
     try {
       const data = (await fetcher.apply(feedFetcher.params, timestamp)) || undefined;
+      console.log('FeedDataProcessor DATA: ', JSON.stringify(data));
       return data;
     } catch (err) {
       const {message, response} = err as FetcherError;
