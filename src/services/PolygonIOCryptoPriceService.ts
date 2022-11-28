@@ -159,7 +159,7 @@ class PolygonIOCryptoPriceService {
   }
 
   public async allPrices({fsym, tsym}: Pair): Promise<{value: number; timestamp: number}[]> {
-    return this.priceRepository.getValueTimestamps(`${fsym}-${tsym}`, PolygonIOCryptoPriceService.Source);
+    return this.priceRepository.getSourcePrices(`${fsym}-${tsym}`, PolygonIOCryptoPriceService.Source);
   }
 
   public async latestPrices(

@@ -261,7 +261,7 @@ class CryptoCompareWSClient extends WSClient {
   }
 
   public async allPrices({fsym, tsym}: Pair): Promise<{value: number; timestamp: number}[]> {
-    return this.priceRepository.getValueTimestamps(`${fsym}-${tsym}`, CryptoCompareWSClient.Source);
+    return this.priceRepository.getSourcePrices(`${fsym}-${tsym}`, CryptoCompareWSClient.Source);
   }
 
   public async latestPrices(

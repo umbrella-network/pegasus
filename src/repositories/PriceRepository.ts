@@ -92,7 +92,7 @@ export class PriceRepository {
     return price ? {timestamp: Math.floor(price.timestamp.getTime() / 1000), value: price.value} : null;
   }
 
-  async getValueTimestamps(symbol: string, source: string): Promise<{value: number; timestamp: number}[]> {
+  async getSourcePrices(symbol: string, source: string): Promise<{value: number; timestamp: number}[]> {
     const prices = await getModelForClass(Price).find({source, symbol}).exec();
     return prices.map((price) => ({timestamp: Math.floor(price.timestamp.getTime() / 1000), value: price.value}));
   }

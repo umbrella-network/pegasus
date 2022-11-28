@@ -142,7 +142,7 @@ class PolygonIOStockPriceService {
   }
 
   public async allPrices(sym: string): Promise<{value: number; timestamp: number}[]> {
-    return this.priceRepository.getValueTimestamps(sym, PolygonIOStockPriceService.Source);
+    return this.priceRepository.getSourcePrices(sym, PolygonIOStockPriceService.Source);
   }
 
   public async latestPrices(
