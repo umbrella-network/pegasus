@@ -96,28 +96,4 @@ export class PriceRepository {
     const prices = await getModelForClass(Price).find({source, symbol}).exec();
     return prices.map((price) => ({timestamp: Math.floor(price.timestamp.getTime() / 1000), value: price.value}));
   }
-
-  async getLatestPrices(
-    source: string,
-    pairs: Pair[],
-    maxTimestamp: number,
-  ): Promise<{symbol: string; value: number; timestamp: number}[]> {
-    return Promise.all(
-      pairs.map(async ({fsym, tsym}) => {
-        const valueTimestamp = await this.getValueAndTimestamp({
-          symbol: `${fsym}-${tsym}`,
-          source,
-          timestamp: {from: new Date(maxTimestamp)},
-        });
-
-        const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
-
-        return {
-          symbol: `${fsym}-${tsym}`,
-          value,
-          timestamp,
-        };
-      }),
-    );
-  }
 }
