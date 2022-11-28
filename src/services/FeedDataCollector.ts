@@ -71,7 +71,7 @@ export class FeedDataCollector {
             uniqueFeeds[key] = {discrepancy: feed[key].discrepancy, precision: feed[key].precision, inputs: []};
           }
 
-          if (!uniqueFeeds[key].inputs.some((feed) => this.hasSameFetcher(feed, input))) {
+          if (!uniqueFeeds[key].inputs.some((feed) => feed.fetcher.name === input.fetcher.name)) {
             uniqueFeeds[key].inputs.push(input);
           }
         });
@@ -79,10 +79,6 @@ export class FeedDataCollector {
     });
 
     return uniqueFeeds;
-  }
-
-  private hasSameFetcher(uniqueFeed: FeedInput, input: FeedInput): boolean {
-    return uniqueFeed.fetcher.name === input.fetcher.name;
   }
 
   private hasWSFetcher(input: FeedInput): boolean {
