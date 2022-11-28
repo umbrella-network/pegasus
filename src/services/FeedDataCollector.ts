@@ -35,7 +35,7 @@ export class FeedDataCollector {
       return;
     }
 
-    const feeds = this.mergeFeedHttpInputs(fcdFeeds, leafFeeds);
+    const feeds = this.mergeFeedsIntoUniqueHttpInputs(fcdFeeds, leafFeeds);
     console.log('feeds: ', feeds);
     const timestamp = Math.floor(Date.now() / 1000);
     const {data, prices} = await this.feedDataProcessor.apply(timestamp, feeds);
@@ -57,7 +57,7 @@ export class FeedDataCollector {
     });
   };
 
-  private mergeFeedHttpInputs(...feeds: Feeds[]): Feeds {
+  private mergeFeedsIntoUniqueHttpInputs(...feeds: Feeds[]): Feeds {
     const uniqueFeeds: Feeds = {};
 
     feeds.forEach((feed) => {
