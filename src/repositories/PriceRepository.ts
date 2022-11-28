@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import dayjs from 'dayjs';
-import NodeCache from 'node-cache';
 
 import {Price} from '../models/Price';
 import {Pair} from '../types/Feed';
@@ -26,11 +25,9 @@ export type LatestPriceProps = {
 
 @injectable()
 export class PriceRepository {
-  cache: NodeCache;
   defaultPriceTTL: number;
 
   constructor(@inject('Settings') settings: Settings) {
-    this.cache = new NodeCache({stdTTL: 60, checkperiod: 60});
     this.defaultPriceTTL = settings.mongodb.indexTTL.priceTTL;
   }
 
