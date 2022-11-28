@@ -3,7 +3,6 @@ import {getModelForClass} from '@typegoose/typegoose';
 import dayjs from 'dayjs';
 
 import {Price} from '../models/Price';
-import {Pair} from '../types/Feed';
 import Settings from '../types/Settings';
 
 export type SavePriceProps = {
