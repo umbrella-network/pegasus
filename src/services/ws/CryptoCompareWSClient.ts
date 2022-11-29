@@ -62,7 +62,7 @@ class CryptoCompareWSClient extends WSClient {
       symbol: `${fsym}-${tsym}`,
       source: CryptoCompareWSClient.Source,
       timestamp: {
-        from: new Date(timestamp - freshness * 1000),
+        from: new Date((timestamp - freshness) * 1000),
         to: new Date(timestamp * 1000),
       },
     });
