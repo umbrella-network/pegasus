@@ -8,10 +8,6 @@ export class FeedDataWorker extends BasicWorker {
   @inject(FeedDataCollector) feedDataCollector!: FeedDataCollector;
 
   apply = async (): Promise<void> => {
-    await this.execute();
-  };
-
-  private execute = async (): Promise<void> => {
     try {
       this.logger.info(`Starting Feed Data Worker`);
       await this.feedDataCollector.apply();
