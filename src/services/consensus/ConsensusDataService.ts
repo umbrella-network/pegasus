@@ -6,7 +6,6 @@ import Leaf from '../../types/Leaf';
 import {FeedDataLoader} from './FeedDataLoader';
 import Feeds, {Feed} from '../../types/Feed';
 import {ConsensusDataGenerator} from './ConsensusDataGenerator';
-import dayjs from 'dayjs';
 import Settings from '../../types/Settings';
 
 @injectable()
@@ -24,9 +23,9 @@ export class ConsensusDataService {
     console.log('[ConsesusDataService] data: ', JSON.stringify(data));
     console.log('[ConsesusDataService] feeds: ', JSON.stringify(feeds));
     const consensusData = await this.consensusDataGenerator.apply({feeds, data});
-    const firstClassLeaves = this.filterLeaves(consensusData, fcdFeeds);
+    const firstClassLeaves = this.filterFCDLeaves(consensusData, fcdFeeds);
     console.log('[ConsesusDataService] firstClassLeaves: ', JSON.stringify(firstClassLeaves));
-    const leaves = this.filterLeaves(consensusData, leafFeeds);
+    const leaves = this.filterL2DLeaves(consensusData, leafFeeds);
     console.log('[ConsesusDataService] consensusData: ', JSON.stringify(consensusData));
     console.log('[ConsesusDataService] leafFeeds: ', JSON.stringify(leafFeeds));
     console.log('[ConsesusDataService] leaves: ', JSON.stringify(leaves));
@@ -52,8 +51,13 @@ export class ConsensusDataService {
   // This is inefficient, but necessary to maintain the output format of this service.
   // We should re-consider whether this separation is necessary in this step.
   // The computational cost is also relatively small, even though we iterate over the input array twice.
-  private filterLeaves(consensusData: Leaf[], feeds: Feeds): Leaf[] {
+  private filterFCDLeaves(consensusData: Leaf[], feeds: Feeds): Leaf[] {
     const symbols = new Set<string>(Object.keys(feeds));
     return consensusData.filter((leaf) => symbols.has(leaf.label));
+  }
+
+  private filterL2DLeaves(consensusData: Leaf[], feeds: Feeds): Leaf[] {
+    const symbols = new Set<string>(Object.keys(feeds));
+    return consensusData.filter((leaf) => symbols.has(leaf.label) || leaf.label.includes('SN_'));
   }
 }

@@ -5,13 +5,13 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import Leaf from '../../types/Leaf';
-import {FeedData, FeedDatum} from './FeedDataLoader';
+import {FeedDatum} from './FeedDataLoader';
 import {Feed} from '../../types/Feed';
 import {LeafFactory} from '../LeafFactory';
 
 export type ConsensusDataGeneratorProps = {
   feeds: Feed[];
-  data: FeedData;
+  data: Map<string, FeedDatum[]>;
 };
 
 @injectable()
@@ -22,14 +22,21 @@ export class ConsensusDataGenerator {
   async apply(props: ConsensusDataGeneratorProps): Promise<Leaf[]> {
     const result: Leaf[] = [];
 
-    for (const feed of props.feeds) {
-      if (!feed.symbol) continue;
+    props.data.forEach((data, i: string) => {
+      let feed = props.feeds.find((value) => value.symbol === i);
 
-      const data = props.data[feed.symbol];
-      if (!data || data.length === 0) continue;
+      if (i.includes('SN_')) {
+        const optionPriceFeed = i.split('_')[1].split('-')[0];
+        feed = props.feeds.find((value) => value.symbol === `OP:${optionPriceFeed}-*`);
+      }
 
-      result.push(this.leafFactory.buildFromFeedData({label: feed.symbol, feed, data}));
-    }
+      if (!feed) {
+        console.log('[ConsensusDataGenerator] no feed found, continue', i);
+        return;
+      }
+
+      result.push(this.leafFactory.buildFromFeedData({label: i, feed, data}));
+    });
 
     return result;
   }

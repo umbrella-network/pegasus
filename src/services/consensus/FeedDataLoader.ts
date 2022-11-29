@@ -27,7 +27,7 @@ export type FeedData = {
 export class FeedDataLoader {
   @inject('Settings') settings!: Settings;
 
-  async apply(props: FeedDataLoaderProps): Promise<FeedData> {
+  async apply(props: FeedDataLoaderProps): Promise<Map<string, FeedDatum[]>> {
     const freshness = this.settings.api.priceFreshness;
     // load prices & data
     const startsAt = new Date((props.timestamp - freshness) * 1000);
@@ -39,10 +39,11 @@ export class FeedDataLoader {
     ]);
 
     // TODO: consider injecting Uniswap here
-    const pricesGrouped = this.groupAndFilterBySymbol<Price>({data: prices});
-    const dataGrouped = this.groupAndFilterBySymbol<Datum>({data});
+    const feedMap = new Map<string, FeedDatum[]>();
+    this.groupAndFilterBySymbol<Price>({data: prices}, feedMap);
+    this.groupAndFilterBySymbol<Datum>({data}, feedMap);
 
-    return {...pricesGrouped, ...dataGrouped};
+    return feedMap;
   }
 
   private async getData<T>(props: {model: new () => T; startsAt: Date; endsAt: Date}): Promise<T[]> {
@@ -70,19 +71,33 @@ export class FeedDataLoader {
       .exec();
   }
 
-  private groupAndFilterBySymbol<T extends Datum | Price>(props: {data: T[]}): FeedData {
-    console.log('GROUP and props.data: ', JSON.stringify(props.data));
-    const feedData = props.data.reduce((acc, e) => {
-      (acc[e.symbol.replace('~', '-')] ||= []).push({
+  private groupAndFilterBySymbol<T extends Datum | Price>(
+    props: {data: T[]},
+    feedMap: Map<string, FeedDatum[]>,
+  ): Map<string, FeedDatum[]> {
+    props.data.forEach((e) => {
+      const symbol = e.symbol.replace('~', '-');
+
+      const value = {
         source: e.source,
         value: e.value,
         timestamp: e.timestamp,
-      });
-      return acc;
-    }, <FeedData>{});
+      };
 
-    console.log('[FeedDataLoader] feedData: ', JSON.stringify(feedData));
+      if (!feedMap.has(symbol)) {
+        feedMap.set(symbol, [value]);
+        return;
+      }
 
-    return feedData;
+      if (feedMap.has(symbol)) {
+        const feedsFromMap = feedMap.get(symbol)!;
+        feedsFromMap.push(value);
+        feedMap.set(symbol, feedsFromMap);
+      }
+    });
+
+    console.log('[FeedDataLoader] feedMap: ', JSON.stringify(feedMap));
+
+    return feedMap;
   }
 }
