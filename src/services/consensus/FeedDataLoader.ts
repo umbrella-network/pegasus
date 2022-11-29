@@ -30,15 +30,11 @@ export class FeedDataLoader {
   async apply(props: FeedDataLoaderProps): Promise<FeedData> {
     const freshness = this.settings.api.priceFreshness;
     // load prices & data
-    const startsAt = new Date(props.timestamp * 1000);
-    const endsAt = new Date(props.timestamp - freshness * 1000);
+    const startsAt = new Date((props.timestamp - freshness) * 1000);
+    const endsAt = new Date(props.timestamp * 1000);
 
     const [prices, data] = await Promise.all([
-      this.getData<Price>({
-        model: Price,
-        startsAt,
-        endsAt,
-      }),
+      this.getData<Price>({model: Price, startsAt, endsAt}),
       this.getData<Datum>({model: Datum, startsAt, endsAt}),
     ]);
 
