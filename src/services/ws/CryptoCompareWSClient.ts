@@ -58,13 +58,11 @@ class CryptoCompareWSClient extends WSClient {
     {fsym, tsym, freshness = CryptoCompareWSClient.DefaultFreshness}: PairWithFreshness,
     timestamp: number,
   ): Promise<number | undefined> {
-    const afterTimestamp = timestamp - freshness;
-
     return this.priceRepository.getLatestPrice({
       symbol: `${fsym}-${tsym}`,
       source: CryptoCompareWSClient.Source,
       timestamp: {
-        from: new Date(afterTimestamp * 1000),
+        from: new Date(timestamp - freshness * 1000),
         to: new Date(timestamp * 1000),
       },
     });
