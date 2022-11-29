@@ -18,10 +18,9 @@ export class ConsensusDataService {
   @inject(ConsensusDataGenerator) consensusDataGenerator!: ConsensusDataGenerator;
 
   async getLeavesAndFeeds(timestamp: number): Promise<LeavesAndFeeds> {
-    const [startsAt, endsAt] = this.getTimeframe(timestamp);
     const [fcdFeeds, leafFeeds] = await this.getActiveFeedMaps();
     const feeds = this.joinFeedMaps([fcdFeeds, leafFeeds]);
-    const data = await this.feedDataLoader.apply({feeds, startsAt, endsAt});
+    const data = await this.feedDataLoader.apply({feeds, timestamp});
     console.log('[ConsesusDataService] data: ', JSON.stringify(data));
     console.log('[ConsesusDataService] feeds: ', JSON.stringify(feeds));
     const consensusData = await this.consensusDataGenerator.apply({feeds, data});
@@ -32,13 +31,6 @@ export class ConsensusDataService {
     console.log('[ConsesusDataService] leafFeeds: ', JSON.stringify(leafFeeds));
     console.log('[ConsesusDataService] leaves: ', JSON.stringify(leaves));
     return {firstClassLeaves, leaves, fcdsFeeds: fcdFeeds, leavesFeeds: leafFeeds};
-  }
-
-  private getTimeframe(timestamp: number): Date[] {
-    return [
-      dayjs.unix(timestamp).subtract(this.settings.consensus.mintInterval, 'millisecond').toDate(),
-      dayjs.unix(timestamp).toDate(),
-    ];
   }
 
   private async getActiveFeedMaps(): Promise<Feeds[]> {

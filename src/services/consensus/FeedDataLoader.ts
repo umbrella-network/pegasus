@@ -1,13 +1,13 @@
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 
 import {Feed} from '../../types/Feed';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Price} from '../../models/Price';
 import {Datum} from '../../models/Datum';
+import Settings from 'src/types/Settings';
 
 export type FeedDataLoaderProps = {
-  startsAt: Date;
-  endsAt: Date;
+  timestamp: number;
   feeds: Feed[];
 };
 
@@ -25,14 +25,21 @@ export type FeedData = {
 
 @injectable()
 export class FeedDataLoader {
-  // Load Prices and Data
+  @inject('Settings') settings!: Settings;
+
   async apply(props: FeedDataLoaderProps): Promise<FeedData> {
-    // get active symbols
-    // const activeSymbols = this.getActiveSymbols(props.feeds);
+    const freshness = this.settings.api.priceFreshness;
     // load prices & data
+    const startsAt = new Date(props.timestamp * 1000);
+    const endsAt = new Date(props.timestamp - freshness * 1000);
+
     const [prices, data] = await Promise.all([
-      this.getData<Price>({model: Price, startsAt: props.startsAt, endsAt: props.endsAt}),
-      this.getData<Datum>({model: Datum, startsAt: props.startsAt, endsAt: props.endsAt}),
+      this.getData<Price>({
+        model: Price,
+        startsAt,
+        endsAt,
+      }),
+      this.getData<Datum>({model: Datum, startsAt, endsAt}),
     ]);
 
     // TODO: consider injecting Uniswap here
@@ -41,10 +48,6 @@ export class FeedDataLoader {
 
     return {...pricesGrouped, ...dataGrouped};
   }
-
-  // private getActiveSymbols(feeds: Feed[]): Set<string> {
-  //   return feeds.reduce((acc, e) => (e.symbol ? acc.add(e.symbol) : acc), new Set<string>());
-  // }
 
   private async getData<T>(props: {model: new () => T; startsAt: Date; endsAt: Date}): Promise<T[]> {
     console.log('[FeedDataLoader] props.startsAt, $lt: props.endsAt}', props.startsAt, props.endsAt);
@@ -72,11 +75,8 @@ export class FeedDataLoader {
   }
 
   private groupAndFilterBySymbol<T extends Datum | Price>(props: {data: T[]}): FeedData {
-    // console.log('GROUP and filter BY: ', JSON.stringify(props.activeSymbols));
     console.log('GROUP and props.data: ', JSON.stringify(props.data));
     const feedData = props.data.reduce((acc, e) => {
-      // if (!props.activeSymbols.has(e.symbol.replace('~', '-').toUpperCase())) return acc;
-
       (acc[e.symbol.replace('~', '-')] ||= []).push({
         source: e.source,
         value: e.value,
