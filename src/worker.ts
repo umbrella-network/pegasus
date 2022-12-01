@@ -6,6 +6,7 @@ import MetricsWorker from './workers/MetricsWorker';
 import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
 import {FeedDataWorker} from './workers/FeedDataWorker';
+import {FeedWSDataWorker} from './workers/FeedWSDataWorker';
 
 (async () => {
   await boot();
@@ -25,6 +26,10 @@ import {FeedDataWorker} from './workers/FeedDataWorker';
     }
     case 'FeedDataWorker': {
       Application.get(FeedDataWorker).start();
+      break;
+    }
+    case 'FeedWSDataWorker': {
+      Application.get(FeedWSDataWorker).start();
       break;
     }
     case 'MetricsWorker': {

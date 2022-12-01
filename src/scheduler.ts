@@ -8,6 +8,7 @@ import MetricsWorker from './workers/MetricsWorker';
 import Settings, {BlockDispatcherSettings} from './types/Settings';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
 import {FeedDataWorker} from './workers/FeedDataWorker';
+import {FeedWSDataWorker} from './workers/FeedWSDataWorker';
 
 (async (): Promise<void> => {
   await boot();
@@ -17,6 +18,7 @@ import {FeedDataWorker} from './workers/FeedDataWorker';
   const metricsWorker = Application.get(MetricsWorker);
   const blockDispatcherWorker = Application.get(BlockDispatcherWorker);
   const feedDataWorker = Application.get(FeedDataWorker);
+  const feedWSDataWorker = Application.get(FeedWSDataWorker);
   const jobCode = String(Math.floor(Math.random() * 1000));
   logger.info('[Scheduler] Starting scheduler...');
 
@@ -56,6 +58,17 @@ import {FeedDataWorker} from './workers/FeedDataWorker';
       },
     );
   }, settings.jobs.fetcher.interval);
+
+  logger.info('[Scheduler] Scheduling FeedDataWSWorker');
+
+  await feedWSDataWorker.enqueue(
+    {},
+    {
+      removeOnComplete: true,
+      removeOnFail: true,
+      jobId: `feed-ws-worker-${jobCode}`,
+    },
+  );
 
   const scheduleBlockDispatching = async (chainId: string): Promise<void> => {
     logger.info(`[${chainId}] Scheduling BlockDispatcherWorker dispatcher-${chainId}`);
