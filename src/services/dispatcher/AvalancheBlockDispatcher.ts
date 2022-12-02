@@ -11,6 +11,6 @@ export class AvalancheBlockDispatcher extends BlockDispatcher {
 
   protected calculatePayableOverrides(gasMetrics: GasEstimation, nonce?: number): PayableOverrides {
     this.logger.info('[AvalancheBlockDispatcher] using individual gas settings');
-    return {type: 2, nonce, gasPrice: gasMetrics.gasPrice};
+    return {nonce, gasPrice: gasMetrics.gasPrice};
   }
 }
