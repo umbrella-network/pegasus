@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.6.2] - 2022-12-02
+### Fix
+- Remove `type` for axav `calculatePayableOverrides`
+
 ## [7.6.1] - 2022-12-01
 ### Changed
 - Use min padding as consensus round length
