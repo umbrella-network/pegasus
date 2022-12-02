@@ -262,7 +262,7 @@ describe('BlockChainDispatcher', () => {
         const loggerSpy = sinon.spy(mockedLogger, 'info');
         await bscBlockDispatcher.apply();
         expect(loggerSpy).to.have.been.calledWith(
-          `[canMint] Error while checking if chainId bsc is available to mint ${error}`,
+          `[canMint] Can not mint on bsc: ${error}`,
         );
       });
 

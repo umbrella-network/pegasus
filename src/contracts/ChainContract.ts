@@ -2,6 +2,7 @@ import {inject, injectable} from 'inversify';
 import {Contract} from 'ethers';
 import {TransactionResponse} from '@ethersproject/providers';
 import {ABI, ContractRegistry} from '@umb-network/toolbox';
+import {PayableOverrides} from '@ethersproject/contracts';
 
 import Settings from '../types/Settings';
 import Blockchain from '../lib/Blockchain';
@@ -50,12 +51,11 @@ class ChainContract {
     v: number[],
     r: string[],
     s: string[],
-    gasPrice: number,
-    nonce?: number,
+    payableOverrides: PayableOverrides,
   ): Promise<TransactionResponse> {
     return (await this.resolveContract())
       .connect(this.blockchain.wallet)
-      .submit(dataTimestamp, root, keys, values, v, r, s, {nonce, gasPrice});
+      .submit(dataTimestamp, root, keys, values, v, r, s, payableOverrides);
   }
 
   resolveContract = async (): Promise<Contract> => {

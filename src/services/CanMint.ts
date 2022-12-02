@@ -20,7 +20,7 @@ export class CanMint {
     const [, error] = chainReadyForNewBlock(chainStatus, dataTimestamp);
 
     if (error) {
-      this.logger.info(`[canMint] Error while checking if chainId ${chainId} is available to mint ${error}`);
+      this.logger.info(`[canMint] Can not mint on ${chainId}: ${error}`);
       return false;
     }
 
