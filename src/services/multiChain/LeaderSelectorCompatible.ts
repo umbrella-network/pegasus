@@ -14,10 +14,10 @@ export class LeaderSelectorCompatible {
   @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
 
   // TODO remove after update all external validators to multichain version
-  async apply(dataTimestamp: number, masterChainStatus: ChainStatus): Promise<string> {
+  async apply(dataTimestamp: number, masterChainStatus: ChainStatus, roundLength: number): Promise<string> {
     const { chainId } = this.settings.blockchain.masterChain;
     const newArchitecture = await this.multichainArchitectureDetector.apply(chainId);
     this.logger.info(`[${chainId}] LeaderSelectorCompatible: newArchitecture ${newArchitecture}`);
-    return newArchitecture ? LeaderSelector.apply(dataTimestamp, masterChainStatus) : masterChainStatus.nextLeader;
+    return newArchitecture ? LeaderSelector.apply(dataTimestamp, masterChainStatus, roundLength) : masterChainStatus.nextLeader;
   }
 }

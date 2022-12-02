@@ -6,6 +6,8 @@ import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
 import {parseEther} from 'ethers/lib/utils';
 import {BigNumber, ethers, Signature} from 'ethers';
+import {PayableOverrides} from "@ethersproject/contracts";
+import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
 
 import {ChainStatus} from '../../types/ChainStatus';
 import ChainContract from '../../contracts/ChainContract';
@@ -127,6 +129,14 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     }
   };
 
+  protected calculatePayableOverrides(gasMetrics: GasEstimation, nonce?: number): PayableOverrides {
+    this.logger.info('[BlockDispatcher] using general gas settings');
+
+    return gasMetrics.isTxType2
+      ? {maxPriorityFeePerGas: gasMetrics.maxPriorityFeePerGas, maxFeePerGas: gasMetrics.maxFeePerGas, nonce}
+      : {gasPrice: gasMetrics.gasPrice, nonce};
+  }
+
   private async submitTx(
     dataTimestamp: number,
     root: string,
@@ -151,8 +161,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
         components.map((sig) => sig.v),
         components.map((sig) => sig.r),
         components.map((sig) => sig.s),
-        gasMetrics.gasPrice,
-        nonce,
+        this.calculatePayableOverrides(gasMetrics, nonce)
       );
 
     const {tx, receipt, timeoutMs} = await this.executeTx(fn, chainStatus.timePadding * 1000);

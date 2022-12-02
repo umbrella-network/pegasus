@@ -35,9 +35,11 @@ export class MultiChainStatusProcessor {
       .filter((chain) => this.canMint.apply({chainStatus: chain.chainStatus, dataTimestamp, chainId: chain.chainId}))
       .map((chain) => chain.chainId);
 
+    const roundLength = chainsStatuses.reduce((acc, {chainStatus}) => Math.min(acc, chainStatus.timePadding), 99999);
+
     return {
       validators: masterChainStatus.validators,
-      nextLeader: await this.leaderSelectorCompatible.apply(dataTimestamp, masterChainStatus),
+      nextLeader: await this.leaderSelectorCompatible.apply(dataTimestamp, masterChainStatus, roundLength),
       chainsStatuses,
       chainsIdsReadyForBlock,
     };
