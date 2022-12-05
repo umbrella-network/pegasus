@@ -5,7 +5,7 @@ import {FeedRepository} from '../repositories/FeedRepository';
 import FeedDataProcessor from './FeedDataProcessor';
 import Settings from '../types/Settings';
 import Feeds, {FeedInput} from '../types/Feed';
-import {PriceService} from './PriceService';
+import {PriceRepository} from '../repositories/PriceRepository';
 import {DatumRepository} from '../repositories/DatumRepository';
 import CryptoCompareWSInitializer from './CryptoCompareWSInitializer';
 import PolygonIOPriceInitializer from './PolygonIOPriceInitializer';
@@ -16,7 +16,7 @@ export class FeedDataCollector {
   @inject('Logger') logger!: Logger;
   @inject(FeedRepository) feedRepository!: FeedRepository;
   @inject(FeedDataProcessor) feedDataProcessor!: FeedDataProcessor;
-  @inject(PriceService) priceService!: PriceService;
+  @inject(PriceRepository) priceService!: PriceRepository;
   @inject(DatumRepository) datumRepository!: DatumRepository;
   @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
   @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;

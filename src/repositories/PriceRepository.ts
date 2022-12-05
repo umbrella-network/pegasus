@@ -4,6 +4,9 @@ import dayjs from 'dayjs';
 
 import {Price} from '../models/Price';
 import Settings from '../types/Settings';
+import {FeedPrice} from 'src/types/Feed';
+import {chunk} from 'lodash';
+import {Logger} from 'winston';
 
 export type SavePriceProps = {
   source: string;
@@ -24,10 +27,24 @@ export type LatestPriceProps = {
 
 @injectable()
 export class PriceRepository {
+  @inject('Logger') logger!: Logger;
+  @inject('Settings') settings!: Settings;
   defaultPriceTTL: number;
 
   constructor(@inject('Settings') settings: Settings) {
     this.defaultPriceTTL = settings.mongodb.indexTTL.priceTTL;
+  }
+
+  async savePrices(price: FeedPrice[]): Promise<void> {
+    try {
+      for (const batch of chunk(price, this.settings.mongodb.priceBatchSize)) {
+        await this.saveBatch(batch);
+      }
+      this.logger.info('[PriceService] Prices saved');
+    } catch (e) {
+      this.logger.error(`[PriceService] Error saving prices, skipping...`);
+      this.logger.error('[PriceService]', e);
+    }
   }
 
   async saveBatch(props: SavePriceProps[]): Promise<void> {
