@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.6.3] - 2022-12-05
+### Changed
+- better logs messages
+
 ## [7.6.2] - 2022-12-02
 ### Fix
 - Remove `type` for axav `calculatePayableOverrides`

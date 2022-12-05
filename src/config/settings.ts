@@ -250,8 +250,12 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
     if (
       !process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] &&
       !defaultByChain[ChainsIds[chain]]?.contractRegistryAddress
-    )
+    ) {
+      console.log(`[resolveMultichainSettings] ${chain} EMPTY env`);
       continue;
+    }
+
+    console.log(`[resolveMultichainSettings] ${chain} SETUP OK`);
 
     multichains[ChainsIds[chain]] = {
       contractRegistryAddress:
