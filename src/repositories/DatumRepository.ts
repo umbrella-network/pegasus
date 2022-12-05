@@ -1,9 +1,12 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import dayjs from 'dayjs';
+import {chunk} from 'lodash';
+import {Logger} from 'winston';
 
 import {Datum} from '../models/Datum';
 import Settings from '../types/Settings';
+import {FeedDatum} from 'src/types/Datum';
 
 export type SaveDatumProps = {
   source: string;
@@ -17,6 +20,19 @@ export type SaveDatumProps = {
 @injectable()
 export class DatumRepository {
   @inject('Settings') settings!: Settings;
+  @inject('Logger') logger!: Logger;
+
+  async saveData(data: FeedDatum[]): Promise<void> {
+    try {
+      for (const batch of chunk(data, this.settings.mongodb.datumBatchSize)) {
+        await this.saveBatch(batch);
+      }
+      this.logger.info('[DatumService] Data saved');
+    } catch (e) {
+      this.logger.error(`[DatumService] Error saving data, skipping...`);
+      this.logger.error('[DatumService]', e);
+    }
+  }
 
   async saveBatch(props: SaveDatumProps[]): Promise<void> {
     const operations = [];

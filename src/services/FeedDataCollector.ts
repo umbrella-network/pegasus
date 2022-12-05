@@ -6,7 +6,7 @@ import FeedDataProcessor from './FeedDataProcessor';
 import Settings from '../types/Settings';
 import Feeds, {FeedInput} from '../types/Feed';
 import {PriceService} from './PriceService';
-import {DatumService} from './DatumService';
+import {DatumRepository} from '../repositories/DatumRepository';
 import CryptoCompareWSInitializer from './CryptoCompareWSInitializer';
 import PolygonIOPriceInitializer from './PolygonIOPriceInitializer';
 
@@ -17,7 +17,7 @@ export class FeedDataCollector {
   @inject(FeedRepository) feedRepository!: FeedRepository;
   @inject(FeedDataProcessor) feedDataProcessor!: FeedDataProcessor;
   @inject(PriceService) priceService!: PriceService;
-  @inject(DatumService) datumService!: DatumService;
+  @inject(DatumRepository) datumRepository!: DatumRepository;
   @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
   @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
 
@@ -36,7 +36,7 @@ export class FeedDataCollector {
     const timestamp = Math.floor(Date.now() / 1000);
     const {data, prices} = await this.feedDataProcessor.apply(timestamp, feeds);
 
-    await Promise.all([this.priceService.savePrices(prices), this.datumService.saveData(data)]);
+    await Promise.all([this.priceService.savePrices(prices), this.datumRepository.saveData(data)]);
   }
 
   private mergeFeedsIntoUniqueHttpInputs(...feeds: Feeds[]): Feeds {
