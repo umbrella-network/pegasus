@@ -27,15 +27,11 @@ class CryptoComparePriceMultiFetcher {
       headers: {Authorization: `Apikey ${this.apiKey}`},
     });
 
-    console.log('RESPONSE: ', response.status, response.data);
-
     if (response.status !== 200) {
-      console.log('THROw one error');
       throw new Error(response.data);
     }
 
     if (response.data.Response === 'Error') {
-      console.log('THROw no response error');
       throw new Error(response.data.Message);
     }
 

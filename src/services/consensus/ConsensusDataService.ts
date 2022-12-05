@@ -20,15 +20,15 @@ export class ConsensusDataService {
     const [fcdFeeds, leafFeeds] = await this.getActiveFeedMaps();
     const feeds = this.joinFeedMaps([fcdFeeds, leafFeeds]);
     const data = await this.feedDataLoader.apply({feeds, timestamp});
-    console.log('[ConsesusDataService] data: ', JSON.stringify(data));
-    console.log('[ConsesusDataService] feeds: ', JSON.stringify(feeds));
+    this.logger.debug(`[ConsesusDataService] data: ${JSON.stringify(data)}`);
+    this.logger.debug(`[ConsesusDataService] feeds: ${JSON.stringify(feeds)}`);
     const consensusData = await this.consensusDataGenerator.apply({feeds, data});
     const firstClassLeaves = this.filterFCDLeaves(consensusData, fcdFeeds);
-    console.log('[ConsesusDataService] firstClassLeaves: ', JSON.stringify(firstClassLeaves));
+    this.logger.debug(`[ConsesusDataService] consensusData: ${JSON.stringify(consensusData)}`);
+    this.logger.debug(`[ConsesusDataService] firstClassLeaves: ${JSON.stringify(firstClassLeaves)}`);
     const leaves = this.filterL2DLeaves(consensusData, leafFeeds);
-    console.log('[ConsesusDataService] consensusData: ', JSON.stringify(consensusData));
-    console.log('[ConsesusDataService] leafFeeds: ', JSON.stringify(leafFeeds));
-    console.log('[ConsesusDataService] leaves: ', JSON.stringify(leaves));
+    this.logger.debug(`[ConsesusDataService] leafFeeds: ${JSON.stringify(leafFeeds)}`);
+    this.logger.debug(`[ConsesusDataService] leaves: ${JSON.stringify(leaves)}`);
     return {firstClassLeaves, leaves, fcdsFeeds: fcdFeeds, leavesFeeds: leafFeeds};
   }
 

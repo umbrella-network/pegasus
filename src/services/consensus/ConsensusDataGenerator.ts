@@ -31,7 +31,7 @@ export class ConsensusDataGenerator {
       }
 
       if (!feed) {
-        console.log('[ConsensusDataGenerator] no feed found, continue', i);
+        this.logger.debug(`[ConsensusDataGenerator] no feed found for ${i}. continue! `);
         return;
       }
 
