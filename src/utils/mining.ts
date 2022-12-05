@@ -60,18 +60,21 @@ export const chainReadyForNewBlock = (
   chainStatus: ChainStatus,
   newDataTimestamp: number,
 ): [ready: boolean, error: string | undefined] => {
-  const deltaT = newDataTimestamp - chainStatus.lastDataTimestamp - chainStatus.timePadding;
-
-  if (deltaT < 0) {
-    return [false, `skipping ${newDataTimestamp}: waiting for next round T${deltaT}`];
-  }
-
   if (newDataTimestamp <= chainStatus.lastDataTimestamp) {
     return [
       false,
-      `skipping ${chainStatus.nextBlockId.toString()}, can NOT submit older data ${
-        chainStatus.lastDataTimestamp
-      } vs ${newDataTimestamp}`,
+      `skipping ${newDataTimestamp}, waiting for new consensus (OLD-${
+        chainStatus.lastDataTimestamp - newDataTimestamp
+      })`,
+    ];
+  }
+
+  const deltaT = newDataTimestamp - chainStatus.lastDataTimestamp - chainStatus.timePadding;
+
+  if (deltaT < 0) {
+    return [
+      false,
+      `skipping ${newDataTimestamp}: waiting for next round T${deltaT} (${chainStatus.lastDataTimestamp}, ${chainStatus.timePadding})`,
     ];
   }
 

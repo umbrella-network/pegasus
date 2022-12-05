@@ -45,7 +45,7 @@ class BlockMinter {
     }
 
     if (chainsIdsReadyForBlock.length === 0) {
-      this.logger.info(`[BlockMinter] None of the chains is ready for data at ${dataTimestamp}...`);
+      this.logger.info(`[BlockMinter] None of ${chainsStatuses.length} chains is ready for data at ${dataTimestamp}`);
       return;
     }
 
@@ -53,7 +53,11 @@ class BlockMinter {
       return;
     }
 
-    this.logger.info(`Starting consensus at: ${dataTimestamp}`);
+    this.logger.info(
+      `Starting consensus at: ${dataTimestamp}, got status for ${chainsStatuses
+        .map(({chainId}) => chainId)
+        .join(', ')}`,
+    );
 
     const masterChainStatus = this.multiChainStatusProcessor.findMasterChain(chainsStatuses);
     const validators = this.chainContract.resolveValidators(masterChainStatus);
@@ -76,7 +80,7 @@ class BlockMinter {
       timePadding: masterChainStatus.timePadding,
     });
 
-    this.logger.info(`consensus for ${dataTimestamp} successful`);
+    this.logger.info(`consensus for ${dataTimestamp} successfully saved`);
   }
 
   private isLeader(nextLeader: string, dataTimestamp: number): boolean {
