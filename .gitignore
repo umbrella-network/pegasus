@@ -3,6 +3,9 @@ dist
 node_modules
 tmp
 data
+logs/
+dev-ops/
+
 .idea
 .vscode
 .env*
