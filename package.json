@@ -1,6 +1,6 @@
 {
   "name": "pegasus",
-  "version": "7.6.3",
+  "version": "7.6.4",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/umbrella-network/pegasus.git"
@@ -35,7 +35,7 @@
     "@types/compression": "~1.7.0",
     "@types/cookie-parser": "~1.4.2",
     "@types/cors": "~2.8.12",
-    "@types/express": "~4.17.8",
+    "@types/express": "4.17.14",
     "@types/express-serve-static-core": "4.17.30",
     "@types/google-protobuf": "^3.7.4",
     "@types/js-yaml": "~4.0.1",
@@ -92,7 +92,7 @@
     "dotenv": "~8.2.0",
     "ethereumjs-util": "~7.0.10",
     "ethers": "~5.5.1",
-    "express": "~4.17.1",
+    "express": "4.17.3",
     "fast-sort": "~2.2.0",
     "google-protobuf": "^3.17.3",
     "helmet": "~4.2.0",

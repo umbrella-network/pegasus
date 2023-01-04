@@ -7,13 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.6.4] - 2023-01-04
+### Fixed
+- fixed errors with `express-serve-static-core` package causing:
+```
+@types/express-serve-static-core/index.d.ts(1197,33): error TS1005: ';' expected.
+@types/express/node_modules/@types/express-serve-static-core/index.d.ts(1265,1): error TS1160: Unterminated template literal.
+```
+
 ## [7.6.3] - 2022-12-05
 ### Changed
 - better logs messages
 
 ## [7.6.2] - 2022-12-02
 ### Fix
-- Remove `type` for axav `calculatePayableOverrides`
+- Remove `type` for avax `calculatePayableOverrides`
 
 ## [7.6.1] - 2022-12-01
 ### Changed
