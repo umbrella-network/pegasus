@@ -98,6 +98,8 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
       this.logger.info(`[${this.chainId}] New Block ${logMint.blockId} minted with TX ${hash}`);
       this.submitTxMonitor.saveTx(this.chainId, consensus.dataTimestamp, hash);
       await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId.toNumber(), true);
+    } else {
+      this.logger.warn(`[${this.chainId}] Block ${consensus.dataTimestamp} was not minted`);
     }
   };
 
@@ -177,12 +179,14 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
         transactionHash: receipt.transactionHash,
       });
 
+      this.logger.warn(`[${this.chainId}] tx ${receipt.transactionHash} status failed (${receipt.status})`);
       return null;
     }
 
     const logMint = this.getLogMint(receipt.logs);
 
     if (!logMint) {
+      this.logger.warn(`[${this.chainId}] LogMint not found`);
       return null;
     }
 

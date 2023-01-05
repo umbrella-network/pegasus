@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.6.5] - 2023-01-05
+### Fixed
+- ignore keys longer than 32 bytes
+
 ## [7.6.4] - 2023-01-04
 ### Fixed
 - fixed errors with `express-serve-static-core` package causing:
