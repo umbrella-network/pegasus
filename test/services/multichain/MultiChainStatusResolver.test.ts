@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
 import {expect} from 'chai';
-import {Wallet} from 'ethers';
+import {BigNumber, Wallet} from 'ethers';
 
 import {getTestContainer} from '../../helpers/getTestContainer';
 import {MultiChainStatusResolver} from '../../../src/services/multiChain/MultiChainStatusResolver';
@@ -46,7 +46,10 @@ describe('MultiChainStatusResolver', () => {
   describe('when all promises are resolved', () => {
     beforeEach(() => {
       const chainStatusWithAddress: ChainsStatuses = {
-        validators: ['0xabctest'],
+        validators: [
+          {id: '0xabctest', power: BigNumber.from(1), location: ''},
+          {id: '0xdeftest', power: BigNumber.from(1), location: ''},
+        ],
         nextLeader: '1',
         chainsStatuses: [
           {

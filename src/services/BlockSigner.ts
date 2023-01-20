@@ -11,7 +11,6 @@ import BlockRepository from './BlockRepository';
 
 import {signAffidavitWithWallet} from '../utils/mining';
 import {ProposedConsensus} from '../types/Consensus';
-import {ChainStatus} from '../types/ChainStatus';
 import {DiscrepancyFinder} from './DiscrepancyFinder';
 import newrelic from 'newrelic';
 import {Discrepancy} from '../types/Discrepancy';
@@ -32,11 +31,11 @@ class BlockSigner {
 
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
     await this.blockchain.setLatestProvider();
-    const {proposedConsensus, chainAddress, chainStatus} = await this.check(block);
+    const {proposedConsensus, chainAddress} = await this.check(block);
 
     this.logger.info(
       [
-        `[BlockSigner] Request from ${proposedConsensus.signer} to sign a block ~${chainStatus.nextBlockId}`,
+        `[BlockSigner] Request from ${proposedConsensus.signer} to sign a block ${proposedConsensus.dataTimestamp}`,
         `with ${proposedConsensus.leaves.length} leaves and ${proposedConsensus.fcdKeys.length} FCDs`,
       ].join(' '),
     );
@@ -63,7 +62,7 @@ class BlockSigner {
       fcdKeys: proposedConsensus.fcdKeys,
     };
 
-    await this.blockRepository.saveBlock(chainAddress, signedBlockConsensus, chainStatus.lastBlockId + 1);
+    await this.blockRepository.saveBlock(chainAddress, signedBlockConsensus);
     this.logger.info(`[BlockSigner] Signed a block for ${proposedConsensus.signer} at ${block.dataTimestamp}`);
     this.logger.debug(`[BlockSigner] Signature: ${signature}`);
     return {signature, discrepancies, version: this.settings.version};
@@ -76,9 +75,7 @@ class BlockSigner {
     }
   }
 
-  async check(
-    block: SignedBlock,
-  ): Promise<{proposedConsensus: ProposedConsensus; chainAddress: string; chainStatus: ChainStatus}> {
+  async check(block: SignedBlock): Promise<{proposedConsensus: ProposedConsensus; chainAddress: string}> {
     const proposedConsensus = ProposedConsensusService.apply(block);
 
     const {chainsStatuses, nextLeader, chainsIdsReadyForBlock} = await this.multiChainStatusResolver.apply(
@@ -96,7 +93,7 @@ class BlockSigner {
       throw Error('[BlockSigner] You should not call yourself for signature.');
     }
 
-    if (proposedConsensus.signer !== nextLeader) {
+    if (proposedConsensus.signer.toLowerCase() !== nextLeader.toLowerCase()) {
       throw Error(
         [
           'Signature does not belong to the current leader,',
@@ -110,7 +107,7 @@ class BlockSigner {
       throw Error(`[BlockSigner] None of the chains is ready for data at ${proposedConsensus.dataTimestamp}`);
     }
 
-    return {proposedConsensus, chainAddress, chainStatus};
+    return {proposedConsensus, chainAddress};
   }
 }
 

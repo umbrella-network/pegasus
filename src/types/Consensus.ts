@@ -62,3 +62,9 @@ export interface LeavesAndFeeds {
   fcdsFeeds: Feeds;
   leavesFeeds: Feeds;
 }
+
+export interface MasterChainData {
+  staked: BigNumber;
+  minSignatures: number;
+  timePadding: number;
+}

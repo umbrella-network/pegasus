@@ -1,7 +1,7 @@
 import {inject, injectable, postConstruct} from 'inversify';
 import {Logger} from 'winston';
 import newrelic from 'newrelic';
-import {ABI, GasEstimator, LeafKeyCoder} from '@umb-network/toolbox';
+import {GasEstimator, LeafKeyCoder} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 import {TransactionResponse, TransactionReceipt} from '@ethersproject/providers';
 import {parseEther} from 'ethers/lib/utils';
@@ -18,8 +18,6 @@ import {FailedTransactionEvent} from '../../constants/ReportedMetricsEvents';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository';
 import {ChainContractRepository} from '../../repositories/ChainContractRepository';
 import {HexStringWith0x} from '../../types/custom';
-import {MintedBlock} from '../../types/MintedBlock';
-import {LogMint} from '../../types/events';
 import {sleep} from '../../utils/sleep';
 import BlockRepository from '../BlockRepository';
 import {ConsensusDataRepository} from '../../repositories/ConsensusDataRepository';
@@ -84,7 +82,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
       `[${this.chainId}] Minting a block ${consensus.dataTimestamp} with ${consensus.signatures.length} signatures, ${consensus.leaves.length} leaves, ${consensus.fcdKeys.length} FCDs`,
     );
 
-    const mintedBlock = await this.mint(
+    const txHash = await this.mint(
       consensus.dataTimestamp,
       consensus.root,
       consensus.fcdKeys,
@@ -93,11 +91,10 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
       chainStatus,
     );
 
-    if (mintedBlock) {
-      const {hash, logMint} = mintedBlock;
-      this.logger.info(`[${this.chainId}] New Block ${logMint.blockId} minted with TX ${hash}`);
-      this.submitTxMonitor.saveTx(this.chainId, consensus.dataTimestamp, hash);
-      await this.blockRepository.saveBlock(chainAddress, consensus, logMint.blockId.toNumber(), true);
+    if (txHash) {
+      this.logger.info(`[${this.chainId}] New Block ${consensus.dataTimestamp} minted with TX ${txHash}`);
+      this.submitTxMonitor.saveTx(this.chainId, consensus.dataTimestamp, txHash);
+      await this.blockRepository.saveBlock(chainAddress, consensus, true);
     } else {
       this.logger.warn(`[${this.chainId}] Block ${consensus.dataTimestamp} was not minted`);
     }
@@ -147,7 +144,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     signatures: string[],
     chainStatus: ChainStatus,
     nonce?: number,
-  ) {
+  ): Promise<string | null> {
     const components = signatures.map((signature) => BlockDispatcher.splitSignature(signature));
     const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
     const gasMetrics = await GasEstimator.apply(this.blockchain.provider, minGasPrice, maxGasPrice);
@@ -183,14 +180,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
       return null;
     }
 
-    const logMint = this.getLogMint(receipt.logs);
-
-    if (!logMint) {
-      this.logger.warn(`[${this.chainId}] LogMint not found`);
-      return null;
-    }
-
-    return {hash: receipt.transactionHash, logMint};
+    return receipt.transactionHash;
   }
 
   private static splitSignature(signature: string): Signature {
@@ -204,7 +194,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     values: HexStringWith0x[],
     signatures: string[],
     chainStatus: ChainStatus,
-  ): Promise<MintedBlock | null> {
+  ): Promise<string | null> {
     try {
       try {
         return await this.submitTx(dataTimestamp, root, keys, values, signatures, chainStatus);
@@ -293,18 +283,6 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     }
 
     return receipt.status === 1;
-  }
-
-  private getLogMint(logs: ethers.providers.Log[]): LogMint {
-    const iface = new ethers.utils.Interface(ABI.chainAbi);
-    const logMint = logs.map((log) => iface.parseLog(log)).find((event) => event.name === 'LogMint');
-
-    if (!logMint) {
-      throw Error(`[${this.chainId}] can't find LogMint in logs`);
-    }
-
-    const {minter, staked, blockId, power} = logMint.args;
-    return {minter, staked, blockId, power};
   }
 
   private async useDispatcher(chainId: ChainsIds): Promise<boolean> {

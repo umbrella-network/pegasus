@@ -5,31 +5,43 @@ import Settings from '../../types/Settings';
 import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus';
 import {ChainStatus} from '../../types/ChainStatus';
 import {CanMint} from '../CanMint';
-import {LeaderSelectorCompatible} from "./LeaderSelectorCompatible";
+import {ValidatorRepository} from "../../repositories/ValidatorRepository";
+import LeaderSelector from "./LeaderSelector";
 
 @injectable()
 export class MultiChainStatusProcessor {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
   @inject(CanMint) canMint!: CanMint;
-  @inject(LeaderSelectorCompatible) leaderSelectorCompatible!: LeaderSelectorCompatible;
+  @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
 
   async apply(chainStatuses: ChainStatusWithAddress[], dataTimestamp: number): Promise<ChainsStatuses> {
     return this.processStates(chainStatuses, dataTimestamp);
   }
 
-  findMasterChain = (chainStatuses: ChainStatusWithAddress[]): ChainStatus => {
+  findMasterChain(chainStatuses: ChainStatusWithAddress[]): ChainStatus | undefined {
     const masterChain = chainStatuses.find(
       (chainStatus) => chainStatus.chainId === this.settings.blockchain.masterChain.chainId,
     );
 
-    if (!masterChain) throw new Error('[MultiChainStatusProcessor] master chainId missing');
+    if (!masterChain) {
+      this.logger.warn('[MultiChainStatusProcessor] master chainId missing');
+      return undefined;
+    }
 
     return masterChain.chainStatus;
-  };
+  }
 
   private async processStates(chainsStatuses: ChainStatusWithAddress[], dataTimestamp: number): Promise<ChainsStatuses> {
     const masterChainStatus = this.findMasterChain(chainsStatuses);
+
+    if (masterChainStatus) {
+      await this.validatorRepository.cache(masterChainStatus);
+    }
+
+    const validators = masterChainStatus
+      ? this.validatorRepository.parse(masterChainStatus)
+      : await this.validatorRepository.list();
 
     const chainsIdsReadyForBlock = chainsStatuses
       .filter((chain) => this.canMint.apply({chainStatus: chain.chainStatus, dataTimestamp, chainId: chain.chainId}))
@@ -38,8 +50,8 @@ export class MultiChainStatusProcessor {
     const roundLength = chainsStatuses.reduce((acc, {chainStatus}) => Math.min(acc, chainStatus.timePadding), 99999);
 
     return {
-      validators: masterChainStatus.validators,
-      nextLeader: await this.leaderSelectorCompatible.apply(dataTimestamp, masterChainStatus, roundLength),
+      validators,
+      nextLeader: LeaderSelector.apply(dataTimestamp, validators.map(v => v.id), roundLength),
       chainsStatuses,
       chainsIdsReadyForBlock,
     };

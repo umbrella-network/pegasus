@@ -8,29 +8,29 @@ import {ChainStatus} from '../../types/ChainStatus';
   for provided `consensusTimestamp`, he should be rejected only when data is too old.
 */
 class LeaderSelector {
-  static apply(consensusTimestamp: number, masterChainStatus: ChainStatus, roundLength: number): string {
-    if (masterChainStatus.validators.length == 0) {
+  static apply(consensusTimestamp: number, validators: string[], roundLength: number): string {
+    if (validators.length == 0) {
       return '';
     }
 
-    return LeaderSelector.getLeaderAddressAtTime(consensusTimestamp, masterChainStatus, roundLength);
+    return LeaderSelector.getLeaderAddressAtTime(consensusTimestamp, validators, roundLength);
   }
 
-  static getLeaderAddressAtTime = (consensusTimestamp: number, masterChainStatus: ChainStatus, roundLength: number): string => {
-    if (masterChainStatus.validators.length == 0) {
+  static getLeaderAddressAtTime = (consensusTimestamp: number, validators: string[], roundLength: number): string => {
+    if (validators.length == 0) {
       return '';
     }
 
-    const validatorIndex = LeaderSelector.getLeaderIndex(consensusTimestamp, masterChainStatus, roundLength);
-    return masterChainStatus.validators[validatorIndex];
+    const validatorIndex = LeaderSelector.getLeaderIndex(consensusTimestamp, validators, roundLength);
+    return validators[validatorIndex];
   };
 
-  static getLeaderIndex = (consensusTimestamp: number, masterChainStatus: ChainStatus, roundLength: number): number => {
-    if (masterChainStatus.validators.length == 0) {
+  static getLeaderIndex = (consensusTimestamp: number, validators: string[], roundLength: number): number => {
+    if (validators.length == 0) {
       return -1;
     }
 
-    return Math.trunc(consensusTimestamp / roundLength) % masterChainStatus.validators.length;
+    return Math.trunc(consensusTimestamp / roundLength) % validators.length;
   };
 }
 
