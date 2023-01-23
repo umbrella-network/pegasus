@@ -18,8 +18,8 @@ class SignatureCollector {
 
   async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<BlockSignerResponseWithPower[]> {
     const selfAddress = this.blockchain.wallet.address.toLowerCase();
-    const self = <Validator>validators.find((v) => v.id === selfAddress);
-    const participants = validators.filter((v) => v.id !== selfAddress);
+    const self = <Validator>validators.find((v) => v.id.toLowerCase() === selfAddress.toLowerCase());
+    const participants = validators.filter((v) => v.id.toLowerCase() !== selfAddress.toLowerCase());
 
     return [this.getLocalSignature(block, self), await this.getParticipantSignatures(block, participants, affidavit)]
       .flat()
@@ -161,7 +161,7 @@ class SignatureCollector {
   private checkSignature(validator: Validator, signature: string, affidavit: string): void {
     const signerAddress = recoverSigner(affidavit, signature);
 
-    if (signerAddress !== validator.id) {
+    if (signerAddress.toLowerCase() !== validator.id.toLowerCase()) {
       throw new Error(`Signature does not match validator ${validator.id}`);
     }
   }

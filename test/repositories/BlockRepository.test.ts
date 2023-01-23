@@ -104,7 +104,7 @@ describe('BlockRepository', () => {
         fcdKeys: ['ETH-USD', 'USD-ETH'],
       };
 
-      await blockRepository.saveBlock('0x333', blockConsensus, 1);
+      await blockRepository.saveBlock('0x333', blockConsensus);
 
       const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
       expect(blocksCount).to.be.eq(1);

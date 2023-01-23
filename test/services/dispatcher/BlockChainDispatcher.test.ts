@@ -261,9 +261,7 @@ describe('BlockChainDispatcher', () => {
       it('does log a info message', async () => {
         const loggerSpy = sinon.spy(mockedLogger, 'info');
         await bscBlockDispatcher.apply();
-        expect(loggerSpy).to.have.been.calledWith(
-          `[canMint] Can not mint on bsc: ${error}`,
-        );
+        expect(loggerSpy).to.have.been.calledWith(`[bsc] Can not mint: ${error}`);
       });
 
       it('does not save block to database', async () => {

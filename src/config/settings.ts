@@ -140,7 +140,7 @@ const settings: Settings = {
       },
     },
     multiChains: resolveMultichainSettings(),
-    resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '30000'),
+    resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '5000'),
   },
   api: {
     cryptocompare: {
