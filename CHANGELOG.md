@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - remove deprecated leader selection
 
+## [7.6.6] - 2023-01-26
+- Fixed GitHub Action "CI"
+
 ## [7.6.5] - 2023-01-05
 ### Fixed
 - ignore keys longer than 32 bytes
