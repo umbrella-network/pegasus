@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import {Wallet} from 'ethers';
+import {BigNumber, Wallet} from 'ethers';
 
 import BlockSigner from '../../src/services/BlockSigner';
 import Blockchain from '../../src/lib/Blockchain';
@@ -21,7 +21,10 @@ import {ChainsStatuses} from '../../src/types/ChainStatus';
 chai.use(chaiAsPromised);
 
 const allStates: ChainsStatuses = {
-  validators: ['0xabctest', '0xdfgtest'],
+  validators: [
+    {id: '0xabctest', power: BigNumber.from(1), location: ''},
+    {id: '0xdeftest', power: BigNumber.from(1), location: ''},
+  ],
   nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
   chainsStatuses: [],
   chainsIdsReadyForBlock: [],

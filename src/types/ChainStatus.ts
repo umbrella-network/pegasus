@@ -1,4 +1,5 @@
 import {BigNumber} from 'ethers';
+import {Validator} from './Validator';
 
 export interface ChainStatus {
   blockNumber: BigNumber;
@@ -29,7 +30,7 @@ export interface ChainStatusWithAddress {
 }
 
 export interface ChainsStatuses {
-  validators: string[];
+  validators: Validator[];
   nextLeader: string;
   chainsStatuses: ChainStatusWithAddress[];
   chainsIdsReadyForBlock: string[];

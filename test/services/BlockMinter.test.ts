@@ -31,7 +31,10 @@ import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepos
 import {MultichainArchitectureDetector} from '../../src/services/MultichainArchitectureDetector';
 
 const allStates: ChainsStatuses = {
-  validators: ['0xabctest', '0xdeftest'],
+  validators: [
+    {id: '0xabctest', power: BigNumber.from(1), location: ''},
+    {id: '0xdeftest', power: BigNumber.from(1), location: ''},
+  ],
   nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
   chainsStatuses: [],
   chainsIdsReadyForBlock: [],
@@ -341,7 +344,7 @@ describe('BlockMinter', () => {
 
       await blockMinter.apply();
 
-      const blocksCount = await getModelForClass(Block).count({}).exec();
+      const blocksCount = await getModelForClass(Block).countDocuments({}).exec();
       expect(blocksCount).to.be.eq(0, 'BlockMinter saved some blocks to database');
     });
 

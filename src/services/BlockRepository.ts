@@ -20,19 +20,14 @@ type Params = {
 
 @injectable()
 class BlockRepository {
-  async saveBlock(
-    chainAddress: string,
-    consensus: SignedBlockConsensus,
-    blockId: number,
-    minted = false,
-  ): Promise<void> {
+  async saveBlock(chainAddress: string, consensus: SignedBlockConsensus, minted = false): Promise<void> {
     await this.apply({
       id: uuid(),
       chainAddress,
       dataTimestamp: new Date(consensus.dataTimestamp * 1000),
       timestamp: new Date(),
       leaves: consensus.leaves,
-      blockId: blockId,
+      blockId: consensus.dataTimestamp,
       root: consensus.root,
       fcdKeys: consensus.fcdKeys,
       minted,
