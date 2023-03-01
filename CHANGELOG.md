@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.7.1] - 2023-03-01
+### Changed
+- use `StaticJsonRpcProvider` to reduce RPC calls
+- adjust gas settings for arbitrum
+
+### Fixed
+- fix TS2339: Property 'timestamp' does not exist on type 'TransformableInfo'
+
 ## [7.7.0] - 2023-01-26
 ### Added
 - cache masterchain data required to run consensus

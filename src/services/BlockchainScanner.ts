@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {BlockchainMarker} from '../models/BlockchainMarker';
 import {Logger} from 'winston';
-import {Provider} from '@ethersproject/providers';
+import {StaticJsonRpcProvider} from '@ethersproject/providers';
 
 export type Result = {
   fromBlock: number;
@@ -19,7 +19,7 @@ export abstract class BlockchainScanner {
   blockchainId!: string;
   markerId!: string;
   step!: number;
-  provider!: Provider;
+  provider!: StaticJsonRpcProvider;
 
   abstract apply(fromBlock: number, toBlock: number): Promise<boolean>;
 

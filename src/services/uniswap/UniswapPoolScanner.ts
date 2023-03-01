@@ -1,5 +1,5 @@
 import {inject, injectable} from 'inversify';
-import {Provider} from '@ethersproject/providers';
+import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import {chunk} from 'lodash';
 
 import Settings from '../../types/Settings';
@@ -34,7 +34,7 @@ export class UniswapPoolScanner extends BlockchainScanner {
   ) {
     super();
     this.settings = settings;
-    this.provider = <Provider>blockchainProviderRepository.get('ethereum');
+    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get('ethereum');
     this.startBlock = this.settings.api.uniswap.startBlock;
     this.step = this.settings.api.uniswap.agentStep;
   }
