@@ -1,6 +1,6 @@
 import {BlockchainProviderFactory} from '../factories/BlockchainProviderFactory';
 import {inject, injectable} from 'inversify';
-import {Provider} from '@ethersproject/providers';
+import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import Settings from '../types/Settings';
 import {sample} from 'lodash';
 
@@ -9,7 +9,7 @@ export class BlockchainProviderRepository {
   @inject('Settings') settings!: Settings;
   @inject(BlockchainProviderFactory) providerFactory!: BlockchainProviderFactory;
 
-  get(id: string): Provider | undefined {
+  get(id: string): StaticJsonRpcProvider | undefined {
     const providerSettings = this.settings.blockchains[id];
     if (!providerSettings) return;
 

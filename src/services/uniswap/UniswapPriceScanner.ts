@@ -3,7 +3,7 @@ import {Logger} from 'winston';
 import {chunk} from 'lodash';
 import {BigNumber} from 'ethers';
 import NodeCache from 'node-cache';
-import {Provider} from '@ethersproject/providers';
+import {StaticJsonRpcProvider} from '@ethersproject/providers';
 
 import {UniswapPriceService} from './UniswapPriceService';
 import Settings from '../../types/Settings';
@@ -26,7 +26,7 @@ export class UniswapPriceScanner {
   readonly lock: MutexInterface;
 
   settings: Settings;
-  provider: Provider;
+  provider: StaticJsonRpcProvider;
   sourceCache: NodeCache;
 
   @inject('Logger') logger!: Logger;
@@ -39,7 +39,7 @@ export class UniswapPriceScanner {
     @inject(BlockchainProviderRepository) blockchainProviderRepository: BlockchainProviderRepository,
   ) {
     this.settings = settings;
-    this.provider = <Provider>blockchainProviderRepository.get('ethereum');
+    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get('ethereum');
     this.sourceCache = new NodeCache({stdTTL: 60, checkperiod: 60});
     this.lock = withTimeout(new Mutex(), this.maxLockWaitTime);
   }

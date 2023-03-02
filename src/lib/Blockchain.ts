@@ -1,4 +1,4 @@
-import {JsonRpcProvider, Provider} from '@ethersproject/providers';
+import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import {RPCSelector} from '@umb-network/toolbox';
 import {inject, injectable} from 'inversify';
 import {ethers, Wallet} from 'ethers';
@@ -19,7 +19,7 @@ class Blockchain {
   readonly chainId!: string;
   readonly isMasterChain!: boolean;
   chainSettings!: BlockchainSettings;
-  provider!: Provider;
+  provider!: ethers.providers.StaticJsonRpcProvider;
   wallet!: Wallet;
   providersUrls!: string[];
   selectionStrategy!: string;
@@ -33,7 +33,7 @@ class Blockchain {
     if (this.isMasterChain) {
       this.constructProvider();
     } else {
-      this.provider = ethers.providers.getDefaultProvider(this.chainSettings.providerUrl);
+      this.provider = new ethers.providers.StaticJsonRpcProvider(this.chainSettings.providerUrl);
     }
 
     this.wallet = new Wallet(settings.blockchain.provider.privateKey, this.provider);
@@ -43,7 +43,7 @@ class Blockchain {
   private constructProvider() {
     for (const url of this.providersUrls) {
       try {
-        this.provider = new JsonRpcProvider(url);
+        this.provider = new StaticJsonRpcProvider(url);
         break;
       } catch (err) {
         this.logger.info(`[Blockchain] Failed to instantiate ${url}. ${err}.`);
@@ -51,7 +51,7 @@ class Blockchain {
     }
 
     if (!this.provider) {
-      this.provider = new JsonRpcProvider(this.providersUrls[0]);
+      this.provider = new StaticJsonRpcProvider(this.providersUrls[0]);
     }
   }
 
@@ -71,11 +71,11 @@ class Blockchain {
         ? await rpcSelector.selectByLatestBlockNumber()
         : await rpcSelector.selectByTimestamp();
 
-    this.provider = new JsonRpcProvider(provider);
+    this.provider = new StaticJsonRpcProvider(provider);
     this.wallet = new Wallet(this.settings.blockchain.provider.privateKey, this.provider);
   }
 
-  getProvider(): Provider {
+  getProvider(): StaticJsonRpcProvider {
     return this.provider;
   }
 
