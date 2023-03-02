@@ -46,11 +46,11 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   arbitrum: {
     transactions: {
       waitForBlockTime: 1000,
-      minGasPrice: 500000000,
-      maxGasPrice: 250000000000,
+      minGasPrice: 100_000_000,
+      maxGasPrice: 50_000_000_000,
       mintBalance: {
-        warningLimit: '0.5',
-        errorLimit: '0.01',
+        warningLimit: '0.05',
+        errorLimit: '0.001',
       },
     },
   },

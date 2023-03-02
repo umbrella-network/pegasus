@@ -1,7 +1,7 @@
 import {Contract, ethers} from 'ethers';
 import {inject, injectable} from 'inversify';
 import Settings from '../types/Settings';
-import {Provider} from '@ethersproject/providers';
+import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import ABI from './UniswapV3Factory.abi.json';
 import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository';
 
@@ -18,7 +18,7 @@ export class UniswapV3Factory {
   static ABI = ABI;
 
   readonly contractId!: string;
-  readonly provider!: Provider;
+  readonly provider!: StaticJsonRpcProvider;
   readonly contract!: Contract;
 
   constructor(
@@ -26,7 +26,7 @@ export class UniswapV3Factory {
     @inject(BlockchainProviderRepository) blockchainProviderRepository: BlockchainProviderRepository,
   ) {
     this.contractId = settings.api.uniswap.scannerContractId;
-    this.provider = <Provider>blockchainProviderRepository.get('ethereum');
+    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get('ethereum');
     this.contract = new Contract(this.contractId, UniswapV3Factory.ABI, this.provider);
   }
 

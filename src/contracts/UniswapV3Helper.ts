@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import ABI from './UniswapV3Helper.abi.json';
-import {Provider} from '@ethersproject/providers';
+import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import {BigNumber, Contract} from 'ethers';
 import Settings from '../types/Settings';
 import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository';
@@ -20,7 +20,7 @@ export class UniswapV3Helper {
   static ABI = ABI;
 
   readonly contractId!: string;
-  readonly provider!: Provider;
+  readonly provider!: StaticJsonRpcProvider;
   readonly contract!: Contract;
   readonly periodForAveragePrice = 60;
 
@@ -29,7 +29,7 @@ export class UniswapV3Helper {
     @inject(BlockchainProviderRepository) blockchainProviderRepository: BlockchainProviderRepository,
   ) {
     this.contractId = settings.api.uniswap.helperContractId;
-    this.provider = <Provider>blockchainProviderRepository.get('ethereum');
+    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get('ethereum');
     this.contract = new Contract(this.contractId, UniswapV3Helper.ABI, this.provider);
   }
 
