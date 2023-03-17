@@ -24,7 +24,8 @@ import {ConsensusDataRepository} from '../../repositories/ConsensusDataRepositor
 import {ChainsIds} from '../../types/ChainsIds';
 import {CanMint} from '../CanMint';
 import {MultichainArchitectureDetector} from '../MultichainArchitectureDetector';
-import {SubmitTxMonitor} from '../SubmitTxMonitor';
+import {SubmitTxChecker} from "../SubmitMonitor/SubmitTxChecker";
+import {SubmitSaver} from "../SubmitMonitor/SubmitSaver";
 
 @injectable()
 export abstract class BlockDispatcher implements IBlockChainDispatcher {
@@ -33,7 +34,8 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   @inject('Settings') settings!: Settings;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject(CanMint) canMint!: CanMint;
-  @inject(SubmitTxMonitor) submitTxMonitor!: SubmitTxMonitor;
+  @inject(SubmitTxChecker) submitTxChecker!: SubmitTxChecker;
+  @inject(SubmitSaver) submitSaver!: SubmitSaver;
   @inject(ConsensusDataRepository) consensusDataRepository!: ConsensusDataRepository;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
@@ -67,7 +69,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
       return;
     }
 
-    if (this.submitTxMonitor.wasDataSubmitted(this.chainId, consensus.dataTimestamp)) {
+    if (await this.submitTxChecker.apply(this.chainId, consensus.dataTimestamp)) {
       this.logger.info(`[${this.chainId}] Block for ${consensus.dataTimestamp} already submitted`);
       return;
     }
@@ -93,8 +95,11 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
 
     if (txHash) {
       this.logger.info(`[${this.chainId}] New Block ${consensus.dataTimestamp} minted with TX ${txHash}`);
-      this.submitTxMonitor.saveTx(this.chainId, consensus.dataTimestamp, txHash);
-      await this.blockRepository.saveBlock(chainAddress, consensus, true);
+
+      await Promise.all([
+        this.submitSaver.apply(this.chainId, consensus.dataTimestamp, txHash),
+        this.blockRepository.saveBlock(chainAddress, consensus, true)
+      ]);
     } else {
       this.logger.warn(`[${this.chainId}] Block ${consensus.dataTimestamp} was not minted`);
     }

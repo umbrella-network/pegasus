@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import fs from 'fs';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import {BigNumber, ethers, Wallet} from 'ethers';
@@ -29,7 +28,8 @@ import * as mining from '../../../src/utils/mining';
 import {transactionResponseFactory} from '../../mocks/factories/transactionResponseFactory';
 import {transactionReceiptFactory} from '../../mocks/factories/transactionReceiptFactory';
 import {ChainsIds} from '../../../src/types/ChainsIds';
-import {SubmitTxMonitor} from '../../../src/services/SubmitTxMonitor';
+import {MappingRepository} from "../../../src/repositories/MappingRepository";
+import {SubmitTxKeyResolver} from "../../../src/services/SubmitMonitor/SubmitTxKeyResolver";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -40,6 +40,7 @@ describe('BlockChainDispatcher', () => {
   let mockedChainContractRepository: sinon.SinonStubbedInstance<ChainContractRepository>;
   let mockedBlockchainRepository: sinon.SinonStubbedInstance<BlockchainRepository>;
   let consensusDataRepository: ConsensusDataRepository;
+  let mappingRepository: MappingRepository;
   let settings: Settings;
   let bscBlockDispatcher: BSCBlockDispatcher;
   let wallet: Wallet;
@@ -50,14 +51,11 @@ describe('BlockChainDispatcher', () => {
     await mongoose.connect(config.MONGODB_URL, {useNewUrlParser: true, useUnifiedTopology: true});
 
     consensusDataRepository = new ConsensusDataRepository();
+    mappingRepository = new MappingRepository();
   });
 
   beforeEach(async () => {
-    try {
-      fs.unlinkSync(new SubmitTxMonitor().monitorFile(ChainsIds.BSC));
-    } catch (e) {
-      // ok
-    }
+    await mappingRepository.remove(SubmitTxKeyResolver.apply(ChainsIds.BSC));
 
     await getModelForClass(Block).deleteMany({});
     await getModelForClass(ConsensusData).deleteMany({});
@@ -152,6 +150,7 @@ describe('BlockChainDispatcher', () => {
     container.rebind('Settings').toConstantValue(settings);
     container.bind(BlockchainRepository).toConstantValue(mockedBlockchainRepository);
     container.bind(ChainContractRepository).toConstantValue(mockedChainContractRepository);
+    container.bind(SubmitTxKeyResolver).toConstantValue(SubmitTxKeyResolver);
 
     container.bind(BSCBlockDispatcher).to(BSCBlockDispatcher);
     bscBlockDispatcher = container.get(BSCBlockDispatcher);
@@ -162,8 +161,9 @@ describe('BlockChainDispatcher', () => {
     await mongoose.connection.close();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     sinon.restore();
+    await mappingRepository.remove(SubmitTxKeyResolver.apply(ChainsIds.BSC));
   });
 
   describe('#apply', () => {

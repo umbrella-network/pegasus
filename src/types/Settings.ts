@@ -1,4 +1,5 @@
 import {ChainsIds} from './ChainsIds';
+import {SubmitMonitor} from './SubmitMonitor';
 
 export type BlockchainSettings = {
   providerUrl?: string;
@@ -15,8 +16,10 @@ export type BlockchainSettings = {
 };
 
 export type BlockchainInfoSettings = {
+  chainId: string;
   providerUrl?: string;
   contractRegistryAddress?: string;
+  lastTx: SubmitMonitor | undefined;
 };
 
 export type BlockDispatcherSettings = {
