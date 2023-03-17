@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - force "@noble/hashes" `~v1.2.0` because `1.3.0` causes `Error: Cannot find module 'node:crypto'`
+- set manually gasLimit for arbitrum
 
 ## [7.7.1] - 2023-03-01
 ### Changed
