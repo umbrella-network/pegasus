@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - update umbrella SDK
 - update ethers to v5.7.2
 - use mapping (instead of file) to monitor last tx
+
+### Fixed
+- force "@noble/hashes" `~v1.2.0` because `1.3.0` causes `Error: Cannot find module 'node:crypto'`
+
 ## [7.7.1] - 2023-03-01
 ### Changed
 - use `StaticJsonRpcProvider` to reduce RPC calls
