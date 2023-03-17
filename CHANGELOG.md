@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.7.2] - 2023-03-09
+### Changed
+- update umbrella SDK
+- update ethers to v5.7.2
 ## [7.7.1] - 2023-03-01
 ### Changed
 - use `StaticJsonRpcProvider` to reduce RPC calls
