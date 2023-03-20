@@ -6,9 +6,12 @@ import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import {TimeoutCodes} from '../types/TimeoutCodes';
 import {ChainsIds} from 'src/types/ChainsIds';
+import {LastSubmitResolver} from '../services/SubmitMonitor/LastSubmitResolver';
 
 @injectable()
 class InfoController {
+  @inject(LastSubmitResolver) lastSubmitResolver!: LastSubmitResolver;
+
   router: express.Router;
   blockchain!: Blockchain;
 
@@ -50,8 +53,8 @@ class InfoController {
         helperContractId: this.settings.api.uniswap.helperContractId,
         scannerContractId: this.settings.api.uniswap.scannerContractId,
       },
-      masterChain: this.getMasterchainSettings(),
-      chains: this.getMultichainsSettings(),
+      masterChain: await this.getMasterchainSettings(),
+      chains: await this.getMultichainsSettings(),
       version: this.settings.version,
       environment: this.settings.environment,
       network,
@@ -77,31 +80,34 @@ class InfoController {
     return formattedTimeoutCodes;
   };
 
-  private getMasterchainSettings = (): Partial<Record<ChainsIds, BlockchainInfoSettings>> => {
-    const masterChainSettings: Partial<Record<ChainsIds, BlockchainInfoSettings>> = {};
-
-    masterChainSettings[this.settings.blockchain.masterChain.chainId] = {
-      contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
-      providerUrl: this.settings.blockchain.provider.urls[0]?.substring(0, 30),
+  private getChainSettings = async (chainId: ChainsIds): Promise<BlockchainInfoSettings> => {
+    return {
+      chainId,
+      contractRegistryAddress: this.settings.blockchain.multiChains[chainId]?.contractRegistryAddress,
+      providerUrl: this.settings.blockchain.multiChains[chainId]?.providerUrl?.split('/').slice(0, 3).join('/'),
+      lastTx: await this.lastSubmitResolver.apply(chainId),
     };
+  };
+
+  private getMasterchainSettings = async (): Promise<Partial<Record<ChainsIds, BlockchainInfoSettings>>> => {
+    const masterChainSettings: Partial<Record<ChainsIds, BlockchainInfoSettings>> = {};
+    const {chainId} = this.settings.blockchain.masterChain;
+
+    masterChainSettings[chainId] = await this.getChainSettings(chainId);
 
     return masterChainSettings;
   };
 
-  private getMultichainsSettings = (): Partial<Record<ChainsIds, BlockchainInfoSettings>> => {
-    const chainSettings: Partial<Record<ChainsIds, BlockchainInfoSettings>> = {};
+  private getMultichainsSettings = async (): Promise<Partial<Record<ChainsIds, BlockchainInfoSettings>>> => {
     const chainEntries = Object.entries(this.settings.blockchain.multiChains) as [ChainsIds, BlockchainSettings][];
 
-    chainEntries
-      .filter(([key]) => key !== this.settings.blockchain.masterChain.chainId)
-      .map<void>((chain) => {
-        chainSettings[chain[0]] = {
-          contractRegistryAddress: chain[1].contractRegistryAddress,
-          providerUrl: chain[1]?.providerUrl?.substring(0, 30),
-        };
-      });
-
-    return chainSettings;
+    return <Partial<Record<ChainsIds, BlockchainInfoSettings>>>(
+      Promise.all(
+        chainEntries
+          .filter(([key]) => key !== this.settings.blockchain.masterChain.chainId)
+          .map(([chainId]) => this.getChainSettings(chainId)),
+      )
+    );
   };
 }
 

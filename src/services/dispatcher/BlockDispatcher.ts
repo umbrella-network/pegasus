@@ -24,7 +24,9 @@ import {ConsensusDataRepository} from '../../repositories/ConsensusDataRepositor
 import {ChainsIds} from '../../types/ChainsIds';
 import {CanMint} from '../CanMint';
 import {MultichainArchitectureDetector} from '../MultichainArchitectureDetector';
-import {SubmitTxMonitor} from '../SubmitTxMonitor';
+import {ChainSubmitArgs} from "../../types/ChainSubmit";
+import {SubmitTxChecker} from "../SubmitMonitor/SubmitTxChecker";
+import {SubmitSaver} from "../SubmitMonitor/SubmitSaver";
 
 @injectable()
 export abstract class BlockDispatcher implements IBlockChainDispatcher {
@@ -33,7 +35,8 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
   @inject('Settings') settings!: Settings;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject(CanMint) canMint!: CanMint;
-  @inject(SubmitTxMonitor) submitTxMonitor!: SubmitTxMonitor;
+  @inject(SubmitTxChecker) submitTxChecker!: SubmitTxChecker;
+  @inject(SubmitSaver) submitSaver!: SubmitSaver;
   @inject(ConsensusDataRepository) consensusDataRepository!: ConsensusDataRepository;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
@@ -67,7 +70,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
       return;
     }
 
-    if (this.submitTxMonitor.wasDataSubmitted(this.chainId, consensus.dataTimestamp)) {
+    if (await this.submitTxChecker.apply(this.chainId, consensus.dataTimestamp)) {
       this.logger.info(`[${this.chainId}] Block for ${consensus.dataTimestamp} already submitted`);
       return;
     }
@@ -93,8 +96,11 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
 
     if (txHash) {
       this.logger.info(`[${this.chainId}] New Block ${consensus.dataTimestamp} minted with TX ${txHash}`);
-      this.submitTxMonitor.saveTx(this.chainId, consensus.dataTimestamp, txHash);
-      await this.blockRepository.saveBlock(chainAddress, consensus, true);
+
+      await Promise.all([
+        this.submitSaver.apply(this.chainId, consensus.dataTimestamp, txHash),
+        this.blockRepository.saveBlock(chainAddress, consensus, true)
+      ]);
     } else {
       this.logger.warn(`[${this.chainId}] Block ${consensus.dataTimestamp} was not minted`);
     }
@@ -128,12 +134,18 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     }
   };
 
-  protected calculatePayableOverrides(gasMetrics: GasEstimation, nonce?: number): PayableOverrides {
-    this.logger.info('[BlockDispatcher] using general gas settings');
-
+  protected async calculatePayableOverrides(data: ChainSubmitArgs, nonce?: number): Promise<PayableOverrides> {
+    const gasMetrics = await this.resolveGasMetrics();
+    if (!gasMetrics) return {};
+    
     return gasMetrics.isTxType2
       ? {maxPriorityFeePerGas: gasMetrics.maxPriorityFeePerGas, maxFeePerGas: gasMetrics.maxFeePerGas, nonce}
       : {gasPrice: gasMetrics.gasPrice, nonce};
+  }
+
+  protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
+    const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
+    return GasEstimator.apply(this.blockchain.provider, minGasPrice, maxGasPrice);
   }
 
   private async submitTx(
@@ -146,28 +158,29 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     nonce?: number,
   ): Promise<string | null> {
     const components = signatures.map((signature) => BlockDispatcher.splitSignature(signature));
-    const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
-    const gasMetrics = await GasEstimator.apply(this.blockchain.provider, minGasPrice, maxGasPrice);
 
-    this.logger.info(`[${this.chainId}] Submitting tx, gas metrics: ${GasEstimator.printable(gasMetrics)}`);
+    const chainSubmitArgs: ChainSubmitArgs = {
+      dataTimestamp,
+      root,
+      keys: keys.map(LeafKeyCoder.encode),
+      values: values.map((v) => Buffer.from(remove0x(v), 'hex')),
+      v: components.map((sig) => sig.v),
+      r: components.map((sig) => sig.r),
+      s: components.map((sig) => sig.s)
+    }
 
-    const fn = () =>
-      this.chainContract.submit(
-        dataTimestamp,
-        root,
-        keys.map(LeafKeyCoder.encode),
-        values.map((v) => Buffer.from(remove0x(v), 'hex')),
-        components.map((sig) => sig.v),
-        components.map((sig) => sig.r),
-        components.map((sig) => sig.s),
-        this.calculatePayableOverrides(gasMetrics, nonce)
-      );
+    const payableOverrides = await this.calculatePayableOverrides(chainSubmitArgs, nonce);
+
+    this.logger.info(`[${this.chainId}] Submitting tx ${JSON.stringify(payableOverrides)}`);
+
+    const fn = () => this.chainContract.submit(chainSubmitArgs, payableOverrides);
 
     const {tx, receipt, timeoutMs} = await this.executeTx(fn, chainStatus.timePadding * 1000);
 
     if (!receipt) {
       this.logger.warn(`[${this.chainId}] canceling tx ${tx.hash}`);
-      await this.cancelPendingTransaction(gasMetrics.gasPrice, chainStatus.timePadding).catch(this.logger.warn);
+      const gasPrice = payableOverrides.gasPrice ? BigNumber.from(payableOverrides.gasPrice).toNumber() : undefined;
+      await this.cancelPendingTransaction(gasPrice, chainStatus.timePadding).catch(this.logger.warn);
       throw new Error(`[${this.chainId}] mint TX timeout: ${timeoutMs}ms`);
     }
 
@@ -258,9 +271,8 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
     return new Error(`[${this.chainId}] Timestamp discrepancy ${blockTimestamp - dataTimestamp}s: (${e.message})`);
   }
 
-  private async cancelPendingTransaction(prevGasPrice: number, timePadding: number): Promise<boolean> {
-    const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
-    const gasMetrics = await GasEstimator.apply(this.blockchain.provider, minGasPrice, maxGasPrice);
+  private async cancelPendingTransaction(prevGasPrice: number | undefined, timePadding: number): Promise<boolean> {
+    const gasMetrics = await this.resolveGasMetrics();
 
     const txData = {
       from: this.blockchain.wallet.address,
@@ -268,7 +280,7 @@ export abstract class BlockDispatcher implements IBlockChainDispatcher {
       value: BigNumber.from(0),
       nonce: await this.blockchain.wallet.getTransactionCount('latest'),
       gasLimit: 21000,
-      gasPrice: Math.max(gasMetrics.gasPrice, prevGasPrice) * 2,
+      gasPrice: prevGasPrice && gasMetrics ? Math.max(gasMetrics.gasPrice, prevGasPrice) * 2 : undefined,
     };
 
     this.logger.warn(`[${this.chainId}] Sending canceling tx`, {nonce: txData.nonce, gasPrice: txData.gasPrice});
