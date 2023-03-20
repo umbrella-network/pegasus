@@ -1,13 +1,15 @@
 import {inject, injectable} from 'inversify';
-import {Contract} from 'ethers';
+import {Contract, BigNumber} from 'ethers';
 import {TransactionResponse} from '@ethersproject/providers';
-import {ABI, ContractRegistry} from '@umb-network/toolbox';
+import {ContractRegistry} from '@umb-network/toolbox';
 import {PayableOverrides} from '@ethersproject/contracts';
 
+import chainAbi from './Chain.abi.json';
 import Settings from '../types/Settings';
 import Blockchain from '../lib/Blockchain';
 import {ChainStatus} from '../types/ChainStatus';
 import {Validator} from '../types/Validator';
+import {ChainSubmitArgs} from '../types/ChainSubmit';
 
 @injectable()
 class ChainContract {
@@ -43,19 +45,16 @@ class ChainContract {
     return (await this.resolveContract()).address;
   }
 
-  async submit(
-    dataTimestamp: number,
-    root: string,
-    keys: Buffer[],
-    values: Buffer[],
-    v: number[],
-    r: string[],
-    s: string[],
-    payableOverrides: PayableOverrides,
-  ): Promise<TransactionResponse> {
+  async submit(args: ChainSubmitArgs, payableOverrides: PayableOverrides): Promise<TransactionResponse> {
     return (await this.resolveContract())
       .connect(this.blockchain.wallet)
-      .submit(dataTimestamp, root, keys, values, v, r, s, payableOverrides);
+      .submit(args.dataTimestamp, args.root, args.keys, args.values, args.v, args.r, args.s, payableOverrides);
+  }
+
+  async estimateGasForSubmit(args: ChainSubmitArgs): Promise<BigNumber> {
+    return (await this.resolveContract())
+      .connect(this.blockchain.wallet)
+      .estimateGas.submit(args.dataTimestamp, args.root, args.keys, args.values, args.v, args.r, args.s);
   }
 
   resolveContract = async (): Promise<Contract> => {
@@ -64,7 +63,7 @@ class ChainContract {
     }
 
     const chainAddress = await this.registry.getAddress(this.settings.blockchain.contracts.chain.name);
-    return new Contract(chainAddress, ABI.chainAbi, this.blockchain.getProvider());
+    return new Contract(chainAddress, chainAbi, this.blockchain.getProvider());
   };
 }
 

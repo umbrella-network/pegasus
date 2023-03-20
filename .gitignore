@@ -2,6 +2,7 @@ tmp
 dist
 node_modules
 tmp
+logs
 data
 .idea
 .vscode
@@ -13,4 +14,3 @@ data
 .cache
 yarn-error.log
 newrelic_agent.log
-package-lock.json

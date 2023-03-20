@@ -25,6 +25,11 @@ export class MappingRepository {
     await MappingModel.findOneAndUpdate({_id}, {_id, value}, {upsert: true, new: true}).exec();
   }
 
+  async remove(_id: string): Promise<void> {
+    const MappingModel = getModelForClass(Mapping);
+    await MappingModel.deleteOne({_id}).exec();
+  }
+
   async setMany(data: {_id: string; value: string}[]): Promise<void> {
     await Promise.all(data.map(({_id, value}) => this.set(_id, value)));
   }
