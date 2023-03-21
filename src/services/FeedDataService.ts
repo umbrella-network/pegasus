@@ -22,7 +22,12 @@ export class FeedDataService {
     const firstClassLeaves = this.ensureProperLabelLength(fcdsAndLeaves[0]);
     const leaves = this.ensureProperLabelLength(fcdsAndLeaves[1]);
 
-    return {firstClassLeaves, leaves, fcdsFeeds: fcdFeeds, leavesFeeds: leafFeeds};
+    return {
+      firstClassLeaves: this.ignoreZeros(firstClassLeaves),
+      leaves: this.ignoreZeros(leaves),
+      fcdsFeeds: fcdFeeds,
+      leavesFeeds: leafFeeds
+    };
   }
 
   private ensureProperLabelLength(leaves: Leaf[]): Leaf[] {
@@ -31,6 +36,19 @@ export class FeedDataService {
     if (filtered.length !== leaves.length) {
       const invalidLabels = leaves.filter((leaf) => leaf.label.length > 32).map((leaf) => leaf.label);
       this.logger.error(`ignoring too long labels: ${invalidLabels}`);
+    }
+
+    return filtered;
+  }
+
+  private ignoreZeros(leaves: Leaf[]): Leaf[] {
+    const hashZero = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+    const filtered = leaves.filter((leaf) => leaf.valueBytes !== hashZero);
+
+    if (filtered.length !== leaves.length) {
+      const zeros = leaves.filter((leaf) => leaf.valueBytes === hashZero).map((leaf) => leaf.label);
+      this.logger.error(`ignoring zeros: ${zeros}`);
     }
 
     return filtered;
