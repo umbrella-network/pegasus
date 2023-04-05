@@ -11,7 +11,7 @@ import FeedProcessor from '../../src/services/FeedProcessor';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {signAffidavitWithWallet} from '../../src/utils/mining';
 import {getTestContainer} from '../helpers/getTestContainer';
-import BlockRepository from '../../src/services/BlockRepository';
+import BlockRepository from '../../src/repositories/BlockRepository';
 import {FeedDataService} from '../../src/services/FeedDataService';
 import {leavesAndFeedsFactory} from '../mocks/factories/leavesAndFeedsFactory';
 import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';

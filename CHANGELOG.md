@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ## [7.7.3] - 2023-03-21
-### Changed
+### Fixed
 - do not include values that are zeros
+
+### Updated
+- purge blocks older than 6 months
 
 ## [7.7.2] - 2023-03-09
 ### Changed

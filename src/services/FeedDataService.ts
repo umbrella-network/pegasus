@@ -26,7 +26,7 @@ export class FeedDataService {
       firstClassLeaves: this.ignoreZeros(firstClassLeaves),
       leaves: this.ignoreZeros(leaves),
       fcdsFeeds: fcdFeeds,
-      leavesFeeds: leafFeeds
+      leavesFeeds: leafFeeds,
     };
   }
 
@@ -42,7 +42,7 @@ export class FeedDataService {
   }
 
   private ignoreZeros(leaves: Leaf[]): Leaf[] {
-    const hashZero = "0x0000000000000000000000000000000000000000000000000000000000000000";
+    const hashZero = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
     const filtered = leaves.filter((leaf) => leaf.valueBytes !== hashZero);
 

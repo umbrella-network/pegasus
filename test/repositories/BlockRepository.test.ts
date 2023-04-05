@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 
 import '../../src/config/setupDotenv';
 import {loadTestEnv} from '../helpers/loadTestEnv';
-import BlockRepository from '../../src/services/BlockRepository';
+import BlockRepository from '../../src/repositories/BlockRepository';
 import Block from '../../src/models/Block';
 import Leaf from '../../src/types/Leaf';
 import {getModelForClass} from '@typegoose/typegoose';

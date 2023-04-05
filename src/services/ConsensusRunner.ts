@@ -2,7 +2,7 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers, Wallet} from 'ethers';
-import BlockRepository from './BlockRepository';
+import BlockRepository from '../repositories/BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import TimeService from './TimeService';
