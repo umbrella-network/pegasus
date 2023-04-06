@@ -2,7 +2,7 @@ import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
 import ConsensusRunner from './ConsensusRunner';
-import BlockRepository from './BlockRepository';
+import BlockRepository from '../repositories/BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import TimeService from './TimeService';

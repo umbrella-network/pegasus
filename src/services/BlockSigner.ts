@@ -7,7 +7,7 @@ import Blockchain from '../lib/Blockchain';
 import Settings from '../types/Settings';
 import {SignedBlock} from '../types/SignedBlock';
 import {BlockSignerResponse} from '../types/BlockSignerResponse';
-import BlockRepository from './BlockRepository';
+import BlockRepository from '../repositories/BlockRepository';
 
 import {signAffidavitWithWallet} from '../utils/mining';
 import {ProposedConsensus} from '../types/Consensus';
