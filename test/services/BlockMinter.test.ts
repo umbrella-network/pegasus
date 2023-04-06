@@ -22,7 +22,7 @@ import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import TimeService from '../../src/services/TimeService';
 import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, timestamp} from '../../src/utils/mining';
-import BlockRepository from '../../src/services/BlockRepository';
+import BlockRepository from '../../src/repositories/BlockRepository';
 import {getTestContainer} from '../helpers/getTestContainer';
 import {parseEther} from 'ethers/lib/utils';
 import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';

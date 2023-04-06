@@ -19,7 +19,7 @@ import {BlockchainRepository} from '../../repositories/BlockchainRepository';
 import {ChainContractRepository} from '../../repositories/ChainContractRepository';
 import {HexStringWith0x} from '../../types/custom';
 import {sleep} from '../../utils/sleep';
-import BlockRepository from '../BlockRepository';
+import BlockRepository from '../../repositories/BlockRepository';
 import {ConsensusDataRepository} from '../../repositories/ConsensusDataRepository';
 import {ChainsIds} from '../../types/ChainsIds';
 import {CanMint} from '../CanMint';

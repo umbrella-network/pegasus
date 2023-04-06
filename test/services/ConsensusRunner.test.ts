@@ -11,7 +11,7 @@ import Settings from '../../src/types/Settings';
 import ConsensusRunner from '../../src/services/ConsensusRunner';
 import TimeService from '../../src/services/TimeService';
 import SignatureCollector from '../../src/services/SignatureCollector';
-import BlockRepository from '../../src/services/BlockRepository';
+import BlockRepository from '../../src/repositories/BlockRepository';
 import {Validator} from '../../src/types/Validator';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse';

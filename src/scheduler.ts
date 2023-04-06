@@ -7,16 +7,22 @@ import BlockMintingWorker from './workers/BlockMintingWorker';
 import MetricsWorker from './workers/MetricsWorker';
 import Settings, {BlockDispatcherSettings} from './types/Settings';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
+import DataPurger from "./services/DataPurger";
 
 (async (): Promise<void> => {
   await boot();
+
   const settings: Settings = Application.get('Settings');
   const logger: Logger = Application.get('Logger');
   const blockMintingWorker = Application.get(BlockMintingWorker);
   const metricsWorker = Application.get(MetricsWorker);
+  const dataPurger = Application.get(DataPurger);
   const blockDispatcherWorker = Application.get(BlockDispatcherWorker);
   const jobCode = String(Math.floor(Math.random() * 1000));
+
   logger.info('[Scheduler] Starting scheduler...');
+
+  setTimeout(() => dataPurger.apply(), 100);
 
   setInterval(async () => {
     logger.info('[Scheduler] Scheduling MetricsWorker');

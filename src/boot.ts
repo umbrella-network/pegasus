@@ -16,6 +16,7 @@ export async function boot(): Promise<void> {
 
   await initMongoDB(settings);
   await Migrations.apply();
+
   await Application.get(Blockchain).setLatestProvider();
   await Application.get(ApplicationUpdateService).startUpdate();
 }
