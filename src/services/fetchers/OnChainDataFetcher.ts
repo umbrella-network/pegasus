@@ -2,25 +2,59 @@ import {ethers} from 'ethers';
 import {inject, injectable} from 'inversify';
 
 import {OnChainCall} from '../../types/Feed';
-import Blockchain from '../../lib/Blockchain';
+import {BlockchainRepository} from "../../repositories/BlockchainRepository";
+import {ChainsIds} from "../../types/ChainsIds";
+import {BlockchainProviderRepository} from "../../repositories/BlockchainProviderRepository";
+import {Logger} from "winston";
 
 @injectable()
 class OnChainDataFetcher {
-  @inject(Blockchain) blockchain!: Blockchain;
+  @inject('Logger') logger!: Logger;
+  @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
+  @inject(BlockchainProviderRepository) blockchainProviderRepository!: BlockchainProviderRepository;
 
-  async apply(params: OnChainCall): Promise<string> {
+  async apply(params: OnChainCall): Promise<string | number> {
     const data = await this.fetchData(params);
-    return ethers.BigNumber.from(data).toString();
+
+    if (params.decimals === undefined) {
+      return ethers.BigNumber.from(data).toString();
+    }
+
+    const one = 10 ** params.decimals;
+    return ethers.BigNumber.from(data).toNumber() / one;
   }
 
   private async fetchData(params: OnChainCall): Promise<string> {
-    return this.blockchain.provider.call({
+    const provider = this.resolveBlockchainProvider(params.chainId);
+
+    const data = await provider.call({
       to: params.address,
-      data: OnChainDataFetcher.txData(params),
+      data: OnChainDataFetcher.callData(params),
     });
+
+    const returnedValues = ethers.utils.defaultAbiCoder.decode(params.outputs, data);
+    return returnedValues[params?.returnIndex || 0];
   }
 
-  private static txData(params: OnChainCall): string {
+  private resolveBlockchainProvider(chainId: ChainsIds | undefined): ethers.providers.StaticJsonRpcProvider {
+    if (chainId) {
+      const blockchain = this.blockchainRepository.get(chainId);
+
+      if (blockchain) {
+        return blockchain.provider;
+      }
+
+      if (chainId !== ChainsIds.ETH) throw new Error(`[OnChainDataFetcher] chainId:${chainId} is not supported`);
+    }
+
+    const ethProvider = this.blockchainProviderRepository.get(ChainsIds.ETH);
+
+    if (!ethProvider) throw new Error(`[OnChainDataFetcher] chainId:${chainId} is not found`);
+
+    return ethProvider;
+  }
+
+  private static callData(params: OnChainCall): string {
     const abi = [
       {
         name: params.method,
