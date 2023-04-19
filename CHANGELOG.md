@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.8.0] - 2023-04-18
+### Added
+- `OnChainDataFetcher`: add support for returning structs 
+
 ## [7.7.3] - 2023-03-21
 ### Fixed
 - do not include values that are zeros

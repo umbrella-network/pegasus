@@ -63,6 +63,7 @@ jobs:
           CRYPTOCOMPARE_API_KEY: ${{ secrets.CRYPTOCOMPARE_API_KEY }}
           POLYGON_IO_API_KEY: ${{ secrets.POLYGON_IO_API_KEY }}
           IEX_API_KEY: ${{ secrets.IEX_API_KEY }}
+          INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
           COINMARKETCAP_API_KEY: ""
         run: npm run test
 

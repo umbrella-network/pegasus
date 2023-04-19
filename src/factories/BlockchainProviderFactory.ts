@@ -8,8 +8,10 @@ export class BlockchainProviderFactory {
   private settings!: Settings;
 
   getRpcProvider(url: string): StaticJsonRpcProvider {
+    if (!url) throw new Error(`[BlockchainProviderFactory] empty url: ${url}`);
+
     if (url.startsWith('http')) return new StaticJsonRpcProvider(url);
 
-    throw new Error(`unsupported URL scheme: ${url}. Please switch to http(s)`);
+    throw new Error(`[BlockchainProviderFactory] unsupported URL scheme: ${url}. Please switch to http(s)`);
   }
 }
