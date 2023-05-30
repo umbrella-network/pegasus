@@ -10,12 +10,16 @@ export class LastSubmitResolver {
   @inject(MappingRepository) mappingRepository!: MappingRepository;
 
   async apply(chainId: ChainsIds): Promise<SubmitMonitor | undefined> {
-    const submitMonitorRaw = await this.mappingRepository.get(SubmitTxKeyResolver.apply(chainId));
+    const submitMonitorRaw = await this.mappingRepository.get(this.key(chainId));
 
     if (!submitMonitorRaw) {
       return undefined;
     }
 
     return JSON.parse(submitMonitorRaw);
+  }
+
+  protected key(chainId: ChainsIds): string {
+    return SubmitTxKeyResolver.apply(chainId);
   }
 }

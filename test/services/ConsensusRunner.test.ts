@@ -68,7 +68,7 @@ describe('ConsensusRunner', () => {
     mockedBlockchain.wallet = Wallet.createRandom();
     const {leaf, affidavit} = leafWithAffidavit;
 
-    mockedFeedDataService.getLeavesAndFeeds.resolves({
+    mockedFeedDataService.apply.resolves({
       firstClassLeaves: [leaf],
       leaves: [leaf],
       fcdsFeeds: {},
@@ -110,7 +110,7 @@ describe('ConsensusRunner', () => {
       },
     ] as BlockSignerResponseWithPower[]);
 
-    mockedFeedDataService.getLeavesAndFeeds.resolves({
+    mockedFeedDataService.apply.resolves({
       firstClassLeaves: [leaf],
       leaves: [leaf],
       fcdsFeeds: {},
@@ -144,7 +144,7 @@ describe('ConsensusRunner', () => {
       },
     ] as BlockSignerResponseWithPower[]);
 
-    mockedFeedDataService.getLeavesAndFeeds.resolves({
+    mockedFeedDataService.apply.resolves({
       firstClassLeaves: [leaf],
       leaves: [leaf],
       fcdsFeeds: {},
@@ -180,7 +180,7 @@ describe('ConsensusRunner', () => {
 
     const {leaf} = leafWithAffidavit;
 
-    mockedFeedDataService.getLeavesAndFeeds.resolves({
+    mockedFeedDataService.apply.resolves({
       firstClassLeaves: [leaf],
       leaves: [leaf],
       fcdsFeeds: {},

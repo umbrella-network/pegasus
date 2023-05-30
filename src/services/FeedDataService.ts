@@ -5,17 +5,33 @@ import Settings from '../types/Settings';
 import {LeavesAndFeeds} from '../types/Consensus';
 import Leaf from '../types/Leaf';
 import {Logger} from 'winston';
+import {FeedsType} from '../types/Feed';
+import {DeviationLeavesAndFeeds} from '../types/DeviationFeeds';
+import {IntervalTriggerFilter} from './deviationsFeeds/IntervalTriggerFilter';
 
 @injectable()
 export class FeedDataService {
   @inject('Settings') settings!: Settings;
   @inject(FeedRepository) feedRepository!: FeedRepository;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
+  @inject(IntervalTriggerFilter) intervalTriggerFilter!: IntervalTriggerFilter;
   @inject('Logger') logger!: Logger;
 
-  async getLeavesAndFeeds(dataTimestamp: number): Promise<LeavesAndFeeds> {
-    const fcdFeeds = await this.feedRepository.getFcdFeeds();
-    const leafFeeds = await this.feedRepository.getLeafFeeds();
+  async apply(
+    dataTimestamp: number,
+    feedsType: FeedsType,
+    filter: string[] = [],
+  ): Promise<LeavesAndFeeds | DeviationLeavesAndFeeds> {
+    if (feedsType === FeedsType.DEVIATION_TRIGGER) {
+      return this.getDeviationLeavesAndFeeds(dataTimestamp, filter);
+    }
+
+    return this.getLeavesAndFeeds(dataTimestamp, filter);
+  }
+
+  protected async getLeavesAndFeeds(dataTimestamp: number, filter: string[]): Promise<LeavesAndFeeds> {
+    const fcdFeeds = await this.feedRepository.getFcdFeeds(filter);
+    const leafFeeds = await this.feedRepository.getLeafFeeds(filter);
     const feeds = [fcdFeeds, leafFeeds];
     const fcdsAndLeaves = await this.feedProcessor.apply(dataTimestamp, ...feeds);
 
@@ -30,7 +46,23 @@ export class FeedDataService {
     };
   }
 
-  private ensureProperLabelLength(leaves: Leaf[]): Leaf[] {
+  protected async getDeviationLeavesAndFeeds(
+    dataTimestamp: number,
+    filter: string[],
+  ): Promise<DeviationLeavesAndFeeds> {
+    const feeds = await this.feedRepository.getDeviationTriggerFeeds(filter);
+    const filteredFeeds = await this.intervalTriggerFilter.apply(dataTimestamp, feeds);
+    const [deviationLeaves] = await this.feedProcessor.apply(dataTimestamp, ...[filteredFeeds]);
+
+    const leaves = this.ensureProperLabelLength(deviationLeaves);
+
+    return {
+      leaves: this.ignoreZeros(leaves),
+      feeds: filteredFeeds,
+    };
+  }
+
+  protected ensureProperLabelLength(leaves: Leaf[]): Leaf[] {
     const filtered = leaves.filter((leaf) => leaf.label.length <= 32);
 
     if (filtered.length !== leaves.length) {
@@ -41,7 +73,7 @@ export class FeedDataService {
     return filtered;
   }
 
-  private ignoreZeros(leaves: Leaf[]): Leaf[] {
+  protected ignoreZeros(leaves: Leaf[]): Leaf[] {
     const hashZero = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
     const filtered = leaves.filter((leaf) => leaf.valueBytes !== hashZero);

@@ -10,13 +10,14 @@ import {BlockSignerResponse} from '../types/BlockSignerResponse';
 import BlockRepository from '../repositories/BlockRepository';
 
 import {signAffidavitWithWallet} from '../utils/mining';
-import {ProposedConsensus} from '../types/Consensus';
+import {LeavesAndFeeds, ProposedConsensus} from '../types/Consensus';
 import {DiscrepancyFinder} from './DiscrepancyFinder';
 import newrelic from 'newrelic';
 import {Discrepancy} from '../types/Discrepancy';
-import {ProposedConsensusService} from './ProposedConsensusService';
+import {ProposedConsensusFactory} from '../factories/ProposedConsensusFactory';
 import {FeedDataService} from './FeedDataService';
 import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
+import {FeedsType} from '../types/Feed';
 
 @injectable()
 class BlockSigner {
@@ -40,11 +41,22 @@ class BlockSigner {
       ].join(' '),
     );
 
-    const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = await this.feedDataService.getLeavesAndFeeds(
-      proposedConsensus.dataTimestamp,
-    );
+    const requestedFeeds = [...proposedConsensus.fcdKeys, ...proposedConsensus.leaves.map((leaf) => leaf.label)];
 
-    const discrepancies = DiscrepancyFinder.apply(proposedConsensus, firstClassLeaves, leaves, fcdsFeeds, leavesFeeds);
+    const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = (await this.feedDataService.apply(
+      proposedConsensus.dataTimestamp,
+      FeedsType.CONSENSUS,
+      requestedFeeds,
+    )) as LeavesAndFeeds;
+
+    const discrepancies = DiscrepancyFinder.apply({
+      proposedFcds: proposedConsensus.fcds,
+      proposedLeaves: proposedConsensus.leaves,
+      fcds: firstClassLeaves,
+      leaves,
+      fcdsFeeds,
+      leavesFeeds,
+    });
 
     if (discrepancies.length) {
       await this.reportDiscrepancies(discrepancies);
@@ -76,7 +88,7 @@ class BlockSigner {
   }
 
   async check(block: SignedBlock): Promise<{proposedConsensus: ProposedConsensus; chainAddress: string}> {
-    const proposedConsensus = ProposedConsensusService.apply(block);
+    const proposedConsensus = ProposedConsensusFactory.apply(block);
 
     const {chainsStatuses, nextLeader, chainsIdsReadyForBlock} = await this.multiChainStatusResolver.apply(
       proposedConsensus.dataTimestamp,

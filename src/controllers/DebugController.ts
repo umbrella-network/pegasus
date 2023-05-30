@@ -10,7 +10,6 @@ import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService';
 import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
 import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer';
 import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
-import PairRepository from '../repositories/PairRepository';
 import PriceRepository from '../repositories/PriceRepository';
 import Feeds from '../types/Feed';
 import loadFeeds from '../services/loadFeeds';
@@ -27,7 +26,6 @@ class DebugController {
   @inject(CryptoCompareWSClient) cryptoCompareWSClient!: CryptoCompareWSClient;
   @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
   @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
-  @inject(PairRepository) pairRepository!: PairRepository;
   @inject(PriceRepository) priceRepository!: PriceRepository;
   @inject(FeedProcessor) feedProcessor!: FeedProcessor;
 
@@ -151,9 +149,13 @@ class DebugController {
 
     try {
       let fetchFeedsMs = Date.now();
+
       const feeds: Feeds[] = await Promise.all(
-        [this.settings.feedsOnChain, this.settings.feedsFile].map((fileName) => loadFeeds(fileName)),
+        [this.settings.feedsOnChain, this.settings.feedsFile, this.settings.deviationTrigger.feedsFile].map(
+          (fileName) => loadFeeds(fileName),
+        ),
       );
+
       fetchFeedsMs = Date.now() - fetchFeedsMs;
 
       let processFeedsMs = Date.now();

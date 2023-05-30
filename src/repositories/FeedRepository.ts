@@ -7,6 +7,7 @@ import {FeedFactory} from '../factories/FeedFactory';
 import NodeCache from 'node-cache';
 import axios from 'axios';
 import {UniswapFeedRepository} from './UniswapFeedRepository';
+import {DataFilter} from '../services/tools/DataFilter';
 
 function isValidURL(string: string): boolean {
   let url;
@@ -33,25 +34,33 @@ export class FeedRepository {
     this.sourceCache = new NodeCache({stdTTL: 120, checkperiod: 120});
   }
 
-  async getFcdFeeds(): Promise<Feeds> {
+  async getFcdFeeds(filter?: string[]): Promise<Feeds> {
     const sources = [this.settings.feedsOnChain];
     let feeds: Feeds = {};
     feeds = this.mergeFeedsIntoCollection(await this.getLocalFeeds(sources), feeds);
     feeds = this.mergeFeedsIntoCollection(await this.getRemoteFeeds(sources), feeds);
-    return feeds;
+    return this.applyFilter(feeds, filter);
   }
 
-  async getLeafFeeds(): Promise<Feeds> {
+  async getLeafFeeds(filter?: string[]): Promise<Feeds> {
     const sources = [this.settings.feedsFile];
     let feeds: Feeds = {};
     feeds = this.mergeFeedsIntoCollection(await this.getLocalFeeds(sources), feeds);
     feeds = this.mergeFeedsIntoCollection(await this.getRemoteFeeds(sources), feeds);
     feeds = this.mergeFeedsIntoCollection(await this.getVerifiedUniswapFeeds(), feeds);
-    return feeds;
+    return this.applyFilter(feeds, filter);
+  }
+
+  async getDeviationTriggerFeeds(filter?: string[]): Promise<Feeds> {
+    const sources = [this.settings.deviationTrigger.feedsFile];
+    let feeds: Feeds = {};
+    feeds = this.mergeFeedsIntoCollection(await this.getLocalFeeds(sources), feeds);
+    feeds = this.mergeFeedsIntoCollection(await this.getRemoteFeeds(sources), feeds);
+    return this.applyFilter(feeds, filter);
   }
 
   // TODO: Consider splitting into a LocalFeedRepository
-  private async getLocalFeeds(sources: string[]): Promise<Feeds> {
+  protected async getLocalFeeds(sources: string[]): Promise<Feeds> {
     const localSources = this.getLocalSources(sources);
     if (localSources.length == 0) return {};
 
@@ -69,7 +78,7 @@ export class FeedRepository {
     return collection;
   }
 
-  private async loadLocalFeed(source: string): Promise<Feeds> {
+  protected async loadLocalFeed(source: string): Promise<Feeds> {
     const cachedFeeds = this.sourceCache.get<Feeds>(source);
     if (cachedFeeds) return cachedFeeds;
 
@@ -80,7 +89,7 @@ export class FeedRepository {
   }
 
   // TODO: Consider splitting into a RemoteFeedRepository
-  private async getRemoteFeeds(sources: string[]): Promise<Feeds> {
+  protected async getRemoteFeeds(sources: string[]): Promise<Feeds> {
     const remoteSources = this.getRemoteSources(sources);
     if (remoteSources.length == 0) return {};
 
@@ -99,7 +108,7 @@ export class FeedRepository {
   }
 
   // TODO: Extract right cache TTL from HTTP response
-  private async loadRemoteFeed(url: string): Promise<Feeds> {
+  protected async loadRemoteFeed(url: string): Promise<Feeds> {
     const cachedFeeds = this.sourceCache.get<Feeds>(url);
     if (cachedFeeds) return cachedFeeds;
 
@@ -124,7 +133,7 @@ export class FeedRepository {
     return collection;
   }
 
-  private mergeFeedsIntoCollection(feeds: Feeds, collection: Feeds): Feeds {
+  protected mergeFeedsIntoCollection(feeds: Feeds, collection: Feeds): Feeds {
     for (const [feedId, feed] of Object.entries(feeds)) {
       if (collection[feedId]) {
         const inputs = collection[feedId].inputs || [];
@@ -137,11 +146,17 @@ export class FeedRepository {
     return collection;
   }
 
-  private getLocalSources(sources: string[]): string[] {
+  protected getLocalSources(sources: string[]): string[] {
     return sources.filter((source) => !isValidURL(source));
   }
 
-  private getRemoteSources(sources: string[]): string[] {
+  protected getRemoteSources(sources: string[]): string[] {
     return sources.filter((source) => isValidURL(source));
+  }
+
+  protected applyFilter(feeds: Feeds, filter?: string[]): Feeds {
+    if (!filter || filter.length === 0) return feeds;
+
+    return DataFilter.filter(feeds, filter);
   }
 }

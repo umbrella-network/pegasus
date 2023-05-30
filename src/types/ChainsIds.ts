@@ -4,6 +4,7 @@ export enum ChainsIds {
   POLYGON = 'polygon',
   ARBITRUM = 'arbitrum',
   ETH = 'ethereum',
+  LINEA = 'linea',
 }
 
 export type ChainsIdsKeys = keyof typeof ChainsIds;

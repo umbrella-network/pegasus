@@ -11,6 +11,10 @@ export class SubmitSaver {
 
   async apply(chainId: ChainsIds, dataTimestamp: number, txHash: string): Promise<void> {
     const submitMonitor: SubmitMonitor = {dataTimestamp, txHash};
-    await this.mappingRepository.set(SubmitTxKeyResolver.apply(chainId), JSON.stringify(submitMonitor));
+    await this.mappingRepository.set(this.key(chainId), JSON.stringify(submitMonitor));
+  }
+
+  protected key(chainId: ChainsIds): string {
+    return SubmitTxKeyResolver.apply(chainId);
   }
 }

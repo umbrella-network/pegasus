@@ -7,7 +7,6 @@ import ChainContract from '../contracts/ChainContract';
 import Blockchain from './Blockchain';
 import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
 import PriceRepository from '../repositories/PriceRepository';
-import PairRepository from '../repositories/PairRepository';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository';
 import {CalculatorRepository} from '../repositories/CalculatorRepository';
 import {FeedRepository} from '../repositories/FeedRepository';
@@ -25,7 +24,6 @@ export function getContainer(): Container {
   container.bind<Blockchain>(Blockchain).toSelf().inSingletonScope();
   container.bind<CryptoCompareWSClient>(CryptoCompareWSClient).toSelf().inSingletonScope();
   container.bind(PriceRepository).toSelf().inSingletonScope();
-  container.bind(PairRepository).toSelf().inSingletonScope();
   container.bind(FeedFetcherRepository).toSelf().inSingletonScope();
   container.bind(CalculatorRepository).toSelf().inSingletonScope();
   container.bind(FeedRepository).toSelf().inSingletonScope();
