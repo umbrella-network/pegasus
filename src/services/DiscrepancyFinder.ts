@@ -3,23 +3,24 @@ import {LeafValueCoder} from '@umb-network/toolbox';
 
 import Feeds from '../types/Feed';
 import {calcDiscrepancy} from '../utils/math';
-import {ProposedConsensus} from '../types/Consensus';
 import {Discrepancy} from '../types/Discrepancy';
 import Leaf from '../types/Leaf';
 
 const DEFAULT_DISCREPANCY_VALUE = 1;
 
 export class DiscrepancyFinder {
-  static apply(
-    proposedConsensus: ProposedConsensus,
-    fcds: Leaf[],
-    leaves: Leaf[],
-    fcdsFeeds: Feeds,
-    leavesFeeds: Feeds,
-  ): Discrepancy[] {
+  static apply(args: {
+    proposedFcds: Leaf[];
+    proposedLeaves: Leaf[];
+    fcds: Leaf[];
+    leaves: Leaf[];
+    fcdsFeeds: Feeds;
+    leavesFeeds: Feeds;
+  }): Discrepancy[] {
     try {
-      const fcdsDiscrepancies = this.checkForDiscrepancies(fcds, proposedConsensus.fcds, fcdsFeeds);
-      const discrepancies = this.checkForDiscrepancies(leaves, proposedConsensus.leaves, leavesFeeds);
+      const {proposedFcds, proposedLeaves, fcds, leaves, fcdsFeeds, leavesFeeds} = args;
+      const fcdsDiscrepancies = this.checkForDiscrepancies(fcds, proposedFcds, fcdsFeeds);
+      const discrepancies = this.checkForDiscrepancies(leaves, proposedLeaves, leavesFeeds);
 
       return discrepancies.concat(fcdsDiscrepancies);
     } catch (err) {

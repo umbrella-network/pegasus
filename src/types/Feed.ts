@@ -1,6 +1,13 @@
 import {ChainsIds} from './ChainsIds';
 
 export interface Feed {
+  // deviation feed attributes
+  heartbeat?: number;
+  trigger?: number;
+  interval?: number;
+  chains?: ChainsIds[];
+
+  // standard feed attributes
   symbol?: string;
   discrepancy: number;
   precision: number;
@@ -9,6 +16,11 @@ export interface Feed {
 
 export default interface Feeds {
   [leafLabel: string]: Feed;
+}
+
+export enum FeedsType {
+  CONSENSUS,
+  DEVIATION_TRIGGER,
 }
 
 export type HexStringWith0x = string;

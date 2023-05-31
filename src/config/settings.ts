@@ -16,8 +16,8 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       minGasPrice: 2000000000,
       maxGasPrice: 500000000000,
       mintBalance: {
-        warningLimit: '0.6',
-        errorLimit: '0.06',
+        warningLimit: '0.06',
+        errorLimit: '0.003',
       },
     },
   },
@@ -62,6 +62,19 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       mintBalance: {
         warningLimit: '0.6',
         errorLimit: '0.06',
+      },
+    },
+  },
+  linea: {
+    contractRegistryAddress: process.env.LINEA_REGISTRY_CONTRACT_ADDRESS,
+    providerUrl: process.env.LINEA_BLOCKCHAIN_PROVIDER_URL,
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 1000000000,
+      maxGasPrice: 100000000000,
+      mintBalance: {
+        warningLimit: '0.01',
+        errorLimit: '0.0001',
       },
     },
   },
@@ -118,6 +131,9 @@ const settings: Settings = {
     provider: {
       urls: getProvidersURLs(),
       privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
+      deviationPrivateKey: process.env.DEVIATION_PRIVATE_KEY
+        ? (process.env.DEVIATION_PRIVATE_KEY as string)
+        : undefined,
     },
     masterChain: {
       chainId: ChainsIds.BSC,
@@ -125,6 +141,9 @@ const settings: Settings = {
     contracts: {
       chain: {
         name: 'Chain',
+      },
+      feeds: {
+        name: 'UmbrellaFeeds',
       },
       registry: {
         address: process.env.REGISTRY_CONTRACT_ADDRESS as string,
@@ -203,6 +222,17 @@ const settings: Settings = {
   version: packageJson.version,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
   name: process.env.NEW_RELIC_APP_NAME || process.env.NAME || 'default',
+  deviationTrigger: {
+    leader: !!process.env.DEVIATION_LEADER,
+    interval: getTimeSetting(parseInt(process.env.DEVIATION_JOB_INTERVAL || '60000'), 5000),
+    lock: {
+      name: process.env.DEVIATION_LOCK_NAME || 'lock::DeviationTrigger',
+      ttl: getTimeSetting(parseInt(process.env.DEVIATION_LOCK_TTL || '60'), 60),
+    },
+    feedsFile:
+      process.env.DEVIATION_FEEDS_FILE ||
+      'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/onChainDeviation128.8.yaml',
+  },
 };
 
 function getTimeSetting(value: number, min: number): number {
@@ -302,6 +332,7 @@ function resolveBlockDispatcherSettings(): Partial<Record<ChainsIds, BlockDispat
         process.env[`${chain}_DISPATCHER_INTERVAL`] || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
         10,
       ),
+      deviationInterval: parseInt(process.env[`${chain}_DEVIATION_DISPATCHER_INTERVAL`] || '25000', 10),
     };
   }
 

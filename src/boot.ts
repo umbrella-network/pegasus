@@ -10,6 +10,11 @@ import ApplicationUpdateService from './services/ApplicationUpdateService';
 import Application from './lib/Application';
 import Blockchain from './lib/Blockchain';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 export async function boot(): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const {default: settings} = await require('./config/settings');

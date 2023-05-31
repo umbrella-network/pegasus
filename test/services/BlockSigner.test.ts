@@ -189,7 +189,7 @@ describe('BlockSigner', () => {
         allStates.chainsIdsReadyForBlock = ['bsc'];
         mockedMultiChainStatusResolver.apply.resolves(allStates);
 
-        mockedFeedDataService.getLeavesAndFeeds.resolves(
+        mockedFeedDataService.apply.resolves(
           leavesAndFeedsFactory.build({
             leaves: [
               {
@@ -235,7 +235,7 @@ describe('BlockSigner', () => {
         allStates.chainsIdsReadyForBlock = ['bsc'];
         mockedMultiChainStatusResolver.apply.resolves(allStates);
 
-        mockedFeedDataService.getLeavesAndFeeds.resolves(leavesAndFeedsFactory.build());
+        mockedFeedDataService.apply.resolves(leavesAndFeedsFactory.build());
 
         mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 

@@ -12,6 +12,7 @@ import {SignedBlock} from '../../src/types/SignedBlock';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse';
 import {signAffidavitWithWallet} from '../../src/utils/mining';
+import {ValidatorStatusChecker} from '../../src/services/ValidatorStatusChecker';
 
 describe('SignatureCollector', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -31,6 +32,7 @@ describe('SignatureCollector', () => {
     container.bind('Settings').toConstantValue(settings);
     container.bind('Logger').toConstantValue(mockedLogger);
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
+    container.bind(ValidatorStatusChecker).toSelf();
     container.bind(SignatureCollector).toSelf();
 
     signatureCollector = container.get(SignatureCollector);

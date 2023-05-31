@@ -1,10 +1,11 @@
-import {index, prop} from '@typegoose/typegoose';
-import Leaf from '../types/Leaf';
-
-import {HexStringWith0x} from '../types/custom';
+import {index, modelOptions, prop, Severity} from '@typegoose/typegoose';
 import {SchemaTypes} from 'mongoose';
 
+import Leaf from '../types/Leaf';
+import {HexStringWith0x} from '../types/custom';
+
 @index({expireAt: 1}, {expireAfterSeconds: 0})
+@modelOptions({options: {allowMixed: Severity.ALLOW}})
 class ConsensusData {
   @prop({required: true})
   root!: string;

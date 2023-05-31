@@ -7,7 +7,11 @@ import BlockMintingWorker from './workers/BlockMintingWorker';
 import MetricsWorker from './workers/MetricsWorker';
 import Settings, {BlockDispatcherSettings} from './types/Settings';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
+import {DeviationLeaderWorker} from './workers/DeviationLeaderWorker';
 import DataPurger from "./services/DataPurger";
+import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
+import BasicWorker from "./workers/BasicWorker";
+import {ChainsIds} from "./types/ChainsIds";
 
 (async (): Promise<void> => {
   await boot();
@@ -15,9 +19,11 @@ import DataPurger from "./services/DataPurger";
   const settings: Settings = Application.get('Settings');
   const logger: Logger = Application.get('Logger');
   const blockMintingWorker = Application.get(BlockMintingWorker);
+  const deviationLeaderWorker = Application.get(DeviationLeaderWorker);
   const metricsWorker = Application.get(MetricsWorker);
   const dataPurger = Application.get(DataPurger);
   const blockDispatcherWorker = Application.get(BlockDispatcherWorker);
+  const deviationDispatcherWorker = Application.get(DeviationDispatcherWorker);
   const jobCode = String(Math.floor(Math.random() * 1000));
 
   logger.info('[Scheduler] Starting scheduler...');
@@ -48,17 +54,18 @@ import DataPurger from "./services/DataPurger";
     );
   }, settings.jobs.blockCreation.interval);
 
-  const scheduleBlockDispatching = async (chainId: string): Promise<void> => {
-    logger.info(`[${chainId}] Scheduling BlockDispatcherWorker dispatcher-${chainId}`);
+  const scheduleDispatching = async (dispatcher: BasicWorker, dispatcherId: string, chainId: string): Promise<void> => {
+    logger.info(`[${chainId}] Scheduling DispatcherWorker: ${dispatcherId}-${chainId}`);
+
     try {
-      await blockDispatcherWorker.enqueue(
+      await dispatcher.enqueue(
         {
           chainId,
         },
         {
           removeOnComplete: true,
           removeOnFail: true,
-          jobId: `dispatcher-${chainId}-${jobCode}`,
+          jobId: `${dispatcherId}-${chainId}-${jobCode}`,
         },
       );
     } catch (e) {
@@ -68,10 +75,44 @@ import DataPurger from "./services/DataPurger";
   };
 
   for (const chainId of Object.keys(settings.blockchain.multiChains)) {
+    if (!blockDispatcherWorker.dispatcher.exists(chainId as ChainsIds)) {
+      logger.info(`[${chainId}] BlockDispatcherWorker for ${chainId} not exists, skipping.`);
+      continue;
+    }
+
     const blockDispatcherSettings: BlockDispatcherSettings = (<Record<string, BlockDispatcherSettings>>(
       settings.jobs.blockDispatcher
     ))[chainId];
 
-    setInterval(async () => scheduleBlockDispatching(chainId), blockDispatcherSettings.interval);
+    setInterval(async () => scheduleDispatching(blockDispatcherWorker, 'dispatcher', chainId), blockDispatcherSettings.interval);
+  }
+
+  if (settings.deviationTrigger.leader) {
+    setInterval(async () => {
+      logger.info('[Scheduler] Scheduling DeviationLeaderWorker');
+
+      await deviationLeaderWorker.enqueue(
+        {},
+        {
+          removeOnComplete: true,
+          removeOnFail: true,
+        },
+      );
+    }, settings.deviationTrigger.interval);
+
+    for (const chainId of Object.keys(settings.blockchain.multiChains)) {
+      if (!deviationDispatcherWorker.dispatcher.exists(chainId as ChainsIds)) {
+        logger.info(`[${chainId}] DeviationDispatcherWorker for ${chainId} not exists, skipping.`);
+        continue;
+      }
+
+      const {deviationInterval} = (<Record<string, BlockDispatcherSettings>>(
+        settings.jobs.blockDispatcher
+      ))[chainId];
+
+      setInterval(async () => scheduleDispatching(deviationDispatcherWorker, 'deviation-dispatcher', chainId), deviationInterval);
+    }
+  } else {
+    logger.info('[Scheduler] DeviationLeaderWorker skipped');
   }
 })();

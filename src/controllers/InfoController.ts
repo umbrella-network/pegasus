@@ -46,6 +46,7 @@ class InfoController {
     response.send({
       feedsOnChain: this.settings.feedsOnChain,
       feedsFile: this.settings.feedsFile,
+      deviationFeedsFile: this.settings.deviationTrigger.feedsFile,
       validator: validatorAddress,
       contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
       chainContractAddress: chainContractAddress,

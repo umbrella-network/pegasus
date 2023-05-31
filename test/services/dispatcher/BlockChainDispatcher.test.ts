@@ -19,7 +19,7 @@ import {getTestContainer} from '../../helpers/getTestContainer';
 import {ConsensusDataRepository} from '../../../src/repositories/ConsensusDataRepository';
 import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository';
 import {ChainContractRepository} from '../../../src/repositories/ChainContractRepository';
-import {BSCBlockDispatcher} from '../../../src/services/dispatcher/BSCBlockDispatcher';
+import {BSCBlockDispatcher} from '../../../src/services/dispatchers/networks/BSCBlockDispatcher';
 import ChainContract from '../../../src/contracts/ChainContract';
 import ConsensusData from '../../../src/models/ConsensusData';
 import {consensusDataFactory} from '../../mocks/factories/consensusDataFactory';
@@ -287,7 +287,7 @@ describe('BlockChainDispatcher', () => {
         });
 
         it('retries submitTx with different nonce', async () => {
-          const submitTxSpy = sinon.spy(bscBlockDispatcher, <any>'submitTx');
+          const submitTxSpy = sinon.spy(bscBlockDispatcher, <any>'sendTx');
           const loggerSpy = sinon.spy(mockedLogger, 'warn');
           await bscBlockDispatcher.apply();
 

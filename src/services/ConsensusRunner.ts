@@ -10,14 +10,14 @@ import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
 import Leaf from '../types/Leaf';
 import {BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
-import {Consensus, ConsensusStatus, DataForConsensus} from '../types/Consensus';
+import {Consensus, ConsensusStatus, DataForConsensus, LeavesAndFeeds} from '../types/Consensus';
 import Settings from '../types/Settings';
 import {KeyValues, SignedBlock} from '../types/SignedBlock';
 import {Validator} from '../types/Validator';
 import {ValidatorsResponses} from '../types/ValidatorsResponses';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
 import {FeedDataService} from './FeedDataService';
-import {HexStringWith0x} from '../types/Feed';
+import {FeedsType, HexStringWith0x} from '../types/Feed';
 import {SimpleConsensusResolver} from './consensus/SimpleConsensusResolver';
 import {OptimizedConsensusResolver} from './consensus/OptimizedConsensusResolver';
 import {sleep} from '../utils/sleep';
@@ -41,9 +41,14 @@ class ConsensusRunner {
     staked: BigNumber,
     requiredSignatures: number,
   ): Promise<Consensus | null> {
-    let {firstClassLeaves, leaves} = await this.feedDataService.getLeavesAndFeeds(dataTimestamp);
+    let {firstClassLeaves, leaves} = (await this.feedDataService.apply(
+      dataTimestamp,
+      FeedsType.CONSENSUS,
+    )) as LeavesAndFeeds;
+
     let maxLeafKeyCount!: number;
     let maxFcdKeyCount!: number;
+
     const maxRetries = this.settings.consensus.retries;
 
     for (let i = 1; i <= maxRetries; i++) {

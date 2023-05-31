@@ -38,7 +38,11 @@ class PolygonIOPriceInitializer {
   }
 
   async allPairs(): Promise<[string[], Pair[]]> {
-    return PolygonIOPriceInitializer.allPairs(this.settings.feedsFile, this.settings.feedsOnChain);
+    return PolygonIOPriceInitializer.allPairs(
+      this.settings.feedsFile,
+      this.settings.feedsOnChain,
+      this.settings.deviationTrigger.feedsFile,
+    );
   }
 
   static async allPairs(...files: string[]): Promise<[string[], Pair[]]> {
