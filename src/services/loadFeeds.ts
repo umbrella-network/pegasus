@@ -33,6 +33,10 @@ export function isUrl(path: string): boolean {
 }
 
 async function processYaml(feedData: string, ignoreInvalid = true): Promise<Feeds> {
+  if (!feedData) {
+    return {};
+  }
+
   const [feeds]: any = loadAll(feedData); // eslint-disable-line
   const result = new Validator().validate(feeds, FeedsSchema);
   if (!result.valid) {
