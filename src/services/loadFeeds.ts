@@ -3,15 +3,25 @@ import {Validator} from 'jsonschema';
 import {loadAll} from 'js-yaml';
 import axios from 'axios';
 import schedule from 'node-schedule';
+import {Logger} from 'winston';
 
 import Feeds from '../types/Feed';
 import FeedsSchema from '../config/feeds-schema';
 import settings from '../config/settings';
+import Application from '../lib/Application';
 
 const urlCache = createUrlCache(processYaml, settings.feedsCacheRefreshCronRule);
 
 export default async function loadFeeds(filePath: string): Promise<Feeds> {
-  return isUrl(filePath) ? await urlCache.loadFromURL(filePath) : await processYaml(await loadFromFile(filePath), true);
+  try {
+    return isUrl(filePath)
+      ? await urlCache.loadFromURL(filePath)
+      : await processYaml(await loadFromFile(filePath), true);
+  } catch (e) {
+    const logger: Logger = Application.get('Logger');
+    logger.error(`something wrong with: ${filePath}`);
+    throw e;
+  }
 }
 
 export function isUrl(path: string): boolean {

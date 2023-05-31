@@ -231,7 +231,7 @@ const settings: Settings = {
     },
     feedsFile:
       process.env.DEVIATION_FEEDS_FILE ||
-      'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/onChainDeviation128.8.yaml',
+      'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/onChainData128.8.yaml',
   },
 };
 
