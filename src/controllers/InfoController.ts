@@ -33,8 +33,9 @@ class InfoController {
   };
 
   info = async (request: Request, response: Response): Promise<void> => {
-    const [validatorP, chainContractP, networkP] = await Promise.allSettled([
+    const [validatorP, deviationDispatcher, chainContractP, networkP] = await Promise.allSettled([
       this.blockchain.wallet.getAddress(),
+      this.blockchain.deviationWallet?.getAddress(),
       this.chainContract.resolveAddress(),
       this.blockchain.provider.getNetwork(),
     ]);
@@ -48,6 +49,7 @@ class InfoController {
       feedsFile: this.settings.feedsFile,
       deviationFeedsFile: this.settings.deviationTrigger.feedsFile,
       validator: validatorAddress,
+      deviationDispatcher: deviationDispatcher.status == 'fulfilled' ? deviationDispatcher?.value : undefined,
       contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
       chainContractAddress: chainContractAddress,
       uniswap: {
