@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import Bull from 'bullmq';
 
-import {BlockChainDispatcher} from '../services/dispatcher/BlockChainDispatcher';
+import {BlockChainDispatcher} from '../services/dispatchers/BlockChainDispatcher';
 import {ChainsIds} from '../types/ChainsIds';
 import BasicWorker from './BasicWorker';
 

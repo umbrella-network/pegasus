@@ -21,6 +21,7 @@ class Blockchain {
   chainSettings!: BlockchainSettings;
   provider!: ethers.providers.StaticJsonRpcProvider;
   wallet!: Wallet;
+  deviationWallet: Wallet | undefined;
   providersUrls!: string[];
   selectionStrategy!: string;
 
@@ -37,6 +38,11 @@ class Blockchain {
     }
 
     this.wallet = new Wallet(settings.blockchain.provider.privateKey, this.provider);
+
+    if (settings.blockchain.provider.deviationPrivateKey) {
+      this.deviationWallet = new Wallet(settings.blockchain.provider.deviationPrivateKey, this.provider);
+    }
+
     this.selectionStrategy = settings.rpcSelectionStrategy;
   }
 
@@ -57,6 +63,11 @@ class Blockchain {
 
   async getBlockNumber(): Promise<number> {
     return this.provider.getBlockNumber();
+  }
+
+  async networkId(): Promise<number> {
+    const network = await this.provider.getNetwork();
+    return network.chainId;
   }
 
   async getBlockTimestamp(): Promise<number> {

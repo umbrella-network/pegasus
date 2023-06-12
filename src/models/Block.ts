@@ -1,10 +1,11 @@
-import {index, prop} from '@typegoose/typegoose';
+import {index, modelOptions, prop, Severity} from '@typegoose/typegoose';
 import {SchemaTypes} from 'mongoose';
 import {HexStringWith0x} from '../types/custom';
 
 @index({timestamp: -1})
 @index({dataTimestamp: -1})
 @index({blockId: -1}, {unique: false})
+@modelOptions({options: {allowMixed: Severity.ALLOW}})
 class Block {
   @prop()
   _id!: string;

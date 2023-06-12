@@ -33,7 +33,11 @@ class CryptoCompareWSInitializer {
   }
 
   async allPairs(): Promise<Pair[]> {
-    return CryptoCompareWSInitializer.allPairs(this.settings.feedsFile, this.settings.feedsOnChain);
+    return CryptoCompareWSInitializer.allPairs(
+      this.settings.feedsFile,
+      this.settings.feedsOnChain,
+      this.settings.deviationTrigger.feedsFile,
+    );
   }
 
   static async allPairs(...files: string[]): Promise<Pair[]> {

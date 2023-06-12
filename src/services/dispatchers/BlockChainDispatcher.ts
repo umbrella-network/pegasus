@@ -1,16 +1,14 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {BSCBlockDispatcher} from './BSCBlockDispatcher';
+import {BSCBlockDispatcher} from './networks/BSCBlockDispatcher';
 import {IBlockChainDispatcher} from './IBlockChainDispatcher';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository';
-import Settings from '../../types/Settings';
 import {ChainsIds} from '../../types/ChainsIds';
-import Blockchain from '../../lib/Blockchain';
-import {AvalancheBlockDispatcher} from './AvalancheBlockDispatcher';
-import {PolygonBlockDispatcher} from './PolygonBlockDispatcher';
-import {ArbitrumBlockDispatcher} from './ArbitrumBlockDispatcher';
-import {EthereumBlockDispatcher} from './EthereumBlockDispatcher';
+import {AvalancheBlockDispatcher} from './networks/AvalancheBlockDispatcher';
+import {PolygonBlockDispatcher} from './networks/PolygonBlockDispatcher';
+import {ArbitrumBlockDispatcher} from './networks/ArbitrumBlockDispatcher';
+import {EthereumBlockDispatcher} from './networks/EthereumBlockDispatcher';
 
 export type BlockChainDispatcherProps = {
   chainId: ChainsIds;
@@ -18,11 +16,9 @@ export type BlockChainDispatcherProps = {
 
 @injectable()
 export class BlockChainDispatcher {
-  private readonly dispatchers: {[key: string]: IBlockChainDispatcher};
+  protected readonly dispatchers: {[key: string]: IBlockChainDispatcher};
   @inject('Logger') logger!: Logger;
-  @inject(Blockchain) blockchain!: Blockchain;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
-  @inject('Settings') private readonly settings!: Settings;
 
   constructor(
     @inject(BSCBlockDispatcher) bscBlockDispatcher: BSCBlockDispatcher,
@@ -54,5 +50,9 @@ export class BlockChainDispatcher {
       this.logger.error(e);
       return;
     }
+  }
+
+  exists(chainId: ChainsIds): boolean {
+    return this.dispatchers[chainId] !== undefined;
   }
 }

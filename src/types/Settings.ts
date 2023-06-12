@@ -24,6 +24,7 @@ export type BlockchainInfoSettings = {
 
 export type BlockDispatcherSettings = {
   interval: number;
+  deviationInterval: number;
 };
 
 type Settings = {
@@ -76,6 +77,7 @@ type Settings = {
     provider: {
       urls: string[];
       privateKey: string;
+      deviationPrivateKey?: string;
     };
     masterChain: {
       chainId: ChainsIds;
@@ -83,6 +85,9 @@ type Settings = {
     providers: {[name: string]: string};
     contracts: {
       chain: {
+        name: string;
+      };
+      feeds: {
         name: string;
       };
       registry: {
@@ -152,6 +157,15 @@ type Settings = {
   version: string;
   environment?: string;
   name: string;
+  deviationTrigger: {
+    leader?: boolean;
+    interval: number;
+    lock: {
+      name: string;
+      ttl: number;
+    };
+    feedsFile: string;
+  };
 };
 
 export default Settings;

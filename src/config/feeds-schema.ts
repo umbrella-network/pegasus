@@ -11,9 +11,13 @@ export default {
   definitions: {
     feed: {
       properties: {
+        heartbeat: {type: 'number'},
+        trigger: {type: 'number'},
         discrepancy: {type: 'number'},
         precision: {type: 'number'},
+        interval: {type: 'number'},
         inputs: {type: 'array', minItems: 1, items: {$ref: '#/definitions/input'}},
+        chains: {type: 'array', minItems: 1},
       },
       required: ['discrepancy', 'precision', 'inputs'],
       additionalProperties: false,

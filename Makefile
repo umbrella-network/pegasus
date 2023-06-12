@@ -59,6 +59,8 @@ publish-bsc1:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-feeddata-worker-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-feedwsdata-worker-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-feedwsdata-worker-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-deviation-leader-worker-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-deviation-leader-worker-bsc01 -n dev
 
 publish-bsc2:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc02 -n dev
@@ -77,6 +79,8 @@ publish-bsc2:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-feeddata-worker-bsc02 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-feedwsdata-worker-bsc02 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-feedwsdata-worker-bsc02 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-deviation-leader-worker-bsc02 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-deviation-leader-worker-bsc02 -n dev
 
 publish-sbx1:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc01 -n sandbox
