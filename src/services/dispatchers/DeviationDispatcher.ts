@@ -43,13 +43,14 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       return;
     }
 
-    await this.checkBalanceIsEnough(this.blockchain.deviationWallet);
     const consensus = await this.consensusRepository.read(this.chainId);
 
     if (!consensus) {
       this.logger.info(`${this.logPrefix} no consensus data found to dispatch`);
       return;
     }
+
+    await this.checkBalanceIsEnough(this.blockchain.deviationWallet);
 
     if (await this.triggerTxChecker.apply(this.chainId, consensus.dataTimestamp)) {
       this.logger.info(`${this.logPrefix} Feeds for ${consensus.dataTimestamp} already submitted`);
