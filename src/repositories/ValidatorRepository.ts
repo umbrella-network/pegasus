@@ -11,7 +11,7 @@ export class ValidatorRepository {
   @inject('Logger') logger!: Logger;
 
   async list(): Promise<Validator[]> {
-    this.logger.info('[ValidatorRepository] pulling cached list of validators');
+    this.logger.debug('[ValidatorRepository] pulling cached list of validators');
     const list = await getModelForClass(CachedValidator).find().sort({contractIndex: 1}).exec();
 
     return list.map((data): Validator => {

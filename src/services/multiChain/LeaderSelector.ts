@@ -1,5 +1,3 @@
-import {ChainStatus} from '../../types/ChainStatus';
-
 /*
   leader is selected in predictable, circular way,
   for provider `consensusTimestamp` leader will be always the same (edge case is when we change padding or validators)

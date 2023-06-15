@@ -52,6 +52,16 @@ export class FeedDataService {
   ): Promise<DeviationLeavesAndFeeds> {
     const feeds = await this.feedRepository.getDeviationTriggerFeeds(filter);
     const filteredFeeds = await this.intervalTriggerFilter.apply(dataTimestamp, feeds);
+
+    if (Object.keys(filteredFeeds).length == 0) {
+      this.logger.info(`[FeedDataService] intervalTriggerFilter@${dataTimestamp}`);
+
+      return {
+        leaves: [],
+        feeds: {},
+      };
+    }
+
     const [deviationLeaves] = await this.feedProcessor.apply(dataTimestamp, ...[filteredFeeds]);
 
     const leaves = this.ensureProperLabelLength(deviationLeaves);

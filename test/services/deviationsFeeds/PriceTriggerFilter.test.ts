@@ -54,13 +54,11 @@ describe('PriceTriggerFilter', () => {
 
       const leaf: Leaf = {label: 'ETH-USD', valueBytes: '0x12345678910'};
 
-      const result = priceTriggerFilter.apply(feed, leaf, priceData);
+      const {result} = priceTriggerFilter.apply(feed, leaf, priceData);
       expect(result).to.be.eql(false);
     });
 
     it('should return false if priceDiff is not triggered', () => {
-      const loggerSpy = sinon.spy(mockedLogger, 'info');
-
       const priceData: PriceData = {
         price: 125n,
         heartbeat: 55,
@@ -68,32 +66,26 @@ describe('PriceTriggerFilter', () => {
         data: 50,
       };
 
-      const leaf: Leaf = {label: 'ETH-USD', valueBytes: '0x11345678910'};
+      const leaf: Leaf = {label: 'ETH-USD', valueBytes: `0x${(125e10 * 2 - 1e8).toString(16)}`};
 
-      const result = priceTriggerFilter.apply(feed, leaf, priceData);
+      const {result, msg} = priceTriggerFilter.apply(feed, leaf, priceData);
       expect(result).to.be.eql(false);
-
-      expect(loggerSpy.calledWithExactly(sinon.match(`[PriceTriggerFilter] ETH-USD priceDiff not triggered 7:125`))).to
-        .be.true;
+      expect(msg).to.be.eql('ETH-USD: low priceDiff 124@99.2%:100%');
     });
 
     it('should return true if priceDiff is triggered', () => {
-      const loggerSpy = sinon.spy(mockedLogger, 'info');
-
       const priceData: PriceData = {
-        price: 125n,
+        price: BigInt(125e8),
         heartbeat: 55,
         timestamp: 1683807742,
         data: 50,
       };
 
-      const leaf: Leaf = {label: 'ETH-USD', valueBytes: '0x1234567891011'};
+      const leaf: Leaf = {label: 'ETH-USD', valueBytes: `0x${(125e18*2).toString(16)}`};
 
-      const result = priceTriggerFilter.apply(feed, leaf, priceData);
+      const {result, msg} = priceTriggerFilter.apply(feed, leaf, priceData);
+      expect(msg).to.eql('ETH-USD: 12500000000 =(100%)=> 25000000000');
       expect(result).to.be.eql(true);
-
-      expect(loggerSpy.calledWithExactly(sinon.match(`[PriceTriggerFilter] ETH-USD priceDiff not triggered 31900:125`)))
-        .to.be.false;
     });
   });
 });

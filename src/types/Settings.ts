@@ -158,8 +158,8 @@ type Settings = {
   environment?: string;
   name: string;
   deviationTrigger: {
-    leader?: boolean;
-    interval: number;
+    roundLengthSeconds: number;
+    leaderInterval: number;
     lock: {
       name: string;
       ttl: number;

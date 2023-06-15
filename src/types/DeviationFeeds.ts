@@ -67,4 +67,13 @@ export type UmbrellaFeedsUpdateArgs = {
   signatures: Signature[];
 };
 
-export type OnChainMetadataType = [ChainsIds, number, string];
+export type OnChainMetadataType = [chainId: ChainsIds, networkId: number, contractAddress: string];
+
+export interface FilterResult {
+  result: boolean;
+  msg?: string;
+}
+
+export interface FilterResultWithKey extends FilterResult {
+  key: string;
+}

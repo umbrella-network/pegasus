@@ -17,6 +17,10 @@ import {TriggerTxChecker} from "../SubmitMonitor/TriggerTxChecker";
 import {TriggerSaver} from "../SubmitMonitor/TriggerSaver";
 import { Signature, UmbrellaFeedsUpdateArgs} from "../../types/DeviationFeeds";
 import {DeviationConsensus} from "../../models/DeviationConsensus";
+import {sleep} from "../../utils/sleep";
+import {DeviationLeaderSelector} from "../deviationsFeeds/DeviationLeaderSelector";
+import {ValidatorRepository} from "../../repositories/ValidatorRepository";
+import TimeService from "../TimeService";
 
 @injectable()
 export abstract class DeviationDispatcher extends Dispatcher implements IDeviationFeedsDispatcher {
@@ -26,6 +30,9 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
   @inject(TriggerSaver) triggerSaver!: TriggerSaver;
   @inject(DeviationTriggerConsensusRepository) consensusRepository!: DeviationTriggerConsensusRepository;
   @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
+  @inject(DeviationLeaderSelector) deviationLeaderSelector!: DeviationLeaderSelector;
+  @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
+  @inject(TimeService) timeService!: TimeService;
 
   protected feedsContract!: FeedContract;
   protected logPrefix = '[DeviationDispatcher]';
@@ -39,7 +46,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
 
   apply = async (): Promise<void> => {
     if (!this.blockchain.deviationWallet) {
-      this.logger.warn(`${this.logPrefix} no wallet`);
+      this.logger.error(`${this.logPrefix} no wallet`);
       return;
     }
 
@@ -47,6 +54,12 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
 
     if (!consensus) {
       this.logger.info(`${this.logPrefix} no consensus data found to dispatch`);
+      return;
+    }
+
+    if (!await this.amILeader()) {
+      this.logger.info(`${this.logPrefix} I'm not a leader atm`);
+      await this.consensusRepository.delete(this.chainId)
       return;
     }
 
@@ -70,8 +83,18 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       ]);
     } else {
       this.logger.warn(`${this.logPrefix} Consensus ${consensus.dataTimestamp} was not saved on blockchain`);
+      await sleep(15_000); // slow down execution
     }
   };
+
+  protected async amILeader(): Promise<boolean> {
+    const dataTimestamp = this.timeService.apply();
+    const validators = await this.validatorRepository.list();
+
+    if (validators.length === 0) throw new Error('validators list is empty');
+
+    return this.deviationLeaderSelector.apply(dataTimestamp, validators.map(v => v.id));
+  }
 
   protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
     const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
@@ -101,7 +124,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
 
     const payableOverrides = await this.calculatePayableOverrides({data: updateFeedsArgs});
 
-    this.logger.info(`${this.logPrefix} sending updating tx ${JSON.stringify(payableOverrides)}`);
+    this.logger.info(`${this.logPrefix} updating tx ${JSON.stringify(payableOverrides)}`);
 
     const fn = () => this.feedsContract.update(updateFeedsArgs, payableOverrides);
 

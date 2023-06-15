@@ -7,10 +7,8 @@ import Settings from 'src/types/Settings';
 @injectable()
 abstract class BasicWorker {
   @inject('Logger') logger!: Logger;
-  @inject('Redis')
-  connection!: Redis;
-  @inject('Settings')
-  settings!: Settings;
+  @inject('Redis') connection!: Redis;
+  @inject('Settings') settings!: Settings;
 
   #queueName!: string;
   #queue!: Bull.Queue;
