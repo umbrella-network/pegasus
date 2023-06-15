@@ -50,8 +50,6 @@ export class DeviationConsensusRunner {
       if (i < maxRetries && discrepantKeys.size > 0) {
         this.logger.info(`[DCR] Dumping discrepancy data (${discrepantCount}): ${Array.from(discrepantKeys).join(', ')}`);
         dataForConsensus = DeviationDataToSignFilter.apply(dataForConsensus, discrepantKeys);
-      } else {
-        return null;
       }
     }
 
@@ -93,6 +91,11 @@ export class DeviationConsensusRunner {
     round: number;
   }): void {
     const {leafKeyCount, maxLeafKeyCount, consensuses} = props;
+    if (consensuses.length == 0) {
+      this.logger.info(`[DCR] Round ${props.round}/${props.maxRounds} - no consensus`);
+      return;
+    }
+
     const consensusYield = maxLeafKeyCount == 0 ? 0.0 : Math.round(leafKeyCount * 1000 / maxLeafKeyCount) / 1000;
 
     const msg = [

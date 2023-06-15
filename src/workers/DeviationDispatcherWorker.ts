@@ -18,7 +18,7 @@ export class DeviationDispatcherWorker extends BasicWorker {
     try {
       this.logger.info(`[${chainId}] Starting Deviation Feeds Dispatcher`);
       await this.dispatcher.apply({chainId});
-      this.logger.info(`[${chainId}] Deviation Feeds Dispatcher Complete`);
+      this.logger.debug(`[${chainId}] Deviation Feeds Dispatcher Complete`);
     } catch (e: unknown) {
       throw new Error(`[${chainId}] ${(e as Error).message}`);
     }

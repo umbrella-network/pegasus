@@ -1,29 +1,30 @@
-import {inject, injectable} from 'inversify';
-import {Logger} from 'winston';
+import {injectable} from 'inversify';
 
 import Leaf from '../../types/Leaf';
-import {DeviationFeed, PriceData} from '../../types/DeviationFeeds';
+import {DeviationFeed, FilterResult, PriceData} from '../../types/DeviationFeeds';
 
 @injectable()
 export class PriceTriggerFilter {
-  @inject('Logger') logger!: Logger;
-
-  apply(deviationFeed: DeviationFeed, leaf: Leaf, priceData: PriceData): boolean {
-    const priceDiff = this.abs(this.currentPrice(leaf) - priceData.price);
+  apply(deviationFeed: DeviationFeed, leaf: Leaf, priceData: PriceData): FilterResult {
+    const newPrice = this.currentPrice(leaf);
+    const priceDiff = this.abs(newPrice - priceData.price);
+    const percent = Number(priceDiff * 10000n / priceData.price) / 100;
 
     if (priceDiff === 0n) {
-      this.logger.info(`[PriceTriggerFilter] ${leaf.label} price is flat`);
-      return false;
+      return {result: false, msg: `${leaf.label}: flat price`};
     }
 
     const trigger = this.triggerAmount(priceData.price, deviationFeed.trigger);
     const triggerFired = priceDiff >= trigger;
+    let msg = '';
 
-    if (!triggerFired) {
-      this.logger.info(`[PriceTriggerFilter] ${leaf.label} priceDiff not triggered ${priceDiff}:${trigger}`);
+    if (triggerFired) {
+      msg = `${leaf.label}: ${priceData.price} =(${percent}%)=> ${newPrice}`;
+    } else {
+      msg = `${leaf.label}: low priceDiff ${priceDiff}@${percent}%:${deviationFeed.trigger}%`;
     }
 
-    return triggerFired;
+    return {result: triggerFired, msg};
   }
 
   protected currentPrice(leaf: Leaf): bigint {

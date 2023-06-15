@@ -2,11 +2,11 @@ import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
 import BasicWorker from './BasicWorker';
-import {DeviationTrigger} from '../services/deviationsFeeds/DeviationTrigger';
+import {DeviationLeader} from '../services/deviationsFeeds/DeviationLeader';
 
 @injectable()
 export class DeviationLeaderWorker extends BasicWorker {
-  @inject(DeviationTrigger) deviationTrigger!: DeviationTrigger;
+  @inject(DeviationLeader) deviationLeader!: DeviationLeader;
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
     const isLocked = await this.connection.get(this.settings.deviationTrigger.lock.name);
     if (isLocked) return;
@@ -17,25 +17,20 @@ export class DeviationLeaderWorker extends BasicWorker {
   apply = async (job: Bull.Job): Promise<void> => {
     // CryptoCompareWSInitializer and PolygonIOPriceInitializer are started in BlockMintingWorker
     // we need them for providing prices
-    const {lock, leader} = this.settings.deviationTrigger;
-
-    if (!leader) {
-      this.logger.info(`[DeviationLeaderWorker] not a leader`);
-      return;
-    }
+    const {lock} = this.settings.deviationTrigger;
 
     if (this.isStale(job)) return;
 
     const unlocked = await this.connection.set(lock.name, 'lock', 'EX', lock.ttl, 'NX');
 
     if (!unlocked) {
-      this.logger.info(`[DeviationLeaderWorker] apply for job but job !unlocked`);
+      this.logger.error(`[DeviationLeaderWorker] apply for job but job !unlocked`);
       return;
     }
 
     try {
-      this.logger.info(`[DeviationLeaderWorker] job run at ${new Date().toISOString()}`);
-      await this.deviationTrigger.apply();
+      this.logger.debug(`[DeviationLeaderWorker] job run at ${new Date().toISOString()}`);
+      await this.deviationLeader.apply();
     } catch (e) {
       this.logger.error(e);
     } finally {
@@ -45,7 +40,7 @@ export class DeviationLeaderWorker extends BasicWorker {
 
   isStale = (job: Bull.Job): boolean => {
     const age = new Date().getTime() - job.timestamp;
-    return age > this.settings.deviationTrigger.interval;
+    return age > this.settings.deviationTrigger.leaderInterval;
   };
 
   start = (): void => {

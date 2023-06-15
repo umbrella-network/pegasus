@@ -87,32 +87,28 @@ import {ChainsIds} from "./types/ChainsIds";
     setInterval(async () => scheduleDispatching(blockDispatcherWorker, 'dispatcher', chainId), blockDispatcherSettings.interval);
   }
 
-  if (settings.deviationTrigger.leader) {
-    setInterval(async () => {
-      logger.info('[Scheduler] Scheduling DeviationLeaderWorker');
+  setInterval(async () => {
+    logger.info('[Scheduler] Scheduling DeviationLeaderWorker');
 
-      await deviationLeaderWorker.enqueue(
-        {},
-        {
-          removeOnComplete: true,
-          removeOnFail: true,
-        },
-      );
-    }, settings.deviationTrigger.interval);
+    await deviationLeaderWorker.enqueue(
+      {},
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
+    );
+  }, settings.deviationTrigger.leaderInterval);
 
-    for (const chainId of Object.keys(settings.blockchain.multiChains)) {
-      if (!deviationDispatcherWorker.dispatcher.exists(chainId as ChainsIds)) {
-        logger.info(`[${chainId}] DeviationDispatcherWorker for ${chainId} not exists, skipping.`);
-        continue;
-      }
-
-      const {deviationInterval} = (<Record<string, BlockDispatcherSettings>>(
-        settings.jobs.blockDispatcher
-      ))[chainId];
-
-      setInterval(async () => scheduleDispatching(deviationDispatcherWorker, 'deviation-dispatcher', chainId), deviationInterval);
+  for (const chainId of Object.keys(settings.blockchain.multiChains)) {
+    if (!deviationDispatcherWorker.dispatcher.exists(chainId as ChainsIds)) {
+      logger.info(`[${chainId}] DeviationDispatcherWorker for ${chainId} not exists, skipping.`);
+      continue;
     }
-  } else {
-    logger.info('[Scheduler] DeviationLeaderWorker skipped');
+
+    const {deviationInterval} = (<Record<string, BlockDispatcherSettings>>(
+      settings.jobs.blockDispatcher
+    ))[chainId];
+
+    setInterval(async () => scheduleDispatching(deviationDispatcherWorker, 'deviation-dispatcher', chainId), deviationInterval);
   }
 })();

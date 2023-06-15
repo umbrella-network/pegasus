@@ -35,7 +35,6 @@ export class DeviationFeedsDispatcher {
 
   async apply(props: DeviationFeedsDispatcherProps): Promise<void> {
     const {chainId} = props;
-    this.logger.info(`[${chainId}] DeviationFeedsDispatcher initialized`);
 
     try {
       const {chainId} = props;

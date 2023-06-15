@@ -223,8 +223,8 @@ const settings: Settings = {
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
   name: process.env.NEW_RELIC_APP_NAME || process.env.NAME || 'default',
   deviationTrigger: {
-    leader: !!process.env.DEVIATION_LEADER,
-    interval: getTimeSetting(parseInt(process.env.DEVIATION_JOB_INTERVAL || '60000'), 5000),
+    roundLengthSeconds: getTimeSetting(parseInt(process.env.DEVIATION_ROUND_LENGTH || '60'), 30),
+    leaderInterval: getTimeSetting(parseInt(process.env.DEVIATION_JOB_INTERVAL || '5000'), 5000),
     lock: {
       name: process.env.DEVIATION_LOCK_NAME || 'lock::DeviationTrigger',
       ttl: getTimeSetting(parseInt(process.env.DEVIATION_LOCK_TTL || '60'), 60),
@@ -332,7 +332,7 @@ function resolveBlockDispatcherSettings(): Partial<Record<ChainsIds, BlockDispat
         process.env[`${chain}_DISPATCHER_INTERVAL`] || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
         10,
       ),
-      deviationInterval: parseInt(process.env[`${chain}_DEVIATION_DISPATCHER_INTERVAL`] || '25000', 10),
+      deviationInterval: parseInt(process.env[`${chain}_DEVIATION_DISPATCHER_INTERVAL`] || '5000', 10),
     };
   }
 
