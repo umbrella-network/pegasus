@@ -7,13 +7,15 @@ import {ValidatorRepository} from "../../repositories/ValidatorRepository";
 import {FeedsContractRepository} from "../../repositories/FeedsContractRepository";
 import {DeviationTriggerConsensusRepository} from "../../repositories/DeviationTriggerConsensusRepository";
 import Blockchain from "../../lib/Blockchain";
-import Settings from "../../types/Settings";
+import Settings, {BlockchainType} from "../../types/Settings";
 import {DeviationTrigger} from "./DeviationTrigger";
 import {FeedsType} from "../../types/Feed";
 import {DeviationLeavesAndFeeds} from "../../types/DeviationFeeds";
 import {FeedDataService} from "../FeedDataService";
 import {DeviationLeaderSelector} from "./DeviationLeaderSelector";
 import {DeviationTriggerLastIntervals} from "../../repositories/DeviationTriggerLastIntervals";
+import {sleep} from "../../utils/sleep";
+import {BalanceMonitorChecker} from "../balanceMonitor/BalanceMonitorChecker";
 
 @injectable()
 export class DeviationLeader {
@@ -29,8 +31,23 @@ export class DeviationLeader {
   @inject(DeviationTrigger) deviationTrigger!: DeviationTrigger;
   @inject(DeviationLeaderSelector) deviationLeaderSelector!: DeviationLeaderSelector;
   @inject(DeviationTriggerLastIntervals) deviationTriggerLastIntervals!: DeviationTriggerLastIntervals;
+  @inject(BalanceMonitorChecker) balanceMonitorChecker!: BalanceMonitorChecker;
 
   async apply(): Promise<void> {
+    const walletAddress = this.blockchain.deviationWallet?.address;
+
+    if (!walletAddress) {
+      this.logger.error(`[DeviationLeader] empty wallet`);
+      await sleep(60_000); // slow down execution
+      return;
+    }
+
+    if (!(await this.balanceMonitorChecker.apply(BlockchainType.ON_CHAIN, walletAddress))) {
+      this.logger.error(`[DeviationLeader] There is not enough balance in any of the chains for ${walletAddress}`);
+      await sleep(60_000); // slow down execution
+      return;
+    }
+
     const dataTimestamp = this.timeService.apply();
     const [validators, pendingChains] = await Promise.all([
       this.validatorRepository.list(),

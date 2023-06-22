@@ -15,7 +15,7 @@ import ChainContract from '../../src/contracts/ChainContract';
 import ConsensusRunner from '../../src/services/ConsensusRunner';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
-import Settings from '../../src/types/Settings';
+import Settings, {BlockchainType} from '../../src/types/Settings';
 import Leaf from '../../src/types/Leaf';
 import Block from '../../src/models/Block';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
@@ -94,6 +94,11 @@ describe('BlockMinter', () => {
         },
         masterChain: {
           chainId: 'bsc',
+        },
+        multiChains: {
+          bsc: {
+            type: [BlockchainType.LAYER2],
+          },
         },
       },
     } as Settings;

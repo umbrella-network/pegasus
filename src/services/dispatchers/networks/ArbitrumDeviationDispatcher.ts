@@ -14,7 +14,6 @@ export class ArbitrumDeviationDispatcher extends DeviationDispatcher {
     return undefined;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async calculatePayableOverrides(props?: {nonce?: number, data?: unknown}): Promise<PayableOverrides> {
     // for unknown reason, when we let provider resolve gas limit automatically, it does not work 
     // when we call estimation manually and use result it does work

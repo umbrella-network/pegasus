@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 
-import Settings from '../types/Settings';
+import Settings, {BlockchainType} from '../types/Settings';
 import {ChainsIds} from '../types/ChainsIds';
 import {BlockchainRepository} from './BlockchainRepository';
 import {Logger} from 'winston';
@@ -22,6 +22,12 @@ export class FeedsContractRepository {
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
 
     keys.forEach((chainId) => {
+      if (!settings.blockchain.multiChains[chainId]?.type.includes(BlockchainType.ON_CHAIN)) {
+        console.warn(`[FeedsContractCollection] Blockchain ${chainId} is not ${BlockchainType.ON_CHAIN}`);
+        this.collection[chainId] = undefined;
+        return;
+      }
+
       try {
         const blockchain = blockchainRepository.get(chainId);
 

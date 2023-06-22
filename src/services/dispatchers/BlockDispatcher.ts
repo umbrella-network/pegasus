@@ -53,6 +53,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
       return;
     }
 
+    // NOTICE: KEEP this check at begin, otherwise block minter will be locked
     await this.checkBalanceIsEnough(this.blockchain.wallet);
     const consensus = await this.consensusDataRepository.read();
 

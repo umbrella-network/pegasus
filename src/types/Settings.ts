@@ -1,9 +1,17 @@
 import {ChainsIds} from './ChainsIds';
 import {SubmitMonitor} from './SubmitMonitor';
 
+export enum BlockchainType {
+  LAYER2 = 'LAYER2',
+  ON_CHAIN = 'ON_CHAIN',
+}
+
+export type BlockchainTypeKeys = keyof typeof BlockchainType;
+
 export type BlockchainSettings = {
   providerUrl?: string;
   contractRegistryAddress?: string;
+  type: BlockchainType[];
   transactions: {
     waitForBlockTime: number;
     minGasPrice: number;
