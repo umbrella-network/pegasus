@@ -51,6 +51,14 @@ export default class CoingeckoPriceMultiFetcher {
   }
 
   private assembleUrl(vsCurrencies: string[], coinIds: string[]): string {
+    if (vsCurrencies.length == 0) {
+      throw new Error('[CoingeckoPriceMultiFetcher] empty vsCurrencies');
+    }
+
+    if (coinIds.length == 0) {
+      throw new Error('[CoingeckoPriceMultiFetcher] empty coinIds');
+    }
+
     return `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=${vsCurrencies}`;
   }
 
