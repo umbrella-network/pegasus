@@ -1,5 +1,4 @@
 import {inject, injectable} from 'inversify';
-import {Promise} from "mongoose";
 
 import {OnChainMetadataType} from "../../types/DeviationFeeds";
 import {BlockchainRepository} from "../../repositories/BlockchainRepository";
@@ -26,6 +25,6 @@ export class DeviationChainMetadata {
       ]);
     }));
 
-    return onChainMetadata.filter((d: OnChainMetadataType | undefined) => !!d);
+    return onChainMetadata.filter(d => !!d) as OnChainMetadataType[];
   }
 }

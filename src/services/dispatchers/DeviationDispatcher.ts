@@ -1,10 +1,8 @@
 import {inject, injectable, postConstruct} from 'inversify';
 import newrelic from 'newrelic';
-import {GasEstimator} from '@umb-network/toolbox';
 import {TransactionResponse} from '@ethersproject/providers';
 import {ethers} from 'ethers';
 import {PayableOverrides} from "@ethersproject/contracts";
-import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
 
 import BlockRepository from '../../repositories/BlockRepository';
 import {MultichainArchitectureDetector} from '../MultichainArchitectureDetector';
@@ -17,6 +15,10 @@ import {TriggerTxChecker} from "../SubmitMonitor/TriggerTxChecker";
 import {TriggerSaver} from "../SubmitMonitor/TriggerSaver";
 import { Signature, UmbrellaFeedsUpdateArgs} from "../../types/DeviationFeeds";
 import {DeviationConsensus} from "../../models/DeviationConsensus";
+import {sleep} from "../../utils/sleep";
+import {DeviationLeaderSelector} from "../deviationsFeeds/DeviationLeaderSelector";
+import {ValidatorRepository} from "../../repositories/ValidatorRepository";
+import TimeService from "../TimeService";
 
 @injectable()
 export abstract class DeviationDispatcher extends Dispatcher implements IDeviationFeedsDispatcher {
@@ -26,6 +28,9 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
   @inject(TriggerSaver) triggerSaver!: TriggerSaver;
   @inject(DeviationTriggerConsensusRepository) consensusRepository!: DeviationTriggerConsensusRepository;
   @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
+  @inject(DeviationLeaderSelector) deviationLeaderSelector!: DeviationLeaderSelector;
+  @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
+  @inject(TimeService) timeService!: TimeService;
 
   protected feedsContract!: FeedContract;
   protected logPrefix = '[DeviationDispatcher]';
@@ -39,9 +44,18 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
 
   apply = async (): Promise<void> => {
     if (!this.blockchain.deviationWallet) {
-      this.logger.warn(`${this.logPrefix} no wallet`);
+      this.logger.error(`${this.logPrefix} no wallet`);
       return;
     }
+
+    if (!await this.amILeader()) {
+      this.logger.info(`${this.logPrefix} I'm not a leader atm`);
+      await this.consensusRepository.delete(this.chainId)
+      return;
+    }
+
+    // NOTICE: KEEP this check at begin, otherwise leader worker will be locked
+    await this.checkBalanceIsEnough(this.blockchain.deviationWallet);
 
     const consensus = await this.consensusRepository.read(this.chainId);
 
@@ -49,8 +63,6 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       this.logger.info(`${this.logPrefix} no consensus data found to dispatch`);
       return;
     }
-
-    await this.checkBalanceIsEnough(this.blockchain.deviationWallet);
 
     if (await this.triggerTxChecker.apply(this.chainId, consensus.dataTimestamp)) {
       this.logger.info(`${this.logPrefix} Feeds for ${consensus.dataTimestamp} already submitted`);
@@ -70,12 +82,17 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       ]);
     } else {
       this.logger.warn(`${this.logPrefix} Consensus ${consensus.dataTimestamp} was not saved on blockchain`);
+      await sleep(15_000); // slow down execution
     }
   };
 
-  protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
-    const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
-    return GasEstimator.apply(this.blockchain.provider, minGasPrice, maxGasPrice);
+  protected async amILeader(): Promise<boolean> {
+    const dataTimestamp = this.timeService.apply();
+    const validators = await this.validatorRepository.list();
+
+    if (validators.length === 0) throw new Error('validators list is empty');
+
+    return this.deviationLeaderSelector.apply(dataTimestamp, validators.map(v => v.id));
   }
 
   protected async updateFeedsTxData(consensus: DeviationConsensus): Promise<{
@@ -101,11 +118,15 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
 
     const payableOverrides = await this.calculatePayableOverrides({data: updateFeedsArgs});
 
-    this.logger.info(`${this.logPrefix} sending updating tx ${JSON.stringify(payableOverrides)}`);
+    this.logger.info(`${this.logPrefix} updating tx ${JSON.stringify(payableOverrides)}`);
 
     const fn = () => this.feedsContract.update(updateFeedsArgs, payableOverrides);
 
-    return {fn, payableOverrides, timeout: 120_000};
+    return {fn, payableOverrides, timeout: this.getTxTimeout()};
+  }
+
+  protected getTxTimeout(): number {
+    return 120_000;
   }
 
   protected async send(consensus: DeviationConsensus): Promise<string | null> {

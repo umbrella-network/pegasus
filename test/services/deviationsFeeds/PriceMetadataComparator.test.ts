@@ -137,7 +137,7 @@ describe('PriceMetadataComparator', () => {
 
       expect(() => priceMetadataComparator.apply(dataToSign, localLeaves, localFeeds)).to.throw(
         Error,
-        /^\[PriceDataComparator\] expected TEST1: .* got .*$/,
+        /^\[PriceDataComparator] expected TEST1: .* got .*$/,
       );
     });
   });

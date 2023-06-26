@@ -95,7 +95,9 @@ publish-sbx1:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc01 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc01 -n sandbox
-	
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-deviation-leader-worker-bsc01 -n sandbox
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-deviation-leader-worker-bsc01 -n sandbox
+
 auth: assume login update-stg-kubeconfig
 
 sbx: auth build-sbx publish-sbx1

@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [7.8.0] - 2023-06-01
+## [7.10.0] - 2023-06-15
+### Added
+- add PolygonDeviationDispatcher
+
+### Changed
+- on-chain leader decentralisation
+- do not save intervals if you not a leader (each leader will check feed at least once)
+- do not run minter/leader if we can not dispatch
+- slow down fetching uniswap prices when no prices
+
+## [7.9.0] - 2023-06-01
 ### Added
 - On-Chain deviation feeds
 

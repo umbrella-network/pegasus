@@ -14,6 +14,7 @@ import {KeyValuesToLeaves} from "../tools/KeyValuesToLeaves";
 import {PriceMetadataComparator} from "./PriceMetadataComparator";
 import {DeviationSigner} from "./DeviationSigner";
 import {DeviationChainMetadata} from "./DeviationChainMetadata";
+import {DeviationTrigger} from "./DeviationTrigger";
 
 @injectable()
 export class DeviationVerifier {
@@ -24,6 +25,7 @@ export class DeviationVerifier {
   @inject(PriceMetadataComparator) priceDataComperator!: PriceMetadataComparator;
   @inject(DeviationSigner) deviationSigner!: DeviationSigner;
   @inject(DeviationChainMetadata) deviationChainMetadata!: DeviationChainMetadata;
+  @inject(DeviationTrigger) deviationTrigger!: DeviationTrigger;
 
   async apply(deviationDataToSign: DeviationDataToSign): Promise<DeviationSignerResponse> {
     await this.blockchain.setLatestProvider();
@@ -32,16 +34,26 @@ export class DeviationVerifier {
 
     this.logger.info(
       [
-        `[DeviationSigner] Request to sign a feeds at ${deviationDataToSign.dataTimestamp}`,
+        `[DeviationVerifier] Request to sign a feeds at ${deviationDataToSign.dataTimestamp}`,
         `with ${uniqueKeys.length} feeds`,
       ].join(' '),
     );
 
-    const {feeds, leaves} = (await this.feedDataService.apply(
+    // interval filter is applied in feedDataService
+    const data = (await this.feedDataService.apply(
       deviationDataToSign.dataTimestamp,
       FeedsType.DEVIATION_TRIGGER,
       uniqueKeys
     )) as DeviationLeavesAndFeeds;
+
+    const dataToUpdate = await this.deviationTrigger.apply(deviationDataToSign.dataTimestamp, data, undefined);
+
+    if (!dataToUpdate) {
+      this.logger.info('[DeviationVerifier] nothing is triggered');
+      return {discrepancies: [], error: 'nothing is triggered', version: this.settings.version};
+    }
+
+    const {feeds, leaves} = data;
 
     const discrepancies = DiscrepancyFinder.apply({
       proposedFcds: [],
@@ -53,8 +65,8 @@ export class DeviationVerifier {
     });
 
     if (discrepancies.length) {
-      this.logger.info(`[DeviationSigner] Cannot sign all feeds. Discrepancies found: ${discrepancies.length}`);
-      this.logger.debug(`[DeviationSigner] Discrepancies: ${JSON.stringify(discrepancies)}`);
+      this.logger.info(`[DeviationVerifier] Cannot sign all feeds. Discrepancies found: ${discrepancies.length}`);
+      this.logger.debug(`[DeviationVerifier] Discrepancies: ${JSON.stringify(discrepancies)}`);
       return {discrepancies, version: this.settings.version};
     }
 
@@ -64,7 +76,7 @@ export class DeviationVerifier {
     try {
        this.priceDataComperator.apply(deviationDataToSign, leaves, feeds);
     } catch (e) {
-      this.logger.error(`[DeviationSigner] priceDataComparator failed with ${(e as Error).message}`);
+      this.logger.error(`[DeviationVerifier] priceDataComparator failed with ${(e as Error).message}`);
       return {discrepancies: [], error: (e as Error).message, version: this.settings.version};
     }
 
@@ -74,6 +86,9 @@ export class DeviationVerifier {
 
     const signatures = await Promise.all(chainMetadata.map(([chainId, networkId, target]) => {
         const priceDatas = deviationDataToSign.feedsForChain[chainId].map(key => deviationDataToSign.proposedPriceData[key]);
+
+        const data = deviationDataToSign.feedsForChain[chainId];
+        this.logger.info(`[DeviationVerifier] signing ${data} for ${chainId} (${networkId})`);
 
         return this.deviationSigner.apply(networkId, target, deviationDataToSign.feedsForChain[chainId], priceDatas)
       }

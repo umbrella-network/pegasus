@@ -1,4 +1,3 @@
-import {Promise} from 'mongoose';
 import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';

@@ -115,6 +115,7 @@ export class FeedRepository {
     const response = await axios.get(url);
     if (response.status !== 200) throw new Error(response.data);
     if (response.data.Response === 'Error') throw new Error(response.data.Message);
+    if (!response.data) return {};
 
     const feeds = this.feedFactory.createCollectionFromYaml(response.data);
     this.sourceCache.set<Feeds>(url, feeds);

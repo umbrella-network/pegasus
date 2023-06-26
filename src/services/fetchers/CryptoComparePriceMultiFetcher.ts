@@ -17,6 +17,14 @@ class CryptoComparePriceMultiFetcher {
   async apply(params: InputParams): Promise<OutputValue[]> {
     const {fsyms, tsyms} = params;
 
+    if (fsyms.length == 0) {
+      throw new Error('[CryptoComparePriceMultiFetcher] empty fsyms');
+    }
+
+    if (tsyms.length == 0) {
+      throw new Error('[CryptoComparePriceMultiFetcher] empty tsyms');
+    }
+
     const sourceUrl = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${fsyms.join(',')}&tsyms=${tsyms.join(
       ',',
     )}`;

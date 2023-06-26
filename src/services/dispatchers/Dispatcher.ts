@@ -14,12 +14,14 @@ import {BlockchainRepository} from '../../repositories/BlockchainRepository';
 import {sleep} from '../../utils/sleep';
 import {ChainsIds} from '../../types/ChainsIds';
 import {parseEther} from "ethers/lib/utils";
+import {BalanceMonitorSaver} from "../balanceMonitor/BalanceMonitorSaver";
 
 
 export abstract class Dispatcher {
   @inject('Logger') protected logger!: Logger;
   @inject('Settings') settings!: Settings;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
+  @inject(BalanceMonitorSaver) balanceMonitorSaver!: BalanceMonitorSaver;
 
   readonly chainId!: ChainsIds;
   protected blockchain!: Blockchain;
@@ -42,7 +44,6 @@ export abstract class Dispatcher {
         return this.sendTx(fn, {...payableOverrides, nonce: newNonce}, timeout);
       }
   }
-
 
   protected async calculatePayableOverrides(props?: {nonce?: number, data?: unknown}): Promise<PayableOverrides> {
     const gasMetrics = await this.resolveGasMetrics();
@@ -96,7 +97,7 @@ export abstract class Dispatcher {
     let newBlockNumber = await this.blockchain.getBlockNumber();
 
     while (currentBlockNumber === newBlockNumber) {
-      this.logger.info(`[${this.chainId}] waitUntilNextBlock: current ${currentBlockNumber}, new ${newBlockNumber}.`);
+      this.logger.info(`[${this.chainId}] waitUntilNextBlock: current ${currentBlockNumber}`);
       await sleep(this.settings.blockchain.transactions.waitForBlockTime);
       newBlockNumber = await this.blockchain.getBlockNumber();
     }
@@ -152,14 +153,19 @@ export abstract class Dispatcher {
 
   protected checkBalanceIsEnough = async (wallet: Wallet): Promise<void> => {
     const balance = await wallet.getBalance();
-    this.testBalanceThreshold(balance, wallet.address);
+    const error = this.testBalanceThreshold(balance, wallet.address);
+    await this.balanceMonitorSaver.apply(this.chainId, balance.toString(), !!error, wallet.address);
+
+    if (error) {
+      throw new Error(error);
+    }
   };
 
-  protected testBalanceThreshold = (balance: BigNumber, address: string) => {
+  protected testBalanceThreshold = (balance: BigNumber, address: string): string | undefined => {
     const {errorLimit, warningLimit} = this.blockchain.chainSettings.transactions.mintBalance;
 
     if (balance.lt(parseEther(errorLimit))) {
-      throw new Error(`[${this.chainId}] Balance (${address.slice(0, 10)}) is lower than ${errorLimit} - ERROR`);
+      return `[${this.chainId}] Balance (${address.slice(0, 10)}) is lower than ${errorLimit} - ERROR`;
     }
 
     if (balance.lt(parseEther(warningLimit))) {

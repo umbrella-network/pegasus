@@ -1,5 +1,10 @@
 import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies';
-import Settings, {BlockchainSettings, BlockDispatcherSettings} from '../types/Settings';
+import Settings, {
+  BlockchainSettings,
+  BlockchainType,
+  BlockchainTypeKeys,
+  BlockDispatcherSettings,
+} from '../types/Settings';
 import {TimeoutCodes} from '../types/TimeoutCodes';
 import {timeoutWithCode} from '../utils/request';
 import './setupDotenv';
@@ -8,8 +13,20 @@ import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
 
+function resolveBlockchainType(chain: ChainsIds): BlockchainType[] | undefined {
+  const blockchainType = process.env[`${chain}_TYPE`];
+  if (!blockchainType) return undefined;
+
+  const types = blockchainType.split(',');
+
+  return types
+    .filter((t) => Object.keys(BlockchainType).includes(t))
+    .map((t) => BlockchainType[t as BlockchainTypeKeys]);
+}
+
 const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   bsc: {
+    type: resolveBlockchainType(ChainsIds.BSC) || [BlockchainType.LAYER2],
     contractRegistryAddress: process.env.REGISTRY_CONTRACT_ADDRESS,
     transactions: {
       waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000', 10),
@@ -22,6 +39,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   avax: {
+    type: resolveBlockchainType(ChainsIds.AVALANCHE) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 25000000000,
@@ -33,6 +51,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   polygon: {
+    type: resolveBlockchainType(ChainsIds.POLYGON) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 1000000000,
@@ -44,6 +63,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   arbitrum: {
+    type: resolveBlockchainType(ChainsIds.ARBITRUM) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100_000_000,
@@ -55,6 +75,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   ethereum: {
+    type: resolveBlockchainType(ChainsIds.ETH) || [BlockchainType.LAYER2],
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 2000000000,
@@ -66,8 +87,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   linea: {
-    contractRegistryAddress: process.env.LINEA_REGISTRY_CONTRACT_ADDRESS,
-    providerUrl: process.env.LINEA_BLOCKCHAIN_PROVIDER_URL,
+    type: resolveBlockchainType(ChainsIds.LINEA) || [BlockchainType.ON_CHAIN],
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 1000000000,
@@ -223,8 +243,8 @@ const settings: Settings = {
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
   name: process.env.NEW_RELIC_APP_NAME || process.env.NAME || 'default',
   deviationTrigger: {
-    leader: !!process.env.DEVIATION_LEADER,
-    interval: getTimeSetting(parseInt(process.env.DEVIATION_JOB_INTERVAL || '60000'), 5000),
+    roundLengthSeconds: getTimeSetting(parseInt(process.env.DEVIATION_ROUND_LENGTH || '60'), 30),
+    leaderInterval: getTimeSetting(parseInt(process.env.DEVIATION_JOB_INTERVAL || '10000'), 5000),
     lock: {
       name: process.env.DEVIATION_LOCK_NAME || 'lock::DeviationTrigger',
       ttl: getTimeSetting(parseInt(process.env.DEVIATION_LOCK_TTL || '60'), 60),
@@ -277,10 +297,7 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
   let chain: ChainsIdsKeys;
 
   for (chain of Object.keys(ChainsIds) as ChainsIdsKeys[]) {
-    if (
-      !process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] &&
-      !defaultByChain[ChainsIds[chain]]?.contractRegistryAddress
-    ) {
+    if (isEmptyBlockchainSettings(chain)) {
       console.log(`[resolveMultichainSettings] ${chain} EMPTY env`);
       continue;
     }
@@ -288,6 +305,7 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
     console.log(`[resolveMultichainSettings] ${chain} SETUP OK`);
 
     multichains[ChainsIds[chain]] = {
+      type: defaultByChain[ChainsIds[chain]].type,
       contractRegistryAddress:
         process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] || defaultByChain[ChainsIds[chain]]?.contractRegistryAddress,
       providerUrl: process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`],
@@ -316,6 +334,13 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
   return multichains;
 }
 
+function isEmptyBlockchainSettings(chain: ChainsIdsKeys): boolean {
+  return (
+    !process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`] ||
+    (!process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] && !defaultByChain[ChainsIds[chain]]?.contractRegistryAddress)
+  );
+}
+
 function resolveBlockDispatcherSettings(): Partial<Record<ChainsIds, BlockDispatcherSettings>> {
   const blockDispatchers: Partial<Record<ChainsIds, BlockDispatcherSettings>> = {};
   let chain: ChainsIdsKeys;
@@ -332,7 +357,7 @@ function resolveBlockDispatcherSettings(): Partial<Record<ChainsIds, BlockDispat
         process.env[`${chain}_DISPATCHER_INTERVAL`] || process.env.BLOCK_CREATION_JOB_INTERVAL || '10000',
         10,
       ),
-      deviationInterval: parseInt(process.env[`${chain}_DEVIATION_DISPATCHER_INTERVAL`] || '25000', 10),
+      deviationInterval: parseInt(process.env[`${chain}_DEVIATION_DISPATCHER_INTERVAL`] || '2000', 10),
     };
   }
 

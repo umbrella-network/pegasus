@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
 import axios from 'axios';
 import {Logger} from 'winston';
-import {Promise} from "mongoose";
 
 import Blockchain from '../../lib/Blockchain';
 import {Validator} from '../../types/Validator';
@@ -36,7 +35,7 @@ export class DeviationSignatureCollector {
       participants.map((p) => selfAddress == p.id.toLowerCase() ? this.getLocalSignature(data) : this.getParticipantSignature(data, p))
     );
 
-    return signedData.filter((s: DeviationSignerResponse | undefined) => s !== undefined);
+    return signedData.filter((s: DeviationSignerResponse | undefined) => s !== undefined) as DeviationSignerResponse[];
   }
 
   protected async getLocalSignature(data: DeviationDataToSign): Promise<DeviationSignerResponse> {
