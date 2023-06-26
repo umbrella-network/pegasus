@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 
-import Settings from '../types/Settings';
+import Settings, {BlockchainType} from '../types/Settings';
 import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
 import ChainContract from '../contracts/ChainContract';
 import {BlockchainRepository} from './BlockchainRepository';
@@ -23,6 +23,12 @@ export class ChainContractRepository {
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
 
     keys.forEach((chainId) => {
+      if (!settings.blockchain.multiChains[chainId]?.type.includes(BlockchainType.LAYER2)) {
+        console.warn(`[ChainContractRepository] Blockchain ${chainId} is not ${BlockchainType.LAYER2}`);
+        this.collection[chainId] = undefined;
+        return;
+      }
+
       try {
         const blockchain = blockchainRepository.get(chainId);
 

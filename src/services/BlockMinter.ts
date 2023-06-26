@@ -1,5 +1,6 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
+import {BigNumber} from 'ethers';
 
 import ConsensusRunner from './ConsensusRunner';
 import BlockRepository from '../repositories/BlockRepository';
@@ -8,16 +9,17 @@ import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import TimeService from './TimeService';
 import ChainContract from '../contracts/ChainContract';
 import Blockchain from '../lib/Blockchain';
-import Settings from '../types/Settings';
+import Settings, {BlockchainType} from '../types/Settings';
 import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
 import {ConsensusDataRepository} from '../repositories/ConsensusDataRepository';
 import {MultiChainStatusProcessor} from './multiChain/MultiChainStatusProcessor';
 import {MultichainArchitectureDetector} from './MultichainArchitectureDetector';
 import {ValidatorRepository} from '../repositories/ValidatorRepository';
 import {ChainStatus} from '../types/ChainStatus';
-import {BigNumber} from 'ethers';
 import {MappingRepository} from '../repositories/MappingRepository';
 import {MasterChainData} from '../types/Consensus';
+import {BalanceMonitorChecker} from './balanceMonitor/BalanceMonitorChecker';
+import {sleep} from '../utils/sleep';
 
 const MASTERCHAINSTATUS_STAKED = 'masterChainStatus.staked';
 const MASTERCHAINSTATUS_MIN_SIGNATURES = 'masterChainStatus.minSignatures';
@@ -39,11 +41,19 @@ class BlockMinter {
   @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
   @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
   @inject(MappingRepository) mappingRepository!: MappingRepository;
+  @inject(BalanceMonitorChecker) balanceMonitorChecker!: BalanceMonitorChecker;
   @inject('Settings') settings!: Settings;
 
   async apply(): Promise<void> {
     await this.blockchain.setLatestProvider();
     const dataTimestamp = this.timeService.apply(this.settings.dataTimestampOffsetSeconds);
+
+    if (!(await this.balanceMonitorChecker.apply(BlockchainType.LAYER2, this.blockchain.wallet.address))) {
+      const address = this.blockchain.wallet.address;
+      this.logger.error(`[BlockMinter] There is not enough balance in any of the chains for ${address}`);
+      await sleep(60_000); // slow down execution
+      return;
+    }
 
     const {chainsStatuses, chainsIdsReadyForBlock, nextLeader, validators} = await this.multiChainStatusResolver.apply(
       dataTimestamp,

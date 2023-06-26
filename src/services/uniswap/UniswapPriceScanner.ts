@@ -12,6 +12,8 @@ import {BlockchainSymbol} from '../../models/BlockchainSymbol';
 import {Mutex, MutexInterface, withTimeout} from 'async-mutex';
 import {Price, UniswapV3Helper} from '../../contracts/UniswapV3Helper';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
+import {UniswapV2PriceMonitorChecker} from "../uniswapPriceMonitor/UniswapV2PriceMonitorChecker";
+import {UniswapV2PriceMonitorSaver} from "../uniswapPriceMonitor/UniswapV2PriceMonitorSaver";
 
 export type UniswapPoolPrice = {
   symbol: string;
@@ -33,6 +35,8 @@ export class UniswapPriceScanner {
   @inject(UniswapPoolService) poolService!: UniswapPoolService;
   @inject(UniswapPriceService) priceService!: UniswapPriceService;
   @inject(UniswapV3Helper) uniswapV3Helper!: UniswapV3Helper;
+  @inject(UniswapV2PriceMonitorSaver) uniswapV2PriceMonitorSaver!: UniswapV2PriceMonitorSaver;
+  @inject(UniswapV2PriceMonitorChecker) uniswapV2PriceMonitorChecker!: UniswapV2PriceMonitorChecker;
 
   constructor(
     @inject('Settings') settings: Settings,
@@ -50,7 +54,14 @@ export class UniswapPriceScanner {
   }
 
   private async processBlock(blockNumber: number): Promise<void> {
-    this.log(`New block detected: ${blockNumber}.`);
+    const lastPriceCount = await this.uniswapV2PriceMonitorChecker.apply();
+
+    if (lastPriceCount === 0 && blockNumber % 4 != 0) {
+      this.log(`[UniswapPriceScanner] lastPriceCount ${lastPriceCount}, skipping block ${blockNumber}`);
+      return;
+    }
+
+    this.log(`New block detected: ${blockNumber}, lastPriceCount ${lastPriceCount}`);
 
     if (this.lock.isLocked()) {
       this.log(`Skipping block ${blockNumber} - busy.`);
@@ -69,10 +80,14 @@ export class UniswapPriceScanner {
 
         this.log(`Found ${verifiedPools.length} verified pools.`);
 
+        let totalPrices = 0;
         for (const batch of chunk(verifiedPools, 100)) {
           const prices = await this.getUpdatedPrices(batch);
+          totalPrices += prices.length;
           await this.savePrices(prices);
         }
+
+        await this.uniswapV2PriceMonitorSaver.apply(totalPrices);
       } catch (e) {
         this.logger.error(`[UniswapPriceScanner] Error retrieving prices, skipping...`);
         this.logger.error('[UniswapPriceScanner]', e);
