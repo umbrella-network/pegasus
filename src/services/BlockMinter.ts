@@ -138,7 +138,7 @@ class BlockMinter {
       `Next leader for ${dataTimestamp}: ${nextLeader}, ${nextLeader === this.blockchain.wallet.address}`,
     );
 
-    return nextLeader === this.blockchain.wallet.address;
+    return nextLeader.toLowerCase() === this.blockchain.wallet.address.toLowerCase();
   }
 }
 

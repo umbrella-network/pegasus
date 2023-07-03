@@ -10,7 +10,7 @@ import Blockchain from "../../lib/Blockchain";
 import Settings, {BlockchainType} from "../../types/Settings";
 import {DeviationTrigger} from "./DeviationTrigger";
 import {FeedsType} from "../../types/Feed";
-import {DeviationLeavesAndFeeds} from "../../types/DeviationFeeds";
+import {DeviationFeeds, DeviationLeavesAndFeeds} from "../../types/DeviationFeeds";
 import {FeedDataService} from "../FeedDataService";
 import {DeviationLeaderSelector} from "./DeviationLeaderSelector";
 import {DeviationTriggerLastIntervals} from "../../repositories/DeviationTriggerLastIntervals";
@@ -49,8 +49,9 @@ export class DeviationLeader {
     }
 
     const dataTimestamp = this.timeService.apply();
+
     const [validators, pendingChains] = await Promise.all([
-      this.validatorRepository.list(),
+      this.validatorRepository.list(undefined),
       this.deviationConsensusRepository.existedChains()
     ]);
 

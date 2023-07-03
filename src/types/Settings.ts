@@ -60,6 +60,13 @@ type Settings = {
         ttl: number;
       };
     };
+    validatorsResolver: {
+      interval: number;
+      lock: {
+        name: string;
+        ttl: number;
+      };
+    };
     blockDispatcher: Partial<Record<ChainsIds, BlockDispatcherSettings>>;
   };
   redis: {
@@ -92,6 +99,9 @@ type Settings = {
     };
     providers: {[name: string]: string};
     contracts: {
+      bank: {
+        name: string;
+      };
       chain: {
         name: string;
       };

@@ -7,6 +7,7 @@ import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
 import {DeviationLeaderWorker} from "./workers/DeviationLeaderWorker";
 import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
+import {ValidatorListWorker} from "./workers/ValidatorListWorker";
 
 (async () => {
   await boot();
@@ -27,6 +28,7 @@ import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
     }
     case 'MetricsWorker': {
       Application.get(MetricsWorker).start();
+      Application.get(ValidatorListWorker).start();
       break;
     }
     case 'DeviationLeaderWorker': {

@@ -22,7 +22,7 @@ export class MappingRepository {
 
   async set(_id: string, value: string): Promise<void> {
     const MappingModel = getModelForClass(Mapping);
-    await MappingModel.findOneAndUpdate({_id}, {_id, value}, {upsert: true, new: true}).exec();
+    await MappingModel.findOneAndUpdate({_id}, {_id, value, updatedAt: new Date()}, {upsert: true, new: true}).exec();
   }
 
   async remove(_id: string): Promise<void> {
