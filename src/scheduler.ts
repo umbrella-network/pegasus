@@ -12,6 +12,7 @@ import DataPurger from "./services/DataPurger";
 import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
 import BasicWorker from "./workers/BasicWorker";
 import {ChainsIds} from "./types/ChainsIds";
+import {ValidatorListWorker} from "./workers/ValidatorListWorker";
 
 (async (): Promise<void> => {
   await boot();
@@ -24,6 +25,8 @@ import {ChainsIds} from "./types/ChainsIds";
   const dataPurger = Application.get(DataPurger);
   const blockDispatcherWorker = Application.get(BlockDispatcherWorker);
   const deviationDispatcherWorker = Application.get(DeviationDispatcherWorker);
+  const validatorListWorker = Application.get(ValidatorListWorker);
+
   const jobCode = String(Math.floor(Math.random() * 1000));
 
   logger.info('[Scheduler] Starting scheduler...');
@@ -41,6 +44,30 @@ import {ChainsIds} from "./types/ChainsIds";
       },
     );
   }, settings.jobs.metricsReporting.interval);
+
+  setTimeout(async () => {
+    logger.info('initial run for ValidatorListWorker');
+
+    await validatorListWorker.enqueue(
+      {},
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
+    );
+  }, 1000);
+
+  setInterval(async () => {
+    logger.info('[Scheduler] Scheduling ValidatorListWorker');
+
+    await validatorListWorker.enqueue(
+      {},
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
+    );
+  }, settings.jobs.validatorsResolver.interval);
 
   setInterval(async () => {
     logger.info('[Scheduler] Scheduling BlockMintingWorker');

@@ -125,6 +125,13 @@ const settings: Settings = {
         ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),
       },
     },
+    validatorsResolver: {
+      interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '600000'),
+      lock: {
+        name: process.env.VALIDATORS_RESOLVER_LOCK_NAME || 'lock::ValidatorsResolver',
+        ttl: parseInt(process.env.VALIDATORS_RESOLVER_LOCK_TTL || '60'),
+      },
+    },
     blockDispatcher: resolveBlockDispatcherSettings(),
   },
   redis: {
@@ -159,6 +166,9 @@ const settings: Settings = {
       chainId: ChainsIds.BSC,
     },
     contracts: {
+      bank: {
+        name: process.env.STAKING_BANK_NAME || 'StakingBank',
+      },
       chain: {
         name: 'Chain',
       },

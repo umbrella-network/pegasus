@@ -33,15 +33,7 @@ export class MultiChainStatusProcessor {
   }
 
   private async processStates(chainsStatuses: ChainStatusWithAddress[], dataTimestamp: number): Promise<ChainsStatuses> {
-    const masterChainStatus = this.findMasterChain(chainsStatuses);
-
-    if (masterChainStatus) {
-      await this.validatorRepository.cache(masterChainStatus);
-    }
-
-    const validators = masterChainStatus
-      ? this.validatorRepository.parse(masterChainStatus)
-      : await this.validatorRepository.list();
+    const validators = await this.validatorRepository.list(undefined);
 
     const chainsIdsReadyForBlock = chainsStatuses
       .filter((chain) => this.canMint.apply({chainStatus: chain.chainStatus, dataTimestamp, chainId: chain.chainId}))
