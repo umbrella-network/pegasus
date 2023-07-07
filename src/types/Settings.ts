@@ -178,6 +178,7 @@ type Settings = {
   deviationTrigger: {
     roundLengthSeconds: number;
     leaderInterval: number;
+    heartbeatRounds: number;
     lock: {
       name: string;
       ttl: number;

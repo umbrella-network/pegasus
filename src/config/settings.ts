@@ -253,6 +253,7 @@ const settings: Settings = {
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
   name: process.env.NEW_RELIC_APP_NAME || process.env.NAME || 'default',
   deviationTrigger: {
+    heartbeatRounds: getTimeSetting(parseInt(process.env.DEVIATION_HEARTBEAT_ROUNDS || '5'), 3),
     roundLengthSeconds: getTimeSetting(parseInt(process.env.DEVIATION_ROUND_LENGTH || '60'), 30),
     leaderInterval: getTimeSetting(parseInt(process.env.DEVIATION_JOB_INTERVAL || '10000'), 5000),
     lock: {
