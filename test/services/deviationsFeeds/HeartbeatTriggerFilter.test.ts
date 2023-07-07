@@ -54,7 +54,7 @@ describe('HeartbeatTriggerFilter', () => {
     });
 
     it('TRUE when heartbeat triggered', () => {
-      expect(HeartbeatTriggerFilter.apply(priceData.timestamp - 5 * 60 + 1, feed, priceData)).to.be.true;
+      expect(HeartbeatTriggerFilter.apply(priceData.timestamp + feed.heartbeat - 5 * 60 + 1, feed, priceData)).to.be.true;
     });
 
     it('TRUE when price is very old', () => {

@@ -10,12 +10,13 @@ import Blockchain from "../../lib/Blockchain";
 import Settings, {BlockchainType} from "../../types/Settings";
 import {DeviationTrigger} from "./DeviationTrigger";
 import {FeedsType} from "../../types/Feed";
-import {DeviationFeeds, DeviationLeavesAndFeeds} from "../../types/DeviationFeeds";
+import {DeviationLeavesAndFeeds} from "../../types/DeviationFeeds";
 import {FeedDataService} from "../FeedDataService";
 import {DeviationLeaderSelector} from "./DeviationLeaderSelector";
 import {DeviationTriggerLastIntervals} from "../../repositories/DeviationTriggerLastIntervals";
 import {sleep} from "../../utils/sleep";
 import {BalanceMonitorChecker} from "../balanceMonitor/BalanceMonitorChecker";
+import {RequiredSignaturesRepository} from "../../repositories/RequiredSignaturesRepository";
 
 @injectable()
 export class DeviationLeader {
@@ -32,6 +33,7 @@ export class DeviationLeader {
   @inject(DeviationLeaderSelector) deviationLeaderSelector!: DeviationLeaderSelector;
   @inject(DeviationTriggerLastIntervals) deviationTriggerLastIntervals!: DeviationTriggerLastIntervals;
   @inject(BalanceMonitorChecker) balanceMonitorChecker!: BalanceMonitorChecker;
+  @inject(RequiredSignaturesRepository) requiredSignaturesRepository!: RequiredSignaturesRepository;
 
   async apply(): Promise<void> {
     const walletAddress = this.blockchain.deviationWallet?.address;
@@ -45,6 +47,15 @@ export class DeviationLeader {
     if (!(await this.balanceMonitorChecker.apply(BlockchainType.ON_CHAIN, walletAddress))) {
       this.logger.error(`[DeviationLeader] There is not enough balance in any of the chains for ${walletAddress}`);
       await sleep(60_000); // slow down execution
+      return;
+    }
+
+    // assumption: we have same requirements for each chain (same number of required signatures)
+    const requiredSignatures = await this.requiredSignaturesRepository.get(BlockchainType.ON_CHAIN, undefined);
+
+    if (!requiredSignatures) {
+      // we do not set last intervals if we didn't manage to get consensus
+      this.logger.error(`[DeviationLeader] unknown requiredSignatures`);
       return;
     }
 
@@ -75,11 +86,6 @@ export class DeviationLeader {
       this.logger.debug(`[DeviationLeader] no data to update at ${dataTimestamp}`);
       return;
     }
-
-    // assumption: we have same requirements for each chain (same number of required signatures)
-    const [chainId] = Object.keys(dataToUpdate.feedsForChain);
-
-    const requiredSignatures = await this.feedsContractRepository.get(chainId).requiredSignatures();
 
     const consensuses = await this.consensusRunner.apply(dataToUpdate, validators, requiredSignatures);
 

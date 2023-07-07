@@ -60,7 +60,7 @@ type Settings = {
         ttl: number;
       };
     };
-    validatorsResolver: {
+    blockchainMetrics: {
       interval: number;
       lock: {
         name: string;

@@ -12,7 +12,7 @@ export class ValidatorRepository {
 
   async list(chainId: ChainsIds | undefined): Promise<Validator[]> {
     if (!chainId) {
-      chainId = await this.chainWithLongestList();
+      chainId = await this.anyChainWithList();
     }
 
     this.logger.debug(`[ValidatorRepository] pulling cached list of validators for ${chainId}`);
@@ -27,29 +27,11 @@ export class ValidatorRepository {
     });
   }
 
-  protected async chainWithLongestList(): Promise<ChainsIds> {
-    const fullList = await getModelForClass(CachedValidator).find({}, {chainId: 1}).sort({contractIndex: 1}).exec();
-    const listPerChain: Record<string, CachedValidator[]> = {};
+  protected async anyChainWithList(): Promise<ChainsIds | undefined> {
+    const one = await getModelForClass(CachedValidator).findOne({}, {chainId: 1}).sort({contractIndex: 1}).exec();
+    if (!one) return;
 
-    fullList.forEach((data) => {
-      if (!listPerChain[data.chainId]) {
-        listPerChain[data.chainId] = [];
-      }
-
-      listPerChain[data.chainId].push(data);
-    });
-
-    let maxChain = '';
-    let maxValidators = 0;
-
-    Object.keys(listPerChain).forEach((chain) => {
-      if (listPerChain[chain].length > maxValidators) {
-        maxChain = chain;
-        maxValidators = listPerChain[chain].length;
-      }
-    });
-
-    return maxChain as ChainsIds;
+    return one.chainId as ChainsIds;
   }
 
   async cache(chainId: ChainsIds, validators: Validator[]): Promise<void> {

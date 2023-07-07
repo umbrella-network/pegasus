@@ -12,7 +12,7 @@ import DataPurger from "./services/DataPurger";
 import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
 import BasicWorker from "./workers/BasicWorker";
 import {ChainsIds} from "./types/ChainsIds";
-import {ValidatorListWorker} from "./workers/ValidatorListWorker";
+import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
 
 (async (): Promise<void> => {
   await boot();
@@ -25,7 +25,7 @@ import {ValidatorListWorker} from "./workers/ValidatorListWorker";
   const dataPurger = Application.get(DataPurger);
   const blockDispatcherWorker = Application.get(BlockDispatcherWorker);
   const deviationDispatcherWorker = Application.get(DeviationDispatcherWorker);
-  const validatorListWorker = Application.get(ValidatorListWorker);
+  const validatorListWorker = Application.get(BlockchainMetricsWorker);
 
   const jobCode = String(Math.floor(Math.random() * 1000));
 
@@ -67,7 +67,7 @@ import {ValidatorListWorker} from "./workers/ValidatorListWorker";
         removeOnFail: true,
       },
     );
-  }, settings.jobs.validatorsResolver.interval);
+  }, settings.jobs.blockchainMetrics.interval);
 
   setInterval(async () => {
     logger.info('[Scheduler] Scheduling BlockMintingWorker');
