@@ -3,117 +3,67 @@ import {HeartbeatTriggerFilter} from '../../../src/services/deviationsFeeds/Hear
 import {ChainsIds} from '../../../src/types/ChainsIds';
 import {DeviationFeed, PriceData} from '../../../src/types/DeviationFeeds';
 
+
 describe('HeartbeatTriggerFilter', () => {
   describe('#apply', () => {
-    describe('feed and priceData heartbeats match', () => {
-      it('should return true if the difference between the provided timestamp and `priceData` timestamp is greater than `feed` heartbeat', () => {
-        const dataTimestamp = 1683839930;
+    const dataTimestamp = 10_000;
 
-        const feed: DeviationFeed = {
-          heartbeat: 55,
-          trigger: 100,
-          interval: 10,
-          chains: [ChainsIds.BSC],
-          discrepancy: 0.1,
-          precision: 2,
-          inputs: [
-            {
-              fetcher: {
-                name: 'CoingeckoPrice',
-              },
-            },
-            {
-              fetcher: {
-                name: 'CryptoComparePrice',
-              },
-            },
-          ],
-        };
+    const feed: DeviationFeed = {
+      heartbeat: 500,
+      trigger: 100,
+      interval: 10,
+      chains: [ChainsIds.BSC],
+      discrepancy: 0.1,
+      precision: 2,
+      inputs: [
+        {
+          fetcher: {
+            name: 'CoingeckoPrice',
+          },
+        },
+        {
+          fetcher: {
+            name: 'CryptoComparePrice',
+          },
+        },
+      ],
+    };
 
-        const priceData: PriceData = {
-          price: BigInt(1),
-          heartbeat: 55,
-          timestamp: 1683838924,
-          data: 50,
-        };
+    const priceData: PriceData = {
+      price: BigInt(1),
+      heartbeat: feed.heartbeat,
+      timestamp: dataTimestamp,
+      data: 50,
+    };
 
-        const result = HeartbeatTriggerFilter.apply(dataTimestamp, feed, priceData);
-
-        expect(result).to.be.eql(true);
-      });
-
-      it('should return false if the difference between the provided timestamp and `priceData` timestamp is smaller than `feed` heartbeat', () => {
-        const dataTimestamp = 1683838930;
-
-        const feed: DeviationFeed = {
-          heartbeat: 55,
-          trigger: 100,
-          interval: 10,
-          chains: [ChainsIds.BSC],
-          discrepancy: 0.1,
-          precision: 2,
-          inputs: [
-            {
-              fetcher: {
-                name: 'CoingeckoPrice',
-              },
-            },
-            {
-              fetcher: {
-                name: 'CryptoComparePrice',
-              },
-            },
-          ],
-        };
-
-        const priceData: PriceData = {
-          price: BigInt(1),
-          heartbeat: 55,
-          timestamp: 1683838924,
-          data: 50,
-        };
-
-        const result = HeartbeatTriggerFilter.apply(dataTimestamp, feed, priceData);
-
-        expect(result).to.be.eql(false);
-      });
+    it('FALSE when price was just updated', () => {
+      expect(HeartbeatTriggerFilter.apply(dataTimestamp, feed, priceData)).to.be.false;
     });
-    describe('feed and priceData heartbeats do not match', () => {
-      it('should return true', () => {
-        const dataTimestamp = 1683838924;
 
-        const feed: DeviationFeed = {
-          heartbeat: 50,
-          trigger: 100,
-          interval: 10,
-          chains: [ChainsIds.BSC],
-          discrepancy: 0.1,
-          precision: 2,
-          inputs: [
-            {
-              fetcher: {
-                name: 'CoingeckoPrice',
-              },
-            },
-            {
-              fetcher: {
-                name: 'CryptoComparePrice',
-              },
-            },
-          ],
-        };
+    it('FALSE when heartbeat (with padding) is not triggered', () => {
+      expect(HeartbeatTriggerFilter.apply(priceData.timestamp - 5 * 60, feed, priceData)).to.be.false;
+    });
 
-        const priceData: PriceData = {
-          price: BigInt(1),
-          heartbeat: 55,
-          timestamp: 1683807742,
-          data: 50,
-        };
+    it('TRUE when heartbeat differs', () => {
+      const data = {
+        ...priceData,
+        heartbeat: 1
+      }
 
-        const result = HeartbeatTriggerFilter.apply(dataTimestamp, feed, priceData);
+      expect(HeartbeatTriggerFilter.apply(dataTimestamp, feed, data)).to.be.true;
+    });
 
-        expect(result).to.be.eql(true);
-      });
+    it('TRUE when heartbeat triggered', () => {
+      expect(HeartbeatTriggerFilter.apply(priceData.timestamp - 5 * 60 + 1, feed, priceData)).to.be.true;
+    });
+
+    it('TRUE when price is very old', () => {
+      const data = {
+        ...priceData,
+        timestamp: 1
+      }
+
+      expect(HeartbeatTriggerFilter.apply(dataTimestamp, feed, data)).to.be.true;
     });
   });
 });

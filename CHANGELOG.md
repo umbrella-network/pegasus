@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Changed
 - pull validators list from target blockchain
+- do not overshoot heartbeat
 
 ## [7.10.0] - 2023-06-15
 ### Added
