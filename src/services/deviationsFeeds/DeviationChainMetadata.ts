@@ -1,4 +1,5 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from "winston";
 
 import {OnChainMetadataType} from "../../types/DeviationFeeds";
 import {BlockchainRepository} from "../../repositories/BlockchainRepository";
@@ -7,6 +8,7 @@ import {DataCollection} from "../../types/custom";
 
 @injectable()
 export class DeviationChainMetadata {
+  @inject('Logger') logger!: Logger;
   @inject(BlockchainRepository) protected blockchainRepository!: BlockchainRepository;
   @inject(FeedsContractRepository) protected feedsContractRepository!: FeedsContractRepository;
 
@@ -18,13 +20,22 @@ export class DeviationChainMetadata {
         return;
       }
 
-      return Promise.all([
+      return this.getOnChainMetadata(chainId);
+    }));
+
+    return onChainMetadata.filter(d => !!d) as OnChainMetadataType[];
+  }
+
+  protected async getOnChainMetadata(chainId: string): Promise<OnChainMetadataType | undefined> {
+    try {
+      return <OnChainMetadataType>await Promise.all([
         chainId,
         this.blockchainRepository.get(chainId).networkId(),
         this.feedsContractRepository.get(chainId).address()
       ]);
-    }));
-
-    return onChainMetadata.filter(d => !!d) as OnChainMetadataType[];
+    } catch (e) {
+      this.logger.warn(`[${chainId}] ${e.message}`);
+      return;
+    }
   }
 }

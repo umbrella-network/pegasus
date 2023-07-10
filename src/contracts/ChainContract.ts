@@ -26,6 +26,11 @@ class ChainContract {
     return this.resolveAddress();
   }
 
+  async requiredSignatures(): Promise<number> {
+    const contract = await this.resolveContract();
+    return contract.callStatic.requiredSignatures();
+  }
+
   async resolveStatus(): Promise<[address: string, status: ChainStatus]> {
     const contract = await this.resolveContract();
     return Promise.all([contract.address, contract.getStatus()]);

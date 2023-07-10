@@ -60,7 +60,7 @@ type Settings = {
         ttl: number;
       };
     };
-    validatorsResolver: {
+    blockchainMetrics: {
       interval: number;
       lock: {
         name: string;
@@ -178,6 +178,7 @@ type Settings = {
   deviationTrigger: {
     roundLengthSeconds: number;
     leaderInterval: number;
+    heartbeatRounds: number;
     lock: {
       name: string;
       ttl: number;

@@ -84,5 +84,5 @@ export const chainReadyForNewBlock = (
 export const sortSignaturesBySigner = (signatures: string[], affidavit: string): string[] =>
   signatures
     .map((signature) => [recoverSigner(affidavit, signature), signature])
-    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    .sort((a, b) => (a[0].toLowerCase() < b[0].toLowerCase() ? -1 : 1))
     .map(([, signature]) => signature);
