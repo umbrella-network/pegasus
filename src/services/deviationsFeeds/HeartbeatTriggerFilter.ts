@@ -1,4 +1,5 @@
 import {DeviationFeed, PriceData} from '../../types/DeviationFeeds';
+import settings from '../../config/settings';
 
 export class HeartbeatTriggerFilter {
   static apply(dataTimestamp: number, feed: DeviationFeed, priceData: PriceData): boolean {
@@ -6,6 +7,8 @@ export class HeartbeatTriggerFilter {
       return true;
     }
 
-    return dataTimestamp - priceData.timestamp >= feed.heartbeat;
+    const {roundLengthSeconds, heartbeatRounds } = settings.deviationTrigger;
+
+    return dataTimestamp - priceData.timestamp >= feed.heartbeat - roundLengthSeconds * heartbeatRounds;
   }
 }

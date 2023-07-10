@@ -33,15 +33,11 @@ export class MultiChainStatusProcessor {
   }
 
   private async processStates(chainsStatuses: ChainStatusWithAddress[], dataTimestamp: number): Promise<ChainsStatuses> {
-    const masterChainStatus = this.findMasterChain(chainsStatuses);
+    const validators = await this.validatorRepository.list(undefined);
 
-    if (masterChainStatus) {
-      await this.validatorRepository.cache(masterChainStatus);
+    if (validators.length == 0) {
+      throw new Error('[MultiChainStatusProcessor] empty validators list');
     }
-
-    const validators = masterChainStatus
-      ? this.validatorRepository.parse(masterChainStatus)
-      : await this.validatorRepository.list();
 
     const chainsIdsReadyForBlock = chainsStatuses
       .filter((chain) => this.canMint.apply({chainStatus: chain.chainStatus, dataTimestamp, chainId: chain.chainId}))

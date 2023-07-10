@@ -16,6 +16,7 @@ import {DeviationLeaderSelector} from "./DeviationLeaderSelector";
 import {DeviationTriggerLastIntervals} from "../../repositories/DeviationTriggerLastIntervals";
 import {sleep} from "../../utils/sleep";
 import {BalanceMonitorChecker} from "../balanceMonitor/BalanceMonitorChecker";
+import {RequiredSignaturesRepository} from "../../repositories/RequiredSignaturesRepository";
 
 @injectable()
 export class DeviationLeader {
@@ -32,6 +33,7 @@ export class DeviationLeader {
   @inject(DeviationLeaderSelector) deviationLeaderSelector!: DeviationLeaderSelector;
   @inject(DeviationTriggerLastIntervals) deviationTriggerLastIntervals!: DeviationTriggerLastIntervals;
   @inject(BalanceMonitorChecker) balanceMonitorChecker!: BalanceMonitorChecker;
+  @inject(RequiredSignaturesRepository) requiredSignaturesRepository!: RequiredSignaturesRepository;
 
   async apply(): Promise<void> {
     const walletAddress = this.blockchain.deviationWallet?.address;
@@ -48,9 +50,19 @@ export class DeviationLeader {
       return;
     }
 
+    // assumption: we have same requirements for each chain (same number of required signatures)
+    const requiredSignatures = await this.requiredSignaturesRepository.get(BlockchainType.ON_CHAIN, undefined);
+
+    if (!requiredSignatures) {
+      // we do not set last intervals if we didn't manage to get consensus
+      this.logger.error(`[DeviationLeader] unknown requiredSignatures`);
+      return;
+    }
+
     const dataTimestamp = this.timeService.apply();
+
     const [validators, pendingChains] = await Promise.all([
-      this.validatorRepository.list(),
+      this.validatorRepository.list(undefined),
       this.deviationConsensusRepository.existedChains()
     ]);
 
@@ -74,11 +86,6 @@ export class DeviationLeader {
       this.logger.debug(`[DeviationLeader] no data to update at ${dataTimestamp}`);
       return;
     }
-
-    // assumption: we have same requirements for each chain (same number of required signatures)
-    const [chainId] = Object.keys(dataToUpdate.feedsForChain);
-
-    const requiredSignatures = await this.feedsContractRepository.get(chainId).requiredSignatures();
 
     const consensuses = await this.consensusRunner.apply(dataToUpdate, validators, requiredSignatures);
 

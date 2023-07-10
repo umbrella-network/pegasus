@@ -8,11 +8,10 @@ import '../../src/config/setupDotenv';
 import {Validator} from '../../src/types/Validator';
 import {ValidatorRepository} from '../../src/repositories/ValidatorRepository';
 import CachedValidator from '../../src/models/CachedValidator';
-import {ChainStatus} from '../../src/types/ChainStatus';
-import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';
 import {loadTestEnv} from '../helpers/loadTestEnv';
 import {mockedLogger} from '../mocks/logger';
 import {getTestContainer} from '../helpers/getTestContainer';
+import {ChainsIds} from '../../src/types/ChainsIds';
 
 describe('ValidatorRepository', () => {
   let validatorRepository: ValidatorRepository;
@@ -43,17 +42,11 @@ describe('ValidatorRepository', () => {
     ];
 
     beforeEach(async function () {
-      const chainStatus: ChainStatus = chainStatusFactory.build({
-        validators: expectedValidators.map((v) => v.id),
-        locations: expectedValidators.map((v) => v.location),
-        powers: expectedValidators.map((v) => v.power),
-      });
-
-      await validatorRepository.cache(chainStatus);
+      await validatorRepository.cache(ChainsIds.LINEA, expectedValidators);
     });
 
     it('expect to get list of 3 validators in order', async () => {
-      const list = await validatorRepository.list();
+      const list = await validatorRepository.list(undefined);
       expect(list.length).eq(expectedValidators.length);
       expect(list).deep.eq(expectedValidators);
     });
@@ -65,17 +58,11 @@ describe('ValidatorRepository', () => {
       ];
 
       beforeEach(async function () {
-        const chainStatus: ChainStatus = chainStatusFactory.build({
-          validators: twoValidators.map((v) => v.id),
-          locations: twoValidators.map((v) => v.location),
-          powers: twoValidators.map((v) => v.power),
-        });
-
-        await validatorRepository.cache(chainStatus);
+        await validatorRepository.cache(ChainsIds.LINEA, twoValidators);
       });
 
       it('expect to get list of 2 validators in order', async () => {
-        const list = await validatorRepository.list();
+        const list = await validatorRepository.list(undefined);
         expect(list.length).eq(twoValidators.length);
         expect(list).deep.eq(twoValidators);
       });

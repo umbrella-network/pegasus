@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.11.0] - 2023-07-03
+### Changed
+- pull validators list from target blockchain
+- do not overshoot heartbeat
+- cache required number of signatures
+
 ## [7.10.0] - 2023-06-15
 ### Added
 - add PolygonDeviationDispatcher

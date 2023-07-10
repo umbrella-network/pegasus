@@ -75,7 +75,7 @@ export class DeviationSignatureCollector {
 
       return response;
     } catch (e) {
-      this.logger.error('[SignatureCollector] Signature collection failed.');
+      this.logger.error('[DeviationSignatureCollector] Signature collection failed.');
       this.logger.error(e);
     }
 

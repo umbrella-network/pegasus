@@ -6,4 +6,7 @@ export class Mapping {
 
   @prop()
   value!: string;
+
+  @prop()
+  updatedAt!: Date;
 }

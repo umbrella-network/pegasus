@@ -1,11 +1,11 @@
 import newrelic from 'newrelic';
 import Migration from '../models/Migration';
 import {getModelForClass} from '@typegoose/typegoose';
-import Block from '../models/Block';
+import CachedValidator from '../models/CachedValidator';
 
 class Migrations {
   static async apply(): Promise<void> {
-    await Migrations.migrateTo429();
+    await Migrations.migrateTo7110();
   }
 
   private static hasMigration = async (v: string): Promise<boolean> => {
@@ -36,19 +36,11 @@ class Migrations {
     }
   };
 
-  private static migrateTo429 = async () => {
-    await Migrations.wrapMigration('4.2.9', async () => {
-      const blockCollection = getModelForClass(Block).collection;
-      const blockIdIndex = 'blockId_-1';
-
-      try {
-        await blockCollection.dropIndex(blockIdIndex);
-      } catch (_) {
-        // we should have index, but just in case
-      }
-
-      await blockCollection.createIndex({blockId: -1}, {unique: false});
-      console.log(`index ${blockIdIndex} recreated.`);
+  private static migrateTo7110 = async () => {
+    await Migrations.wrapMigration('7.11.0', async () => {
+      // we have different index and validator per network, so let's simply drop and rebuild
+      await getModelForClass(CachedValidator).collection.drop();
+      console.log(`collection ${CachedValidator} removed.`);
     });
   };
 }

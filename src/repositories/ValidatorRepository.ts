@@ -4,15 +4,19 @@ import {BigNumber} from 'ethers';
 import {Validator} from '../types/Validator';
 import CachedValidator from '../models/CachedValidator';
 import {Logger} from 'winston';
-import {ChainStatus} from '../types/ChainStatus';
+import {ChainsIds} from '../types/ChainsIds';
 
 @injectable()
 export class ValidatorRepository {
   @inject('Logger') logger!: Logger;
 
-  async list(): Promise<Validator[]> {
-    this.logger.debug('[ValidatorRepository] pulling cached list of validators');
-    const list = await getModelForClass(CachedValidator).find().sort({contractIndex: 1}).exec();
+  async list(chainId: ChainsIds | undefined): Promise<Validator[]> {
+    if (!chainId) {
+      chainId = await this.anyChainWithList();
+    }
+
+    this.logger.debug(`[ValidatorRepository] pulling cached list of validators for ${chainId}`);
+    const list = await getModelForClass(CachedValidator).find({chainId}).sort({contractIndex: 1}).exec();
 
     return list.map((data): Validator => {
       return {
@@ -23,38 +27,35 @@ export class ValidatorRepository {
     });
   }
 
-  async cache(masterChainStatus: ChainStatus): Promise<void> {
-    const ids = masterChainStatus.validators.map((address) => `validator::${address.toLowerCase()}`);
-    await getModelForClass(CachedValidator).deleteMany({_id: {$nin: ids}});
+  protected async anyChainWithList(): Promise<ChainsIds | undefined> {
+    const one = await getModelForClass(CachedValidator).findOne({}, {chainId: 1}).sort({contractIndex: 1}).exec();
+    if (!one) return;
+
+    return one.chainId as ChainsIds;
+  }
+
+  async cache(chainId: ChainsIds, validators: Validator[]): Promise<void> {
+    await getModelForClass(CachedValidator).deleteMany({chainId});
     const CachedValidatorModel = getModelForClass(CachedValidator);
 
     await Promise.all(
-      masterChainStatus.validators.map((address, i) => {
-        const id = `validator::${address.toLowerCase()}`;
+      validators.map((validator, i) => {
+        const id = `validator::${validator.id.toLowerCase()}@${chainId}`;
 
         return CachedValidatorModel.findOneAndUpdate(
           {_id: id},
           {
             _id: id,
+            chainId,
             contractIndex: i,
-            address,
-            location: masterChainStatus.locations[i],
-            power: masterChainStatus.powers[i].toString(),
+            address: validator.id,
+            location: validator.location,
+            power: validator.power.toString(),
             updatedAt: new Date(),
           },
           {upsert: true, new: true},
         ).exec();
       }),
     );
-  }
-
-  parse(masterChainStatus: ChainStatus): Validator[] {
-    return masterChainStatus.validators.map((address, i): Validator => {
-      return {
-        id: address,
-        location: masterChainStatus.locations[i],
-        power: masterChainStatus.powers[i],
-      };
-    });
   }
 }
