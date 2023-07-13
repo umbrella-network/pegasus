@@ -51,10 +51,11 @@ export class ConsensusOptimizer {
     // first, remove participants that have too many discrepancies. These should be outliers.
     // Also remove validators with power = 0
     const candidates: Participant[] = this.selectQualifyingParticipants(participants);
+
     if (candidates.length < minimumRequiredSignatures) {
       this.logger.info('[ConsensusOptimizer] Not enough candidates to achieve consensus');
-      this.logger.info(`[ConsensusOptimizer] Additional Signatures Required: ${minimumRequiredSignatures}`);
-      this.logger.info(`[ConsensusOptimizer] Additional Qualifying Candidates Found: ${candidates.length}`);
+      this.logger.debug(`[ConsensusOptimizer] Additional Signatures Required: ${minimumRequiredSignatures}`);
+      this.logger.debug(`[ConsensusOptimizer] Additional Qualifying Candidates Found: ${candidates.length}`);
       return;
     }
 
@@ -74,9 +75,9 @@ export class ConsensusOptimizer {
         solution ||= proposal;
 
         if (solution) {
-          solution = solution.dropKeys.size > proposal.dropKeys.size ? proposal : solution;
+          solution = this.cloneSolution(solution.dropKeys.size > proposal.dropKeys.size ? proposal : solution);
         } else {
-          solution = proposal;
+          solution = this.cloneSolution(proposal);
         }
       }
 
@@ -103,6 +104,15 @@ export class ConsensusOptimizer {
       power: candidates.map((c) => c.power).reduce((acc, v) => acc + v, 0n),
       signatures: candidates.length,
       dropKeys: new Set(candidates.map((c) => c.discrepancies).flat()),
+    };
+  }
+
+  private cloneSolution(data: ConsensusOptimization): ConsensusOptimization {
+    return {
+      participants: [...data.participants],
+      power: data.power,
+      signatures: data.signatures,
+      dropKeys: new Set(data.dropKeys),
     };
   }
 }
