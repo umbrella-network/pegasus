@@ -108,7 +108,9 @@ class SignatureCollector {
   }
 
   private logBadSignatureCollection(validator: Validator, blockSignerResponse: BlockSignerResponse): void {
-    const errMsg = blockSignerResponse.error || `${blockSignerResponse.discrepancies.length} discrepancies`;
+    const errMsg = blockSignerResponse.error
+      ? `ERROR: ${blockSignerResponse.error}`
+      : `${blockSignerResponse.discrepancies.length} discrepancies`;
 
     newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
       validatorId: validator.id,
@@ -117,7 +119,7 @@ class SignatureCollector {
     });
 
     this.logger.warn(
-      `[SignatureCollector] Validator ${validator.id} at ${validator.location} responded with error: ${errMsg}`,
+      `[SignatureCollector] Validator ${validator.id} at ${validator.location} responded with: ${errMsg}`,
     );
   }
 

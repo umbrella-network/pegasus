@@ -14,6 +14,8 @@ import BasicWorker from "./workers/BasicWorker";
 import {ChainsIds} from "./types/ChainsIds";
 import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
 
+const {NEW_RELIC_LABELS} = process.env;
+
 (async (): Promise<void> => {
   await boot();
 
@@ -25,7 +27,7 @@ import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
   const dataPurger = Application.get(DataPurger);
   const blockDispatcherWorker = Application.get(BlockDispatcherWorker);
   const deviationDispatcherWorker = Application.get(DeviationDispatcherWorker);
-  const validatorListWorker = Application.get(BlockchainMetricsWorker);
+  const blockchainMetricsWorker = Application.get(BlockchainMetricsWorker);
 
   const jobCode = String(Math.floor(Math.random() * 1000));
 
@@ -33,22 +35,24 @@ import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
 
   setTimeout(() => dataPurger.apply(), 100);
 
-  setInterval(async () => {
-    logger.info('[Scheduler] Scheduling MetricsWorker');
+  if (NEW_RELIC_LABELS) {
+    setInterval(async () => {
+      logger.info('[Scheduler] Scheduling MetricsWorker');
 
-    await metricsWorker.enqueue(
-      {},
-      {
-        removeOnComplete: true,
-        removeOnFail: true,
-      },
-    );
-  }, settings.jobs.metricsReporting.interval);
+      await metricsWorker.enqueue(
+        {},
+        {
+          removeOnComplete: true,
+          removeOnFail: true,
+        },
+      );
+    }, settings.jobs.metricsReporting.interval);
+  }
 
   setTimeout(async () => {
     logger.info('initial run for ValidatorListWorker');
 
-    await validatorListWorker.enqueue(
+    await blockchainMetricsWorker.enqueue(
       {},
       {
         removeOnComplete: true,
@@ -60,7 +64,7 @@ import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
   setInterval(async () => {
     logger.info('[Scheduler] Scheduling ValidatorListWorker');
 
-    await validatorListWorker.enqueue(
+    await blockchainMetricsWorker.enqueue(
       {},
       {
         removeOnComplete: true,

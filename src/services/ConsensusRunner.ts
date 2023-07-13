@@ -145,6 +145,8 @@ class ConsensusRunner {
     );
 
     if (!this.hasConsensus(signatures, requiredSignatures)) {
+      this.logger.debug(`[ConsensusRunner] no consensus, discrepantKeys.size: ${discrepantKeys.size}`);
+
       return {
         consensus: {
           dataTimestamp: signedBlock.dataTimestamp,
