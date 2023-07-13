@@ -16,15 +16,17 @@ export class ValidatorRepository {
     }
 
     this.logger.debug(`[ValidatorRepository] pulling cached list of validators for ${chainId}`);
-    const list = await getModelForClass(CachedValidator).find({chainId}).sort({contractIndex: 1}).exec();
+    const validators = await getModelForClass(CachedValidator).find({chainId}).exec();
 
-    return list.map((data): Validator => {
-      return {
-        id: data.address,
-        power: BigNumber.from(data.power),
-        location: data.location,
-      };
-    });
+    return validators
+      .sort((a, b) => (a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1))
+      .map((data): Validator => {
+        return {
+          id: data.address,
+          power: BigNumber.from(data.power),
+          location: data.location,
+        };
+      });
   }
 
   protected async anyChainWithList(): Promise<ChainsIds | undefined> {
