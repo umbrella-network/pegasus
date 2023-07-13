@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.11.2] - 2023-07-14
+### Changed
+- order validators addresses alphabetically
+
 ## [7.11.1] - 2023-07-13
 ### Changed
 - do not run `MetricsWorker` if `NEW_RELIC_LABELS` are not set
