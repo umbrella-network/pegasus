@@ -88,7 +88,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
 
   protected async amILeader(): Promise<boolean> {
     const dataTimestamp = this.timeService.apply();
-    const validators = await this.validatorRepository.list(this.chainId);
+    const validators = await this.validatorRepository.list(undefined);
 
     if (validators.length === 0) throw new Error('validators list is empty');
 

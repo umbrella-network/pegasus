@@ -18,6 +18,19 @@ export class StakingBankContract {
     this.blockchain = blockchain;
   }
 
+  async address(): Promise<string> {
+    const contract = await this.resolveContract();
+    return contract.address;
+  }
+
+  chainId(): string {
+    return this.blockchain.chainId;
+  }
+
+  async networkId(): Promise<number> {
+    return this.blockchain.networkId();
+  }
+
   async resolveValidators(): Promise<Validator[]> {
     const contract = await this.resolveContract();
     const addresses = await this.resolveValidatorsAddresses(contract);
@@ -37,8 +50,8 @@ export class StakingBankContract {
       this.registry = new ContractRegistry(this.blockchain.getProvider(), this.blockchain.getContractRegistryAddress());
     }
 
-    const chainAddress = await this.registry.getAddress(this.settings.blockchain.contracts.bank.name);
-    return new Contract(chainAddress, stakingBankAbi, this.blockchain.getProvider());
+    const bankAddress = await this.registry.getAddress(this.settings.blockchain.contracts.bank.name);
+    return new Contract(bankAddress, stakingBankAbi, this.blockchain.getProvider());
   };
 
   protected async getNumberOfValidators(contract: Contract): Promise<number> {
