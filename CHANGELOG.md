@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.11.4] - 2023-07-16
+### Removed
+- remove displaying error message for BNB in `/info` endpoint
+
 ## [7.11.3] - 2023-07-15
 ### Changed
 - pull list of validators from any blockchain to check the leader

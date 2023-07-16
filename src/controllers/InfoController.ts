@@ -42,7 +42,7 @@ class InfoController {
 
     const validatorAddress = validatorP.status === 'fulfilled' ? validatorP.value : validatorP.reason;
     const chainContractAddress = chainContractP.status === 'fulfilled' ? chainContractP.value : chainContractP.reason;
-    const network = networkP.status === 'fulfilled' ? networkP.value : networkP.reason;
+    const network = networkP.status === 'fulfilled' ? networkP.value : 'N/A';
 
     response.send({
       feedsOnChain: this.settings.feedsOnChain,
