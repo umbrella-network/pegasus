@@ -127,7 +127,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
       s: components.map((sig) => sig.s)
     }
 
-    const payableOverrides = await this.calculatePayableOverrides();
+    const payableOverrides = await this.calculatePayableOverrides({data: chainSubmitArgs});
 
     this.logger.info(`[${this.chainId}] Submitting tx ${JSON.stringify(payableOverrides)}`);
 
