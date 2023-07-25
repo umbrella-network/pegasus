@@ -23,11 +23,12 @@ export default class MultiFeedProcessor {
       this.coingeckoMultiProcessor.apply(feedFetchers),
     ]);
 
-    promisesResults.forEach((result) => {
+    promisesResults.forEach((result, i) => {
       if (result.status === 'fulfilled') {
         response = mergeArrays(response, result.value);
       } else {
-        this.logger.warn(`[MultiFeedProcessor] Ignored multi price processor. Reason: ${result.reason}`);
+        const processor = i == 0 ? 'cryptoCompareMultiProcessor' : 'coingeckoMultiProcessor';
+        this.logger.warn(`[MultiFeedProcessor] Ignored ${processor}. Reason: ${result.reason}`);
       }
     });
 

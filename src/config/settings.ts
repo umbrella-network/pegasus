@@ -91,7 +91,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 1000000000,
-      maxGasPrice: 100000000000,
+      maxGasPrice: 300000000000,
       mintBalance: {
         warningLimit: '0.01',
         errorLimit: '0.0001',
