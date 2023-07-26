@@ -116,13 +116,20 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       signatures
     };
 
-    const payableOverrides = await this.calculatePayableOverrides({data: updateFeedsArgs});
+    const payableOverrides = await this.calculatePayableOverrides({
+      data: updateFeedsArgs,
+      nonce: await this.nextNonce()
+    });
 
-    this.logger.info(`${this.logPrefix} updating tx ${JSON.stringify(payableOverrides)}`);
+    this.logger.info(`${this.logPrefix} sending update() ${JSON.stringify(payableOverrides)}`);
 
     const fn = () => this.feedsContract.update(updateFeedsArgs, payableOverrides);
 
     return {fn, payableOverrides, timeout: this.getTxTimeout()};
+  }
+
+  protected async nextNonce(): Promise<number | undefined> {
+    return this.blockchain.deviationWallet?.getTransactionCount('latest');
   }
 
   protected getTxTimeout(): number {
@@ -135,6 +142,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       return await this.dispatch(fn, payableOverrides, timeout);
     } catch (err) {
       newrelic.noticeError(err);
+      err.message = `[${this.chainId}] ${err.message}`;
       this.logger.error(err);
       return null;
     }

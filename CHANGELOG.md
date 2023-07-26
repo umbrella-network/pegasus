@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+- explicit use current nonce when sending tx
+
+### Updated
+- feeds contract abi
 
 ## [7.11.5] - 2023-07-25
 ### Fixed

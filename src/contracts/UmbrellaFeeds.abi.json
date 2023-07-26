@@ -31,7 +31,22 @@
     },
     {
       "inputs": [],
-      "name": "DataReset",
+      "name": "ContractInUse",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ContractNotInitialised",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ECDSAInvalidSignatureS",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ECDSAInvalidSignatureV",
       "type": "error"
     },
     {
@@ -66,7 +81,7 @@
     },
     {
       "inputs": [],
-      "name": "DATA_RESET",
+      "name": "DECIMALS",
       "outputs": [
         {
           "internalType": "uint8",
@@ -79,12 +94,12 @@
     },
     {
       "inputs": [],
-      "name": "DECIMALS",
+      "name": "DEPLOYED_AT",
       "outputs": [
         {
-          "internalType": "uint8",
+          "internalType": "uint256",
           "name": "",
-          "type": "uint8"
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -147,12 +162,25 @@
       "name": "STAKING_BANK",
       "outputs": [
         {
-          "internalType": "contract IStakingBank",
+          "internalType": "contract IStakingBankStatic",
           "name": "",
           "type": "address"
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_name",
+          "type": "string"
+        }
+      ],
+      "name": "destroy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -372,47 +400,6 @@
           "type": "bytes32"
         }
       ],
-      "name": "getPriceDataRaw",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "uint8",
-              "name": "data",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint24",
-              "name": "heartbeat",
-              "type": "uint24"
-            },
-            {
-              "internalType": "uint32",
-              "name": "timestamp",
-              "type": "uint32"
-            },
-            {
-              "internalType": "uint128",
-              "name": "price",
-              "type": "uint128"
-            }
-          ],
-          "internalType": "struct IUmbrellaFeeds.PriceData",
-          "name": "data",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "_key",
-          "type": "bytes32"
-        }
-      ],
       "name": "getPriceTimestamp",
       "outputs": [
         {
@@ -507,47 +494,6 @@
     {
       "inputs": [
         {
-          "internalType": "string",
-          "name": "_key",
-          "type": "string"
-        }
-      ],
-      "name": "priceData",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "uint8",
-              "name": "data",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint24",
-              "name": "heartbeat",
-              "type": "uint24"
-            },
-            {
-              "internalType": "uint32",
-              "name": "timestamp",
-              "type": "uint32"
-            },
-            {
-              "internalType": "uint128",
-              "name": "price",
-              "type": "uint128"
-            }
-          ],
-          "internalType": "struct IUmbrellaFeeds.PriceData",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "bytes32",
           "name": "_key",
           "type": "bytes32"
@@ -618,41 +564,6 @@
         }
       ],
       "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32[]",
-          "name": "_priceKeys",
-          "type": "bytes32[]"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint8",
-              "name": "v",
-              "type": "uint8"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "r",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "s",
-              "type": "bytes32"
-            }
-          ],
-          "internalType": "struct IUmbrellaFeeds.Signature[]",
-          "name": "_signatures",
-          "type": "tuple[]"
-        }
-      ],
-      "name": "reset",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {

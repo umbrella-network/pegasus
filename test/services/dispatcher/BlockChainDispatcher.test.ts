@@ -120,6 +120,7 @@ describe('BlockChainDispatcher', () => {
     mockedBlockchain.chainSettings = settings.blockchain.multiChains.bsc!;
     mockedBlockchain.wallet = wallet;
     mockedBlockchain.wallet.getBalance = async () => parseEther('10');
+    mockedBlockchain.wallet.getTransactionCount = async () => 1;
     mockedBlockchain.getBlockNumber.onCall(0).resolves(10);
     mockedBlockchain.getBlockNumber.onCall(1).resolves(11);
 
@@ -170,6 +171,7 @@ describe('BlockChainDispatcher', () => {
     describe('when balance is lower than mintBalance.errorLimit', () => {
       beforeEach(() => {
         mockedBlockchain.wallet.getBalance = async () => parseEther('0');
+        mockedBlockchain.wallet.getTransactionCount = async () => 1;
       });
 
       it('throws an error, do not execute transaction and do not save on mongo', async () => {
@@ -187,6 +189,7 @@ describe('BlockChainDispatcher', () => {
     describe('when balance is lower than mintBalance.warnLimit', () => {
       beforeEach(() => {
         mockedBlockchain.wallet.getBalance = async () => parseEther('0.1');
+        mockedBlockchain.wallet.getTransactionCount = async () => 1;
       });
 
       it('logs a warning message', async () => {
@@ -211,6 +214,7 @@ describe('BlockChainDispatcher', () => {
     describe('when balance is higher than mintBalance.warnLimit', () => {
       beforeEach(() => {
         mockedBlockchain.wallet.getBalance = async () => parseEther('1');
+        mockedBlockchain.wallet.getTransactionCount = async () => 1;
       });
 
       it('does save block to database', async () => {

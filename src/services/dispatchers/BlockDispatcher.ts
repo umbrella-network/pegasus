@@ -127,13 +127,20 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
       s: components.map((sig) => sig.s)
     }
 
-    const payableOverrides = await this.calculatePayableOverrides({data: chainSubmitArgs});
+    const payableOverrides = await this.calculatePayableOverrides({
+      data: chainSubmitArgs,
+      nonce: await this.nextNonce()
+    });
 
     this.logger.info(`[${this.chainId}] Submitting tx ${JSON.stringify(payableOverrides)}`);
 
     const fn = () => this.chainContract.submit(chainSubmitArgs, payableOverrides);
 
     return {fn, payableOverrides, timeout: Math.max(chainStatus.timePadding * 1000, 300_000)};
+  }
+
+  protected async nextNonce(): Promise<number | undefined> {
+    return this.blockchain.wallet?.getTransactionCount('latest');
   }
 
   private async mint(
