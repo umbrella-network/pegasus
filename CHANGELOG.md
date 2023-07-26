@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.12.0] - 2023-07-26
+### Changed
+- explicit use current nonce when sending tx
+
+### Updated
+- feeds contract abi
+
 ## [7.11.5] - 2023-07-25
 ### Fixed
 - fix gas estimation for arbitrum dispatcher

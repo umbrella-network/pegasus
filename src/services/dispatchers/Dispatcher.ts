@@ -96,7 +96,7 @@ export abstract class Dispatcher {
     // this is not pretty solution, but we're using proxy, so infura calls should not increase
     let newBlockNumber = await this.blockchain.getBlockNumber();
 
-    while (currentBlockNumber === newBlockNumber) {
+    while (currentBlockNumber >= newBlockNumber) {
       this.logger.info(`[${this.chainId}] waitUntilNextBlock: current ${currentBlockNumber}`);
       await sleep(this.settings.blockchain.transactions.waitForBlockTime);
       newBlockNumber = await this.blockchain.getBlockNumber();
@@ -110,8 +110,10 @@ export abstract class Dispatcher {
     timeoutMs: number,
   ): Promise<{tx: TransactionResponse; receipt: TransactionReceipt | undefined; timeoutMs: number}> {
     const [currentBlockNumber, tx] = await Promise.all([this.blockchain.getBlockNumber(), fn()]);
+    this.logger.info(`[${this.chainId}] tx nonce: ${tx.nonce}, hash: ${tx.hash}`);
+
     // there is no point of doing any action on tx if block is not minted
-    const newBlockNumber = await this.waitUntilNextBlock(currentBlockNumber);
+    const newBlockNumber = await this.waitUntilNextBlock(tx.blockNumber || currentBlockNumber);
     this.logger.info(`[${this.chainId}] New block detected ${newBlockNumber}, waiting for tx to be minted.`);
 
     return {tx, receipt: await Promise.race([tx.wait(), this.txTimeout(timeoutMs)]), timeoutMs};
