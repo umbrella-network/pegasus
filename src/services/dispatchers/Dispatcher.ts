@@ -96,7 +96,7 @@ export abstract class Dispatcher {
     // this is not pretty solution, but we're using proxy, so infura calls should not increase
     let newBlockNumber = await this.blockchain.getBlockNumber();
 
-    while (currentBlockNumber === newBlockNumber) {
+    while (currentBlockNumber >= newBlockNumber) {
       this.logger.info(`[${this.chainId}] waitUntilNextBlock: current ${currentBlockNumber}`);
       await sleep(this.settings.blockchain.transactions.waitForBlockTime);
       newBlockNumber = await this.blockchain.getBlockNumber();
