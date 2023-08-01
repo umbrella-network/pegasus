@@ -16,6 +16,7 @@ export type BlockchainSettings = {
     waitForBlockTime: number;
     minGasPrice: number;
     maxGasPrice: number;
+    gasMultiplier?: number;
     mintBalance: {
       warningLimit: string;
       errorLimit: string;

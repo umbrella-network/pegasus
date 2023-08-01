@@ -121,7 +121,8 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       nonce: await this.nextNonce()
     });
 
-    this.logger.info(`${this.logPrefix} sending update() ${JSON.stringify(payableOverrides)}`);
+    const {gasMultiplier} = this.blockchain.chainSettings.transactions;
+    this.logger.info(`${this.logPrefix} sending update() ${JSON.stringify(payableOverrides)} x${gasMultiplier}`);
 
     const fn = () => this.feedsContract.update(updateFeedsArgs, payableOverrides);
 

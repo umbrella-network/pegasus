@@ -94,7 +94,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       maxGasPrice: 300000000000,
       mintBalance: {
         warningLimit: '0.01',
-        errorLimit: '0.0001',
+        errorLimit: '0.0005',
       },
     },
   },
@@ -330,6 +330,7 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
         maxGasPrice:
           parseInt(process.env[`${chain}_MAX_GAS_PRICE`] as string, 10) ||
           defaultByChain[ChainsIds[chain]].transactions.maxGasPrice,
+        gasMultiplier: parseInt(process.env[`${chain}_GAS_MULTIPLIER`] || '1', 10),
         mintBalance: {
           warningLimit:
             process.env[`${chain}_BALANCE_WARN`] ||

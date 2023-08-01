@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.13.0] - 2023-08-01
+### Added
+- option to set multiplier for gas
+
 ## [7.12.0] - 2023-07-26
 ### Changed
 - explicit use current nonce when sending tx
