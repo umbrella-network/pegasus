@@ -52,8 +52,17 @@ export abstract class Dispatcher {
     const nonce = props?.nonce;
 
     return gasMetrics.isTxType2
-      ? {maxPriorityFeePerGas: gasMetrics.maxPriorityFeePerGas, maxFeePerGas: gasMetrics.maxFeePerGas, nonce}
-      : {gasPrice: gasMetrics.gasPrice, nonce};
+      ? {maxPriorityFeePerGas: this.multiplyGas(gasMetrics.maxPriorityFeePerGas), maxFeePerGas: this.multiplyGas(gasMetrics.maxFeePerGas), nonce}
+      : {gasPrice: this.multiplyGas(gasMetrics.gasPrice), nonce};
+  }
+
+  protected multiplyGas(n: number | undefined): number | undefined {
+    if (n === undefined) return undefined;
+
+    const {gasMultiplier} = this.blockchain.chainSettings.transactions;
+    if (!gasMultiplier) return n;
+
+    return n * gasMultiplier;
   }
 
   protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
