@@ -98,6 +98,18 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
+  base: {
+    type: resolveBlockchainType(ChainsIds.BASE) || [BlockchainType.ON_CHAIN],
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      maxGasPrice: 300000000000,
+      mintBalance: {
+        warningLimit: '0.01',
+        errorLimit: '0.0005',
+      },
+    },
+  },
 };
 
 const settings: Settings = {

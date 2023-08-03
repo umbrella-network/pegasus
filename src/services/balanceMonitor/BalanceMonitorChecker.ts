@@ -24,7 +24,7 @@ export class BalanceMonitorChecker {
       return true;
     }
 
-    this.logger.info(`[BalanceMonitorChecker] checking ${chainIds.join(', ')}`);
+    this.logger.debug(`[BalanceMonitorChecker] checking ${chainIds.join(', ')}`);
 
     return Object.values(balancesDatas).filter(data => {
       const {error} = JSON.parse(data);
