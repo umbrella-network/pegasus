@@ -49,8 +49,8 @@ export class DeviationVerifier {
     const dataToUpdate = await this.deviationTrigger.apply(deviationDataToSign.dataTimestamp, data, undefined);
 
     if (!dataToUpdate) {
-      this.logger.info('[DeviationVerifier] nothing is triggered');
-      return {discrepancies: [], error: 'nothing is triggered', version: this.settings.version};
+      this.logger.info(`[DeviationVerifier] nothing is triggered at ${deviationDataToSign.dataTimestamp}`);
+      return {discrepancies: [], error: `nothing is triggered at ${deviationDataToSign.dataTimestamp}`, version: this.settings.version};
     }
 
     const {feeds, leaves} = data;
