@@ -9,6 +9,7 @@ import {AvalancheDeviationDispatcher} from "./networks/AvalancheDeviationDispatc
 import {LineaDeviationDispatcher} from "./networks/LineaDeviationDispatcher";
 import {ArbitrumDeviationDispatcher} from "./networks/ArbitrumDeviationDispatcher";
 import {PolygonDeviationDispatcher} from "./networks/PolygonDeviationDispatcher";
+import {BaseDeviationDispatcher} from "./networks/BaseDeviationDispatcher";
 
 export type DeviationFeedsDispatcherProps = {
   chainId: ChainsIds;
@@ -26,12 +27,14 @@ export class DeviationFeedsDispatcher {
     @inject(BSCDeviationDispatcher) bscDeviationDispatcher: BSCDeviationDispatcher,
     @inject(LineaDeviationDispatcher) lineaDeviationDispatcher: LineaDeviationDispatcher,
     @inject(PolygonDeviationDispatcher) polygonDeviationDispatcher: PolygonDeviationDispatcher,
+    @inject(BaseDeviationDispatcher) baseDeviationDispatcher: BaseDeviationDispatcher,
   ) {
     this.dispatchers = {
       arbitrum: arbitrumDeviationDispatcher,
       avax: avalancheDeviationDispatcher,
       bsc: bscDeviationDispatcher,
       linea: lineaDeviationDispatcher,
+      base: baseDeviationDispatcher,
       polygon: polygonDeviationDispatcher,
     };
   }
