@@ -3,10 +3,10 @@ import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import {chunk} from 'lodash';
 
 import Settings from '../../types/Settings';
-import {UniswapV3Factory} from '../../contracts/UniswapV3Factory';
+import {UniswapV3Factory} from '../../contracts/evm/UniswapV3Factory';
 import {UniswapPoolService} from './UniswapPoolService';
 import {BlockchainScanner} from '../BlockchainScanner';
-import {UniswapV3Helper} from '../../contracts/UniswapV3Helper';
+import {UniswapV3Helper} from '../../contracts/evm/UniswapV3Helper';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
 import {Token} from '../../models/BlockchainSymbol';
 

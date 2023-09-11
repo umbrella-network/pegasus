@@ -1,20 +1,23 @@
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers} from 'ethers';
+import {BaseProvider} from "@ethersproject/providers";
 
 import BlockChainProviderFactory from '../BlockChainProviderFactory';
-import Blockchain from '../../lib/Blockchain';
 
 import YearnVaultExplorer from './YearnVaultExplorer.json';
+import {ProviderFactory} from "../../factories/ProviderFactory";
+import {ChainsIds} from "../../types/ChainsIds";
 
 @injectable()
 class YearnVaultTokenPriceFetcher {
   @inject(BlockChainProviderFactory) blockChainProviderFactory!: BlockChainProviderFactory;
-  @inject(Blockchain) blockchain!: Blockchain;
 
   async apply(params: any): Promise<any> {
     const {network, address} = params;
 
-    const provider = network ? this.blockChainProviderFactory.apply(network) : this.blockchain.provider;
+    const provider = network
+      ? this.blockChainProviderFactory.apply(network)
+      : ProviderFactory.create(ChainsIds.ETH).getRawProvider<BaseProvider>();
 
     const contract = new ethers.Contract(address, YearnVaultExplorer, provider);
 

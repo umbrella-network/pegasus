@@ -6,8 +6,6 @@ import BlockRepository from '../repositories/BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import TimeService from './TimeService';
-import ChainContract from '../contracts/ChainContract';
-import Blockchain from '../lib/Blockchain';
 import Leaf from '../types/Leaf';
 import {BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
 import {Consensus, ConsensusStatus, DataForConsensus, LeavesAndFeeds} from '../types/Consensus';
@@ -25,15 +23,13 @@ import {sleep} from '../utils/sleep';
 @injectable()
 class ConsensusRunner {
   @inject('Logger') logger!: Logger;
-  @inject(Blockchain) blockchain!: Blockchain;
-  @inject(ChainContract) chainContract!: ChainContract;
+  @inject('Settings') settings!: Settings;
   @inject(TimeService) timeService!: TimeService;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject(FeedDataService) feedDataService!: FeedDataService;
   @inject(SimpleConsensusResolver) simpleConsensusResolver!: SimpleConsensusResolver;
   @inject(OptimizedConsensusResolver) optimizedConsensusResolver!: OptimizedConsensusResolver;
-  @inject('Settings') settings!: Settings;
 
   async apply(
     dataTimestamp: number,
@@ -122,11 +118,13 @@ class ConsensusRunner {
   ): Promise<{consensus: Consensus; discrepantKeys: Set<string>}> {
     const {fcdKeys, fcdValues, leaves} = dataForConsensus;
 
+    const wallet = new Wallet(this.settings.blockchain.wallets.evm.privateKey);
+
     const signedBlock: SignedBlock = {
       dataTimestamp: dataForConsensus.dataTimestamp,
       leaves: this.leavesToKeyValues(leaves),
       fcd: this.fcdToKeyValues(fcdKeys, fcdValues),
-      signature: await signAffidavitWithWallet(this.blockchain.wallet, dataForConsensus.affidavit),
+      signature: await signAffidavitWithWallet(wallet, dataForConsensus.affidavit),
     };
 
     this.logger.info(

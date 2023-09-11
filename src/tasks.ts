@@ -38,7 +38,7 @@ async function dbCleanUp(): Promise<void> {
 async function estimateGasPrice(settings: Settings): Promise<void> {
   const blockchain = Application.get(Blockchain);
   const {minGasPrice, maxGasPrice} = settings.blockchain.transactions;
-  await GasEstimator.apply(blockchain.provider, minGasPrice, maxGasPrice);
+  await GasEstimator.apply(blockchain.provider.getRawProvider(), minGasPrice, maxGasPrice);
 }
 
 const ev = new EventEmitter();

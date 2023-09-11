@@ -77,7 +77,7 @@ describe('BlockRepository', () => {
     expect(blockFromDb?.timestamp).to.be.a('Date');
   });
 
-  it('throw when try to overide minted block', async () => {
+  it('throw when try to override minted block', async () => {
     const params = {
       id: 'block::1',
       chainAddress: '0x333',

@@ -1,17 +1,16 @@
 import {inject, injectable} from 'inversify';
 
 import LeaderSelector from "../multiChain/LeaderSelector";
-import Blockchain from "../../lib/Blockchain";
 import Settings from "../../types/Settings";
+import {Wallet} from "ethers";
 
 @injectable()
 export class DeviationLeaderSelector {
   @inject('Settings') settings!: Settings;
-  @inject(Blockchain) blockchain!: Blockchain;
 
   apply(dataTimestamp: number, validators: string[]): boolean {
     const roundLength = this.settings.deviationTrigger.roundLengthSeconds;
     const leader = LeaderSelector.apply(dataTimestamp, validators, roundLength);
-    return leader.toLowerCase() == this.blockchain.wallet.address.toLowerCase();
+    return leader.toLowerCase() == new Wallet(this.settings.blockchain.wallets.evm.privateKey).address.toLowerCase();
   }
 }

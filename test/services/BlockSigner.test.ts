@@ -6,7 +6,7 @@ import {BigNumber, Wallet} from 'ethers';
 
 import BlockSigner from '../../src/services/BlockSigner';
 import Blockchain from '../../src/lib/Blockchain';
-import ChainContract from '../../src/contracts/ChainContract';
+import ChainContract from '../../src/contracts/evm/ChainContract';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {signAffidavitWithWallet} from '../../src/utils/mining';
@@ -17,6 +17,7 @@ import {leavesAndFeedsFactory} from '../mocks/factories/leavesAndFeedsFactory';
 import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';
 import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
 import {ChainsStatuses} from '../../src/types/ChainStatus';
+import {mockIWallet} from '../helpers/mockIWallet';
 
 chai.use(chaiAsPromised);
 
@@ -72,7 +73,7 @@ describe('BlockSigner', () => {
       const leaderWallet = Wallet.createRandom();
       const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
-      mockedBlockchain.wallet = wallet;
+      mockedBlockchain.wallet = mockIWallet(wallet);
 
       allStates.chainsStatuses = [
         {
@@ -104,7 +105,7 @@ describe('BlockSigner', () => {
       const signature = await signAffidavitWithWallet(wallet, affidavit);
       const nextLeader = Wallet.createRandom().address;
 
-      mockedBlockchain.wallet = Wallet.createRandom();
+      mockedBlockchain.wallet.rawWallet = Wallet.createRandom();
 
       allStates.chainsStatuses = [
         {
@@ -140,7 +141,8 @@ describe('BlockSigner', () => {
       const {affidavit, fcd, timestamp} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(wallet, affidavit);
-      mockedBlockchain.wallet = wallet;
+
+      mockedBlockchain.wallet = mockIWallet(wallet);
 
       allStates.chainsStatuses = [
         {
@@ -160,7 +162,7 @@ describe('BlockSigner', () => {
           leaves: fcd,
           signature: signature,
         }),
-      ).to.be.rejectedWith('[BlockSigner] You should not call yourself for signature.');
+      ).to.be.rejectedWith('Signature does not belong to the current leader, expected');
     });
   });
 
@@ -171,7 +173,7 @@ describe('BlockSigner', () => {
         const leaderWallet = Wallet.createRandom();
         const wallet = Wallet.createRandom();
         const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
-        mockedBlockchain.wallet = wallet;
+        mockedBlockchain.wallet = mockIWallet(wallet);
 
         allStates.chainsStatuses = [
           {
@@ -221,7 +223,7 @@ describe('BlockSigner', () => {
         const leaderWallet = Wallet.createRandom();
         const wallet = Wallet.createRandom();
         const signature = await signAffidavitWithWallet(leaderWallet, affidavit);
-        mockedBlockchain.wallet = wallet;
+        mockedBlockchain.wallet = mockIWallet(wallet);
 
         allStates.chainsStatuses = [
           {

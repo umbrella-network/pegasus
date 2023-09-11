@@ -2,8 +2,9 @@ import {inject, injectable} from 'inversify';
 import axios from 'axios';
 import {Logger} from 'winston';
 import newrelic from 'newrelic';
+import {Wallet} from 'ethers';
+
 import {SignedBlock} from '../types/SignedBlock';
-import Blockchain from '../lib/Blockchain';
 import {Validator} from '../types/Validator';
 import Settings from '../types/Settings';
 import {BlockSignerResponse, BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
@@ -14,12 +15,11 @@ import {ValidatorStatusChecker} from './ValidatorStatusChecker';
 @injectable()
 class SignatureCollector {
   @inject('Logger') private logger!: Logger;
-  @inject(Blockchain) private blockchain!: Blockchain;
   @inject(ValidatorStatusChecker) private validatorStatusChecker!: ValidatorStatusChecker;
   @inject('Settings') private settings!: Settings;
 
   async apply(block: SignedBlock, affidavit: string, validators: Validator[]): Promise<BlockSignerResponseWithPower[]> {
-    const selfAddress = this.blockchain.wallet.address.toLowerCase();
+    const selfAddress = new Wallet(this.settings.blockchain.wallets.evm.privateKey).address.toLowerCase();
     const self = <Validator>validators.find((v) => v.id.toLowerCase() === selfAddress.toLowerCase());
     const participants = validators.filter((v) => v.id.toLowerCase() !== selfAddress.toLowerCase());
 

@@ -1,14 +1,12 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
-import {BigNumber} from 'ethers';
+import {BigNumber, Wallet} from 'ethers';
 
 import ConsensusRunner from './ConsensusRunner';
 import BlockRepository from '../repositories/BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
 import TimeService from './TimeService';
-import ChainContract from '../contracts/ChainContract';
-import Blockchain from '../lib/Blockchain';
 import Settings, {BlockchainType} from '../types/Settings';
 import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
 import {ConsensusDataRepository} from '../repositories/ConsensusDataRepository';
@@ -28,8 +26,6 @@ const MASTERCHAINSTATUS_TIME_PADDING = 'masterChainStatus.timePadding';
 @injectable()
 class BlockMinter {
   @inject('Logger') logger!: Logger;
-  @inject(Blockchain) blockchain!: Blockchain;
-  @inject(ChainContract) chainContract!: ChainContract;
   @inject(ConsensusRunner) consensusRunner!: ConsensusRunner;
   @inject(MultiChainStatusResolver) multiChainStatusResolver!: MultiChainStatusResolver;
   @inject(MultiChainStatusProcessor) multiChainStatusProcessor!: MultiChainStatusProcessor;
@@ -45,12 +41,10 @@ class BlockMinter {
   @inject('Settings') settings!: Settings;
 
   async apply(): Promise<void> {
-    await this.blockchain.setLatestProvider();
     const dataTimestamp = this.timeService.apply(this.settings.dataTimestampOffsetSeconds);
 
-    if (!(await this.balanceMonitorChecker.apply(BlockchainType.LAYER2, this.blockchain.wallet.address))) {
-      const address = this.blockchain.wallet.address;
-      this.logger.error(`[BlockMinter] There is not enough balance in any of the chains for ${address}`);
+    if (!(await this.balanceMonitorChecker.apply(BlockchainType.LAYER2))) {
+      this.logger.error(`[BlockMinter] There is not enough balance in any of the chains for ${BlockchainType.LAYER2}`);
       await sleep(60_000); // slow down execution
       return;
     }
@@ -134,11 +128,12 @@ class BlockMinter {
   }
 
   private isLeader(nextLeader: string, dataTimestamp: number): boolean {
-    this.logger.info(
-      `Next leader for ${dataTimestamp}: ${nextLeader}, ${nextLeader === this.blockchain.wallet.address}`,
-    );
+    const walletAddress = new Wallet(this.settings.blockchain.wallets.evm.privateKey).address;
+    const addressMatch = nextLeader.toLowerCase() === walletAddress.toLowerCase();
 
-    return nextLeader.toLowerCase() === this.blockchain.wallet.address.toLowerCase();
+    this.logger.info(`Next leader for ${dataTimestamp}: ${nextLeader}, ${addressMatch}`);
+
+    return addressMatch;
   }
 }
 

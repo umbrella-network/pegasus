@@ -1,0 +1,293 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.71.0-nightly",
+            "commitHash": "7f94b314cead7059a71a265a8b64905ef2511796",
+            "commitDate": "2023-04-23",
+            "channel": "Nightly",
+            "short": "rustc 1.71.0-nightly (7f94b314c 2023-04-23)"
+        },
+        "contractCrate": {
+            "name": "umbrella-feeds",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.41.3"
+        }
+    },
+    "name": "UmbrellaFeeds",
+    "constructor": {
+        "inputs": [
+            {
+                "name": "staking_bank",
+                "type": "Address"
+            },
+            {
+                "name": "required_signatures",
+                "type": "u32"
+            },
+            {
+                "name": "decimals",
+                "type": "u8"
+            }
+        ],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "update",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "price_keys",
+                    "type": "counted-variadic<bytes>",
+                    "multi_arg": true
+                },
+                {
+                    "name": "price_datas",
+                    "type": "counted-variadic<PriceData>",
+                    "multi_arg": true
+                },
+                {
+                    "name": "signatures",
+                    "type": "counted-variadic<Signature>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getManyPriceData",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "keys",
+                    "type": "variadic<bytes>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<PriceData>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getManyPriceDataRaw",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "keys",
+                    "type": "variadic<bytes>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<PriceData>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getPriceData",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "key",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "PriceData"
+                }
+            ]
+        },
+        {
+            "name": "getPrice",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "key",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "name": "getPriceTimestamp",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "key",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                },
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getPriceTimestampHeartbeat",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "key",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                },
+                {
+                    "type": "u32"
+                },
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "getPriceDataByName",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "name",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "PriceData"
+                }
+            ]
+        },
+        {
+            "name": "hashData",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "price_keys",
+                    "type": "List<bytes>"
+                },
+                {
+                    "name": "price_datas",
+                    "type": "List<PriceData>"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "array32<u8>"
+                }
+            ]
+        },
+        {
+            "name": "verifySignatures",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "hash",
+                    "type": "array32<u8>"
+                },
+                {
+                    "name": "signatures",
+                    "type": "counted-variadic<Signature>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "prices",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "key",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "PriceData"
+                }
+            ]
+        },
+        {
+            "name": "required_signatures",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u32"
+                }
+            ]
+        },
+        {
+            "name": "decimals",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "staking_bank",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        }
+    ],
+    "events": [],
+    "hasCallback": false,
+    "types": {
+        "PriceData": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "heartbeat",
+                    "type": "u32"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u32"
+                },
+                {
+                    "name": "price",
+                    "type": "BigUint"
+                }
+            ]
+        },
+        "Signature": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "address",
+                    "type": "Address"
+                },
+                {
+                    "name": "signature",
+                    "type": "array64<u8>"
+                }
+            ]
+        }
+    }
+}

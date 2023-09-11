@@ -6,7 +6,7 @@ import {BigNumber, Wallet} from 'ethers';
 
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
-import ChainContract from '../../src/contracts/ChainContract';
+import ChainContract from '../../src/contracts/evm/ChainContract';
 import Settings from '../../src/types/Settings';
 import ConsensusRunner from '../../src/services/ConsensusRunner';
 import TimeService from '../../src/services/TimeService';
@@ -18,6 +18,7 @@ import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse'
 import {signAffidavitWithWallet} from '../../src/utils/mining';
 import {getTestContainer} from '../helpers/getTestContainer';
 import {FeedDataService} from '../../src/services/FeedDataService';
+import {mockIWallet} from '../helpers/mockIWallet';
 
 chai.use(chaiAsPromised);
 
@@ -31,6 +32,7 @@ describe('ConsensusRunner', () => {
   let mockedFeedDataService: sinon.SinonStubbedInstance<FeedDataService>;
 
   let consensusRunner: ConsensusRunner;
+  const leaderWallet = Wallet.createRandom();
 
   beforeEach(async () => {
     const container = getTestContainer();
@@ -49,6 +51,13 @@ describe('ConsensusRunner', () => {
         retries: 2,
       },
       version: '1',
+      blockchain: {
+        wallets: {
+          evm: {
+            privateKey: leaderWallet.privateKey,
+          },
+        },
+      },
     } as Settings;
 
     container.rebind('Logger').toConstantValue(mockedLogger);
@@ -65,7 +74,7 @@ describe('ConsensusRunner', () => {
   });
 
   it('return empty object when not enough votes', async () => {
-    mockedBlockchain.wallet = Wallet.createRandom();
+    mockedBlockchain.wallet = mockIWallet(leaderWallet);
     const {leaf, affidavit} = leafWithAffidavit;
 
     mockedFeedDataService.apply.resolves({
@@ -79,7 +88,7 @@ describe('ConsensusRunner', () => {
       {
         discrepancies: [],
         power: BigNumber.from(10),
-        signature: await signAffidavitWithWallet(mockedBlockchain.wallet, affidavit),
+        signature: await signAffidavitWithWallet(mockedBlockchain.wallet.getRawWallet(), affidavit),
         version: '1',
       },
     ] as BlockSignerResponseWithPower[]);
@@ -98,14 +107,14 @@ describe('ConsensusRunner', () => {
   });
 
   it('return empty object when not enough signatures', async () => {
-    mockedBlockchain.wallet = Wallet.createRandom();
+    mockedBlockchain.wallet = mockIWallet(Wallet.createRandom());
     const {leaf, affidavit} = leafWithAffidavit;
 
     mockedSignatureCollector.apply.resolves([
       {
         discrepancies: [],
         power: BigNumber.from(15),
-        signature: await signAffidavitWithWallet(mockedBlockchain.wallet, affidavit),
+        signature: await signAffidavitWithWallet(mockedBlockchain.wallet.getRawWallet(), affidavit),
         version: '1',
       },
     ] as BlockSignerResponseWithPower[]);
@@ -131,7 +140,7 @@ describe('ConsensusRunner', () => {
   });
 
   it('consensus is successful', async () => {
-    mockedBlockchain.wallet = Wallet.createRandom();
+    mockedBlockchain.wallet = mockIWallet(Wallet.createRandom());
 
     const {leaf, affidavit} = leafWithAffidavit;
 
@@ -139,7 +148,7 @@ describe('ConsensusRunner', () => {
       {
         discrepancies: [],
         power: BigNumber.from(15),
-        signature: await signAffidavitWithWallet(mockedBlockchain.wallet, affidavit),
+        signature: await signAffidavitWithWallet(mockedBlockchain.wallet.getRawWallet(), affidavit),
         version: '1',
       },
     ] as BlockSignerResponseWithPower[]);
@@ -167,7 +176,7 @@ describe('ConsensusRunner', () => {
   });
 
   it('discrepancy found', async () => {
-    mockedBlockchain.wallet = Wallet.createRandom();
+    mockedBlockchain.wallet = mockIWallet(Wallet.createRandom());
 
     mockedSignatureCollector.apply.resolves([
       {

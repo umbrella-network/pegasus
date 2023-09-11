@@ -6,7 +6,7 @@ export function getTestContainer(): Container {
   const container = new Container({autoBindInjectable: true});
 
   const logger = createLogger({
-    level: 'INFO',
+    level: 'DEBUG',
     transports: [new transports.Console({silent: true})],
   });
 

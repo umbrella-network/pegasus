@@ -1,10 +1,13 @@
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {DeviationConsensus} from '../models/DeviationConsensus';
+import {Logger} from 'winston';
 
 @injectable()
 export class DeviationTriggerConsensusRepository {
+  @inject('Logger') logger!: Logger;
+
   async save(props: DeviationConsensus): Promise<void> {
     const ConsensusDataModel = getModelForClass(DeviationConsensus);
     await ConsensusDataModel.deleteMany({chainId: props.chainId});
@@ -20,6 +23,8 @@ export class DeviationTriggerConsensusRepository {
     });
 
     await consensusData.save();
+
+    this.logger.info(`[${props.chainId}] saved consensus @${props.dataTimestamp}`);
   }
 
   async read(chainId: string): Promise<DeviationConsensus | undefined> {

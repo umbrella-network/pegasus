@@ -6,8 +6,9 @@ export enum ChainsIds {
   ETH = 'ethereum',
   LINEA = 'linea',
   BASE = 'base',
+  MULTIVERSX = 'multiversx',
 }
 
 export type ChainsIdsKeys = keyof typeof ChainsIds;
 
-export const NonEvmChainsIds: ChainsIds[] = [];
+export const NonEvmChainsIds: ChainsIds[] = [ChainsIds.MULTIVERSX];

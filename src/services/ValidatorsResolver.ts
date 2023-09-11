@@ -25,7 +25,7 @@ export class ValidatorsResolver {
       await this.validatorRepository.cache(chainId, validators);
     } catch (e) {
       this.logger.error(`[ValidatorsResolver] ${chainId}: ${e.message}`);
-      const [address, networkId] = await Promise.all([bank.address(), bank.chainId(), bank.networkId()]);
+      const [address, networkId] = await Promise.all([bank.address(), bank.chainId()]);
       this.logger.info(`[ValidatorsResolver] bank ${address} chainId: ${bank.chainId()}, networkId: ${networkId}`);
     }
   }

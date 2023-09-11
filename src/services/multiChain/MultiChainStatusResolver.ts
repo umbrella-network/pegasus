@@ -1,7 +1,7 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
-import ChainContract from '../../contracts/ChainContract';
+import ChainContract from '../../contracts/evm/ChainContract';
 import Settings from '../../types/Settings';
 import {ChainContractRepository} from '../../repositories/ChainContractRepository';
 import {promiseWithTimeout} from '../../utils/promiseWithTimeout';

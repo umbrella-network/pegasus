@@ -9,7 +9,7 @@ export class ValidatorStatusChecker {
   @inject('Logger') protected logger!: Logger;
 
   async apply(validator: Validator, timeout: number): Promise<void> {
-    const sourceUrl = `${validator.location}/info`;
+    const sourceUrl = `${validator.location}/info?ping=1`;
 
     const response = await axios.get(sourceUrl, {
       timeoutErrorMessage: `Status check timeout exceeded: ${sourceUrl}`,

@@ -6,7 +6,6 @@ import {DeviationConsensusRunner} from "./DeviationConsensusRunner";
 import {ValidatorRepository} from "../../repositories/ValidatorRepository";
 import {FeedsContractRepository} from "../../repositories/FeedsContractRepository";
 import {DeviationTriggerConsensusRepository} from "../../repositories/DeviationTriggerConsensusRepository";
-import Blockchain from "../../lib/Blockchain";
 import Settings, {BlockchainType} from "../../types/Settings";
 import {DeviationTrigger} from "./DeviationTrigger";
 import {FeedsType} from "../../types/Feed";
@@ -22,7 +21,6 @@ import {RequiredSignaturesRepository} from "../../repositories/RequiredSignature
 export class DeviationLeader {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
-  @inject(Blockchain) blockchain!: Blockchain;
   @inject(TimeService) timeService!: TimeService;
   @inject(FeedDataService) feedDataService!: FeedDataService;
   @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
@@ -36,16 +34,8 @@ export class DeviationLeader {
   @inject(RequiredSignaturesRepository) requiredSignaturesRepository!: RequiredSignaturesRepository;
 
   async apply(): Promise<void> {
-    const walletAddress = this.blockchain.deviationWallet?.address;
-
-    if (!walletAddress) {
-      this.logger.error(`[DeviationLeader] empty wallet`);
-      await sleep(60_000); // slow down execution
-      return;
-    }
-
-    if (!(await this.balanceMonitorChecker.apply(BlockchainType.ON_CHAIN, walletAddress))) {
-      this.logger.error(`[DeviationLeader] There is not enough balance in any of the chains for ${walletAddress}`);
+    if (!(await this.balanceMonitorChecker.apply(BlockchainType.ON_CHAIN))) {
+      this.logger.error(`[DeviationLeader] There is not enough balance in any of the chains for ${BlockchainType.ON_CHAIN}`);
       await sleep(60_000); // slow down execution
       return;
     }

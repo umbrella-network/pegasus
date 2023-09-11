@@ -8,7 +8,6 @@ import {initMongoDB} from './config/initMongoDB';
 import Migrations from './services/Migrations';
 import ApplicationUpdateService from './services/ApplicationUpdateService';
 import Application from './lib/Application';
-import Blockchain from './lib/Blockchain';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (BigInt.prototype as any).toJSON = function () {
@@ -22,6 +21,5 @@ export async function boot(): Promise<void> {
   await initMongoDB(settings);
   await Migrations.apply();
 
-  await Application.get(Blockchain).setLatestProvider();
   await Application.get(ApplicationUpdateService).startUpdate();
 }
