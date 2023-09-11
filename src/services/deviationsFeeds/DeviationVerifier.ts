@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import Settings from "../../types/Settings";
-import Blockchain from "../../lib/Blockchain";
 import {FeedDataService} from "../FeedDataService";
 import {
   DeviationDataToSign,
@@ -15,21 +14,20 @@ import {PriceMetadataComparator} from "./PriceMetadataComparator";
 import {DeviationSigner} from "./DeviationSigner";
 import {DeviationChainMetadata} from "./DeviationChainMetadata";
 import {DeviationTrigger} from "./DeviationTrigger";
+import {DeviationHasher} from "./DeviationHasher";
 
 @injectable()
 export class DeviationVerifier {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
-  @inject(Blockchain) blockchain!: Blockchain;
   @inject(FeedDataService) feedDataService!: FeedDataService;
   @inject(PriceMetadataComparator) priceDataComperator!: PriceMetadataComparator;
+  @inject(DeviationHasher) deviationHasher!: DeviationHasher;
   @inject(DeviationSigner) deviationSigner!: DeviationSigner;
   @inject(DeviationChainMetadata) deviationChainMetadata!: DeviationChainMetadata;
   @inject(DeviationTrigger) deviationTrigger!: DeviationTrigger;
 
   async apply(deviationDataToSign: DeviationDataToSign): Promise<DeviationSignerResponse> {
-    await this.blockchain.setLatestProvider();
-
     const uniqueKeys = Object.keys(deviationDataToSign.leaves);
 
     this.logger.info(
@@ -90,7 +88,8 @@ export class DeviationVerifier {
         const data = deviationDataToSign.feedsForChain[chainId];
         this.logger.info(`[DeviationVerifier] signing ${data} for ${chainId} (${networkId})`);
 
-        return this.deviationSigner.apply(networkId, target, deviationDataToSign.feedsForChain[chainId], priceDatas)
+        const hash = this.deviationHasher.apply(chainId, networkId, target, deviationDataToSign.feedsForChain[chainId], priceDatas)
+        return this.deviationSigner.apply(chainId, hash)
       }
     ));
 

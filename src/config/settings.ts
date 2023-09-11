@@ -25,7 +25,7 @@ function resolveBlockchainType(chain: ChainsIds): BlockchainType[] | undefined {
 }
 
 const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
-  bsc: {
+  [ChainsIds.BSC]: {
     type: resolveBlockchainType(ChainsIds.BSC) || [BlockchainType.LAYER2],
     contractRegistryAddress: process.env.REGISTRY_CONTRACT_ADDRESS,
     transactions: {
@@ -38,7 +38,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
-  avax: {
+  [ChainsIds.AVALANCHE]: {
     type: resolveBlockchainType(ChainsIds.AVALANCHE) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
     transactions: {
       waitForBlockTime: 1000,
@@ -50,7 +50,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
-  polygon: {
+  [ChainsIds.POLYGON]: {
     type: resolveBlockchainType(ChainsIds.POLYGON) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
     transactions: {
       waitForBlockTime: 1000,
@@ -62,7 +62,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
-  arbitrum: {
+  [ChainsIds.ARBITRUM]: {
     type: resolveBlockchainType(ChainsIds.ARBITRUM) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
     transactions: {
       waitForBlockTime: 1000,
@@ -74,7 +74,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
-  ethereum: {
+  [ChainsIds.ETH]: {
     type: resolveBlockchainType(ChainsIds.ETH) || [BlockchainType.LAYER2],
     transactions: {
       waitForBlockTime: 1000,
@@ -86,7 +86,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
-  linea: {
+  [ChainsIds.LINEA]: {
     type: resolveBlockchainType(ChainsIds.LINEA) || [BlockchainType.ON_CHAIN],
     transactions: {
       waitForBlockTime: 1000,
@@ -98,8 +98,21 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
-  base: {
+  [ChainsIds.BASE]: {
     type: resolveBlockchainType(ChainsIds.BASE) || [BlockchainType.ON_CHAIN],
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      maxGasPrice: 300000000000,
+      mintBalance: {
+        warningLimit: '0.01',
+        errorLimit: '0.0005',
+      },
+    },
+  },
+  [ChainsIds.MULTIVERSX]: {
+    // TODO
+    type: resolveBlockchainType(ChainsIds.MULTIVERSX) || [BlockchainType.ON_CHAIN],
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
@@ -167,12 +180,19 @@ const settings: Settings = {
   },
   blockchain: {
     providers: resolveBlockchainProviders(),
-    provider: {
-      urls: getProvidersURLs(),
-      privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
-      deviationPrivateKey: process.env.DEVIATION_PRIVATE_KEY
-        ? (process.env.DEVIATION_PRIVATE_KEY as string)
-        : undefined,
+    wallets: {
+      evm: {
+        privateKey: process.env.VALIDATOR_PRIVATE_KEY as string,
+        deviationPrivateKey: process.env.DEVIATION_PRIVATE_KEY
+          ? (process.env.DEVIATION_PRIVATE_KEY as string)
+          : undefined,
+      },
+      multiversX: {
+        privateKey: process.env.MULTIVERSX_SIGNING_PRIVATE_KEY as string,
+        deviationPrivateKey: process.env.MULTIVERSX_DEVIATION_PRIVATE_KEY
+          ? (process.env.MULTIVERSX_DEVIATION_PRIVATE_KEY as string)
+          : undefined,
+      },
     },
     masterChain: {
       chainId: ChainsIds.BSC,
@@ -305,14 +325,6 @@ function resolveArray(iterator: (i: number) => string): string[] {
   }
 
   return result;
-}
-
-function getProvidersURLs(): string[] {
-  const urls = `${process.env.BLOCKCHAIN_PROVIDER_URL},${process.env.BLOCKCHAIN_PROVIDER_URLS}`
-    .split(',')
-    .filter((url) => url.startsWith('http'));
-
-  return urls.length > 0 ? urls : ['http://127.0.0.1:8545'];
 }
 
 function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettings>> {

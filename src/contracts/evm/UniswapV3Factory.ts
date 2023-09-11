@@ -1,9 +1,9 @@
 import {Contract, ethers} from 'ethers';
 import {inject, injectable} from 'inversify';
-import Settings from '../types/Settings';
+import Settings from '../../types/Settings';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import ABI from './UniswapV3Factory.abi.json';
-import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository';
+import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
 
 export type PoolCreatedEvent = {
   token0: string;

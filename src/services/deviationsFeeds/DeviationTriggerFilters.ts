@@ -71,7 +71,12 @@ export class DeviationTriggerFilters {
     onChainData?: PriceDataByKey
   ): { keysToUpdate: string[], logs: string[] } {
     const results = Object.keys(feedsForChain).map((key): FilterResultWithKey => {
-      if (!onChainData || !onChainData[key]) {
+      if (!onChainData) {
+        // there was probably some issue with pulling data and there is no data for chain
+        return {result: false, key};
+      }
+
+      if (!onChainData[key]) {
         return {result: true, key};
       }
 

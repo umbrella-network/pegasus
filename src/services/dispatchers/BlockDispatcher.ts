@@ -1,15 +1,13 @@
 import {inject, injectable, postConstruct} from 'inversify';
 import newrelic from 'newrelic';
-import {GasEstimator, LeafKeyCoder} from '@umb-network/toolbox';
+import {LeafKeyCoder} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
-import {TransactionResponse} from '@ethersproject/providers';
-import {parseEther} from 'ethers/lib/utils';
-import {BigNumber, ethers, Signature} from 'ethers';
+import { ethers } from 'ethers';
 import {PayableOverrides} from "@ethersproject/contracts";
 import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
 
 import {ChainStatus} from '../../types/ChainStatus';
-import ChainContract from '../../contracts/ChainContract';
+import ChainContract from '../../contracts/evm/ChainContract';
 import {IBlockChainDispatcher} from './IBlockChainDispatcher';
 import {ChainContractRepository} from '../../repositories/ChainContractRepository';
 import {HexStringWith0x} from '../../types/custom';
@@ -23,6 +21,7 @@ import {ChainSubmitArgs} from "../../types/ChainSubmit";
 import {SubmitTxChecker} from "../SubmitMonitor/SubmitTxChecker";
 import {SubmitSaver} from "../SubmitMonitor/SubmitSaver";
 import {Dispatcher} from "./Dispatcher";
+import {ExecutedTx, TxHash} from "../../types/Consensus";
 
 @injectable()
 export abstract class BlockDispatcher extends Dispatcher implements IBlockChainDispatcher {
@@ -38,8 +37,8 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
 
   @postConstruct()
   protected setup(): void {
+    this.init();
     this.chainContract = this.chainContractRepository.get(this.chainId);
-    this.blockchain = this.blockchainRepository.get(this.chainId);
   }
 
   getStatus = async (): Promise<[address: string, status: ChainStatus]> => {
@@ -48,22 +47,26 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
 
   apply = async (): Promise<void> => {
     if (!(await this.useDispatcher(this.chainId))) {
-      this.logger.info(`[${this.chainId}] OLD chain architecture detected`);
+      this.logger.info(`${this.logPrefix} OLD chain architecture detected`);
       await sleep(60_000); // slow down execution
       return;
     }
 
     // NOTICE: KEEP this check at begin, otherwise block minter will be locked
-    await this.checkBalanceIsEnough(this.blockchain.wallet);
+    if (!await this.checkBalanceIsEnough(this.sendingWallet)) {
+      await sleep(60_000); // slow down execution
+      return ;
+    }
+
     const consensus = await this.consensusDataRepository.read();
 
     if (!consensus) {
-      this.logger.info(`[${this.chainId}] no consensus data found to dispatch`);
+      this.logger.info(`${this.logPrefix} no consensus data found to dispatch`);
       return;
     }
 
     if (await this.submitTxChecker.apply(this.chainId, consensus.dataTimestamp)) {
-      this.logger.info(`[${this.chainId}] Block for ${consensus.dataTimestamp} already submitted`);
+      this.logger.info(`${this.logPrefix} Block for ${consensus.dataTimestamp} already submitted`);
       return;
     }
 
@@ -74,7 +77,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
     }
 
     this.logger.info(
-      `[${this.chainId}] Minting a block ${consensus.dataTimestamp} with ${consensus.signatures.length} signatures, ${consensus.leaves.length} leaves, ${consensus.fcdKeys.length} FCDs`,
+      `${this.logPrefix} Minting a block ${consensus.dataTimestamp} with ${consensus.signatures.length} signatures, ${consensus.leaves.length} leaves, ${consensus.fcdKeys.length} FCDs`,
     );
 
     const txHash = await this.mint(
@@ -87,20 +90,20 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
     );
 
     if (txHash) {
-      this.logger.info(`[${this.chainId}] New Block ${consensus.dataTimestamp} minted with TX ${txHash}`);
+      this.logger.info(`${this.logPrefix} New Block ${consensus.dataTimestamp} minted with TX ${txHash}`);
 
       await Promise.all([
         this.submitSaver.apply(this.chainId, consensus.dataTimestamp, txHash),
         this.blockRepository.saveBlock(chainAddress, consensus, true)
       ]);
     } else {
-      this.logger.warn(`[${this.chainId}] Block ${consensus.dataTimestamp} was not minted`);
+      this.logger.warn(`${this.logPrefix} Block ${consensus.dataTimestamp} was not minted`);
     }
   };
 
   protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
     const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
-    return GasEstimator.apply(this.blockchain.provider, minGasPrice, maxGasPrice);
+    return this.blockchain.provider.gasEstimation(minGasPrice, maxGasPrice);
   }
 
   private async submitTxData(
@@ -111,7 +114,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
     signatures: string[],
     chainStatus: ChainStatus,
   ): Promise<{
-    fn: () => Promise<TransactionResponse>,
+    fn: () => Promise<ExecutedTx>,
     payableOverrides: PayableOverrides,
     timeout: number
   }> {
@@ -129,18 +132,14 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
 
     const payableOverrides = await this.calculatePayableOverrides({
       data: chainSubmitArgs,
-      nonce: await this.nextNonce()
+      nonce: await this.sendingWallet.getNextNonce()
     });
 
-    this.logger.info(`[${this.chainId}] Submitting tx ${JSON.stringify(payableOverrides)}`);
+    this.logger.info(`${this.logPrefix} Submitting tx ${JSON.stringify(payableOverrides)}`);
 
     const fn = () => this.chainContract.submit(chainSubmitArgs, payableOverrides);
 
     return {fn, payableOverrides, timeout: Math.max(chainStatus.timePadding * 1000, 300_000)};
-  }
-
-  protected async nextNonce(): Promise<number | undefined> {
-    return this.blockchain.wallet?.getTransactionCount('latest');
   }
 
   private async mint(
@@ -150,7 +149,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
     values: HexStringWith0x[],
     signatures: string[],
     chainStatus: ChainStatus,
-  ): Promise<string | null> {
+  ): Promise<TxHash | null> {
     try {
       const {fn, payableOverrides, timeout} = await this.submitTxData(dataTimestamp, root, keys, values, signatures, chainStatus);
       return await this.dispatch(fn, payableOverrides, timeout);
@@ -169,7 +168,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
     }
 
     const blockTimestamp = await this.blockchain.getBlockTimestamp();
-    return new Error(`[${this.chainId}] Timestamp discrepancy ${blockTimestamp - dataTimestamp}s: (${e.message})`);
+    return new Error(`${this.logPrefix} Timestamp discrepancy ${blockTimestamp - dataTimestamp}s: (${e.message})`);
   }
 
   private async useDispatcher(chainId: ChainsIds): Promise<boolean> {

@@ -1,14 +1,13 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
 
 import Settings, {BlockchainType} from '../types/Settings';
 import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
-import ChainContract from '../contracts/ChainContract';
+import ChainContract from '../contracts/evm/ChainContract';
 import {BlockchainRepository} from './BlockchainRepository';
-import {IGenericChainContract} from 'src/contracts/generic/IGenericChainContract';
-import {Logger} from 'winston';
 
 export type ChainContractCollection = {
-  [key: string]: ChainContract | IGenericChainContract | undefined;
+  [key: string]: ChainContract | undefined;
 };
 
 @injectable()
@@ -51,7 +50,7 @@ export class ChainContractRepository {
     return <ChainContract>this.collection[id];
   }
 
-  getGeneric(id: string): IGenericChainContract {
+  getGeneric(id: string): ChainContract {
     if (!this.collection[id]) {
       throw Error(`[ChainContractRepository] Blockchain ${id} does not exists`);
     }
@@ -60,6 +59,6 @@ export class ChainContractRepository {
       throw Error(`[ChainContractRepository] Wrong Blockchain type for ${id}. Expected GenericBlockchain`);
     }
 
-    return <IGenericChainContract>this.collection[id];
+    return <ChainContract>this.collection[id];
   }
 }

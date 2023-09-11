@@ -11,7 +11,6 @@ import Settings from '../types/Settings';
 import HealthController from '../controllers/HealthController';
 import BlocksController from '../controllers/BlocksController';
 import SignatureController from '../controllers/SignatureController';
-import Blockchain from './Blockchain';
 import InfoController from '../controllers/InfoController';
 import DebugController from '../controllers/DebugController';
 import DocsController from '../controllers/DocsController';
@@ -21,13 +20,11 @@ class Server {
   private port: number;
   private router: express.Application;
   private server: http.Server;
-  private blockchain: Blockchain;
   private logger: Logger;
 
   constructor(
     @inject('Logger') logger: Logger,
     @inject('Settings') settings: Settings,
-    @inject(Blockchain) blockchain: Blockchain,
     @inject(HealthController) healthController: HealthController,
     @inject(DebugController) debugController: DebugController,
     @inject(BlocksController) blocksController: BlocksController,
@@ -52,13 +49,10 @@ class Server {
       .use('/docs', docsController.router);
 
     this.server = http.createServer(this.router);
-    this.blockchain = blockchain;
   }
 
   start(): void {
-    this.server.listen(this.port, () =>
-      logger.info(`Validator ${this.blockchain.wallet.address} is live on ${this.port}`),
-    );
+    this.server.listen(this.port, () => logger.info(`Validator is live on ${this.port}`));
   }
 }
 

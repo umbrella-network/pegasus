@@ -68,3 +68,7 @@ export interface MasterChainData {
   minSignatures: number;
   timePadding: number;
 }
+
+export type ExecutedTx = {hash: string; atBlock: bigint};
+
+export type TxHash = string;

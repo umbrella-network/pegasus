@@ -10,6 +10,8 @@ data
 .editorconfig
 .testing.env
 *.pem
+!test/pem/*.pem
+
 .DS_STORE
 .cache
 yarn-error.log

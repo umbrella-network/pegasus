@@ -4,7 +4,7 @@ import {BigNumber} from 'ethers';
 import {Validator} from '../types/Validator';
 import CachedValidator from '../models/CachedValidator';
 import {Logger} from 'winston';
-import {ChainsIds} from '../types/ChainsIds';
+import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
 
 @injectable()
 export class ValidatorRepository {
@@ -30,10 +30,16 @@ export class ValidatorRepository {
   }
 
   protected async anyChainWithList(): Promise<ChainsIds | undefined> {
-    const one = await getModelForClass(CachedValidator).findOne({}, {chainId: 1}).sort({contractIndex: 1}).exec();
-    if (!one) return;
+    const allCachedChains = await getModelForClass(CachedValidator)
+      .find({}, {chainId: 1})
+      .sort({contractIndex: 1})
+      .exec();
 
-    return one.chainId as ChainsIds;
+    if (!allCachedChains) return;
+
+    const one = allCachedChains.find((doc) => !NonEvmChainsIds.includes(doc.chainId as ChainsIds));
+
+    return one?.chainId as ChainsIds;
   }
 
   async cache(chainId: ChainsIds, validators: Validator[]): Promise<void> {

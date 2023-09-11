@@ -10,7 +10,7 @@ import Settings from '../../types/Settings';
 import {UniswapPoolService} from './UniswapPoolService';
 import {BlockchainSymbol} from '../../models/BlockchainSymbol';
 import {Mutex, MutexInterface, withTimeout} from 'async-mutex';
-import {Price, UniswapV3Helper} from '../../contracts/UniswapV3Helper';
+import {Price, UniswapV3Helper} from '../../contracts/evm/UniswapV3Helper';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
 import {UniswapV2PriceMonitorChecker} from "../uniswapPriceMonitor/UniswapV2PriceMonitorChecker";
 import {UniswapV2PriceMonitorSaver} from "../uniswapPriceMonitor/UniswapV2PriceMonitorSaver";

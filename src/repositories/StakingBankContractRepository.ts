@@ -1,13 +1,14 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
 
 import Settings from '../types/Settings';
 import {ChainsIds} from '../types/ChainsIds';
 import {BlockchainRepository} from './BlockchainRepository';
-import {Logger} from 'winston';
-import {StakingBankContract} from '../contracts/StakingBankContract';
+import {StakingBankContract} from '../contracts/evm/StakingBankContract';
+import {StakingBankInterface} from '../contracts/interfaces/StakingBankInterface';
 
 export type BankContractCollection = {
-  [key: string]: StakingBankContract | undefined;
+  [key: string]: StakingBankInterface | undefined;
 };
 
 @injectable()
@@ -27,7 +28,7 @@ export class StakingBankContractRepository {
 
         this.collection[chainId] =
           blockchain.provider && blockchain.getContractRegistryAddress()
-            ? new StakingBankContract(settings, blockchain)
+            ? new StakingBankContract(blockchain)
             : undefined;
       } catch (e) {
         this.collection[chainId] = undefined;

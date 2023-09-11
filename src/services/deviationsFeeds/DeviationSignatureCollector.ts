@@ -2,21 +2,22 @@ import {inject, injectable} from 'inversify';
 import axios from 'axios';
 import {Logger} from 'winston';
 
-import Blockchain from '../../lib/Blockchain';
 import {Validator} from '../../types/Validator';
 import Settings from '../../types/Settings';
 import {DeviationDataToSign, DeviationSignatures, DeviationSignerResponse} from "../../types/DeviationFeeds";
 import {DeviationSigner} from "./DeviationSigner";
 import {ValidatorStatusChecker} from "../ValidatorStatusChecker";
 import {DeviationChainMetadata} from "./DeviationChainMetadata";
+import {DeviationHasher} from "./DeviationHasher";
+import {Wallet} from "ethers";
 
 @injectable()
 export class DeviationSignatureCollector {
   @inject('Logger') protected logger!: Logger;
   @inject('Settings') protected settings!: Settings;
-  @inject(Blockchain) protected blockchain!: Blockchain;
-  @inject(ValidatorStatusChecker) protected validatorStatusChecker!: ValidatorStatusChecker;
+  @inject(DeviationHasher) protected deviationHasher!: DeviationHasher;
   @inject(DeviationSigner) protected deviationSigner!: DeviationSigner;
+  @inject(ValidatorStatusChecker) protected validatorStatusChecker!: ValidatorStatusChecker;
   @inject(DeviationChainMetadata) protected deviationChainMetadata!: DeviationChainMetadata;
 
   async apply(data: DeviationDataToSign, validators: Validator[]): Promise<DeviationSignerResponse[]> {
@@ -29,7 +30,7 @@ export class DeviationSignatureCollector {
     data: DeviationDataToSign,
     participants: Validator[],
   ): Promise<DeviationSignerResponse[]> {
-    const selfAddress = this.blockchain.wallet.address.toLowerCase();
+    const selfAddress = new Wallet(this.settings.blockchain.wallets.evm.privateKey).address.toLowerCase();
 
     const signedData = await Promise.all(
       participants.map((p) => selfAddress == p.id.toLowerCase() ? this.getLocalSignature(data) : this.getParticipantSignature(data, p))
@@ -47,7 +48,8 @@ export class DeviationSignatureCollector {
       const keys = data.feedsForChain[chainId];
       const priceDatas = keys.map(key => data.proposedPriceData[key]);
 
-      return this.deviationSigner.apply(networkId, target, keys, priceDatas);
+      const hashOfData = this.deviationHasher.apply(chainId, networkId, target, keys, priceDatas);
+      return this.deviationSigner.apply(chainId, hashOfData);
     }));
 
     chainMetadata.forEach(([chainId], i) => {
@@ -75,7 +77,7 @@ export class DeviationSignatureCollector {
 
       return response;
     } catch (e) {
-      this.logger.error('[DeviationSignatureCollector] Signature collection failed.');
+      this.logger.error(`[DeviationSignatureCollector] Signature collection failed for ${data.dataTimestamp}.`);
       this.logger.error(e);
     }
 

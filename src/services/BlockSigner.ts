@@ -2,8 +2,6 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
-import ChainContract from '../contracts/ChainContract';
-import Blockchain from '../lib/Blockchain';
 import Settings from '../types/Settings';
 import {SignedBlock} from '../types/SignedBlock';
 import {BlockSignerResponse} from '../types/BlockSignerResponse';
@@ -18,20 +16,18 @@ import {ProposedConsensusFactory} from '../factories/ProposedConsensusFactory';
 import {FeedDataService} from './FeedDataService';
 import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
 import {FeedsType} from '../types/Feed';
+import {Wallet} from 'ethers';
 
 @injectable()
 class BlockSigner {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
-  @inject(Blockchain) blockchain!: Blockchain;
-  @inject(ChainContract) chainContract!: ChainContract;
   @inject(MultiChainStatusResolver) multiChainStatusResolver!: MultiChainStatusResolver;
   @inject(SortedMerkleTreeFactory) sortedMerkleTreeFactory!: SortedMerkleTreeFactory;
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject(FeedDataService) feedDataService!: FeedDataService;
 
   async apply(block: SignedBlock): Promise<BlockSignerResponse> {
-    await this.blockchain.setLatestProvider();
     const {proposedConsensus, chainAddress} = await this.check(block);
 
     this.logger.info(
@@ -65,7 +61,7 @@ class BlockSigner {
       return {discrepancies, signature: '', version: this.settings.version};
     }
 
-    const signature = await signAffidavitWithWallet(this.blockchain.wallet, proposedConsensus.affidavit);
+    const signature = await signAffidavitWithWallet(this.signingWallet(), proposedConsensus.affidavit);
 
     const signedBlockConsensus = {
       dataTimestamp: block.dataTimestamp,
@@ -101,7 +97,7 @@ class BlockSigner {
     const {chainAddress, chainStatus} = chainsStatuses[0];
     this.logger.info(`[BlockSigner] Signing a block for ${nextLeader} at ${block.dataTimestamp}...`);
 
-    if (this.blockchain.wallet.address === proposedConsensus.signer) {
+    if (this.signingWallet().address.toLowerCase() === proposedConsensus.signer.toLowerCase()) {
       throw Error('[BlockSigner] You should not call yourself for signature.');
     }
 
@@ -120,6 +116,10 @@ class BlockSigner {
     }
 
     return {proposedConsensus, chainAddress};
+  }
+
+  protected signingWallet(): Wallet {
+    return new Wallet(this.settings.blockchain.wallets.evm.privateKey);
   }
 }
 

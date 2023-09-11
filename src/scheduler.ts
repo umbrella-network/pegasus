@@ -29,7 +29,7 @@ const {NEW_RELIC_LABELS} = process.env;
   const deviationDispatcherWorker = Application.get(DeviationDispatcherWorker);
   const blockchainMetricsWorker = Application.get(BlockchainMetricsWorker);
 
-  const jobCode = String(Math.floor(Math.random() * 1000));
+  const jobCode = Math.floor(Math.random() * 1000).toString();
 
   logger.info('[Scheduler] Starting scheduler...');
 

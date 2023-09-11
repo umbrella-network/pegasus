@@ -25,7 +25,7 @@ export class MultiChainStatusProcessor {
     );
 
     if (!masterChain) {
-      this.logger.warn('[MultiChainStatusProcessor] master chainId missing');
+      this.logger.info('[MultiChainStatusProcessor] master chainId missing (deprecated)');
       return undefined;
     }
 

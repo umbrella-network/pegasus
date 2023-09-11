@@ -32,7 +32,7 @@ jobs:
       - name: Install node
         uses: actions/setup-node@v1
         with:
-          node-version: 15
+          node-version: 16
 
       - name: Install dependencies
         run: npm install
@@ -57,7 +57,8 @@ jobs:
           FEEDS_CACHE_REFRESH_CRON_RULE: ""
           NEW_RELIC_ENABLED: "false"
           VALIDATOR_PRIVATE_KEY: ${{ secrets.VALIDATOR_PRIVATE_KEY }}
-          REGISTRY_CONTRACT_ADDRESS: "0x8f98d3B5C911206C1Ac08B9938875620A03BCd59" 
+          DEVIATION_PRIVATE_KEY: ${{ secrets.VALIDATOR_PRIVATE_KEY }}
+          REGISTRY_CONTRACT_ADDRESS: "0x8f98d3B5C911206C1Ac08B9938875620A03BCd59"
           BLOCKCHAIN_PROVIDER_URL: ${{ secrets.BLOCKCHAIN_PROVIDER_URL }}
           OPTIONS_PRICE_API_KEY: ${{ secrets.OPTIONS_PRICE_API_KEY }}
           CRYPTOCOMPARE_API_KEY: ${{ secrets.CRYPTOCOMPARE_API_KEY }}
@@ -65,6 +66,12 @@ jobs:
           IEX_API_KEY: ${{ secrets.IEX_API_KEY }}
           INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
           COINMARKETCAP_API_KEY: ""
+          AVALANCHE_REGISTRY_CONTRACT_ADDRESS: ${{ vars.AVALANCHE_REGISTRY_CONTRACT_ADDRESS }}
+          AVALANCHE_BLOCKCHAIN_PROVIDER_URL: ${{ vars.AVALANCHE_BLOCKCHAIN_PROVIDER_URL }}
+          MULTIVERSX_REGISTRY_CONTRACT_ADDRESS: ${{ vars.MULTIVERSX_REGISTRY_CONTRACT_ADDRESS }}
+          MULTIVERSX_BLOCKCHAIN_PROVIDER_URL: ${{ vars.MULTIVERSX_BLOCKCHAIN_PROVIDER_URL }}
+          MULTIVERSX_SIGNING_PRIVATE_KEY: ${{ secrets.MULTIVERSX_SIGNING_PRIVATE_KEY }}
+          MULTIVERSX_DEVIATION_PRIVATE_KEY: ${{ secrets.MULTIVERSX_SIGNING_PRIVATE_KEY }}
         run: npm run test
 
   remote_tests:

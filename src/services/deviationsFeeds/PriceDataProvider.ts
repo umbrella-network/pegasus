@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from "winston";
 
 import {KeysPerChain, PriceDataWithKey, PriceDataPerChain} from '../../types/DeviationFeeds';
 import {ChainsIds} from "../../types/ChainsIds";
 import {FeedsContractRepository} from "../../repositories/FeedsContractRepository";
-import {Logger} from "winston";
 
 
 @injectable()
@@ -18,19 +18,27 @@ export class PriceDataProvider {
     const priceDatas = await Promise.all(chainIds.map(chainId => this.getPriceData(chainId as ChainsIds, keysPerChain[chainId])));
 
     priceDatas.forEach((priceDataArray, i) => {
+      const chainId = chainIds[i];
+
+      // if priceDataArray is undefined, this is RPC issues, and we should ignore this chain
+      if (priceDataArray === undefined) {
+        this.logger.error(`[${chainId}] PriceDataProvider can not get prices`);
+        return;
+      }
+
       priceDataArray.forEach(priceData => {
-        if (!data[chainIds[i]]) {
-          data[chainIds[i]] = {};
+        if (!data[chainId]) {
+          data[chainId] = {};
         }
 
-        data[chainIds[i]][priceData.key] = priceData;
+        data[chainId][priceData.key] = priceData;
       });
     });
 
     return data;
   }
 
-  protected async getPriceData(chain: ChainsIds, keys: string[]): Promise<PriceDataWithKey[]> {
+  protected async getPriceData(chain: ChainsIds, keys: string[]): Promise<PriceDataWithKey[] | undefined> {
     try {
       const feedContract = await this.feedsContractRepository.get(chain);
       return await feedContract.getManyPriceDataRaw(keys);
