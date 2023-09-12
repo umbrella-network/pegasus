@@ -1,4 +1,3 @@
-import newrelic from 'newrelic';
 import Migration from '../models/Migration';
 import {getModelForClass} from '@typegoose/typegoose';
 import CachedValidator from '../models/CachedValidator';
@@ -13,7 +12,6 @@ class Migrations {
       const migration = await getModelForClass(Migration).find({_id: v}).exec();
       return migration.length > 0;
     } catch (e) {
-      newrelic.noticeError(e);
       console.error(e);
       return false;
     }
@@ -31,7 +29,6 @@ class Migrations {
         await Migrations.saveMigration(migrationId);
       }
     } catch (e) {
-      newrelic.noticeError(e);
       console.error(e);
     }
   };

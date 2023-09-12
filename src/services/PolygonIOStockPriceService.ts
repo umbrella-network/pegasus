@@ -5,7 +5,6 @@ import {Logger} from 'winston';
 import PriceAggregator from './PriceAggregator';
 import Settings from '../types/Settings';
 import TimeService from './TimeService';
-import StatsDClient from '../lib/StatsDClient';
 import PolygonIOStockSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOStockSnapshotFetcher';
 import PolygonIOSingleStockPriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSingleStockPriceFetcher';
 
@@ -49,7 +48,6 @@ class PolygonIOStockPriceService {
       return;
     }
 
-    StatsDClient?.gauge(`cpm.${symbol}`, price);
     this.logger.debug(`${symbol}: ${price} at ${timestamp}`);
 
     this.priceAggregator
