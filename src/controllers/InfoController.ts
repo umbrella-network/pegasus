@@ -66,7 +66,7 @@ class InfoController {
   };
 
   private isPing = (request: Request): boolean => {
-    return !!request.query.ping;
+    return !request.query.details;
   };
 
   private getFormattedTimeoutCodes = () => {
