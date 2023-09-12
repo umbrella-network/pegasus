@@ -10,8 +10,6 @@ import BlockRepository from '../repositories/BlockRepository';
 import {signAffidavitWithWallet} from '../utils/mining';
 import {LeavesAndFeeds, ProposedConsensus} from '../types/Consensus';
 import {DiscrepancyFinder} from './DiscrepancyFinder';
-import newrelic from 'newrelic';
-import {Discrepancy} from '../types/Discrepancy';
 import {ProposedConsensusFactory} from '../factories/ProposedConsensusFactory';
 import {FeedDataService} from './FeedDataService';
 import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
@@ -55,7 +53,6 @@ class BlockSigner {
     });
 
     if (discrepancies.length) {
-      await this.reportDiscrepancies(discrepancies);
       this.logger.info(`[BlockSigner] Cannot sign block. Discrepancies found: ${discrepancies.length}`);
       this.logger.debug(`[BlockSigner] Discrepancies: ${JSON.stringify(discrepancies)}`);
       return {discrepancies, signature: '', version: this.settings.version};
@@ -74,13 +71,6 @@ class BlockSigner {
     this.logger.info(`[BlockSigner] Signed a block for ${proposedConsensus.signer} at ${block.dataTimestamp}`);
     this.logger.debug(`[BlockSigner] Signature: ${signature}`);
     return {signature, discrepancies, version: this.settings.version};
-  }
-
-  private async reportDiscrepancies(discrepancies: Discrepancy[]): Promise<void> {
-    for (const d of discrepancies) {
-      const discrepancy: Discrepancy = {key: d.key, discrepancy: Math.round(d.discrepancy * 100) / 100.0};
-      newrelic.recordCustomEvent('PriceDiscrepancy', {...discrepancy});
-    }
   }
 
   async check(block: SignedBlock): Promise<{proposedConsensus: ProposedConsensus; chainAddress: string}> {

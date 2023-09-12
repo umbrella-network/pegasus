@@ -1,12 +1,10 @@
 import {inject} from 'inversify';
 import {Logger} from 'winston';
-import newrelic from 'newrelic';
 import {BigNumber} from 'ethers';
 import {PayableOverrides} from "@ethersproject/contracts";
 import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
 
 import Settings, {BlockchainType} from '../../types/Settings';
-import {FailedTransactionEvent} from '../../constants/ReportedMetricsEvents';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository';
 import {ChainsIds} from '../../types/ChainsIds';
 import {parseEther} from "ethers/lib/utils";
@@ -110,10 +108,6 @@ export abstract class Dispatcher {
     }
 
     if (!success) {
-      newrelic.recordCustomEvent(FailedTransactionEvent, {
-        transactionHash: txHash,
-      });
-
       this.logger.warn(`${this.logPrefix} tx ${txHash} status failed`);
       return null;
     }

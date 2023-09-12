@@ -9,8 +9,6 @@ import {DeviationLeaderWorker} from "./workers/DeviationLeaderWorker";
 import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
 import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
 
-const {NEW_RELIC_LABELS} = process.env;
-
 (async () => {
   await boot();
 
@@ -29,10 +27,7 @@ const {NEW_RELIC_LABELS} = process.env;
       break;
     }
     case 'MetricsWorker': {
-      if (NEW_RELIC_LABELS) {
-        Application.get(MetricsWorker).start();
-      }
-
+      Application.get(MetricsWorker).start();
       Application.get(BlockchainMetricsWorker).start();
       break;
     }

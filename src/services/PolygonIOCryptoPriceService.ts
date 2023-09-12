@@ -5,7 +5,6 @@ import {Logger} from 'winston';
 import PriceAggregator from './PriceAggregator';
 import Settings from '../types/Settings';
 import TimeService from './TimeService';
-import StatsDClient from '../lib/StatsDClient';
 import PolygonIOCryptoSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOCryptoSnapshotFetcher';
 import PolygonIOSingleCryptoPriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSingleCryptoPriceFetcher';
 import {Pair} from '../types/Feed';
@@ -50,7 +49,6 @@ class PolygonIOCryptoPriceService {
       return;
     }
 
-    StatsDClient?.gauge(`pioc.${symbol}`, price);
     this.logger.debug(`${symbol}: ${price} at ${timestamp}`);
 
     this.priceAggregator

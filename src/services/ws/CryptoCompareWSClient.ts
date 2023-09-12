@@ -4,7 +4,6 @@ import schedule, {Job} from 'node-schedule';
 import WSClient from './WSClient';
 import Settings from '../../types/Settings';
 import {Pair, PairWithFreshness} from '../../types/Feed';
-import StatsDClient from '../../lib/StatsDClient';
 import PriceAggregator from '../PriceAggregator';
 import TimeService from '../TimeService';
 import Timeout from '../../utils/timeout';
@@ -83,7 +82,6 @@ class CryptoCompareWSClient extends WSClient {
 
     this.lastTimeUpdated[subscription] = Date.now();
 
-    StatsDClient?.gauge(`cpm.${fsym}-${tsym}`, median);
     this.logger.debug(`${subscription}: ${median} at ${timestamp}`);
 
     this.priceAggregator

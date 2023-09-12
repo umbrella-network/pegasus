@@ -144,7 +144,7 @@ const settings: Settings = {
       },
     },
     metricsReporting: {
-      interval: parseInt(process.env.METRICS_REPORTING_JOB_INTERVAL || '60000'),
+      interval: parseInt(process.env.METRICS_REPORTING_JOB_INTERVAL || '30000'),
       lock: {
         name: process.env.METRICS_REPORTING_LOCK_NAME || 'lock::MetricsReporting',
         ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),

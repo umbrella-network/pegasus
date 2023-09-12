@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
 import axios from 'axios';
 import {Logger} from 'winston';
-import newrelic from 'newrelic';
 import {Wallet} from 'ethers';
 
 import {SignedBlock} from '../types/SignedBlock';
@@ -9,7 +8,6 @@ import {Validator} from '../types/Validator';
 import Settings from '../types/Settings';
 import {BlockSignerResponse, BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
 import {recoverSigner} from '../utils/mining';
-import {SignatureCollectionErrorEvent} from '../constants/ReportedMetricsEvents';
 import {ValidatorStatusChecker} from './ValidatorStatusChecker';
 
 @injectable()
@@ -112,24 +110,12 @@ class SignatureCollector {
       ? `ERROR: ${blockSignerResponse.error}`
       : `${blockSignerResponse.discrepancies.length} discrepancies`;
 
-    newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
-      validatorId: validator.id,
-      location: validator.location,
-      error: errMsg,
-    });
-
     this.logger.warn(
       `[SignatureCollector] Validator ${validator.id} at ${validator.location} responded with: ${errMsg}`,
     );
   }
 
   private logSignatureCollectionException(validator: Validator, error: Error): void {
-    newrelic.recordCustomEvent(SignatureCollectionErrorEvent, {
-      validatorId: validator.id,
-      location: validator.location,
-      error: error.message,
-    });
-
     this.logger.error(
       `[SignatureCollector] Can not collect signature at ${validator.location}, exception: ${error.message}`,
     );

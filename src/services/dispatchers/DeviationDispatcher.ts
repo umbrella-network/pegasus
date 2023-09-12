@@ -1,5 +1,4 @@
 import {inject, injectable, postConstruct} from 'inversify';
-import newrelic from 'newrelic';
 import {ethers} from 'ethers';
 import {PayableOverrides} from "@ethersproject/contracts";
 
@@ -134,7 +133,6 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       const {fn, payableOverrides, timeout} = await this.updateFeedsTxData(consensus);
       return await this.dispatch(fn, payableOverrides, timeout);
     } catch (err) {
-      newrelic.noticeError(err);
       err.message = `${this.logPrefix} ${err.message}`;
       this.logger.error(err);
       return null;
