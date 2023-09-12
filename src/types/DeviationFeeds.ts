@@ -64,7 +64,7 @@ export interface DeviationSignerResponse {
 export type UmbrellaFeedsUpdateArgs = {
   keys: string[];
   priceDatas: PriceData[];
-  signatures: Signature[];
+  signatures: string[];
 };
 
 export type OnChainMetadataType = [chainId: ChainsIds, networkId: number, contractAddress: string];

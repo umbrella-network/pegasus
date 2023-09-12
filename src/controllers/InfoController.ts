@@ -1,27 +1,26 @@
 import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
 
-import Settings, {BlockchainInfoSettings, BlockchainSettings} from '../types/Settings';
-import ChainContract from '../contracts/ChainContract';
-import Blockchain from '../lib/Blockchain';
+import Settings, {BlockchainInfoSettings} from '../types/Settings';
 import {TimeoutCodes} from '../types/TimeoutCodes';
-import {ChainsIds} from 'src/types/ChainsIds';
 import {LastSubmitResolver} from '../services/SubmitMonitor/LastSubmitResolver';
+import {BlockchainRepository} from '../repositories/BlockchainRepository';
+import {ChainsIds} from '../types/ChainsIds';
+import {RegistryContractFactory} from '../factories/contracts/RegistryContractFactory';
+import {Logger} from 'winston';
+import {CHAIN_CONTRACT_NAME} from '@umb-network/toolbox/dist/constants';
 
 @injectable()
 class InfoController {
+  @inject('Settings') settings!: Settings;
+  @inject('Logger') logger!: Logger;
   @inject(LastSubmitResolver) lastSubmitResolver!: LastSubmitResolver;
+  @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
 
   router: express.Router;
-  blockchain!: Blockchain;
 
-  constructor(
-    @inject('Settings') private readonly settings: Settings,
-    @inject(ChainContract) private readonly chainContract: ChainContract,
-    @inject(Blockchain) blockchain: Blockchain,
-  ) {
+  constructor() {
     this.router = express.Router().get('/', this.info);
-    this.blockchain = blockchain;
   }
 
   static obfuscate = (data: string | undefined): string => {
@@ -33,25 +32,21 @@ class InfoController {
   };
 
   info = async (request: Request, response: Response): Promise<void> => {
-    const [validatorP, deviationDispatcher, chainContractP, networkP] = await Promise.allSettled([
-      this.blockchain.wallet.getAddress(),
-      this.blockchain.deviationWallet?.getAddress(),
-      this.chainContract.resolveAddress(),
-      this.blockchain.provider.getNetwork(),
-    ]);
+    if (this.isPing(request)) {
+      this.logger.info('ping');
 
-    const validatorAddress = validatorP.status === 'fulfilled' ? validatorP.value : validatorP.reason;
-    const chainContractAddress = chainContractP.status === 'fulfilled' ? chainContractP.value : chainContractP.reason;
-    const network = networkP.status === 'fulfilled' ? networkP.value : 'N/A';
+      response.send({
+        status: 'alive',
+        version: this.settings.version,
+      });
+      return;
+    }
 
     response.send({
       feedsOnChain: this.settings.feedsOnChain,
       feedsFile: this.settings.feedsFile,
       deviationFeedsFile: this.settings.deviationTrigger.feedsFile,
-      validator: validatorAddress,
-      deviationDispatcher: deviationDispatcher.status == 'fulfilled' ? deviationDispatcher?.value : undefined,
       contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
-      chainContractAddress: chainContractAddress,
       uniswap: {
         helperContractId: this.settings.api.uniswap.helperContractId,
         scannerContractId: this.settings.api.uniswap.scannerContractId,
@@ -60,7 +55,6 @@ class InfoController {
       chains: await this.getMultichainsSettings(),
       version: this.settings.version,
       environment: this.settings.environment,
-      network,
       name: this.settings.name,
       keys: {
         cryptocompare: InfoController.obfuscate(this.settings.api.cryptocompare.apiKey),
@@ -71,26 +65,50 @@ class InfoController {
     });
   };
 
+  private isPing = (request: Request): boolean => {
+    return !!request.query.ping;
+  };
+
   private getFormattedTimeoutCodes = () => {
     const formattedTimeoutCodes: {[key: string]: number} = {};
 
     for (const enumValue in TimeoutCodes) {
       if (isNaN(Number(enumValue))) {
-        formattedTimeoutCodes[String(enumValue)] = Number(TimeoutCodes[enumValue]);
+        formattedTimeoutCodes[enumValue] = Number(TimeoutCodes[enumValue]);
       }
     }
 
     return formattedTimeoutCodes;
   };
 
-  private getChainSettings = async (chainId: ChainsIds): Promise<BlockchainInfoSettings> => {
-    return {
+  private getChainSettings = async (chainId: ChainsIds): Promise<BlockchainInfoSettings | undefined> => {
+    const blockchain = this.blockchainRepository.get(chainId);
+    if (!blockchain) return;
+
+    const registry = RegistryContractFactory.create(blockchain);
+
+    const [chainAddress, umbrellaFeedsAddress, walletAddress, deviationWalletAddress] = await Promise.allSettled([
+      registry.getAddress(CHAIN_CONTRACT_NAME),
+      registry.getAddress('UmbrellaFeeds'),
+      blockchain.wallet.address,
+      blockchain.deviationWallet?.address,
+    ]);
+
+    return <BlockchainInfoSettings>{
       chainId,
       contractRegistryAddress: this.settings.blockchain.multiChains[chainId]?.contractRegistryAddress,
       providerUrl: this.settings.blockchain.multiChains[chainId]?.providerUrl?.split('/').slice(0, 3).join('/'),
       lastTx: await this.lastSubmitResolver.apply(chainId),
+      chainAddress: this.getPromiseResult(chainAddress),
+      deviationWalletAddress: this.getPromiseResult(deviationWalletAddress),
+      walletAddress: this.getPromiseResult(walletAddress),
+      umbrellaFeedsAddress: this.getPromiseResult(umbrellaFeedsAddress),
     };
   };
+
+  protected getPromiseResult(a: PromiseSettledResult<string | undefined>): string {
+    return a.status == 'fulfilled' ? a.value || '' : a.reason;
+  }
 
   private getMasterchainSettings = async (): Promise<Partial<Record<ChainsIds, BlockchainInfoSettings>>> => {
     const masterChainSettings: Partial<Record<ChainsIds, BlockchainInfoSettings>> = {};
@@ -101,16 +119,20 @@ class InfoController {
     return masterChainSettings;
   };
 
-  private getMultichainsSettings = async (): Promise<Partial<Record<ChainsIds, BlockchainInfoSettings>>> => {
-    const chainEntries = Object.entries(this.settings.blockchain.multiChains) as [ChainsIds, BlockchainSettings][];
+  private getMultichainsSettings = async (): Promise<Record<string, BlockchainInfoSettings>> => {
+    const chainIds = Object.values(ChainsIds);
 
-    return <Partial<Record<ChainsIds, BlockchainInfoSettings>>>(
-      Promise.all(
-        chainEntries
-          .filter(([key]) => key !== this.settings.blockchain.masterChain.chainId)
-          .map(([chainId]) => this.getChainSettings(chainId)),
-      )
+    const cfg = await Promise.all(
+      chainIds
+        .filter((key) => key !== this.settings.blockchain.masterChain.chainId)
+        .map((chainId) => Promise.all([chainId, this.getChainSettings(chainId as ChainsIds)])),
     );
+
+    return cfg.reduce((acc, [chainId, s]) => {
+      if (!s) return acc;
+      acc[chainId] = s;
+      return acc;
+    }, {} as Record<string, BlockchainInfoSettings>);
   };
 }
 

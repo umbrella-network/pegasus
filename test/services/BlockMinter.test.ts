@@ -11,7 +11,7 @@ import {GasEstimator} from '@umb-network/toolbox';
 
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
-import ChainContract from '../../src/contracts/ChainContract';
+import ChainContract from '../../src/contracts/evm/ChainContract';
 import ConsensusRunner from '../../src/services/ConsensusRunner';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
@@ -29,6 +29,7 @@ import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChain
 import {ChainsStatuses} from '../../src/types/ChainStatus';
 import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepository';
 import {MultichainArchitectureDetector} from '../../src/services/MultichainArchitectureDetector';
+import {mockIWallet} from '../helpers/mockIWallet';
 
 const allStates: ChainsStatuses = {
   validators: [
@@ -104,8 +105,8 @@ describe('BlockMinter', () => {
     } as Settings;
 
     wallet = Wallet.createRandom();
-    mockedBlockchain.wallet = wallet;
-    mockedBlockchain.wallet.getBalance = async () => parseEther('10');
+    mockedBlockchain.wallet = mockIWallet(wallet);
+    mockedBlockchain.wallet.getBalance = async () => BigInt(parseEther('10'));
 
     container.rebind('Logger').toConstantValue(mockedLogger);
     container.rebind('Settings').toConstantValue(settings);
@@ -277,9 +278,9 @@ describe('BlockMinter', () => {
       mockedMultiChainStatusResolver.apply.resolves(allStates);
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
-      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
+      mockedBlockchain.getBlockNumber.onCall(0).resolves(1n);
+      mockedBlockchain.getBlockNumber.onCall(1).resolves(1n);
+      mockedBlockchain.getBlockNumber.onCall(2).resolves(2n);
 
       mockedSignatureCollector.apply.resolves([
         {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
@@ -307,7 +308,7 @@ describe('BlockMinter', () => {
       const {leaf, affidavit} = leafWithAffidavit;
       const signature = await signAffidavitWithWallet(wallet, affidavit);
 
-      mockedBlockchain.wallet = wallet;
+      mockedBlockchain.wallet = mockIWallet(wallet);
 
       mockedTimeService.apply.returns(10);
 
@@ -334,9 +335,9 @@ describe('BlockMinter', () => {
       allStates.chainsIdsReadyForBlock = ['bsc'];
       mockedMultiChainStatusResolver.apply.resolves(allStates);
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
-      mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
-      mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
+      mockedBlockchain.getBlockNumber.onCall(0).resolves(1n);
+      mockedBlockchain.getBlockNumber.onCall(1).resolves(1n);
+      mockedBlockchain.getBlockNumber.onCall(2).resolves(2n);
 
       mockedFeedProcessor.apply.resolves([
         [leaf, leaf],
@@ -415,9 +416,9 @@ describe('BlockMinter', () => {
         mockedTimeService.apply.returns(timestamp);
         mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
         mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
-        mockedBlockchain.getBlockNumber.onCall(0).resolves(1);
-        mockedBlockchain.getBlockNumber.onCall(1).resolves(1);
-        mockedBlockchain.getBlockNumber.onCall(2).resolves(2);
+        mockedBlockchain.getBlockNumber.onCall(0).resolves(1n);
+        mockedBlockchain.getBlockNumber.onCall(1).resolves(1n);
+        mockedBlockchain.getBlockNumber.onCall(2).resolves(2n);
 
         mockedSignatureCollector.apply.resolves([
           {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},

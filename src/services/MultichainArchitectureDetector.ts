@@ -22,9 +22,7 @@ export class MultichainArchitectureDetector {
     }
 
     try {
-      const blockchain = nonEvm
-        ? this.blockchainRepository.getGeneric(chainId)
-        : this.blockchainRepository.get(chainId);
+      const blockchain = this.blockchainRepository.get(chainId);
 
       const contract = nonEvm
         ? this.chainContractRepository.getGeneric(chainId)
@@ -44,7 +42,7 @@ export class MultichainArchitectureDetector {
       const versionWithDispatcher = 2;
       return parseInt(version.toString(), 16) == versionWithDispatcher;
     } catch (err) {
-      this.logger.error(`[${chainId}] check version failed: ${err}`);
+      this.logger.error(`[${chainId}] [MultichainArchitectureDetector] check version failed: ${err}`);
       return false;
     }
   }

@@ -5,16 +5,24 @@ import {ChainsIds} from "../../types/ChainsIds";
 import Settings, {BlockchainType} from "../../types/Settings";
 import {BalanceMonitorKeyResolver} from "./BalanceMonitorKeyResolver";
 import {MappingRepository} from "../../repositories/MappingRepository";
+import {BlockchainRepository} from "../../repositories/BlockchainRepository";
 
 @injectable()
 export class BalanceMonitorChecker {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
   @inject(MappingRepository) mappingRepository!: MappingRepository;
+  @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
 
-  async apply(blockchainType: BlockchainType, wallet: string): Promise<boolean> {
+  async apply(blockchainType: BlockchainType): Promise<boolean> {
     const chainIds = this.chainKeys(blockchainType);
-    const keysToCheck = chainIds.map(id => BalanceMonitorKeyResolver.apply(id, wallet));
+
+    const keysToCheck = chainIds.map(id => {
+      const wallet = this.walletForChainType(blockchainType, id);
+      if (!wallet) return;
+      return BalanceMonitorKeyResolver.apply(id, wallet)
+    }).filter(k => !!k) as string[];
+
     const balancesDatas = await this.mappingRepository.getMany(keysToCheck);
 
     if (chainIds.length != Object.keys(balancesDatas).length) {
@@ -30,6 +38,11 @@ export class BalanceMonitorChecker {
       const {error} = JSON.parse(data);
       return !error;
     }).length > 0;
+  }
+
+  protected walletForChainType(blockchainType: BlockchainType, chainId: ChainsIds): string | undefined {
+    const blockchain = this.blockchainRepository.get(chainId);
+    return blockchainType == BlockchainType.LAYER2 ? blockchain.wallet.address : blockchain.deviationWallet?.address
   }
 
   protected chainKeys(blockchainType: BlockchainType): ChainsIds[] {

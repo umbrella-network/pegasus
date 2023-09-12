@@ -28,6 +28,10 @@ export type BlockchainInfoSettings = {
   chainId: string;
   providerUrl?: string;
   contractRegistryAddress?: string;
+  chainAddress?: string;
+  umbrellaFeedsAddress?: string;
+  deviationWalletAddress?: string;
+  walletAddress?: string;
   lastTx: SubmitMonitor | undefined;
 };
 
@@ -90,10 +94,15 @@ type Settings = {
     };
   };
   blockchain: {
-    provider: {
-      urls: string[];
-      privateKey: string;
-      deviationPrivateKey?: string;
+    wallets: {
+      evm: {
+        privateKey: string;
+        deviationPrivateKey?: string;
+      };
+      multiversX: {
+        privateKey: string;
+        deviationPrivateKey?: string;
+      };
     };
     masterChain: {
       chainId: ChainsIds;

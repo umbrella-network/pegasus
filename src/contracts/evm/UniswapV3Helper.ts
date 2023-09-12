@@ -2,8 +2,8 @@ import {inject, injectable} from 'inversify';
 import ABI from './UniswapV3Helper.abi.json';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import {BigNumber, Contract} from 'ethers';
-import Settings from '../types/Settings';
-import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository';
+import Settings from '../../types/Settings';
+import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
 
 export type Price = {
   price: BigNumber;

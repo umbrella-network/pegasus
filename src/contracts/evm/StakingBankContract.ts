@@ -1,20 +1,19 @@
-import {inject, injectable} from 'inversify';
 import {Contract, BigNumber} from 'ethers';
-import {ContractRegistry} from '@umb-network/toolbox';
 
 import stakingBankAbi from './IStakingBank.abi.json';
-import Settings from '../types/Settings';
-import Blockchain from '../lib/Blockchain';
-import {Validator} from '../types/Validator';
+import Blockchain from '../../lib/Blockchain';
+import {Validator} from '../../types/Validator';
+import {StakingBankInterface} from '../interfaces/StakingBankInterface';
+import {RegistryInterface} from '../interfaces/RegistryInterface';
+import {RegistryContractFactory} from '../../factories/contracts/RegistryContractFactory';
 
-@injectable()
-export class StakingBankContract {
-  readonly settings!: Settings;
+export class StakingBankContract implements StakingBankInterface {
+  readonly bankName!: string;
   readonly blockchain!: Blockchain;
-  registry!: ContractRegistry;
+  registry!: RegistryInterface;
 
-  constructor(@inject('Settings') settings: Settings, @inject(Blockchain) blockchain: Blockchain) {
-    this.settings = settings;
+  constructor(blockchain: Blockchain, bankName = 'StakingBank') {
+    this.bankName = bankName;
     this.blockchain = blockchain;
   }
 
@@ -25,10 +24,6 @@ export class StakingBankContract {
 
   chainId(): string {
     return this.blockchain.chainId;
-  }
-
-  async networkId(): Promise<number> {
-    return this.blockchain.networkId();
   }
 
   async resolveValidators(): Promise<Validator[]> {
@@ -47,19 +42,24 @@ export class StakingBankContract {
 
   resolveContract = async (): Promise<Contract> => {
     if (!this.registry) {
-      this.registry = new ContractRegistry(this.blockchain.getProvider(), this.blockchain.getContractRegistryAddress());
+      this.registry = RegistryContractFactory.create(this.blockchain);
     }
 
-    const bankAddress = await this.registry.getAddress(this.settings.blockchain.contracts.bank.name);
-    return new Contract(bankAddress, stakingBankAbi, this.blockchain.getProvider());
+    const bankAddress = await this.registry.getAddress(this.bankName);
+    return new Contract(bankAddress, stakingBankAbi, this.blockchain.provider.getRawProvider());
   };
 
-  protected async getNumberOfValidators(contract: Contract): Promise<number> {
+  async getNumberOfValidators(): Promise<number> {
+    const contract = await this.resolveContract();
+    return (await contract.getNumberOfValidators()).toNumber();
+  }
+
+  protected async numberOfValidators(contract: Contract): Promise<number> {
     return (await contract.getNumberOfValidators()).toNumber();
   }
 
   protected async resolveValidatorsAddresses(contract: Contract): Promise<string[]> {
-    const numberOfValidators = await this.getNumberOfValidators(contract);
+    const numberOfValidators = await this.numberOfValidators(contract);
     const arr: number[] = new Array(numberOfValidators).fill(0);
     return arr.map((n, i) => contract.addresses(i));
   }

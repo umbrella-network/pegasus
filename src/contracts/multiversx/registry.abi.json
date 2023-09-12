@@ -1,0 +1,107 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.71.0-nightly",
+            "commitHash": "7f94b314cead7059a71a265a8b64905ef2511796",
+            "commitDate": "2023-04-23",
+            "channel": "Nightly",
+            "short": "rustc 1.71.0-nightly (7f94b314c 2023-04-23)"
+        },
+        "contractCrate": {
+            "name": "registry",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.41.3"
+        }
+    },
+    "name": "Registry",
+    "constructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "importAddresses",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "names",
+                    "type": "counted-variadic<bytes>",
+                    "multi_arg": true
+                },
+                {
+                    "name": "destinations",
+                    "type": "counted-variadic<Address>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "requireAndGetAddress",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "name",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        },
+        {
+            "name": "getAddressByString",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "name",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        },
+        {
+            "name": "getAddress",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "name",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        }
+    ],
+    "events": [
+        {
+            "identifier": "log_registered_event",
+            "inputs": [
+                {
+                    "name": "name",
+                    "type": "bytes",
+                    "indexed": true
+                },
+                {
+                    "name": "address",
+                    "type": "Address"
+                }
+            ]
+        }
+    ],
+    "hasCallback": false,
+    "types": {}
+}

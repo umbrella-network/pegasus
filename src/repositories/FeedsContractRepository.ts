@@ -4,7 +4,7 @@ import Settings, {BlockchainType} from '../types/Settings';
 import {ChainsIds} from '../types/ChainsIds';
 import {BlockchainRepository} from './BlockchainRepository';
 import {Logger} from 'winston';
-import {FeedContract} from '../contracts/FeedContract';
+import {FeedContract} from '../contracts/evm/FeedContract';
 
 export type FeedsContractCollection = {
   [key: string]: FeedContract | undefined;

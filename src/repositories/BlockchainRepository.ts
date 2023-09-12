@@ -1,14 +1,12 @@
 import {inject, injectable} from 'inversify';
 
 import Blockchain from '../lib/Blockchain';
-import {IGenericBlockchain} from '../lib/blockchains/IGenericBlockchain';
-import {BlockchainFactory} from '../factories/BlockchainFactory';
 import Settings from '../types/Settings';
-import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
+import {ChainsIds} from '../types/ChainsIds';
 import {Logger} from 'winston';
 
 export type BlockchainCollection = {
-  [key: string]: Blockchain | IGenericBlockchain;
+  [key: string]: Blockchain;
 };
 
 @injectable()
@@ -21,7 +19,7 @@ export class BlockchainRepository {
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
 
     keys.forEach((chainId) => {
-      this.collection[chainId] = BlockchainFactory.create({chainId, settings});
+      this.collection[chainId] = new Blockchain(settings, chainId);
     });
   }
 
@@ -31,17 +29,5 @@ export class BlockchainRepository {
     }
 
     return <Blockchain>this.collection[id];
-  }
-
-  getGeneric(id: string): IGenericBlockchain {
-    if (!this.collection[id]) {
-      throw Error(`[BlockchainRepository] Blockchain ${id} does not exists`);
-    }
-
-    if (!NonEvmChainsIds.includes(<ChainsIds>id)) {
-      throw Error(`[BlockchainRepository] Wrong Blockchain type for ${id}. Expected GenericBlockchain`);
-    }
-
-    return <IGenericBlockchain>this.collection[id];
   }
 }

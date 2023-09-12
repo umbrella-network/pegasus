@@ -4,10 +4,12 @@ import {ChainsIds} from '../../../types/ChainsIds';
 import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
 import {PayableOverrides} from "@ethersproject/contracts";
 import {ChainSubmitArgs} from "../../../types/ChainSubmit";
+import {BlockchainType} from "../../../types/Settings";
 
 @injectable()
 export class ArbitrumBlockDispatcher extends BlockDispatcher {
   readonly chainId = ChainsIds.ARBITRUM;
+  readonly blockchainType = BlockchainType.LAYER2;
 
   protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
     // for arbitrum we are only calculating gasLimit
@@ -21,7 +23,7 @@ export class ArbitrumBlockDispatcher extends BlockDispatcher {
     const gas = await this.chainContract.estimateGasForSubmit(props?.data as ChainSubmitArgs);
 
     return {
-      gasLimit: gas.mul(15).div(10) // using limit that is 50% more than estimated just in case
+      gasLimit: gas * 15n / 10n // using limit that is 50% more than estimated just in case
     };
   }
 }

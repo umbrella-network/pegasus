@@ -1,6 +1,5 @@
 import {inject, injectable, postConstruct} from 'inversify';
 import newrelic from 'newrelic';
-import {TransactionResponse} from '@ethersproject/providers';
 import {ethers} from 'ethers';
 import {PayableOverrides} from "@ethersproject/contracts";
 
@@ -8,17 +7,19 @@ import BlockRepository from '../../repositories/BlockRepository';
 import {MultichainArchitectureDetector} from '../MultichainArchitectureDetector';
 import {Dispatcher} from "./Dispatcher";
 import {IDeviationFeedsDispatcher} from "./IDeviationFeedsDispatcher";
-import {FeedContract} from "../../contracts/FeedContract";
+import {FeedContract} from "../../contracts/evm/FeedContract";
 import {FeedsContractRepository} from "../../repositories/FeedsContractRepository";
 import {DeviationTriggerConsensusRepository} from "../../repositories/DeviationTriggerConsensusRepository";
 import {TriggerTxChecker} from "../SubmitMonitor/TriggerTxChecker";
 import {TriggerSaver} from "../SubmitMonitor/TriggerSaver";
-import { Signature, UmbrellaFeedsUpdateArgs} from "../../types/DeviationFeeds";
+import {UmbrellaFeedsUpdateArgs} from "../../types/DeviationFeeds";
 import {DeviationConsensus} from "../../models/DeviationConsensus";
 import {sleep} from "../../utils/sleep";
 import {DeviationLeaderSelector} from "../deviationsFeeds/DeviationLeaderSelector";
 import {ValidatorRepository} from "../../repositories/ValidatorRepository";
 import TimeService from "../TimeService";
+import {ExecutedTx, TxHash} from "../../types/Consensus";
+import {BlockchainType} from "../../types/Settings";
 
 @injectable()
 export abstract class DeviationDispatcher extends Dispatcher implements IDeviationFeedsDispatcher {
@@ -33,13 +34,11 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
   @inject(TimeService) timeService!: TimeService;
 
   protected feedsContract!: FeedContract;
-  protected logPrefix = '[DeviationDispatcher]';
 
   @postConstruct()
   protected setup(): void {
-    this.logPrefix = `[${this.chainId}][DeviationDispatcher]`;
+    this.init();
     this.feedsContract = this.feedsContractRepository.get(this.chainId);
-    this.blockchain = this.blockchainRepository.get(this.chainId);
   }
 
   apply = async (): Promise<void> => {
@@ -55,7 +54,10 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
     }
 
     // NOTICE: KEEP this check at begin, otherwise leader worker will be locked
-    await this.checkBalanceIsEnough(this.blockchain.deviationWallet);
+    if (!await this.checkBalanceIsEnough(this.blockchain.deviationWallet)) {
+      await sleep(60_000); // slow down execution
+      return;
+    }
 
     const consensus = await this.consensusRepository.read(this.chainId);
 
@@ -96,24 +98,14 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
   }
 
   protected async updateFeedsTxData(consensus: DeviationConsensus): Promise<{
-    fn: () => Promise<TransactionResponse>,
+    fn: () => Promise<ExecutedTx>,
     payableOverrides: PayableOverrides,
     timeout: number
   }> {
-    const signatures = consensus.signatures
-      .map((signature) => ethers.utils.splitSignature(signature))
-      .map((s): Signature => {
-        return <Signature>{
-          v: s.v,
-          r: s.r,
-          s: s.s
-        }
-      });
-
     const updateFeedsArgs: UmbrellaFeedsUpdateArgs = {
       keys: consensus.keys.map(ethers.utils.id),
       priceDatas: consensus.priceData,
-      signatures
+      signatures: consensus.signatures
     };
 
     const payableOverrides = await this.calculatePayableOverrides({
@@ -130,20 +122,20 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
   }
 
   protected async nextNonce(): Promise<number | undefined> {
-    return this.blockchain.deviationWallet?.getTransactionCount('latest');
+    return this.blockchain.deviationWallet?.getNextNonce();
   }
 
   protected getTxTimeout(): number {
     return 120_000;
   }
 
-  protected async send(consensus: DeviationConsensus): Promise<string | null> {
+  protected async send(consensus: DeviationConsensus): Promise<TxHash | null> {
     try {
       const {fn, payableOverrides, timeout} = await this.updateFeedsTxData(consensus);
       return await this.dispatch(fn, payableOverrides, timeout);
     } catch (err) {
       newrelic.noticeError(err);
-      err.message = `[${this.chainId}] ${err.message}`;
+      err.message = `${this.logPrefix} ${err.message}`;
       this.logger.error(err);
       return null;
     }

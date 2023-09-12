@@ -1,0 +1,88 @@
+import {StaticJsonRpcProvider} from "@ethersproject/providers";
+import {ethers} from 'ethers';
+import {Logger} from "winston";
+
+import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
+import {GasEstimator} from "@umb-network/toolbox";
+
+import {IProvider} from './IProvider';
+import {ChainsIds} from '../../types/ChainsIds';
+import {NetworkStatus} from '../../types/Network';
+import {sleep} from "../../utils/sleep";
+import Settings from "../../types/Settings";
+import {Timeout} from "../../services/tools/Timeout";
+import logger from '../../lib/logger';
+import settings from "../../config/settings";
+
+export class EvmProvider implements IProvider {
+  protected logger!: Logger;
+  protected settings!: Settings;
+  protected readonly chainId!: ChainsIds;
+  protected readonly provider!: StaticJsonRpcProvider;
+
+  constructor(chainId: ChainsIds, url: string) {
+    this.logger = logger;
+    this.settings = settings;
+    this.chainId = chainId;
+    this.provider = new ethers.providers.StaticJsonRpcProvider(url);
+  }
+
+  getRawProvider<T>(): T {
+    return this.provider as unknown as T;
+  }
+
+  async gasEstimation(minGasPrice: number, maxGasPrice: number): Promise<GasEstimation> {
+    return GasEstimator.apply(this.provider, minGasPrice, maxGasPrice);
+  }
+
+  async getBlockNumber(): Promise<bigint> {
+    return BigInt(await this.provider.getBlockNumber());
+  }
+
+  async getBlockTimestamp(): Promise<number> {
+    return (await this.provider.getBlock('latest')).timestamp;
+  }
+
+  async getBalance(address: string): Promise<bigint> {
+    const balance = await this.provider.getBalance(address);
+    return balance.toBigInt();
+  }
+
+  async getNetwork(): Promise<NetworkStatus> {
+    if (!this.provider) throw new Error(`[${this.chainId}] getNetwork(): no provider`);
+
+    const status = await this.provider.getNetwork();
+    return {name: status.name, id: status.chainId};
+  }
+
+  async getTransactionCount(address: string): Promise<number> {
+    return this.provider.getTransactionCount(address);
+  }
+
+  async waitForTx(txHash: string, timeoutMs: number): Promise<boolean> {
+    const receipt = await Promise.race([this.provider.waitForTransaction(txHash), Timeout.apply(timeoutMs)]);
+    return receipt ? receipt.status == 1 : false;
+  }
+
+  async waitUntilNextBlock(currentBlockNumber: bigint): Promise<bigint> {
+    // it would be nice to subscribe for blockNumber, but we're forcing http for RPC
+    // this is not pretty solution, but we're using proxy, so infura calls should not increase
+    let newBlockNumber = await this.getBlockNumber();
+
+    while (currentBlockNumber >= newBlockNumber) {
+      this.logger.info(`[${this.chainId}] waitUntilNextBlock: current ${currentBlockNumber}`);
+      await sleep(this.settings.blockchain.transactions.waitForBlockTime);
+      newBlockNumber = await this.getBlockNumber();
+    }
+
+    return newBlockNumber;
+  }
+
+  async call(transaction: { to: string; data: string }): Promise<string> {
+    return this.provider.call(transaction);
+  }
+
+  isNonceError(e: Error): boolean {
+    return e.message.includes('nonce has already been used');
+  }
+}

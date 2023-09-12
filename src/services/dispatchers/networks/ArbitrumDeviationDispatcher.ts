@@ -4,10 +4,12 @@ import {PayableOverrides} from "@ethersproject/contracts";
 import {DeviationDispatcher} from "../DeviationDispatcher";
 import {ChainsIds} from '../../../types/ChainsIds';
 import {UmbrellaFeedsUpdateArgs} from "../../../types/DeviationFeeds";
+import {BlockchainType} from "../../../types/Settings";
 
 @injectable()
 export class ArbitrumDeviationDispatcher extends DeviationDispatcher {
   readonly chainId = ChainsIds.ARBITRUM;
+  readonly blockchainType = BlockchainType.ON_CHAIN;
 
   protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
     // for arbitrum we are only calculating gasLimit
@@ -17,10 +19,10 @@ export class ArbitrumDeviationDispatcher extends DeviationDispatcher {
   protected async calculatePayableOverrides(props?: {nonce?: number, data?: unknown}): Promise<PayableOverrides> {
     // for unknown reason, when we let provider resolve gas limit automatically, it does not work 
     // when we call estimation manually and use result it does work
-    const gas = await this.feedsContract.estimateGasForSubmit(props?.data as UmbrellaFeedsUpdateArgs);
+    const gas = await this.feedsContract.estimateGasForUpdate(props?.data as UmbrellaFeedsUpdateArgs);
 
     return {
-      gasLimit: gas.mul(15).div(10) // using limit that is 50% more than estimated just in case
+      gasLimit: gas * 15n / 10n // using limit that is 50% more than estimated just in case
     };
   }
 }

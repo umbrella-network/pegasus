@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 
 import {OnChainCall} from '../../types/Feed';
 import {BlockchainRepository} from "../../repositories/BlockchainRepository";
-import {ChainsIds} from "../../types/ChainsIds";
+import {ChainsIds, NonEvmChainsIds} from "../../types/ChainsIds";
 import {BlockchainProviderRepository} from "../../repositories/BlockchainProviderRepository";
 import {Logger} from "winston";
 
@@ -38,10 +38,12 @@ class OnChainDataFetcher {
 
   private resolveBlockchainProvider(chainId: ChainsIds | undefined): ethers.providers.StaticJsonRpcProvider {
     if (chainId) {
+      if (NonEvmChainsIds.includes(chainId)) throw new Error(`[OnChainDataFetcher] ${chainId} not supported`);
+
       const blockchain = this.blockchainRepository.get(chainId);
 
       if (blockchain) {
-        return blockchain.provider;
+        return blockchain.provider.getRawProvider();
       }
 
       if (chainId !== ChainsIds.ETH) throw new Error(`[OnChainDataFetcher] chainId:${chainId} is not supported`);
