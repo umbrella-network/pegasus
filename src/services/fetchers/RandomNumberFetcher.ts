@@ -1,13 +1,15 @@
 import {utils} from 'ethers';
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {BaseProvider} from "@ethersproject/providers";
 import {ChainsIds} from "../../types/ChainsIds";
-import {ProviderFactory} from "../../factories/ProviderFactory";
+import {ProviderRepository} from "../../repositories/ProviderRepository";
 
 @injectable()
 class RandomNumberFetcher {
+  @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
+
   async apply({numBlocks = 10} = {}, timestamp: number): Promise<string> {
-    const evmProvider = ProviderFactory.create(ChainsIds.POLYGON).getRawProvider<BaseProvider>();
+    const evmProvider = this.providerRepository.get(ChainsIds.POLYGON).getRawProvider<BaseProvider>();
     let latest = await evmProvider.getBlock('latest');
 
     while (latest.timestamp >= timestamp) {

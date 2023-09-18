@@ -106,7 +106,7 @@ class FeedProcessor {
     const fetcher = this.feedFetcherRepository.find(feedFetcher.name);
 
     if (!fetcher) {
-      this.logger.debug(`No fetcher specified for ${feedFetcher.name}`);
+      this.logger.warn(`No fetcher specified for ${feedFetcher.name}`);
       return;
     }
 
@@ -115,7 +115,7 @@ class FeedProcessor {
     } catch (err) {
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);
-      this.logger.debug(`Ignored feed fetcher ${JSON.stringify(feedFetcher)} due to an error. ${error}`);
+      this.logger.error(`Ignored feed fetcher ${JSON.stringify(feedFetcher)} due to an error. ${error}`);
       return;
     }
   }

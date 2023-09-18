@@ -46,6 +46,7 @@ export default {
             {$ref: '#/definitions/OptionsPriceFetcher'},
             {$ref: '#/definitions/YearnVaultTokenPriceFetcher'},
             {$ref: '#/definitions/RandomNumberFetcher'},
+            {$ref: '#/definitions/TWAPGasPriceFetcher'},
           ],
         },
         calculator: {
@@ -280,6 +281,22 @@ export default {
             months: {type: 'number'},
           },
           required: ['months'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    TWAPGasPriceFetcher: {
+      properties: {
+        name: {const: 'TWAPGasPrice'},
+        params: {
+          type: 'object',
+          properties: {
+            twap: {type: 'number'},
+            chainId: {type: 'string'},
+          },
+          required: ['twap', 'chainId'],
           additionalProperties: false,
         },
       },

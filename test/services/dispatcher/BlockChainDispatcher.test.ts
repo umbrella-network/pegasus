@@ -34,7 +34,7 @@ import {mockIWallet} from "../../helpers/mockIWallet";
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 
-describe.only('BlockChainDispatcher', () => {
+describe('BlockChainDispatcher', () => {
   const wallet = Wallet.createRandom();
 
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
