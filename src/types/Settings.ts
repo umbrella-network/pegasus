@@ -12,6 +12,7 @@ export type BlockchainSettings = {
   providerUrl?: string;
   contractRegistryAddress?: string;
   type: BlockchainType[];
+  gasPriceCheckBlocksInterval?: number;
   transactions: {
     waitForBlockTime: number;
     minGasPrice: number;

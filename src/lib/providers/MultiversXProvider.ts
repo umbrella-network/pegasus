@@ -17,6 +17,7 @@ import settings from "../../config/settings";
 
 export class MultiversXProvider implements IProvider {
   protected logger!: Logger;
+  protected loggerPrefix!: string;
   protected settings!: Settings;
   protected readonly chainId = ChainsIds.MULTIVERSX;
   protected readonly provider: ApiNetworkProvider | undefined;
@@ -25,6 +26,7 @@ export class MultiversXProvider implements IProvider {
 
   constructor(providerUrl: string) {
     this.logger = logger;
+    this.loggerPrefix = '[MultiversXProvider]';
     this.settings = settings;
     this.providerUrl = providerUrl;
     this.provider = new ApiNetworkProvider(providerUrl);
@@ -35,14 +37,14 @@ export class MultiversXProvider implements IProvider {
   }
 
   async getBlockNumber(): Promise<bigint> {
-    if (!this.provider) throw Error(`[${this.chainId}] getBlockNumber(): provider not set`);
+    if (!this.provider) throw Error(`${this.loggerPrefix} getBlockNumber(): provider not set`);
 
     const network = await this.provider.getNetworkGeneralStatistics();
     return BigInt(network.Blocks.toString());
   }
 
   async getBlockTimestamp(): Promise<number> {
-    if (!this.provider) throw Error(`[${this.chainId}] getBlockTimestamp(): provider not set`);
+    if (!this.provider) throw Error(`${this.loggerPrefix} getBlockTimestamp(): provider not set`);
 
     const blockUrl = `${this.providerUrl}/blocks/latest`;
     const latestBlock = await axios.get(blockUrl, {timeout: this.timeout});
@@ -60,7 +62,7 @@ export class MultiversXProvider implements IProvider {
   }
 
   async getNetwork(): Promise<NetworkStatus> {
-    if (!this.provider) throw new Error(`[${this.chainId}] getNetwork(): no provider`);
+    if (!this.provider) throw new Error(`${this.loggerPrefix} getNetwork(): no provider`);
 
     const network = await this.provider.getNetworkConfig();
 
@@ -83,7 +85,7 @@ export class MultiversXProvider implements IProvider {
   }
 
   async waitForTx(txHash: string, timeoutMs: number): Promise<boolean> {
-    if (!this.provider) throw new Error(`[MultiversXProvider] waitForTx: provider not set`);
+    if (!this.provider) throw new Error(`${this.loggerPrefix} waitForTx: provider not set`);
 
     const watcher = new TransactionWatcher(this.provider);
 
@@ -104,40 +106,40 @@ export class MultiversXProvider implements IProvider {
     const transactionOnNetworkPending = await Promise.race([watcher.awaitPending(tx), Timeout.apply(timeoutMs)]);
 
     if (!transactionOnNetworkPending) {
-      this.logger.error(`[MultiversXProvider] waitForTx: ${txHash} pending timeout ${timeoutMs}ms`);
+      this.logger.error(`${this.loggerPrefix} waitForTx: ${txHash} pending timeout ${timeoutMs}ms`);
       return false;
     }
 
-    this.logger.info(`[MultiversXProvider] tx ${txHash}  is pending`);
+    this.logger.info(`${this.loggerPrefix} tx ${txHash}  is pending`);
 
     if (!transactionOnNetworkPending.status.isPending()) {
-      this.logger.error(`[MultiversXProvider] waitForTx: ${txHash} not pending`);
+      this.logger.error(`${this.loggerPrefix} waitForTx: ${txHash} not pending`);
       return false;
     }
 
     const transactionOnNetwork = await Promise.race([watcher.awaitCompleted(tx), Timeout.apply(timeoutMs)]);
 
     if (!transactionOnNetwork) {
-      this.logger.error(`[MultiversXProvider] waitForTx: ${txHash} awaitCompleted timeout ${timeoutMs}ms`);
+      this.logger.error(`${this.loggerPrefix} waitForTx: ${txHash} awaitCompleted timeout ${timeoutMs}ms`);
       return false;
     }
 
     if (transactionOnNetwork.status.isInvalid()) {
-      this.logger.error(`[MultiversXProvider] waitForTx: ${txHash} is invalid`);
+      this.logger.error(`${this.loggerPrefix} waitForTx: ${txHash} is invalid`);
       return false;
     }
 
     if (transactionOnNetwork.status.isFailed()) {
-      this.logger.error(`[MultiversXProvider] waitForTx: ${txHash} failed`);
+      this.logger.error(`${this.loggerPrefix} waitForTx: ${txHash} failed`);
       return false;
     }
 
     if (!transactionOnNetwork.status.isExecuted()) {
-      this.logger.error(`[MultiversXProvider] waitForTx: ${txHash} is NOT executed`);
+      this.logger.error(`${this.loggerPrefix} waitForTx: ${txHash} is NOT executed`);
       return false;
     }
 
-    this.logger.info(`[MultiversXProvider] tx ${txHash} successful`);
+    this.logger.info(`${this.loggerPrefix} tx ${txHash} successful`);
 
     return true;
   }
@@ -146,7 +148,7 @@ export class MultiversXProvider implements IProvider {
     let newBlockNumber = 0n;
 
     while (currentBlockNumber >= newBlockNumber) {
-      this.logger.info(`[${this.chainId}] waitUntilNextBlock: current ${currentBlockNumber}`);
+      this.logger.info(`${this.loggerPrefix} waitUntilNextBlock: current ${currentBlockNumber}`);
       await sleep(this.settings.blockchain.transactions.waitForBlockTime);
       newBlockNumber = await this.getBlockNumber();
     }
@@ -157,7 +159,7 @@ export class MultiversXProvider implements IProvider {
   async call(transaction: { to: string; data: string }): Promise<string> {
     // this is only needed for new chain architecture detection
     // once we create new chain for solana, we will need to implement this method
-    throw new Error('X.call not supported yet');
+    throw new Error(`${this.loggerPrefix} .call not supported yet`);
   }
 
   async gasEstimation(minGasPrice: number, maxGasPrice: number): Promise<GasEstimation> {
@@ -179,8 +181,12 @@ export class MultiversXProvider implements IProvider {
     return e.message.includes('lowerNonceInT') || e.message.includes('veryHighNonceInTx');
   }
 
+  getBlock(): Promise<void> {
+    throw new Error(`${this.loggerPrefix} getBlock(): not supported`)
+  }
+
   protected async accountData(erdAddress: string): Promise<Account> {
-    if (!this.provider) throw new Error(`[${this.chainId}] accountData(): no provider`);
+    if (!this.provider) throw new Error(`${this.loggerPrefix} accountData(): no provider`);
 
     const account = new Account(new Address(erdAddress));
     const accountOnNetwork = await this.provider.getAccount(new Address(erdAddress));

@@ -30,6 +30,7 @@ import {ChainsStatuses} from '../../src/types/ChainStatus';
 import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepository';
 import {MultichainArchitectureDetector} from '../../src/services/MultichainArchitectureDetector';
 import {mockIWallet} from '../helpers/mockIWallet';
+import {ChainsIds} from '../../src/types/ChainsIds';
 
 const allStates: ChainsStatuses = {
   validators: [
@@ -77,6 +78,8 @@ describe('BlockMinter', () => {
     mockedConsensusDataRepository = sinon.createStubInstance(ConsensusDataRepository);
     mockedMultichainArchitectureDetector = sinon.createStubInstance(MultichainArchitectureDetector);
 
+    wallet = Wallet.createRandom();
+
     settings = {
       feedsFile: 'test/feeds/feeds.yaml',
       feedsOnChain: 'test/feeds/feedsOnChain.yaml',
@@ -86,6 +89,11 @@ describe('BlockMinter', () => {
       },
       version: '1.0.0',
       blockchain: {
+        wallets: {
+          evm: {
+            privateKey: wallet.privateKey,
+          },
+        },
         transactions: {
           waitForBlockTime: 1000,
           mintBalance: {
@@ -94,17 +102,16 @@ describe('BlockMinter', () => {
           },
         },
         masterChain: {
-          chainId: 'bsc',
+          chainId: ChainsIds.AVALANCHE,
         },
         multiChains: {
-          bsc: {
+          [ChainsIds.AVALANCHE]: {
             type: [BlockchainType.LAYER2],
           },
         },
       },
     } as Settings;
 
-    wallet = Wallet.createRandom();
     mockedBlockchain.wallet = mockIWallet(wallet);
     mockedBlockchain.wallet.getBalance = async () => BigInt(parseEther('10'));
 
@@ -208,11 +215,11 @@ describe('BlockMinter', () => {
             staked: BigNumber.from(1),
             minSignatures: 1,
           },
-          chainId: 'bsc',
+          chainId: ChainsIds.AVALANCHE,
         },
       ];
 
-      allStates.chainsIdsReadyForBlock = ['bsc'];
+      allStates.chainsIdsReadyForBlock = [ChainsIds.AVALANCHE];
       mockedMultiChainStatusResolver.apply.resolves(allStates);
       await blockMinter.apply();
 
@@ -236,7 +243,7 @@ describe('BlockMinter', () => {
             staked: BigNumber.from(1),
             minSignatures: 1,
           },
-          chainId: 'bsc',
+          chainId: ChainsIds.AVALANCHE,
         },
       ];
 
@@ -269,12 +276,12 @@ describe('BlockMinter', () => {
             staked: BigNumber.from(1),
             minSignatures: 1,
           },
-          chainId: 'bsc',
+          chainId: ChainsIds.AVALANCHE,
         },
       ];
       allStates.nextLeader = wallet.address;
 
-      allStates.chainsIdsReadyForBlock = ['bsc'];
+      allStates.chainsIdsReadyForBlock = [ChainsIds.AVALANCHE];
       mockedMultiChainStatusResolver.apply.resolves(allStates);
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
@@ -328,11 +335,11 @@ describe('BlockMinter', () => {
             staked: BigNumber.from(1),
             minSignatures: 1,
           },
-          chainId: 'bsc',
+          chainId: ChainsIds.AVALANCHE,
         },
       ];
 
-      allStates.chainsIdsReadyForBlock = ['bsc'];
+      allStates.chainsIdsReadyForBlock = [ChainsIds.AVALANCHE];
       mockedMultiChainStatusResolver.apply.resolves(allStates);
       mockedChainContract.resolveValidators.resolves([{id: wallet.address, location: 'abc'}]);
       mockedBlockchain.getBlockNumber.onCall(0).resolves(1n);
@@ -373,11 +380,11 @@ describe('BlockMinter', () => {
               staked: BigNumber.from(1),
               minSignatures: 1,
             },
-            chainId: 'bsc',
+            chainId: ChainsIds.AVALANCHE,
           },
         ];
 
-        allStates.chainsIdsReadyForBlock = ['bsc'];
+        allStates.chainsIdsReadyForBlock = [ChainsIds.AVALANCHE];
         mockedMultiChainStatusResolver.apply.resolves(allStates);
       });
     });
@@ -401,15 +408,15 @@ describe('BlockMinter', () => {
               staked: BigNumber.from(1),
               minSignatures: 1,
             },
-            chainId: 'bsc',
+            chainId: ChainsIds.AVALANCHE,
           },
         ];
 
-        allStates.chainsIdsReadyForBlock = ['bsc'];
+        allStates.chainsIdsReadyForBlock = [ChainsIds.AVALANCHE];
         mockedMultiChainStatusResolver.apply.resolves(allStates);
       });
 
-      it('select leader based on bsc chainStatus', async () => {
+      it(`select leader based on ${ChainsIds.AVALANCHE} chainStatus`, async () => {
         const {leaf, affidavit, timestamp} = leafWithAffidavit;
         const signature = await signAffidavitWithWallet(wallet, affidavit);
 

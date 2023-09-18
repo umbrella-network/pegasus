@@ -10,6 +10,7 @@ import {UniswapPriceFetcher} from './UniswapPriceFetcher';
 import OptionsPriceFetcher from './OptionsPriceFetcher';
 import RandomNumberFetcher from './RandomNumberFetcher';
 import OnChainDataFetcher from './OnChainDataFetcher';
+import EvmTWAPGasPriceFetcher from './EvmTWAPGasPriceFetcher';
 
 export {
   CryptoComparePriceMultiFetcher,
@@ -24,4 +25,5 @@ export {
   UniswapPriceFetcher,
   RandomNumberFetcher,
   OnChainDataFetcher,
+  EvmTWAPGasPriceFetcher
 };
