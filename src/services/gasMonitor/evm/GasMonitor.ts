@@ -7,6 +7,7 @@ import {BlockchainGasRepository} from "../../../repositories/BlockchainGasReposi
 import {BlockchainGasCalculator} from "./BlockchainGasCalculator";
 import {ChainsIds} from "../../../types/ChainsIds";
 import Settings from "../../../types/Settings";
+import {TwapFeedDetector} from "./TwapFeedDetector";
 
 @injectable()
 export class GasMonitor {
@@ -15,8 +16,11 @@ export class GasMonitor {
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
   @inject(BlockchainGasRepository) protected gasRepository!: BlockchainGasRepository;
   @inject(BlockchainGasCalculator) protected gasCalculator!: BlockchainGasCalculator;
+  @inject(TwapFeedDetector) twapFeedDetector!: TwapFeedDetector;
 
   async apply(chainId: ChainsIds): Promise<void> {
+    if (!await this.twapFeedDetector.apply(chainId)) return;
+
     const blocks = await this.getListOfBlocksToPull(chainId);
 
     this.logger.info(`[${chainId}] GasMonitor blocks ${blocks}`);
