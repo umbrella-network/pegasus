@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import {expect} from 'chai';
-import fs from 'fs';
 import {ethers} from 'ethers';
 
 import {UserSigner} from '@multiversx/sdk-wallet';
@@ -203,9 +202,9 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
 
       const hash = hasher.apply(ChainsIds.MULTIVERSX, networkId, target, keys, priceDatas);
 
-      const privateKeyPem1 = fs.readFileSync(__dirname + '/../pem/validator.dev.pem').toString();
-      const privateKeyPem2 = fs.readFileSync(__dirname + '/../pem/validator2.dev.pem').toString();
-      // const privateKey = UserSecretKey.fromPem(file);
+      const privateKeyPem1 = process.env.MULTIVERSX_SIGNING_PRIVATE_KEY || '';
+      const privateKeyPem2 = process.env.MULTIVERSX_SIGNING_PRIVATE_KEY2 || '';
+
       const user1 = UserSigner.fromPem(privateKeyPem1);
       const user2 = UserSigner.fromPem(privateKeyPem2);
 
@@ -229,6 +228,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
       console.log('success:', success);
 
       console.log(await umbrellaFeeds.getManyPriceDataRaw(args.keys));
+      expect(success).true;
     }).timeout(60000);
   });
 });

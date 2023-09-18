@@ -13,6 +13,5 @@ export class DeviationSignerMultiversX {
     const signature = await signer.sign(Buffer.from(newDataHash.replace('0x', ''), 'hex'));
 
     return `${signer.getAddress().bech32()}@${signature.toString('hex')}`;
-    // return `0x${signature.toString('hex')}`;
   }
 }
