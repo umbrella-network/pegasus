@@ -52,7 +52,7 @@ class InfoController {
         scannerContractId: this.settings.api.uniswap.scannerContractId,
       },
       masterChain: await this.getMasterchainSettings(),
-      chains: await this.getMultichainsSettings(),
+      chains: await this.getMultichainsSettings(this.getChain(request)),
       version: this.settings.version,
       environment: this.settings.environment,
       name: this.settings.name,
@@ -67,6 +67,14 @@ class InfoController {
 
   private isPing = (request: Request): boolean => {
     return !request.query.details;
+  };
+
+  private getChain = (request: Request): ChainsIds | undefined => {
+    if (!request.query.details) return;
+
+    return Object.values(ChainsIds).includes(`${request.query.details}` as ChainsIds)
+      ? (request.query.details as ChainsIds)
+      : undefined;
   };
 
   private getFormattedTimeoutCodes = () => {
@@ -119,8 +127,10 @@ class InfoController {
     return masterChainSettings;
   };
 
-  private getMultichainsSettings = async (): Promise<Record<string, BlockchainInfoSettings>> => {
-    const chainIds = Object.values(ChainsIds);
+  private getMultichainsSettings = async (
+    forChain: ChainsIds | undefined,
+  ): Promise<Record<string, BlockchainInfoSettings>> => {
+    const chainIds = forChain ? [forChain] : Object.values(ChainsIds);
 
     const cfg = await Promise.all(
       chainIds
