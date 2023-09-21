@@ -24,4 +24,12 @@ export class MultiversXAddress {
 
     return Buffer.from(new Address(erdAddress).hex(), 'hex');
   }
+
+  static sort(erd1: string, erd2: string): number {
+    const a = BigInt(`0x${MultiversXAddress.toBuffer(erd1).toString('hex')}`);
+    const b = BigInt(`0x${MultiversXAddress.toBuffer(erd2).toString('hex')}`);
+    if (a == b) return 0;
+
+    return a < b ? -1 : 1;
+  }
 }

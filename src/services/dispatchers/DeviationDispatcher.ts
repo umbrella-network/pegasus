@@ -18,7 +18,6 @@ import {DeviationLeaderSelector} from "../deviationsFeeds/DeviationLeaderSelecto
 import {ValidatorRepository} from "../../repositories/ValidatorRepository";
 import TimeService from "../TimeService";
 import {ExecutedTx, TxHash} from "../../types/Consensus";
-import {BlockchainType} from "../../types/Settings";
 
 @injectable()
 export abstract class DeviationDispatcher extends Dispatcher implements IDeviationFeedsDispatcher {
