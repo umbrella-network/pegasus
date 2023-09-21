@@ -33,7 +33,9 @@ export class DeviationSignatureCollector {
     const selfAddress = new Wallet(this.settings.blockchain.wallets.evm.privateKey).address.toLowerCase();
 
     const signedData = await Promise.all(
-      participants.map((p) => selfAddress == p.id.toLowerCase() ? this.getLocalSignature(data) : this.getParticipantSignature(data, p))
+      participants.map((p) => selfAddress == p.id.toLowerCase()
+        ? this.getLocalSignature(data)
+        : this.getParticipantSignature(data, p))
     );
 
     return signedData.filter((s: DeviationSignerResponse | undefined) => s !== undefined) as DeviationSignerResponse[];

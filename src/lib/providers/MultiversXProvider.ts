@@ -76,7 +76,7 @@ export class MultiversXProvider implements IProvider {
       default: id += 9;
     }
 
-    return {name: this.chainId, id};
+    return {name: this.chainId, id: 0}; // TODO can we use fixed ID?
   }
 
   async getTransactionCount(address: string): Promise<number> {
