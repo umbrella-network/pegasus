@@ -13,6 +13,10 @@ export class MultiversXAddress {
     return addr.valueOf().bech32();
   }
 
+  static fromHex(hex: string): IAddress {
+    return Address.fromHex(hex);
+  }
+
   static toErd(addr: IAddress): string {
     return addr.bech32();
   }
