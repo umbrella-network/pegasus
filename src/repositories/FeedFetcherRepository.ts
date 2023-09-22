@@ -23,6 +23,7 @@ export class FeedFetcherRepository {
     @inject(fetchers.OptionsPriceFetcher) OptionsPrice: fetchers.OptionsPriceFetcher,
     @inject(fetchers.UniswapPriceFetcher) UniswapPriceFetcher: fetchers.UniswapPriceFetcher,
     @inject(fetchers.RandomNumberFetcher) RandomNumber: fetchers.RandomNumberFetcher,
+    @inject(fetchers.EvmTWAPGasPriceFetcher) evmTWAPGasPriceFetcher: fetchers.EvmTWAPGasPriceFetcher,
   ) {
     this.collection = {
       CryptoCompareHistoHour,
@@ -36,6 +37,7 @@ export class FeedFetcherRepository {
       OptionsPrice,
       UniswapPriceFetcher,
       RandomNumber,
+      TWAPGasPrice: evmTWAPGasPriceFetcher,
     };
   }
 

@@ -1,5 +1,4 @@
 import {inject, injectable, postConstruct} from 'inversify';
-import newrelic from 'newrelic';
 import {LeafKeyCoder} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 import { ethers } from 'ethers';
@@ -155,8 +154,6 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
       return await this.dispatch(fn, payableOverrides, timeout);
     } catch (e) {
       const err = await this.handleTimestampDiscrepancyError(<Error>e, dataTimestamp);
-
-      newrelic.noticeError(err);
       this.logger.error(err);
       return null;
     }

@@ -1,4 +1,3 @@
-import newrelic from 'newrelic';
 import {Logger} from 'winston';
 
 import {boot} from './boot';
@@ -13,8 +12,6 @@ import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
 import BasicWorker from "./workers/BasicWorker";
 import {ChainsIds} from "./types/ChainsIds";
 import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
-
-const {NEW_RELIC_LABELS} = process.env;
 
 (async (): Promise<void> => {
   await boot();
@@ -35,19 +32,17 @@ const {NEW_RELIC_LABELS} = process.env;
 
   setTimeout(() => dataPurger.apply(), 100);
 
-  if (NEW_RELIC_LABELS) {
-    setInterval(async () => {
-      logger.info('[Scheduler] Scheduling MetricsWorker');
+  setInterval(async () => {
+    logger.info('[Scheduler] Scheduling MetricsWorker');
 
-      await metricsWorker.enqueue(
-        {},
-        {
-          removeOnComplete: true,
-          removeOnFail: true,
-        },
-      );
-    }, settings.jobs.metricsReporting.interval);
-  }
+    await metricsWorker.enqueue(
+      {},
+      {
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
+    );
+  }, settings.jobs.metricsReporting.interval);
 
   setTimeout(async () => {
     logger.info('initial run for ValidatorListWorker');
@@ -100,7 +95,6 @@ const {NEW_RELIC_LABELS} = process.env;
         },
       );
     } catch (e) {
-      newrelic.noticeError(e as Error);
       logger.error(e);
     }
   };

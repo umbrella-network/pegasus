@@ -1,5 +1,4 @@
 import {inject, injectable, postConstruct} from 'inversify';
-import newrelic from 'newrelic';
 import {ethers} from 'ethers';
 import {PayableOverrides} from "@ethersproject/contracts";
 
@@ -19,7 +18,6 @@ import {DeviationLeaderSelector} from "../deviationsFeeds/DeviationLeaderSelecto
 import {ValidatorRepository} from "../../repositories/ValidatorRepository";
 import TimeService from "../TimeService";
 import {ExecutedTx, TxHash} from "../../types/Consensus";
-import {BlockchainType} from "../../types/Settings";
 
 @injectable()
 export abstract class DeviationDispatcher extends Dispatcher implements IDeviationFeedsDispatcher {
@@ -134,7 +132,6 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       const {fn, payableOverrides, timeout} = await this.updateFeedsTxData(consensus);
       return await this.dispatch(fn, payableOverrides, timeout);
     } catch (err) {
-      newrelic.noticeError(err);
       err.message = `${this.logPrefix} ${err.message}`;
       this.logger.error(err);
       return null;

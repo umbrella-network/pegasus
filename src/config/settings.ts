@@ -24,10 +24,18 @@ function resolveBlockchainType(chain: ChainsIds): BlockchainType[] | undefined {
     .map((t) => BlockchainType[t as BlockchainTypeKeys]);
 }
 
+function resolveGasPriceInterval(chain: ChainsIds): number | undefined {
+  const interval = process.env[`${chain}_GAS_PRICE_CHECK_INTERVAL`];
+  if (!interval) return;
+
+  return parseInt(interval, 10);
+}
+
 const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   [ChainsIds.BSC]: {
     type: resolveBlockchainType(ChainsIds.BSC) || [BlockchainType.LAYER2],
     contractRegistryAddress: process.env.REGISTRY_CONTRACT_ADDRESS,
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.BSC),
     transactions: {
       waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000', 10),
       minGasPrice: 2000000000,
@@ -40,6 +48,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   },
   [ChainsIds.AVALANCHE]: {
     type: resolveBlockchainType(ChainsIds.AVALANCHE) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.AVALANCHE),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 25000000000,
@@ -52,6 +61,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   },
   [ChainsIds.POLYGON]: {
     type: resolveBlockchainType(ChainsIds.POLYGON) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.POLYGON),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 1000000000,
@@ -64,6 +74,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   },
   [ChainsIds.ARBITRUM]: {
     type: resolveBlockchainType(ChainsIds.ARBITRUM) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ARBITRUM),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100_000_000,
@@ -76,6 +87,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   },
   [ChainsIds.ETH]: {
     type: resolveBlockchainType(ChainsIds.ETH) || [BlockchainType.LAYER2],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ETH),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 2000000000,
@@ -88,6 +100,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   },
   [ChainsIds.LINEA]: {
     type: resolveBlockchainType(ChainsIds.LINEA) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.LINEA),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
@@ -100,6 +113,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   },
   [ChainsIds.BASE]: {
     type: resolveBlockchainType(ChainsIds.BASE) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.BASE),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
@@ -113,6 +127,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   [ChainsIds.MULTIVERSX]: {
     // TODO
     type: resolveBlockchainType(ChainsIds.MULTIVERSX) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.MULTIVERSX),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
@@ -144,7 +159,7 @@ const settings: Settings = {
       },
     },
     metricsReporting: {
-      interval: parseInt(process.env.METRICS_REPORTING_JOB_INTERVAL || '60000'),
+      interval: parseInt(process.env.METRICS_REPORTING_JOB_INTERVAL || '30000'),
       lock: {
         name: process.env.METRICS_REPORTING_LOCK_NAME || 'lock::MetricsReporting',
         ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),

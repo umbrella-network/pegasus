@@ -7,6 +7,7 @@ import {loadTestEnv} from '../helpers/loadTestEnv';
 import {ChainsIds} from '../../src/types/ChainsIds';
 import {StakingBankInterface} from '../../src/contracts/interfaces/StakingBankInterface';
 import {StakingBankContractFactory} from '../../src/factories/contracts/StakingBankContractFactory';
+import {MultiversXAddress} from '../../src/services/tools/MultiversXAddress';
 
 loadTestEnv();
 
@@ -17,12 +18,13 @@ describe.skip('Staking Banks debug integration tests', () => {
     blockchainRepo = new BlockchainRepository(settings);
   });
 
-  [ChainsIds.AVALANCHE, ChainsIds.MULTIVERSX].forEach((chainId) => {
+  [ChainsIds.MULTIVERSX].forEach((chainId) => {
     describe(`[${chainId}] bank tests`, () => {
       let bank: StakingBankInterface;
 
-      beforeEach(() => {
+      beforeEach(async () => {
         bank = StakingBankContractFactory.create(blockchainRepo.get(chainId));
+        console.log('bank address', await bank.address());
       });
 
       it('#address', async () => {
@@ -48,6 +50,8 @@ describe.skip('Staking Banks debug integration tests', () => {
       it('#resolveValidators', async () => {
         const addr = await bank.resolveValidators();
         console.log(addr);
+        const hex = addr.map((a) => MultiversXAddress.toAddressValue(a.id).valueOf().hex());
+        console.log(hex.map((x) => [x, MultiversXAddress.fromHex(x).bech32()]));
         expect(addr.length).gt(0);
       }).timeout(10000);
     });

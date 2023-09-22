@@ -24,7 +24,7 @@ export class DeviationHasherMultiversX {
       ...priceDatas.map(priceData => [
         NumberToBuffer.apply(priceData.heartbeat, 32),
         NumberToBuffer.apply(priceData.timestamp, 32),
-        NumberToBuffer.apply(priceData.price),
+        NumberToBuffer.apply(BigInt(priceData.price)),
       ]).flat(),
     ];
 

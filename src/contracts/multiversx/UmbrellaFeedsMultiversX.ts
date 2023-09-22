@@ -109,6 +109,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
   async update(args: UmbrellaFeedsUpdateArgs, payableOverrides: PayableOverrides): Promise<ExecutedTx> {
     const contract = await this.resolveContract();
+
     if (!contract) {
       return {
         hash: '',
@@ -116,9 +117,10 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
       }
     }
 
-    const wallet = this.blockchain.deviationWallet?.getRawWallet<UserSigner>();
+    const deviationWallet = this.blockchain.deviationWallet;
+    if (!deviationWallet) throw new Error(`${this.loggerPrefix} deviationWallet not set`);
 
-    if (!wallet) throw new Error(`${this.loggerPrefix} deviationWallet not set`);
+    const multiversXWallet = deviationWallet.getRawWallet<UserSigner>();
 
     // TODO GAS
     const parsedArgs = this.parseDataForUpdate(args);
@@ -126,14 +128,14 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     const otherDataGasLimit = 1_000_000;
 
     const updateTransaction = contract.methods.update(parsedArgs)
-      .withSender(wallet.getAddress())
-      .withNonce(await this.blockchain.wallet.getNextNonce())
+      .withSender(multiversXWallet.getAddress())
+      .withNonce(await deviationWallet.getNextNonce())
       .withGasLimit(singleDataGasLimit + ((args.keys.length - 1) * otherDataGasLimit))
       .withChainID("D")
       .buildTransaction();
 
     const toSign = updateTransaction.serializeForSigning();
-    const txSignature = await wallet.sign(toSign);
+    const txSignature = await multiversXWallet.sign(toSign);
 
     updateTransaction.applySignature(Signature.fromBuffer(txSignature));
 
@@ -193,12 +195,20 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
           new BigUIntValue(priceData.price.toString()),
         ]))),
 
-      VariadicValue.fromItemsCounted(...args.signatures.map(s => {
+      VariadicValue.fromItemsCounted(...this.sortSignatures(args.signatures).map(s => {
         const [publicAddress, signature] = s.split('@');
           return new BytesValue(Buffer.concat([MultiversXAddress.toBuffer(publicAddress), this.bufferFromString(signature)]));
         }
       )),
     ];
+  }
+
+  protected sortSignatures(signatures: string[]): string[] {
+    return signatures.sort((a, b) => {
+      const addr1 = a.split('@')[0];
+      const addr2 = b.split('@')[0];
+      return MultiversXAddress.sort(addr1, addr2);
+    });
   }
 
   protected bufferFromString(s: string): Buffer {

@@ -5,9 +5,11 @@ import {ChainsIds} from '../types/ChainsIds';
 import {BlockchainRepository} from './BlockchainRepository';
 import {Logger} from 'winston';
 import {FeedContract} from '../contracts/evm/FeedContract';
+import {UmbrellaFeedsContractFactory} from '../factories/contracts/UmbrellaFeedsContractFactory';
+import {UmbrellaFeedInterface} from '../contracts/interfaces/UmbrellaFeedInterface';
 
 export type FeedsContractCollection = {
-  [key: string]: FeedContract | undefined;
+  [key: string]: UmbrellaFeedInterface | undefined;
 };
 
 @injectable()
@@ -33,7 +35,7 @@ export class FeedsContractRepository {
 
         this.collection[chainId] =
           blockchain.provider && blockchain.getContractRegistryAddress()
-            ? new FeedContract(settings, blockchain)
+            ? UmbrellaFeedsContractFactory.create(blockchain)
             : undefined;
       } catch (e) {
         this.collection[chainId] = undefined;

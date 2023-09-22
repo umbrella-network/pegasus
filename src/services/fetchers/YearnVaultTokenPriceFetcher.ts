@@ -5,19 +5,20 @@ import {BaseProvider} from "@ethersproject/providers";
 import BlockChainProviderFactory from '../BlockChainProviderFactory';
 
 import YearnVaultExplorer from './YearnVaultExplorer.json';
-import {ProviderFactory} from "../../factories/ProviderFactory";
 import {ChainsIds} from "../../types/ChainsIds";
+import {ProviderRepository} from "../../repositories/ProviderRepository";
 
 @injectable()
 class YearnVaultTokenPriceFetcher {
   @inject(BlockChainProviderFactory) blockChainProviderFactory!: BlockChainProviderFactory;
+  @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
   async apply(params: any): Promise<any> {
     const {network, address} = params;
 
     const provider = network
       ? this.blockChainProviderFactory.apply(network)
-      : ProviderFactory.create(ChainsIds.ETH).getRawProvider<BaseProvider>();
+      : this.providerRepository.get(ChainsIds.ETH).getRawProvider<BaseProvider>();
 
     const contract = new ethers.Contract(address, YearnVaultExplorer, provider);
 
