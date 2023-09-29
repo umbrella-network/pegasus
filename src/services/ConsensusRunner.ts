@@ -1,7 +1,7 @@
 import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
-import {BigNumber, ethers, Wallet} from 'ethers';
+import {ethers, Wallet} from 'ethers';
 import BlockRepository from '../repositories/BlockRepository';
 import SignatureCollector from './SignatureCollector';
 import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
@@ -31,12 +31,7 @@ class ConsensusRunner {
   @inject(SimpleConsensusResolver) simpleConsensusResolver!: SimpleConsensusResolver;
   @inject(OptimizedConsensusResolver) optimizedConsensusResolver!: OptimizedConsensusResolver;
 
-  async apply(
-    dataTimestamp: number,
-    validators: Validator[],
-    staked: BigNumber,
-    requiredSignatures: number,
-  ): Promise<Consensus | null> {
+  async apply(dataTimestamp: number, validators: Validator[], requiredSignatures: number): Promise<Consensus | null> {
     let {firstClassLeaves, leaves} = (await this.feedDataService.apply(
       dataTimestamp,
       FeedsType.CONSENSUS,

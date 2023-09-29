@@ -24,7 +24,7 @@ export class DiscrepancyFinder {
 
       return discrepancies.concat(fcdsDiscrepancies);
     } catch (err) {
-      console.error(err);
+      console.error(`[DiscrepancyFinder] ${err}`);
       throw err;
     }
   }

@@ -169,11 +169,6 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
   }
 
   private async useDispatcher(chainId: ChainsIds): Promise<boolean> {
-    if (chainId == this.settings.blockchain.masterChain.chainId) {
-      // homechain is compatible with multichain
-      return true;
-    }
-
     return this.multichainArchitectureDetector.apply(chainId);
   }
 }

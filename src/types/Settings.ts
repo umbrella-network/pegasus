@@ -105,9 +105,6 @@ type Settings = {
         deviationPrivateKey?: string;
       };
     };
-    masterChain: {
-      chainId: ChainsIds;
-    };
     providers: {[name: string]: string};
     contracts: {
       bank: {

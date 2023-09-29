@@ -1,6 +1,6 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
-import {BigNumber, Wallet} from 'ethers';
+import {Wallet} from 'ethers';
 
 import ConsensusRunner from './ConsensusRunner';
 import BlockRepository from '../repositories/BlockRepository';
@@ -19,9 +19,7 @@ import {MasterChainData} from '../types/Consensus';
 import {BalanceMonitorChecker} from './balanceMonitor/BalanceMonitorChecker';
 import {sleep} from '../utils/sleep';
 
-const MASTERCHAINSTATUS_STAKED = 'masterChainStatus.staked';
 const MASTERCHAINSTATUS_MIN_SIGNATURES = 'masterChainStatus.minSignatures';
-const MASTERCHAINSTATUS_TIME_PADDING = 'masterChainStatus.timePadding';
 
 @injectable()
 class BlockMinter {
@@ -74,15 +72,9 @@ class BlockMinter {
         .join(', ')}`,
     );
 
-    const masterChainStatus = this.multiChainStatusProcessor.findMasterChain(chainsStatuses);
-    const masterChainData = await this.resolveMasterChainData(masterChainStatus);
+    const masterChainData = await this.resolveMasterChainData(chainsStatuses[0].chainStatus);
 
-    const consensus = await this.consensusRunner.apply(
-      dataTimestamp,
-      validators,
-      masterChainData.staked,
-      masterChainData.minSignatures,
-    );
+    const consensus = await this.consensusRunner.apply(dataTimestamp, validators, masterChainData.minSignatures);
 
     if (!consensus) {
       this.logger.warn(`No consensus at ${dataTimestamp}`);
@@ -92,26 +84,21 @@ class BlockMinter {
     await this.consensusDataRepository.save({
       ...consensus,
       chainIds: chainsIdsReadyForBlock,
-      timePadding: masterChainData.timePadding,
     });
 
     this.logger.info(`consensus for ${dataTimestamp} successfully saved`);
   }
 
-  private async resolveMasterChainData(masterChainStatus: ChainStatus | undefined): Promise<MasterChainData> {
-    if (masterChainStatus) {
-      const {staked, minSignatures, timePadding} = masterChainStatus;
+  private async resolveMasterChainData(anyChainStatus: ChainStatus): Promise<MasterChainData> {
+    if (anyChainStatus) {
+      const {minSignatures} = anyChainStatus;
 
-      await this.mappingRepository.setMany([
-        {_id: MASTERCHAINSTATUS_STAKED, value: staked.toString()},
-        {_id: MASTERCHAINSTATUS_MIN_SIGNATURES, value: minSignatures.toString()},
-        {_id: MASTERCHAINSTATUS_TIME_PADDING, value: timePadding.toString()},
-      ]);
+      await this.mappingRepository.setMany([{_id: MASTERCHAINSTATUS_MIN_SIGNATURES, value: minSignatures.toString()}]);
 
-      return {staked, minSignatures, timePadding};
+      return {minSignatures};
     }
 
-    const keys = [MASTERCHAINSTATUS_STAKED, MASTERCHAINSTATUS_MIN_SIGNATURES, MASTERCHAINSTATUS_TIME_PADDING];
+    const keys = [MASTERCHAINSTATUS_MIN_SIGNATURES];
     const data = await this.mappingRepository.getMany(keys);
 
     if (Object.keys(data).length !== keys.length) {
@@ -121,9 +108,7 @@ class BlockMinter {
     this.logger.info(`[masterChainData] using cached data`);
 
     return {
-      staked: BigNumber.from(data[MASTERCHAINSTATUS_STAKED]),
       minSignatures: parseInt(data[MASTERCHAINSTATUS_MIN_SIGNATURES], 10),
-      timePadding: parseInt(data[MASTERCHAINSTATUS_TIME_PADDING], 10),
     };
   }
 

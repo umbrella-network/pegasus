@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {MultiversXAddress} from "../../../src/services/tools/MultiversXAddress";
 
 describe('MultiversXAddress', () => {
-    it.only('#sort', () => {
+    it('#sort', () => {
       const addreses = [
         'erd1j9zhteusw3u7vckrrl2nqz82phk2l2tzwt52ukej3kmmaprnfv4s7erwzr',
         'erd1skx07r2wurg73krngq6htmnyyg3le5uy2yd2v6wv39v2qx6f204qmjnykm'
