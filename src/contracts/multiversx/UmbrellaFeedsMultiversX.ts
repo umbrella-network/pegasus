@@ -1,17 +1,21 @@
 import BigNumber from "bignumber.js";
 import {Logger} from "winston";
+import axios from "axios";
 
 import {
-  Address,
-  ContractFunction,
-  Interaction,
-  ResultsParser,
-  SmartContract,
   AbiRegistry,
-  Struct,
+  Address,
   BigUIntValue,
   BytesValue,
-  List, NumericalValue,
+  ContractFunction,
+  IGasLimit,
+  Interaction,
+  ITransactionPayload,
+  List,
+  NumericalValue,
+  ResultsParser,
+  SmartContract,
+  Struct,
   Tuple,
   U32Value
 } from '@multiversx/sdk-core';
@@ -34,6 +38,7 @@ import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from "../../types/
 import {MultiversXAddress} from "../../services/tools/MultiversXAddress";
 import {ExecutedTx} from "../../types/Consensus";
 import logger from '../../lib/logger';
+import {MultiversXProvider} from "../../lib/providers/MultiversXProvider";
 
 
 export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
@@ -124,15 +129,21 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
     // TODO GAS
     const parsedArgs = this.parseDataForUpdate(args);
-    const singleDataGasLimit = 13_000_000; // 13M for initial tx for full data!
-    const otherDataGasLimit = 1_000_000;
+
+    const [nonce, chainID] = await Promise.all([
+      deviationWallet.getNextNonce(),
+      (this.blockchain.provider as MultiversXProvider).getChainID()
+    ]);
 
     const updateTransaction = contract.methods.update(parsedArgs)
       .withSender(multiversXWallet.getAddress())
-      .withNonce(await deviationWallet.getNextNonce())
-      .withGasLimit(singleDataGasLimit + ((args.keys.length - 1) * otherDataGasLimit))
-      .withChainID("D")
+      .withNonce(nonce)
+      .withChainID(chainID)
       .buildTransaction();
+
+    const gasLimit = await this.estimateCost(contract.getAddress().bech32(), updateTransaction.getData(), chainID, nonce);
+
+    updateTransaction.setGasLimit(gasLimit);
 
     const toSign = updateTransaction.serializeForSigning();
     const txSignature = await multiversXWallet.sign(toSign);
@@ -148,7 +159,37 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
   }
 
   async estimateGasForUpdate(args: UmbrellaFeedsUpdateArgs): Promise<bigint> {
-    throw new Error('estimateGasForUpdate TODO');
+    throw new Error(`${this.loggerPrefix} estimateGasForUpdate: use estimateCost()`);
+  }
+
+  async estimateCost(receiver: string, payload: ITransactionPayload, chainID: string, nonce: number): Promise<IGasLimit> {
+    const provider = this.blockchain.provider as MultiversXProvider;
+    const costUrl = `${provider.getProviderUrl()}/transaction/cost`;
+
+    const data = {
+      "value": "0",
+      "receiver": receiver,
+      "sender": this.blockchain.deviationWallet?.address || '',
+      "data": payload.encoded(),
+      "chainID": chainID,
+      "version": 1,
+      "nonce": nonce
+    }
+
+    const res = await axios.post(costUrl, data);
+
+    const gas = parseInt(res.data.data.txGasUnits, 10);
+
+    if (gas == 0 && res.data.data.returnMessage) {
+      this.logger.error(`gas: ${JSON.stringify(res.data)}`);
+      throw new Error(`${this.loggerPrefix} estimateCost error: ${res.data.data.returnMessage}`)
+    }
+
+    return {
+      valueOf(): number {
+        return Math.trunc(gas * 1.05); // +5% to have some margin
+      }
+    };
   }
 
   protected resolveContract = async (): Promise<SmartContract | undefined> => {
