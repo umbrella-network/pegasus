@@ -129,8 +129,6 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
     // TODO GAS
     const parsedArgs = this.parseDataForUpdate(args);
-    const singleDataGasLimit = 13_000_000; // 13M for initial tx for full data!
-    const otherDataGasLimit = 1_000_000;
 
     const [nonce, chainID] = await Promise.all([
       deviationWallet.getNextNonce(),
@@ -140,7 +138,6 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     const updateTransaction = contract.methods.update(parsedArgs)
       .withSender(multiversXWallet.getAddress())
       .withNonce(nonce)
-      // .withGasLimit(singleDataGasLimit + ((args.keys.length - 1) * otherDataGasLimit))
       .withChainID(chainID)
       .buildTransaction();
 
@@ -190,7 +187,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
     return {
       valueOf(): number {
-        return gas;
+        return Math.trunc(gas * 1.05); // +5% to have some margin
       }
     };
   }

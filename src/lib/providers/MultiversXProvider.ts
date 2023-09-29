@@ -163,20 +163,8 @@ export class MultiversXProvider implements IProvider {
   }
 
   async waitUntilNextBlock(currentBlockNumber: bigint): Promise<bigint> {
-    this.logger.info(`${this.loggerPrefix} waitUntilNextBlock -> awaitPending`);
-    return currentBlockNumber + 1n;
-
-    // let newBlockNumber = 0n;
-    // let masWaitTime = 7000;
-    //
-    // while (currentBlockNumber >= newBlockNumber && masWaitTime > 0) {
-    //   this.logger.info(`${this.loggerPrefix} waitUntilNextBlock: current ${currentBlockNumber}`);
-    //   await sleep(this.settings.blockchain.transactions.waitForBlockTime);
-    //   masWaitTime -= this.settings.blockchain.transactions.waitForBlockTime;
-    //   newBlockNumber = await this.getBlockNumber();
-    // }
-    //
-    // return newBlockNumber;
+    this.logger.debug(`${this.loggerPrefix} waitUntilNextBlock: we only waiting for tx`);
+    return 0n;
   }
 
   async call(transaction: { to: string; data: string }): Promise<string> {
