@@ -130,7 +130,7 @@ export class DeviationSignatureCollector {
     const signed = Object.keys(response?.signatures || {});
 
     if (signed.length) {
-      this.logger.error(`${validator.location} sign for ${signed}`);
+      this.logger.info(`${validator.location} sign for ${signed}`);
     }
   }
 }
