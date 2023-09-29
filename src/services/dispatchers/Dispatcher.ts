@@ -127,7 +127,11 @@ export abstract class Dispatcher {
 
     // there is no point of doing any action on tx if block is not minted
     const newBlockNumber = await this.blockchain.provider.waitUntilNextBlock(BigInt(atBlock));
-    this.logger.info(`${this.logPrefix} New block detected ${newBlockNumber}, waiting for tx to be minted.`);
+
+    if (newBlockNumber != 0n) {
+      this.logger.info(`${this.logPrefix} New block detected ${newBlockNumber}, waiting for tx to be minted.`);
+    }
+
     const success = await this.blockchain.provider.waitForTx(hash, timeoutMs);
 
     return {txHash: hash, success, timeoutMs};

@@ -23,6 +23,7 @@ export class MultiversXProvider implements IProvider {
   protected readonly provider: ApiNetworkProvider | undefined;
   protected readonly providerUrl!: string;
   protected readonly timeout = 5000;
+  protected cacheChainID: string | undefined;
 
   constructor(providerUrl: string) {
     this.logger = logger;
@@ -34,6 +35,10 @@ export class MultiversXProvider implements IProvider {
 
   getRawProvider<T>(): T {
     return this.provider as unknown as T;
+  }
+
+  getProviderUrl(): string {
+    return this.providerUrl;
   }
 
   async getBlockNumber(): Promise<bigint> {
@@ -62,14 +67,10 @@ export class MultiversXProvider implements IProvider {
   }
 
   async getNetwork(): Promise<NetworkStatus> {
-    if (!this.provider) throw new Error(`${this.loggerPrefix} getNetwork(): no provider`);
-
-    const network = await this.provider.getNetworkConfig();
-
     // this is arbitrary number, must be correlated with number in smart contract
     let id = 19800 * 10; // BigInt('0x' + Buffer.from("MX").toString('hex'));
 
-    switch (network.ChainID) {
+    switch (await this.getChainID()) {
       case '1': id += 1; break;
       case 'T': id += 2; break;
       case 'D': id += 3; break;
@@ -77,6 +78,17 @@ export class MultiversXProvider implements IProvider {
     }
 
     return {name: this.chainId, id: 0}; // TODO can we use fixed ID?
+  }
+
+  async getChainID(): Promise<string> {
+    if (!this.cacheChainID) {
+      if (!this.provider) throw new Error(`${this.loggerPrefix} getNetwork(): no provider`);
+
+      const network = await this.provider.getNetworkConfig();
+      this.cacheChainID = network.ChainID;
+    }
+
+    return this.cacheChainID;
   }
 
   async getTransactionCount(address: string): Promise<number> {
@@ -103,19 +115,25 @@ export class MultiversXProvider implements IProvider {
       getHash: () => txHex
     }
 
-    const transactionOnNetworkPending = await Promise.race([watcher.awaitPending(tx), Timeout.apply(timeoutMs)]);
+    this.logger.info(`${this.loggerPrefix} waitForTx: ${txHash}`);
 
-    if (!transactionOnNetworkPending) {
-      this.logger.error(`${this.loggerPrefix} waitForTx: ${txHash} pending timeout ${timeoutMs}ms`);
-      return false;
-    }
-
-    this.logger.info(`${this.loggerPrefix} tx ${txHash}  is pending`);
-
-    if (!transactionOnNetworkPending.status.isPending()) {
-      this.logger.error(`${this.loggerPrefix} waitForTx: ${txHash} not pending`);
-      return false;
-    }
+    // `awaitPending` was causing issues, we were getting errors "Expected transaction status not reached"
+    // with only `awaitCompleted` looks like it is working well.
+    // const transactionOnNetworkPending = await Promise.race([watcher.awaitPending(tx), Timeout.apply(timeoutMs)]);
+    //
+    // this.logger.info(`${this.loggerPrefix} transactionOnNetworkPending: ${txHash}`);
+    //
+    // if (!transactionOnNetworkPending) {
+    //   this.logger.error(`${this.loggerPrefix} waitForTx: ${txHash} pending timeout ${timeoutMs}ms`);
+    //   return false;
+    // }
+    //
+    // this.logger.info(`${this.loggerPrefix} tx ${txHash} is pending`);
+    //
+    // if (!transactionOnNetworkPending.status.isPending()) {
+    //   this.logger.error(`${this.loggerPrefix} waitForTx: ${txHash} not pending`);
+    //   return false;
+    // }
 
     const transactionOnNetwork = await Promise.race([watcher.awaitCompleted(tx), Timeout.apply(timeoutMs)]);
 
@@ -145,15 +163,20 @@ export class MultiversXProvider implements IProvider {
   }
 
   async waitUntilNextBlock(currentBlockNumber: bigint): Promise<bigint> {
-    let newBlockNumber = 0n;
+    this.logger.info(`${this.loggerPrefix} waitUntilNextBlock -> awaitPending`);
+    return currentBlockNumber + 1n;
 
-    while (currentBlockNumber >= newBlockNumber) {
-      this.logger.info(`${this.loggerPrefix} waitUntilNextBlock: current ${currentBlockNumber}`);
-      await sleep(this.settings.blockchain.transactions.waitForBlockTime);
-      newBlockNumber = await this.getBlockNumber();
-    }
-
-    return newBlockNumber;
+    // let newBlockNumber = 0n;
+    // let masWaitTime = 7000;
+    //
+    // while (currentBlockNumber >= newBlockNumber && masWaitTime > 0) {
+    //   this.logger.info(`${this.loggerPrefix} waitUntilNextBlock: current ${currentBlockNumber}`);
+    //   await sleep(this.settings.blockchain.transactions.waitForBlockTime);
+    //   masWaitTime -= this.settings.blockchain.transactions.waitForBlockTime;
+    //   newBlockNumber = await this.getBlockNumber();
+    // }
+    //
+    // return newBlockNumber;
   }
 
   async call(transaction: { to: string; data: string }): Promise<string> {
