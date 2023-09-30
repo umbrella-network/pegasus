@@ -36,7 +36,6 @@ export type ConsensusDataProps = {
   fcdValues: HexStringWith0x[];
   leaves: Leaf[];
   dataTimestamp: number;
-  timePadding: number;
 };
 
 export interface SignedBlockConsensus {
@@ -64,9 +63,7 @@ export interface LeavesAndFeeds {
 }
 
 export interface MasterChainData {
-  staked: BigNumber;
   minSignatures: number;
-  timePadding: number;
 }
 
 export type ExecutedTx = {hash: string; atBlock: bigint};

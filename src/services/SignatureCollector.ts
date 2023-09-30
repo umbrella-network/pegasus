@@ -74,7 +74,7 @@ class SignatureCollector {
         this.logBadSignatureCollection(validator, response);
       }
     } catch (e) {
-      this.logger.error('[SignatureCollector] Signature collection failed.');
+      this.logger.error(`[SignatureCollector] Signature collection failed for ${block.dataTimestamp}.`);
       this.logSignatureCollectionException(validator, e);
     }
 

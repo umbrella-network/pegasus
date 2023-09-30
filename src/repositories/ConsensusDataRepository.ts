@@ -8,9 +8,8 @@ import {ConsensusDataProps} from '../types/Consensus';
 @injectable()
 export class ConsensusDataRepository {
   async save(props: ConsensusDataProps): Promise<ConsensusData> {
-    const {root, chainIds, signatures, fcdKeys, fcdValues, dataTimestamp, timePadding, leaves} = props;
-    const consensusDataTTL = timePadding * 10;
-    const expireAt = dayjs().add(consensusDataTTL, 'second').toDate();
+    const {root, chainIds, signatures, fcdKeys, fcdValues, dataTimestamp, leaves} = props;
+    const expireAt = dayjs().add(600, 'second').toDate();
     const ConsensusDataModel = getModelForClass(ConsensusData);
     await ConsensusDataModel.deleteMany({});
 

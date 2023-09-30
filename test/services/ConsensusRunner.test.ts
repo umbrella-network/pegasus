@@ -101,9 +101,8 @@ describe('ConsensusRunner', () => {
         id: '123',
       },
     ];
-    const staked = BigNumber.from(20);
 
-    await expect(consensusRunner.apply(dataTimestamp, validators, staked, 1)).to.be.empty;
+    await expect(consensusRunner.apply(dataTimestamp, validators, 1)).to.be.empty;
   });
 
   it('return empty object when not enough signatures', async () => {
@@ -134,9 +133,8 @@ describe('ConsensusRunner', () => {
         id: '123',
       },
     ];
-    const staked = BigNumber.from(20);
 
-    await expect(consensusRunner.apply(dataTimestamp, validators, staked, 2)).to.be.empty;
+    await expect(consensusRunner.apply(dataTimestamp, validators, 2)).to.be.empty;
   });
 
   it('consensus is successful', async () => {
@@ -168,11 +166,8 @@ describe('ConsensusRunner', () => {
         id: '123',
       },
     ];
-    const staked = BigNumber.from(20);
 
-    expect((await consensusRunner.apply(dataTimestamp, validators, staked, 1))?.dataTimestamp).to.be.equals(
-      dataTimestamp,
-    );
+    expect((await consensusRunner.apply(dataTimestamp, validators, 1))?.dataTimestamp).to.be.equals(dataTimestamp);
   });
 
   it('discrepancy found', async () => {
@@ -206,8 +201,7 @@ describe('ConsensusRunner', () => {
       },
     ];
 
-    const staked = BigNumber.from(20);
-    const result = await consensusRunner.apply(dataTimestamp, validators, staked, 1);
+    const result = await consensusRunner.apply(dataTimestamp, validators, 1);
     expect(result).to.not.be.undefined;
     expect(result?.dataTimestamp).to.be.equals(undefined);
   });
