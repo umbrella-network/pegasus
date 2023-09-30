@@ -51,7 +51,6 @@ class InfoController {
         helperContractId: this.settings.api.uniswap.helperContractId,
         scannerContractId: this.settings.api.uniswap.scannerContractId,
       },
-      masterChain: await this.getMasterchainSettings(),
       chains: await this.getMultichainsSettings(this.getChain(request)),
       version: this.settings.version,
       environment: this.settings.environment,
@@ -118,24 +117,13 @@ class InfoController {
     return a.status == 'fulfilled' ? a.value || '' : a.reason;
   }
 
-  private getMasterchainSettings = async (): Promise<Partial<Record<ChainsIds, BlockchainInfoSettings>>> => {
-    const masterChainSettings: Partial<Record<ChainsIds, BlockchainInfoSettings>> = {};
-    const {chainId} = this.settings.blockchain.masterChain;
-
-    masterChainSettings[chainId] = await this.getChainSettings(chainId);
-
-    return masterChainSettings;
-  };
-
   private getMultichainsSettings = async (
     forChain: ChainsIds | undefined,
   ): Promise<Record<string, BlockchainInfoSettings>> => {
     const chainIds = forChain ? [forChain] : Object.values(ChainsIds);
 
     const cfg = await Promise.all(
-      chainIds
-        .filter((key) => key !== this.settings.blockchain.masterChain.chainId)
-        .map((chainId) => Promise.all([chainId, this.getChainSettings(chainId as ChainsIds)])),
+      chainIds.map((chainId) => Promise.all([chainId, this.getChainSettings(chainId as ChainsIds)])),
     );
 
     return cfg.reduce((acc, [chainId, s]) => {

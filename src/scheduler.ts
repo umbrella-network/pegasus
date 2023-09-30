@@ -95,7 +95,7 @@ import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
         },
       );
     } catch (e) {
-      logger.error(e);
+      logger.error(`[${chainId}] ${dispatcherId}: ${e}`);
     }
   };
 

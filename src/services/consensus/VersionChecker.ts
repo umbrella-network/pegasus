@@ -24,9 +24,9 @@ export class VersionChecker {
     if (expected[0] !== v[0]) {
       this.logger.error(`version check fail: expected ${this.settings.version} got ${version}`);
     } else if (expected[1] !== v[1]) {
-      this.logger.warn(`version check warn: ${this.settings.version} vs ${version}`);
+      this.logger.warn(`version check expected: ${this.settings.version} got ${version}`);
     } else if (expected[2] !== v[2]) {
-      this.logger.info(`version check: ${this.settings.version} vs ${version}`);
+      this.logger.info(`version check expected: ${this.settings.version} got ${version}`);
     }
   }
 }

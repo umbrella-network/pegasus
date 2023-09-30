@@ -101,9 +101,6 @@ describe('BlockMinter', () => {
             errorLimit: '0.015',
           },
         },
-        masterChain: {
-          chainId: ChainsIds.AVALANCHE,
-        },
         multiChains: {
           [ChainsIds.AVALANCHE]: {
             type: [BlockchainType.LAYER2],

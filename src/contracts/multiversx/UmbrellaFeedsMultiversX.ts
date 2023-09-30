@@ -181,7 +181,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     const gas = parseInt(res.data.data.txGasUnits, 10);
 
     if (gas == 0 && res.data.data.returnMessage) {
-      this.logger.error(`gas: ${JSON.stringify(res.data)}`);
+      this.logger.error(`${this.loggerPrefix} gas: ${JSON.stringify(res.data)}`);
       throw new Error(`${this.loggerPrefix} estimateCost error: ${res.data.data.returnMessage}`)
     }
 

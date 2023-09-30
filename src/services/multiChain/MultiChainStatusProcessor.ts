@@ -19,19 +19,6 @@ export class MultiChainStatusProcessor {
     return this.processStates(chainStatuses, dataTimestamp);
   }
 
-  findMasterChain(chainStatuses: ChainStatusWithAddress[]): ChainStatus | undefined {
-    const masterChain = chainStatuses.find(
-      (chainStatus) => chainStatus.chainId === this.settings.blockchain.masterChain.chainId,
-    );
-
-    if (!masterChain) {
-      this.logger.info('[MultiChainStatusProcessor] master chainId missing (deprecated)');
-      return undefined;
-    }
-
-    return masterChain.chainStatus;
-  }
-
   private async processStates(chainsStatuses: ChainStatusWithAddress[], dataTimestamp: number): Promise<ChainsStatuses> {
     const validators = await this.validatorRepository.list(undefined);
 

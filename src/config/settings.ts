@@ -209,9 +209,6 @@ const settings: Settings = {
           : undefined,
       },
     },
-    masterChain: {
-      chainId: ChainsIds.BSC,
-    },
     contracts: {
       bank: {
         name: process.env.STAKING_BANK_NAME || 'StakingBank',

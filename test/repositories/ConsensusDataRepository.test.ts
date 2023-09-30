@@ -34,7 +34,7 @@ describe('ConsensusDataRepository', () => {
   describe('#save', () => {
     describe('when save one consensus data per time', () => {
       it('saves consensus data', async () => {
-        await consensusDataRepository.save({...consensusDataFactory.build(), timePadding: 1});
+        await consensusDataRepository.save({...consensusDataFactory.build()});
         const consensusData = await getModelForClass(ConsensusData).find();
         expect(consensusData).to.be.an('array').to.have.lengthOf(1);
         expect(consensusData[0]).to.deep.include(defaultConsensusAssert);
@@ -43,8 +43,8 @@ describe('ConsensusDataRepository', () => {
 
     describe('when save more than one consensus data per time', () => {
       before(async () => {
-        await consensusDataRepository.save({...consensusDataFactory.build(), timePadding: 1});
-        await consensusDataRepository.save({...consensusDataFactory.build({chainIds: ['avax']}), timePadding: 1});
+        await consensusDataRepository.save({...consensusDataFactory.build()});
+        await consensusDataRepository.save({...consensusDataFactory.build({chainIds: ['avax']})});
       });
 
       it('deletes consensus data before save a new one', async () => {
@@ -59,7 +59,7 @@ describe('ConsensusDataRepository', () => {
   describe('#read', () => {
     describe('when consensusData collection has data', () => {
       beforeEach(async () => {
-        await consensusDataRepository.save({...consensusDataFactory.build(), timePadding: 1});
+        await consensusDataRepository.save({...consensusDataFactory.build()});
       });
 
       it('responds with consensus data', async () => {

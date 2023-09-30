@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.16.2] - 2023-09-29
+## Removed
+- removed deprecated master chain settings
+
 ## [7.16.1] - 2023-09-29
 ### Fixed
 - multiversx fixes

@@ -31,7 +31,7 @@ export abstract class BlockchainScanner {
     try {
       success = await this.apply(fromBlock, toBlock);
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error(`[BlockchainScanner] ${e}`);
     }
 
     if (success) await this.updateMarker(toBlock);
