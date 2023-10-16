@@ -9,6 +9,7 @@ import {ChainsIds} from '../types/ChainsIds';
 import {RegistryContractFactory} from '../factories/contracts/RegistryContractFactory';
 import {Logger} from 'winston';
 import {CHAIN_CONTRACT_NAME} from '@umb-network/toolbox/dist/constants';
+import {MassaWallet} from '../blockchains/massa/MassaWallet';
 
 @injectable()
 class InfoController {
@@ -97,7 +98,8 @@ class InfoController {
     const [chainAddress, umbrellaFeedsAddress, walletAddress, deviationWalletAddress] = await Promise.allSettled([
       registry.getAddress(CHAIN_CONTRACT_NAME),
       registry.getAddress('UmbrellaFeeds'),
-      blockchain.wallet.address,
+      blockchain.wallet.address +
+        (chainId == ChainsIds.MASSA ? `@${(blockchain.wallet as MassaWallet).publicKey}` : ''),
       blockchain.deviationWallet?.address,
     ]);
 

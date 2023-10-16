@@ -6,7 +6,7 @@ import BlockRepository from '../../repositories/BlockRepository';
 import {MultichainArchitectureDetector} from '../MultichainArchitectureDetector';
 import {Dispatcher} from "./Dispatcher";
 import {IDeviationFeedsDispatcher} from "./IDeviationFeedsDispatcher";
-import {FeedContract} from "../../contracts/evm/FeedContract";
+import {FeedContract} from "../../blockchains/evm/contracts/FeedContract";
 import {FeedsContractRepository} from "../../repositories/FeedsContractRepository";
 import {DeviationTriggerConsensusRepository} from "../../repositories/DeviationTriggerConsensusRepository";
 import {TriggerTxChecker} from "../SubmitMonitor/TriggerTxChecker";

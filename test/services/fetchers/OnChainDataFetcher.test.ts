@@ -8,9 +8,11 @@ import settings from "../../../src/config/settings";
 
 
 describe('OnChainDataFetcher', () => {
-  const fetcher = Application.get(OnChainDataFetcher);
+  let fetcher: OnChainDataFetcher;
 
   before(async () => {
+    fetcher = Application.get(OnChainDataFetcher);
+
     settings.blockchains = {
         ethereum: {
           providerUrl: [`https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`]

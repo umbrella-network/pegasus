@@ -20,6 +20,7 @@ export class BalanceMonitorChecker {
     const keysToCheck = chainIds.map(id => {
       const wallet = this.walletForChainType(blockchainType, id);
       if (!wallet) return;
+
       return BalanceMonitorKeyResolver.apply(id, wallet)
     }).filter(k => !!k) as string[];
 

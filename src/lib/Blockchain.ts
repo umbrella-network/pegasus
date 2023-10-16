@@ -1,8 +1,8 @@
 import {Logger} from 'winston';
 
 import Settings, {BlockchainSettings} from '../types/Settings';
-import {IProvider} from './providers/IProvider';
-import {IWallet} from './wallets/IWallet';
+import {ProviderInterface} from '../interfaces/ProviderInterface';
+import {IWallet} from '../interfaces/IWallet';
 import {ProviderFactory} from '../factories/ProviderFactory';
 import {WalletFactory} from '../factories/WalletFactory';
 import {DeviationWalletFactory} from '../factories/DeviationWalletFactory';
@@ -13,7 +13,7 @@ class Blockchain {
   protected logger!: Logger;
   readonly chainId!: string;
   chainSettings!: BlockchainSettings;
-  readonly provider!: IProvider;
+  readonly provider!: ProviderInterface;
   wallet!: IWallet;
   readonly deviationWallet: IWallet | undefined;
   protected selectionStrategy!: string;
@@ -27,7 +27,7 @@ class Blockchain {
     if (!this.chainSettings) return;
 
     this.provider = ProviderFactory.create(chainId);
-    this.wallet = WalletFactory.create(chainId);
+    this.wallet = WalletFactory.create(settings, chainId);
     this.deviationWallet = DeviationWalletFactory.create(chainId);
 
     this.selectionStrategy = settings.rpcSelectionStrategy;
@@ -46,7 +46,7 @@ class Blockchain {
     return this.provider.getBlockTimestamp();
   }
 
-  getProvider(): IProvider {
+  getProvider(): ProviderInterface {
     return this.provider;
   }
 

@@ -9,6 +9,7 @@ import {TimeoutCodes} from '../types/TimeoutCodes';
 import {timeoutWithCode} from '../utils/request';
 import './setupDotenv';
 import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds';
+import fs from 'fs';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
@@ -40,7 +41,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000', 10),
       minGasPrice: 2000000000,
       maxGasPrice: 500000000000,
-      mintBalance: {
+      minBalance: {
         warningLimit: '0.06',
         errorLimit: '0.003',
       },
@@ -53,7 +54,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: 1000,
       minGasPrice: 25000000000,
       maxGasPrice: 250000000000,
-      mintBalance: {
+      minBalance: {
         warningLimit: '0.5',
         errorLimit: '0.008',
       },
@@ -66,7 +67,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: 1000,
       minGasPrice: 1000000000,
       maxGasPrice: 500000000000,
-      mintBalance: {
+      minBalance: {
         warningLimit: '0.5',
         errorLimit: '0.02',
       },
@@ -79,7 +80,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: 1000,
       minGasPrice: 100_000_000,
       maxGasPrice: 50_000_000_000,
-      mintBalance: {
+      minBalance: {
         warningLimit: '0.05',
         errorLimit: '0.001',
       },
@@ -92,7 +93,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: 1000,
       minGasPrice: 2000000000,
       maxGasPrice: 500000000000,
-      mintBalance: {
+      minBalance: {
         warningLimit: '0.6',
         errorLimit: '0.06',
       },
@@ -105,7 +106,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       maxGasPrice: 300000000000,
-      mintBalance: {
+      minBalance: {
         warningLimit: '0.01',
         errorLimit: '0.0005',
       },
@@ -118,7 +119,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       maxGasPrice: 300000000000,
-      mintBalance: {
+      minBalance: {
         warningLimit: '0.01',
         errorLimit: '0.0005',
       },
@@ -132,7 +133,35 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       maxGasPrice: 300000000000,
-      mintBalance: {
+      minBalance: {
+        warningLimit: '0.01',
+        errorLimit: '0.0005',
+      },
+    },
+  },
+  [ChainsIds.MASSA]: {
+    // TODO
+    type: resolveBlockchainType(ChainsIds.MASSA) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.MASSA),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      maxGasPrice: 300000000000,
+      minBalance: {
+        warningLimit: '0.01',
+        errorLimit: '0.0001',
+      },
+    },
+  },
+  [ChainsIds.CONCORDIUM]: {
+    // TODO
+    type: resolveBlockchainType(ChainsIds.CONCORDIUM) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.CONCORDIUM),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      maxGasPrice: 300000000000,
+      minBalance: {
         warningLimit: '0.01',
         errorLimit: '0.0005',
       },
@@ -206,6 +235,17 @@ const settings: Settings = {
         privateKey: process.env.MULTIVERSX_SIGNING_PRIVATE_KEY as string,
         deviationPrivateKey: process.env.MULTIVERSX_DEVIATION_PRIVATE_KEY
           ? (process.env.MULTIVERSX_DEVIATION_PRIVATE_KEY as string)
+          : undefined,
+      },
+      massa: {
+        privateKey: process.env.MASSA_SIGNING_PRIVATE_KEY as string,
+        deviationPrivateKey: process.env.MASSA_DEVIATION_PRIVATE_KEY
+          ? (process.env.MASSA_DEVIATION_PRIVATE_KEY as string)
+          : undefined,
+      },
+      concordium: {
+        deviationPrivateKey: process.env.CONCORDIUM_DEVIATION_PRIVATE_KEY
+          ? fs.readFileSync(process.env.CONCORDIUM_DEVIATION_PRIVATE_KEY as string, 'utf8')
           : undefined,
       },
     },
@@ -367,13 +407,13 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
           parseInt(process.env[`${chain}_MAX_GAS_PRICE`] as string, 10) ||
           defaultByChain[ChainsIds[chain]].transactions.maxGasPrice,
         gasMultiplier: parseInt(process.env[`${chain}_GAS_MULTIPLIER`] || '1', 10),
-        mintBalance: {
+        minBalance: {
           warningLimit:
             process.env[`${chain}_BALANCE_WARN`] ||
-            defaultByChain[ChainsIds[chain]].transactions.mintBalance.warningLimit,
+            defaultByChain[ChainsIds[chain]].transactions.minBalance.warningLimit,
           errorLimit:
             process.env[`${chain}_BALANCE_ERROR`] ||
-            defaultByChain[ChainsIds[chain]].transactions.mintBalance.errorLimit,
+            defaultByChain[ChainsIds[chain]].transactions.minBalance.errorLimit,
         },
       },
     };
