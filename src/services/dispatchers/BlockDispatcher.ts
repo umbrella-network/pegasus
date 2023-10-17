@@ -6,7 +6,7 @@ import {PayableOverrides} from "@ethersproject/contracts";
 import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
 
 import {ChainStatus} from '../../types/ChainStatus';
-import ChainContract from '../../contracts/evm/ChainContract';
+import ChainContract from '../../blockchains/evm/contracts/ChainContract';
 import {IBlockChainDispatcher} from './IBlockChainDispatcher';
 import {ChainContractRepository} from '../../repositories/ChainContractRepository';
 import {HexStringWith0x} from '../../types/custom';

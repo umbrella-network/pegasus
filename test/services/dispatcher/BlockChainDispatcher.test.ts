@@ -19,7 +19,7 @@ import {getTestContainer} from '../../helpers/getTestContainer';
 import {ConsensusDataRepository} from '../../../src/repositories/ConsensusDataRepository';
 import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository';
 import {ChainContractRepository} from '../../../src/repositories/ChainContractRepository';
-import ChainContract from '../../../src/contracts/evm/ChainContract';
+import ChainContract from '../../../src/blockchains/evm/contracts/ChainContract';
 import ConsensusData from '../../../src/models/ConsensusData';
 import {consensusDataFactory} from '../../mocks/factories/consensusDataFactory';
 import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
@@ -97,7 +97,7 @@ describe('BlockChainDispatcher', () => {
               waitForBlockTime: 1000,
               minGasPrice: 5000000000,
               maxGasPrice: 10000000000,
-              mintBalance: {
+              minBalance: {
                 warningLimit: '0.15',
                 errorLimit: '0.015',
               },

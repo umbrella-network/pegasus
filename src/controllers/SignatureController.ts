@@ -5,6 +5,7 @@ import {SignedBlock} from '../types/SignedBlock';
 import BlockSigner from '../services/BlockSigner';
 import {DeviationVerifier} from '../services/deviationsFeeds/DeviationVerifier';
 import {DeviationDataToSign} from '../types/DeviationFeeds';
+import {RequestBodyToDataToSign} from '../services/tools/RequestBodyToDataToSign';
 
 @injectable()
 class SignatureController {
@@ -35,7 +36,7 @@ class SignatureController {
   };
 
   deviationTrigger = async (request: Request, response: Response): Promise<void> => {
-    const toSign: DeviationDataToSign = request.body;
+    const toSign: DeviationDataToSign = RequestBodyToDataToSign.apply(request.body);
 
     try {
       response.send(await this.deviationVerifier.apply(toSign));

@@ -18,7 +18,7 @@ export type BlockchainSettings = {
     minGasPrice: number;
     maxGasPrice: number;
     gasMultiplier?: number;
-    mintBalance: {
+    minBalance: {
       warningLimit: string;
       errorLimit: string;
     };
@@ -102,6 +102,14 @@ type Settings = {
       };
       multiversX: {
         privateKey: string;
+        deviationPrivateKey?: string;
+      };
+      massa: {
+        privateKey: string;
+        deviationPrivateKey?: string;
+      };
+      concordium: {
+        // privateKey: string; looks like we can use evm key
         deviationPrivateKey?: string;
       };
     };

@@ -3,11 +3,11 @@ import {inject, injectable} from 'inversify';
 import Settings from '../types/Settings';
 import {ChainsIds} from '../types/ChainsIds';
 import {Logger} from 'winston';
-import {IProvider} from '../lib/providers/IProvider';
+import {ProviderInterface} from '../interfaces/ProviderInterface';
 import {ProviderFactory} from '../factories/ProviderFactory';
 
 export type ProviderCollection = {
-  [key: string]: IProvider;
+  [key: string]: ProviderInterface;
 };
 
 @injectable()
@@ -24,11 +24,11 @@ export class ProviderRepository {
     });
   }
 
-  get(id: string): IProvider {
+  get(id: string): ProviderInterface {
     if (!this.collection[id]) {
       this.logger.warn(`[ProviderRepository] IProvider ${id} does not exists`);
     }
 
-    return <IProvider>this.collection[id];
+    return <ProviderInterface>this.collection[id];
   }
 }

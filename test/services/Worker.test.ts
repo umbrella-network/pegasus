@@ -29,7 +29,7 @@ describe('Worker', () => {
               waitForBlockTime: 0,
               minGasPrice: 1,
               maxGasPrice: 1,
-              mintBalance: {
+              minBalance: {
                 warningLimit: '0,05',
                 errorLimit: '0,005',
               },

@@ -6,7 +6,7 @@ import {BigNumber, Wallet} from 'ethers';
 
 import BlockSigner from '../../src/services/BlockSigner';
 import Blockchain from '../../src/lib/Blockchain';
-import ChainContract from '../../src/contracts/evm/ChainContract';
+import ChainContract from '../../src/blockchains/evm/contracts/ChainContract';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
 import {signAffidavitWithWallet} from '../../src/utils/mining';

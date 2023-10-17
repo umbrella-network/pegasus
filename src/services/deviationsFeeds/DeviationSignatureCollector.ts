@@ -1,22 +1,22 @@
 import {inject, injectable} from 'inversify';
 import axios from 'axios';
 import {Logger} from 'winston';
+import {Wallet} from "ethers";
 
 import {Validator} from '../../types/Validator';
 import Settings from '../../types/Settings';
 import {DeviationDataToSign, DeviationSignatures, DeviationSignerResponse} from "../../types/DeviationFeeds";
-import {DeviationSigner} from "./DeviationSigner";
 import {ValidatorStatusChecker} from "../ValidatorStatusChecker";
 import {DeviationChainMetadata} from "./DeviationChainMetadata";
 import {DeviationHasher} from "./DeviationHasher";
-import {Wallet} from "ethers";
+import {DeviationSignerRepository} from "../../repositories/DeviationSignerRepository";
 
 @injectable()
 export class DeviationSignatureCollector {
   @inject('Logger') protected logger!: Logger;
   @inject('Settings') protected settings!: Settings;
   @inject(DeviationHasher) protected deviationHasher!: DeviationHasher;
-  @inject(DeviationSigner) protected deviationSigner!: DeviationSigner;
+  @inject(DeviationSignerRepository) protected deviationSignerRepository!: DeviationSignerRepository;
   @inject(ValidatorStatusChecker) protected validatorStatusChecker!: ValidatorStatusChecker;
   @inject(DeviationChainMetadata) protected deviationChainMetadata!: DeviationChainMetadata;
 
@@ -49,9 +49,9 @@ export class DeviationSignatureCollector {
     const signaturesPerChain = await Promise.all(chainMetadata.map(([chainId, networkId, target]) => {
       const keys = data.feedsForChain[chainId];
       const priceDatas = keys.map(key => data.proposedPriceData[key]);
-
       const hashOfData = this.deviationHasher.apply(chainId, networkId, target, keys, priceDatas);
-      return this.deviationSigner.apply(chainId, hashOfData);
+      const deviationSigner = this.deviationSignerRepository.get(chainId);
+      return deviationSigner.apply(hashOfData);
     }));
 
     chainMetadata.forEach(([chainId], i) => {
@@ -103,7 +103,7 @@ export class DeviationSignatureCollector {
       return response.data;
     } catch (err) {
       if (err.response?.data) {
-        throw new Error(err.response.data.error || err.response.data);
+        throw new Error(`${validator.location}: (1) ${err.response.data.error || '-'} (2) ${err.response.data || '-'}`);
       }
 
       throw err;

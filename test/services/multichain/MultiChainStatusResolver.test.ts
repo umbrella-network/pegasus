@@ -6,7 +6,7 @@ import {BigNumber, Wallet} from 'ethers';
 import {getTestContainer} from '../../helpers/getTestContainer';
 import {MultiChainStatusResolver} from '../../../src/services/multiChain/MultiChainStatusResolver';
 import {ChainContractRepository} from '../../../src/repositories/ChainContractRepository';
-import ChainContract from '../../../src/contracts/evm/ChainContract';
+import ChainContract from '../../../src/blockchains/evm/contracts/ChainContract';
 import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
 import {timestamp} from '../../../src/utils/mining';
 import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor';

@@ -11,7 +11,7 @@ import {GasEstimator} from '@umb-network/toolbox';
 
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
-import ChainContract from '../../src/contracts/evm/ChainContract';
+import ChainContract from '../../src/blockchains/evm/contracts/ChainContract';
 import ConsensusRunner from '../../src/services/ConsensusRunner';
 import FeedProcessor from '../../src/services/FeedProcessor';
 import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';

@@ -6,7 +6,7 @@ import {BigNumber, Wallet} from 'ethers';
 
 import {mockedLogger} from '../mocks/logger';
 import Blockchain from '../../src/lib/Blockchain';
-import ChainContract from '../../src/contracts/evm/ChainContract';
+import ChainContract from '../../src/blockchains/evm/contracts/ChainContract';
 import Settings from '../../src/types/Settings';
 import ConsensusRunner from '../../src/services/ConsensusRunner';
 import TimeService from '../../src/services/TimeService';
