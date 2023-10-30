@@ -18,6 +18,7 @@ import {DeviationLeaderSelector} from "../deviationsFeeds/DeviationLeaderSelecto
 import {ValidatorRepository} from "../../repositories/ValidatorRepository";
 import TimeService from "../TimeService";
 import {ExecutedTx, TxHash} from "../../types/Consensus";
+import {UmbrellaFeedInterface} from "../../interfaces/UmbrellaFeedInterface";
 
 @injectable()
 export abstract class DeviationDispatcher extends Dispatcher implements IDeviationFeedsDispatcher {
@@ -31,7 +32,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
   @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
   @inject(TimeService) timeService!: TimeService;
 
-  protected feedsContract!: FeedContract;
+  protected feedsContract!: UmbrellaFeedInterface;
 
   @postConstruct()
   protected setup(): void {

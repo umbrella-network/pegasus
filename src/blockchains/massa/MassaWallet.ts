@@ -48,7 +48,7 @@ export class MassaWallet implements IWallet {
   }
 
   async getNextNonce(): Promise<number> {
-    this.logger.error(`${this.loggerPrefix} getNextNonce: there is no nonce concept`);
+    this.logger.debug(`${this.loggerPrefix} getNextNonce: there is no nonce concept`);
     return 0;
   }
 

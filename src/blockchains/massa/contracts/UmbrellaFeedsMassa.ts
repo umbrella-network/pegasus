@@ -1,6 +1,5 @@
 import {Logger} from "winston";
 
-import {PayableOverrides} from "@ethersproject/contracts";
 import {Args, ArrayTypes, Client, ClientFactory, IProvider, ProviderType} from "@massalabs/massa-web3";
 
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory';
@@ -19,6 +18,8 @@ import {MassaAddress} from "../utils/MassaAddress";
 import {MassaProvider} from "../MassaProvider";
 import {ProviderInterface} from "../../../interfaces/ProviderInterface";
 import {MassaWallet} from "../MassaWallet";
+import {IContractReadOperationResponse} from "@massalabs/web3-utils/dist/esm/interfaces/IContractReadOperationResponse";
+import {MassaEstimatedGas} from "../massaTypes";
 
 export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   protected logger!: Logger;
@@ -63,14 +64,14 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     parameter.addSerializableObjectArray(this.serializePriceDatas(priceDatas));
 
     const res = await this.rawCall({targetFunction: 'hashData', parameter, gas: 50_000_000n});
-    return '0x' + Buffer.from(new Args(res).nextUint8Array()).toString('hex');
+    return '0x' + Buffer.from(new Args(res.returnValue).nextUint8Array()).toString('hex');
   }
 
   async requiredSignatures(): Promise<number> {
     await this.beforeAnyAction();
 
     const res = await this.rawCall({targetFunction: 'REQUIRED_SIGNATURES', gas: 10_000_000n});
-    return Number(new Args(res).nextU8());
+    return Number(new Args(res.returnValue).nextU8());
   }
 
   async getManyPriceDataRaw(keys: string[]): Promise<PriceDataWithKey[] | undefined> {
@@ -81,7 +82,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     parameter.addSerializableObjectArray(this.serializeFeedsNames(keys));
 
     const res = await this.rawCall({targetFunction: 'getManyPriceDataRaw', parameter, gas: 10_000_000n});
-    const priceDatas = new Args(res).nextSerializableObjectArray(MassaPriceDataSerializer);
+    const priceDatas = new Args(res.returnValue).nextSerializableObjectArray(MassaPriceDataSerializer);
 
     return keys.map((key, i) => {
       return <PriceDataWithKey>{
@@ -91,34 +92,29 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     });
   }
 
-  async update(args: UmbrellaFeedsUpdateArgs, payableOverrides: PayableOverrides): Promise<ExecutedTx> {
+  async update(args: UmbrellaFeedsUpdateArgs): Promise<ExecutedTx> {
     await this.beforeAnyAction();
 
     const deviationAccount = this.deviationClient.wallet().getBaseAccount();
 
     if (!deviationAccount) throw new Error(`${this.loggerPrefix} empty deviation wallet`);
 
-    const {sortedSignatures, publicKeys} = this.sortSignatures(args.signatures);
-
-    const updateArgs = new Args();
-    updateArgs.addSerializableObjectArray(this.serializeKeys(args.keys));
-    updateArgs.addSerializableObjectArray(this.serializePriceDatas(args.priceDatas));
-    updateArgs.addArray(sortedSignatures, ArrayTypes.STRING);
-    updateArgs.addArray(publicKeys, ArrayTypes.STRING);
-
     const [targetAddress, blockNumber] = await Promise.all([
       this.resolveAddress(),
       this.provider.getBlockNumber()
     ]);
 
+    const estimateGas = await this.estimateGasForUpdate(targetAddress, args);
+    this.logger.info(`${this.loggerPrefix} estimatedGas: ${JSON.stringify(estimateGas)}`);
+
     const operationId = await this.client.smartContracts().callSmartContract(
       {
         fee: 0n,
-        maxGas: payableOverrides.gasLimit ? BigInt(payableOverrides.gasLimit) : 70_000_000n,
-        coins: 0n,
+        maxGas: estimateGas.estimatedGas,
+        coins: estimateGas.estimatedStorageCost,
         targetAddress: targetAddress,
         functionName: 'update',
-        parameter: updateArgs.serialize(),
+        parameter: this.parseArgs(args),
       },
       deviationAccount
     );
@@ -126,30 +122,58 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     return {hash: operationId, atBlock: blockNumber};
   }
 
-  async estimateGasForUpdate(args: UmbrellaFeedsUpdateArgs): Promise<bigint> {
-    throw new Error(`${this.loggerPrefix} estimateGasForUpdate: use estimateCost()`);
-  }
+  async estimateGasForUpdate(targetAddress: string, args: UmbrellaFeedsUpdateArgs): Promise<MassaEstimatedGas> {
+    const MAX_GAS = 4_294_967_295n; // Max gas for an op on Massa blockchain
 
-  async estimateCost(): Promise<bigint> {
-    throw new Error(`${this.loggerPrefix} estimateCost()`);
+    let estimatedGas = MAX_GAS;
+    let estimatedStorageCost = 0n;
+
+    try {
+      const readOnlyCall = await this.rawCall({
+        targetAddress,
+        targetFunction: 'update',
+        parameter: this.parseArgs(args),
+        gas: MAX_GAS
+      });
+
+      const gasMargin = 12n; // 1.2;
+      estimatedGas = BigInt(readOnlyCall.info.gas_cost) * gasMargin / 10n;
+
+      const prefix = "Estimated storage cost: ";
+      const filteredEvent = readOnlyCall.info.output_events.find((e: {data: string}) => e.data.includes(prefix));
+
+      if (filteredEvent) {
+        const storageCostMargin = 11n; // 1.1
+        estimatedStorageCost = BigInt(filteredEvent.data.slice(prefix.length)) * storageCostMargin / 10n;
+      } else {
+        this.logger.error(`${this.loggerPrefix} Failed to get storage cost: no event`);
+      }
+    } catch (err) {
+      this.logger.error(`${this.loggerPrefix} Failed to get dynamic gas cost for update: ${err.message}`);
+    }
+
+    return {
+      estimatedGas: estimatedGas > MAX_GAS ? MAX_GAS : estimatedGas,
+      estimatedStorageCost
+    };
   }
 
   protected resolveContract = async (): Promise<undefined> => {
     throw new Error(`${this.loggerPrefix} resolveContract not implemented`);
   };
 
-  protected async rawCall(params: {targetFunction: string, parameter?: Array<number> | Args, gas?: bigint}): Promise<Uint8Array> {
+  protected async rawCall(
+    params: {targetAddress?: string, targetFunction: string, parameter?: Array<number> | Args, gas?: bigint}
+  ): Promise<IContractReadOperationResponse> {
     await this.beforeAnyAction();
-    const targetAddress = await this.registry.getAddress(this.umbrellaFeedsName);
+    const targetAddress = params.targetAddress || await this.registry.getAddress(this.umbrellaFeedsName);
 
-    const res = await this.client.smartContracts().readSmartContract({
+    return this.client.smartContracts().readSmartContract({
       maxGas: params.gas || 10_000_000n,
       targetAddress: targetAddress,
       targetFunction: params.targetFunction,
       parameter: params.parameter || [],
     });
-
-    return res.returnValue;
   }
 
   protected serializeFeedsNames(keys: string[]): MassaWBytesSerializer[] {
@@ -184,6 +208,18 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     return {sortedSignatures, publicKeys};
   }
 
+  protected parseArgs(args: UmbrellaFeedsUpdateArgs): number[] {
+    const {sortedSignatures, publicKeys} = this.sortSignatures(args.signatures);
+
+    const updateArgs = new Args();
+    updateArgs.addSerializableObjectArray(this.serializeKeys(args.keys));
+    updateArgs.addSerializableObjectArray(this.serializePriceDatas(args.priceDatas));
+    updateArgs.addArray(sortedSignatures, ArrayTypes.STRING);
+    updateArgs.addArray(publicKeys, ArrayTypes.STRING);
+
+    return updateArgs.serialize();
+  }
+
   protected async beforeAnyAction(): Promise<void> {
     if (this.client) return;
 
@@ -209,4 +245,3 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     this.logger.info(`${this.loggerPrefix} clients initialised`);
   }
 }
-

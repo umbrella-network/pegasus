@@ -11,6 +11,7 @@ import {PriceData, PriceDataWithKey, Signature, UmbrellaFeedsUpdateArgs} from '.
 import {UmbrellaFeedInterface} from "../../../interfaces/UmbrellaFeedInterface";
 import {ExecutedTx} from "../../../types/Consensus";
 import logger from '../../../lib/logger';
+import {EvmEstimatedGas} from "../evmTypes";
 
 export class FeedContract implements UmbrellaFeedInterface {
   protected logger!: Logger;
@@ -90,19 +91,19 @@ export class FeedContract implements UmbrellaFeedInterface {
     return contract.callStatic.REQUIRED_SIGNATURES();
   }
 
-  async estimateGasForUpdate(args: UmbrellaFeedsUpdateArgs): Promise<bigint> {
+  async estimateGasForUpdate(args: UmbrellaFeedsUpdateArgs): Promise<EvmEstimatedGas> {
     if (!this.blockchain.deviationWallet) {
       throw new Error(`[FeedContract] deviationWallet empty for ${this.blockchain.chainId}`);
     }
 
     const contract = await this.resolveContract();
-    if (!contract) return  0n;
+    if (!contract) return { gasLimit: 0n }
 
     const gasLimit = await contract
       .connect(this.blockchain.deviationWallet.getRawWallet())
       .estimateGas.update(args.keys, args.priceDatas, await this.splitSignatures(args.signatures));
 
-    return gasLimit.toBigInt()
+    return { gasLimit: gasLimit.toBigInt() }
   }
 
   protected resolveContract = async (): Promise<Contract | undefined> => {
