@@ -1,8 +1,9 @@
 import {injectable} from 'inversify';
-import {BlockDispatcher} from '../BlockDispatcher';
-import {ChainsIds} from '../../../types/ChainsIds';
 import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
 import {PayableOverrides} from "@ethersproject/contracts";
+
+import {BlockDispatcher} from '../BlockDispatcher';
+import {ChainsIds} from '../../../types/ChainsIds';
 import {ChainSubmitArgs} from "../../../types/ChainSubmit";
 import {BlockchainType} from "../../../types/Settings";
 

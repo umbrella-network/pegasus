@@ -20,7 +20,6 @@ import {
   U32Value
 } from '@multiversx/sdk-core';
 import {ApiNetworkProvider} from '@multiversx/sdk-network-providers';
-import {PayableOverrides} from "@ethersproject/contracts";
 
 import {VariadicValue} from "@multiversx/sdk-core/out/smartcontracts/typesystem/variadic";
 import {ContractQueryResponse} from "@multiversx/sdk-network-providers/out/contractQueryResponse";
@@ -112,7 +111,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     }
   }
 
-  async update(args: UmbrellaFeedsUpdateArgs, payableOverrides: PayableOverrides): Promise<ExecutedTx> {
+  async update(args: UmbrellaFeedsUpdateArgs): Promise<ExecutedTx> {
     const contract = await this.resolveContract();
 
     if (!contract) {
@@ -127,7 +126,6 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
     const multiversXWallet = deviationWallet.getRawWallet<UserSigner>();
 
-    // TODO GAS
     const parsedArgs = this.parseDataForUpdate(args);
 
     const [nonce, chainID] = await Promise.all([
@@ -156,10 +154,6 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     const atBlock = await this.blockchain.getBlockNumber();
 
     return {hash, atBlock};
-  }
-
-  async estimateGasForUpdate(args: UmbrellaFeedsUpdateArgs): Promise<bigint> {
-    throw new Error(`${this.loggerPrefix} estimateGasForUpdate: use estimateCost()`);
   }
 
   async estimateCost(receiver: string, payload: ITransactionPayload, chainID: string, nonce: number): Promise<IGasLimit> {

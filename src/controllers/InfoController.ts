@@ -10,6 +10,7 @@ import {RegistryContractFactory} from '../factories/contracts/RegistryContractFa
 import {Logger} from 'winston';
 import {CHAIN_CONTRACT_NAME} from '@umb-network/toolbox/dist/constants';
 import {MassaWallet} from '../blockchains/massa/MassaWallet';
+import {SubmitMonitor} from '../types/SubmitMonitor';
 
 @injectable()
 class InfoController {
@@ -95,19 +96,23 @@ class InfoController {
 
     const registry = RegistryContractFactory.create(blockchain);
 
-    const [chainAddress, umbrellaFeedsAddress, walletAddress, deviationWalletAddress] = await Promise.allSettled([
-      registry.getAddress(CHAIN_CONTRACT_NAME),
-      registry.getAddress('UmbrellaFeeds'),
-      blockchain.wallet.address +
-        (chainId == ChainsIds.MASSA ? `@${(blockchain.wallet as MassaWallet).publicKey}` : ''),
-      blockchain.deviationWallet?.address,
-    ]);
+    const [chainAddress, umbrellaFeedsAddress, walletAddress, deviationWalletAddress, lastTxResolved] =
+      await Promise.allSettled([
+        registry.getAddress(CHAIN_CONTRACT_NAME),
+        registry.getAddress('UmbrellaFeeds'),
+        blockchain.wallet.address +
+          (chainId == ChainsIds.MASSA ? `@${(blockchain.wallet as MassaWallet).publicKey}` : ''),
+        blockchain.deviationWallet?.address,
+        this.lastSubmitResolver.apply(chainId),
+      ]);
+
+    const lastTx = this.getPromiseResult<SubmitMonitor | undefined>(lastTxResolved);
 
     return <BlockchainInfoSettings>{
       chainId,
       contractRegistryAddress: this.settings.blockchain.multiChains[chainId]?.contractRegistryAddress,
       providerUrl: this.settings.blockchain.multiChains[chainId]?.providerUrl?.split('/').slice(0, 3).join('/'),
-      lastTx: await this.lastSubmitResolver.apply(chainId),
+      lastTx: lastTx ? {...lastTx, date: new Date(lastTx.dataTimestamp * 1000).toUTCString()} : undefined,
       chainAddress: this.getPromiseResult(chainAddress),
       deviationWalletAddress: this.getPromiseResult(deviationWalletAddress),
       walletAddress: this.getPromiseResult(walletAddress),
@@ -115,8 +120,8 @@ class InfoController {
     };
   };
 
-  protected getPromiseResult(a: PromiseSettledResult<string | undefined>): string {
-    return a.status == 'fulfilled' ? a.value || '' : a.reason;
+  protected getPromiseResult<T>(a: PromiseSettledResult<T | undefined>): T {
+    return a.status == 'fulfilled' ? a.value : a.reason;
   }
 
   private getMultichainsSettings = async (

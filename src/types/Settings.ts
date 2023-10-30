@@ -25,6 +25,10 @@ export type BlockchainSettings = {
   };
 };
 
+interface SubmitMonitorExt extends SubmitMonitor {
+  date?: string;
+}
+
 export type BlockchainInfoSettings = {
   chainId: string;
   providerUrl?: string;
@@ -33,7 +37,7 @@ export type BlockchainInfoSettings = {
   umbrellaFeedsAddress?: string;
   deviationWalletAddress?: string;
   walletAddress?: string;
-  lastTx: SubmitMonitor | undefined;
+  lastTx: SubmitMonitorExt | undefined;
 };
 
 export type BlockDispatcherSettings = {
