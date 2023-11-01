@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Added
 - support Massa for on-chain data
 
+## Changed
+- disable uniswap agent if there are no settings
+
 ## [7.16.2] - 2023-09-29
 ## Removed
 - removed deprecated master chain settings

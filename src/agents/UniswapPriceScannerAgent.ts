@@ -7,7 +7,7 @@ import {UniswapPriceScanner} from '../services/uniswap/UniswapPriceScanner';
 @injectable()
 export class UniswapPriceScannerAgent extends BasicAgent {
   @inject('Logger') logger!: Logger;
-  @inject(UniswapPriceScanner) scanner!: UniswapPriceScannerAgent;
+  @inject(UniswapPriceScanner) scanner!: UniswapPriceScanner;
 
   async start(): Promise<void> {
     this.logger.info('[UniswapPriceScannerAgent] Starting...');

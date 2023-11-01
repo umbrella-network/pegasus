@@ -17,7 +17,7 @@ export type PoolCreatedEvent = {
 export class UniswapV3Factory {
   static ABI = ABI;
 
-  readonly contractId!: string;
+  readonly contractId: string = '';
   readonly provider!: StaticJsonRpcProvider;
   readonly contract!: Contract;
 
@@ -25,8 +25,14 @@ export class UniswapV3Factory {
     @inject('Settings') settings: Settings,
     @inject(BlockchainProviderRepository) blockchainProviderRepository: BlockchainProviderRepository,
   ) {
+    const blockchainKey = 'ethereum';
+
+    if (!settings.api.uniswap.scannerContractId || !settings.blockchains[blockchainKey].providerUrl.join('')) {
+      return;
+    }
+
     this.contractId = settings.api.uniswap.scannerContractId;
-    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get('ethereum');
+    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get(blockchainKey);
     this.contract = new Contract(this.contractId, UniswapV3Factory.ABI, this.provider);
   }
 
