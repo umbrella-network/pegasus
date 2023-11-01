@@ -25,11 +25,12 @@ export type UniswapPoolPrice = {
 @injectable()
 export class UniswapPriceScanner {
   readonly maxLockWaitTime = 100;
-  readonly lock: MutexInterface;
+  readonly lock: MutexInterface | undefined;
+  readonly blockchainId = 'ethereum';
 
   settings: Settings;
-  provider: StaticJsonRpcProvider;
-  sourceCache: NodeCache;
+  provider: StaticJsonRpcProvider | undefined;
+  sourceCache: NodeCache | undefined;
 
   @inject('Logger') logger!: Logger;
   @inject(UniswapPoolService) poolService!: UniswapPoolService;
@@ -43,14 +44,24 @@ export class UniswapPriceScanner {
     @inject(BlockchainProviderRepository) blockchainProviderRepository: BlockchainProviderRepository,
   ) {
     this.settings = settings;
-    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get('ethereum');
+
+    if (!settings.blockchains[this.blockchainId].providerUrl.join('')) {
+      return;
+    }
+
+    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get(this.blockchainId);
     this.sourceCache = new NodeCache({stdTTL: 60, checkperiod: 60});
     this.lock = withTimeout(new Mutex(), this.maxLockWaitTime);
   }
 
   async start(): Promise<void> {
+    if (!this.uniswapV3Helper.contractId) {
+      this.log('not active');
+      return;
+    }
+
     this.log('Starting Price Scanner');
-    this.provider.on('block', async (blockNumber) => await this.processBlock(blockNumber));
+    this.provider?.on('block', async (blockNumber) => await this.processBlock(blockNumber));
   }
 
   private async processBlock(blockNumber: number): Promise<void> {
@@ -63,12 +74,12 @@ export class UniswapPriceScanner {
 
     this.log(`New block detected: ${blockNumber}, lastPriceCount ${lastPriceCount}`);
 
-    if (this.lock.isLocked()) {
+    if (this.lock?.isLocked()) {
       this.log(`Skipping block ${blockNumber} - busy.`);
       return;
     }
 
-    await this.lock.runExclusive(async () => {
+    await this.lock?.runExclusive(async () => {
       try {
         this.log(`Processing block ${blockNumber}...`);
         const verifiedPools = await this.getVerifiedPools();
@@ -100,11 +111,11 @@ export class UniswapPriceScanner {
   }
 
   private async getVerifiedPools(): Promise<BlockchainSymbol[]> {
-    let verifiedPools = this.sourceCache.get<BlockchainSymbol[]>('VERIFIED_POOLS');
+    let verifiedPools = this.sourceCache?.get<BlockchainSymbol[]>('VERIFIED_POOLS');
     if (verifiedPools) return verifiedPools;
 
     verifiedPools = await this.poolService.getVerifiedPools();
-    this.sourceCache.set<BlockchainSymbol[]>('VERIFIED_POOLS', verifiedPools);
+    this.sourceCache?.set<BlockchainSymbol[]>('VERIFIED_POOLS', verifiedPools);
     return verifiedPools;
   }
 
