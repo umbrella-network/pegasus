@@ -2,7 +2,6 @@ import {inject, injectable} from 'inversify';
 
 import {UniswapPoolScanner} from '../services/uniswap/UniswapPoolScanner';
 import {LoopAgent} from './LoopAgent';
-import {UniswapPoolService} from '../services/uniswap/UniswapPoolService';
 
 @injectable()
 export class UniswapPoolScannerAgent extends LoopAgent {
@@ -10,7 +9,6 @@ export class UniswapPoolScannerAgent extends LoopAgent {
   interval = 100;
 
   @inject(UniswapPoolScanner) scanner!: UniswapPoolScanner;
-  @inject(UniswapPoolService) poolService!: UniswapPoolService;
 
   async execute(): Promise<void> {
     const result = await this.scanner.run();

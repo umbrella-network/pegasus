@@ -8,7 +8,7 @@ export class BlockchainProviderFactory {
   private settings!: Settings;
 
   getRpcProvider(url: string): StaticJsonRpcProvider {
-    if (!url) throw new Error(`[BlockchainProviderFactory] empty url: ${url}`);
+    if (!url) throw new Error(`[BlockchainProviderFactory] empty url: ${typeof url}`);
 
     if (url.startsWith('http')) return new StaticJsonRpcProvider(url);
 

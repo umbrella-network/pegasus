@@ -33,13 +33,24 @@ export class UniswapPoolScanner extends BlockchainScanner {
     @inject(BlockchainProviderRepository) blockchainProviderRepository: BlockchainProviderRepository,
   ) {
     super();
+
     this.settings = settings;
-    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get('ethereum');
+
+    if (!settings.blockchains[this.blockchainId].providerUrl.join('')) {
+      return;
+    }
+
+    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get(this.blockchainId);
     this.startBlock = this.settings.api.uniswap.startBlock;
     this.step = this.settings.api.uniswap.agentStep;
   }
 
   async apply(fromBlock: number, toBlock: number): Promise<boolean> {
+    if (!this.uniswapV3Factory.contractId) {
+      this.logger.info(`[UniswapPoolScanner] not active`);
+      return false;
+    }
+
     const events = await this.getPoolCreatedEvents(fromBlock, toBlock);
     if (events.length == 0) return true;
 
