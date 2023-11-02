@@ -190,7 +190,9 @@ const settings: Settings = {
   },
   blockchains: {
     ethereum: {
-      providerUrl: (<string>process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL || '').split(','),
+      providerUrl: process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL
+        ? (<string>process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL).split(',')
+        : [],
     },
   },
   blockchain: {

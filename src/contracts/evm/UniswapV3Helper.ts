@@ -19,7 +19,7 @@ export type PricesResponse = {
 export class UniswapV3Helper {
   static ABI = ABI;
 
-  readonly contractId!: string;
+  readonly contractId: string = '';
   readonly provider!: StaticJsonRpcProvider;
   readonly contract!: Contract;
   readonly periodForAveragePrice = 60;
@@ -28,8 +28,14 @@ export class UniswapV3Helper {
     @inject('Settings') settings: Settings,
     @inject(BlockchainProviderRepository) blockchainProviderRepository: BlockchainProviderRepository,
   ) {
+    const blockchainKey = 'ethereum';
+
+    if (!settings.api.uniswap.helperContractId || !settings.blockchains[blockchainKey].providerUrl.join('')) {
+      return;
+    }
+
     this.contractId = settings.api.uniswap.helperContractId;
-    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get('ethereum');
+    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get(blockchainKey);
     this.contract = new Contract(this.contractId, UniswapV3Helper.ABI, this.provider);
   }
 
