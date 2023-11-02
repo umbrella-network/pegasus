@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Changed
 - disable uniswap agent if there are no settings
 
+## [7.17.0] - 2023-11-01
+## Changed
+- disable uniswap agent if there are no settings
+
 ## [7.16.2] - 2023-09-29
 ## Removed
 - removed deprecated master chain settings
