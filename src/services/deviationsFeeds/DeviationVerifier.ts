@@ -11,10 +11,10 @@ import {FeedsType} from "../../types/Feed";
 import {DiscrepancyFinder} from "../DiscrepancyFinder";
 import {KeyValuesToLeaves} from "../tools/KeyValuesToLeaves";
 import {PriceMetadataComparator} from "./PriceMetadataComparator";
-import {DeviationSigner} from "./DeviationSigner";
 import {DeviationChainMetadata} from "./DeviationChainMetadata";
 import {DeviationTrigger} from "./DeviationTrigger";
 import {DeviationHasher} from "./DeviationHasher";
+import {DeviationSignerRepository} from "../../repositories/DeviationSignerRepository";
 
 @injectable()
 export class DeviationVerifier {
@@ -23,7 +23,7 @@ export class DeviationVerifier {
   @inject(FeedDataService) feedDataService!: FeedDataService;
   @inject(PriceMetadataComparator) priceDataComperator!: PriceMetadataComparator;
   @inject(DeviationHasher) deviationHasher!: DeviationHasher;
-  @inject(DeviationSigner) deviationSigner!: DeviationSigner;
+  @inject(DeviationSignerRepository) deviationSignerRepository!: DeviationSignerRepository;
   @inject(DeviationChainMetadata) deviationChainMetadata!: DeviationChainMetadata;
   @inject(DeviationTrigger) deviationTrigger!: DeviationTrigger;
 
@@ -88,8 +88,10 @@ export class DeviationVerifier {
         const data = deviationDataToSign.feedsForChain[chainId];
         this.logger.info(`[DeviationVerifier] signing ${data} for ${chainId} (${networkId})`);
 
-        const hash = this.deviationHasher.apply(chainId, networkId, target, deviationDataToSign.feedsForChain[chainId], priceDatas)
-        return this.deviationSigner.apply(chainId, hash)
+        const hash = this.deviationHasher.apply(chainId, networkId, target, deviationDataToSign.feedsForChain[chainId], priceDatas);
+        const signer = this.deviationSignerRepository.get(chainId);
+
+        return signer.apply(hash)
       }
     ));
 
@@ -101,7 +103,7 @@ export class DeviationVerifier {
       if (sig) {
         signaturesToReturn[chainId] = sig;
       }
-    })
+    });
 
     return {signatures: signaturesToReturn, discrepancies, version: this.settings.version};
   }

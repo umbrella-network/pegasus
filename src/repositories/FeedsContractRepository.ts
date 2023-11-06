@@ -4,9 +4,9 @@ import Settings, {BlockchainType} from '../types/Settings';
 import {ChainsIds} from '../types/ChainsIds';
 import {BlockchainRepository} from './BlockchainRepository';
 import {Logger} from 'winston';
-import {FeedContract} from '../contracts/evm/FeedContract';
+import {FeedContract} from '../blockchains/evm/contracts/FeedContract';
 import {UmbrellaFeedsContractFactory} from '../factories/contracts/UmbrellaFeedsContractFactory';
-import {UmbrellaFeedInterface} from '../contracts/interfaces/UmbrellaFeedInterface';
+import {UmbrellaFeedInterface} from '../interfaces/UmbrellaFeedInterface';
 
 export type FeedsContractCollection = {
   [key: string]: UmbrellaFeedInterface | undefined;

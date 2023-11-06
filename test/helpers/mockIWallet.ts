@@ -1,5 +1,5 @@
 import {Wallet} from 'ethers';
-import {IWallet} from '../../src/lib/wallets/IWallet';
+import {IWallet} from '../../src/interfaces/IWallet';
 import {ChainsIds} from '../../src/types/ChainsIds';
 
 export function mockIWallet(wallet: Wallet, chainId = ChainsIds.BSC): IWallet {

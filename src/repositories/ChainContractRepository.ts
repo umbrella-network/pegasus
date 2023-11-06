@@ -3,7 +3,7 @@ import {Logger} from 'winston';
 
 import Settings, {BlockchainType} from '../types/Settings';
 import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
-import ChainContract from '../contracts/evm/ChainContract';
+import ChainContract from '../blockchains/evm/contracts/ChainContract';
 import {BlockchainRepository} from './BlockchainRepository';
 
 export type ChainContractCollection = {

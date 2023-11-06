@@ -9,7 +9,7 @@ import {BlockchainRepository} from '../../repositories/BlockchainRepository';
 import {ChainsIds} from '../../types/ChainsIds';
 import {parseEther} from "ethers/lib/utils";
 import {BalanceMonitorSaver} from "../balanceMonitor/BalanceMonitorSaver";
-import {IWallet} from "../../lib/wallets/IWallet";
+import {IWallet} from "../../interfaces/IWallet";
 import {ExecutedTx, TxHash} from "../../types/Consensus";
 import Blockchain from "../../lib/Blockchain";
 
@@ -132,7 +132,11 @@ export abstract class Dispatcher {
       this.logger.info(`${this.logPrefix} New block detected ${newBlockNumber}, waiting for tx to be minted.`);
     }
 
+    const timeStart = Date.now();
     const success = await this.blockchain.provider.waitForTx(hash, timeoutMs);
+    const timeEnd = Date.now();
+
+    this.logger.info(`${this.logPrefix} tx finalised in ${Math.round((timeEnd - timeStart) / 1000)} sec.`);
 
     return {txHash: hash, success, timeoutMs};
   }
@@ -165,7 +169,7 @@ export abstract class Dispatcher {
 
   protected checkBalanceIsEnough = async (wallet: IWallet): Promise<boolean> => {
     const balance = await wallet.getBalance();
-    const error = this.testBalanceThreshold(balance, wallet.address);
+    const error = this.testBalanceThreshold(balance, wallet);
     await this.balanceMonitorSaver.apply(this.chainId, balance.toString(), !!error, wallet.address);
 
     if (error) {
@@ -176,15 +180,15 @@ export abstract class Dispatcher {
     return true;
   };
 
-  protected testBalanceThreshold = (balance: bigint, address: string): string | undefined => {
-    const {errorLimit, warningLimit} = this.blockchain.chainSettings.transactions.mintBalance;
+  protected testBalanceThreshold = (balance: bigint, wallet: IWallet): string | undefined => {
+    const {errorLimit, warningLimit} = this.blockchain.chainSettings.transactions.minBalance;
 
-    if (balance < BigInt(parseEther(errorLimit))) {
-      return `${this.logPrefix} Balance (${address.slice(0, 10)}) is lower than ${errorLimit} - ERROR`;
+    if (balance < wallet.toNative(errorLimit)) {
+      return `${this.logPrefix} Balance (${wallet.address.slice(0, 10)}) is lower than ${errorLimit} - ERROR`;
     }
 
-    if (balance < BigInt(parseEther(warningLimit))) {
-      this.logger.warn(`${this.logPrefix} Balance (${address.slice(0, 10)}) is lower than ${warningLimit}`);
+    if (balance < wallet.toNative(warningLimit)) {
+      this.logger.warn(`${this.logPrefix} Balance (${wallet.address.slice(0, 10)}) is lower than ${warningLimit}`);
     }
   };
 }

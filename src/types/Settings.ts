@@ -18,12 +18,16 @@ export type BlockchainSettings = {
     minGasPrice: number;
     maxGasPrice: number;
     gasMultiplier?: number;
-    mintBalance: {
+    minBalance: {
       warningLimit: string;
       errorLimit: string;
     };
   };
 };
+
+interface SubmitMonitorExt extends SubmitMonitor {
+  date?: string;
+}
 
 export type BlockchainInfoSettings = {
   chainId: string;
@@ -33,7 +37,7 @@ export type BlockchainInfoSettings = {
   umbrellaFeedsAddress?: string;
   deviationWalletAddress?: string;
   walletAddress?: string;
-  lastTx: SubmitMonitor | undefined;
+  lastTx: SubmitMonitorExt | undefined;
 };
 
 export type BlockDispatcherSettings = {
@@ -102,6 +106,14 @@ type Settings = {
       };
       multiversX: {
         privateKey: string;
+        deviationPrivateKey?: string;
+      };
+      massa: {
+        privateKey: string;
+        deviationPrivateKey?: string;
+      };
+      concordium: {
+        // privateKey: string; looks like we can use evm key
         deviationPrivateKey?: string;
       };
     };

@@ -4,8 +4,9 @@ import {Logger} from 'winston';
 import Settings from '../types/Settings';
 import {ChainsIds} from '../types/ChainsIds';
 import {BlockchainRepository} from './BlockchainRepository';
-import {StakingBankContract} from '../contracts/evm/StakingBankContract';
-import {StakingBankInterface} from '../contracts/interfaces/StakingBankInterface';
+import {StakingBankContract} from '../blockchains/evm/contracts/StakingBankContract';
+import {StakingBankInterface} from '../interfaces/StakingBankInterface';
+import {StakingBankContractFactory} from '../factories/contracts/StakingBankContractFactory';
 
 export type BankContractCollection = {
   [key: string]: StakingBankInterface | undefined;
@@ -28,7 +29,7 @@ export class StakingBankContractRepository {
 
         this.collection[chainId] =
           blockchain.provider && blockchain.getContractRegistryAddress()
-            ? new StakingBankContract(blockchain)
+            ? StakingBankContractFactory.create(blockchain)
             : undefined;
       } catch (e) {
         this.collection[chainId] = undefined;
@@ -37,7 +38,7 @@ export class StakingBankContractRepository {
     });
   }
 
-  get(id: string): StakingBankContract {
+  get(id: string): StakingBankInterface {
     if (!this.collection[id]) {
       console.warn(`[StakingBankContractRepository] Blockchain ${id} does not exists`);
     }
