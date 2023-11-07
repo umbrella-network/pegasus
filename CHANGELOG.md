@@ -6,11 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [7.18.0] - 2023-11-06
 ## Added
 - support Massa for on-chain data
 
 ## Changed
-- disable uniswap agent if there are no settings
+- add support for `\\n` for MultiversX PK
 
 ## [7.17.0] - 2023-11-01
 ## Changed

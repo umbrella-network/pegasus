@@ -21,7 +21,7 @@ export type ConsensusOptimizerProps = {
 
 export type ConsensusOptimization = {
   participants: Participant[];
-  power: BigInt;
+  power: bigint;
   signatures: number;
   dropKeys: Set<string>;
 };

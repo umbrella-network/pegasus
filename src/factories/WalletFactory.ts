@@ -12,7 +12,7 @@ export class WalletFactory {
     switch (chainId) {
       case ChainsIds.MULTIVERSX:
         if (!wallets.multiversX.privateKey) throw new Error(`[WalletFactory] empty privateKey for ${chainId}`);
-        return new MultiversXWallet(wallets.multiversX.privateKey.split('\\n').join('\n'));
+        return new MultiversXWallet(wallets.multiversX.privateKey);
 
       case ChainsIds.MASSA:
         if (!wallets.massa.privateKey) throw new Error(`[WalletFactory] empty privateKey for ${chainId}`);

@@ -14,6 +14,10 @@ import fs from 'fs';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
 
+function parseNl(s: string): string {
+  return s.replace(/\\n/g, '\n').split('\n').join('\n');
+}
+
 function resolveBlockchainType(chain: ChainsIds): BlockchainType[] | undefined {
   const blockchainType = process.env[`${chain}_TYPE`];
   if (!blockchainType) return undefined;
@@ -234,9 +238,9 @@ const settings: Settings = {
           : undefined,
       },
       multiversX: {
-        privateKey: process.env.MULTIVERSX_SIGNING_PRIVATE_KEY as string,
+        privateKey: parseNl(process.env.MULTIVERSX_SIGNING_PRIVATE_KEY as string),
         deviationPrivateKey: process.env.MULTIVERSX_DEVIATION_PRIVATE_KEY
-          ? (process.env.MULTIVERSX_DEVIATION_PRIVATE_KEY as string)
+          ? parseNl(process.env.MULTIVERSX_DEVIATION_PRIVATE_KEY as string)
           : undefined,
       },
       massa: {

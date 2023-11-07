@@ -8,11 +8,12 @@ import {NumberToBuffer} from "./utils/NumberToBuffer";
 
 @injectable()
 export class DeviationHasherMultiversX {
-  static apply(_: number, target: string, priceKeysRaw: string[], priceDatas: PriceData[]): string {
+  static apply(chainId: number, target: string, priceKeysRaw: string[], priceDatas: PriceData[]): string {
     const priceKeys = priceKeysRaw.map(k => Buffer.from(ethers.utils.id(k).slice(2), 'hex'));
     const contractAddress = Address.fromBech32(target).pubkey();
 
     const dataList = [
+      NumberToBuffer.apply(chainId, 32),
       contractAddress,
 
       // price_keys
