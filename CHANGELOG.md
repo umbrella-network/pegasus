@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.18.2] - 2023-11-07
+### Fix
+- check for empty string
+
 ## [7.18.1] - 2023-11-07
 ### Removed
 - `newrelic.js` file
