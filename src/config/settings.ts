@@ -15,7 +15,7 @@ import fs from 'fs';
 const packageJson = require('../../package.json');
 
 function parseNl(s: string): string {
-  return s.replace(/\\n/g, '\n').split('\n').join('\n');
+  return s ? s.replace(/\\n/g, '\n').split('\n').join('\n') : '';
 }
 
 function resolveBlockchainType(chain: ChainsIds): BlockchainType[] | undefined {
