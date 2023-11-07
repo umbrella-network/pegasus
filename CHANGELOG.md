@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.18.1] - 2023-11-07
+### Removed
+- `newrelic.js` file
+- `name` from settings
+
+### Changed
+- print `id` in `BlockchainProviderFactory`
+
 ## [7.18.0] - 2023-11-06
 ## Added
 - support Massa for on-chain data

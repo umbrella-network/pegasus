@@ -194,7 +194,6 @@ type Settings = {
   feedsOnChain: string;
   version: string;
   environment?: string;
-  name: string;
   deviationTrigger: {
     roundLengthSeconds: number;
     leaderInterval: number;

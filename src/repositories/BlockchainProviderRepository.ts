@@ -14,6 +14,6 @@ export class BlockchainProviderRepository {
     if (!providerSettings) return;
 
     const url = <string>sample(providerSettings.providerUrl);
-    return this.providerFactory.getRpcProvider(url);
+    return this.providerFactory.getRpcProvider(url, id);
   }
 }

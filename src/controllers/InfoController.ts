@@ -56,7 +56,6 @@ class InfoController {
       chains: await this.getMultichainsSettings(this.getChain(request)),
       version: this.settings.version,
       environment: this.settings.environment,
-      name: this.settings.name,
       keys: {
         cryptocompare: InfoController.obfuscate(this.settings.api.cryptocompare.apiKey),
         polygonIO: InfoController.obfuscate(this.settings.api.polygonIO.apiKey),
