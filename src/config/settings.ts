@@ -341,7 +341,6 @@ const settings: Settings = {
   dataTimestampOffsetSeconds: parseInt(process.env.DATA_TIMESTAMP_OFFSET_SECONDS || '10', 10),
   version: packageJson.version,
   environment: process.env.ENVIRONMENT || process.env.NODE_ENV,
-  name: process.env.NEW_RELIC_APP_NAME || process.env.NAME || 'default',
   deviationTrigger: {
     heartbeatRounds: getTimeSetting(parseInt(process.env.DEVIATION_HEARTBEAT_ROUNDS || '5'), 3),
     roundLengthSeconds: getTimeSetting(parseInt(process.env.DEVIATION_ROUND_LENGTH || '60'), 30),
