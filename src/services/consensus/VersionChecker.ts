@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import Settings from '../../types/Settings';
+import Settings from '../../types/Settings.js';
 
 @injectable()
 export class VersionChecker {

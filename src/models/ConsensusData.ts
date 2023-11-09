@@ -1,8 +1,8 @@
 import {index, modelOptions, prop, Severity} from '@typegoose/typegoose';
-import {SchemaTypes} from 'mongoose';
+import mongoose from 'mongoose';
 
-import Leaf from '../types/Leaf';
-import {HexStringWith0x} from '../types/custom';
+import Leaf from '../types/Leaf.js';
+import {HexStringWith0x} from '../types/custom.js';
 
 @index({expireAt: 1}, {expireAfterSeconds: 0})
 @modelOptions({options: {allowMixed: Severity.ALLOW}})
@@ -22,7 +22,7 @@ class ConsensusData {
   @prop({required: true, type: () => [String]})
   fcdValues!: Array<HexStringWith0x>;
 
-  @prop({type: SchemaTypes.Mixed})
+  @prop({type: mongoose.SchemaTypes.Mixed})
   leaves!: Array<Leaf>;
 
   @prop({required: true})

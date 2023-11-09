@@ -1,8 +1,10 @@
-import {expect} from 'chai';
+import chai from 'chai';
 
-import Application from '../../../src/lib/Application';
-import {InputParams} from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher';
-import CoingeckoPriceMultiFetcher from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher';
+import Application from '../../../src/lib/Application.js';
+import {InputParams} from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher.js';
+import CoingeckoPriceMultiFetcher from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher.js';
+
+const {expect} = chai;
 
 describe('CoingeckoPriceMultiFetcher', () => {
   const fetcher = Application.get(CoingeckoPriceMultiFetcher);

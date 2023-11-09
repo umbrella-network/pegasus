@@ -2,8 +2,8 @@ import {ResultsParser, SmartContract, StringValue, Address, ContractFunction, In
 import {ApiNetworkProvider} from '@multiversx/sdk-network-providers';
 // import {ProxyNetworkProvider} from "@multiversx/sdk-network-providers/out";
 
-import Blockchain from '../../../lib/Blockchain';
-import {RegistryInterface} from '../../../interfaces/RegistryInterface';
+import Blockchain from '../../../lib/Blockchain.js';
+import {RegistryInterface} from '../../../interfaces/RegistryInterface.js';
 
 export class RegistryMultiversX implements RegistryInterface {
   readonly blockchain!: Blockchain;

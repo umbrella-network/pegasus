@@ -1,12 +1,14 @@
-import {expect} from 'chai';
+import chai from 'chai';
 import sinon, {createStubInstance} from 'sinon';
 
-import {FeedFetcher} from '../../../src/types/Feed';
-import {getTestContainer} from '../../helpers/getTestContainer';
-import CryptoCompareMultiProcessor from '../../../src/services/FeedProcessor/CryptoCompareMultiProcessor';
+import {FeedFetcher} from '../../../src/types/Feed.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
+import CryptoCompareMultiProcessor from '../../../src/services/FeedProcessor/CryptoCompareMultiProcessor.js';
 import CryptoCompareMultiPriceFetcher, {
   OutputValue,
-} from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher';
+} from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher.js';
+
+const {expect} = chai;
 
 const feedFetchers: FeedFetcher[] = [
   {

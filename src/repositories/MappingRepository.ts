@@ -1,6 +1,6 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
-import {Mapping} from '../models/Mapping';
+import {Mapping} from '../models/Mapping.js';
 
 @injectable()
 export class MappingRepository {

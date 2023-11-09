@@ -2,7 +2,7 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
 
-import Settings from '../../types/Settings';
+import Settings from '../../types/Settings.js';
 
 @injectable()
 class PolygonIOSingleCryptoPriceFetcher {

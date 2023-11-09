@@ -1,14 +1,15 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
-import moxios from 'moxios';
 import chai from 'chai';
+import moxios from 'moxios';
 import chaiAsPromised from 'chai-as-promised';
 
-import Settings from '../../../src/types/Settings';
-import PolygonIOStockSnapshotFetcher from '../../../src/services/fetchers/PolygonIOStockSnapshotFetcher';
-import {getTestContainer} from '../../helpers/getTestContainer';
+import Settings from '../../../src/types/Settings.js';
+import PolygonIOStockSnapshotFetcher from '../../../src/services/fetchers/PolygonIOStockSnapshotFetcher.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 chai.use(chaiAsPromised);
+
+const {expect} = chai;
 
 describe('PolygonIOStockSnapshotFetcher', () => {
   let settings: Settings;
@@ -111,7 +112,6 @@ describe('PolygonIOStockSnapshotFetcher', () => {
         beforeEach(() => {
           moxios.stubRequest(
             'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers' +
-              '' +
               '?tickers=UVXY&apiKey=POLYGON_IO_API_KEY',
             {
               status: 200,

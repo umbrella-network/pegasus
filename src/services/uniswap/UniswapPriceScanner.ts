@@ -1,19 +1,19 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {chunk} from 'lodash';
+import lodash from 'lodash';
 import {BigNumber} from 'ethers';
 import NodeCache from 'node-cache';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 
-import {UniswapPriceService} from './UniswapPriceService';
-import Settings from '../../types/Settings';
-import {UniswapPoolService} from './UniswapPoolService';
-import {BlockchainSymbol} from '../../models/BlockchainSymbol';
+import {UniswapPriceService} from './UniswapPriceService.js';
+import Settings from '../../types/Settings.js';
+import {UniswapPoolService} from './UniswapPoolService.js';
+import {BlockchainSymbol} from '../../models/BlockchainSymbol.js';
 import {Mutex, MutexInterface, withTimeout} from 'async-mutex';
-import {Price, UniswapV3Helper} from '../../blockchains/evm/contracts/UniswapV3Helper';
-import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
-import {UniswapV2PriceMonitorChecker} from '../uniswapPriceMonitor/UniswapV2PriceMonitorChecker';
-import {UniswapV2PriceMonitorSaver} from '../uniswapPriceMonitor/UniswapV2PriceMonitorSaver';
+import {Price, UniswapV3Helper} from '../../blockchains/evm/contracts/UniswapV3Helper.js';
+import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
+import {UniswapV2PriceMonitorChecker} from '../uniswapPriceMonitor/UniswapV2PriceMonitorChecker.js';
+import {UniswapV2PriceMonitorSaver} from '../uniswapPriceMonitor/UniswapV2PriceMonitorSaver.js';
 
 export type UniswapPoolPrice = {
   symbol: string;
@@ -92,7 +92,7 @@ export class UniswapPriceScanner {
         this.log(`Found ${verifiedPools.length} verified pools.`);
 
         let totalPrices = 0;
-        for (const batch of chunk(verifiedPools, 100)) {
+        for (const batch of lodash.chunk(verifiedPools, 100)) {
           const prices = await this.getUpdatedPrices(batch);
           totalPrices += prices.length;
           await this.savePrices(prices);
@@ -111,12 +111,12 @@ export class UniswapPriceScanner {
   }
 
   private async getVerifiedPools(): Promise<BlockchainSymbol[]> {
-    let verifiedPools = this.sourceCache?.get<BlockchainSymbol[]>('VERIFIED_POOLS');
-    if (verifiedPools) return verifiedPools;
+    let verifiedPools = this.sourceCache?.get('VERIFIED_POOLS');
+    if (verifiedPools) return verifiedPools as BlockchainSymbol[];
 
     verifiedPools = await this.poolService.getVerifiedPools();
-    this.sourceCache?.set<BlockchainSymbol[]>('VERIFIED_POOLS', verifiedPools);
-    return verifiedPools;
+    this.sourceCache?.set('VERIFIED_POOLS', verifiedPools);
+    return verifiedPools as BlockchainSymbol[];
   }
 
   private async getUpdatedPrices(pools: BlockchainSymbol[]): Promise<UniswapPoolPrice[]> {

@@ -1,14 +1,14 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
-import ChainContract from '../../blockchains/evm/contracts/ChainContract';
-import Settings from '../../types/Settings';
-import {ChainContractRepository} from '../../repositories/ChainContractRepository';
-import {promiseWithTimeout} from '../../utils/promiseWithTimeout';
-import {ChainsIds} from '../../types/ChainsIds';
-import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus';
-import {ChainStatus} from '../../types/ChainStatus';
-import {MultiChainStatusProcessor} from './MultiChainStatusProcessor';
+import ChainContract from '../../blockchains/evm/contracts/ChainContract.js';
+import Settings from '../../types/Settings.js';
+import {ChainContractRepository} from '../../repositories/ChainContractRepository.js';
+import {promiseWithTimeout} from '../../utils/promiseWithTimeout.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus.js';
+import {ChainStatus} from '../../types/ChainStatus.js';
+import {MultiChainStatusProcessor} from './MultiChainStatusProcessor.js';
 
 @injectable()
 export class MultiChainStatusResolver {

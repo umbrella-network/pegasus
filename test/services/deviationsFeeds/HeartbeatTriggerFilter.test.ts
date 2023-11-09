@@ -1,7 +1,9 @@
-import {expect} from 'chai';
-import {HeartbeatTriggerFilter} from '../../../src/services/deviationsFeeds/HeartbeatTriggerFilter';
-import {ChainsIds} from '../../../src/types/ChainsIds';
-import {DeviationFeed, PriceData} from '../../../src/types/DeviationFeeds';
+import chai from 'chai';
+import {HeartbeatTriggerFilter} from '../../../src/services/deviationsFeeds/HeartbeatTriggerFilter.js';
+import {ChainsIds} from '../../../src/types/ChainsIds.js';
+import {DeviationFeed, PriceData} from '../../../src/types/DeviationFeeds.js';
+
+const {expect} = chai;
 
 describe('HeartbeatTriggerFilter', () => {
   describe('#apply', () => {

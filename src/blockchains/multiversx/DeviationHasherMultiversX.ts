@@ -2,8 +2,8 @@ import {injectable} from 'inversify';
 import {ethers} from 'ethers';
 import {Address} from '@multiversx/sdk-core';
 
-import {PriceData} from '../../types/DeviationFeeds';
-import {NumberToBuffer} from './utils/NumberToBuffer';
+import {PriceData} from '../../types/DeviationFeeds.js';
+import {NumberToBuffer} from './utils/NumberToBuffer.js';
 
 @injectable()
 export class DeviationHasherMultiversX {

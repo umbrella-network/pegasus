@@ -1,12 +1,12 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
-import {DeviationDataToSign, DeviationLeavesAndFeeds} from '../../types/DeviationFeeds';
-import {PriceDataProvider} from './PriceDataProvider';
-import {DeviationTriggerFilters} from './DeviationTriggerFilters';
-import {DataFilter} from '../tools/DataFilter';
-import {DeviationFeedsPerChainSplitter} from './DeviationFeedsPerChainSplitter';
-import {PriceDataOverflowChecker} from './PriceDataOverflowChecker';
+import {DeviationDataToSign, DeviationLeavesAndFeeds} from '../../types/DeviationFeeds.js';
+import {PriceDataProvider} from './PriceDataProvider.js';
+import {DeviationTriggerFilters} from './DeviationTriggerFilters.js';
+import {DataFilter} from '../tools/DataFilter.js';
+import {DeviationFeedsPerChainSplitter} from './DeviationFeedsPerChainSplitter.js';
+import {PriceDataOverflowChecker} from './PriceDataOverflowChecker.js';
 
 @injectable()
 export class DeviationTrigger {

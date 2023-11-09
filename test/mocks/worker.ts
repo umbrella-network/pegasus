@@ -1,4 +1,4 @@
-import BasicWorker from '../../src/workers/BasicWorker';
+import BasicWorker from '../../src/workers/BasicWorker.js';
 
 class MockedWorker extends BasicWorker {
   apply = async (): Promise<void> => Promise.resolve();

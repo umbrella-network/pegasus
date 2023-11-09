@@ -1,10 +1,10 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {FeedFetcher} from '../../types/Feed';
-import {mergeArrays} from '../../utils/collections';
-import CoingeckoMultiProcessor from './CoingeckoMultiProcessor';
-import CryptoCompareMultiProcessor from './CryptoCompareMultiProcessor';
+import {FeedFetcher} from '../../types/Feed.js';
+import {mergeArrays} from '../../utils/collections.js';
+import CoingeckoMultiProcessor from './CoingeckoMultiProcessor.js';
+import CryptoCompareMultiProcessor from './CryptoCompareMultiProcessor.js';
 
 @injectable()
 export default class MultiFeedProcessor {

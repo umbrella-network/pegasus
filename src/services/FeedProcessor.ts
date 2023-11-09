@@ -4,11 +4,11 @@ import {inject, injectable} from 'inversify';
 import {price} from '@umb-network/validator';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
-import Leaf from '../types/Leaf';
-import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor';
-import {CalculatorRepository} from '../repositories/CalculatorRepository';
-import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository';
-import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed';
+import Leaf from '../types/Leaf.js';
+import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
+import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
+import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
+import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
 
 interface Calculator {
   // eslint-disable-next-line

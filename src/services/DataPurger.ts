@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import TimeService from './TimeService';
-import Block from '../models/Block';
-import {sleep} from '../utils/sleep';
+import TimeService from './TimeService.js';
+import Block from '../models/Block.js';
+import {sleep} from '../utils/sleep.js';
 
 @injectable()
 class DataPurger {

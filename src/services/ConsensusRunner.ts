@@ -2,23 +2,23 @@ import {Logger} from 'winston';
 import sort from 'fast-sort';
 import {inject, injectable} from 'inversify';
 import {ethers, Wallet} from 'ethers';
-import BlockRepository from '../repositories/BlockRepository';
-import SignatureCollector from './SignatureCollector';
-import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
-import TimeService from './TimeService';
-import Leaf from '../types/Leaf';
-import {BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
-import {Consensus, ConsensusStatus, DataForConsensus, LeavesAndFeeds} from '../types/Consensus';
-import Settings from '../types/Settings';
-import {KeyValues, SignedBlock} from '../types/SignedBlock';
-import {Validator} from '../types/Validator';
-import {ValidatorsResponses} from '../types/ValidatorsResponses';
-import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining';
-import {FeedDataService} from './FeedDataService';
-import {FeedsType, HexStringWith0x} from '../types/Feed';
-import {SimpleConsensusResolver} from './consensus/SimpleConsensusResolver';
-import {OptimizedConsensusResolver} from './consensus/OptimizedConsensusResolver';
-import {sleep} from '../utils/sleep';
+import BlockRepository from '../repositories/BlockRepository.js';
+import SignatureCollector from './SignatureCollector.js';
+import SortedMerkleTreeFactory from './SortedMerkleTreeFactory.js';
+import TimeService from './TimeService.js';
+import Leaf from '../types/Leaf.js';
+import {BlockSignerResponseWithPower} from '../types/BlockSignerResponse.js';
+import {Consensus, ConsensusStatus, DataForConsensus, LeavesAndFeeds} from '../types/Consensus.js';
+import Settings from '../types/Settings.js';
+import {KeyValues, SignedBlock} from '../types/SignedBlock.js';
+import {Validator} from '../types/Validator.js';
+import {ValidatorsResponses} from '../types/ValidatorsResponses.js';
+import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining.js';
+import {FeedDataService} from './FeedDataService.js';
+import {FeedsType, HexStringWith0x} from '../types/Feed.js';
+import {SimpleConsensusResolver} from './consensus/SimpleConsensusResolver.js';
+import {OptimizedConsensusResolver} from './consensus/OptimizedConsensusResolver.js';
+import {sleep} from '../utils/sleep.js';
 
 @injectable()
 class ConsensusRunner {
@@ -123,7 +123,8 @@ class ConsensusRunner {
     };
 
     this.logger.info(
-      `[ConsensusRunner] Running consensus at ${dataForConsensus.dataTimestamp} with ${validators.length} validators, ${leaves.length} leaves, ${fcdKeys.length} FCDs`,
+      `[ConsensusRunner] Running consensus at ${dataForConsensus.dataTimestamp} with ` +
+        `${validators.length} validators, ${leaves.length} leaves, ${fcdKeys.length} FCDs`,
     );
 
     const blockSignerResponsesWithPowers = await this.signatureCollector.apply(

@@ -1,11 +1,11 @@
 import {injectable} from 'inversify';
 
-import {PriceData} from '../../types/DeviationFeeds';
-import {ChainsIds} from '../../types/ChainsIds';
-import {DeviationHasherMultiversX} from '../../blockchains/multiversx/DeviationHasherMultiversX';
-import {DeviationHasherEvm} from '../../blockchains/evm/DeviationHasherEvm';
-import {DeviationHasherInterface} from './interfaces/DeviationHasherInterface';
-import {DeviationHasherMassa} from '../../blockchains/massa/DeviationHasherMassa';
+import {PriceData} from '../../types/DeviationFeeds.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {DeviationHasherMultiversX} from '../../blockchains/multiversx/DeviationHasherMultiversX.js';
+import {DeviationHasherEvm} from '../../blockchains/evm/DeviationHasherEvm.js';
+import {DeviationHasherInterface} from './interfaces/DeviationHasherInterface.js';
+import {DeviationHasherMassa} from '../../blockchains/massa/DeviationHasherMassa.js';
 
 @injectable()
 export class DeviationHasher implements DeviationHasherInterface {

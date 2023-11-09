@@ -1,7 +1,7 @@
-import {boot} from './boot';
-import Application from './lib/Application';
-import Server from './lib/Server';
-import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
+import {boot} from './boot.js';
+import Application from './lib/Application.js';
+import Server from './lib/Server.js';
+import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent.js';
 
 (async () => {
   await boot();

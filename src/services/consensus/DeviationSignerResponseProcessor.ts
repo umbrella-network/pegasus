@@ -1,10 +1,10 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ConsensusOptimizer} from '../ConsensusOptimizer';
-import Settings from '../../types/Settings';
-import {DeviationSignerResponse} from '../../types/DeviationFeeds';
-import {VersionChecker} from './VersionChecker';
+import {ConsensusOptimizer} from '../ConsensusOptimizer.js';
+import Settings from '../../types/Settings.js';
+import {DeviationSignerResponse} from '../../types/DeviationFeeds.js';
+import {VersionChecker} from './VersionChecker.js';
 
 @injectable()
 export class DeviationSignerResponseProcessor {

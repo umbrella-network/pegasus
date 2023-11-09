@@ -1,13 +1,13 @@
 import {inject, injectable} from 'inversify';
-import {FeedRepository} from '../repositories/FeedRepository';
-import FeedProcessor from './FeedProcessor';
-import Settings from '../types/Settings';
-import {LeavesAndFeeds} from '../types/Consensus';
-import Leaf from '../types/Leaf';
+import {FeedRepository} from '../repositories/FeedRepository.js';
+import FeedProcessor from './FeedProcessor.js';
+import Settings from '../types/Settings.js';
+import {LeavesAndFeeds} from '../types/Consensus.js';
+import Leaf from '../types/Leaf.js';
 import {Logger} from 'winston';
-import {FeedsType} from '../types/Feed';
-import {DeviationLeavesAndFeeds} from '../types/DeviationFeeds';
-import {IntervalTriggerFilter} from './deviationsFeeds/IntervalTriggerFilter';
+import {FeedsType} from '../types/Feed.js';
+import {DeviationLeavesAndFeeds} from '../types/DeviationFeeds.js';
+import {IntervalTriggerFilter} from './deviationsFeeds/IntervalTriggerFilter.js';
 
 @injectable()
 export class FeedDataService {

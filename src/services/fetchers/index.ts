@@ -1,16 +1,16 @@
-import CryptoComparePriceMultiFetcher from './CryptoComparePriceMultiFetcher';
-import CryptoCompareHistoHourFetcher from './CryptoCompareHistoHourFetcher';
-import CryptoCompareHistoDayFetcher from './CryptoCompareHistoDayFetcher';
-import CryptoComparePriceWSFetcher from './CryptoComparePriceWSFetcher';
-import PolygonIOCryptoPriceFetcher from './PolygonIOCryptoPriceFetcher';
-import PolygonIOStockPriceFetcher from './PolygonIOStockPriceFetcher';
-import YearnVaultTokenPriceFetcher from './YearnVaultTokenPriceFetcher';
-import CoingeckoPriceMultiFetcher from './CoingeckoPriceMultiFetcher';
-import {UniswapPriceFetcher} from './UniswapPriceFetcher';
-import OptionsPriceFetcher from './OptionsPriceFetcher';
-import RandomNumberFetcher from './RandomNumberFetcher';
-import OnChainDataFetcher from './OnChainDataFetcher';
-import EvmTWAPGasPriceFetcher from './EvmTWAPGasPriceFetcher';
+import CryptoComparePriceMultiFetcher from './CryptoComparePriceMultiFetcher.js';
+import CryptoCompareHistoHourFetcher from './CryptoCompareHistoHourFetcher.js';
+import CryptoCompareHistoDayFetcher from './CryptoCompareHistoDayFetcher.js';
+import CryptoComparePriceWSFetcher from './CryptoComparePriceWSFetcher.js';
+import PolygonIOCryptoPriceFetcher from './PolygonIOCryptoPriceFetcher.js';
+import PolygonIOStockPriceFetcher from './PolygonIOStockPriceFetcher.js';
+import YearnVaultTokenPriceFetcher from './YearnVaultTokenPriceFetcher.js';
+import CoingeckoPriceMultiFetcher from './CoingeckoPriceMultiFetcher.js';
+import {UniswapPriceFetcher} from './UniswapPriceFetcher.js';
+import OptionsPriceFetcher from './OptionsPriceFetcher.js';
+import RandomNumberFetcher from './RandomNumberFetcher.js';
+import OnChainDataFetcher from './OnChainDataFetcher.js';
+import EvmTWAPGasPriceFetcher from './EvmTWAPGasPriceFetcher.js';
 
 export {
   CryptoComparePriceMultiFetcher,

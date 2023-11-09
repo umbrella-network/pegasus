@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import {JSONPath} from 'jsonpath-plus';
 
-import Settings from '../../types/Settings';
+import Settings from '../../types/Settings.js';
 
 @injectable()
 class PolygonIOStockSnapshotFetcher {
@@ -32,7 +32,9 @@ class PolygonIOStockSnapshotFetcher {
   private async getSnapshot(tickerBatches: string[]): Promise<SnapshotDataResponse[]> {
     return Promise.all(
       tickerBatches.map(async (tickers: string) => {
-        const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=${tickers}&apiKey=${this.apiKey}`;
+        const sourceUrl =
+          'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers' +
+          `?tickers=${tickers}&apiKey=${this.apiKey}`;
 
         const response = await axios.get(sourceUrl, {
           timeout: this.timeout,

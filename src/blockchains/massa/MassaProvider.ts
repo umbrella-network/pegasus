@@ -2,11 +2,11 @@ import {Client, ClientFactory, EOperationStatus, IEvent, IProvider, ProviderType
 import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
 import {Logger} from 'winston';
 
-import {ProviderInterface} from '../../interfaces/ProviderInterface';
-import {ChainsIds} from '../../types/ChainsIds';
-import {NetworkStatus} from '../../types/Network';
-import logger from '../../lib/logger';
-import {Timeout} from '../../services/tools/Timeout';
+import {ProviderInterface} from '../../interfaces/ProviderInterface.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {NetworkStatus} from '../../types/Network.js';
+import logger from '../../lib/logger.js';
+import {Timeout} from '../../services/tools/Timeout.js';
 
 export class MassaProvider implements ProviderInterface {
   protected logger!: Logger;
@@ -76,9 +76,8 @@ export class MassaProvider implements ProviderInterface {
     return {name: this.chainId, id: 13119191};
   }
 
-  async getTransactionCount(address: string): Promise<number> {
+  async getTransactionCount(): Promise<number> {
     await this.beforeAnyAction();
-
     throw Error(`${this.loggerPrefix} getTransactionCount(): use MassaWallet`);
   }
 
@@ -120,7 +119,7 @@ export class MassaProvider implements ProviderInterface {
     return 0n;
   }
 
-  async call(transaction: {to: string; data: string}): Promise<string> {
+  async call(): Promise<string> {
     await this.beforeAnyAction();
 
     // this is only needed for new chain architecture detection

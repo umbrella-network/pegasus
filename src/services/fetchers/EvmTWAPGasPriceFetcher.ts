@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
-import {ChainsIds} from '../../types/ChainsIds';
-import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository.js';
 
 /*
 PolygonGasPrice-TWAP20:

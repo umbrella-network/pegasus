@@ -1,5 +1,5 @@
-import Leaf from '../types/Leaf';
-import {DeviationFeeds, DeviationFeed, PriceData, PriceDataByKey} from '../types/DeviationFeeds';
+import Leaf from '../types/Leaf.js';
+import {DeviationFeeds, DeviationFeed, PriceData, PriceDataByKey} from '../types/DeviationFeeds.js';
 
 export class PriceDataFactory {
   static create(dataTimestamp: number, leaf: Leaf, feed: DeviationFeed): PriceData {

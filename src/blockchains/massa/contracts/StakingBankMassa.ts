@@ -2,15 +2,15 @@ import {BigNumber} from 'ethers';
 import {Logger} from 'winston';
 import {Args, ArrayTypes, Client} from '@massalabs/massa-web3';
 
-import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory';
-import Blockchain from '../../../lib/Blockchain';
-import {Validator} from '../../../types/Validator';
-import {StakingBankInterface} from '../../../interfaces/StakingBankInterface';
-import {RegistryInterface} from '../../../interfaces/RegistryInterface';
-import {ChainsIds} from '../../../types/ChainsIds';
-import logger from '../../../lib/logger';
-import {MassaProvider} from '../MassaProvider';
-import {ProviderInterface} from '../../../interfaces/ProviderInterface';
+import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
+import Blockchain from '../../../lib/Blockchain.js';
+import {Validator} from '../../../types/Validator.js';
+import {StakingBankInterface} from '../../../interfaces/StakingBankInterface.js';
+import {RegistryInterface} from '../../../interfaces/RegistryInterface.js';
+import {ChainsIds} from '../../../types/ChainsIds.js';
+import logger from '../../../lib/logger.js';
+import {MassaProvider} from '../MassaProvider.js';
+import {ProviderInterface} from '../../../interfaces/ProviderInterface.js';
 
 export class StakingBankMassa implements StakingBankInterface {
   protected logger!: Logger;

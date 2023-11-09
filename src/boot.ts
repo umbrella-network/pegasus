@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import './config/setupDotenv';
+import './config/setupDotenv.js';
 
-import {initMongoDB} from './config/initMongoDB';
-import Migrations from './services/Migrations';
-import ApplicationUpdateService from './services/ApplicationUpdateService';
-import Application from './lib/Application';
+import {initMongoDB} from './config/initMongoDB.js';
+import Migrations from './services/Migrations.js';
+import ApplicationUpdateService from './services/ApplicationUpdateService.js';
+import Application from './lib/Application.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (BigInt.prototype as any).toJSON = function () {
@@ -12,8 +12,7 @@ import Application from './lib/Application';
 };
 
 export async function boot(): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const {default: settings} = await require('./config/settings');
+  const {default: settings} = await import('./config/settings.js');
 
   await initMongoDB(settings);
   await Migrations.apply();

@@ -1,15 +1,17 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 import mongoose from 'mongoose';
 
-import {ChainsIds} from '../../src/types/ChainsIds';
-import {MappingRepository} from '../../src/repositories/MappingRepository';
-import {loadTestEnv} from '../helpers/loadTestEnv';
-import {SubmitSaver} from '../../src/services/SubmitMonitor/SubmitSaver';
-import {SubmitTxChecker} from '../../src/services/SubmitMonitor/SubmitTxChecker';
-import {SubmitTxKeyResolver} from '../../src/services/SubmitMonitor/SubmitTxKeyResolver';
-import {getTestContainer} from '../helpers/getTestContainer';
-import {LastSubmitResolver} from '../../src/services/SubmitMonitor/LastSubmitResolver';
+import {ChainsIds} from '../../src/types/ChainsIds.js';
+import {MappingRepository} from '../../src/repositories/MappingRepository.js';
+import {loadTestEnv} from '../helpers/loadTestEnv.js';
+import {SubmitSaver} from '../../src/services/SubmitMonitor/SubmitSaver.js';
+import {SubmitTxChecker} from '../../src/services/SubmitMonitor/SubmitTxChecker.js';
+import {SubmitTxKeyResolver} from '../../src/services/SubmitMonitor/SubmitTxKeyResolver.js';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+import {LastSubmitResolver} from '../../src/services/SubmitMonitor/LastSubmitResolver.js';
+
+const {expect} = chai;
 
 describe('SubmitTxMonitor', () => {
   let submitSaver: SubmitSaver;

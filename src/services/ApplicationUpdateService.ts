@@ -1,4 +1,4 @@
-import Settings from '../types/Settings';
+import Settings from '../types/Settings.js';
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import path from 'path';

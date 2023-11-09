@@ -1,11 +1,11 @@
 import {injectable} from 'inversify';
 import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
 import {PayableOverrides} from '@ethersproject/contracts';
-import {DeviationDispatcher} from '../DeviationDispatcher';
-import {ChainsIds} from '../../../types/ChainsIds';
-import {UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds';
-import {BlockchainType} from '../../../types/Settings';
-import {FeedContract} from '../../../blockchains/evm/contracts/FeedContract';
+import {DeviationDispatcher} from '../DeviationDispatcher.js';
+import {ChainsIds} from '../../../types/ChainsIds.js';
+import {UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds.js';
+import {BlockchainType} from '../../../types/Settings.js';
+import {FeedContract} from '../../../blockchains/evm/contracts/FeedContract.js';
 
 @injectable()
 export class ArbitrumDeviationDispatcher extends DeviationDispatcher {

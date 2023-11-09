@@ -1,4 +1,4 @@
-import {ChainsIds} from '../../types/ChainsIds';
+import {ChainsIds} from '../../types/ChainsIds.js';
 
 export class BalanceMonitorKeyResolver {
   static apply(chainId: ChainsIds, wallet: string): string {

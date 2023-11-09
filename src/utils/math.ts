@@ -1,6 +1,6 @@
 import {BigNumber} from 'ethers';
 import {LeafValueCoder} from '@umb-network/toolbox';
-import {FeedValue} from '../types/Feed';
+import {FeedValue} from '../types/Feed.js';
 
 const calcFixedDiscrepancy = (val1: string, val2: string): number => {
   const val1bn = BigNumber.from(val1);

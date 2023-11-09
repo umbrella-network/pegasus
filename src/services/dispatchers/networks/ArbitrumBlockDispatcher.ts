@@ -2,10 +2,10 @@ import {injectable} from 'inversify';
 import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
 import {PayableOverrides} from '@ethersproject/contracts';
 
-import {BlockDispatcher} from '../BlockDispatcher';
-import {ChainsIds} from '../../../types/ChainsIds';
-import {ChainSubmitArgs} from '../../../types/ChainSubmit';
-import {BlockchainType} from '../../../types/Settings';
+import {BlockDispatcher} from '../BlockDispatcher.js';
+import {ChainsIds} from '../../../types/ChainsIds.js';
+import {ChainSubmitArgs} from '../../../types/ChainSubmit.js';
+import {BlockchainType} from '../../../types/Settings.js';
 
 @injectable()
 export class ArbitrumBlockDispatcher extends BlockDispatcher {

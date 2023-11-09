@@ -1,4 +1,4 @@
-import {ChainsIds} from './ChainsIds';
+import {ChainsIds} from './ChainsIds.js';
 
 export interface BlockchainGas {
   chainId: ChainsIds;

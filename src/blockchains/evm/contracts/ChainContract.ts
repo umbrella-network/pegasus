@@ -3,18 +3,24 @@ import {TransactionResponse} from '@ethersproject/providers';
 import {ContractRegistry} from '@umb-network/toolbox';
 import {PayableOverrides} from '@ethersproject/contracts';
 import {Logger} from 'winston';
+import {readFileSync} from 'fs';
+import {fileURLToPath} from 'url';
+import path from 'path';
 
-import chainAbi from './Chain.abi.json';
-import Settings from '../../../types/Settings';
-import Blockchain from '../../../lib/Blockchain';
-import {ChainStatus} from '../../../types/ChainStatus';
-import {Validator} from '../../../types/Validator';
-import {ChainSubmitArgs} from '../../../types/ChainSubmit';
-import {ChainsIds, NonEvmChainsIds} from '../../../types/ChainsIds';
-import {ExecutedTx} from '../../../types/Consensus';
-import logger from '../../../lib/logger';
+import Settings from '../../../types/Settings.js';
+import Blockchain from '../../../lib/Blockchain.js';
+import {ChainStatus} from '../../../types/ChainStatus.js';
+import {Validator} from '../../../types/Validator.js';
+import {ChainSubmitArgs} from '../../../types/ChainSubmit.js';
+import {ChainsIds, NonEvmChainsIds} from '../../../types/ChainsIds.js';
+import {ExecutedTx} from '../../../types/Consensus.js';
+import logger from '../../../lib/logger.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class ChainContract {
+  protected chainAbi!: never;
   protected logger!: Logger;
   protected loggerPrefix!: string;
   readonly settings!: Settings;
@@ -30,6 +36,8 @@ class ChainContract {
     if (NonEvmChainsIds.includes(this.blockchain.chainId as ChainsIds)) {
       throw new Error(`[ChainContract] ${this.blockchain.chainId} not supported`);
     }
+
+    this.chainAbi = JSON.parse(readFileSync(__dirname + '/Chain.abi.json', 'utf-8')) as never;
   }
 
   async address(): Promise<string> {
@@ -94,9 +102,9 @@ class ChainContract {
       }
 
       const chainAddress = await this.registry.getAddress(this.settings.blockchain.contracts.chain.name);
-      return new Contract(chainAddress, chainAbi, this.blockchain.provider.getRawProvider());
-    } catch (e) {
-      this.logger.error(`${this.loggerPrefix} ChainContract resolveContract error: ${e.message}`);
+      return new Contract(chainAddress, this.chainAbi, this.blockchain.provider.getRawProvider());
+    } catch (e: unknown) {
+      this.logger.error(`${this.loggerPrefix} ChainContract resolveContract error: ${(e as Error).message}`);
       return;
     }
   };

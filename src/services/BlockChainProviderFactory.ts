@@ -1,5 +1,5 @@
 import {inject, injectable} from 'inversify';
-import Settings from '../types/Settings';
+import Settings from '../types/Settings.js';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 
 @injectable()

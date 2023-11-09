@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import Settings from '../types/Settings';
-import {ChainsIds} from '../types/ChainsIds';
-import {BlockchainRepository} from './BlockchainRepository';
-import {StakingBankContract} from '../blockchains/evm/contracts/StakingBankContract';
-import {StakingBankInterface} from '../interfaces/StakingBankInterface';
-import {StakingBankContractFactory} from '../factories/contracts/StakingBankContractFactory';
+import Settings from '../types/Settings.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {BlockchainRepository} from './BlockchainRepository.js';
+import {StakingBankContract} from '../blockchains/evm/contracts/StakingBankContract.js';
+import {StakingBankInterface} from '../interfaces/StakingBankInterface.js';
+import {StakingBankContractFactory} from '../factories/contracts/StakingBankContractFactory.js';
 
 export type BankContractCollection = {
   [key: string]: StakingBankInterface | undefined;
@@ -31,9 +31,9 @@ export class StakingBankContractRepository {
           blockchain.provider && blockchain.getContractRegistryAddress()
             ? StakingBankContractFactory.create(blockchain)
             : undefined;
-      } catch (e) {
+      } catch (e: unknown) {
         this.collection[chainId] = undefined;
-        logger.error(`[${chainId}] ${e.message}`);
+        logger.error(`[${chainId}] ${(e as Error).message}`);
       }
     });
   }

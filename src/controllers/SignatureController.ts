@@ -1,11 +1,11 @@
 import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
 
-import {SignedBlock} from '../types/SignedBlock';
-import BlockSigner from '../services/BlockSigner';
-import {DeviationVerifier} from '../services/deviationsFeeds/DeviationVerifier';
-import {DeviationDataToSign} from '../types/DeviationFeeds';
-import {RequestBodyToDataToSign} from '../services/tools/RequestBodyToDataToSign';
+import {SignedBlock} from '../types/SignedBlock.js';
+import BlockSigner from '../services/BlockSigner.js';
+import {DeviationVerifier} from '../services/deviationsFeeds/DeviationVerifier.js';
+import {DeviationDataToSign} from '../types/DeviationFeeds.js';
+import {RequestBodyToDataToSign} from '../services/tools/RequestBodyToDataToSign.js';
 
 @injectable()
 class SignatureController {
@@ -29,9 +29,9 @@ class SignatureController {
 
     try {
       response.send(await this.blockSigner.apply(block));
-    } catch (err) {
+    } catch (e: unknown) {
       response.status(400);
-      response.json({error: err.message});
+      response.json({error: (e as Error).message});
     }
   };
 
@@ -40,9 +40,9 @@ class SignatureController {
 
     try {
       response.send(await this.deviationVerifier.apply(toSign));
-    } catch (err) {
+    } catch (e: unknown) {
       response.status(400);
-      response.json({error: err.message});
+      response.json({error: (e as Error).message});
     }
   };
 }

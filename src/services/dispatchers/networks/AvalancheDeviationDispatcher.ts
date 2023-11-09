@@ -1,9 +1,9 @@
 import {injectable} from 'inversify';
 import {PayableOverrides} from '@ethersproject/contracts';
 
-import {ChainsIds} from '../../../types/ChainsIds';
-import {DeviationDispatcher} from '../DeviationDispatcher';
-import {BlockchainType} from '../../../types/Settings';
+import {ChainsIds} from '../../../types/ChainsIds.js';
+import {DeviationDispatcher} from '../DeviationDispatcher.js';
+import {BlockchainType} from '../../../types/Settings.js';
 
 @injectable()
 export class AvalancheDeviationDispatcher extends DeviationDispatcher {

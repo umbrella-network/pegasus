@@ -1,10 +1,10 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import Settings, {BlockchainType} from '../types/Settings';
-import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
-import ChainContract from '../blockchains/evm/contracts/ChainContract';
-import {BlockchainRepository} from './BlockchainRepository';
+import Settings, {BlockchainType} from '../types/Settings.js';
+import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds.js';
+import ChainContract from '../blockchains/evm/contracts/ChainContract.js';
+import {BlockchainRepository} from './BlockchainRepository.js';
 
 export type ChainContractCollection = {
   [key: string]: ChainContract | undefined;
@@ -35,9 +35,9 @@ export class ChainContractRepository {
           blockchain.provider && blockchain.getContractRegistryAddress()
             ? new ChainContract(settings, blockchain)
             : undefined;
-      } catch (e) {
+      } catch (e: unknown) {
         this.collection[chainId] = undefined;
-        logger.error(`[${chainId}] ${e.message}`);
+        logger.error(`[${chainId}] ${(e as Error).message}`);
       }
     });
   }

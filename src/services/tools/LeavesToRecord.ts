@@ -1,4 +1,4 @@
-import Leaf from '../../types/Leaf';
+import Leaf from '../../types/Leaf.js';
 
 export class LeavesToRecord {
   static apply(leaves: Leaf[]): Record<string, Leaf> {

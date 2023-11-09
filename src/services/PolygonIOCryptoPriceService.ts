@@ -2,12 +2,12 @@ import {inject, injectable} from 'inversify';
 import schedule, {Job} from 'node-schedule';
 import {Logger} from 'winston';
 
-import PriceAggregator from './PriceAggregator';
-import Settings from '../types/Settings';
-import TimeService from './TimeService';
-import PolygonIOCryptoSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOCryptoSnapshotFetcher';
-import PolygonIOSingleCryptoPriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSingleCryptoPriceFetcher';
-import {Pair} from '../types/Feed';
+import PriceAggregator from './PriceAggregator.js';
+import Settings from '../types/Settings.js';
+import TimeService from './TimeService.js';
+import PolygonIOCryptoSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOCryptoSnapshotFetcher.js';
+import PolygonIOSingleCryptoPriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSingleCryptoPriceFetcher.js';
+import {Pair} from '../types/Feed.js';
 
 @injectable()
 class PolygonIOCryptoPriceService {

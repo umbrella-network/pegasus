@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
 import schedule, {Job} from 'node-schedule';
 
-import WSClient from './WSClient';
-import Settings from '../../types/Settings';
-import {Pair, PairWithFreshness} from '../../types/Feed';
-import PriceAggregator from '../PriceAggregator';
-import TimeService from '../TimeService';
-import Timeout from '../../utils/timeout';
+import WSClient from './WSClient.js';
+import Settings from '../../types/Settings.js';
+import {Pair, PairWithFreshness} from '../../types/Feed.js';
+import PriceAggregator from '../PriceAggregator.js';
+import TimeService from '../TimeService.js';
+import Timeout from '../../utils/timeout.js';
 
 @injectable()
 class CryptoCompareWSClient extends WSClient {

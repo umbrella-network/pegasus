@@ -1,20 +1,17 @@
-import {Account, Address} from '@multiversx/sdk-core';
+import {Account, Address, TransactionWatcher} from '@multiversx/sdk-core';
 import {ApiNetworkProvider} from '@multiversx/sdk-network-providers';
 import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
-import {TransactionWatcher} from '@multiversx/sdk-core/out';
 import {Logger} from 'winston';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 
-import {ProviderInterface} from '../../interfaces/ProviderInterface';
-import {ChainsIds} from '../../types/ChainsIds';
-import {NetworkStatus} from '../../types/Network';
-import {sleep} from '../../utils/sleep';
-import Settings from '../../types/Settings';
-import {Timeout} from '../../services/tools/Timeout';
-import logger from '../../lib/logger';
-import settings from '../../config/settings';
-import {generateChainId} from '../generateChainId';
+import {ProviderInterface} from '../../interfaces/ProviderInterface.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {NetworkStatus} from '../../types/Network.js';
+import Settings from '../../types/Settings.js';
+import {Timeout} from '../../services/tools/Timeout.js';
+import logger from '../../lib/logger.js';
+import settings from '../../config/settings.js';
 
 export class MultiversXProvider implements ProviderInterface {
   protected logger!: Logger;
@@ -178,7 +175,7 @@ export class MultiversXProvider implements ProviderInterface {
     return 0n;
   }
 
-  async call(transaction: {to: string; data: string}): Promise<string> {
+  async call(): Promise<string> {
     // this is only needed for new chain architecture detection
     // once we create new chain for solana, we will need to implement this method
     throw new Error(`${this.loggerPrefix} .call not supported yet`);

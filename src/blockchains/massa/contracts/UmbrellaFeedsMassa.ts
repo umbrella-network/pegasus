@@ -2,24 +2,24 @@ import {Logger} from 'winston';
 
 import {Args, ArrayTypes, Client, ClientFactory, IProvider, ProviderType} from '@massalabs/massa-web3';
 
-import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory';
-import Blockchain from '../../../lib/Blockchain';
-import {RegistryInterface} from '../../../interfaces/RegistryInterface';
-import {UmbrellaFeedInterface} from '../../../interfaces/UmbrellaFeedInterface';
-import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds';
+import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
+import Blockchain from '../../../lib/Blockchain.js';
+import {RegistryInterface} from '../../../interfaces/RegistryInterface.js';
+import {UmbrellaFeedInterface} from '../../../interfaces/UmbrellaFeedInterface.js';
+import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds.js';
 
-import {ExecutedTx} from '../../../types/Consensus';
-import logger from '../../../lib/logger';
-import {ChainsIds} from '../../../types/ChainsIds';
+import {ExecutedTx} from '../../../types/Consensus.js';
+import logger from '../../../lib/logger.js';
+import {ChainsIds} from '../../../types/ChainsIds.js';
 import {ethers} from 'ethers';
-import {MassaWBytesSerializer} from '../utils/MassaWBytesSerializer';
-import {MassaPriceDataSerializer} from '../utils/MassaPriceDataSerializer';
-import {MassaAddress} from '../utils/MassaAddress';
-import {MassaProvider} from '../MassaProvider';
-import {ProviderInterface} from '../../../interfaces/ProviderInterface';
-import {MassaWallet} from '../MassaWallet';
+import {MassaWBytesSerializer} from '../utils/MassaWBytesSerializer.js';
+import {MassaPriceDataSerializer} from '../utils/MassaPriceDataSerializer.js';
+import {MassaAddress} from '../utils/MassaAddress.js';
+import {MassaProvider} from '../MassaProvider.js';
+import {ProviderInterface} from '../../../interfaces/ProviderInterface.js';
+import {MassaWallet} from '../MassaWallet.js';
 import {IContractReadOperationResponse} from '@massalabs/web3-utils/dist/esm/interfaces/IContractReadOperationResponse';
-import {MassaEstimatedGas} from '../massaTypes';
+import {MassaEstimatedGas} from '../massaTypes.js';
 
 export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   protected logger!: Logger;
@@ -145,8 +145,8 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
       } else {
         this.logger.error(`${this.loggerPrefix} Failed to get storage cost: no event`);
       }
-    } catch (err) {
-      this.logger.error(`${this.loggerPrefix} Failed to get dynamic gas cost for update: ${err.message}`);
+    } catch (e: unknown) {
+      this.logger.error(`${this.loggerPrefix} Failed to get dynamic gas cost for update: ${(e as Error).message}`);
     }
 
     return {

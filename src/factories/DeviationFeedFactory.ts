@@ -1,5 +1,5 @@
-import {Feed} from '../types/Feed';
-import {DeviationFeed} from '../types/DeviationFeeds';
+import {Feed} from '../types/Feed.js';
+import {DeviationFeed} from '../types/DeviationFeeds.js';
 
 export class DeviationFeedFactory {
   static create(feedKey: string, feed: Feed): DeviationFeed {

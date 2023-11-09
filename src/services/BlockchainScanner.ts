@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
-import {BlockchainMarker} from '../models/BlockchainMarker';
+import {BlockchainMarker} from '../models/BlockchainMarker.js';
 import {Logger} from 'winston';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 

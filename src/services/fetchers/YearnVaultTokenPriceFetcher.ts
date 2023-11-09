@@ -1,18 +1,29 @@
 import {inject, injectable} from 'inversify';
+import {readFileSync} from 'fs';
 import {BigNumber, ethers} from 'ethers';
 import {BaseProvider} from '@ethersproject/providers';
+import {fileURLToPath} from 'url';
+import path from 'path';
 
-import BlockChainProviderFactory from '../BlockChainProviderFactory';
+import BlockChainProviderFactory from '../BlockChainProviderFactory.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {ProviderRepository} from '../../repositories/ProviderRepository.js';
 
-import YearnVaultExplorer from './YearnVaultExplorer.json';
-import {ChainsIds} from '../../types/ChainsIds';
-import {ProviderRepository} from '../../repositories/ProviderRepository';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 @injectable()
 class YearnVaultTokenPriceFetcher {
   @inject(BlockChainProviderFactory) blockChainProviderFactory!: BlockChainProviderFactory;
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
+  protected yearnAbi!: string;
+
+  constructor() {
+    this.yearnAbi = readFileSync(__dirname + '/YearnVaultExplorer.json', 'utf-8');
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async apply(params: any): Promise<any> {
     const {network, address} = params;
 
@@ -20,7 +31,7 @@ class YearnVaultTokenPriceFetcher {
       ? this.blockChainProviderFactory.apply(network)
       : this.providerRepository.get(ChainsIds.ETH).getRawProvider<BaseProvider>();
 
-    const contract = new ethers.Contract(address, YearnVaultExplorer, provider);
+    const contract = new ethers.Contract(address, this.yearnAbi, provider);
 
     const {tokens, vaults} = await contract.exploreByTokenIndex(0, 10000);
 

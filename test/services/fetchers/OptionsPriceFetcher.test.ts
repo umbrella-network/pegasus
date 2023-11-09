@@ -1,16 +1,17 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
 import {Container} from 'inversify';
-import {expect} from 'chai';
-import moxios from 'moxios';
 import chai from 'chai';
+import moxios from 'moxios';
 import chaiAsPromised from 'chai-as-promised';
 
-import Settings from '../../../src/types/Settings';
-import OptionsPriceFetcher from '../../../src/services/fetchers/OptionsPriceFetcher';
-import {mockedLogger} from '../../mocks/logger';
+import Settings from '../../../src/types/Settings.js';
+import OptionsPriceFetcher from '../../../src/services/fetchers/OptionsPriceFetcher.js';
+import {mockedLogger} from '../../mocks/logger.js';
 
 chai.use(chaiAsPromised);
+
+const {expect} = chai;
 
 describe('OptionsPriceFetcher', () => {
   let settings: Settings;

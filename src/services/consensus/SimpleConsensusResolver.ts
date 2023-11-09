@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import Settings from '../../types/Settings';
-import {BlockSignerResponseWithPower} from '../../types/BlockSignerResponse';
-import {VersionChecker} from './VersionChecker';
-import {ValidatorsResponses} from '../../types/ValidatorsResponses';
+import Settings from '../../types/Settings.js';
+import {BlockSignerResponseWithPower} from '../../types/BlockSignerResponse.js';
+import {VersionChecker} from './VersionChecker.js';
+import {ValidatorsResponses} from '../../types/ValidatorsResponses.js';
 import {BigNumber} from 'ethers';
 
 @injectable()

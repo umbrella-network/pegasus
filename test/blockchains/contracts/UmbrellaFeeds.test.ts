@@ -1,28 +1,41 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 import {ethers} from 'ethers';
 
-import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository';
-import settings from '../../../src/config/settings';
-import {loadTestEnv} from '../../helpers/loadTestEnv';
-import {ChainsIds} from '../../../src/types/ChainsIds';
-import {UmbrellaFeedsContractFactory} from '../../../src/factories/contracts/UmbrellaFeedsContractFactory';
-import {UmbrellaFeedInterface} from '../../../src/interfaces/UmbrellaFeedInterface';
-import {PriceData} from '../../../src/types/DeviationFeeds';
-import {DeviationHasher} from '../../../src/services/deviationsFeeds/DeviationHasher';
-import {DeviationSignerRepository} from '../../../src/repositories/DeviationSignerRepository';
+import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository.js';
+import settings from '../../../src/config/settings.js';
+import {loadTestEnv} from '../../helpers/loadTestEnv.js';
+import {ChainsIds} from '../../../src/types/ChainsIds.js';
+import {UmbrellaFeedsContractFactory} from '../../../src/factories/contracts/UmbrellaFeedsContractFactory.js';
+import {UmbrellaFeedInterface} from '../../../src/interfaces/UmbrellaFeedInterface.js';
+import {PriceData} from '../../../src/types/DeviationFeeds.js';
+import {DeviationHasher} from '../../../src/services/deviationsFeeds/DeviationHasher.js';
+import {DeviationSignerRepository} from '../../../src/repositories/DeviationSignerRepository.js';
+import {mockedLogger} from '../../mocks/logger.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
+import {DeviationSignerInterface} from '../../../src/services/deviationsFeeds/interfaces/DeviationSignerInterface';
+
+const {expect} = chai;
 
 describe.skip('Umbrella Feeds debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
+  let deviationSignerRepository: DeviationSignerRepository;
 
   before(() => {
     loadTestEnv();
+
+    const container = getTestContainer();
+    container.rebind('Logger').toConstantValue(mockedLogger);
     blockchainRepo = new BlockchainRepository(settings);
+
+    container.bind(DeviationSignerRepository).toSelf();
+
+    deviationSignerRepository = container.get(DeviationSignerRepository);
   });
 
   [
     // ChainsIds.AVALANCHE,
-    ChainsIds.MASSA,
+    ChainsIds.MULTIVERSX,
   ].forEach((chainId) => {
     describe(`[${chainId}] on-chain feeds tests`, () => {
       let umbrellaFeeds: UmbrellaFeedInterface;
@@ -56,7 +69,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         expect(await umbrellaFeeds.requiredSignatures()).eq(2);
       });
 
-      it('#getManyPriceDataRaw empty array', async () => {
+      it.skip('#getManyPriceDataRaw empty array', async () => {
         const priceDatas = await umbrellaFeeds.getManyPriceDataRaw([]);
         expect(priceDatas).not.undefined;
         expect(priceDatas?.length).eq(0);
@@ -148,12 +161,13 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
 
       describe('#signData', async () => {
         const hasher = new DeviationHasher();
-        const signer = new DeviationSignerRepository(settings).get(chainId);
+        let signer: DeviationSignerInterface;
         let networkId: number;
         let target: string;
 
         beforeEach(async () => {
           [networkId, target] = await Promise.all([blockchainRepo.get(chainId).networkId(), umbrellaFeeds.address()]);
+          signer = deviationSignerRepository.get(chainId);
         });
 
         it.skip('sign one PriceData', async () => {

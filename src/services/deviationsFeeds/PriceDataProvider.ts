@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {KeysPerChain, PriceDataWithKey, PriceDataPerChain} from '../../types/DeviationFeeds';
-import {ChainsIds} from '../../types/ChainsIds';
-import {FeedsContractRepository} from '../../repositories/FeedsContractRepository';
+import {KeysPerChain, PriceDataWithKey, PriceDataPerChain} from '../../types/DeviationFeeds.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {FeedsContractRepository} from '../../repositories/FeedsContractRepository.js';
 
 @injectable()
 export class PriceDataProvider {

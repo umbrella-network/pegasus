@@ -1,14 +1,14 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
-import Settings from '../../types/Settings';
-import {Validator} from '../../types/Validator';
-import {DeviationDataToSign} from '../../types/DeviationFeeds';
-import {DeviationSignatureCollector} from './DeviationSignatureCollector';
-import {DeviationDataToSignFilter} from './DeviationDataToSignFilter';
-import {DeviationSignerResponseProcessor} from '../consensus/DeviationSignerResponseProcessor';
-import {DeviationConsensusFactory} from '../../factories/DeviationConsensusFactory';
-import {DeviationConsensus} from '../../models/DeviationConsensus';
+import Settings from '../../types/Settings.js';
+import {Validator} from '../../types/Validator.js';
+import {DeviationDataToSign} from '../../types/DeviationFeeds.js';
+import {DeviationSignatureCollector} from './DeviationSignatureCollector.js';
+import {DeviationDataToSignFilter} from './DeviationDataToSignFilter.js';
+import {DeviationSignerResponseProcessor} from '../consensus/DeviationSignerResponseProcessor.js';
+import {DeviationConsensusFactory} from '../../factories/DeviationConsensusFactory.js';
+import {DeviationConsensus} from '../../models/DeviationConsensus.js';
 
 @injectable()
 export class DeviationConsensusRunner {
@@ -49,8 +49,9 @@ export class DeviationConsensusRunner {
 
       if (i < maxRetries && discrepantKeys.size > 0) {
         this.logger.info(
-          `[DCR] Dumping discrepancy data (${discrepantCount}): ${Array.from(discrepantKeys).join(', ')}`,
+          `[DCR] Dumping discrepancy data (${discrepantCount}): ` + `${Array.from(discrepantKeys).join(', ')}`,
         );
+
         dataForConsensus = DeviationDataToSignFilter.apply(dataForConsensus, discrepantKeys);
       }
     }

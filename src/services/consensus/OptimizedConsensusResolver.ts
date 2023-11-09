@@ -1,11 +1,11 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import {BigNumber} from 'ethers';
-import {ConsensusOptimizer, ConsensusOptimizerProps} from '../ConsensusOptimizer';
-import Settings from '../../types/Settings';
-import {VersionChecker} from './VersionChecker';
-import {BlockSignerResponseWithPower} from '../../types/BlockSignerResponse';
-import {ValidatorsResponses} from '../../types/ValidatorsResponses';
+import {ConsensusOptimizer, ConsensusOptimizerProps} from '../ConsensusOptimizer.js';
+import Settings from '../../types/Settings.js';
+import {VersionChecker} from './VersionChecker.js';
+import {BlockSignerResponseWithPower} from '../../types/BlockSignerResponse.js';
+import {ValidatorsResponses} from '../../types/ValidatorsResponses.js';
 
 @injectable()
 export class OptimizedConsensusResolver {
@@ -35,6 +35,7 @@ export class OptimizedConsensusResolver {
         this.logger.info(
           `[OptimizedConsensusResolver] Adding ${response.validator} with signature: ${response.signature}.`,
         );
+
         signatures.push(response.signature);
         powers = powers.add(response.power);
       }
@@ -46,7 +47,7 @@ export class OptimizedConsensusResolver {
 
       if (response.error) {
         this.logger.info(
-          `[OptimizedConsensusResolver] ${response.validator} - the response contains an error: ${response.error}`,
+          `[OptimizedConsensusResolver] ${response.validator} - ` + `the response contains an error: ${response.error}`,
         );
         this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
       }

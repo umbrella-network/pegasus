@@ -1,8 +1,8 @@
 import {injectable} from 'inversify';
-import Feeds from '../types/Feed';
+import Feeds from '../types/Feed.js';
 import {Validator, ValidatorResult} from 'jsonschema';
-import FeedsSchema from '../config/feeds-schema';
-import {load} from 'js-yaml';
+import FeedsSchema from '../config/feeds-schema.js';
+import jsYaml from 'js-yaml';
 
 @injectable()
 export class FeedFactory {
@@ -14,7 +14,7 @@ export class FeedFactory {
 
   // TODO: add Uniswap support in the future
   createCollectionFromYaml(data: string): Feeds {
-    const feeds = load(data) as Feeds;
+    const feeds = jsYaml.load(data) as Feeds;
     const validation = this.validate(feeds);
     if (!validation.valid) throw new Error(`Invalid YAML ${JSON.stringify(validation.errors)}`);
 

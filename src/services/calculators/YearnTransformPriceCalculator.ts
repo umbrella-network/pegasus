@@ -1,12 +1,13 @@
 import {injectable} from 'inversify';
 import {BigNumber} from 'ethers';
 
-import {FeedOutput} from '../../types/Feed';
-import {Vault} from '../fetchers/YearnVaultTokenPriceFetcher';
-import PriceConverter from '../PriceConverter';
+import {FeedOutput} from '../../types/Feed.js';
+import {Vault} from '../fetchers/YearnVaultTokenPriceFetcher.js';
+import PriceConverter from '../PriceConverter.js';
 
 @injectable()
 class YearnTransformPriceCalculator {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apply(key: string, vaults: Vault[], params: any, prices: {[key: string]: number}): FeedOutput[] {
     const {tsym} = params;
 

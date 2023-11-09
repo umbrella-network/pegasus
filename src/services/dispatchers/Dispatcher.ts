@@ -4,14 +4,13 @@ import {BigNumber} from 'ethers';
 import {PayableOverrides} from '@ethersproject/contracts';
 import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
 
-import Settings, {BlockchainType} from '../../types/Settings';
-import {BlockchainRepository} from '../../repositories/BlockchainRepository';
-import {ChainsIds} from '../../types/ChainsIds';
-import {parseEther} from 'ethers/lib/utils';
-import {BalanceMonitorSaver} from '../balanceMonitor/BalanceMonitorSaver';
-import {IWallet} from '../../interfaces/IWallet';
-import {ExecutedTx, TxHash} from '../../types/Consensus';
-import Blockchain from '../../lib/Blockchain';
+import Settings, {BlockchainType} from '../../types/Settings.js';
+import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {BalanceMonitorSaver} from '../balanceMonitor/BalanceMonitorSaver.js';
+import {IWallet} from '../../interfaces/IWallet.js';
+import {ExecutedTx, TxHash} from '../../types/Consensus.js';
+import Blockchain from '../../lib/Blockchain.js';
 
 export abstract class Dispatcher {
   @inject('Logger') protected logger!: Logger;

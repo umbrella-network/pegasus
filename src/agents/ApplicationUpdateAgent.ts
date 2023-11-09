@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 
-import {LoopAgent} from './LoopAgent';
-import ApplicationUpdateService from '../services/ApplicationUpdateService';
-import Settings from '../types/Settings';
+import {LoopAgent} from './LoopAgent.js';
+import ApplicationUpdateService from '../services/ApplicationUpdateService.js';
+import Settings from '../types/Settings.js';
 
 @injectable()
 export class ApplicationUpdateAgent extends LoopAgent {

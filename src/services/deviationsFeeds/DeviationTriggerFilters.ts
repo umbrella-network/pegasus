@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import Leaf from '../../types/Leaf';
+import Leaf from '../../types/Leaf.js';
 import {
   DeviationFeed,
   PriceDataByKey,
@@ -11,14 +11,14 @@ import {
   DeviationFeeds,
   FilterResult,
   FilterResultWithKey,
-} from '../../types/DeviationFeeds';
-import {PriceTriggerFilter} from './PriceTriggerFilter';
-import {HeartbeatTriggerFilter} from './HeartbeatTriggerFilter';
-import {LeavesToRecord} from '../tools/LeavesToRecord';
-import {DeviationFeedsPerChainSplitter} from './DeviationFeedsPerChainSplitter';
-import {DeviationDataToSignFactory} from '../../factories/DeviationDataToSignFactory';
-import {DeviationTriggerConsensusRepository} from '../../repositories/DeviationTriggerConsensusRepository';
-import {DataFilter} from '../tools/DataFilter';
+} from '../../types/DeviationFeeds.js';
+import {PriceTriggerFilter} from './PriceTriggerFilter.js';
+import {HeartbeatTriggerFilter} from './HeartbeatTriggerFilter.js';
+import {LeavesToRecord} from '../tools/LeavesToRecord.js';
+import {DeviationFeedsPerChainSplitter} from './DeviationFeedsPerChainSplitter.js';
+import {DeviationDataToSignFactory} from '../../factories/DeviationDataToSignFactory.js';
+import {DeviationTriggerConsensusRepository} from '../../repositories/DeviationTriggerConsensusRepository.js';
+import {DataFilter} from '../tools/DataFilter.js';
 
 @injectable()
 export class DeviationTriggerFilters {

@@ -25,14 +25,15 @@ jobs:
       - name: install node
         uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 18
 
       # Runs a set of commands using the runners shell
       - name: npm install
         run: npm install
-      
-      - name: run lint
-        run: npm run lint
+
+      # dsabling because has conflicts with prettier, and prettier is better
+      # - name: run lint
+      #  run: npm run lint
 
       - name: run prettier
         run: npm run prettier

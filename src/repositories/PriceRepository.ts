@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
-import Settings from '../types/Settings';
+import Settings from '../types/Settings.js';
 
-import PriceAggregator from '../services/PriceAggregator';
-import {Pair, PairWithFreshness} from '../types/Feed';
+import PriceAggregator from '../services/PriceAggregator.js';
+import {Pair, PairWithFreshness} from '../types/Feed.js';
 
 @injectable()
 class PriceRepository {

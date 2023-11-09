@@ -21,25 +21,31 @@ import {
 } from '@multiversx/sdk-core';
 import {ApiNetworkProvider} from '@multiversx/sdk-network-providers';
 
-import {VariadicValue} from '@multiversx/sdk-core/out/smartcontracts/typesystem/variadic';
 import {ContractQueryResponse} from '@multiversx/sdk-network-providers/out/contractQueryResponse';
-import {TypedValue} from '@multiversx/sdk-core/out/smartcontracts/typesystem';
-import {UserSigner} from '@multiversx/sdk-wallet/out';
-import {Signature} from '@multiversx/sdk-core/out/signature';
+import {TypedValue, VariadicValue} from '@multiversx/sdk-core/out/smartcontracts/typesystem/index.js';
+import {UserSigner} from '@multiversx/sdk-wallet/';
+import {Signature} from '@multiversx/sdk-core/out/signature.js';
+import {readFileSync} from 'fs';
+import {fileURLToPath} from 'url';
+import path from 'path';
 
-import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory';
-import Blockchain from '../../../lib/Blockchain';
-import {RegistryInterface} from '../../../interfaces/RegistryInterface';
-import umbrellaFeedsAbi from './umbrella-feeds.abi.json';
-import {UmbrellaFeedInterface} from '../../../interfaces/UmbrellaFeedInterface';
-import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds';
+import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
+import Blockchain from '../../../lib/Blockchain.js';
+import {RegistryInterface} from '../../../interfaces/RegistryInterface.js';
+import {UmbrellaFeedInterface} from '../../../interfaces/UmbrellaFeedInterface.js';
+import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds.js';
 
-import {MultiversXAddress} from '../utils/MultiversXAddress';
-import {ExecutedTx} from '../../../types/Consensus';
-import logger from '../../../lib/logger';
-import {MultiversXProvider} from '../MultiversXProvider';
+import {MultiversXAddress} from '../utils/MultiversXAddress.js';
+import {ExecutedTx} from '../../../types/Consensus.js';
+import logger from '../../../lib/logger.js';
+import {MultiversXProvider} from '../MultiversXProvider.js';
+import {MultiversXAbi} from '../types';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
+  protected umbrellaFeedsAbi!: MultiversXAbi;
   protected logger!: Logger;
   protected loggerPrefix!: string;
   readonly umbrellaFeedsName!: string;
@@ -51,6 +57,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     this.umbrellaFeedsName = umbrellaFeedsName;
     this.blockchain = blockchain;
     this.loggerPrefix = `[${this.blockchain.chainId}][UmbrellaFeedsMultiversX]`;
+    this.umbrellaFeedsAbi = JSON.parse(readFileSync(__dirname + '/umbrella-feeds.abi.json', 'utf-8'));
   }
 
   resolveAddress(): Promise<string> {
@@ -88,9 +95,10 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
         'getManyPriceDataRaw',
         keys.map((k) => new BytesValue(this.bufferFromString(k))),
       );
+
       if (!response) return;
 
-      const endpointDefinition = AbiRegistry.create(umbrellaFeedsAbi).getEndpoint('getManyPriceDataRaw');
+      const endpointDefinition = AbiRegistry.create(this.umbrellaFeedsAbi).getEndpoint('getManyPriceDataRaw');
       const parsedResponse = new ResultsParser().parseQueryResponse(response, endpointDefinition);
 
       const items = (parsedResponse.values as VariadicValue[])[0].getItems() as Struct[];
@@ -107,8 +115,8 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
           key: keys[i],
         };
       });
-    } catch (e) {
-      this.logger.error(`${this.loggerPrefix} getManyPriceDataRaw error: ${e.message}`);
+    } catch (e: unknown) {
+      this.logger.error(`${this.loggerPrefix} getManyPriceDataRaw error: ${(e as Error).message}`);
       return;
     }
   }
@@ -206,9 +214,13 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
       }
 
       const umbrellaFeedsAddress = await this.registry.getAddress(this.umbrellaFeedsName);
-      return new SmartContract({address: new Address(umbrellaFeedsAddress), abi: AbiRegistry.create(umbrellaFeedsAbi)});
-    } catch (e) {
-      this.logger.error(`${this.loggerPrefix} resolveContract error: ${e.message}`);
+
+      return new SmartContract({
+        address: new Address(umbrellaFeedsAddress),
+        abi: AbiRegistry.create(this.umbrellaFeedsAbi),
+      });
+    } catch (e: unknown) {
+      this.logger.error(`${this.loggerPrefix} resolveContract error: ${(e as Error).message}`);
       return;
     }
   };
@@ -252,6 +264,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
       VariadicValue.fromItemsCounted(
         ...this.sortSignatures(args.signatures).map((s) => {
           const [publicAddress, signature] = s.split('@');
+
           return new BytesValue(
             Buffer.concat([MultiversXAddress.toBuffer(publicAddress), this.bufferFromString(signature)]),
           );

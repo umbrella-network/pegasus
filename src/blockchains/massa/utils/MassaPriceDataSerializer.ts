@@ -1,6 +1,6 @@
 import {Args, IDeserializedResult, ISerializable} from '@massalabs/massa-web3';
 
-import {PriceData} from '../../../types/DeviationFeeds';
+import {PriceData} from '../../../types/DeviationFeeds.js';
 
 export class MassaPriceDataSerializer implements ISerializable<MassaPriceDataSerializer> {
   private data: number; // u8

@@ -1,11 +1,11 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ChainsIds} from '../../types/ChainsIds';
-import Settings, {BlockchainType} from '../../types/Settings';
-import {BalanceMonitorKeyResolver} from './BalanceMonitorKeyResolver';
-import {MappingRepository} from '../../repositories/MappingRepository';
-import {BlockchainRepository} from '../../repositories/BlockchainRepository';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import Settings, {BlockchainType} from '../../types/Settings.js';
+import {BalanceMonitorKeyResolver} from './BalanceMonitorKeyResolver.js';
+import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
 
 @injectable()
 export class BalanceMonitorChecker {

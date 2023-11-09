@@ -1,10 +1,10 @@
 import {ethers} from 'ethers';
 import {inject, injectable} from 'inversify';
 
-import {OnChainCall} from '../../types/Feed';
-import {BlockchainRepository} from '../../repositories/BlockchainRepository';
-import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds';
-import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
+import {OnChainCall} from '../../types/Feed.js';
+import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
+import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds.js';
+import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
 import {Logger} from 'winston';
 
 @injectable()

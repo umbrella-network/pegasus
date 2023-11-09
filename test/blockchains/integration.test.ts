@@ -1,19 +1,21 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 import {ethers} from 'ethers';
 
 import {PayableOverrides} from '@ethersproject/contracts';
 
-import {BlockchainRepository} from '../../src/repositories/BlockchainRepository';
-import settings from '../../src/config/settings';
-import {loadTestEnv} from '../helpers/loadTestEnv';
-import {ChainsIds} from '../../src/types/ChainsIds';
-import {UmbrellaFeedsContractFactory} from '../../src/factories/contracts/UmbrellaFeedsContractFactory';
-import {UmbrellaFeedInterface} from '../../src/interfaces/UmbrellaFeedInterface';
-import {PriceData, UmbrellaFeedsUpdateArgs} from '../../src/types/DeviationFeeds';
-import {DeviationHasher} from '../../src/services/deviationsFeeds/DeviationHasher';
-import {ProviderFactory} from '../../src/factories/ProviderFactory';
-import {DeviationSignerRepository} from '../../src/repositories/DeviationSignerRepository';
+import {BlockchainRepository} from '../../src/repositories/BlockchainRepository.js';
+import settings from '../../src/config/settings.js';
+import {loadTestEnv} from '../helpers/loadTestEnv.js';
+import {ChainsIds} from '../../src/types/ChainsIds.js';
+import {UmbrellaFeedsContractFactory} from '../../src/factories/contracts/UmbrellaFeedsContractFactory.js';
+import {UmbrellaFeedInterface} from '../../src/interfaces/UmbrellaFeedInterface.js';
+import {PriceData, UmbrellaFeedsUpdateArgs} from '../../src/types/DeviationFeeds.js';
+import {DeviationHasher} from '../../src/services/deviationsFeeds/DeviationHasher.js';
+import {ProviderFactory} from '../../src/factories/ProviderFactory.js';
+import {DeviationSignerRepository} from '../../src/repositories/DeviationSignerRepository.js';
+
+const {expect} = chai;
 
 describe.skip('Umbrella Feeds debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
@@ -48,8 +50,10 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
       const data = {
         keys: ['UMB-USD'].map(ethers.utils.id),
         signatures: [
-          '0xb8eaf93106c698fee6c1e8b2776fa33521005bc866b9168335eb81d7516d69dd02ee4ac83262f6819d3cc6ded97a648695d357057c00fdcd28a7c38ce711975c1b',
-          '0xd0233bdc936a7ac2b68b056e29722e515f28d2d0b96168996406dd4fcb311bd858c16b548ae427334b0918615bbf5dbad8461bbca30df125466eaaa68a8ece4a1b',
+          '0xb8eaf93106c698fee6c1e8b2776fa33521005bc866b9168335eb81d7516d69dd02ee4ac83262f6819d3cc6ded97' +
+            'a648695d357057c00fdcd28a7c38ce711975c1b',
+          '0xd0233bdc936a7ac2b68b056e29722e515f28d2d0b96168996406dd4fcb311bd858c16b548ae427334b0918615bb' +
+            'f5dbad8461bbca30df125466eaaa68a8ece4a1b',
         ],
         priceDatas: [
           {

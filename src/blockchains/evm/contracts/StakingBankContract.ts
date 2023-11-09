@@ -1,13 +1,19 @@
 import {Contract, BigNumber} from 'ethers';
+import {readFileSync} from 'fs';
+import {fileURLToPath} from 'url';
+import path from 'path';
 
-import stakingBankAbi from './IStakingBank.abi.json';
-import Blockchain from '../../../lib/Blockchain';
-import {Validator} from '../../../types/Validator';
-import {StakingBankInterface} from '../../../interfaces/StakingBankInterface';
-import {RegistryInterface} from '../../../interfaces/RegistryInterface';
-import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory';
+import Blockchain from '../../../lib/Blockchain.js';
+import {Validator} from '../../../types/Validator.js';
+import {StakingBankInterface} from '../../../interfaces/StakingBankInterface.js';
+import {RegistryInterface} from '../../../interfaces/RegistryInterface.js';
+import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class StakingBankContract implements StakingBankInterface {
+  readonly stakingBankAbi!: never;
   readonly bankName!: string;
   readonly blockchain!: Blockchain;
   registry!: RegistryInterface;
@@ -15,6 +21,7 @@ export class StakingBankContract implements StakingBankInterface {
   constructor(blockchain: Blockchain, bankName = 'StakingBank') {
     this.bankName = bankName;
     this.blockchain = blockchain;
+    this.stakingBankAbi = JSON.parse(readFileSync(__dirname + '/IStakingBank.abi.json', 'utf-8')) as never;
   }
 
   async address(): Promise<string> {
@@ -46,7 +53,7 @@ export class StakingBankContract implements StakingBankInterface {
     }
 
     const bankAddress = await this.registry.getAddress(this.bankName);
-    return new Contract(bankAddress, stakingBankAbi, this.blockchain.provider.getRawProvider());
+    return new Contract(bankAddress, this.stakingBankAbi, this.blockchain.provider.getRawProvider());
   };
 
   async getNumberOfValidators(): Promise<number> {

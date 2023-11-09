@@ -1,8 +1,8 @@
 import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
-import BasicWorker from './BasicWorker';
-import {DeviationLeader} from '../services/deviationsFeeds/DeviationLeader';
+import BasicWorker from './BasicWorker.js';
+import {DeviationLeader} from '../services/deviationsFeeds/DeviationLeader.js';
 
 @injectable()
 export class DeviationLeaderWorker extends BasicWorker {

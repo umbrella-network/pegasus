@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
-import CryptoCompareWSClient from '../ws/CryptoCompareWSClient';
-import {PairWithFreshness} from '../../types/Feed';
+import CryptoCompareWSClient from '../ws/CryptoCompareWSClient.js';
+import {PairWithFreshness} from '../../types/Feed.js';
 
 @injectable()
 class CryptoComparePriceWSFetcher {

@@ -2,11 +2,11 @@ import {inject, injectable} from 'inversify';
 import schedule, {Job} from 'node-schedule';
 import {Logger} from 'winston';
 
-import PriceAggregator from './PriceAggregator';
-import Settings from '../types/Settings';
-import TimeService from './TimeService';
-import PolygonIOStockSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOStockSnapshotFetcher';
-import PolygonIOSingleStockPriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSingleStockPriceFetcher';
+import PriceAggregator from './PriceAggregator.js';
+import Settings from '../types/Settings.js';
+import TimeService from './TimeService.js';
+import PolygonIOStockSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOStockSnapshotFetcher.js';
+import PolygonIOSingleStockPriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSingleStockPriceFetcher.js';
 
 @injectable()
 class PolygonIOStockPriceService {

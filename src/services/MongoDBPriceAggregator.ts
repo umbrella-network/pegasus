@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository';
+import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository.js';
 import {getModelForClass} from '@typegoose/typegoose';
-import {Price} from '../models/Price';
+import {Price} from '../models/Price.js';
 
 @injectable()
 export default class MongoDBPriceAggregator {

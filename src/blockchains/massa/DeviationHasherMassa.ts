@@ -2,9 +2,9 @@ import {injectable} from 'inversify';
 import {ethers} from 'ethers';
 import {Args} from '@massalabs/massa-web3';
 
-import {PriceData} from '../../types/DeviationFeeds';
-import {MassaWBytesSerializer} from './utils/MassaWBytesSerializer';
-import {MassaPriceDataSerializer} from './utils/MassaPriceDataSerializer';
+import {PriceData} from '../../types/DeviationFeeds.js';
+import {MassaWBytesSerializer} from './utils/MassaWBytesSerializer.js';
+import {MassaPriceDataSerializer} from './utils/MassaPriceDataSerializer.js';
 
 @injectable()
 export class DeviationHasherMassa {
@@ -18,7 +18,9 @@ export class DeviationHasherMassa {
       .addString(target)
       .addSerializableObjectArray(priceKeysRaw.map((key) => new MassaWBytesSerializer(ethers.utils.id(key))))
       .addSerializableObjectArray(
-        priceDatas.map((data) => new MassaPriceDataSerializer(data.data, data.heartbeat, data.timestamp, data.price)),
+        priceDatas.map((data) => {
+          return new MassaPriceDataSerializer(data.data, data.heartbeat, data.timestamp, data.price);
+        }),
       );
 
     return ethers.utils.keccak256(toHash.serialize());

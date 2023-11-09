@@ -1,10 +1,10 @@
 import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
-import BasicWorker from './BasicWorker';
-import {ChainsIds} from '../types/ChainsIds';
-import {BlockchainGasRepository} from '../repositories/BlockchainGasRepository';
-import {GasMonitor} from '../services/gasMonitor/evm/GasMonitor';
+import BasicWorker from './BasicWorker.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {BlockchainGasRepository} from '../repositories/BlockchainGasRepository.js';
+import {GasMonitor} from '../services/gasMonitor/evm/GasMonitor.js';
 
 @injectable()
 class MetricsWorker extends BasicWorker {

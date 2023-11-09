@@ -1,5 +1,5 @@
-import {DeviationFeed, PriceData} from '../../types/DeviationFeeds';
-import settings from '../../config/settings';
+import {DeviationFeed, PriceData} from '../../types/DeviationFeeds.js';
+import settings from '../../config/settings.js';
 
 export class HeartbeatTriggerFilter {
   static apply(dataTimestamp: number, feed: DeviationFeed, priceData: PriceData): boolean {

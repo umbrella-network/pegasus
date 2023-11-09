@@ -1,8 +1,10 @@
-import {expect} from 'chai';
-import {PriceDataFactory} from '../../src/factories/PriceDataFactory';
-import Leaf from '../../src/types/Leaf';
-import {DeviationFeed, DeviationFeeds, PriceData, PriceDataByKey} from '../../src/types/DeviationFeeds';
-import {ChainsIds} from '../../src/types/ChainsIds';
+import chai from 'chai';
+import {PriceDataFactory} from '../../src/factories/PriceDataFactory.js';
+import Leaf from '../../src/types/Leaf.js';
+import {DeviationFeed, DeviationFeeds, PriceData, PriceDataByKey} from '../../src/types/DeviationFeeds.js';
+import {ChainsIds} from '../../src/types/ChainsIds.js';
+
+const {expect} = chai;
 
 describe('PriceDataFactory', () => {
   describe('#create', () => {

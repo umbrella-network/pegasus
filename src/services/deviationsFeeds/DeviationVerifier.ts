@@ -1,16 +1,16 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import Settings from '../../types/Settings';
-import {FeedDataService} from '../FeedDataService';
-import {DeviationDataToSign, DeviationLeavesAndFeeds, DeviationSignerResponse} from '../../types/DeviationFeeds';
-import {FeedsType} from '../../types/Feed';
-import {DiscrepancyFinder} from '../DiscrepancyFinder';
-import {KeyValuesToLeaves} from '../tools/KeyValuesToLeaves';
-import {PriceMetadataComparator} from './PriceMetadataComparator';
-import {DeviationChainMetadata} from './DeviationChainMetadata';
-import {DeviationTrigger} from './DeviationTrigger';
-import {DeviationHasher} from './DeviationHasher';
-import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository';
+import Settings from '../../types/Settings.js';
+import {FeedDataService} from '../FeedDataService.js';
+import {DeviationDataToSign, DeviationLeavesAndFeeds, DeviationSignerResponse} from '../../types/DeviationFeeds.js';
+import {FeedsType} from '../../types/Feed.js';
+import {DiscrepancyFinder} from '../DiscrepancyFinder.js';
+import {KeyValuesToLeaves} from '../tools/KeyValuesToLeaves.js';
+import {PriceMetadataComparator} from './PriceMetadataComparator.js';
+import {DeviationChainMetadata} from './DeviationChainMetadata.js';
+import {DeviationTrigger} from './DeviationTrigger.js';
+import {DeviationHasher} from './DeviationHasher.js';
+import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository.js';
 
 @injectable()
 export class DeviationVerifier {
@@ -44,6 +44,7 @@ export class DeviationVerifier {
 
     if (!dataToUpdate) {
       this.logger.info(`[DeviationVerifier] nothing is triggered at ${deviationDataToSign.dataTimestamp}`);
+
       return {
         discrepancies: [],
         error: `nothing is triggered at ${deviationDataToSign.dataTimestamp}`,
@@ -84,9 +85,9 @@ export class DeviationVerifier {
 
     const signatures = await Promise.all(
       chainMetadata.map(([chainId, networkId, target]) => {
-        const priceDatas = deviationDataToSign.feedsForChain[chainId].map(
-          (key) => deviationDataToSign.proposedPriceData[key],
-        );
+        const priceDatas = deviationDataToSign.feedsForChain[chainId].map((key) => {
+          return deviationDataToSign.proposedPriceData[key];
+        });
 
         const data = deviationDataToSign.feedsForChain[chainId];
         this.logger.info(`[DeviationVerifier] signing ${data} for ${chainId} (${networkId})`);
@@ -98,6 +99,7 @@ export class DeviationVerifier {
           deviationDataToSign.feedsForChain[chainId],
           priceDatas,
         );
+
         const signer = this.deviationSignerRepository.get(chainId);
 
         return signer.apply(hash);

@@ -1,8 +1,8 @@
-import {boot} from './boot';
+import {boot} from './boot.js';
 import yargs from 'yargs';
-import Application from './lib/Application';
-import {AgentCoordinator} from './agents/AgentCoordinator';
-import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
+import Application from './lib/Application.js';
+import {AgentCoordinator} from './agents/AgentCoordinator.js';
+import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent.js';
 
 (async () => {
   await boot();

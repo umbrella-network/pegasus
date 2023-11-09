@@ -1,11 +1,12 @@
 import {Factory} from 'rosie';
-import ConsensusData from '../../../src/models/ConsensusData';
+import ConsensusData from '../../../src/models/ConsensusData.js';
 
 export const consensusDataFactory = Factory.define<ConsensusData>('ConsensusData')
   .attr('root', '0xabctest')
   .attr('chainIds', ['avax'])
   .attr('signatures', [
-    '0x19e072d918b90c1986625b2968fe3b740f3b5eacedfc79e4b298f58736dc4b5e4ff1bfe7fd2cf2e9939684797d354aeae404a68c94374cdacfc6fa67331440171c',
+    '0x19e072d918b90c1986625b2968fe3b740f3b5eacedfc79e4b298f58736dc4b5e4ff1bfe7fd2cf2e9939684797d354' +
+      'aeae404a68c94374cdacfc6fa67331440171c',
   ])
   .attr('leaves', [
     {

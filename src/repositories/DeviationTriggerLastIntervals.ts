@@ -1,5 +1,5 @@
 import {inject, injectable} from 'inversify';
-import {MappingRepository} from './MappingRepository';
+import {MappingRepository} from './MappingRepository.js';
 
 const DEVIATION_TRIGGER_LAST_INTERVALS = 'DeviationTriggerIntervals';
 

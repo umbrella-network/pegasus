@@ -1,10 +1,12 @@
-import {expect} from 'chai';
+import chai from 'chai';
 
-import Application from '../../../src/lib/Application';
-import OnChainDataFetcher from '../../../src/services/fetchers/OnChainDataFetcher';
-import {OnChainCall} from '../../../src/types/Feed';
-import {getTestContainer} from '../../helpers/getTestContainer';
-import settings from '../../../src/config/settings';
+import Application from '../../../src/lib/Application.js';
+import OnChainDataFetcher from '../../../src/services/fetchers/OnChainDataFetcher.js';
+import {OnChainCall} from '../../../src/types/Feed.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
+import settings from '../../../src/config/settings.js';
+
+const {expect} = chai;
 
 describe('OnChainDataFetcher', () => {
   let fetcher: OnChainDataFetcher;

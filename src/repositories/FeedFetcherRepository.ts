@@ -1,5 +1,5 @@
 import {inject, injectable} from 'inversify';
-import * as fetchers from '../services/fetchers';
+import * as fetchers from '../services/fetchers/index.js';
 
 export interface FeedFetcher {
   // eslint-disable-next-line

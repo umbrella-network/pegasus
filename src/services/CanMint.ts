@@ -1,8 +1,8 @@
-import {Logger} from 'ethers/lib/utils';
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
 
-import {ChainStatus} from '../types/ChainStatus';
-import {chainReadyForNewBlock} from '../utils/mining';
+import {ChainStatus} from '../types/ChainStatus.js';
+import {chainReadyForNewBlock} from '../utils/mining.js';
 
 @injectable()
 export class CanMint {

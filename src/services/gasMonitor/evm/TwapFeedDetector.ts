@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ChainsIds} from '../../../types/ChainsIds';
-import {FeedRepository} from '../../../repositories/FeedRepository';
+import {ChainsIds} from '../../../types/ChainsIds.js';
+import {FeedRepository} from '../../../repositories/FeedRepository.js';
 
 @injectable()
 export class TwapFeedDetector {

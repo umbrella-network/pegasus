@@ -1,10 +1,10 @@
 import {ethers} from 'ethers';
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
-import {BlockchainRepository} from '../repositories/BlockchainRepository';
-import {ChainContractRepository} from '../repositories/ChainContractRepository';
-import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
-import Settings from '../types/Settings';
+import {BlockchainRepository} from '../repositories/BlockchainRepository.js';
+import {ChainContractRepository} from '../repositories/ChainContractRepository.js';
+import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds.js';
+import Settings from '../types/Settings.js';
 
 @injectable()
 export class MultichainArchitectureDetector {

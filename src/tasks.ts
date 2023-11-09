@@ -1,18 +1,18 @@
-import {boot} from './boot';
+import {boot} from './boot.js';
 import yargs from 'yargs';
 import {EventEmitter} from 'events';
 import {getModelForClass} from '@typegoose/typegoose';
 import {GasEstimator} from '@umb-network/toolbox';
 
-import Application from './lib/Application';
-import FeedProcessor from './services/FeedProcessor';
-import loadFeeds from './services/loadFeeds';
-import Settings from './types/Settings';
-import Block from './models/Block';
-import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer';
-import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer';
-import TimeService from './services/TimeService';
-import Blockchain from './lib/Blockchain';
+import Application from './lib/Application.js';
+import FeedProcessor from './services/FeedProcessor.js';
+import loadFeeds from './services/loadFeeds.js';
+import Settings from './types/Settings.js';
+import Block from './models/Block.js';
+import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer.js';
+import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer.js';
+import TimeService from './services/TimeService.js';
+import Blockchain from './lib/Blockchain.js';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: {type: 'string', demandOption: true},

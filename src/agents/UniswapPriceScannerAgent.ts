@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {BasicAgent} from './BasicAgent';
-import {UniswapPriceScanner} from '../services/uniswap/UniswapPriceScanner';
+import {BasicAgent} from './BasicAgent.js';
+import {UniswapPriceScanner} from '../services/uniswap/UniswapPriceScanner.js';
 
 @injectable()
 export class UniswapPriceScannerAgent extends BasicAgent {

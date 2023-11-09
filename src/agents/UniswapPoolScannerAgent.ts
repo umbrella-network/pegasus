@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
-import {UniswapPoolScanner} from '../services/uniswap/UniswapPoolScanner';
-import {LoopAgent} from './LoopAgent';
+import {UniswapPoolScanner} from '../services/uniswap/UniswapPoolScanner.js';
+import {LoopAgent} from './LoopAgent.js';
 
 @injectable()
 export class UniswapPoolScannerAgent extends LoopAgent {

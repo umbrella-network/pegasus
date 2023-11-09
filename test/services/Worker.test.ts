@@ -1,11 +1,13 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 import IORedis, {Redis} from 'ioredis';
 
-import {loadTestEnv} from '../helpers/loadTestEnv';
-import Settings from '../../src/types/Settings';
-import MockedWorker from '../mocks/worker';
-import {getTestContainer} from '../helpers/getTestContainer';
+import {loadTestEnv} from '../helpers/loadTestEnv.js';
+import Settings from '../../src/types/Settings.js';
+import MockedWorker from '../mocks/worker.js';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+
+const {expect} = chai;
 
 describe('Worker', () => {
   let mockedWorker: MockedWorker;

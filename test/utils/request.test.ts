@@ -1,7 +1,9 @@
-import {expect} from 'chai';
+import chai from 'chai';
 
-import {timeoutWithCode} from '../../src/utils/request';
-import {TimeoutCodes} from '../../src/types/TimeoutCodes';
+import {timeoutWithCode} from '../../src/utils/request.js';
+import {TimeoutCodes} from '../../src/types/TimeoutCodes.js';
+
+const {expect} = chai;
 
 describe('timeoutWithCode', () => {
   it('generate timeout with code', async () => {

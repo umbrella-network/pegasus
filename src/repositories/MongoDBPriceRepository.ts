@@ -1,5 +1,5 @@
 import {injectable} from 'inversify';
-import {Price} from '../models/Price';
+import {Price} from '../models/Price.js';
 import {getModelForClass} from '@typegoose/typegoose';
 import dayjs from 'dayjs';
 import NodeCache from 'node-cache';

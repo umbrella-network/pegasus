@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 
-import {InputParams, OutputValues} from '../fetchers/CoingeckoPriceMultiFetcher';
+import {InputParams, OutputValues} from '../fetchers/CoingeckoPriceMultiFetcher.js';
 
-import {FeedFetcher} from '../../types/Feed';
-import {CoingeckoPriceMultiFetcher} from '../fetchers';
+import {FeedFetcher} from '../../types/Feed.js';
+import {CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
 
 @injectable()
 export default class CoingeckoMultiProcessor {

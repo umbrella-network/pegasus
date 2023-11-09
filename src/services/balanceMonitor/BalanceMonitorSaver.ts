@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 
-import {ChainsIds} from '../../types/ChainsIds';
-import {MappingRepository} from '../../repositories/MappingRepository';
-import {BalanceMonitorKeyResolver} from './BalanceMonitorKeyResolver';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {BalanceMonitorKeyResolver} from './BalanceMonitorKeyResolver.js';
 
 @injectable()
 export class BalanceMonitorSaver {

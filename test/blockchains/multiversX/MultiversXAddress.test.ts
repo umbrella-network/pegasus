@@ -1,5 +1,7 @@
-import {expect} from 'chai';
-import {MultiversXAddress} from '../../../src/blockchains/multiversx/utils/MultiversXAddress';
+import chai from 'chai';
+import {MultiversXAddress} from '../../../src/blockchains/multiversx/utils/MultiversXAddress.js';
+
+const {expect} = chai;
 
 describe('MultiversXAddress', () => {
   it('#sort', () => {

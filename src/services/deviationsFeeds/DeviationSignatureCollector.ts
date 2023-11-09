@@ -1,15 +1,15 @@
 import {inject, injectable} from 'inversify';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import {Logger} from 'winston';
 import {Wallet} from 'ethers';
 
-import {Validator} from '../../types/Validator';
-import Settings from '../../types/Settings';
-import {DeviationDataToSign, DeviationSignatures, DeviationSignerResponse} from '../../types/DeviationFeeds';
-import {ValidatorStatusChecker} from '../ValidatorStatusChecker';
-import {DeviationChainMetadata} from './DeviationChainMetadata';
-import {DeviationHasher} from './DeviationHasher';
-import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository';
+import {Validator} from '../../types/Validator.js';
+import Settings from '../../types/Settings.js';
+import {DeviationDataToSign, DeviationSignatures, DeviationSignerResponse} from '../../types/DeviationFeeds.js';
+import {ValidatorStatusChecker} from '../ValidatorStatusChecker.js';
+import {DeviationChainMetadata} from './DeviationChainMetadata.js';
+import {DeviationHasher} from './DeviationHasher.js';
+import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository.js';
 
 @injectable()
 export class DeviationSignatureCollector {
@@ -103,9 +103,12 @@ export class DeviationSignatureCollector {
       });
 
       return response.data;
-    } catch (err) {
-      if (err.response?.data) {
-        throw new Error(`${validator.location}: (1) ${err.response.data.error || '-'} (2) ${err.response.data || '-'}`);
+    } catch (err: unknown) {
+      if ((err as AxiosError).response?.data) {
+        throw new Error(
+          `${validator.location}: (1) ${(err as AxiosError).response?.data.error || '-'} ` +
+            `(2) ${(err as AxiosError).response?.data || '-'}`,
+        );
       }
 
       throw err;

@@ -5,14 +5,14 @@ import {Logger} from 'winston';
 import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
 import {GasEstimator} from '@umb-network/toolbox';
 
-import {ProviderInterface} from '../../interfaces/ProviderInterface';
-import {ChainsIds} from '../../types/ChainsIds';
-import {NetworkStatus} from '../../types/Network';
-import {sleep} from '../../utils/sleep';
-import Settings from '../../types/Settings';
-import {Timeout} from '../../services/tools/Timeout';
-import logger from '../../lib/logger';
-import settings from '../../config/settings';
+import {ProviderInterface} from '../../interfaces/ProviderInterface.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {NetworkStatus} from '../../types/Network.js';
+import {sleep} from '../../utils/sleep.js';
+import Settings from '../../types/Settings.js';
+import {Timeout} from '../../services/tools/Timeout.js';
+import logger from '../../lib/logger.js';
+import settings from '../../config/settings.js';
 
 export class EvmProvider implements ProviderInterface {
   protected logger!: Logger;

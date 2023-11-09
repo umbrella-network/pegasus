@@ -1,4 +1,4 @@
-import {Validator} from '../types/Validator';
+import {Validator} from '../types/Validator.js';
 
 export interface StakingBankInterface {
   address(): Promise<string>;

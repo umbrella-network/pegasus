@@ -1,14 +1,14 @@
 import {inject, injectable} from 'inversify';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
-import {chunk} from 'lodash';
+import lodash from 'lodash';
 
-import Settings from '../../types/Settings';
-import {UniswapV3Factory} from '../../blockchains/evm/contracts/UniswapV3Factory';
-import {UniswapPoolService} from './UniswapPoolService';
-import {BlockchainScanner} from '../BlockchainScanner';
-import {UniswapV3Helper} from '../../blockchains/evm/contracts/UniswapV3Helper';
-import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
-import {Token} from '../../models/BlockchainSymbol';
+import Settings from '../../types/Settings.js';
+import {UniswapV3Factory} from '../../blockchains/evm/contracts/UniswapV3Factory.js';
+import {UniswapPoolService} from './UniswapPoolService.js';
+import {BlockchainScanner} from '../BlockchainScanner.js';
+import {UniswapV3Helper} from '../../blockchains/evm/contracts/UniswapV3Helper.js';
+import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
+import {Token} from '../../models/BlockchainSymbol.js';
 
 export type UniswapPoolCreatedEvent = {
   token0: string;
@@ -56,7 +56,7 @@ export class UniswapPoolScanner extends BlockchainScanner {
 
     const addresses = events.map((e) => [e.token1, e.token0]).flat();
     const tokens = await this.getTokens(addresses);
-    const tokenPairs = chunk(tokens, 2);
+    const tokenPairs = lodash.chunk(tokens, 2);
 
     for (let i = 0; i < events.length; i++) {
       try {
@@ -86,7 +86,7 @@ export class UniswapPoolScanner extends BlockchainScanner {
     try {
       let tokenSymbols: string[] = [];
 
-      for (const batch of chunk(addresses, 50)) {
+      for (const batch of lodash.chunk(addresses, 50)) {
         const batchSymbols = await this.uniswapV3Helper.translateTokenAddressesToSymbols(batch);
         tokenSymbols = tokenSymbols.concat(batchSymbols);
       }

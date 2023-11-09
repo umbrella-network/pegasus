@@ -1,10 +1,10 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {OnChainMetadataType} from '../../types/DeviationFeeds';
-import {BlockchainRepository} from '../../repositories/BlockchainRepository';
-import {FeedsContractRepository} from '../../repositories/FeedsContractRepository';
-import {DataCollection} from '../../types/custom';
+import {OnChainMetadataType} from '../../types/DeviationFeeds.js';
+import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
+import {FeedsContractRepository} from '../../repositories/FeedsContractRepository.js';
+import {DataCollection} from '../../types/custom.js';
 
 @injectable()
 export class DeviationChainMetadata {
@@ -37,8 +37,8 @@ export class DeviationChainMetadata {
           this.feedsContractRepository.get(chainId).address(),
         ])
       );
-    } catch (e) {
-      this.logger.warn(`[${chainId}] ${e.message}`);
+    } catch (e: unknown) {
+      this.logger.warn(`[${chainId}] ${(e as Error).message}`);
       return;
     }
   }

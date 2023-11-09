@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 import {StaticJsonRpcProvider, TransactionReceipt} from '@ethersproject/providers';
 
-import {ProviderRepository} from '../../../repositories/ProviderRepository';
-import {BlockchainGas} from '../../../types/BlockchainGas';
-import {ChainsIds} from '../../../types/ChainsIds';
+import {ProviderRepository} from '../../../repositories/ProviderRepository.js';
+import {BlockchainGas} from '../../../types/BlockchainGas.js';
+import {ChainsIds} from '../../../types/ChainsIds.js';
 
 @injectable()
 export class BlockchainGasCalculator {

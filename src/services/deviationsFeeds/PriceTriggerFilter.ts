@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 
-import Leaf from '../../types/Leaf';
-import {DeviationFeed, FilterResult, PriceData} from '../../types/DeviationFeeds';
+import Leaf from '../../types/Leaf.js';
+import {DeviationFeed, FilterResult, PriceData} from '../../types/DeviationFeeds.js';
 
 @injectable()
 export class PriceTriggerFilter {

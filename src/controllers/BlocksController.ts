@@ -2,8 +2,8 @@ import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import Block from '../models/Block';
-import Settings from '../types/Settings';
+import Block from '../models/Block.js';
+import Settings from '../types/Settings.js';
 
 @injectable()
 class BlocksController {

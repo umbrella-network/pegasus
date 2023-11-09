@@ -1,12 +1,11 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
-import Settings from '../../types/Settings';
-import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus';
-import {ChainStatus} from '../../types/ChainStatus';
-import {CanMint} from '../CanMint';
-import {ValidatorRepository} from '../../repositories/ValidatorRepository';
-import LeaderSelector from './LeaderSelector';
+import Settings from '../../types/Settings.js';
+import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus.js';
+import {CanMint} from '../CanMint.js';
+import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
+import LeaderSelector from './LeaderSelector.js';
 
 @injectable()
 export class MultiChainStatusProcessor {

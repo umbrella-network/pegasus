@@ -1,9 +1,9 @@
-import {ChainsIds} from '../types/ChainsIds';
-import {IWallet} from '../interfaces/IWallet';
-import {EvmWallet} from '../blockchains/evm/EvmWallet';
-import {MultiversXWallet} from '../blockchains/multiversx/MultiversXWallet';
-import {MassaWallet} from '../blockchains/massa/MassaWallet';
-import Settings from '../types/Settings';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {IWallet} from '../interfaces/IWallet.js';
+import {EvmWallet} from '../blockchains/evm/EvmWallet.js';
+import {MultiversXWallet} from '../blockchains/multiversx/MultiversXWallet.js';
+import {MassaWallet} from '../blockchains/massa/MassaWallet.js';
+import Settings from '../types/Settings.js';
 
 export class WalletFactory {
   static create(settings: Settings, chainId: ChainsIds): IWallet {

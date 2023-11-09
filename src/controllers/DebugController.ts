@@ -3,17 +3,17 @@ import express, {Request, Response} from 'express';
 import {NextFunction} from 'express-serve-static-core';
 import sort from 'fast-sort';
 
-import Settings from '../types/Settings';
-import TimeService from '../services/TimeService';
-import PolygonIOCryptoPriceService from '../services/PolygonIOCryptoPriceService';
-import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService';
-import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient';
-import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer';
-import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
-import PriceRepository from '../repositories/PriceRepository';
-import Feeds from '../types/Feed';
-import loadFeeds from '../services/loadFeeds';
-import FeedProcessor from '../services/FeedProcessor';
+import Settings from '../types/Settings.js';
+import TimeService from '../services/TimeService.js';
+import PolygonIOCryptoPriceService from '../services/PolygonIOCryptoPriceService.js';
+import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService.js';
+import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient.js';
+import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer.js';
+import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer.js';
+import PriceRepository from '../repositories/PriceRepository.js';
+import Feeds from '../types/Feed.js';
+import loadFeeds from '../services/loadFeeds.js';
+import FeedProcessor from '../services/FeedProcessor.js';
 
 @injectable()
 class DebugController {

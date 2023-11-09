@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
-import {UniswapPoolPrice} from './UniswapPriceScanner';
-import {MongoDBPriceRepository} from '../../repositories/MongoDBPriceRepository';
+import {UniswapPoolPrice} from './UniswapPriceScanner.js';
+import {MongoDBPriceRepository} from '../../repositories/MongoDBPriceRepository.js';
 
 @injectable()
 export class UniswapPriceService {

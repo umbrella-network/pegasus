@@ -1,8 +1,8 @@
 import {ethers, Wallet} from 'ethers';
-import {DeviationSignerInterface} from '../../services/deviationsFeeds/interfaces/DeviationSignerInterface';
-import {WalletFactory} from '../../factories/WalletFactory';
-import {ChainsIds} from '../../types/ChainsIds';
-import Settings from '../../types/Settings';
+import {DeviationSignerInterface} from '../../services/deviationsFeeds/interfaces/DeviationSignerInterface.js';
+import {WalletFactory} from '../../factories/WalletFactory.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import Settings from '../../types/Settings.js';
 
 export class DeviationSignerEvm implements DeviationSignerInterface {
   private readonly signer!: Wallet;

@@ -1,19 +1,21 @@
 import 'reflect-metadata';
 import {Container} from 'inversify';
 import sinon, {createStubInstance, SinonStubbedInstance, stub} from 'sinon';
-import {expect} from 'chai';
+import chai from 'chai';
 import Feeds from '@umb-network/toolbox/dist/types/Feed';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
-import {getTestContainer} from '../helpers/getTestContainer';
-import {FeedFetcherRepository, FeedFetcher} from '../../src/repositories/FeedFetcherRepository';
-import {CalculatorRepository} from '../../src/repositories/CalculatorRepository';
-import FeedProcessor from '../../src/services/FeedProcessor';
-import {IdentityCalculator} from '../../src/services/calculators';
-import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory';
-import Leaf from '../../src/types/Leaf';
-import CryptoCompareMultiProcessor from '../../src/services/FeedProcessor/CryptoCompareMultiProcessor';
-import CoingeckoMultiProcessor from '../../src/services/FeedProcessor/CoingeckoMultiProcessor';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+import {FeedFetcherRepository, FeedFetcher} from '../../src/repositories/FeedFetcherRepository.js';
+import {CalculatorRepository} from '../../src/repositories/CalculatorRepository.js';
+import FeedProcessor from '../../src/services/FeedProcessor.js';
+import {IdentityCalculator} from '../../src/services/calculators/index.js';
+import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
+import Leaf from '../../src/types/Leaf.js';
+import CryptoCompareMultiProcessor from '../../src/services/FeedProcessor/CryptoCompareMultiProcessor.js';
+import CoingeckoMultiProcessor from '../../src/services/FeedProcessor/CoingeckoMultiProcessor.js';
+
+const {expect} = chai;
 
 describe('FeedProcessor', () => {
   let instance: FeedProcessor;

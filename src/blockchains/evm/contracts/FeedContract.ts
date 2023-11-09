@@ -3,17 +3,23 @@ import {Logger} from 'winston';
 import {ContractRegistry} from '@umb-network/toolbox';
 import {PayableOverrides} from '@ethersproject/contracts';
 import {TransactionResponse} from '@ethersproject/providers';
+import {readFileSync} from 'fs';
+import {fileURLToPath} from 'url';
+import path from 'path';
 
-import umbrellaFeedsAbi from './UmbrellaFeeds.abi.json';
-import Settings from '../../../types/Settings';
-import Blockchain from '../../../lib/Blockchain';
-import {PriceData, PriceDataWithKey, Signature, UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds';
-import {UmbrellaFeedInterface} from '../../../interfaces/UmbrellaFeedInterface';
-import {ExecutedTx} from '../../../types/Consensus';
-import logger from '../../../lib/logger';
-import {EvmEstimatedGas} from '../evmTypes';
+import Settings from '../../../types/Settings.js';
+import Blockchain from '../../../lib/Blockchain.js';
+import {PriceData, PriceDataWithKey, Signature, UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds.js';
+import {UmbrellaFeedInterface} from '../../../interfaces/UmbrellaFeedInterface.js';
+import {ExecutedTx} from '../../../types/Consensus.js';
+import logger from '../../../lib/logger.js';
+import {EvmEstimatedGas} from '../evmTypes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class FeedContract implements UmbrellaFeedInterface {
+  protected umbrellaFeedsAbi!: {abi: never};
   protected logger!: Logger;
   protected loggerPrefix!: string;
   readonly settings!: Settings;
@@ -25,6 +31,7 @@ export class FeedContract implements UmbrellaFeedInterface {
     this.settings = settings;
     this.blockchain = blockchain;
     this.loggerPrefix = `[${this.blockchain.chainId}][FeedContract]`;
+    this.umbrellaFeedsAbi = JSON.parse(readFileSync(__dirname + '/UmbrellaFeeds.abi.json', 'utf-8')) as never;
   }
 
   async address(): Promise<string> {
@@ -71,8 +78,8 @@ export class FeedContract implements UmbrellaFeedInterface {
           key: keys[i],
         };
       });
-    } catch (e) {
-      this.logger.error(`${this.loggerPrefix} FeedContract, getManyPriceDataRaw error: ${e.message}`);
+    } catch (e: unknown) {
+      this.logger.error(`${this.loggerPrefix} FeedContract, getManyPriceDataRaw error: ${(e as Error).message}`);
       return;
     }
   }
@@ -121,12 +128,13 @@ export class FeedContract implements UmbrellaFeedInterface {
         this.logger.error(
           `[${this.blockchain.chainId}] empty address for ${this.settings.blockchain.contracts.feeds.name}`,
         );
+
         return;
       }
 
-      return new Contract(address, umbrellaFeedsAbi.abi, this.blockchain.provider.getRawProvider());
-    } catch (e) {
-      this.logger.error(`${this.loggerPrefix} resolveContract error: ${e.message}`);
+      return new Contract(address, this.umbrellaFeedsAbi.abi, this.blockchain.provider.getRawProvider());
+    } catch (e: unknown) {
+      this.logger.error(`${this.loggerPrefix} resolveContract error: ${(e as Error).message}`);
       return;
     }
   };

@@ -1,14 +1,13 @@
 import {UserSigner} from '@multiversx/sdk-wallet';
-import {TransactionRequest} from '@ethersproject/providers';
-import {parseEther} from 'ethers/lib/utils';
 import {Logger} from 'winston';
+import {utils as ethersUtils} from 'ethers';
 
-import {ChainsIds} from '../../types/ChainsIds';
-import {IWallet} from '../../interfaces/IWallet';
-import {ProviderFactory} from '../../factories/ProviderFactory';
-import {ProviderInterface} from '../../interfaces/ProviderInterface';
-import {ExecutedTx} from '../../types/Consensus';
-import logger from '../../lib/logger';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {IWallet} from '../../interfaces/IWallet.js';
+import {ProviderFactory} from '../../factories/ProviderFactory.js';
+import {ProviderInterface} from '../../interfaces/ProviderInterface.js';
+import {ExecutedTx} from '../../types/Consensus.js';
+import logger from '../../lib/logger.js';
 
 export class MultiversXWallet implements IWallet {
   protected logger!: Logger;
@@ -40,12 +39,11 @@ export class MultiversXWallet implements IWallet {
     return this.provider.getTransactionCount(this.address);
   }
 
-  async sendTransaction(tr: TransactionRequest): Promise<ExecutedTx> {
-    console.log('TODO sendTransaction');
+  async sendTransaction(): Promise<ExecutedTx> {
     throw new Error('TODO sendTransaction');
   }
 
   toNative(value: string): bigint {
-    return parseEther(value).toBigInt();
+    return ethersUtils.parseEther(value).toBigInt();
   }
 }

@@ -1,6 +1,6 @@
-import Migration from '../models/Migration';
+import Migration from '../models/Migration.js';
 import {getModelForClass} from '@typegoose/typegoose';
-import CachedValidator from '../models/CachedValidator';
+import CachedValidator from '../models/CachedValidator.js';
 
 class Migrations {
   static async apply(): Promise<void> {

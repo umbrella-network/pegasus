@@ -1,4 +1,4 @@
-import {DeviationDataToSign} from '../../types/DeviationFeeds';
+import {DeviationDataToSign} from '../../types/DeviationFeeds.js';
 
 export class RequestBodyToDataToSign {
   static apply(body: unknown): DeviationDataToSign {

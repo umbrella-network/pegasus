@@ -1,4 +1,4 @@
-import {Discrepancy} from './Discrepancy';
+import {Discrepancy} from './Discrepancy.js';
 import {BigNumber} from 'ethers';
 
 export interface BlockSignerResponse {

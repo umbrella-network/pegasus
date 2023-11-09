@@ -2,12 +2,12 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 
-import {ProviderRepository} from '../../../repositories/ProviderRepository';
-import {BlockchainGasRepository} from '../../../repositories/BlockchainGasRepository';
-import {BlockchainGasCalculator} from './BlockchainGasCalculator';
-import {ChainsIds} from '../../../types/ChainsIds';
-import Settings from '../../../types/Settings';
-import {TwapFeedDetector} from './TwapFeedDetector';
+import {ProviderRepository} from '../../../repositories/ProviderRepository.js';
+import {BlockchainGasRepository} from '../../../repositories/BlockchainGasRepository.js';
+import {BlockchainGasCalculator} from './BlockchainGasCalculator.js';
+import {ChainsIds} from '../../../types/ChainsIds.js';
+import Settings from '../../../types/Settings.js';
+import {TwapFeedDetector} from './TwapFeedDetector.js';
 
 @injectable()
 export class GasMonitor {

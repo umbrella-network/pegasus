@@ -2,8 +2,8 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
 
-import Settings from '../../types/Settings';
-import {mapParams} from '../../utils/request';
+import Settings from '../../types/Settings.js';
+import {mapParams} from '../../utils/request.js';
 
 @injectable()
 class CryptoCompareHistoDayFetcher {

@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 
-import {ChainsIds} from '../../types/ChainsIds';
-import {MappingRepository} from '../../repositories/MappingRepository';
-import {SubmitMonitor} from '../../types/SubmitMonitor';
-import {SubmitTxKeyResolver} from './SubmitTxKeyResolver';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {SubmitMonitor} from '../../types/SubmitMonitor.js';
+import {SubmitTxKeyResolver} from './SubmitTxKeyResolver.js';
 
 @injectable()
 export class SubmitSaver {

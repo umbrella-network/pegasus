@@ -1,10 +1,10 @@
 import {UserSigner} from '@multiversx/sdk-wallet';
 
 import {ethers} from 'ethers';
-import {DeviationSignerInterface} from '../../services/deviationsFeeds/interfaces/DeviationSignerInterface';
-import {WalletFactory} from '../../factories/WalletFactory';
-import {ChainsIds} from '../../types/ChainsIds';
-import Settings from '../../types/Settings';
+import {DeviationSignerInterface} from '../../services/deviationsFeeds/interfaces/DeviationSignerInterface.js';
+import {WalletFactory} from '../../factories/WalletFactory.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import Settings from '../../types/Settings.js';
 
 export class DeviationSignerMultiversX implements DeviationSignerInterface {
   private readonly signer!: UserSigner;

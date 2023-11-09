@@ -5,7 +5,7 @@ import {JSONPath} from 'jsonpath-plus';
 
 dotenv.config();
 
-import settings from '../config/settings';
+import settings from '../config/settings.js';
 
 const argv = yargs(process.argv.slice(2)).options({
   maxTickers: {type: 'number', default: 2000},

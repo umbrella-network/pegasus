@@ -1,13 +1,13 @@
-import Settings from '../types/Settings';
+import Settings from '../types/Settings.js';
 import {inject, injectable} from 'inversify';
-import Feeds from '../types/Feed';
+import Feeds from '../types/Feed.js';
 import fs from 'fs/promises';
 import {Logger} from 'winston';
-import {FeedFactory} from '../factories/FeedFactory';
+import {FeedFactory} from '../factories/FeedFactory.js';
 import NodeCache from 'node-cache';
 import axios from 'axios';
-import {UniswapFeedRepository} from './UniswapFeedRepository';
-import {DataFilter} from '../services/tools/DataFilter';
+import {UniswapFeedRepository} from './UniswapFeedRepository.js';
+import {DataFilter} from '../services/tools/DataFilter.js';
 
 function isValidURL(string: string): boolean {
   let url;

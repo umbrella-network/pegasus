@@ -1,19 +1,19 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
-import Settings from '../types/Settings';
-import {SignedBlock} from '../types/SignedBlock';
-import {BlockSignerResponse} from '../types/BlockSignerResponse';
-import BlockRepository from '../repositories/BlockRepository';
+import SortedMerkleTreeFactory from './SortedMerkleTreeFactory.js';
+import Settings from '../types/Settings.js';
+import {SignedBlock} from '../types/SignedBlock.js';
+import {BlockSignerResponse} from '../types/BlockSignerResponse.js';
+import BlockRepository from '../repositories/BlockRepository.js';
 
-import {signAffidavitWithWallet} from '../utils/mining';
-import {LeavesAndFeeds, ProposedConsensus} from '../types/Consensus';
-import {DiscrepancyFinder} from './DiscrepancyFinder';
-import {ProposedConsensusFactory} from '../factories/ProposedConsensusFactory';
-import {FeedDataService} from './FeedDataService';
-import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
-import {FeedsType} from '../types/Feed';
+import {signAffidavitWithWallet} from '../utils/mining.js';
+import {LeavesAndFeeds, ProposedConsensus} from '../types/Consensus.js';
+import {DiscrepancyFinder} from './DiscrepancyFinder.js';
+import {ProposedConsensusFactory} from '../factories/ProposedConsensusFactory.js';
+import {FeedDataService} from './FeedDataService.js';
+import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver.js';
+import {FeedsType} from '../types/Feed.js';
 import {Wallet} from 'ethers';
 
 @injectable()

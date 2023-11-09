@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {ChainsIds} from '../types/ChainsIds';
-import {BlockchainType} from '../types/Settings';
-import {MappingRepository} from './MappingRepository';
-import {NumberOfSignaturesPerChain} from '../types/NumberOfSignatures';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {BlockchainType} from '../types/Settings.js';
+import {MappingRepository} from './MappingRepository.js';
+import {NumberOfSignaturesPerChain} from '../types/NumberOfSignatures.js';
 
 @injectable()
 export class RequiredSignaturesRepository {
