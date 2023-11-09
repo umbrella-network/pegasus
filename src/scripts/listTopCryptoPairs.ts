@@ -5,7 +5,7 @@ import {JSONPath} from 'jsonpath-plus';
 
 dotenv.config();
 
-import settings from '../config/settings';
+import settings from '../config/settings.js';
 
 const argv = yargs(process.argv.slice(2)).options({
   maxTickers: {type: 'number', default: 2000},
@@ -58,10 +58,13 @@ async function main() {
 
     const result = response.data;
 
-    return Object.keys(result).reduce((map, symbol) => {
-      map[symbol] = result[symbol]['USD'];
-      return map;
-    }, {} as {[key: string]: number});
+    return Object.keys(result).reduce(
+      (map, symbol) => {
+        map[symbol] = result[symbol]['USD'];
+        return map;
+      },
+      {} as {[key: string]: number},
+    );
   };
 
   // eslint-disable-next-line

@@ -1,10 +1,10 @@
-import {StakingBankInterface} from "../../interfaces/StakingBankInterface";
-import {StakingBankContract} from "../../blockchains/evm/contracts/StakingBankContract";
-import Blockchain from "../../lib/Blockchain";
-import {StakingBankMultiversX} from "../../blockchains/multiversx/contracts/StakingBankMultiversX";
-import settings from "../../config/settings";
-import {ChainsIds} from "../../types/ChainsIds";
-import {StakingBankMassa} from "../../blockchains/massa/contracts/StakingBankMassa";
+import {StakingBankInterface} from '../../interfaces/StakingBankInterface.js';
+import {StakingBankContract} from '../../blockchains/evm/contracts/StakingBankContract.js';
+import Blockchain from '../../lib/Blockchain.js';
+import {StakingBankMultiversX} from '../../blockchains/multiversx/contracts/StakingBankMultiversX.js';
+import settings from '../../config/settings.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {StakingBankMassa} from '../../blockchains/massa/contracts/StakingBankMassa.js';
 
 export class StakingBankContractFactory {
   static create(blockchain: Blockchain): StakingBankInterface {

@@ -2,7 +2,7 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {Validator} from '../types/Validator';
+import {Validator} from '../types/Validator.js';
 
 @injectable()
 export class ValidatorStatusChecker {

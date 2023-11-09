@@ -1,9 +1,9 @@
-import {Feed} from './Feed';
-import Leaf from '../types/Leaf';
-import {ChainsIds} from './ChainsIds';
-import {KeyValues} from './SignedBlock';
-import {Discrepancy} from './Discrepancy';
-import {DataCollection} from './custom';
+import {Feed} from './Feed.js';
+import Leaf from '../types/Leaf.js';
+import {ChainsIds} from './ChainsIds.js';
+import {KeyValues} from './SignedBlock.js';
+import {Discrepancy} from './Discrepancy.js';
+import {DataCollection} from './custom.js';
 
 export interface DeviationFeed extends Feed {
   // deviation feed attributes

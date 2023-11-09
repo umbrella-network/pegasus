@@ -1,10 +1,10 @@
-import {ChainsIds} from '../types/ChainsIds';
-import settings from '../config/settings';
-import {IWallet} from '../interfaces/IWallet';
-import {EvmWallet} from '../blockchains/evm/EvmWallet';
-import {MultiversXWallet} from '../blockchains/multiversx/MultiversXWallet';
-import {MassaWallet} from '../blockchains/massa/MassaWallet';
-// import {ConcordiumWallet} from '../blockchains/concordium/ConcordiumWallet';
+import {ChainsIds} from '../types/ChainsIds.js';
+import settings from '../config/settings.js';
+import {IWallet} from '../interfaces/IWallet.js';
+import {EvmWallet} from '../blockchains/evm/EvmWallet.js';
+import {MultiversXWallet} from '../blockchains/multiversx/MultiversXWallet.js';
+import {MassaWallet} from '../blockchains/massa/MassaWallet.js';
+// import {ConcordiumWallet} from '../blockchains/concordium/ConcordiumWallet.js';
 
 export class DeviationWalletFactory {
   static create(chainId: ChainsIds): IWallet | undefined {

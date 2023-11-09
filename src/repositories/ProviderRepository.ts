@@ -1,10 +1,10 @@
 import {inject, injectable} from 'inversify';
 
-import Settings from '../types/Settings';
-import {ChainsIds} from '../types/ChainsIds';
+import Settings from '../types/Settings.js';
+import {ChainsIds} from '../types/ChainsIds.js';
 import {Logger} from 'winston';
-import {ProviderInterface} from '../interfaces/ProviderInterface';
-import {ProviderFactory} from '../factories/ProviderFactory';
+import {ProviderInterface} from '../interfaces/ProviderInterface.js';
+import {ProviderFactory} from '../factories/ProviderFactory.js';
 
 export type ProviderCollection = {
   [key: string]: ProviderInterface;

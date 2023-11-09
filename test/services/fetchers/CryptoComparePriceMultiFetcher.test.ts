@@ -1,8 +1,10 @@
-import {expect} from 'chai';
+import chai from 'chai';
 
-import Application from '../../../src/lib/Application';
-import {InputParams, OutputValue} from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher';
-import CryptoComparePriceMultiFetcher from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher';
+import Application from '../../../src/lib/Application.js';
+import {InputParams, OutputValue} from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher.js';
+import CryptoComparePriceMultiFetcher from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher.js';
+
+const {expect} = chai;
 
 describe('CryptoComparePriceMultiFetcher', () => {
   const params: InputParams = {
@@ -63,6 +65,6 @@ describe('CryptoComparePriceMultiFetcher', () => {
         expect(outputs[0]).to.have.property('tsym', 'USD');
         expect(outputs[0]).to.have.property('value').greaterThan(0);
       });
-    });
+    }).timeout(10000);
   });
 });

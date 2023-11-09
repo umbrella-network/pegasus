@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {price} from '@umb-network/validator';
 
-import {FeedOutput} from '../../types/Feed';
+import {FeedOutput} from '../../types/Feed.js';
 
 @injectable()
 class VWAPCalculator {

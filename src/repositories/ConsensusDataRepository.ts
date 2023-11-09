@@ -2,8 +2,8 @@ import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import dayjs from 'dayjs';
 
-import ConsensusData from '../models/ConsensusData';
-import {ConsensusDataProps} from '../types/Consensus';
+import ConsensusData from '../models/ConsensusData.js';
+import {ConsensusDataProps} from '../types/Consensus.js';
 
 @injectable()
 export class ConsensusDataRepository {

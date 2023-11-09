@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 
-import {PriceData} from '../../types/DeviationFeeds';
+import {PriceData} from '../../types/DeviationFeeds.js';
 import {Logger} from 'winston';
 
 @injectable()

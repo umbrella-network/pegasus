@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
 import schedule, {Job} from 'node-schedule';
 
-import WSClient from './WSClient';
-import Settings from '../../types/Settings';
-import {Pair, PairWithFreshness} from '../../types/Feed';
-import PriceAggregator from '../PriceAggregator';
-import TimeService from '../TimeService';
-import Timeout from '../../utils/timeout';
+import WSClient from './WSClient.js';
+import Settings from '../../types/Settings.js';
+import {Pair, PairWithFreshness} from '../../types/Feed.js';
+import PriceAggregator from '../PriceAggregator.js';
+import TimeService from '../TimeService.js';
+import Timeout from '../../utils/timeout.js';
 
 @injectable()
 class CryptoCompareWSClient extends WSClient {
@@ -98,12 +98,12 @@ class CryptoCompareWSClient extends WSClient {
     this.connected = true;
 
     this.staleReconnectJob = new Timeout(70, () => {
-      this.logger.warn(`closing a stale connection...`);
+      this.logger.warn('closing a stale connection...');
       this.close();
     });
 
     this.reconnectJob = new Timeout(this.settings.api.cryptocompare.reconnectTimeoutHours * 60 * 60, () => {
-      this.logger.info(`scheduled reconnection...`);
+      this.logger.info('scheduled reconnection...');
       this.close();
     });
 
@@ -112,7 +112,7 @@ class CryptoCompareWSClient extends WSClient {
     });
 
     this.truncateJob = schedule.scheduleJob(this.settings.api.cryptocompare.truncateCronRule, () => {
-      this.logger.info(`truncating prices...`);
+      this.logger.info('truncating prices...');
       this.truncatePriceAggregator().catch(this.logger.warn);
     });
 

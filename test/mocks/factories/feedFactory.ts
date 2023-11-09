@@ -1,6 +1,6 @@
 import {Factory} from 'rosie';
 
-import {Feed, FeedInput} from '../../../src/types/Feed';
+import {Feed, FeedInput} from '../../../src/types/Feed.js';
 
 export const feedInputFactory = Factory.define<FeedInput>('feedInput').attr('fetcher', {name: 'TestFetcher'});
 

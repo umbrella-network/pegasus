@@ -1,8 +1,8 @@
 import {utils} from 'ethers';
 import {inject, injectable} from 'inversify';
-import {BaseProvider} from "@ethersproject/providers";
-import {ChainsIds} from "../../types/ChainsIds";
-import {ProviderRepository} from "../../repositories/ProviderRepository";
+import {BaseProvider} from '@ethersproject/providers';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {ProviderRepository} from '../../repositories/ProviderRepository.js';
 
 @injectable()
 class RandomNumberFetcher {

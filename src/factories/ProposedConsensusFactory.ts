@@ -1,9 +1,9 @@
-import {generateAffidavit, sortLeaves} from '../utils/mining';
+import {generateAffidavit, sortLeaves} from '../utils/mining.js';
 import {ethers} from 'ethers';
-import SortedMerkleTreeFactory from '../services/SortedMerkleTreeFactory';
-import {ProposedConsensus} from '../types/Consensus';
-import {SignedBlock} from '../types/SignedBlock';
-import {KeyValuesToLeaves} from '../services/tools/KeyValuesToLeaves';
+import SortedMerkleTreeFactory from '../services/SortedMerkleTreeFactory.js';
+import {ProposedConsensus} from '../types/Consensus.js';
+import {SignedBlock} from '../types/SignedBlock.js';
+import {KeyValuesToLeaves} from '../services/tools/KeyValuesToLeaves.js';
 
 export class ProposedConsensusFactory {
   static apply(block: SignedBlock): ProposedConsensus {

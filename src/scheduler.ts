@@ -1,17 +1,17 @@
 import {Logger} from 'winston';
 
-import {boot} from './boot';
-import Application from './lib/Application';
-import BlockMintingWorker from './workers/BlockMintingWorker';
-import MetricsWorker from './workers/MetricsWorker';
-import Settings, {BlockDispatcherSettings} from './types/Settings';
-import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
-import {DeviationLeaderWorker} from './workers/DeviationLeaderWorker';
-import DataPurger from "./services/DataPurger";
-import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
-import BasicWorker from "./workers/BasicWorker";
-import {ChainsIds} from "./types/ChainsIds";
-import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
+import {boot} from './boot.js';
+import Application from './lib/Application.js';
+import BlockMintingWorker from './workers/BlockMintingWorker.js';
+import MetricsWorker from './workers/MetricsWorker.js';
+import Settings, {BlockDispatcherSettings} from './types/Settings.js';
+import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker.js';
+import {DeviationLeaderWorker} from './workers/DeviationLeaderWorker.js';
+import DataPurger from './services/DataPurger.js';
+import {DeviationDispatcherWorker} from './workers/DeviationDispatcherWorker.js';
+import BasicWorker from './workers/BasicWorker.js';
+import {ChainsIds} from './types/ChainsIds.js';
+import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker.js';
 
 (async (): Promise<void> => {
   await boot();
@@ -109,7 +109,10 @@ import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
       settings.jobs.blockDispatcher
     ))[chainId];
 
-    setInterval(async () => scheduleDispatching(blockDispatcherWorker, 'dispatcher', chainId), blockDispatcherSettings.interval);
+    setInterval(
+      async () => scheduleDispatching(blockDispatcherWorker, 'dispatcher', chainId),
+      blockDispatcherSettings.interval,
+    );
   }
 
   setInterval(async () => {
@@ -130,10 +133,11 @@ import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
       continue;
     }
 
-    const {deviationInterval} = (<Record<string, BlockDispatcherSettings>>(
-      settings.jobs.blockDispatcher
-    ))[chainId];
+    const {deviationInterval} = (<Record<string, BlockDispatcherSettings>>settings.jobs.blockDispatcher)[chainId];
 
-    setInterval(async () => scheduleDispatching(deviationDispatcherWorker, 'deviation-dispatcher', chainId), deviationInterval);
+    setInterval(
+      async () => scheduleDispatching(deviationDispatcherWorker, 'deviation-dispatcher', chainId),
+      deviationInterval,
+    );
   }
 })();

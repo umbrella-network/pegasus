@@ -1,25 +1,21 @@
-import {injectable} from "inversify";
+import {injectable} from 'inversify';
 
-import {
-  DeviationDataToSign,
-  DeviationFeeds,
-  PriceData,
-  PriceDataByKey,
-} from "../../types/DeviationFeeds";
-import {PriceDataFactory} from "../../factories/PriceDataFactory";
-import Leaf from "../../types/Leaf";
+import {DeviationDataToSign, DeviationFeeds, PriceData, PriceDataByKey} from '../../types/DeviationFeeds.js';
+import {PriceDataFactory} from '../../factories/PriceDataFactory.js';
+import Leaf from '../../types/Leaf.js';
 
 @injectable()
 export class PriceMetadataComparator {
-  apply(
-    dataToSign: DeviationDataToSign,
-    localLeaves: Leaf[],
-    localFeeds: DeviationFeeds
-  ): boolean {
-    const localPriceDataByKey: PriceDataByKey = PriceDataFactory.createMany(dataToSign.dataTimestamp, localLeaves, localFeeds);
+  apply(dataToSign: DeviationDataToSign, localLeaves: Leaf[], localFeeds: DeviationFeeds): boolean {
+    const localPriceDataByKey: PriceDataByKey = PriceDataFactory.createMany(
+      dataToSign.dataTimestamp,
+      localLeaves,
+      localFeeds,
+    );
+
     const keys = Object.keys(dataToSign.leaves);
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const priceData = dataToSign.proposedPriceData[key];
 
       if (!this.equal(priceData, localPriceDataByKey[key])) {

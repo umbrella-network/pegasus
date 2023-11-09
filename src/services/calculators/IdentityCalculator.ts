@@ -1,8 +1,9 @@
 import {injectable} from 'inversify';
-import {FeedOutput} from '../../types/Feed';
+import {FeedOutput} from '../../types/Feed.js';
 
 @injectable()
 class IdentityCalculator {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apply(feedKey: string, feedValue: any): FeedOutput[] {
     if (!feedValue) {
       return [];

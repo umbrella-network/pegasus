@@ -1,5 +1,5 @@
 import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
-import {NetworkStatus} from '../types/Network';
+import {NetworkStatus} from '../types/Network.js';
 
 export interface ProviderInterface {
   getRawProvider<T>(): T;

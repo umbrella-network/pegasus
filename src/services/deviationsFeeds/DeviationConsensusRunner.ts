@@ -1,14 +1,14 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
-import Settings from '../../types/Settings';
-import {Validator} from '../../types/Validator';
-import {DeviationDataToSign} from "../../types/DeviationFeeds";
-import {DeviationSignatureCollector} from "./DeviationSignatureCollector";
-import {DeviationDataToSignFilter} from "./DeviationDataToSignFilter";
-import {DeviationSignerResponseProcessor} from "../consensus/DeviationSignerResponseProcessor";
-import {DeviationConsensusFactory} from "../../factories/DeviationConsensusFactory";
-import {DeviationConsensus} from "../../models/DeviationConsensus";
+import Settings from '../../types/Settings.js';
+import {Validator} from '../../types/Validator.js';
+import {DeviationDataToSign} from '../../types/DeviationFeeds.js';
+import {DeviationSignatureCollector} from './DeviationSignatureCollector.js';
+import {DeviationDataToSignFilter} from './DeviationDataToSignFilter.js';
+import {DeviationSignerResponseProcessor} from '../consensus/DeviationSignerResponseProcessor.js';
+import {DeviationConsensusFactory} from '../../factories/DeviationConsensusFactory.js';
+import {DeviationConsensus} from '../../models/DeviationConsensus.js';
 
 @injectable()
 export class DeviationConsensusRunner {
@@ -46,9 +46,12 @@ export class DeviationConsensusRunner {
         // if we have even one consensus, we finish
         return consensuses;
       }
-      
+
       if (i < maxRetries && discrepantKeys.size > 0) {
-        this.logger.info(`[DCR] Dumping discrepancy data (${discrepantCount}): ${Array.from(discrepantKeys).join(', ')}`);
+        this.logger.info(
+          `[DCR] Dumping discrepancy data (${discrepantCount}): ` + `${Array.from(discrepantKeys).join(', ')}`,
+        );
+
         dataForConsensus = DeviationDataToSignFilter.apply(dataForConsensus, discrepantKeys);
       }
     }
@@ -60,7 +63,7 @@ export class DeviationConsensusRunner {
     dataForConsensus: DeviationDataToSign,
     validators: Validator[],
     requiredSignatures: number,
-  ): Promise<{consensuses: DeviationConsensus[], discrepantKeys: Set<string>}> {
+  ): Promise<{consensuses: DeviationConsensus[]; discrepantKeys: Set<string>}> {
     const {dataTimestamp, leaves} = dataForConsensus;
 
     this.logger.info(
@@ -75,7 +78,7 @@ export class DeviationConsensusRunner {
     );
 
     const consensuses = DeviationConsensusFactory.create(dataForConsensus, signaturesPerChain);
-    
+
     return {
       consensuses,
       discrepantKeys,
@@ -96,11 +99,11 @@ export class DeviationConsensusRunner {
       return;
     }
 
-    const consensusYield = maxLeafKeyCount == 0 ? 0.0 : Math.round(leafKeyCount * 1000 / maxLeafKeyCount) / 1000;
+    const consensusYield = maxLeafKeyCount == 0 ? 0.0 : Math.round((leafKeyCount * 1000) / maxLeafKeyCount) / 1000;
 
     const msg = [
       `[DCR] Round ${props.round}/${props.maxRounds} Finished.`,
-      `Consensus for: ${consensuses.map(c => c.chainId)}`,
+      `Consensus for: ${consensuses.map((c) => c.chainId)}`,
       `| Keys: ${leafKeyCount}`,
       `| Missed: ${props.discrepantCount}`,
       `| Yield: ${consensusYield * 100}%`,

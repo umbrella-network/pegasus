@@ -1,18 +1,25 @@
-import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies';
+import fs from 'fs';
+
+import path from 'path';
+import {fileURLToPath} from 'url';
+
+import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies.js';
 import Settings, {
   BlockchainSettings,
   BlockchainType,
   BlockchainTypeKeys,
   BlockDispatcherSettings,
-} from '../types/Settings';
-import {TimeoutCodes} from '../types/TimeoutCodes';
-import {timeoutWithCode} from '../utils/request';
-import './setupDotenv';
-import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds';
-import fs from 'fs';
+} from '../types/Settings.js';
+import {TimeoutCodes} from '../types/TimeoutCodes.js';
+import {timeoutWithCode} from '../utils/request.js';
+import './setupDotenv.js';
+import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const packageJson = require('../../package.json');
+const packageJson = JSON.parse(fs.readFileSync(__dirname + '/../../package.json', 'utf8'));
 
 function parseNl(s: string): string {
   return s ? s.replace(/\\n/g, '\n').split('\n').join('\n') : '';
@@ -360,13 +367,16 @@ function getTimeSetting(value: number, min: number): number {
 }
 
 function resolveBlockchainProviders() {
-  return resolveArray((i) => process.env[`BLOCKCHAIN_PROVIDER_${i}_URL`] as string).reduce((map, item, i) => {
-    const name = process.env[`BLOCKCHAIN_PROVIDER_${i}_NAME`] as string;
-    if (name) {
-      map[name] = item;
-    }
-    return map;
-  }, {} as {[name: string]: string});
+  return resolveArray((i) => process.env[`BLOCKCHAIN_PROVIDER_${i}_URL`] as string).reduce(
+    (map, item, i) => {
+      const name = process.env[`BLOCKCHAIN_PROVIDER_${i}_NAME`] as string;
+      if (name) {
+        map[name] = item;
+      }
+      return map;
+    },
+    {} as {[name: string]: string},
+  );
 }
 
 function resolveArray(iterator: (i: number) => string): string[] {

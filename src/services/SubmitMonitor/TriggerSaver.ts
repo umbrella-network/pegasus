@@ -1,8 +1,8 @@
 import {injectable} from 'inversify';
 
-import {ChainsIds} from '../../types/ChainsIds';
-import {TriggerTxKeyResolver} from "./TriggerTxKeyResolver";
-import {SubmitSaver} from "./SubmitSaver";
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {TriggerTxKeyResolver} from './TriggerTxKeyResolver.js';
+import {SubmitSaver} from './SubmitSaver.js';
 
 @injectable()
 export class TriggerSaver extends SubmitSaver {

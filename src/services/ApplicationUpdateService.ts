@@ -1,4 +1,4 @@
-import Settings from '../types/Settings';
+import Settings from '../types/Settings.js';
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import path from 'path';
@@ -44,7 +44,7 @@ export default class ApplicationUpdateService {
     try {
       await this.processManifest(manifest);
       this.currentManifest = manifest;
-      this.logger.info(`[ApplicationUpdateService] Update complete.`);
+      this.logger.info('[ApplicationUpdateService] Update complete.');
     } catch (e) {
       this.logger.error('[ApplicationUpdateService] Manifest processing error');
       this.logger.debug('[ApplicationUpdateService] Error: ', e);
@@ -61,14 +61,14 @@ export default class ApplicationUpdateService {
       }
 
       if (manifest.timestamp == this.currentManifest?.timestamp) {
-        this.logger.info(`[ApplicationUpdateService] No new update manifest found, skipping download.`);
+        this.logger.info('[ApplicationUpdateService] No new update manifest found, skipping download.');
         return;
       }
 
       return manifest;
     } catch (e) {
-      this.logger.error(`[ApplicationUpdateService] Manifest parsing error`);
-      this.logger.debug(`[ApplicationUpdateService] Error: `, e);
+      this.logger.error('[ApplicationUpdateService] Manifest parsing error');
+      this.logger.debug('[ApplicationUpdateService] Error: ', e);
       return;
     }
   }
@@ -79,14 +79,14 @@ export default class ApplicationUpdateService {
 
       if (!this.SUCCESS_CODES.includes(response.status)) {
         this.logger.error(`[ApplicationUpdateService] Manifest Download Failed. HTTP Status: ${response.status}`);
-        this.logger.debug(`[ApplicationUpdateService] HTTP Response: `, JSON.stringify(response));
+        this.logger.debug('[ApplicationUpdateService] HTTP Response: ', JSON.stringify(response));
         return;
       }
 
       return response.data;
     } catch (e) {
-      this.logger.error(`[ApplicationUpdateService] Manifest Download Failed`);
-      this.logger.debug(`[ApplicationUpdateService] Error: `, e);
+      this.logger.error('[ApplicationUpdateService] Manifest Download Failed');
+      this.logger.debug('[ApplicationUpdateService] Error: ', e);
       return;
     }
   }
@@ -108,7 +108,7 @@ export default class ApplicationUpdateService {
         `[ApplicationUpdateService] Asset "${asset.url}" Download Failed. HTTP Status: ${response.status}`,
       );
 
-      this.logger.debug(`[ApplicationUpdateService] HTTP Response: `, JSON.stringify(response));
+      this.logger.debug('[ApplicationUpdateService] HTTP Response: ', JSON.stringify(response));
       return;
     }
 

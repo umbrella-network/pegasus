@@ -1,13 +1,15 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 import mongoose from 'mongoose';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import '../../src/config/setupDotenv';
-import {loadTestEnv} from '../helpers/loadTestEnv';
-import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepository';
-import ConsensusData from '../../src/models/ConsensusData';
-import {consensusDataFactory} from '../mocks/factories/consensusDataFactory';
+import '../../src/config/setupDotenv.js';
+import {loadTestEnv} from '../helpers/loadTestEnv.js';
+import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepository.js';
+import ConsensusData from '../../src/models/ConsensusData.js';
+import {consensusDataFactory} from '../mocks/factories/consensusDataFactory.js';
+
+const {expect} = chai;
 
 const defaultConsensusAssert = consensusDataFactory.build();
 

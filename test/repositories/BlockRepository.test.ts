@@ -1,14 +1,16 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 import mongoose from 'mongoose';
 
-import '../../src/config/setupDotenv';
-import {loadTestEnv} from '../helpers/loadTestEnv';
-import BlockRepository from '../../src/repositories/BlockRepository';
-import Block from '../../src/models/Block';
-import Leaf from '../../src/types/Leaf';
+import '../../src/config/setupDotenv.js';
+import {loadTestEnv} from '../helpers/loadTestEnv.js';
+import BlockRepository from '../../src/repositories/BlockRepository.js';
+import Block from '../../src/models/Block.js';
+import Leaf from '../../src/types/Leaf.js';
 import {getModelForClass} from '@typegoose/typegoose';
-import {SignedBlockConsensus} from '../../src/types/Consensus';
+import {SignedBlockConsensus} from '../../src/types/Consensus.js';
+
+const {expect} = chai;
 
 describe('BlockRepository', () => {
   let blockRepository: BlockRepository;

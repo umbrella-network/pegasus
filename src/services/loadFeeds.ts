@@ -1,14 +1,14 @@
 import fs from 'fs';
 import {Validator} from 'jsonschema';
-import {loadAll} from 'js-yaml';
-import axios from 'axios';
+import jsYaml from 'js-yaml';
+import axios, {AxiosError} from 'axios';
 import schedule from 'node-schedule';
 import {Logger} from 'winston';
 
-import Feeds from '../types/Feed';
-import FeedsSchema from '../config/feeds-schema';
-import settings from '../config/settings';
-import Application from '../lib/Application';
+import Feeds from '../types/Feed.js';
+import FeedsSchema from '../config/feeds-schema.js';
+import settings from '../config/settings.js';
+import Application from '../lib/Application.js';
 
 const urlCache = createUrlCache(processYaml, settings.feedsCacheRefreshCronRule);
 
@@ -37,7 +37,7 @@ async function processYaml(feedData: string, ignoreInvalid = true): Promise<Feed
     return {};
   }
 
-  const [feeds]: any = loadAll(feedData); // eslint-disable-line
+  const [feeds]: any = jsYaml.loadAll(feedData); // eslint-disable-line
   const result = new Validator().validate(feeds, FeedsSchema);
   if (!result.valid) {
     if (!ignoreInvalid) {
@@ -59,7 +59,7 @@ async function processYaml(feedData: string, ignoreInvalid = true): Promise<Feed
 
 async function loadFromFile(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'utf-8', async (err, feedData) => {
+    fs.readFile(filePath, 'utf-8', async (err: unknown, feedData: string) => {
       if (err) {
         reject(err);
       } else {
@@ -117,12 +117,12 @@ function createUrlCache<T>(parse: ParseData<T>, cacheRefreshCronRule: string) {
         cachedUrls.add(url);
 
         return data;
-      } catch (err) {
+      } catch (err: unknown) {
         if (!prevData) {
           throw err;
         }
 
-        if (err.response.status === 304) {
+        if ((err as AxiosError).response?.status === 304) {
           return prevData;
         } else if (ignoreErrors) {
           return prevData;

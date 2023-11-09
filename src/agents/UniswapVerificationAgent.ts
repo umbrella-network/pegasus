@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 
-import {LoopAgent} from './LoopAgent';
-import {UniswapPoolService} from '../services/uniswap/UniswapPoolService';
-import Settings from '../types/Settings';
+import {LoopAgent} from './LoopAgent.js';
+import {UniswapPoolService} from '../services/uniswap/UniswapPoolService.js';
+import Settings from '../types/Settings.js';
 
 @injectable()
 export class UniswapVerificationAgent extends LoopAgent {

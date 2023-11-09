@@ -3,13 +3,13 @@ import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {Wallet} from 'ethers';
 
-import Feeds from '../../src/types/Feed';
-import {DiscrepancyFinder} from '../../src/services/DiscrepancyFinder';
-import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
-import {signAffidavitWithWallet} from '../../src/utils/mining';
-import {ProposedConsensusFactory} from '../../src/factories/ProposedConsensusFactory';
-import {SignedBlock} from '../../src/types/SignedBlock';
-import {ProposedConsensus} from '../../src/types/Consensus';
+import Feeds from '../../src/types/Feed.js';
+import {DiscrepancyFinder} from '../../src/services/DiscrepancyFinder.js';
+import {leafWithAffidavit} from '../fixtures/leafWithAffidavit.js';
+import {signAffidavitWithWallet} from '../../src/utils/mining.js';
+import {ProposedConsensusFactory} from '../../src/factories/ProposedConsensusFactory.js';
+import {SignedBlock} from '../../src/types/SignedBlock.js';
+import {ProposedConsensus} from '../../src/types/Consensus.js';
 
 chai.use(chaiAsPromised);
 

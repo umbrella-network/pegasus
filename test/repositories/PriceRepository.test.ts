@@ -1,12 +1,14 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
-import {expect} from 'chai';
+import chai from 'chai';
 
-import PriceRepository from '../../src/repositories/PriceRepository';
-import PriceAggregator from '../../src/services/PriceAggregator';
-import Settings from '../../src/types/Settings';
-import {PairWithFreshness} from '../../src/types/Feed';
-import {getTestContainer} from '../helpers/getTestContainer';
+import PriceRepository from '../../src/repositories/PriceRepository.js';
+import PriceAggregator from '../../src/services/PriceAggregator.js';
+import Settings from '../../src/types/Settings.js';
+import {PairWithFreshness} from '../../src/types/Feed.js';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+
+const {expect} = chai;
 
 describe('PriceRepository', () => {
   let settings: Settings;

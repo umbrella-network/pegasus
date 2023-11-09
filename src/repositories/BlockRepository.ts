@@ -1,10 +1,10 @@
 import {getModelForClass} from '@typegoose/typegoose';
 import {injectable} from 'inversify';
 import {v4 as uuid} from 'uuid';
-import {HexStringWith0x} from '../types/custom';
-import Block from '../models/Block';
-import Leaf from '../types/Leaf';
-import {SignedBlockConsensus} from '../types/Consensus';
+import {HexStringWith0x} from '../types/custom.js';
+import Block from '../models/Block.js';
+import Leaf from '../types/Leaf.js';
+import {SignedBlockConsensus} from '../types/Consensus.js';
 
 type Params = {
   id: string;

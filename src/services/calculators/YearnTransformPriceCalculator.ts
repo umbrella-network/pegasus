@@ -1,12 +1,13 @@
 import {injectable} from 'inversify';
 import {BigNumber} from 'ethers';
 
-import {FeedOutput} from '../../types/Feed';
-import {Vault} from '../fetchers/YearnVaultTokenPriceFetcher';
-import PriceConverter from '../PriceConverter';
+import {FeedOutput} from '../../types/Feed.js';
+import {Vault} from '../fetchers/YearnVaultTokenPriceFetcher.js';
+import PriceConverter from '../PriceConverter.js';
 
 @injectable()
 class YearnTransformPriceCalculator {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apply(key: string, vaults: Vault[], params: any, prices: {[key: string]: number}): FeedOutput[] {
     const {tsym} = params;
 
@@ -15,10 +16,14 @@ class YearnTransformPriceCalculator {
     for (const vault of vaults) {
       const {tokenSymbol, decimals, pricePerShare, tokenVirtualPrice, tokenDecimals, symbol} = vault;
 
-      const priceConverter = new PriceConverter(tokenVirtualPrice.isZero() ? prices : {
-        ...prices,
-        [`${tokenSymbol}-USD`]: this.bigNumberToNumber(tokenVirtualPrice, tokenDecimals),
-      });
+      const priceConverter = new PriceConverter(
+        tokenVirtualPrice.isZero()
+          ? prices
+          : {
+              ...prices,
+              [`${tokenSymbol}-USD`]: this.bigNumberToNumber(tokenVirtualPrice, tokenDecimals),
+            },
+      );
 
       const tokenPrice = priceConverter.apply(tokenSymbol, tsym);
 

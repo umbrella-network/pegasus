@@ -1,4 +1,4 @@
-import {DeviationDataToSign} from '../../types/DeviationFeeds';
+import {DeviationDataToSign} from '../../types/DeviationFeeds.js';
 
 export class DeviationDataToSignFilter {
   static apply(dataToSign: DeviationDataToSign, ignoredKeys: Set<string>): DeviationDataToSign {

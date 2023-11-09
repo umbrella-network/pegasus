@@ -1,7 +1,9 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 
-import PriceConverter from '../../src/services/PriceConverter';
+import PriceConverter from '../../src/services/PriceConverter.js';
+
+const {expect} = chai;
 
 describe('PriceConverter', () => {
   let priceConverter: PriceConverter;

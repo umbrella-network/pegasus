@@ -1,7 +1,9 @@
-import {expect} from 'chai';
-import {KeyValuesToLeaves} from '../../../src/services/tools/KeyValuesToLeaves';
-import {KeyValues} from '../../../src/types/SignedBlock';
-import Leaf from '../../../src/types/Leaf';
+import chai from 'chai';
+import {KeyValuesToLeaves} from '../../../src/services/tools/KeyValuesToLeaves.js';
+import {KeyValues} from '../../../src/types/SignedBlock.js';
+import Leaf from '../../../src/types/Leaf.js';
+
+const {expect} = chai;
 
 describe('KeyValuesToLeaves', () => {
   describe('#apply', () => {

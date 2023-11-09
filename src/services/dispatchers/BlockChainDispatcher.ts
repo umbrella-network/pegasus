@@ -1,14 +1,14 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {BSCBlockDispatcher} from './networks/BSCBlockDispatcher';
-import {IBlockChainDispatcher} from './IBlockChainDispatcher';
-import {BlockchainRepository} from '../../repositories/BlockchainRepository';
-import {ChainsIds} from '../../types/ChainsIds';
-import {AvalancheBlockDispatcher} from './networks/AvalancheBlockDispatcher';
-import {PolygonBlockDispatcher} from './networks/PolygonBlockDispatcher';
-import {ArbitrumBlockDispatcher} from './networks/ArbitrumBlockDispatcher';
-import {EthereumBlockDispatcher} from './networks/EthereumBlockDispatcher';
+import {BSCBlockDispatcher} from './networks/BSCBlockDispatcher.js';
+import {IBlockChainDispatcher} from './IBlockChainDispatcher.js';
+import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {AvalancheBlockDispatcher} from './networks/AvalancheBlockDispatcher.js';
+import {PolygonBlockDispatcher} from './networks/PolygonBlockDispatcher.js';
+import {ArbitrumBlockDispatcher} from './networks/ArbitrumBlockDispatcher.js';
+import {EthereumBlockDispatcher} from './networks/EthereumBlockDispatcher.js';
 
 export type BlockChainDispatcherProps = {
   chainId: ChainsIds;

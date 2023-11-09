@@ -1,10 +1,12 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
-import {expect} from 'chai';
+import chai from 'chai';
 import {Container} from 'inversify';
 
-import {ConsensusOptimizer, ConsensusOptimizerProps} from '../../src/services/ConsensusOptimizer';
-import {getTestContainer} from '../helpers/getTestContainer';
+import {ConsensusOptimizer, ConsensusOptimizerProps} from '../../src/services/ConsensusOptimizer.js';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+
+const {expect} = chai;
 
 describe('#apply', () => {
   let container: Container;

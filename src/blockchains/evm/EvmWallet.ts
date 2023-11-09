@@ -1,13 +1,13 @@
 import {Wallet} from 'ethers';
-import {BaseProvider, TransactionRequest, TransactionResponse} from "@ethersproject/providers";
-import {Logger} from "winston";
-import {parseEther} from "ethers/lib/utils";
+import {BaseProvider, TransactionRequest, TransactionResponse} from '@ethersproject/providers';
+import {Logger} from 'winston';
+import {utils as ethersUtils} from 'ethers';
 
-import {ChainsIds} from '../../types/ChainsIds';
-import {IWallet} from '../../interfaces/IWallet';
-import {ProviderFactory} from "../../factories/ProviderFactory";
-import {ExecutedTx} from "../../types/Consensus";
-import logger from '../../lib/logger';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {IWallet} from '../../interfaces/IWallet.js';
+import {ProviderFactory} from '../../factories/ProviderFactory.js';
+import {ExecutedTx} from '../../types/Consensus.js';
+import logger from '../../lib/logger.js';
 
 export class EvmWallet implements IWallet {
   protected logger!: Logger;
@@ -41,7 +41,6 @@ export class EvmWallet implements IWallet {
   }
 
   async sendTransaction(tr: TransactionRequest): Promise<ExecutedTx> {
-
     const txResponse: TransactionResponse = await this.rawWallet.sendTransaction(tr);
 
     this.logger.info(`[${this.logPrefix}] tx nonce: ${txResponse.nonce}, hash: ${txResponse.hash}`);
@@ -54,6 +53,6 @@ export class EvmWallet implements IWallet {
   }
 
   toNative(value: string): bigint {
-    return parseEther(value).toBigInt();
+    return ethersUtils.parseEther(value).toBigInt();
   }
 }

@@ -1,5 +1,5 @@
 import {Container, interfaces} from 'inversify';
-import {getContainer} from './getContainer';
+import {getContainer} from './getContainer.js';
 
 class Application {
   private static _instance: Application;

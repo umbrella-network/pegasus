@@ -1,7 +1,9 @@
-import {expect} from 'chai';
-import {DeviationDataToSignFactory} from '../../src/factories/DeviationDataToSignFactory';
-import {ChainsIds} from '../../src/types/ChainsIds';
-import {DeviationFeeds} from '../../src/types/DeviationFeeds';
+import chai from 'chai';
+import {DeviationDataToSignFactory} from '../../src/factories/DeviationDataToSignFactory.js';
+import {ChainsIds} from '../../src/types/ChainsIds.js';
+import {DeviationFeeds} from '../../src/types/DeviationFeeds.js';
+
+const {expect} = chai;
 
 describe('DeviationDataToSignFactory', () => {
   describe('#create', () => {

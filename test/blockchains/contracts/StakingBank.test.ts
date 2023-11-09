@@ -1,14 +1,16 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 
-import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository';
-import settings from '../../../src/config/settings';
-import {loadTestEnv} from '../../helpers/loadTestEnv';
-import {ChainsIds} from '../../../src/types/ChainsIds';
-import {StakingBankInterface} from '../../../src/interfaces/StakingBankInterface';
-import {StakingBankContractFactory} from '../../../src/factories/contracts/StakingBankContractFactory';
+import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository.js';
+import settings from '../../../src/config/settings.js';
+import {loadTestEnv} from '../../helpers/loadTestEnv.js';
+import {ChainsIds} from '../../../src/types/ChainsIds.js';
+import {StakingBankInterface} from '../../../src/interfaces/StakingBankInterface.js';
+import {StakingBankContractFactory} from '../../../src/factories/contracts/StakingBankContractFactory.js';
 
 loadTestEnv();
+
+const {expect} = chai;
 
 describe.skip('Staking Banks debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
@@ -17,7 +19,7 @@ describe.skip('Staking Banks debug integration tests', () => {
     blockchainRepo = new BlockchainRepository(settings);
   });
 
-  [ChainsIds.MASSA].forEach((chainId) => {
+  [ChainsIds.MULTIVERSX].forEach((chainId) => {
     describe(`[${chainId}] bank tests`, () => {
       let bank: StakingBankInterface;
 
@@ -42,13 +44,13 @@ describe.skip('Staking Banks debug integration tests', () => {
         }
       }).timeout(5000);
 
-      it('#getNumberOfValidators', async () => {
+      it.skip('#getNumberOfValidators', async () => {
         const getNumberOfValidators = await bank.getNumberOfValidators();
         console.log({getNumberOfValidators});
         expect(getNumberOfValidators).gt(0);
       });
 
-      it('#resolveValidators', async () => {
+      it.skip('#resolveValidators', async () => {
         const addr = await bank.resolveValidators();
         console.log(addr);
         expect(addr.length).gt(0);

@@ -1,7 +1,9 @@
-import {expect} from 'chai';
-import {DeviationFeedsPerChainSplitter} from '../../../src/services/deviationsFeeds/DeviationFeedsPerChainSplitter';
-import {DeviationFeeds} from '../../../src/types/DeviationFeeds';
-import {ChainsIds} from '../../../src/types/ChainsIds';
+import chai from 'chai';
+import {DeviationFeedsPerChainSplitter} from '../../../src/services/deviationsFeeds/DeviationFeedsPerChainSplitter.js';
+import {DeviationFeeds} from '../../../src/types/DeviationFeeds.js';
+import {ChainsIds} from '../../../src/types/ChainsIds.js';
+
+const {expect} = chai;
 
 describe('DeviationFeedsPerChainSplitter', () => {
   describe('apply', () => {

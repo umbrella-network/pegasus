@@ -2,18 +2,17 @@ import 'reflect-metadata';
 import {Container} from 'inversify';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-
-import {IdentityCalculator} from '../../../src/services/calculators';
+import * as calculators from '../../../src/services/calculators/index.js';
 
 chai.use(chaiAsPromised);
 
-describe('IdentityCalculator', () => {
-  let identityCalculator: IdentityCalculator;
+describe('calculators.IdentityCalculator', () => {
+  let identityCalculator: calculators.IdentityCalculator;
 
   beforeEach(async () => {
     const container = new Container();
-    container.bind(IdentityCalculator).toSelf();
-    identityCalculator = container.get(IdentityCalculator);
+    container.bind(calculators.IdentityCalculator).toSelf();
+    identityCalculator = container.get(calculators.IdentityCalculator);
   });
 
   it('returns a key / value pair for the value is a number', async () => {

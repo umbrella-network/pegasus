@@ -1,4 +1,4 @@
-import {ChainsIds} from './ChainsIds';
+import {ChainsIds} from './ChainsIds.js';
 
 export interface Feed {
   // deviation feed attributes
@@ -16,7 +16,7 @@ export interface Feed {
 
 export default interface Feeds {
   [leafLabel: string]: Feed;
-}
+} // eslint-disable-line semi
 
 export enum FeedsType {
   CONSENSUS,

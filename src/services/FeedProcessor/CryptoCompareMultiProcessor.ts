@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 
-import {CryptoComparePriceMultiFetcher} from '../fetchers';
-import {FeedFetcher} from '../../types/Feed';
+import {CryptoComparePriceMultiFetcher} from '../fetchers/index.js';
+import {FeedFetcher} from '../../types/Feed.js';
 
-import {InputParams, OutputValue} from '../fetchers/CryptoComparePriceMultiFetcher';
+import {InputParams, OutputValue} from '../fetchers/CryptoComparePriceMultiFetcher.js';
 
 interface FeedFetcherParams {
   fsym: string;

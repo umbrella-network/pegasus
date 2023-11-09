@@ -1,15 +1,17 @@
 import 'reflect-metadata';
 import {loadFeeds} from '@umb-network/toolbox';
-import {expect} from 'chai';
+import chai from 'chai';
 
-import FeedProcessor from '../../src/services/FeedProcessor';
-import {sleep} from '../../src/utils/sleep';
-import Feeds, {FeedInput} from '../../src/types/Feed';
-import {mockedLogger} from '../mocks/logger';
-import {getContainer} from '../../src/lib/getContainer';
-import PriceRepository from '../../src/repositories/PriceRepository';
-import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService';
-import CryptoCompareWSClient from '../../src/services/ws/CryptoCompareWSClient';
+import FeedProcessor from '../../src/services/FeedProcessor.js';
+import {sleep} from '../../src/utils/sleep.js';
+import Feeds, {FeedInput} from '../../src/types/Feed.js';
+import {mockedLogger} from '../mocks/logger.js';
+import {getContainer} from '../../src/lib/getContainer.js';
+import PriceRepository from '../../src/repositories/PriceRepository.js';
+import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
+import CryptoCompareWSClient from '../../src/services/ws/CryptoCompareWSClient.js';
+
+const {expect} = chai;
 
 const getFeedsByFetcher = (feeds: Feeds, fetcherName: string): Feeds => {
   return Object.keys(feeds)

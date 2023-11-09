@@ -1,9 +1,9 @@
 import {injectable} from 'inversify';
 
-import Leaf from '../types/Leaf';
-import {KeyValuePairs} from '../types/custom';
+import Leaf from '../types/Leaf.js';
+import {KeyValuePairs} from '../types/custom.js';
 import {SortedMerkleTree} from '@umb-network/toolbox';
-import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
+import {remove0x} from '../utils/mining.js';
 
 @injectable()
 class SortedMerkleTreeFactory {

@@ -1,5 +1,5 @@
 import {BigNumber} from 'ethers';
-import {Validator} from './Validator';
+import {Validator} from './Validator.js';
 
 export interface ChainStatus {
   blockNumber: BigNumber;

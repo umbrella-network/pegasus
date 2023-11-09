@@ -1,4 +1,4 @@
-import {LogMint} from './events';
+import {LogMint} from './events.js';
 
 export type MintedBlock = {
   hash: string;

@@ -2,34 +2,33 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
-import {BigNumber, ethers, Wallet} from 'ethers';
+import {BigNumber, ethers, Wallet, utils as ethersUtils} from 'ethers';
 import mongoose from 'mongoose';
 import {getModelForClass} from '@typegoose/typegoose';
 import {GasEstimator} from '@umb-network/toolbox';
-import {parseEther} from 'ethers/lib/utils';
 import chaiAsPromised from 'chai-as-promised';
 import sinonChai from 'sinon-chai';
 
-import {mockedLogger} from '../../mocks/logger';
-import Blockchain from '../../../src/lib/Blockchain';
-import Settings from '../../../src/types/Settings';
-import Block from '../../../src/models/Block';
-import {loadTestEnv} from '../../helpers/loadTestEnv';
-import {getTestContainer} from '../../helpers/getTestContainer';
-import {ConsensusDataRepository} from '../../../src/repositories/ConsensusDataRepository';
-import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository';
-import {ChainContractRepository} from '../../../src/repositories/ChainContractRepository';
-import ChainContract from '../../../src/blockchains/evm/contracts/ChainContract';
-import ConsensusData from '../../../src/models/ConsensusData';
-import {consensusDataFactory} from '../../mocks/factories/consensusDataFactory';
-import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
-import * as mining from '../../../src/utils/mining';
-import {transactionResponseFactory} from '../../mocks/factories/transactionResponseFactory';
-import {ChainsIds} from '../../../src/types/ChainsIds';
-import {MappingRepository} from "../../../src/repositories/MappingRepository";
-import {SubmitTxKeyResolver} from "../../../src/services/SubmitMonitor/SubmitTxKeyResolver";
-import {mockIWallet} from "../../helpers/mockIWallet";
-import {AvalancheBlockDispatcher} from "../../../src/services/dispatchers/networks/AvalancheBlockDispatcher";
+import {mockedLogger} from '../../mocks/logger.js';
+import Blockchain from '../../../src/lib/Blockchain.js';
+import Settings from '../../../src/types/Settings.js';
+import Block from '../../../src/models/Block.js';
+import {loadTestEnv} from '../../helpers/loadTestEnv.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
+import {ConsensusDataRepository} from '../../../src/repositories/ConsensusDataRepository.js';
+import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository.js';
+import {ChainContractRepository} from '../../../src/repositories/ChainContractRepository.js';
+import ChainContract from '../../../src/blockchains/evm/contracts/ChainContract.js';
+import ConsensusData from '../../../src/models/ConsensusData.js';
+import {consensusDataFactory} from '../../mocks/factories/consensusDataFactory.js';
+import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory.js';
+import * as mining from '../../../src/utils/mining.js';
+import {transactionResponseFactory} from '../../mocks/factories/transactionResponseFactory.js';
+import {ChainsIds} from '../../../src/types/ChainsIds.js';
+import {MappingRepository} from '../../../src/repositories/MappingRepository.js';
+import {SubmitTxKeyResolver} from '../../../src/services/SubmitMonitor/SubmitTxKeyResolver.js';
+import {mockIWallet} from '../../helpers/mockIWallet.js';
+import {AvalancheBlockDispatcher} from '../../../src/services/dispatchers/networks/AvalancheBlockDispatcher.js';
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -119,9 +118,11 @@ describe('BlockChainDispatcher', () => {
     mockedChainContractRepository = sinon.createStubInstance(ChainContractRepository);
     mockedBlockchainRepository = sinon.createStubInstance(BlockchainRepository);
 
-    mockedBlockchain.chainSettings = settings.blockchain.multiChains.avax!;
+    if (!settings.blockchain.multiChains.avax) throw new Error('avax setup required for this test');
+
+    mockedBlockchain.chainSettings = settings.blockchain.multiChains.avax;
     mockedBlockchain.wallet = mockIWallet(wallet);
-    mockedBlockchain.wallet.getBalance = async () => BigInt(parseEther('10'));
+    mockedBlockchain.wallet.getBalance = async () => ethersUtils.parseEther('10').toBigInt();
     mockedBlockchain.wallet.getNextNonce = async () => 1;
     mockedBlockchain.getBlockNumber.onCall(0).resolves(10n);
     mockedBlockchain.getBlockNumber.onCall(1).resolves(11n);
@@ -142,7 +143,7 @@ describe('BlockChainDispatcher', () => {
 
     mockedChainContract.submit.resolves({
       hash: transactionResponseFactory.build().hash,
-      atBlock: BigInt(transactionResponseFactory.build().blockNumber)
+      atBlock: BigInt(transactionResponseFactory.build().blockNumber || -1),
     });
 
     mockedChainContractRepository.get.returns(mockedChainContract);
@@ -189,14 +190,16 @@ describe('BlockChainDispatcher', () => {
 
     describe('when balance is lower than mintBalance.warnLimit', () => {
       beforeEach(() => {
-        mockedBlockchain.wallet.getBalance = async () => BigInt(parseEther('0.1'));
+        mockedBlockchain.wallet.getBalance = async () => ethersUtils.parseEther('0.1').toBigInt();
         mockedBlockchain.wallet.getNextNonce = async () => 1;
       });
 
       it.skip('logs a warning message', async () => {
         const loggerSpy = sinon.spy(mockedLogger, 'warn');
         await avaxBlockDispatcher.apply();
-        expect(loggerSpy).to.have.been.calledWith(`[avax][LAYER2] Balance (${wallet.address.slice(0, 10)}) is lower than 0.15`);
+        expect(loggerSpy).to.have.been.calledWith(
+          `[avax][LAYER2] Balance (${wallet.address.slice(0, 10)}) is lower than 0.15`,
+        );
       });
 
       it.skip('does save block to database', async () => {
@@ -214,7 +217,7 @@ describe('BlockChainDispatcher', () => {
 
     describe('when balance is higher than mintBalance.warnLimit', () => {
       beforeEach(() => {
-        mockedBlockchain.wallet.getBalance = async () => BigInt(parseEther('1'));
+        mockedBlockchain.wallet.getBalance = async () => ethersUtils.parseEther('1').toBigInt();
         mockedBlockchain.wallet.getNextNonce = async () => 1;
       });
 

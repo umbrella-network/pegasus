@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 
-import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService';
+import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
 
 @injectable()
 class PolygonIOCryptoPriceFetcher {

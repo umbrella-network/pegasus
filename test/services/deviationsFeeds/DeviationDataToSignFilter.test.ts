@@ -1,6 +1,8 @@
-import {expect} from 'chai';
-import {DeviationDataToSignFilter} from '../../../src/services/deviationsFeeds/DeviationDataToSignFilter';
-import {DeviationDataToSign} from '../../../src/types/DeviationFeeds';
+import chai from 'chai';
+import {DeviationDataToSignFilter} from '../../../src/services/deviationsFeeds/DeviationDataToSignFilter.js';
+import {DeviationDataToSign} from '../../../src/types/DeviationFeeds.js';
+
+const {expect} = chai;
 
 describe('DeviationDataToSignFilter', () => {
   describe('#apply', () => {

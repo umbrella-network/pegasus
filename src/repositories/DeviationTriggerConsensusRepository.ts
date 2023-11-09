@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {DeviationConsensus} from '../models/DeviationConsensus';
+import {DeviationConsensus} from '../models/DeviationConsensus.js';
 import {Logger} from 'winston';
 
 @injectable()

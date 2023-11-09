@@ -1,36 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import BlockMinter from '../../src/services/BlockMinter';
-import SignatureCollector from '../../src/services/SignatureCollector';
+import BlockMinter from '../../src/services/BlockMinter.js';
+import SignatureCollector from '../../src/services/SignatureCollector.js';
 import sinon from 'sinon';
-import {expect} from 'chai';
-import {BigNumber, ethers, Wallet} from 'ethers';
+import chai from 'chai';
+import {BigNumber, ethers, Wallet, utils as ethersUtils} from 'ethers';
 import mongoose from 'mongoose';
 import {getModelForClass} from '@typegoose/typegoose';
 import {GasEstimator} from '@umb-network/toolbox';
 
-import {mockedLogger} from '../mocks/logger';
-import Blockchain from '../../src/lib/Blockchain';
-import ChainContract from '../../src/blockchains/evm/contracts/ChainContract';
-import ConsensusRunner from '../../src/services/ConsensusRunner';
-import FeedProcessor from '../../src/services/FeedProcessor';
-import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
-import Settings, {BlockchainType} from '../../src/types/Settings';
-import Leaf from '../../src/types/Leaf';
-import Block from '../../src/models/Block';
-import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
-import {loadTestEnv} from '../helpers/loadTestEnv';
-import TimeService from '../../src/services/TimeService';
-import {generateAffidavit, recoverSigner, signAffidavitWithWallet, sortLeaves, timestamp} from '../../src/utils/mining';
-import BlockRepository from '../../src/repositories/BlockRepository';
-import {getTestContainer} from '../helpers/getTestContainer';
-import {parseEther} from 'ethers/lib/utils';
-import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
-import {ChainsStatuses} from '../../src/types/ChainStatus';
-import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepository';
-import {MultichainArchitectureDetector} from '../../src/services/MultichainArchitectureDetector';
-import {mockIWallet} from '../helpers/mockIWallet';
-import {ChainsIds} from '../../src/types/ChainsIds';
+import {mockedLogger} from '../mocks/logger.js';
+import Blockchain from '../../src/lib/Blockchain.js';
+import ChainContract from '../../src/blockchains/evm/contracts/ChainContract.js';
+import ConsensusRunner from '../../src/services/ConsensusRunner.js';
+import FeedProcessor from '../../src/services/FeedProcessor.js';
+import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory.js';
+import Settings, {BlockchainType} from '../../src/types/Settings.js';
+import Leaf from '../../src/types/Leaf.js';
+import Block from '../../src/models/Block.js';
+import {leafWithAffidavit} from '../fixtures/leafWithAffidavit.js';
+import {loadTestEnv} from '../helpers/loadTestEnv.js';
+import TimeService from '../../src/services/TimeService.js';
+import {
+  generateAffidavit,
+  recoverSigner,
+  signAffidavitWithWallet,
+  sortLeaves,
+  timestamp,
+} from '../../src/utils/mining.js';
+import BlockRepository from '../../src/repositories/BlockRepository.js';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver.js';
+import {ChainsStatuses} from '../../src/types/ChainStatus.js';
+import {ConsensusDataRepository} from '../../src/repositories/ConsensusDataRepository.js';
+import {MultichainArchitectureDetector} from '../../src/services/MultichainArchitectureDetector.js';
+import {mockIWallet} from '../helpers/mockIWallet.js';
+import {ChainsIds} from '../../src/types/ChainsIds.js';
+
+const {expect} = chai;
 
 const allStates: ChainsStatuses = {
   validators: [
@@ -110,7 +117,7 @@ describe('BlockMinter', () => {
     } as Settings;
 
     mockedBlockchain.wallet = mockIWallet(wallet);
-    mockedBlockchain.wallet.getBalance = async () => BigInt(parseEther('10'));
+    mockedBlockchain.wallet.getBalance = async () => BigInt(ethersUtils.parseEther('10').toString());
 
     container.rebind('Logger').toConstantValue(mockedLogger);
     container.rebind('Settings').toConstantValue(settings);

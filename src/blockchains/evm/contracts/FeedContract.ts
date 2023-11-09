@@ -1,19 +1,25 @@
 import {Contract, ethers} from 'ethers';
-import {Logger} from "winston";
+import {Logger} from 'winston';
 import {ContractRegistry} from '@umb-network/toolbox';
 import {PayableOverrides} from '@ethersproject/contracts';
 import {TransactionResponse} from '@ethersproject/providers';
+import {readFileSync} from 'fs';
+import {fileURLToPath} from 'url';
+import path from 'path';
 
-import umbrellaFeedsAbi from './UmbrellaFeeds.abi.json';
-import Settings from '../../../types/Settings';
-import Blockchain from '../../../lib/Blockchain';
-import {PriceData, PriceDataWithKey, Signature, UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds';
-import {UmbrellaFeedInterface} from "../../../interfaces/UmbrellaFeedInterface";
-import {ExecutedTx} from "../../../types/Consensus";
-import logger from '../../../lib/logger';
-import {EvmEstimatedGas} from "../evmTypes";
+import Settings from '../../../types/Settings.js';
+import Blockchain from '../../../lib/Blockchain.js';
+import {PriceData, PriceDataWithKey, Signature, UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds.js';
+import {UmbrellaFeedInterface} from '../../../interfaces/UmbrellaFeedInterface.js';
+import {ExecutedTx} from '../../../types/Consensus.js';
+import logger from '../../../lib/logger.js';
+import {EvmEstimatedGas} from '../evmTypes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class FeedContract implements UmbrellaFeedInterface {
+  protected umbrellaFeedsAbi!: {abi: never};
   protected logger!: Logger;
   protected loggerPrefix!: string;
   readonly settings!: Settings;
@@ -24,7 +30,8 @@ export class FeedContract implements UmbrellaFeedInterface {
     this.logger = logger;
     this.settings = settings;
     this.blockchain = blockchain;
-    this.loggerPrefix = `[${this.blockchain.chainId}][FeedContract]`
+    this.loggerPrefix = `[${this.blockchain.chainId}][FeedContract]`;
+    this.umbrellaFeedsAbi = JSON.parse(readFileSync(__dirname + '/UmbrellaFeeds.abi.json', 'utf-8')) as never;
   }
 
   async address(): Promise<string> {
@@ -43,8 +50,8 @@ export class FeedContract implements UmbrellaFeedInterface {
     if (!contract) {
       return {
         hash: '',
-        atBlock: 0n
-      }
+        atBlock: 0n,
+      };
     }
 
     const txResponse: TransactionResponse = await contract
@@ -71,15 +78,15 @@ export class FeedContract implements UmbrellaFeedInterface {
           key: keys[i],
         };
       });
-    } catch (e) {
-      this.logger.error(`${this.loggerPrefix} FeedContract, getManyPriceDataRaw error: ${e.message}`);
+    } catch (e: unknown) {
+      this.logger.error(`${this.loggerPrefix} FeedContract, getManyPriceDataRaw error: ${(e as Error).message}`);
       return;
     }
   }
 
   async hashData(bytes32Keys: string[], priceDatas: PriceData[]): Promise<string> {
     const contract = await this.resolveContract();
-    if (!contract) throw new Error(`${this.loggerPrefix} hashData failed`)
+    if (!contract) throw new Error(`${this.loggerPrefix} hashData failed`);
 
     return contract.callStatic.hashData(bytes32Keys, priceDatas);
   }
@@ -97,31 +104,37 @@ export class FeedContract implements UmbrellaFeedInterface {
     }
 
     const contract = await this.resolveContract();
-    if (!contract) return { gasLimit: 0n }
+    if (!contract) return {gasLimit: 0n};
 
     const gasLimit = await contract
       .connect(this.blockchain.deviationWallet.getRawWallet())
       .estimateGas.update(args.keys, args.priceDatas, await this.splitSignatures(args.signatures));
 
-    return { gasLimit: gasLimit.toBigInt() }
+    return {gasLimit: gasLimit.toBigInt()};
   }
 
   protected resolveContract = async (): Promise<Contract | undefined> => {
     try {
       if (!this.registry) {
-        this.registry = new ContractRegistry(this.blockchain.provider.getRawProvider(), this.blockchain.getContractRegistryAddress());
+        this.registry = new ContractRegistry(
+          this.blockchain.provider.getRawProvider(),
+          this.blockchain.getContractRegistryAddress(),
+        );
       }
 
       const address = await this.registry.getAddress(this.settings.blockchain.contracts.feeds.name);
 
       if (address === ethers.constants.AddressZero) {
-        this.logger.error(`[${this.blockchain.chainId}] empty address for ${this.settings.blockchain.contracts.feeds.name}`);
+        this.logger.error(
+          `[${this.blockchain.chainId}] empty address for ${this.settings.blockchain.contracts.feeds.name}`,
+        );
+
         return;
       }
 
-      return new Contract(address, umbrellaFeedsAbi.abi, this.blockchain.provider.getRawProvider());
-    } catch (e) {
-      this.logger.error(`${this.loggerPrefix} resolveContract error: ${e.message}`)
+      return new Contract(address, this.umbrellaFeedsAbi.abi, this.blockchain.provider.getRawProvider());
+    } catch (e: unknown) {
+      this.logger.error(`${this.loggerPrefix} resolveContract error: ${(e as Error).message}`);
       return;
     }
   };
@@ -133,8 +146,8 @@ export class FeedContract implements UmbrellaFeedInterface {
         return <Signature>{
           v: s.v,
           r: s.r,
-          s: s.s
-        }
+          s: s.s,
+        };
       });
   };
 

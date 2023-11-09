@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
-import {Feed} from '../types/Feed';
-import {UniswapPoolService} from '../services/uniswap/UniswapPoolService';
-import Settings from '../types/Settings';
+import {Feed} from '../types/Feed.js';
+import {UniswapPoolService} from '../services/uniswap/UniswapPoolService.js';
+import Settings from '../types/Settings.js';
 
 @injectable()
 export class UniswapFeedRepository {

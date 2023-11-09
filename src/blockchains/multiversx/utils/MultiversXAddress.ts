@@ -1,9 +1,9 @@
-import {IAddress, Address, AddressValue} from "@multiversx/sdk-core";
+import {IAddress, Address, AddressValue} from '@multiversx/sdk-core';
 
 export class MultiversXAddress {
   static toAddressValue(erdAddress: string): AddressValue {
     if (!erdAddress.startsWith('erd')) {
-      throw new Error(`[MultiversXAddress] toAddressValue expect erd format, got ${erdAddress}`)
+      throw new Error(`[MultiversXAddress] toAddressValue expect erd format, got ${erdAddress}`);
     }
 
     return new AddressValue(new Address(erdAddress));
@@ -23,7 +23,7 @@ export class MultiversXAddress {
 
   static toBuffer(erdAddress: string): Buffer {
     if (!erdAddress.startsWith('erd')) {
-      throw new Error(`[MultiversXAddress] toAddressValue expect erd format, got ${erdAddress}`)
+      throw new Error(`[MultiversXAddress] toAddressValue expect erd format, got ${erdAddress}`);
     }
 
     return Buffer.from(new Address(erdAddress).hex(), 'hex');

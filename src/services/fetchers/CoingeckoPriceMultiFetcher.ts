@@ -1,8 +1,8 @@
 import axios, {AxiosResponse} from 'axios';
 import {inject, injectable} from 'inversify';
 
-import Settings from '../../types/Settings';
-import {splitIntoBatches} from '../../utils/collections';
+import Settings from '../../types/Settings.js';
+import {splitIntoBatches} from '../../utils/collections.js';
 
 export interface InputParams {
   id: string;

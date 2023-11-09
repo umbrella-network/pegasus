@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {PairWithFreshness} from '../../types/Feed';
-import {UniswapPriceService} from '../uniswap/UniswapPriceService';
-import {UniswapPoolService} from '../uniswap/UniswapPoolService';
+import {PairWithFreshness} from '../../types/Feed.js';
+import {UniswapPriceService} from '../uniswap/UniswapPriceService.js';
+import {UniswapPoolService} from '../uniswap/UniswapPoolService.js';
 
 @injectable()
 export class UniswapPriceFetcher {

@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ChainsIds} from '../types/ChainsIds';
-import {ChainContractRepository} from '../repositories/ChainContractRepository';
-import {FeedsContractRepository} from '../repositories/FeedsContractRepository';
-import {RequiredSignaturesRepository} from '../repositories/RequiredSignaturesRepository';
-import {NumberOfSignatures} from '../types/NumberOfSignatures';
-import {BlockchainType} from '../types/Settings';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {ChainContractRepository} from '../repositories/ChainContractRepository.js';
+import {FeedsContractRepository} from '../repositories/FeedsContractRepository.js';
+import {RequiredSignaturesRepository} from '../repositories/RequiredSignaturesRepository.js';
+import {NumberOfSignatures} from '../types/NumberOfSignatures.js';
+import {BlockchainType} from '../types/Settings.js';
 
 @injectable()
 export class RequiredSignaturesResolver {
@@ -45,14 +45,14 @@ export class RequiredSignaturesResolver {
 
     try {
       if (chain) data[BlockchainType.LAYER2] = await chain.requiredSignatures();
-    } catch (e) {
-      this.logger.debug(`[RequiredSignaturesResolver] ${chainId}/${BlockchainType.LAYER2}: ${e.message}`);
+    } catch (e: unknown) {
+      this.logger.debug(`[RequiredSignaturesResolver] ${chainId}/${BlockchainType.LAYER2}: ${(e as Error).message}`);
     }
 
     try {
       if (onChain) data[BlockchainType.ON_CHAIN] = await onChain.requiredSignatures();
-    } catch (e) {
-      this.logger.debug(`[RequiredSignaturesResolver] ${chainId}/${BlockchainType.ON_CHAIN}: ${e.message}`);
+    } catch (e: unknown) {
+      this.logger.debug(`[RequiredSignaturesResolver] ${chainId}/${BlockchainType.ON_CHAIN}: ${(e as Error).message}`);
     }
 
     return data;

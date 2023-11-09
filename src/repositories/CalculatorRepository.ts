@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
-import {FeedOutput} from '../types/Feed';
-import * as calculators from '../services/calculators';
+import {FeedOutput} from '../types/Feed.js';
+import * as calculators from '../services/calculators/index.js';
 
 interface Calculator {
   // eslint-disable-next-line

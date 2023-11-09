@@ -1,7 +1,7 @@
 import {PayableOverrides} from '@ethersproject/contracts';
 
-import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from '../types/DeviationFeeds';
-import {ExecutedTx} from '../types/Consensus';
+import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from '../types/DeviationFeeds.js';
+import {ExecutedTx} from '../types/Consensus.js';
 
 export interface UmbrellaFeedInterface {
   address(): Promise<string>;

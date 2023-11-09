@@ -1,10 +1,11 @@
 import {ethers, Wallet} from 'ethers';
 import sort from 'fast-sort';
 import {LeafKeyCoder} from '@umb-network/toolbox';
-import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
 
-import Leaf from '../types/Leaf';
-import {ChainStatus} from '../types/ChainStatus';
+import Leaf from '../types/Leaf.js';
+import {ChainStatus} from '../types/ChainStatus.js';
+
+export const remove0x = (v: string) => (['0X', '0x'].includes(v.slice(0, 2)) ? v.slice(2) : v);
 
 export const timestamp = (): number => Math.trunc(Date.now() / 1000);
 
@@ -74,7 +75,8 @@ export const chainReadyForNewBlock = (
   if (deltaT < 0) {
     return [
       false,
-      `skipping ${newDataTimestamp}: waiting for next round T${deltaT} (${chainStatus.lastDataTimestamp}, ${chainStatus.timePadding})`,
+      `skipping ${newDataTimestamp}: waiting for next round T${deltaT} ` +
+        `(${chainStatus.lastDataTimestamp}, ${chainStatus.timePadding})`,
     ];
   }
 

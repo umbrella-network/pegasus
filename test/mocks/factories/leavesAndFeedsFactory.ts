@@ -1,6 +1,6 @@
 import {Factory} from 'rosie';
 
-import {LeavesAndFeeds} from '../../../src/types/Consensus';
+import {LeavesAndFeeds} from '../../../src/types/Consensus.js';
 
 export const leavesAndFeedsFactory = Factory.define<LeavesAndFeeds>('LeavesAndFeeds')
   .attr('firstClassLeaves', [

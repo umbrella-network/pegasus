@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
 
-import Settings, {BlockchainType} from '../types/Settings';
-import {ChainsIds} from '../types/ChainsIds';
-import {BlockchainRepository} from './BlockchainRepository';
+import Settings, {BlockchainType} from '../types/Settings.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {BlockchainRepository} from './BlockchainRepository.js';
 import {Logger} from 'winston';
-import {FeedContract} from '../blockchains/evm/contracts/FeedContract';
-import {UmbrellaFeedsContractFactory} from '../factories/contracts/UmbrellaFeedsContractFactory';
-import {UmbrellaFeedInterface} from '../interfaces/UmbrellaFeedInterface';
+import {FeedContract} from '../blockchains/evm/contracts/FeedContract.js';
+import {UmbrellaFeedsContractFactory} from '../factories/contracts/UmbrellaFeedsContractFactory.js';
+import {UmbrellaFeedInterface} from '../interfaces/UmbrellaFeedInterface.js';
 
 export type FeedsContractCollection = {
   [key: string]: UmbrellaFeedInterface | undefined;
@@ -37,9 +37,9 @@ export class FeedsContractRepository {
           blockchain.provider && blockchain.getContractRegistryAddress()
             ? UmbrellaFeedsContractFactory.create(blockchain)
             : undefined;
-      } catch (e) {
+      } catch (e: unknown) {
         this.collection[chainId] = undefined;
-        logger.error(`[${chainId}] ${e.message}`);
+        logger.error(`[${chainId}] ${(e as Error).message}`);
       }
     });
   }

@@ -1,6 +1,6 @@
-import {DeviationDataToSign, DeviationFeeds} from '../types/DeviationFeeds';
-import Leaf from '../types/Leaf';
-import {PriceDataFactory} from './PriceDataFactory';
+import {DeviationDataToSign, DeviationFeeds} from '../types/DeviationFeeds.js';
+import Leaf from '../types/Leaf.js';
+import {PriceDataFactory} from './PriceDataFactory.js';
 
 export class DeviationDataToSignFactory {
   static create(

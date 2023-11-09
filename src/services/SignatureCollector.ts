@@ -1,14 +1,14 @@
 import {inject, injectable} from 'inversify';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import {Logger} from 'winston';
 import {Wallet} from 'ethers';
 
-import {SignedBlock} from '../types/SignedBlock';
-import {Validator} from '../types/Validator';
-import Settings from '../types/Settings';
-import {BlockSignerResponse, BlockSignerResponseWithPower} from '../types/BlockSignerResponse';
-import {recoverSigner} from '../utils/mining';
-import {ValidatorStatusChecker} from './ValidatorStatusChecker';
+import {SignedBlock} from '../types/SignedBlock.js';
+import {Validator} from '../types/Validator.js';
+import Settings from '../types/Settings.js';
+import {BlockSignerResponse, BlockSignerResponseWithPower} from '../types/BlockSignerResponse.js';
+import {recoverSigner} from '../utils/mining.js';
+import {ValidatorStatusChecker} from './ValidatorStatusChecker.js';
 
 @injectable()
 class SignatureCollector {
@@ -73,9 +73,9 @@ class SignatureCollector {
       } else {
         this.logBadSignatureCollection(validator, response);
       }
-    } catch (e) {
+    } catch (e: unknown) {
       this.logger.error(`[SignatureCollector] Signature collection failed for ${block.dataTimestamp}.`);
-      this.logSignatureCollectionException(validator, e);
+      this.logSignatureCollectionException(validator, e as Error);
     }
 
     return;
@@ -96,9 +96,9 @@ class SignatureCollector {
       });
 
       return response.data;
-    } catch (err) {
-      if (err.response?.data) {
-        throw new Error(err.response.data.error || err.response.data);
+    } catch (err: unknown) {
+      if ((err as AxiosError).response?.data) {
+        throw new Error((err as AxiosError).response?.data.error || (err as AxiosError).response?.data);
       }
 
       throw err;

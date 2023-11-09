@@ -1,9 +1,11 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 
-import LeaderSelector from '../../src/services/multiChain/LeaderSelector';
-import {ChainStatus} from '../../src/types/ChainStatus';
-import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';
+import LeaderSelector from '../../src/services/multiChain/LeaderSelector.js';
+import {ChainStatus} from '../../src/types/ChainStatus.js';
+import {chainStatusFactory} from '../mocks/factories/chainStatusFactory.js';
+
+const {expect} = chai;
 
 describe('LeaderSelector', () => {
   const roundLength = 60;

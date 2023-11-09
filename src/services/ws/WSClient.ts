@@ -1,5 +1,5 @@
 import {inject, injectable} from 'inversify';
-import {w3cwebsocket as WebSocket} from 'websocket';
+import websocket from 'websocket';
 import {Logger} from 'winston';
 
 @injectable()
@@ -12,9 +12,9 @@ abstract class WSClient {
   reconnectTimout: number;
   symbols: Set<string> = new Set<string>();
 
-  socket?: WebSocket;
+  socket?: websocket.w3cwebsocket;
 
-  protected constructor(url: string, reconnectTimout = 5000) {
+  constructor(url: string, reconnectTimout = 5000) {
     this.url = url;
     this.reconnectTimout = reconnectTimout;
   }
@@ -59,7 +59,7 @@ abstract class WSClient {
   connect(): void {
     this.logger.warn('WS connecting...');
 
-    this.socket = new WebSocket(this.url);
+    this.socket = new websocket.w3cwebsocket(this.url);
 
     this.socket.onopen = () => {
       this.open = true;

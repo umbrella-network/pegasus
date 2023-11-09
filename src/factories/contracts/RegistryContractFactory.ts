@@ -1,10 +1,10 @@
-import {ContractRegistry} from "@umb-network/toolbox";
+import {ContractRegistry} from '@umb-network/toolbox';
 
-import Blockchain from "../../lib/Blockchain";
-import {RegistryInterface} from "../../interfaces/RegistryInterface";
-import {RegistryMultiversX} from "../../blockchains/multiversx/contracts/RegistryMultiversX";
-import {ChainsIds} from "../../types/ChainsIds";
-import {RegistryMassa} from "../../blockchains/massa/contracts/RegistryMassa";
+import Blockchain from '../../lib/Blockchain.js';
+import {RegistryInterface} from '../../interfaces/RegistryInterface.js';
+import {RegistryMultiversX} from '../../blockchains/multiversx/contracts/RegistryMultiversX.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {RegistryMassa} from '../../blockchains/massa/contracts/RegistryMassa.js';
 
 export class RegistryContractFactory {
   static create(blockchain: Blockchain): RegistryInterface {
@@ -22,10 +22,7 @@ export class RegistryContractFactory {
       case ChainsIds.ETH:
       case ChainsIds.LINEA:
       case ChainsIds.BASE:
-        return new ContractRegistry(
-          blockchain.provider.getRawProvider(),
-          blockchain.getContractRegistryAddress(),
-        );
+        return new ContractRegistry(blockchain.provider.getRawProvider(), blockchain.getContractRegistryAddress());
 
       default:
         throw new Error(`[RegistryContractFactory] ${blockchain.chainId} not supported`);
