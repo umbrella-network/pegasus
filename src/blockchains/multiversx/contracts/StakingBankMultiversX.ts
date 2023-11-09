@@ -6,7 +6,7 @@ import {
   SmartContract,
   AbiRegistry,
   AddressValue,
-  Struct
+  Struct,
 } from '@multiversx/sdk-core';
 import {ApiNetworkProvider} from '@multiversx/sdk-network-providers';
 import {BigNumber} from 'ethers';
@@ -16,8 +16,8 @@ import Blockchain from '../../../lib/Blockchain';
 import {Validator} from '../../../types/Validator';
 import {StakingBankInterface} from '../../../interfaces/StakingBankInterface';
 import {RegistryInterface} from '../../../interfaces/RegistryInterface';
-import bankAbi from './staking-bank.abi.json'
-import {MultiversXAddress} from "../utils/MultiversXAddress";
+import bankAbi from './staking-bank.abi.json';
+import {MultiversXAddress} from '../utils/MultiversXAddress';
 
 export class StakingBankMultiversX implements StakingBankInterface {
   readonly bankName!: string;
@@ -70,7 +70,7 @@ export class StakingBankMultiversX implements StakingBankInterface {
 
   protected async getValidator(bank: SmartContract, validatorAddress: string): Promise<Validator> {
     const query = new Interaction(bank, new ContractFunction('validators'), [
-      MultiversXAddress.toAddressValue(validatorAddress)
+      MultiversXAddress.toAddressValue(validatorAddress),
     ]).buildQuery();
 
     const response = await this.blockchain.provider.getRawProvider<ApiNetworkProvider>().queryContract(query);
@@ -82,7 +82,7 @@ export class StakingBankMultiversX implements StakingBankInterface {
     return <Validator>{
       id: MultiversXAddress.fromAddressValue(id.value as AddressValue),
       power: BigNumber.from(1),
-      location: location.value.toString()
+      location: location.value.toString(),
     };
   }
 

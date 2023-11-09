@@ -28,7 +28,7 @@ class BlockMintingWorker extends BasicWorker {
     const unlocked = await this.connection.set(lockName, 'lock', 'EX', lockTTL, 'NX');
 
     if (!unlocked) {
-      this.logger.info(`BlockMintingWorker apply for job but job !unlocked`);
+      this.logger.info('BlockMintingWorker apply for job but job !unlocked');
       return;
     }
 

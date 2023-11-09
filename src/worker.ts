@@ -5,9 +5,9 @@ import BlockMintingWorker from './workers/BlockMintingWorker';
 import MetricsWorker from './workers/MetricsWorker';
 import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
-import {DeviationLeaderWorker} from "./workers/DeviationLeaderWorker";
-import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
-import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
+import {DeviationLeaderWorker} from './workers/DeviationLeaderWorker';
+import {DeviationDispatcherWorker} from './workers/DeviationDispatcherWorker';
+import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker';
 
 (async () => {
   await boot();

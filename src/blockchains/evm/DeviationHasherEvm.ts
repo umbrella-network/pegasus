@@ -1,15 +1,15 @@
 import {injectable} from 'inversify';
-import {ethers} from "ethers";
+import {ethers} from 'ethers';
 
-import {PriceData} from "../../types/DeviationFeeds";
-import {abi} from "./contracts/UmbrellaFeeds.abi.json";
+import {PriceData} from '../../types/DeviationFeeds';
+import {abi} from './contracts/UmbrellaFeeds.abi.json';
 
 @injectable()
 export class DeviationHasherEvm {
   static apply(networkId: number, target: string, keys: string[], priceDatas: PriceData[]): string {
     const testimony = ethers.utils.defaultAbiCoder.encode(
       ['uint256', 'address', ...this.priceDatasAbi()],
-      [networkId, target, keys.map(ethers.utils.id), priceDatas]
+      [networkId, target, keys.map(ethers.utils.id), priceDatas],
     );
 
     return ethers.utils.keccak256(testimony);

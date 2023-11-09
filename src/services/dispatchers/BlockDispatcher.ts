@@ -1,9 +1,9 @@
 import {inject, injectable, postConstruct} from 'inversify';
 import {LeafKeyCoder} from '@umb-network/toolbox';
 import {remove0x} from '@umb-network/toolbox/dist/utils/helpers';
-import { ethers } from 'ethers';
-import {PayableOverrides} from "@ethersproject/contracts";
-import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
+import {ethers} from 'ethers';
+import {PayableOverrides} from '@ethersproject/contracts';
+import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
 
 import {ChainStatus} from '../../types/ChainStatus';
 import ChainContract from '../../blockchains/evm/contracts/ChainContract';
@@ -16,11 +16,11 @@ import {ConsensusDataRepository} from '../../repositories/ConsensusDataRepositor
 import {ChainsIds} from '../../types/ChainsIds';
 import {CanMint} from '../CanMint';
 import {MultichainArchitectureDetector} from '../MultichainArchitectureDetector';
-import {ChainSubmitArgs} from "../../types/ChainSubmit";
-import {SubmitTxChecker} from "../SubmitMonitor/SubmitTxChecker";
-import {SubmitSaver} from "../SubmitMonitor/SubmitSaver";
-import {Dispatcher} from "./Dispatcher";
-import {ExecutedTx, TxHash} from "../../types/Consensus";
+import {ChainSubmitArgs} from '../../types/ChainSubmit';
+import {SubmitTxChecker} from '../SubmitMonitor/SubmitTxChecker';
+import {SubmitSaver} from '../SubmitMonitor/SubmitSaver';
+import {Dispatcher} from './Dispatcher';
+import {ExecutedTx, TxHash} from '../../types/Consensus';
 
 @injectable()
 export abstract class BlockDispatcher extends Dispatcher implements IBlockChainDispatcher {
@@ -52,9 +52,9 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
     }
 
     // NOTICE: KEEP this check at begin, otherwise block minter will be locked
-    if (!await this.checkBalanceIsEnough(this.sendingWallet)) {
+    if (!(await this.checkBalanceIsEnough(this.sendingWallet))) {
       await sleep(60_000); // slow down execution
-      return ;
+      return;
     }
 
     const consensus = await this.consensusDataRepository.read();
@@ -93,7 +93,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
 
       await Promise.all([
         this.submitSaver.apply(this.chainId, consensus.dataTimestamp, txHash),
-        this.blockRepository.saveBlock(chainAddress, consensus, true)
+        this.blockRepository.saveBlock(chainAddress, consensus, true),
       ]);
     } else {
       this.logger.warn(`${this.logPrefix} Block ${consensus.dataTimestamp} was not minted`);
@@ -113,9 +113,9 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
     signatures: string[],
     chainStatus: ChainStatus,
   ): Promise<{
-    fn: () => Promise<ExecutedTx>,
-    payableOverrides: PayableOverrides,
-    timeout: number
+    fn: () => Promise<ExecutedTx>;
+    payableOverrides: PayableOverrides;
+    timeout: number;
   }> {
     const components = signatures.map((signature) => ethers.utils.splitSignature(signature));
 
@@ -126,12 +126,12 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
       values: values.map((v) => Buffer.from(remove0x(v), 'hex')),
       v: components.map((sig) => sig.v),
       r: components.map((sig) => sig.r),
-      s: components.map((sig) => sig.s)
-    }
+      s: components.map((sig) => sig.s),
+    };
 
     const payableOverrides = await this.calculatePayableOverrides({
       data: chainSubmitArgs,
-      nonce: await this.sendingWallet.getNextNonce()
+      nonce: await this.sendingWallet.getNextNonce(),
     });
 
     this.logger.info(`${this.logPrefix} Submitting tx ${JSON.stringify(payableOverrides)}`);
@@ -150,7 +150,14 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
     chainStatus: ChainStatus,
   ): Promise<TxHash | null> {
     try {
-      const {fn, payableOverrides, timeout} = await this.submitTxData(dataTimestamp, root, keys, values, signatures, chainStatus);
+      const {fn, payableOverrides, timeout} = await this.submitTxData(
+        dataTimestamp,
+        root,
+        keys,
+        values,
+        signatures,
+        chainStatus,
+      );
       return await this.dispatch(fn, payableOverrides, timeout);
     } catch (e) {
       const err = await this.handleTimestampDiscrepancyError(<Error>e, dataTimestamp);

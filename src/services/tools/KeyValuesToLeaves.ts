@@ -1,5 +1,5 @@
-import {KeyValues} from "../../types/SignedBlock";
-import Leaf from "../../types/Leaf";
+import {KeyValues} from '../../types/SignedBlock';
+import Leaf from '../../types/Leaf';
 
 export class KeyValuesToLeaves {
   static apply(keyValues: KeyValues): Leaf[] {

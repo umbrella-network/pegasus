@@ -7,7 +7,7 @@ export class HeartbeatTriggerFilter {
       return true;
     }
 
-    const {roundLengthSeconds, heartbeatRounds } = settings.deviationTrigger;
+    const {roundLengthSeconds, heartbeatRounds} = settings.deviationTrigger;
 
     return dataTimestamp - priceData.timestamp >= feed.heartbeat - roundLengthSeconds * heartbeatRounds;
   }

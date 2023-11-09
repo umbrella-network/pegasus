@@ -1,18 +1,17 @@
 import {inject} from 'inversify';
 import {Logger} from 'winston';
 import {BigNumber} from 'ethers';
-import {PayableOverrides} from "@ethersproject/contracts";
-import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
+import {PayableOverrides} from '@ethersproject/contracts';
+import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
 
 import Settings, {BlockchainType} from '../../types/Settings';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository';
 import {ChainsIds} from '../../types/ChainsIds';
-import {parseEther} from "ethers/lib/utils";
-import {BalanceMonitorSaver} from "../balanceMonitor/BalanceMonitorSaver";
-import {IWallet} from "../../interfaces/IWallet";
-import {ExecutedTx, TxHash} from "../../types/Consensus";
-import Blockchain from "../../lib/Blockchain";
-
+import {parseEther} from 'ethers/lib/utils';
+import {BalanceMonitorSaver} from '../balanceMonitor/BalanceMonitorSaver';
+import {IWallet} from '../../interfaces/IWallet';
+import {ExecutedTx, TxHash} from '../../types/Consensus';
+import Blockchain from '../../lib/Blockchain';
 
 export abstract class Dispatcher {
   @inject('Logger') protected logger!: Logger;
@@ -28,7 +27,7 @@ export abstract class Dispatcher {
   protected logPrefix!: string;
 
   protected init(): void {
-    this.logPrefix = `[${this.chainId}][${this.blockchainType}]`
+    this.logPrefix = `[${this.chainId}][${this.blockchainType}]`;
 
     this.blockchain = this.blockchainRepository.get(this.chainId);
 
@@ -37,44 +36,47 @@ export abstract class Dispatcher {
       return;
     }
 
-    const wallet = this.blockchainType == BlockchainType.LAYER2
-      ? this.blockchain.wallet
-      : this.blockchain.deviationWallet;
+    const wallet =
+      this.blockchainType == BlockchainType.LAYER2 ? this.blockchain.wallet : this.blockchain.deviationWallet;
 
     if (wallet) {
       this.sendingWallet = wallet;
     } else {
-      this.logger.warn(`${this.logPrefix} no wallet`)
+      this.logger.warn(`${this.logPrefix} no wallet`);
     }
   }
 
   protected async dispatch(
     fn: () => Promise<ExecutedTx>,
     payableOverrides: PayableOverrides,
-    timeout: number
+    timeout: number,
   ): Promise<TxHash | null> {
-      try {
-        return await this.sendTx(fn, payableOverrides, timeout);
-      } catch (e) {
-        if (!this.isNonceError(<Error>e)) {
-          throw e;
-        }
-
-        const lastNonce = await this.sendingWallet.getNextNonce();
-        const newNonce = lastNonce + 1;
-        this.logger.warn(`${this.logPrefix} Submit tx with nonce ${lastNonce} failed. Retrying with ${newNonce}`);
-        return this.sendTx(fn, {...payableOverrides, nonce: newNonce}, timeout);
+    try {
+      return await this.sendTx(fn, payableOverrides, timeout);
+    } catch (e) {
+      if (!this.isNonceError(<Error>e)) {
+        throw e;
       }
+
+      const lastNonce = await this.sendingWallet.getNextNonce();
+      const newNonce = lastNonce + 1;
+      this.logger.warn(`${this.logPrefix} Submit tx with nonce ${lastNonce} failed. Retrying with ${newNonce}`);
+      return this.sendTx(fn, {...payableOverrides, nonce: newNonce}, timeout);
+    }
   }
 
-  protected async calculatePayableOverrides(props?: {nonce?: number, data?: unknown}): Promise<PayableOverrides> {
+  protected async calculatePayableOverrides(props?: {nonce?: number; data?: unknown}): Promise<PayableOverrides> {
     const gasMetrics = await this.resolveGasMetrics();
     if (!gasMetrics) return {};
 
     const nonce = props?.nonce;
 
     return gasMetrics.isTxType2
-      ? {maxPriorityFeePerGas: this.multiplyGas(gasMetrics.maxPriorityFeePerGas), maxFeePerGas: this.multiplyGas(gasMetrics.maxFeePerGas), nonce}
+      ? {
+          maxPriorityFeePerGas: this.multiplyGas(gasMetrics.maxPriorityFeePerGas),
+          maxFeePerGas: this.multiplyGas(gasMetrics.maxFeePerGas),
+          nonce,
+        }
       : {gasPrice: this.multiplyGas(gasMetrics.gasPrice), nonce};
   }
 
@@ -96,7 +98,7 @@ export abstract class Dispatcher {
   protected async sendTx(
     fn: () => Promise<ExecutedTx>,
     payableOverrides: PayableOverrides,
-    timeout: number
+    timeout: number,
   ): Promise<TxHash | null> {
     const {txHash, success, timeoutMs} = await this.executeTx(fn, timeout);
 
@@ -174,7 +176,7 @@ export abstract class Dispatcher {
 
     if (error) {
       this.logger.error(error);
-      return false
+      return false;
     }
 
     return true;

@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
-import {ChainsIds} from "../../types/ChainsIds";
-import {BlockchainGasRepository} from "../../repositories/BlockchainGasRepository";
-
+import {ChainsIds} from '../../types/ChainsIds';
+import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository';
 
 /*
 PolygonGasPrice-TWAP20:
@@ -22,7 +21,10 @@ PolygonGasPrice-TWAP20:
 class EvmTWAPGasPriceFetcher {
   @inject(BlockchainGasRepository) protected gasRepository!: BlockchainGasRepository;
 
-  async apply({twap = 20, chainId}: {twap: number, chainId: ChainsIds}, timestamp: number): Promise<number | undefined> {
+  async apply(
+    {twap = 20, chainId}: {twap: number; chainId: ChainsIds},
+    timestamp: number,
+  ): Promise<number | undefined> {
     const gas = await this.gasRepository.twap(chainId, twap, timestamp);
     if (!gas) return;
     // gas is uint, no decimals, however we're using Gwei as unit, and this give us 9 decimals

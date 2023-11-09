@@ -1,22 +1,24 @@
 import {inject, injectable} from 'inversify';
-import {Logger} from "winston";
+import {Logger} from 'winston';
 
-import Leaf from "../../types/Leaf";
+import Leaf from '../../types/Leaf';
 import {
   DeviationFeed,
   PriceDataByKey,
   PriceDataPerChain,
   DeviationDataToSign,
   PriceData,
-  DeviationFeeds, FilterResult, FilterResultWithKey
-} from "../../types/DeviationFeeds";
-import {PriceTriggerFilter} from "./PriceTriggerFilter";
-import {HeartbeatTriggerFilter} from "./HeartbeatTriggerFilter";
-import {LeavesToRecord} from "../tools/LeavesToRecord";
-import {DeviationFeedsPerChainSplitter} from "./DeviationFeedsPerChainSplitter";
-import {DeviationDataToSignFactory} from "../../factories/DeviationDataToSignFactory";
-import {DeviationTriggerConsensusRepository} from "../../repositories/DeviationTriggerConsensusRepository";
-import {DataFilter} from "../tools/DataFilter";
+  DeviationFeeds,
+  FilterResult,
+  FilterResultWithKey,
+} from '../../types/DeviationFeeds';
+import {PriceTriggerFilter} from './PriceTriggerFilter';
+import {HeartbeatTriggerFilter} from './HeartbeatTriggerFilter';
+import {LeavesToRecord} from '../tools/LeavesToRecord';
+import {DeviationFeedsPerChainSplitter} from './DeviationFeedsPerChainSplitter';
+import {DeviationDataToSignFactory} from '../../factories/DeviationDataToSignFactory';
+import {DeviationTriggerConsensusRepository} from '../../repositories/DeviationTriggerConsensusRepository';
+import {DataFilter} from '../tools/DataFilter';
 
 @injectable()
 export class DeviationTriggerFilters {
@@ -30,12 +32,12 @@ export class DeviationTriggerFilters {
     leaves: Leaf[],
     feeds: DeviationFeeds,
     priceDataPerChain: PriceDataPerChain,
-    pendingChains: Set<string> | undefined
+    pendingChains: Set<string> | undefined,
   ): Promise<DeviationDataToSign | undefined> {
     const leavesByKey = LeavesToRecord.apply(leaves);
     const keysPerChain = DeviationFeedsPerChainSplitter.apply(feeds);
 
-    const keysToUpdateWithChain = Object.keys(keysPerChain).map(chainId => {
+    const keysToUpdateWithChain = Object.keys(keysPerChain).map((chainId) => {
       if (pendingChains?.has(chainId)) {
         this.logger.info(`[DeviationTriggerFilters] skipping ${chainId}: pending chain submit`);
         return;
@@ -47,7 +49,7 @@ export class DeviationTriggerFilters {
         dataTimestamp,
         DataFilter.filter(feeds, chainKeys),
         DataFilter.filter(leavesByKey, chainKeys),
-        priceDataPerChain[chainId]
+        priceDataPerChain[chainId],
       );
 
       if (logs.length) {
@@ -68,8 +70,8 @@ export class DeviationTriggerFilters {
     dataTimestamp: number,
     feedsForChain: DeviationFeeds,
     leaves: Record<string, Leaf>,
-    onChainData?: PriceDataByKey
-  ): { keysToUpdate: string[], logs: string[] } {
+    onChainData?: PriceDataByKey,
+  ): {keysToUpdate: string[]; logs: string[]} {
     const results = Object.keys(feedsForChain).map((key): FilterResultWithKey => {
       if (!onChainData) {
         // there was probably some issue with pulling data and there is no data for chain
@@ -81,23 +83,28 @@ export class DeviationTriggerFilters {
       }
 
       if (!leaves[key]) {
-        this.logger.error(`[DeviationTriggerFilters] ERROR: there is no leaf for ${key}.`)
-        return {result: false, key };
+        this.logger.error(`[DeviationTriggerFilters] ERROR: there is no leaf for ${key}.`);
+        return {result: false, key};
       }
 
       return {
         ...this.checkIfFeedShouldBeUpdated(dataTimestamp, feedsForChain[key], leaves[key], onChainData[key]),
-        key
+        key,
       };
     });
 
     return {
-      keysToUpdate: results.filter(data => data.result).map(data => data.key),
-      logs: results.filter(data => data.msg).map(data => data.msg) as string[]
-    }
+      keysToUpdate: results.filter((data) => data.result).map((data) => data.key),
+      logs: results.filter((data) => data.msg).map((data) => data.msg) as string[],
+    };
   }
 
-  protected checkIfFeedShouldBeUpdated(dataTimestamp: number, feed: DeviationFeed, leaf: Leaf, priceData: PriceData): FilterResult {
+  protected checkIfFeedShouldBeUpdated(
+    dataTimestamp: number,
+    feed: DeviationFeed,
+    leaf: Leaf,
+    priceData: PriceData,
+  ): FilterResult {
     if (HeartbeatTriggerFilter.apply(dataTimestamp, feed, priceData)) {
       return {result: true, msg: `${leaf.label}: heartbeat`};
     }

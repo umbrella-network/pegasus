@@ -1,11 +1,11 @@
-import {Args, Client} from "@massalabs/massa-web3";
-import {Logger} from "winston";
+import {Args, Client} from '@massalabs/massa-web3';
+import {Logger} from 'winston';
 
 import Blockchain from '../../../lib/Blockchain';
 import {RegistryInterface} from '../../../interfaces/RegistryInterface';
 import logger from '../../../lib/logger';
-import {MassaProvider} from "../MassaProvider";
-import {ProviderInterface} from "../../../interfaces/ProviderInterface";
+import {MassaProvider} from '../MassaProvider';
+import {ProviderInterface} from '../../../interfaces/ProviderInterface';
 
 export class RegistryMassa implements RegistryInterface {
   protected logger!: Logger;
@@ -29,7 +29,7 @@ export class RegistryMassa implements RegistryInterface {
       const res = await this.client.smartContracts().readSmartContract({
         maxGas: BigInt(10_000_000),
         targetAddress: this.registryAddress,
-        targetFunction: "getAddressByString",
+        targetFunction: 'getAddressByString',
         parameter: new Args().addString(name).serialize(),
       });
 

@@ -1,10 +1,10 @@
-import {UserSigner} from "@multiversx/sdk-wallet";
+import {UserSigner} from '@multiversx/sdk-wallet';
 
-import {ethers} from "ethers";
-import {DeviationSignerInterface} from "../../services/deviationsFeeds/interfaces/DeviationSignerInterface";
-import {WalletFactory} from "../../factories/WalletFactory";
-import {ChainsIds} from "../../types/ChainsIds";
-import Settings from "../../types/Settings";
+import {ethers} from 'ethers';
+import {DeviationSignerInterface} from '../../services/deviationsFeeds/interfaces/DeviationSignerInterface';
+import {WalletFactory} from '../../factories/WalletFactory';
+import {ChainsIds} from '../../types/ChainsIds';
+import Settings from '../../types/Settings';
 
 export class DeviationSignerMultiversX implements DeviationSignerInterface {
   private readonly signer!: UserSigner;
@@ -15,8 +15,8 @@ export class DeviationSignerMultiversX implements DeviationSignerInterface {
 
   async apply(dataHash: string): Promise<string> {
     const newData = Buffer.concat([
-      Buffer.from("\x19MultiversX Signed Message:\n32"),
-      Buffer.from(dataHash.replace('0x', ''), 'hex')
+      Buffer.from('\x19MultiversX Signed Message:\n32'),
+      Buffer.from(dataHash.replace('0x', ''), 'hex'),
     ]);
 
     const newDataHash = ethers.utils.keccak256(newData);

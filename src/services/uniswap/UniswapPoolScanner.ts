@@ -47,7 +47,7 @@ export class UniswapPoolScanner extends BlockchainScanner {
 
   async apply(fromBlock: number, toBlock: number): Promise<boolean> {
     if (!this.uniswapV3Factory.contractId) {
-      this.logger.info(`[UniswapPoolScanner] not active`);
+      this.logger.info('[UniswapPoolScanner] not active');
       return false;
     }
 

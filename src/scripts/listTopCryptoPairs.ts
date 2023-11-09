@@ -58,10 +58,13 @@ async function main() {
 
     const result = response.data;
 
-    return Object.keys(result).reduce((map, symbol) => {
-      map[symbol] = result[symbol]['USD'];
-      return map;
-    }, {} as {[key: string]: number});
+    return Object.keys(result).reduce(
+      (map, symbol) => {
+        map[symbol] = result[symbol]['USD'];
+        return map;
+      },
+      {} as {[key: string]: number},
+    );
   };
 
   // eslint-disable-next-line

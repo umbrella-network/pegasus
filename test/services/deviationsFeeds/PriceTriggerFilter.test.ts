@@ -81,7 +81,7 @@ describe('PriceTriggerFilter', () => {
         data: 50,
       };
 
-      const leaf: Leaf = {label: 'ETH-USD', valueBytes: `0x${(125e18*2).toString(16)}`};
+      const leaf: Leaf = {label: 'ETH-USD', valueBytes: `0x${(125e18 * 2).toString(16)}`};
 
       const {result, msg} = priceTriggerFilter.apply(feed, leaf, priceData);
       expect(msg).to.eql('ETH-USD: 12500000000 =(100%)=> 25000000000');

@@ -1,10 +1,10 @@
-import Blockchain from "../../lib/Blockchain";
-import settings from "../../config/settings";
-import {ChainsIds} from "../../types/ChainsIds";
-import {UmbrellaFeedInterface} from "../../interfaces/UmbrellaFeedInterface";
-import {FeedContract} from "../../blockchains/evm/contracts/FeedContract";
-import {UmbrellaFeedsMultiversX} from "../../blockchains/multiversx/contracts/UmbrellaFeedsMultiversX";
-import {UmbrellaFeedsMassa} from "../../blockchains/massa/contracts/UmbrellaFeedsMassa";
+import Blockchain from '../../lib/Blockchain';
+import settings from '../../config/settings';
+import {ChainsIds} from '../../types/ChainsIds';
+import {UmbrellaFeedInterface} from '../../interfaces/UmbrellaFeedInterface';
+import {FeedContract} from '../../blockchains/evm/contracts/FeedContract';
+import {UmbrellaFeedsMultiversX} from '../../blockchains/multiversx/contracts/UmbrellaFeedsMultiversX';
+import {UmbrellaFeedsMassa} from '../../blockchains/massa/contracts/UmbrellaFeedsMassa';
 
 export class UmbrellaFeedsContractFactory {
   static create(blockchain: Blockchain): UmbrellaFeedInterface {

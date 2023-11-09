@@ -2,8 +2,8 @@ import {inject, injectable} from 'inversify';
 
 import {MappingRepository} from '../../repositories/MappingRepository';
 import {SubmitMonitor} from '../../types/SubmitMonitor';
-import {SubmitTxKeyResolver} from "./SubmitTxKeyResolver";
-import {ChainsIds} from "../../types/ChainsIds";
+import {SubmitTxKeyResolver} from './SubmitTxKeyResolver';
+import {ChainsIds} from '../../types/ChainsIds';
 
 @injectable()
 export class LastSubmitResolver {

@@ -2,12 +2,11 @@ import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
 import {DeviationDataToSign, DeviationLeavesAndFeeds} from '../../types/DeviationFeeds';
-import {PriceDataProvider} from "./PriceDataProvider";
-import {DeviationTriggerFilters} from "./DeviationTriggerFilters";
-import {DataFilter} from "../tools/DataFilter";
-import {DeviationFeedsPerChainSplitter} from "./DeviationFeedsPerChainSplitter";
-import {PriceDataOverflowChecker} from "./PriceDataOverflowChecker";
-
+import {PriceDataProvider} from './PriceDataProvider';
+import {DeviationTriggerFilters} from './DeviationTriggerFilters';
+import {DataFilter} from '../tools/DataFilter';
+import {DeviationFeedsPerChainSplitter} from './DeviationFeedsPerChainSplitter';
+import {PriceDataOverflowChecker} from './PriceDataOverflowChecker';
 
 @injectable()
 export class DeviationTrigger {
@@ -16,7 +15,11 @@ export class DeviationTrigger {
   @inject(DeviationTriggerFilters) deviationTriggerFilters!: DeviationTriggerFilters;
   @inject(PriceDataOverflowChecker) priceDataOverflowChecker!: PriceDataOverflowChecker;
 
-  async apply(dataTimestamp: number, data: DeviationLeavesAndFeeds, pendingChains?: Set<string>): Promise<DeviationDataToSign | undefined> {
+  async apply(
+    dataTimestamp: number,
+    data: DeviationLeavesAndFeeds,
+    pendingChains?: Set<string>,
+  ): Promise<DeviationDataToSign | undefined> {
     const {feeds, leaves} = data;
 
     if (leaves.length === 0) {
@@ -25,7 +28,10 @@ export class DeviationTrigger {
     }
 
     // discard feeds for which we do not have leaves
-    const removed = DataFilter.mutate(feeds, leaves.map(l => l.label));
+    const removed = DataFilter.mutate(
+      feeds,
+      leaves.map((l) => l.label),
+    );
 
     if (removed.length != 0) {
       this.logger.info(`[DeviationTrigger] removed feeds (no price): ${removed}`);
@@ -35,10 +41,14 @@ export class DeviationTrigger {
 
     const keysPerChain = DeviationFeedsPerChainSplitter.apply(feeds);
 
-    const priceDataPerChain= await this.priceDataProvider.apply(keysPerChain);
+    const priceDataPerChain = await this.priceDataProvider.apply(keysPerChain);
 
     const dataToUpdate = await this.deviationTriggerFilters.apply(
-      dataTimestamp, leaves, feeds, priceDataPerChain, pendingChains
+      dataTimestamp,
+      leaves,
+      feeds,
+      priceDataPerChain,
+      pendingChains,
     );
 
     if (!dataToUpdate || Object.keys(dataToUpdate.proposedPriceData).length == 0) {
@@ -47,7 +57,7 @@ export class DeviationTrigger {
     }
 
     // TODO in future we might want to remove the invalid data, atm we allow encoder to throw error
-    Object.values(dataToUpdate.proposedPriceData).forEach(data => this.priceDataOverflowChecker.apply(data));
+    Object.values(dataToUpdate.proposedPriceData).forEach((data) => this.priceDataOverflowChecker.apply(data));
 
     return dataToUpdate;
   }

@@ -25,5 +25,5 @@ export {
   UniswapPriceFetcher,
   RandomNumberFetcher,
   OnChainDataFetcher,
-  EvmTWAPGasPriceFetcher
+  EvmTWAPGasPriceFetcher,
 };

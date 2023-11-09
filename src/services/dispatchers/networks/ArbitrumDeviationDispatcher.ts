@@ -1,11 +1,11 @@
 import {injectable} from 'inversify';
-import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
-import {PayableOverrides} from "@ethersproject/contracts";
-import {DeviationDispatcher} from "../DeviationDispatcher";
+import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
+import {PayableOverrides} from '@ethersproject/contracts';
+import {DeviationDispatcher} from '../DeviationDispatcher';
 import {ChainsIds} from '../../../types/ChainsIds';
-import {UmbrellaFeedsUpdateArgs} from "../../../types/DeviationFeeds";
-import {BlockchainType} from "../../../types/Settings";
-import {FeedContract} from "../../../blockchains/evm/contracts/FeedContract";
+import {UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds';
+import {BlockchainType} from '../../../types/Settings';
+import {FeedContract} from '../../../blockchains/evm/contracts/FeedContract';
 
 @injectable()
 export class ArbitrumDeviationDispatcher extends DeviationDispatcher {
@@ -17,13 +17,13 @@ export class ArbitrumDeviationDispatcher extends DeviationDispatcher {
     return undefined;
   }
 
-  protected async calculatePayableOverrides(props?: {nonce?: number, data?: unknown}): Promise<PayableOverrides> {
-    // for unknown reason, when we let provider resolve gas limit automatically, it does not work 
+  protected async calculatePayableOverrides(props?: {nonce?: number; data?: unknown}): Promise<PayableOverrides> {
+    // for unknown reason, when we let provider resolve gas limit automatically, it does not work
     // when we call estimation manually and use result it does work
     const gas = await (this.feedsContract as FeedContract).estimateGasForUpdate(props?.data as UmbrellaFeedsUpdateArgs);
 
     return {
-      gasLimit: gas.gasLimit * 15n / 10n // using limit that is 50% more than estimated just in case
+      gasLimit: (gas.gasLimit * 15n) / 10n, // using limit that is 50% more than estimated just in case
     };
   }
 }

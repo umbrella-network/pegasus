@@ -1,13 +1,13 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {StaticJsonRpcProvider} from "@ethersproject/providers";
+import {StaticJsonRpcProvider} from '@ethersproject/providers';
 
-import {ProviderRepository} from "../../../repositories/ProviderRepository";
-import {BlockchainGasRepository} from "../../../repositories/BlockchainGasRepository";
-import {BlockchainGasCalculator} from "./BlockchainGasCalculator";
-import {ChainsIds} from "../../../types/ChainsIds";
-import Settings from "../../../types/Settings";
-import {TwapFeedDetector} from "./TwapFeedDetector";
+import {ProviderRepository} from '../../../repositories/ProviderRepository';
+import {BlockchainGasRepository} from '../../../repositories/BlockchainGasRepository';
+import {BlockchainGasCalculator} from './BlockchainGasCalculator';
+import {ChainsIds} from '../../../types/ChainsIds';
+import Settings from '../../../types/Settings';
+import {TwapFeedDetector} from './TwapFeedDetector';
 
 @injectable()
 export class GasMonitor {
@@ -19,7 +19,7 @@ export class GasMonitor {
   @inject(TwapFeedDetector) twapFeedDetector!: TwapFeedDetector;
 
   async apply(chainId: ChainsIds): Promise<void> {
-    if (!await this.twapFeedDetector.apply(chainId)) return;
+    if (!(await this.twapFeedDetector.apply(chainId))) return;
 
     const blocks = await this.getListOfBlocksToPull(chainId);
 
@@ -43,10 +43,7 @@ export class GasMonitor {
   protected async getListOfBlocksToPull(chainId: ChainsIds): Promise<number[]> {
     const provider: StaticJsonRpcProvider = this.providerRepository.get(chainId).getRawProvider();
 
-    const [currentBlock, lastGas] = await Promise.all([
-      provider.getBlockNumber(),
-      this.gasRepository.last(chainId)
-    ]);
+    const [currentBlock, lastGas] = await Promise.all([provider.getBlockNumber(), this.gasRepository.last(chainId)]);
 
     const nth = this.nthBlock(chainId);
     const first = currentBlock - (currentBlock % nth);
@@ -66,9 +63,12 @@ export class GasMonitor {
 
   protected nthBlock(chainId: ChainsIds): number {
     switch (chainId) {
-      case ChainsIds.POLYGON: return this.calculateNthBlock(chainId, 2);
-      case ChainsIds.ARBITRUM: return this.calculateNthBlock(chainId, 0.5);
-      default: throw new Error(`nthBlock not set for ${chainId}`);
+      case ChainsIds.POLYGON:
+        return this.calculateNthBlock(chainId, 2);
+      case ChainsIds.ARBITRUM:
+        return this.calculateNthBlock(chainId, 0.5);
+      default:
+        throw new Error(`nthBlock not set for ${chainId}`);
     }
   }
 

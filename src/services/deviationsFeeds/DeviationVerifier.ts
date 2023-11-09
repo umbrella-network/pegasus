@@ -1,20 +1,16 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import Settings from "../../types/Settings";
-import {FeedDataService} from "../FeedDataService";
-import {
-  DeviationDataToSign,
-  DeviationLeavesAndFeeds,
-  DeviationSignerResponse,
-} from "../../types/DeviationFeeds";
-import {FeedsType} from "../../types/Feed";
-import {DiscrepancyFinder} from "../DiscrepancyFinder";
-import {KeyValuesToLeaves} from "../tools/KeyValuesToLeaves";
-import {PriceMetadataComparator} from "./PriceMetadataComparator";
-import {DeviationChainMetadata} from "./DeviationChainMetadata";
-import {DeviationTrigger} from "./DeviationTrigger";
-import {DeviationHasher} from "./DeviationHasher";
-import {DeviationSignerRepository} from "../../repositories/DeviationSignerRepository";
+import Settings from '../../types/Settings';
+import {FeedDataService} from '../FeedDataService';
+import {DeviationDataToSign, DeviationLeavesAndFeeds, DeviationSignerResponse} from '../../types/DeviationFeeds';
+import {FeedsType} from '../../types/Feed';
+import {DiscrepancyFinder} from '../DiscrepancyFinder';
+import {KeyValuesToLeaves} from '../tools/KeyValuesToLeaves';
+import {PriceMetadataComparator} from './PriceMetadataComparator';
+import {DeviationChainMetadata} from './DeviationChainMetadata';
+import {DeviationTrigger} from './DeviationTrigger';
+import {DeviationHasher} from './DeviationHasher';
+import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository';
 
 @injectable()
 export class DeviationVerifier {
@@ -41,14 +37,18 @@ export class DeviationVerifier {
     const data = (await this.feedDataService.apply(
       deviationDataToSign.dataTimestamp,
       FeedsType.DEVIATION_TRIGGER,
-      uniqueKeys
+      uniqueKeys,
     )) as DeviationLeavesAndFeeds;
 
     const dataToUpdate = await this.deviationTrigger.apply(deviationDataToSign.dataTimestamp, data, undefined);
 
     if (!dataToUpdate) {
       this.logger.info(`[DeviationVerifier] nothing is triggered at ${deviationDataToSign.dataTimestamp}`);
-      return {discrepancies: [], error: `nothing is triggered at ${deviationDataToSign.dataTimestamp}`, version: this.settings.version};
+      return {
+        discrepancies: [],
+        error: `nothing is triggered at ${deviationDataToSign.dataTimestamp}`,
+        version: this.settings.version,
+      };
     }
 
     const {feeds, leaves} = data;
@@ -59,7 +59,7 @@ export class DeviationVerifier {
       fcds: [],
       leaves,
       fcdsFeeds: {},
-      leavesFeeds: feeds
+      leavesFeeds: feeds,
     });
 
     if (discrepancies.length) {
@@ -72,7 +72,7 @@ export class DeviationVerifier {
     // generate price data and check if they are the same as external
 
     try {
-       this.priceDataComperator.apply(deviationDataToSign, leaves, feeds);
+      this.priceDataComperator.apply(deviationDataToSign, leaves, feeds);
     } catch (e) {
       this.logger.error(`[DeviationVerifier] priceDataComparator failed with ${(e as Error).message}`);
       return {discrepancies: [], error: (e as Error).message, version: this.settings.version};
@@ -82,18 +82,27 @@ export class DeviationVerifier {
 
     const chainMetadata = await this.deviationChainMetadata.apply(deviationDataToSign.feedsForChain);
 
-    const signatures = await Promise.all(chainMetadata.map(([chainId, networkId, target]) => {
-        const priceDatas = deviationDataToSign.feedsForChain[chainId].map(key => deviationDataToSign.proposedPriceData[key]);
+    const signatures = await Promise.all(
+      chainMetadata.map(([chainId, networkId, target]) => {
+        const priceDatas = deviationDataToSign.feedsForChain[chainId].map(
+          (key) => deviationDataToSign.proposedPriceData[key],
+        );
 
         const data = deviationDataToSign.feedsForChain[chainId];
         this.logger.info(`[DeviationVerifier] signing ${data} for ${chainId} (${networkId})`);
 
-        const hash = this.deviationHasher.apply(chainId, networkId, target, deviationDataToSign.feedsForChain[chainId], priceDatas);
+        const hash = this.deviationHasher.apply(
+          chainId,
+          networkId,
+          target,
+          deviationDataToSign.feedsForChain[chainId],
+          priceDatas,
+        );
         const signer = this.deviationSignerRepository.get(chainId);
 
-        return signer.apply(hash)
-      }
-    ));
+        return signer.apply(hash);
+      }),
+    );
 
     const signaturesToReturn: Record<string, string> = {};
 

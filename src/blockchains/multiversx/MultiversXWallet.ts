@@ -1,13 +1,13 @@
-import {UserSigner} from "@multiversx/sdk-wallet";
-import {TransactionRequest} from "@ethersproject/providers";
-import {parseEther} from "ethers/lib/utils";
-import {Logger} from "winston";
+import {UserSigner} from '@multiversx/sdk-wallet';
+import {TransactionRequest} from '@ethersproject/providers';
+import {parseEther} from 'ethers/lib/utils';
+import {Logger} from 'winston';
 
 import {ChainsIds} from '../../types/ChainsIds';
 import {IWallet} from '../../interfaces/IWallet';
-import {ProviderFactory} from "../../factories/ProviderFactory";
-import {ProviderInterface} from "../../interfaces/ProviderInterface";
-import {ExecutedTx} from "../../types/Consensus";
+import {ProviderFactory} from '../../factories/ProviderFactory';
+import {ProviderInterface} from '../../interfaces/ProviderInterface';
+import {ExecutedTx} from '../../types/Consensus';
 import logger from '../../lib/logger';
 
 export class MultiversXWallet implements IWallet {
@@ -21,7 +21,7 @@ export class MultiversXWallet implements IWallet {
 
   constructor(privateKeyPem: string) {
     this.logger = logger;
-    this.logPrefix = `[MultiversXWallet]`;
+    this.logPrefix = '[MultiversXWallet]';
 
     this.provider = ProviderFactory.create(ChainsIds.MULTIVERSX);
     this.rawWallet = UserSigner.fromPem(privateKeyPem);

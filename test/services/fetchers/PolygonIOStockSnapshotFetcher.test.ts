@@ -69,7 +69,7 @@ describe('PolygonIOStockSnapshotFetcher', () => {
         };
 
         moxios.stubRequest(
-          `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=UVXY&apiKey=POLYGON_IO_API_KEY`,
+          'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=UVXY&apiKey=POLYGON_IO_API_KEY',
           {
             status: 200,
             response: responseExample,
@@ -88,13 +88,15 @@ describe('PolygonIOStockSnapshotFetcher', () => {
       describe('when one of the request fails', () => {
         it('throws an Error', async () => {
           moxios.stubRequest(
-            'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=UVXY&apiKey=POLYGON_IO_API_KEY',
+            'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers' +
+              '?tickers=UVXY&apiKey=POLYGON_IO_API_KEY',
             {
               status: 404,
             },
           );
           moxios.stubRequest(
-            'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=VIXY&apiKey=POLYGON_IO_API_KEY',
+            'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers' +
+              '?tickers=VIXY&apiKey=POLYGON_IO_API_KEY',
             {
               status: 200,
               response: ticker2,
@@ -108,14 +110,17 @@ describe('PolygonIOStockSnapshotFetcher', () => {
       describe('when all requests succeed', () => {
         beforeEach(() => {
           moxios.stubRequest(
-            `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=UVXY&apiKey=POLYGON_IO_API_KEY`,
+            'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers' +
+              '' +
+              '?tickers=UVXY&apiKey=POLYGON_IO_API_KEY',
             {
               status: 200,
               response: responseExample1,
             },
           );
           moxios.stubRequest(
-            `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?tickers=VIXY&apiKey=POLYGON_IO_API_KEY`,
+            'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers' +
+              '?tickers=VIXY&apiKey=POLYGON_IO_API_KEY',
             {
               status: 200,
               response: responseExample2,

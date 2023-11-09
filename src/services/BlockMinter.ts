@@ -47,9 +47,8 @@ class BlockMinter {
       return;
     }
 
-    const {chainsStatuses, chainsIdsReadyForBlock, nextLeader, validators} = await this.multiChainStatusResolver.apply(
-      dataTimestamp,
-    );
+    const {chainsStatuses, chainsIdsReadyForBlock, nextLeader, validators} =
+      await this.multiChainStatusResolver.apply(dataTimestamp);
 
     if (chainsStatuses.length === 0) {
       const message = '[BlockMinter] No chain status resolved.';
@@ -105,7 +104,7 @@ class BlockMinter {
       throw new Error(`[masterChainData] master chain data missing and cache empty (${Object.keys(data)})`);
     }
 
-    this.logger.info(`[masterChainData] using cached data`);
+    this.logger.info('[masterChainData] using cached data');
 
     return {
       minSignatures: parseInt(data[MASTERCHAINSTATUS_MIN_SIGNATURES], 10),

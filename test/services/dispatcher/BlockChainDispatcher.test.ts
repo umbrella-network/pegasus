@@ -26,10 +26,10 @@ import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
 import * as mining from '../../../src/utils/mining';
 import {transactionResponseFactory} from '../../mocks/factories/transactionResponseFactory';
 import {ChainsIds} from '../../../src/types/ChainsIds';
-import {MappingRepository} from "../../../src/repositories/MappingRepository";
-import {SubmitTxKeyResolver} from "../../../src/services/SubmitMonitor/SubmitTxKeyResolver";
-import {mockIWallet} from "../../helpers/mockIWallet";
-import {AvalancheBlockDispatcher} from "../../../src/services/dispatchers/networks/AvalancheBlockDispatcher";
+import {MappingRepository} from '../../../src/repositories/MappingRepository';
+import {SubmitTxKeyResolver} from '../../../src/services/SubmitMonitor/SubmitTxKeyResolver';
+import {mockIWallet} from '../../helpers/mockIWallet';
+import {AvalancheBlockDispatcher} from '../../../src/services/dispatchers/networks/AvalancheBlockDispatcher';
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -142,7 +142,7 @@ describe('BlockChainDispatcher', () => {
 
     mockedChainContract.submit.resolves({
       hash: transactionResponseFactory.build().hash,
-      atBlock: BigInt(transactionResponseFactory.build().blockNumber)
+      atBlock: BigInt(transactionResponseFactory.build().blockNumber),
     });
 
     mockedChainContractRepository.get.returns(mockedChainContract);
@@ -196,7 +196,10 @@ describe('BlockChainDispatcher', () => {
       it.skip('logs a warning message', async () => {
         const loggerSpy = sinon.spy(mockedLogger, 'warn');
         await avaxBlockDispatcher.apply();
-        expect(loggerSpy).to.have.been.calledWith(`[avax][LAYER2] Balance (${wallet.address.slice(0, 10)}) is lower than 0.15`);
+
+        expect(loggerSpy).to.have.been.calledWith(
+          `[avax][LAYER2] Balance (${wallet.address.slice(0, 10)}) is lower than 0.15`,
+        );
       });
 
       it.skip('does save block to database', async () => {

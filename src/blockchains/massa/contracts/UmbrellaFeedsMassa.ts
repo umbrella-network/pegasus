@@ -1,25 +1,25 @@
-import {Logger} from "winston";
+import {Logger} from 'winston';
 
-import {Args, ArrayTypes, Client, ClientFactory, IProvider, ProviderType} from "@massalabs/massa-web3";
+import {Args, ArrayTypes, Client, ClientFactory, IProvider, ProviderType} from '@massalabs/massa-web3';
 
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory';
 import Blockchain from '../../../lib/Blockchain';
 import {RegistryInterface} from '../../../interfaces/RegistryInterface';
-import {UmbrellaFeedInterface} from "../../../interfaces/UmbrellaFeedInterface";
-import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from "../../../types/DeviationFeeds";
+import {UmbrellaFeedInterface} from '../../../interfaces/UmbrellaFeedInterface';
+import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds';
 
-import {ExecutedTx} from "../../../types/Consensus";
+import {ExecutedTx} from '../../../types/Consensus';
 import logger from '../../../lib/logger';
-import {ChainsIds} from "../../../types/ChainsIds";
-import {ethers} from "ethers";
-import {MassaWBytesSerializer} from "../utils/MassaWBytesSerializer";
-import {MassaPriceDataSerializer} from "../utils/MassaPriceDataSerializer";
-import {MassaAddress} from "../utils/MassaAddress";
-import {MassaProvider} from "../MassaProvider";
-import {ProviderInterface} from "../../../interfaces/ProviderInterface";
-import {MassaWallet} from "../MassaWallet";
-import {IContractReadOperationResponse} from "@massalabs/web3-utils/dist/esm/interfaces/IContractReadOperationResponse";
-import {MassaEstimatedGas} from "../massaTypes";
+import {ChainsIds} from '../../../types/ChainsIds';
+import {ethers} from 'ethers';
+import {MassaWBytesSerializer} from '../utils/MassaWBytesSerializer';
+import {MassaPriceDataSerializer} from '../utils/MassaPriceDataSerializer';
+import {MassaAddress} from '../utils/MassaAddress';
+import {MassaProvider} from '../MassaProvider';
+import {ProviderInterface} from '../../../interfaces/ProviderInterface';
+import {MassaWallet} from '../MassaWallet';
+import {IContractReadOperationResponse} from '@massalabs/web3-utils/dist/esm/interfaces/IContractReadOperationResponse';
+import {MassaEstimatedGas} from '../massaTypes';
 
 export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   protected logger!: Logger;
@@ -87,8 +87,8 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     return keys.map((key, i) => {
       return <PriceDataWithKey>{
         ...priceDatas[i].get(),
-        key
-      }
+        key,
+      };
     });
   }
 
@@ -99,10 +99,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
 
     if (!deviationAccount) throw new Error(`${this.loggerPrefix} empty deviation wallet`);
 
-    const [targetAddress, blockNumber] = await Promise.all([
-      this.resolveAddress(),
-      this.provider.getBlockNumber()
-    ]);
+    const [targetAddress, blockNumber] = await Promise.all([this.resolveAddress(), this.provider.getBlockNumber()]);
 
     const estimateGas = await this.estimateGasForUpdate(targetAddress, args);
     this.logger.info(`${this.loggerPrefix} estimatedGas: ${JSON.stringify(estimateGas)}`);
@@ -116,7 +113,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
         functionName: 'update',
         parameter: this.parseArgs(args),
       },
-      deviationAccount
+      deviationAccount,
     );
 
     return {hash: operationId, atBlock: blockNumber};
@@ -133,18 +130,18 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
         targetAddress,
         targetFunction: 'update',
         parameter: this.parseArgs(args),
-        gas: MAX_GAS
+        gas: MAX_GAS,
       });
 
       const gasMargin = 12n; // 1.2;
-      estimatedGas = BigInt(readOnlyCall.info.gas_cost) * gasMargin / 10n;
+      estimatedGas = (BigInt(readOnlyCall.info.gas_cost) * gasMargin) / 10n;
 
-      const prefix = "Estimated storage cost: ";
+      const prefix = 'Estimated storage cost: ';
       const filteredEvent = readOnlyCall.info.output_events.find((e: {data: string}) => e.data.includes(prefix));
 
       if (filteredEvent) {
         const storageCostMargin = 11n; // 1.1
-        estimatedStorageCost = BigInt(filteredEvent.data.slice(prefix.length)) * storageCostMargin / 10n;
+        estimatedStorageCost = (BigInt(filteredEvent.data.slice(prefix.length)) * storageCostMargin) / 10n;
       } else {
         this.logger.error(`${this.loggerPrefix} Failed to get storage cost: no event`);
       }
@@ -154,7 +151,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
 
     return {
       estimatedGas: estimatedGas > MAX_GAS ? MAX_GAS : estimatedGas,
-      estimatedStorageCost
+      estimatedStorageCost,
     };
   }
 
@@ -162,11 +159,14 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     throw new Error(`${this.loggerPrefix} resolveContract not implemented`);
   };
 
-  protected async rawCall(
-    params: {targetAddress?: string, targetFunction: string, parameter?: Array<number> | Args, gas?: bigint}
-  ): Promise<IContractReadOperationResponse> {
+  protected async rawCall(params: {
+    targetAddress?: string;
+    targetFunction: string;
+    parameter?: Array<number> | Args;
+    gas?: bigint;
+  }): Promise<IContractReadOperationResponse> {
     await this.beforeAnyAction();
-    const targetAddress = params.targetAddress || await this.registry.getAddress(this.umbrellaFeedsName);
+    const targetAddress = params.targetAddress || (await this.registry.getAddress(this.umbrellaFeedsName));
 
     return this.client.smartContracts().readSmartContract({
       maxGas: params.gas || 10_000_000n,
@@ -177,19 +177,18 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   }
 
   protected serializeFeedsNames(keys: string[]): MassaWBytesSerializer[] {
-    return this.serializeKeys(keys.map(k => ethers.utils.id(k)));
+    return this.serializeKeys(keys.map((k) => ethers.utils.id(k)));
   }
 
   protected serializeKeys(keysBytes32: string[]): MassaWBytesSerializer[] {
-    return keysBytes32.map(bytes32 => new MassaWBytesSerializer(bytes32));
+    return keysBytes32.map((bytes32) => new MassaWBytesSerializer(bytes32));
   }
 
   protected serializePriceDatas(datas: PriceData[]): MassaPriceDataSerializer[] {
-    return datas
-      .map(data => new MassaPriceDataSerializer(data.data, data.heartbeat, data.timestamp, data.price));
+    return datas.map((data) => new MassaPriceDataSerializer(data.data, data.heartbeat, data.timestamp, data.price));
   }
 
-  protected sortSignatures(signatures: string[]): {sortedSignatures: string[], publicKeys: string[]} {
+  protected sortSignatures(signatures: string[]): {sortedSignatures: string[]; publicKeys: string[]} {
     const sorted = signatures.sort((a, b) => {
       const addr1 = a.split('@')[0];
       const addr2 = b.split('@')[0];
@@ -199,7 +198,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     const sortedSignatures: string[] = [];
     const publicKeys: string[] = [];
 
-    sorted.forEach(as => {
+    sorted.forEach((as) => {
       const [a, s] = as.split('@');
       publicKeys.push(a);
       sortedSignatures.push(s);
@@ -226,20 +225,16 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     await (this.provider as MassaProvider).beforeAnyAction();
 
     this.client = await ClientFactory.createCustomClient(
-      [
-        { url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC } as IProvider,
-      ],
+      [{url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC} as IProvider],
       true,
     );
 
     await (this.blockchain.deviationWallet as MassaWallet).beforeAnyAction();
 
     this.deviationClient = await ClientFactory.createCustomClient(
-      [
-        { url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC } as IProvider,
-      ],
+      [{url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC} as IProvider],
       true,
-      this.blockchain.deviationWallet?.getRawWallet()
+      this.blockchain.deviationWallet?.getRawWallet(),
     );
 
     this.logger.info(`${this.loggerPrefix} clients initialised`);

@@ -1,18 +1,18 @@
-import {StaticJsonRpcProvider} from "@ethersproject/providers";
+import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import {ethers} from 'ethers';
-import {Logger} from "winston";
+import {Logger} from 'winston';
 
-import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
-import {GasEstimator} from "@umb-network/toolbox";
+import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
+import {GasEstimator} from '@umb-network/toolbox';
 
 import {ProviderInterface} from '../../interfaces/ProviderInterface';
 import {ChainsIds} from '../../types/ChainsIds';
 import {NetworkStatus} from '../../types/Network';
-import {sleep} from "../../utils/sleep";
-import Settings from "../../types/Settings";
-import {Timeout} from "../../services/tools/Timeout";
+import {sleep} from '../../utils/sleep';
+import Settings from '../../types/Settings';
+import {Timeout} from '../../services/tools/Timeout';
 import logger from '../../lib/logger';
-import settings from "../../config/settings";
+import settings from '../../config/settings';
 
 export class EvmProvider implements ProviderInterface {
   protected logger!: Logger;
@@ -80,7 +80,7 @@ export class EvmProvider implements ProviderInterface {
     return newBlockNumber;
   }
 
-  async call(transaction: { to: string; data: string }): Promise<string> {
+  async call(transaction: {to: string; data: string}): Promise<string> {
     return this.provider.call(transaction);
   }
 

@@ -12,8 +12,8 @@ import {BlockchainSymbol} from '../../models/BlockchainSymbol';
 import {Mutex, MutexInterface, withTimeout} from 'async-mutex';
 import {Price, UniswapV3Helper} from '../../blockchains/evm/contracts/UniswapV3Helper';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
-import {UniswapV2PriceMonitorChecker} from "../uniswapPriceMonitor/UniswapV2PriceMonitorChecker";
-import {UniswapV2PriceMonitorSaver} from "../uniswapPriceMonitor/UniswapV2PriceMonitorSaver";
+import {UniswapV2PriceMonitorChecker} from '../uniswapPriceMonitor/UniswapV2PriceMonitorChecker';
+import {UniswapV2PriceMonitorSaver} from '../uniswapPriceMonitor/UniswapV2PriceMonitorSaver';
 
 export type UniswapPoolPrice = {
   symbol: string;
@@ -100,7 +100,7 @@ export class UniswapPriceScanner {
 
         await this.uniswapV2PriceMonitorSaver.apply(totalPrices);
       } catch (e) {
-        this.logger.error(`[UniswapPriceScanner] Error retrieving prices, skipping...`);
+        this.logger.error('[UniswapPriceScanner] Error retrieving prices, skipping...');
         this.logger.error('[UniswapPriceScanner]', e);
       }
     });

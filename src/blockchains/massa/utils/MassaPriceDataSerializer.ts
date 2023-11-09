@@ -1,6 +1,6 @@
 import {Args, IDeserializedResult, ISerializable} from '@massalabs/massa-web3';
 
-import {PriceData} from "../../../types/DeviationFeeds";
+import {PriceData} from '../../../types/DeviationFeeds';
 
 export class MassaPriceDataSerializer implements ISerializable<MassaPriceDataSerializer> {
   private data: number; // u8
@@ -16,11 +16,7 @@ export class MassaPriceDataSerializer implements ISerializable<MassaPriceDataSer
   }
 
   serialize(): Uint8Array {
-    const args = new Args()
-      .addU8(this.data)
-      .addU32(this.heartbeat)
-      .addU32(this.timestamp)
-      .addU128(this.price);
+    const args = new Args().addU8(this.data).addU32(this.heartbeat).addU32(this.timestamp).addU128(this.price);
 
     return new Uint8Array(args.serialize());
   }
@@ -31,7 +27,7 @@ export class MassaPriceDataSerializer implements ISerializable<MassaPriceDataSer
     this.heartbeat = args.nextU32();
     this.timestamp = args.nextU32();
     this.price = args.nextU128();
-    return { instance: this, offset: args.getOffset() };
+    return {instance: this, offset: args.getOffset()};
   }
 
   get(): PriceData {
@@ -39,7 +35,7 @@ export class MassaPriceDataSerializer implements ISerializable<MassaPriceDataSer
       data: this.data,
       heartbeat: this.heartbeat,
       timestamp: this.timestamp,
-      price: this.price
-    }
+      price: this.price,
+    };
   }
 }

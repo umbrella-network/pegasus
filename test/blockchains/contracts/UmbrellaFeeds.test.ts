@@ -10,7 +10,7 @@ import {UmbrellaFeedsContractFactory} from '../../../src/factories/contracts/Umb
 import {UmbrellaFeedInterface} from '../../../src/interfaces/UmbrellaFeedInterface';
 import {PriceData} from '../../../src/types/DeviationFeeds';
 import {DeviationHasher} from '../../../src/services/deviationsFeeds/DeviationHasher';
-import {DeviationSignerRepository} from "../../../src/repositories/DeviationSignerRepository";
+import {DeviationSignerRepository} from '../../../src/repositories/DeviationSignerRepository';
 
 describe.skip('Umbrella Feeds debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
@@ -132,7 +132,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
             },
           ];
 
-          const keys = ['BTC-USD', 'ETH-USD']
+          const keys = ['BTC-USD', 'ETH-USD'];
 
           const [hash, contractHash] = await Promise.all([
             hasher.apply(chainId, networkId, target, keys, priceDatas),
@@ -155,7 +155,6 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         beforeEach(async () => {
           [networkId, target] = await Promise.all([blockchainRepo.get(chainId).networkId(), umbrellaFeeds.address()]);
         });
-
 
         it.skip('sign one PriceData', async () => {
           const priceDatas: PriceData[] = [

@@ -31,12 +31,12 @@ class MetricsWorker extends BasicWorker {
     const unlocked = await this.connection.set(lock.name, 'lock', 'EX', lock.ttl, 'NX');
 
     if (!unlocked) {
-      this.logger.error(`[MetricsWorker] apply for job but job !unlocked`);
+      this.logger.error('[MetricsWorker] apply for job but job !unlocked');
       return;
     }
 
     try {
-      this.logger.info(`metrics worker start`);
+      this.logger.info('metrics worker start');
       await this.blockchainGasRepository.purge(); // purge before other tasks
 
       const results = await Promise.allSettled([

@@ -132,11 +132,14 @@ class InfoController {
       chainIds.map((chainId) => Promise.all([chainId, this.getChainSettings(chainId as ChainsIds)])),
     );
 
-    return cfg.reduce((acc, [chainId, s]) => {
-      if (!s) return acc;
-      acc[chainId] = s;
-      return acc;
-    }, {} as Record<string, BlockchainInfoSettings>);
+    return cfg.reduce(
+      (acc, [chainId, s]) => {
+        if (!s) return acc;
+        acc[chainId] = s;
+        return acc;
+      },
+      {} as Record<string, BlockchainInfoSettings>,
+    );
   };
 }
 

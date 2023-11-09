@@ -15,10 +15,14 @@ class YearnTransformPriceCalculator {
     for (const vault of vaults) {
       const {tokenSymbol, decimals, pricePerShare, tokenVirtualPrice, tokenDecimals, symbol} = vault;
 
-      const priceConverter = new PriceConverter(tokenVirtualPrice.isZero() ? prices : {
-        ...prices,
-        [`${tokenSymbol}-USD`]: this.bigNumberToNumber(tokenVirtualPrice, tokenDecimals),
-      });
+      const priceConverter = new PriceConverter(
+        tokenVirtualPrice.isZero()
+          ? prices
+          : {
+              ...prices,
+              [`${tokenSymbol}-USD`]: this.bigNumberToNumber(tokenVirtualPrice, tokenDecimals),
+            },
+      );
 
       const tokenPrice = priceConverter.apply(tokenSymbol, tsym);
 

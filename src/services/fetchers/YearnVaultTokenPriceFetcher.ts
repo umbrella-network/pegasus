@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
 import {BigNumber, ethers} from 'ethers';
-import {BaseProvider} from "@ethersproject/providers";
+import {BaseProvider} from '@ethersproject/providers';
 
 import BlockChainProviderFactory from '../BlockChainProviderFactory';
 
 import YearnVaultExplorer from './YearnVaultExplorer.json';
-import {ChainsIds} from "../../types/ChainsIds";
-import {ProviderRepository} from "../../repositories/ProviderRepository";
+import {ChainsIds} from '../../types/ChainsIds';
+import {ProviderRepository} from '../../repositories/ProviderRepository';
 
 @injectable()
 class YearnVaultTokenPriceFetcher {

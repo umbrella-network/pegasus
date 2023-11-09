@@ -14,10 +14,13 @@ export class MappingRepository {
       .find({_id: {$in: keys}})
       .exec();
 
-    return map.reduce((acc, data) => {
-      acc[data._id] = data.value;
-      return acc;
-    }, {} as Record<string, string>);
+    return map.reduce(
+      (acc, data) => {
+        acc[data._id] = data.value;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
   }
 
   async set(_id: string, value: string): Promise<void> {

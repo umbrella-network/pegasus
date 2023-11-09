@@ -1,4 +1,4 @@
-import {ChainsIds} from "../../types/ChainsIds";
+import {ChainsIds} from '../../types/ChainsIds';
 
 export class TriggerTxKeyResolver {
   static apply(chainId: ChainsIds): string {

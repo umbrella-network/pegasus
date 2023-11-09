@@ -3,8 +3,8 @@ import {Logger} from 'winston';
 
 import {ConsensusOptimizer} from '../ConsensusOptimizer';
 import Settings from '../../types/Settings';
-import {DeviationSignerResponse} from "../../types/DeviationFeeds";
-import {VersionChecker} from "./VersionChecker";
+import {DeviationSignerResponse} from '../../types/DeviationFeeds';
+import {VersionChecker} from './VersionChecker';
 
 @injectable()
 export class DeviationSignerResponseProcessor {
@@ -15,17 +15,17 @@ export class DeviationSignerResponseProcessor {
 
   apply(
     deviationSignerResponses: DeviationSignerResponse[],
-    requiredSignatures: number
-  ): { signatures: Record<string, string[]>, discrepantKeys: Set<string>} {
+    requiredSignatures: number,
+  ): {signatures: Record<string, string[]>; discrepantKeys: Set<string>} {
     const signaturesPerChain: Record<string, string[]> = {};
     const discrepantKeys: Set<string> = new Set();
 
-    deviationSignerResponses.forEach(response => {
+    deviationSignerResponses.forEach((response) => {
       const {signatures, version, error, discrepancies} = response;
 
       this.versionChecker.apply(version);
 
-      discrepancies.forEach(discrepancy => discrepantKeys.add(discrepancy.key));
+      discrepancies.forEach((discrepancy) => discrepantKeys.add(discrepancy.key));
 
       if (error) return;
       if (!signatures) return;
@@ -35,7 +35,7 @@ export class DeviationSignerResponseProcessor {
 
       // we do have signature(s)
 
-      chains.forEach(chainId => {
+      chains.forEach((chainId) => {
         if (!signaturesPerChain[chainId]) {
           signaturesPerChain[chainId] = [];
         }
@@ -46,19 +46,19 @@ export class DeviationSignerResponseProcessor {
 
     return {
       signatures: this.searchForConsensus(signaturesPerChain, requiredSignatures),
-      discrepantKeys
+      discrepantKeys,
     };
   }
 
   protected searchForConsensus(
     signaturesPerChain: Record<string, string[]>,
-    requiredSignatures: number
+    requiredSignatures: number,
   ): Record<string, string[]> {
     const consensuses: Record<string, string[]> = {};
 
     const chains = Object.keys(signaturesPerChain);
 
-    chains.forEach(chainId => {
+    chains.forEach((chainId) => {
       const gotSignatures = signaturesPerChain[chainId].length;
 
       if (gotSignatures >= requiredSignatures) {

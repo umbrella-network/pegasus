@@ -24,7 +24,7 @@ export class DeviationLeaderWorker extends BasicWorker {
     const unlocked = await this.connection.set(lock.name, 'lock', 'EX', lock.ttl, 'NX');
 
     if (!unlocked) {
-      this.logger.error(`[DeviationLeaderWorker] apply for job but job !unlocked`);
+      this.logger.error('[DeviationLeaderWorker] apply for job but job !unlocked');
       return;
     }
 

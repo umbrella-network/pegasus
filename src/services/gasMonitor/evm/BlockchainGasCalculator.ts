@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
-import {StaticJsonRpcProvider, TransactionReceipt} from "@ethersproject/providers";
+import {StaticJsonRpcProvider, TransactionReceipt} from '@ethersproject/providers';
 
-import {ProviderRepository} from "../../../repositories/ProviderRepository";
-import {BlockchainGas} from "../../../types/BlockchainGas";
-import {ChainsIds} from "../../../types/ChainsIds";
+import {ProviderRepository} from '../../../repositories/ProviderRepository';
+import {BlockchainGas} from '../../../types/BlockchainGas';
+import {ChainsIds} from '../../../types/ChainsIds';
 
 @injectable()
 export class BlockchainGasCalculator {
@@ -25,23 +25,23 @@ export class BlockchainGasCalculator {
       chainId,
       gas: avg,
       blockNumber,
-      blockTimestamp: block.timestamp
-    }
+      blockTimestamp: block.timestamp,
+    };
   }
 
   protected async getReceipts(chainId: ChainsIds, txs: string[]): Promise<TransactionReceipt[]> {
     const provider: StaticJsonRpcProvider = this.providerRepository.get(chainId).getRawProvider();
-    return Promise.all(txs.map(tx => provider.getTransactionReceipt(tx)));
+    return Promise.all(txs.map((tx) => provider.getTransactionReceipt(tx)));
   }
 
   protected gasFromReceipts(receipts: TransactionReceipt[]): bigint[] {
-    return receipts.map(r => r.effectiveGasPrice.toBigInt());
+    return receipts.map((r) => r.effectiveGasPrice.toBigInt());
   }
 
   protected calculateGas(gas: bigint[]): bigint {
     const pop = Math.trunc(gas.length / 10);
     const data = pop > 0 && gas.length - 2 * pop > 0 ? gas.sort().slice(pop, -pop) : gas;
     const sum = data.reduce((sum, g) => sum + g, 0n);
-    return (sum / BigInt(data.length));
+    return sum / BigInt(data.length);
   }
 }

@@ -1,5 +1,5 @@
 import {injectable} from 'inversify';
-import {NonEvmDeviationDispatcher} from "./NonEvmDeviationDispatcher";
+import {NonEvmDeviationDispatcher} from './NonEvmDeviationDispatcher';
 import {ChainsIds} from '../../../types/ChainsIds';
 
 @injectable()

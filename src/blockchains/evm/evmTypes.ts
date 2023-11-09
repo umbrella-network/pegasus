@@ -1,3 +1,3 @@
 export type EvmEstimatedGas = {
-  gasLimit: bigint
-}
+  gasLimit: bigint;
+};

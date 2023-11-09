@@ -4,7 +4,7 @@ import Server from './lib/Server';
 import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
 
 (async () => {
-  await boot()
+  await boot();
   Application.get(ApplicationUpdateAgent).start();
   Application.get(Server).start();
 })();

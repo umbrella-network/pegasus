@@ -360,13 +360,16 @@ function getTimeSetting(value: number, min: number): number {
 }
 
 function resolveBlockchainProviders() {
-  return resolveArray((i) => process.env[`BLOCKCHAIN_PROVIDER_${i}_URL`] as string).reduce((map, item, i) => {
-    const name = process.env[`BLOCKCHAIN_PROVIDER_${i}_NAME`] as string;
-    if (name) {
-      map[name] = item;
-    }
-    return map;
-  }, {} as {[name: string]: string});
+  return resolveArray((i) => process.env[`BLOCKCHAIN_PROVIDER_${i}_URL`] as string).reduce(
+    (map, item, i) => {
+      const name = process.env[`BLOCKCHAIN_PROVIDER_${i}_NAME`] as string;
+      if (name) {
+        map[name] = item;
+      }
+      return map;
+    },
+    {} as {[name: string]: string},
+  );
 }
 
 function resolveArray(iterator: (i: number) => string): string[] {

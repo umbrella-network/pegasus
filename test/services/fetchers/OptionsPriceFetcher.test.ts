@@ -84,7 +84,7 @@ describe('OptionsPriceFetcher', () => {
 
       await optionsPriceFetcher.apply();
 
-      expect(spy.calledWithExactly(sinon.match(`Skipping OptionsPrice fetcher`))).to.be.true;
+      expect(spy.calledWithExactly(sinon.match('Skipping OptionsPrice fetcher'))).to.be.true;
     });
 
     it('resolves an empty object', async () => {

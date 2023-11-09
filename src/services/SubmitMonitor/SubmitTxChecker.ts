@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
 import {ChainsIds} from '../../types/ChainsIds';
-import {LastSubmitResolver} from "./LastSubmitResolver";
+import {LastSubmitResolver} from './LastSubmitResolver';
 
 @injectable()
 export class SubmitTxChecker {

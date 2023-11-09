@@ -1,6 +1,6 @@
-import BigNumber from "bignumber.js";
-import {Logger} from "winston";
-import axios from "axios";
+import BigNumber from 'bignumber.js';
+import {Logger} from 'winston';
+import axios from 'axios';
 
 import {
   AbiRegistry,
@@ -17,28 +17,27 @@ import {
   SmartContract,
   Struct,
   Tuple,
-  U32Value
+  U32Value,
 } from '@multiversx/sdk-core';
 import {ApiNetworkProvider} from '@multiversx/sdk-network-providers';
 
-import {VariadicValue} from "@multiversx/sdk-core/out/smartcontracts/typesystem/variadic";
-import {ContractQueryResponse} from "@multiversx/sdk-network-providers/out/contractQueryResponse";
-import {TypedValue} from "@multiversx/sdk-core/out/smartcontracts/typesystem";
-import {UserSigner} from "@multiversx/sdk-wallet/out";
-import {Signature} from "@multiversx/sdk-core/out/signature";
+import {VariadicValue} from '@multiversx/sdk-core/out/smartcontracts/typesystem/variadic';
+import {ContractQueryResponse} from '@multiversx/sdk-network-providers/out/contractQueryResponse';
+import {TypedValue} from '@multiversx/sdk-core/out/smartcontracts/typesystem';
+import {UserSigner} from '@multiversx/sdk-wallet/out';
+import {Signature} from '@multiversx/sdk-core/out/signature';
 
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory';
 import Blockchain from '../../../lib/Blockchain';
 import {RegistryInterface} from '../../../interfaces/RegistryInterface';
-import umbrellaFeedsAbi from './umbrella-feeds.abi.json'
-import {UmbrellaFeedInterface} from "../../../interfaces/UmbrellaFeedInterface";
-import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from "../../../types/DeviationFeeds";
+import umbrellaFeedsAbi from './umbrella-feeds.abi.json';
+import {UmbrellaFeedInterface} from '../../../interfaces/UmbrellaFeedInterface';
+import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from '../../../types/DeviationFeeds';
 
-import {MultiversXAddress} from "../utils/MultiversXAddress";
-import {ExecutedTx} from "../../../types/Consensus";
+import {MultiversXAddress} from '../utils/MultiversXAddress';
+import {ExecutedTx} from '../../../types/Consensus';
 import logger from '../../../lib/logger';
-import {MultiversXProvider} from "../MultiversXProvider";
-
+import {MultiversXProvider} from '../MultiversXProvider';
 
 export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
   protected logger!: Logger;
@@ -51,7 +50,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     this.logger = logger;
     this.umbrellaFeedsName = umbrellaFeedsName;
     this.blockchain = blockchain;
-    this.loggerPrefix = `[${this.blockchain.chainId}][UmbrellaFeedsMultiversX]`
+    this.loggerPrefix = `[${this.blockchain.chainId}][UmbrellaFeedsMultiversX]`;
   }
 
   resolveAddress(): Promise<string> {
@@ -69,7 +68,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
   async hashData(bytes32Keys: string[], priceDatas: PriceData[]): Promise<string> {
     const args = this.parseDataForHashing(bytes32Keys, priceDatas);
     const response = await this.apiCall('hashData', args);
-    if (!response) throw new Error(`${this.loggerPrefix} hashData failed`)
+    if (!response) throw new Error(`${this.loggerPrefix} hashData failed`);
 
     const parsedResponse = new ResultsParser().parseUntypedQueryResponse(response);
     return '0x' + parsedResponse.values[0].toString('hex');
@@ -77,7 +76,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
   async requiredSignatures(): Promise<number> {
     const response = await this.apiCall('required_signatures');
-    if (!response) throw new Error(`${this.loggerPrefix} requiredSignatures failed`)
+    if (!response) throw new Error(`${this.loggerPrefix} requiredSignatures failed`);
 
     const parsedResponse = new ResultsParser().parseUntypedQueryResponse(response);
     return parseInt(parsedResponse.values[0].toString('hex'), 16);
@@ -85,7 +84,10 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
   async getManyPriceDataRaw(keys: string[]): Promise<PriceDataWithKey[] | undefined> {
     try {
-      const response = await this.apiCall('getManyPriceDataRaw', keys.map(k => new BytesValue(this.bufferFromString(k))));
+      const response = await this.apiCall(
+        'getManyPriceDataRaw',
+        keys.map((k) => new BytesValue(this.bufferFromString(k))),
+      );
       if (!response) return;
 
       const endpointDefinition = AbiRegistry.create(umbrellaFeedsAbi).getEndpoint('getManyPriceDataRaw');
@@ -106,7 +108,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
         };
       });
     } catch (e) {
-      this.logger.error(`${this.loggerPrefix} getManyPriceDataRaw error: ${e.message}`)
+      this.logger.error(`${this.loggerPrefix} getManyPriceDataRaw error: ${e.message}`);
       return;
     }
   }
@@ -117,8 +119,8 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     if (!contract) {
       return {
         hash: '',
-        atBlock: 0n
-      }
+        atBlock: 0n,
+      };
     }
 
     const deviationWallet = this.blockchain.deviationWallet;
@@ -130,16 +132,22 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
     const [nonce, chainID] = await Promise.all([
       deviationWallet.getNextNonce(),
-      (this.blockchain.provider as MultiversXProvider).getChainID()
+      (this.blockchain.provider as MultiversXProvider).getChainID(),
     ]);
 
-    const updateTransaction = contract.methods.update(parsedArgs)
+    const updateTransaction = contract.methods
+      .update(parsedArgs)
       .withSender(multiversXWallet.getAddress())
       .withNonce(nonce)
       .withChainID(chainID)
       .buildTransaction();
 
-    const gasLimit = await this.estimateCost(contract.getAddress().bech32(), updateTransaction.getData(), chainID, nonce);
+    const gasLimit = await this.estimateCost(
+      contract.getAddress().bech32(),
+      updateTransaction.getData(),
+      chainID,
+      nonce,
+    );
 
     updateTransaction.setGasLimit(gasLimit);
 
@@ -156,19 +164,24 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     return {hash, atBlock};
   }
 
-  async estimateCost(receiver: string, payload: ITransactionPayload, chainID: string, nonce: number): Promise<IGasLimit> {
+  async estimateCost(
+    receiver: string,
+    payload: ITransactionPayload,
+    chainID: string,
+    nonce: number,
+  ): Promise<IGasLimit> {
     const provider = this.blockchain.provider as MultiversXProvider;
     const costUrl = `${provider.getProviderUrl()}/transaction/cost`;
 
     const data = {
-      "value": "0",
-      "receiver": receiver,
-      "sender": this.blockchain.deviationWallet?.address || '',
-      "data": payload.encoded(),
-      "chainID": chainID,
-      "version": 1,
-      "nonce": nonce
-    }
+      value: '0',
+      receiver: receiver,
+      sender: this.blockchain.deviationWallet?.address || '',
+      data: payload.encoded(),
+      chainID: chainID,
+      version: 1,
+      nonce: nonce,
+    };
 
     const res = await axios.post(costUrl, data);
 
@@ -176,13 +189,13 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
     if (gas == 0 && res.data.data.returnMessage) {
       this.logger.error(`${this.loggerPrefix} gas: ${JSON.stringify(res.data)}`);
-      throw new Error(`${this.loggerPrefix} estimateCost error: ${res.data.data.returnMessage}`)
+      throw new Error(`${this.loggerPrefix} estimateCost error: ${res.data.data.returnMessage}`);
     }
 
     return {
       valueOf(): number {
         return Math.trunc(gas * 1.05); // +5% to have some margin
-      }
+      },
     };
   }
 
@@ -195,14 +208,14 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
       const umbrellaFeedsAddress = await this.registry.getAddress(this.umbrellaFeedsName);
       return new SmartContract({address: new Address(umbrellaFeedsAddress), abi: AbiRegistry.create(umbrellaFeedsAbi)});
     } catch (e) {
-      this.logger.error(`${this.loggerPrefix} resolveContract error: ${e.message}`)
+      this.logger.error(`${this.loggerPrefix} resolveContract error: ${e.message}`);
       return;
     }
   };
 
   protected async apiCall(functionName: string, args: TypedValue[] = []): Promise<ContractQueryResponse | undefined> {
     const contract = await this.resolveContract();
-    if (!contract) return ;
+    if (!contract) return;
 
     const query = new Interaction(contract, new ContractFunction(functionName), args).buildQuery();
     return this.blockchain.provider.getRawProvider<ApiNetworkProvider>().queryContract(query);
@@ -210,31 +223,40 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
   protected parseDataForHashing(bytes32Keys: string[], priceDatas: PriceData[]): TypedValue[] {
     return [
-      List.fromItems(bytes32Keys.map(k => new BytesValue(Buffer.from(k.replace('0x', ''), 'hex')))),
-      List.fromItems(priceDatas.map(priceData =>
-        Tuple.fromItems([
-          new U32Value(priceData.heartbeat),
-          new U32Value(priceData.timestamp),
-          new BigUIntValue(priceData.price.toString()),
-        ])))
+      List.fromItems(bytes32Keys.map((k) => new BytesValue(Buffer.from(k.replace('0x', ''), 'hex')))),
+      List.fromItems(
+        priceDatas.map((priceData) =>
+          Tuple.fromItems([
+            new U32Value(priceData.heartbeat),
+            new U32Value(priceData.timestamp),
+            new BigUIntValue(priceData.price.toString()),
+          ]),
+        ),
+      ),
     ];
   }
 
   protected parseDataForUpdate(args: UmbrellaFeedsUpdateArgs): TypedValue[] {
     return [
-      VariadicValue.fromItemsCounted(...args.keys.map(k => new BytesValue(this.bufferFromString(k)))),
-      VariadicValue.fromItemsCounted(...args.priceDatas.map(priceData =>
-        Tuple.fromItems([
-          new U32Value(priceData.heartbeat),
-          new U32Value(priceData.timestamp),
-          new BigUIntValue(priceData.price.toString()),
-        ]))),
+      VariadicValue.fromItemsCounted(...args.keys.map((k) => new BytesValue(this.bufferFromString(k)))),
+      VariadicValue.fromItemsCounted(
+        ...args.priceDatas.map((priceData) =>
+          Tuple.fromItems([
+            new U32Value(priceData.heartbeat),
+            new U32Value(priceData.timestamp),
+            new BigUIntValue(priceData.price.toString()),
+          ]),
+        ),
+      ),
 
-      VariadicValue.fromItemsCounted(...this.sortSignatures(args.signatures).map(s => {
-        const [publicAddress, signature] = s.split('@');
-          return new BytesValue(Buffer.concat([MultiversXAddress.toBuffer(publicAddress), this.bufferFromString(signature)]));
-        }
-      )),
+      VariadicValue.fromItemsCounted(
+        ...this.sortSignatures(args.signatures).map((s) => {
+          const [publicAddress, signature] = s.split('@');
+          return new BytesValue(
+            Buffer.concat([MultiversXAddress.toBuffer(publicAddress), this.bufferFromString(signature)]),
+          );
+        }),
+      ),
     ];
   }
 
@@ -250,4 +272,3 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     return Buffer.from(s.replace('0x', ''), 'hex');
   }
 }
-

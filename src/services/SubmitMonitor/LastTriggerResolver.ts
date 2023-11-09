@@ -1,8 +1,8 @@
 import {injectable} from 'inversify';
 
-import {ChainsIds} from "../../types/ChainsIds";
-import {TriggerTxKeyResolver} from "./TriggerTxKeyResolver";
-import {LastSubmitResolver} from "./LastSubmitResolver";
+import {ChainsIds} from '../../types/ChainsIds';
+import {TriggerTxKeyResolver} from './TriggerTxKeyResolver';
+import {LastSubmitResolver} from './LastSubmitResolver';
 
 @injectable()
 export class LastTriggerResolver extends LastSubmitResolver {

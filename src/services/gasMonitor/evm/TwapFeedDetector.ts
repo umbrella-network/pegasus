@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ChainsIds} from "../../../types/ChainsIds";
-import {FeedRepository} from "../../../repositories/FeedRepository";
+import {ChainsIds} from '../../../types/ChainsIds';
+import {FeedRepository} from '../../../repositories/FeedRepository';
 
 @injectable()
 export class TwapFeedDetector {
@@ -12,13 +12,13 @@ export class TwapFeedDetector {
   async apply(chainId: ChainsIds): Promise<boolean> {
     const feeds = await this.feedRepository.getDeviationTriggerFeeds([]);
 
-    const enabled = !!Object.keys(feeds).find(key => {
-      return !!feeds[key].inputs.find(keyInput => {
+    const enabled = !!Object.keys(feeds).find((key) => {
+      return !!feeds[key].inputs.find((keyInput) => {
         const forChain = keyInput.fetcher.params
           ? (keyInput.fetcher.params as unknown as {chainId?: string}).chainId
           : undefined;
 
-        return keyInput.fetcher.name == 'TWAPGasPrice' && forChain == chainId
+        return keyInput.fetcher.name == 'TWAPGasPrice' && forChain == chainId;
       });
     });
 

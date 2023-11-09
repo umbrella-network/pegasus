@@ -10,7 +10,7 @@ export class RequiredSignaturesRepository {
   @inject('Logger') logger!: Logger;
   @inject(MappingRepository) mappingRepository!: MappingRepository;
 
-  readonly ID = `NUMBER_OF_SIGNATURES`;
+  readonly ID = 'NUMBER_OF_SIGNATURES';
 
   async get(blockchainType: BlockchainType, chainId: ChainsIds | undefined): Promise<number | undefined> {
     const data = await this.getAll();

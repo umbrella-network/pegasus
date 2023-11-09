@@ -7,11 +7,11 @@ import MetricsWorker from './workers/MetricsWorker';
 import Settings, {BlockDispatcherSettings} from './types/Settings';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
 import {DeviationLeaderWorker} from './workers/DeviationLeaderWorker';
-import DataPurger from "./services/DataPurger";
-import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
-import BasicWorker from "./workers/BasicWorker";
-import {ChainsIds} from "./types/ChainsIds";
-import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
+import DataPurger from './services/DataPurger';
+import {DeviationDispatcherWorker} from './workers/DeviationDispatcherWorker';
+import BasicWorker from './workers/BasicWorker';
+import {ChainsIds} from './types/ChainsIds';
+import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker';
 
 (async (): Promise<void> => {
   await boot();
@@ -109,7 +109,10 @@ import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
       settings.jobs.blockDispatcher
     ))[chainId];
 
-    setInterval(async () => scheduleDispatching(blockDispatcherWorker, 'dispatcher', chainId), blockDispatcherSettings.interval);
+    setInterval(
+      async () => scheduleDispatching(blockDispatcherWorker, 'dispatcher', chainId),
+      blockDispatcherSettings.interval,
+    );
   }
 
   setInterval(async () => {
@@ -130,10 +133,11 @@ import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
       continue;
     }
 
-    const {deviationInterval} = (<Record<string, BlockDispatcherSettings>>(
-      settings.jobs.blockDispatcher
-    ))[chainId];
+    const {deviationInterval} = (<Record<string, BlockDispatcherSettings>>settings.jobs.blockDispatcher)[chainId];
 
-    setInterval(async () => scheduleDispatching(deviationDispatcherWorker, 'deviation-dispatcher', chainId), deviationInterval);
+    setInterval(
+      async () => scheduleDispatching(deviationDispatcherWorker, 'deviation-dispatcher', chainId),
+      deviationInterval,
+    );
   }
 })();

@@ -1,10 +1,9 @@
 import {inject, injectable} from 'inversify';
-import {Logger} from "winston";
+import {Logger} from 'winston';
 
 import {KeysPerChain, PriceDataWithKey, PriceDataPerChain} from '../../types/DeviationFeeds';
-import {ChainsIds} from "../../types/ChainsIds";
-import {FeedsContractRepository} from "../../repositories/FeedsContractRepository";
-
+import {ChainsIds} from '../../types/ChainsIds';
+import {FeedsContractRepository} from '../../repositories/FeedsContractRepository';
 
 @injectable()
 export class PriceDataProvider {
@@ -13,9 +12,11 @@ export class PriceDataProvider {
 
   async apply(keysPerChain: KeysPerChain): Promise<PriceDataPerChain> {
     const data: PriceDataPerChain = {};
-    const chainIds = Object.keys(keysPerChain).map(chainId => chainId);
+    const chainIds = Object.keys(keysPerChain).map((chainId) => chainId);
 
-    const priceDatas = await Promise.all(chainIds.map(chainId => this.getPriceData(chainId as ChainsIds, keysPerChain[chainId])));
+    const priceDatas = await Promise.all(
+      chainIds.map((chainId) => this.getPriceData(chainId as ChainsIds, keysPerChain[chainId])),
+    );
 
     priceDatas.forEach((priceDataArray, i) => {
       const chainId = chainIds[i];
@@ -26,7 +27,7 @@ export class PriceDataProvider {
         return;
       }
 
-      priceDataArray.forEach(priceData => {
+      priceDataArray.forEach((priceData) => {
         if (!data[chainId]) {
           data[chainId] = {};
         }
@@ -45,7 +46,7 @@ export class PriceDataProvider {
     } catch (e) {
       (e as Error).message = `[${chain}] getManyPriceDataRaw fail: ${(e as Error).message}`;
       this.logger.error(e);
-      return []
+      return [];
     }
   }
 }

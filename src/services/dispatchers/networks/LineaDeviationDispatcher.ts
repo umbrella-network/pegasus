@@ -1,8 +1,8 @@
 import {injectable} from 'inversify';
 
 import {ChainsIds} from '../../../types/ChainsIds';
-import {DeviationDispatcher} from "../DeviationDispatcher";
-import {BlockchainType} from "../../../types/Settings";
+import {DeviationDispatcher} from '../DeviationDispatcher';
+import {BlockchainType} from '../../../types/Settings';
 
 @injectable()
 export class LineaDeviationDispatcher extends DeviationDispatcher {

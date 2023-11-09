@@ -8,7 +8,7 @@ import {BigNumber} from 'ethers';
 
 @injectable()
 export class SimpleConsensusResolver {
-  @inject('Logger')logger!: Logger;
+  @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
   @inject(VersionChecker) versionChecker!: VersionChecker;
 

@@ -23,7 +23,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
     blockchainRepo = new BlockchainRepository(settings);
   });
 
-  describe(`[INTEGRATION] #update`, () => {
+  describe('[INTEGRATION] #update', () => {
     const chainId = ChainsIds.MASSA;
     let umbrellaFeeds: UmbrellaFeedInterface;
 

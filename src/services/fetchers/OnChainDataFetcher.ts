@@ -2,10 +2,10 @@ import {ethers} from 'ethers';
 import {inject, injectable} from 'inversify';
 
 import {OnChainCall} from '../../types/Feed';
-import {BlockchainRepository} from "../../repositories/BlockchainRepository";
-import {ChainsIds, NonEvmChainsIds} from "../../types/ChainsIds";
-import {BlockchainProviderRepository} from "../../repositories/BlockchainProviderRepository";
-import {Logger} from "winston";
+import {BlockchainRepository} from '../../repositories/BlockchainRepository';
+import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds';
+import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository';
+import {Logger} from 'winston';
 
 @injectable()
 class OnChainDataFetcher {

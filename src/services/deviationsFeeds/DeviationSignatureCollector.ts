@@ -1,15 +1,15 @@
 import {inject, injectable} from 'inversify';
 import axios from 'axios';
 import {Logger} from 'winston';
-import {Wallet} from "ethers";
+import {Wallet} from 'ethers';
 
 import {Validator} from '../../types/Validator';
 import Settings from '../../types/Settings';
-import {DeviationDataToSign, DeviationSignatures, DeviationSignerResponse} from "../../types/DeviationFeeds";
-import {ValidatorStatusChecker} from "../ValidatorStatusChecker";
-import {DeviationChainMetadata} from "./DeviationChainMetadata";
-import {DeviationHasher} from "./DeviationHasher";
-import {DeviationSignerRepository} from "../../repositories/DeviationSignerRepository";
+import {DeviationDataToSign, DeviationSignatures, DeviationSignerResponse} from '../../types/DeviationFeeds';
+import {ValidatorStatusChecker} from '../ValidatorStatusChecker';
+import {DeviationChainMetadata} from './DeviationChainMetadata';
+import {DeviationHasher} from './DeviationHasher';
+import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository';
 
 @injectable()
 export class DeviationSignatureCollector {
@@ -21,7 +21,7 @@ export class DeviationSignatureCollector {
   @inject(DeviationChainMetadata) protected deviationChainMetadata!: DeviationChainMetadata;
 
   async apply(data: DeviationDataToSign, validators: Validator[]): Promise<DeviationSignerResponse[]> {
-    const participants = validators.sort((a, b) => a.id.toLowerCase() < b.id.toLowerCase() ? -1 : 1);
+    const participants = validators.sort((a, b) => (a.id.toLowerCase() < b.id.toLowerCase() ? -1 : 1));
 
     return this.getSignatures(data, participants);
   }
@@ -33,9 +33,9 @@ export class DeviationSignatureCollector {
     const selfAddress = new Wallet(this.settings.blockchain.wallets.evm.privateKey).address.toLowerCase();
 
     const signedData = await Promise.all(
-      participants.map((p) => selfAddress == p.id.toLowerCase()
-        ? this.getLocalSignature(data)
-        : this.getParticipantSignature(data, p))
+      participants.map((p) =>
+        selfAddress == p.id.toLowerCase() ? this.getLocalSignature(data) : this.getParticipantSignature(data, p),
+      ),
     );
 
     return signedData.filter((s: DeviationSignerResponse | undefined) => s !== undefined) as DeviationSignerResponse[];
@@ -46,13 +46,15 @@ export class DeviationSignatureCollector {
 
     const chainMetadata = await this.deviationChainMetadata.apply(data.feedsForChain);
 
-    const signaturesPerChain = await Promise.all(chainMetadata.map(([chainId, networkId, target]) => {
-      const keys = data.feedsForChain[chainId];
-      const priceDatas = keys.map(key => data.proposedPriceData[key]);
-      const hashOfData = this.deviationHasher.apply(chainId, networkId, target, keys, priceDatas);
-      const deviationSigner = this.deviationSignerRepository.get(chainId);
-      return deviationSigner.apply(hashOfData);
-    }));
+    const signaturesPerChain = await Promise.all(
+      chainMetadata.map(([chainId, networkId, target]) => {
+        const keys = data.feedsForChain[chainId];
+        const priceDatas = keys.map((key) => data.proposedPriceData[key]);
+        const hashOfData = this.deviationHasher.apply(chainId, networkId, target, keys, priceDatas);
+        const deviationSigner = this.deviationSignerRepository.get(chainId);
+        return deviationSigner.apply(hashOfData);
+      }),
+    );
 
     chainMetadata.forEach(([chainId], i) => {
       signatures[chainId] = signaturesPerChain[i];
@@ -110,11 +112,7 @@ export class DeviationSignatureCollector {
     }
   }
 
-
-  protected logResponse(
-    validator: Validator,
-    response: DeviationSignerResponse | undefined,
-  ): void {
+  protected logResponse(validator: Validator, response: DeviationSignerResponse | undefined): void {
     if (!response) {
       return;
     }
@@ -124,7 +122,7 @@ export class DeviationSignatureCollector {
     }
 
     if (response.discrepancies.length) {
-      this.logger.warn(`${validator.location} respond with ${response.discrepancies.map(d => d.key)} discrepancies`);
+      this.logger.warn(`${validator.location} respond with ${response.discrepancies.map((d) => d.key)} discrepancies`);
     }
 
     const signed = Object.keys(response?.signatures || {});

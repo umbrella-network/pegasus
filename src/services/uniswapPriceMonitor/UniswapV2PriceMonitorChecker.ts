@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
-import {MappingRepository} from "../../repositories/MappingRepository";
-import {UNISWAPV2_PRICE_MONITOR_KEY} from "./key";
+import {MappingRepository} from '../../repositories/MappingRepository';
+import {UNISWAPV2_PRICE_MONITOR_KEY} from './key';
 
 @injectable()
 export class UniswapV2PriceMonitorChecker {
@@ -9,6 +9,6 @@ export class UniswapV2PriceMonitorChecker {
 
   async apply(): Promise<number | undefined> {
     const data = await this.mappingRepository.get(UNISWAPV2_PRICE_MONITOR_KEY);
-    return data ? parseInt(data, 10) : undefined
+    return data ? parseInt(data, 10) : undefined;
   }
 }

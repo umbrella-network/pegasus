@@ -1,8 +1,8 @@
-import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
-import {PayableOverrides} from "@ethersproject/contracts";
+import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
+import {PayableOverrides} from '@ethersproject/contracts';
 
-import {DeviationDispatcher} from "../DeviationDispatcher";
-import {BlockchainType} from "../../../types/Settings";
+import {DeviationDispatcher} from '../DeviationDispatcher';
+import {BlockchainType} from '../../../types/Settings';
 
 export abstract class NonEvmDeviationDispatcher extends DeviationDispatcher {
   readonly blockchainType = BlockchainType.ON_CHAIN;
@@ -12,7 +12,7 @@ export abstract class NonEvmDeviationDispatcher extends DeviationDispatcher {
     return undefined;
   }
 
-  protected async calculatePayableOverrides(props?: {nonce?: number, data?: unknown}): Promise<PayableOverrides> {
+  protected async calculatePayableOverrides(props?: {nonce?: number; data?: unknown}): Promise<PayableOverrides> {
     this.logger.debug('[NonEvmDeviationDispatcher] calculatePayableOverrides: not implemented');
     return {};
   }

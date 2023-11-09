@@ -8,7 +8,7 @@ export class PriceTriggerFilter {
   apply(deviationFeed: DeviationFeed, leaf: Leaf, priceData: PriceData): FilterResult {
     const newPrice = this.currentPrice(leaf);
     const priceDiff = this.abs(newPrice - priceData.price);
-    const percent = Number(priceDiff * 10000n / priceData.price) / 100;
+    const percent = Number((priceDiff * 10000n) / priceData.price) / 100;
 
     if (priceDiff === 0n) {
       return {result: false, msg: `${leaf.label}: flat price`};

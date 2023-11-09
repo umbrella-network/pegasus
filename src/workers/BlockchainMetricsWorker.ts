@@ -25,7 +25,7 @@ export class BlockchainMetricsWorker extends BasicWorker {
     const unlocked = await this.connection.set(lock.name, 'lock', 'EX', lock.ttl, 'NX');
 
     if (!unlocked) {
-      this.logger.error(`[BlockchainMetricsWorker] apply for job but job !unlocked`);
+      this.logger.error('[BlockchainMetricsWorker] apply for job but job !unlocked');
       return;
     }
 

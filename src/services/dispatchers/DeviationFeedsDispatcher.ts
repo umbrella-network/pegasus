@@ -3,15 +3,15 @@ import {Logger} from 'winston';
 
 import {BlockchainRepository} from '../../repositories/BlockchainRepository';
 import {ChainsIds} from '../../types/ChainsIds';
-import {IDeviationFeedsDispatcher} from "./IDeviationFeedsDispatcher";
-import {BSCDeviationDispatcher} from "./networks/BSCDeviationDispatcher";
-import {AvalancheDeviationDispatcher} from "./networks/AvalancheDeviationDispatcher";
-import {LineaDeviationDispatcher} from "./networks/LineaDeviationDispatcher";
-import {ArbitrumDeviationDispatcher} from "./networks/ArbitrumDeviationDispatcher";
-import {PolygonDeviationDispatcher} from "./networks/PolygonDeviationDispatcher";
-import {BaseDeviationDispatcher} from "./networks/BaseDeviationDispatcher";
-import {MultiversXDeviationDispatcher} from "./networks/MultiversXDeviationDispatcher";
-import {MassaDeviationDispatcher} from "./networks/MassaDeviationDispatcher";
+import {IDeviationFeedsDispatcher} from './IDeviationFeedsDispatcher';
+import {BSCDeviationDispatcher} from './networks/BSCDeviationDispatcher';
+import {AvalancheDeviationDispatcher} from './networks/AvalancheDeviationDispatcher';
+import {LineaDeviationDispatcher} from './networks/LineaDeviationDispatcher';
+import {ArbitrumDeviationDispatcher} from './networks/ArbitrumDeviationDispatcher';
+import {PolygonDeviationDispatcher} from './networks/PolygonDeviationDispatcher';
+import {BaseDeviationDispatcher} from './networks/BaseDeviationDispatcher';
+import {MultiversXDeviationDispatcher} from './networks/MultiversXDeviationDispatcher';
+import {MassaDeviationDispatcher} from './networks/MassaDeviationDispatcher';
 
 export type DeviationFeedsDispatcherProps = {
   chainId: ChainsIds;

@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
 import {MappingRepository} from '../../repositories/MappingRepository';
-import {UNISWAPV2_PRICE_MONITOR_KEY} from "./key";
+import {UNISWAPV2_PRICE_MONITOR_KEY} from './key';
 
 @injectable()
 export class UniswapV2PriceMonitorSaver {
