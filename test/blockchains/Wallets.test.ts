@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 
-import {ChainsIds} from '../../src/types/ChainsIds';
-import {loadTestEnv} from '../helpers/loadTestEnv';
-import {DeviationWalletFactory} from '../../src/factories/DeviationWalletFactory';
-import {IWallet} from '../../src/interfaces/IWallet';
+import {ChainsIds} from '../../src/types/ChainsIds.js';
+import {loadTestEnv} from '../helpers/loadTestEnv.js';
+import {DeviationWalletFactory} from '../../src/factories/DeviationWalletFactory.js';
+import {IWallet} from '../../src/interfaces/IWallet.js';
+
+const {expect} = chai;
 
 describe('Test Wallets', () => {
   before(() => {

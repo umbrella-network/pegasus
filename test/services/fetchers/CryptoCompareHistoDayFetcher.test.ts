@@ -1,14 +1,15 @@
 import 'reflect-metadata';
 import {Container} from 'inversify';
-import {expect} from 'chai';
-import moxios from 'moxios';
 import chai from 'chai';
+import moxios from 'moxios';
 import chaiAsPromised from 'chai-as-promised';
 
-import Settings from '../../../src/types/Settings';
-import CryptoCompareHistoDayFetcher from '../../../src/services/fetchers/CryptoCompareHistoDayFetcher';
+import Settings from '../../../src/types/Settings.js';
+import CryptoCompareHistoDayFetcher from '../../../src/services/fetchers/CryptoCompareHistoDayFetcher.js';
 
 chai.use(chaiAsPromised);
+
+const {expect} = chai;
 
 describe('CryptoCompareHistoDayFetcher', () => {
   let settings: Settings;

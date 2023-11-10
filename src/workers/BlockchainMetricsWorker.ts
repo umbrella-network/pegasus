@@ -1,9 +1,9 @@
 import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
-import BasicWorker from './BasicWorker';
-import {ValidatorsResolver} from '../services/ValidatorsResolver';
-import {RequiredSignaturesResolver} from '../services/RequiredSignaturesResolver';
+import BasicWorker from './BasicWorker.js';
+import {ValidatorsResolver} from '../services/ValidatorsResolver.js';
+import {RequiredSignaturesResolver} from '../services/RequiredSignaturesResolver.js';
 
 @injectable()
 export class BlockchainMetricsWorker extends BasicWorker {
@@ -25,7 +25,7 @@ export class BlockchainMetricsWorker extends BasicWorker {
     const unlocked = await this.connection.set(lock.name, 'lock', 'EX', lock.ttl, 'NX');
 
     if (!unlocked) {
-      this.logger.error(`[BlockchainMetricsWorker] apply for job but job !unlocked`);
+      this.logger.error('[BlockchainMetricsWorker] apply for job but job !unlocked');
       return;
     }
 

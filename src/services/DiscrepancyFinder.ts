@@ -1,10 +1,10 @@
 import sort from 'fast-sort';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
-import Feeds from '../types/Feed';
-import {calcDiscrepancy} from '../utils/math';
-import {Discrepancy} from '../types/Discrepancy';
-import Leaf from '../types/Leaf';
+import Feeds from '../types/Feed.js';
+import {calcDiscrepancy} from '../utils/math.js';
+import {Discrepancy} from '../types/Discrepancy.js';
+import Leaf from '../types/Leaf.js';
 
 const DEFAULT_DISCREPANCY_VALUE = 1;
 

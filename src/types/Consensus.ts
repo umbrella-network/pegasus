@@ -1,7 +1,7 @@
 import {BigNumber} from 'ethers';
 
-import Feeds, {HexStringWith0x} from '../types/Feed';
-import Leaf from '../types/Leaf';
+import Feeds, {HexStringWith0x} from '../types/Feed.js';
+import Leaf from '../types/Leaf.js';
 
 export enum ConsensusStatus {
   SUCCESS = 'SUCCESS',

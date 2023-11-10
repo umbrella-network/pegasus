@@ -2,8 +2,8 @@ import {inject, injectable} from 'inversify';
 import NodeCache from 'node-cache';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {BlockchainSymbol, Token} from '../../models/BlockchainSymbol';
-import {LocalAssetRepository} from '../../repositories/LocalAssetRepository';
+import {BlockchainSymbol, Token} from '../../models/BlockchainSymbol.js';
+import {LocalAssetRepository} from '../../repositories/LocalAssetRepository.js';
 
 @injectable()
 export class UniswapPoolService {

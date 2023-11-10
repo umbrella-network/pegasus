@@ -1,6 +1,8 @@
-import {expect} from 'chai';
+import chai from 'chai';
 
-import {calcDiscrepancy} from '../../src/utils/math';
+import {calcDiscrepancy} from '../../src/utils/math.js';
+
+const {expect} = chai;
 
 describe('calcDiscrepancy', () => {
   const round4 = (value: number) => Math.round(value * 1000000) / 1000000;

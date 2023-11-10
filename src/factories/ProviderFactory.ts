@@ -1,10 +1,9 @@
-import {ChainsIds} from '../types/ChainsIds';
-import {ProviderInterface} from '../interfaces/ProviderInterface';
-import {EvmProvider} from '../blockchains/evm/EvmProvider';
-import settings from '../config/settings';
-import {MultiversXProvider} from '../blockchains/multiversx/MultiversXProvider';
-import {MassaProvider} from '../blockchains/massa/MassaProvider';
-// import {ConcordiumProvider} from '../blockchains/concordium/ConcordiumProvider';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {ProviderInterface} from '../interfaces/ProviderInterface.js';
+import {EvmProvider} from '../blockchains/evm/EvmProvider.js';
+import settings from '../config/settings.js';
+import {MultiversXProvider} from '../blockchains/multiversx/MultiversXProvider.js';
+import {MassaProvider} from '../blockchains/massa/MassaProvider.js';
 
 export class ProviderFactory {
   static create(chainId: ChainsIds): ProviderInterface {
@@ -18,9 +17,6 @@ export class ProviderFactory {
 
       case ChainsIds.MASSA:
         return new MassaProvider(providerUrl);
-
-      // case ChainsIds.CONCORDIUM:
-      //   return new ConcordiumProvider(providerUrl);
 
       case ChainsIds.BSC:
       case ChainsIds.AVALANCHE:

@@ -1,4 +1,4 @@
-import {HexStringWith0x} from './custom';
+import {HexStringWith0x} from './custom.js';
 
 export interface IBlock {
   _id: string;

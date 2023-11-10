@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
-import {BlockchainMarker} from '../models/BlockchainMarker';
+import {BlockchainMarker} from '../models/BlockchainMarker.js';
 import {Logger} from 'winston';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 
@@ -27,7 +27,7 @@ export abstract class BlockchainScanner {
     const fromBlock = await this.getMarker();
 
     if (!this.provider) {
-      this.logger.info(`[BlockchainScanner] not active`);
+      this.logger.info('[BlockchainScanner] not active');
       return {success: false, fromBlock};
     }
 
@@ -45,7 +45,7 @@ export abstract class BlockchainScanner {
   }
 
   private async getToBlock(fromBlock: number): Promise<number> {
-    if (!this.provider) throw new Error(`[BlockchainScanner] getToBlock: no provider`);
+    if (!this.provider) throw new Error('[BlockchainScanner] getToBlock: no provider');
 
     const latestBlock = await this.provider.getBlockNumber();
     const stepBlock = fromBlock + this.step;

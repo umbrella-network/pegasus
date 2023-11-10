@@ -4,7 +4,7 @@ import chaiAsPromised from 'chai-as-promised';
 import moxios from 'moxios';
 import * as fs from 'fs';
 
-import loadFeeds from '../../src/services/loadFeeds';
+import loadFeeds from '../../src/services/loadFeeds.js';
 
 chai.use(chaiAsPromised);
 

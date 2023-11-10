@@ -1,13 +1,13 @@
 import {Logger} from 'winston';
 
-import Settings, {BlockchainSettings} from '../types/Settings';
-import {ProviderInterface} from '../interfaces/ProviderInterface';
-import {IWallet} from '../interfaces/IWallet';
-import {ProviderFactory} from '../factories/ProviderFactory';
-import {WalletFactory} from '../factories/WalletFactory';
-import {DeviationWalletFactory} from '../factories/DeviationWalletFactory';
-import {ChainsIds} from '../types/ChainsIds';
-import logger from './logger';
+import Settings, {BlockchainSettings} from '../types/Settings.js';
+import {ProviderInterface} from '../interfaces/ProviderInterface.js';
+import {IWallet} from '../interfaces/IWallet.js';
+import {ProviderFactory} from '../factories/ProviderFactory.js';
+import {WalletFactory} from '../factories/WalletFactory.js';
+import {DeviationWalletFactory} from '../factories/DeviationWalletFactory.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import logger from './logger.js';
 
 class Blockchain {
   protected logger!: Logger;

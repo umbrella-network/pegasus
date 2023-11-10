@@ -1,11 +1,11 @@
 import {injectable} from 'inversify';
 
-import {ChainsIds} from '../types/ChainsIds';
-import {DeviationSignerEvm} from '../blockchains/evm/DeviationSignerEvm';
-import {DeviationSignerMultiversX} from '../blockchains/multiversx/DeviationSignerMultiversX';
-import {DeviationSignerInterface} from '../services/deviationsFeeds/interfaces/DeviationSignerInterface';
-import {DeviationSignerMassa} from '../blockchains/massa/DeviationSignerMassa';
-import Settings from '../types/Settings';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {DeviationSignerEvm} from '../blockchains/evm/DeviationSignerEvm.js';
+import {DeviationSignerMultiversX} from '../blockchains/multiversx/DeviationSignerMultiversX.js';
+import {DeviationSignerInterface} from '../services/deviationsFeeds/interfaces/DeviationSignerInterface.js';
+import {DeviationSignerMassa} from '../blockchains/massa/DeviationSignerMassa.js';
+import Settings from '../types/Settings.js';
 
 @injectable()
 export class DeviationSignerFactory {

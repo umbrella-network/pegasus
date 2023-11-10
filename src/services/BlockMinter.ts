@@ -2,22 +2,22 @@ import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import {Wallet} from 'ethers';
 
-import ConsensusRunner from './ConsensusRunner';
-import BlockRepository from '../repositories/BlockRepository';
-import SignatureCollector from './SignatureCollector';
-import SortedMerkleTreeFactory from './SortedMerkleTreeFactory';
-import TimeService from './TimeService';
-import Settings, {BlockchainType} from '../types/Settings';
-import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver';
-import {ConsensusDataRepository} from '../repositories/ConsensusDataRepository';
-import {MultiChainStatusProcessor} from './multiChain/MultiChainStatusProcessor';
-import {MultichainArchitectureDetector} from './MultichainArchitectureDetector';
-import {ValidatorRepository} from '../repositories/ValidatorRepository';
-import {ChainStatus} from '../types/ChainStatus';
-import {MappingRepository} from '../repositories/MappingRepository';
-import {MasterChainData} from '../types/Consensus';
-import {BalanceMonitorChecker} from './balanceMonitor/BalanceMonitorChecker';
-import {sleep} from '../utils/sleep';
+import ConsensusRunner from './ConsensusRunner.js';
+import BlockRepository from '../repositories/BlockRepository.js';
+import SignatureCollector from './SignatureCollector.js';
+import SortedMerkleTreeFactory from './SortedMerkleTreeFactory.js';
+import TimeService from './TimeService.js';
+import Settings, {BlockchainType} from '../types/Settings.js';
+import {MultiChainStatusResolver} from './multiChain/MultiChainStatusResolver.js';
+import {ConsensusDataRepository} from '../repositories/ConsensusDataRepository.js';
+import {MultiChainStatusProcessor} from './multiChain/MultiChainStatusProcessor.js';
+import {MultichainArchitectureDetector} from './MultichainArchitectureDetector.js';
+import {ValidatorRepository} from '../repositories/ValidatorRepository.js';
+import {ChainStatus} from '../types/ChainStatus.js';
+import {MappingRepository} from '../repositories/MappingRepository.js';
+import {MasterChainData} from '../types/Consensus.js';
+import {BalanceMonitorChecker} from './balanceMonitor/BalanceMonitorChecker.js';
+import {sleep} from '../utils/sleep.js';
 
 const MASTERCHAINSTATUS_MIN_SIGNATURES = 'masterChainStatus.minSignatures';
 
@@ -47,9 +47,8 @@ class BlockMinter {
       return;
     }
 
-    const {chainsStatuses, chainsIdsReadyForBlock, nextLeader, validators} = await this.multiChainStatusResolver.apply(
-      dataTimestamp,
-    );
+    const {chainsStatuses, chainsIdsReadyForBlock, nextLeader, validators} =
+      await this.multiChainStatusResolver.apply(dataTimestamp);
 
     if (chainsStatuses.length === 0) {
       const message = '[BlockMinter] No chain status resolved.';
@@ -105,7 +104,7 @@ class BlockMinter {
       throw new Error(`[masterChainData] master chain data missing and cache empty (${Object.keys(data)})`);
     }
 
-    this.logger.info(`[masterChainData] using cached data`);
+    this.logger.info('[masterChainData] using cached data');
 
     return {
       minSignatures: parseInt(data[MASTERCHAINSTATUS_MIN_SIGNATURES], 10),

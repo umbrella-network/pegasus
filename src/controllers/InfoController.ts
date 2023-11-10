@@ -1,16 +1,16 @@
 import {inject, injectable} from 'inversify';
 import express, {Request, Response} from 'express';
 
-import Settings, {BlockchainInfoSettings} from '../types/Settings';
-import {TimeoutCodes} from '../types/TimeoutCodes';
-import {LastSubmitResolver} from '../services/SubmitMonitor/LastSubmitResolver';
-import {BlockchainRepository} from '../repositories/BlockchainRepository';
-import {ChainsIds} from '../types/ChainsIds';
-import {RegistryContractFactory} from '../factories/contracts/RegistryContractFactory';
+import Settings, {BlockchainInfoSettings} from '../types/Settings.js';
+import {TimeoutCodes} from '../types/TimeoutCodes.js';
+import {LastSubmitResolver} from '../services/SubmitMonitor/LastSubmitResolver.js';
+import {BlockchainRepository} from '../repositories/BlockchainRepository.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {RegistryContractFactory} from '../factories/contracts/RegistryContractFactory.js';
 import {Logger} from 'winston';
-import {CHAIN_CONTRACT_NAME} from '@umb-network/toolbox/dist/constants';
-import {MassaWallet} from '../blockchains/massa/MassaWallet';
-import {SubmitMonitor} from '../types/SubmitMonitor';
+import {CHAIN_CONTRACT_NAME} from '@umb-network/toolbox/dist/constants.js';
+import {MassaWallet} from '../blockchains/massa/MassaWallet.js';
+import {SubmitMonitor} from '../types/SubmitMonitor.js';
 
 @injectable()
 class InfoController {
@@ -132,11 +132,14 @@ class InfoController {
       chainIds.map((chainId) => Promise.all([chainId, this.getChainSettings(chainId as ChainsIds)])),
     );
 
-    return cfg.reduce((acc, [chainId, s]) => {
-      if (!s) return acc;
-      acc[chainId] = s;
-      return acc;
-    }, {} as Record<string, BlockchainInfoSettings>);
+    return cfg.reduce(
+      (acc, [chainId, s]) => {
+        if (!s) return acc;
+        acc[chainId] = s;
+        return acc;
+      },
+      {} as Record<string, BlockchainInfoSettings>,
+    );
   };
 }
 

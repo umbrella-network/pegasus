@@ -1,6 +1,8 @@
 import {Container} from 'inversify';
-import {createLogger, transports} from 'winston';
-import settings from '../../src/config/settings';
+import winston from 'winston';
+import settings from '../../src/config/settings.js';
+
+const {createLogger, transports} = winston;
 
 export function getTestContainer(): Container {
   const container = new Container({autoBindInjectable: true});

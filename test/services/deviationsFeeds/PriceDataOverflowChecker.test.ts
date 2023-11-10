@@ -1,10 +1,12 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
-import {expect} from 'chai';
+import chai from 'chai';
 import {Container} from 'inversify';
-import {PriceDataOverflowChecker} from '../../../src/services/deviationsFeeds/PriceDataOverflowChecker';
-import {mockedLogger} from '../../mocks/logger';
-import {PriceData} from '../../../src/types/DeviationFeeds';
+import {PriceDataOverflowChecker} from '../../../src/services/deviationsFeeds/PriceDataOverflowChecker.js';
+import {mockedLogger} from '../../mocks/logger.js';
+import {PriceData} from '../../../src/types/DeviationFeeds.js';
+
+const {expect} = chai;
 
 describe('PriceDataOverflowChecker', () => {
   let priceDataOverflowChecker: PriceDataOverflowChecker;

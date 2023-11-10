@@ -1,7 +1,9 @@
-import {expect} from 'chai';
+import chai from 'chai';
 import {ethers} from 'ethers';
 
-import {signAffidavitWithWallet, sortSignaturesBySigner} from '../../src/utils/mining';
+import {signAffidavitWithWallet, sortSignaturesBySigner} from '../../src/utils/mining.js';
+
+const {expect} = chai;
 
 describe('sortSignaturesBySigner', () => {
   const validatorsInOrder = [

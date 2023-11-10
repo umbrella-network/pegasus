@@ -1,10 +1,10 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {BigNumber} from 'ethers';
-import {Validator} from '../types/Validator';
-import CachedValidator from '../models/CachedValidator';
+import {Validator} from '../types/Validator.js';
+import CachedValidator from '../models/CachedValidator.js';
 import {Logger} from 'winston';
-import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds';
+import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds.js';
 
 @injectable()
 export class ValidatorRepository {

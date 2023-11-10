@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.19.0] - 2023-11-10
+### Changed
+- change app type to `ES Module`
+- update typescript to v5
+
 ## [7.18.2] - 2023-11-07
 ### Fix
 - check for empty string

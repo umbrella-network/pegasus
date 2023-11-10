@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 import Bull from 'bullmq';
 
-import {BlockChainDispatcher} from '../services/dispatchers/BlockChainDispatcher';
-import {ChainsIds} from '../types/ChainsIds';
-import BasicWorker from './BasicWorker';
+import {BlockChainDispatcher} from '../services/dispatchers/BlockChainDispatcher.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import BasicWorker from './BasicWorker.js';
 
 @injectable()
 export class BlockDispatcherWorker extends BasicWorker {

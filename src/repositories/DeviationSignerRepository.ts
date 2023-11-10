@@ -1,10 +1,10 @@
 import {inject, injectable} from 'inversify';
-
-import Settings from '../types/Settings';
-import {ChainsIds} from '../types/ChainsIds';
 import {Logger} from 'winston';
-import {DeviationSignerInterface} from '../services/deviationsFeeds/interfaces/DeviationSignerInterface';
-import {DeviationSignerFactory} from '../factories/DeviationSignerFactory';
+
+import Settings from '../types/Settings.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {DeviationSignerInterface} from '../services/deviationsFeeds/interfaces/DeviationSignerInterface.js';
+import {DeviationSignerFactory} from '../factories/DeviationSignerFactory.js';
 
 export type DeviationSignerCollection = {
   [key: string]: DeviationSignerInterface | undefined;
@@ -22,8 +22,8 @@ export class DeviationSignerRepository {
     keys.forEach((chainId) => {
       try {
         this.collection[chainId] = DeviationSignerFactory.create(settings, chainId);
-      } catch (e) {
-        this.logger.error(`[DeviationSignerRepository] ${chainId}: ${e.message}`);
+      } catch (e: unknown) {
+        this.logger.error(`[DeviationSignerRepository] ${chainId}: ${(e as Error).message}`);
         this.collection[chainId] = undefined;
       }
     });

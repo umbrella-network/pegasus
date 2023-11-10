@@ -6,20 +6,27 @@ import {
   SmartContract,
   AbiRegistry,
   AddressValue,
-  Struct
+  Struct,
 } from '@multiversx/sdk-core';
 import {ApiNetworkProvider} from '@multiversx/sdk-network-providers';
 import {BigNumber} from 'ethers';
+import {readFileSync} from 'fs';
+import {fileURLToPath} from 'url';
+import path from 'path';
 
-import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory';
-import Blockchain from '../../../lib/Blockchain';
-import {Validator} from '../../../types/Validator';
-import {StakingBankInterface} from '../../../interfaces/StakingBankInterface';
-import {RegistryInterface} from '../../../interfaces/RegistryInterface';
-import bankAbi from './staking-bank.abi.json'
-import {MultiversXAddress} from "../utils/MultiversXAddress";
+import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
+import Blockchain from '../../../lib/Blockchain.js';
+import {Validator} from '../../../types/Validator.js';
+import {StakingBankInterface} from '../../../interfaces/StakingBankInterface.js';
+import {RegistryInterface} from '../../../interfaces/RegistryInterface.js';
+import {MultiversXAddress} from '../utils/MultiversXAddress.js';
+import {MultiversXAbi} from '../types';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class StakingBankMultiversX implements StakingBankInterface {
+  readonly bankAbi!: MultiversXAbi;
   readonly bankName!: string;
   readonly blockchain!: Blockchain;
   registry!: RegistryInterface;
@@ -27,6 +34,7 @@ export class StakingBankMultiversX implements StakingBankInterface {
   constructor(blockchain: Blockchain, bankName = 'StakingBank') {
     this.bankName = bankName;
     this.blockchain = blockchain;
+    this.bankAbi = JSON.parse(readFileSync(__dirname + '/staking-bank.abi.json', 'utf-8'));
   }
 
   async address(): Promise<string> {
@@ -62,7 +70,7 @@ export class StakingBankMultiversX implements StakingBankInterface {
     const query = new Interaction(bank, new ContractFunction('getNumberOfValidators'), []).buildQuery();
     const response = await this.blockchain.provider.getRawProvider<ApiNetworkProvider>().queryContract(query);
 
-    const endpointDefinition = AbiRegistry.create(bankAbi).getEndpoint('getNumberOfValidators');
+    const endpointDefinition = AbiRegistry.create(this.bankAbi).getEndpoint('getNumberOfValidators');
     const parsedResponse = new ResultsParser().parseQueryResponse(response, endpointDefinition);
 
     return parseInt(parsedResponse.values[0].toString(), 10);
@@ -70,11 +78,11 @@ export class StakingBankMultiversX implements StakingBankInterface {
 
   protected async getValidator(bank: SmartContract, validatorAddress: string): Promise<Validator> {
     const query = new Interaction(bank, new ContractFunction('validators'), [
-      MultiversXAddress.toAddressValue(validatorAddress)
+      MultiversXAddress.toAddressValue(validatorAddress),
     ]).buildQuery();
 
     const response = await this.blockchain.provider.getRawProvider<ApiNetworkProvider>().queryContract(query);
-    const endpointDefinition = AbiRegistry.create(bankAbi).getEndpoint('validators');
+    const endpointDefinition = AbiRegistry.create(this.bankAbi).getEndpoint('validators');
     const parsedResponse = new ResultsParser().parseQueryResponse(response, endpointDefinition);
 
     const [id, location] = (parsedResponse.values[0] as unknown as Struct).getFields();
@@ -82,7 +90,7 @@ export class StakingBankMultiversX implements StakingBankInterface {
     return <Validator>{
       id: MultiversXAddress.fromAddressValue(id.value as AddressValue),
       power: BigNumber.from(1),
-      location: location.value.toString()
+      location: location.value.toString(),
     };
   }
 

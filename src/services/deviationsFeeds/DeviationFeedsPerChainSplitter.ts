@@ -1,4 +1,4 @@
-import {DeviationFeeds} from '../../types/DeviationFeeds';
+import {DeviationFeeds} from '../../types/DeviationFeeds.js';
 
 export class DeviationFeedsPerChainSplitter {
   static apply(feeds: DeviationFeeds): Record<string, string[]> {

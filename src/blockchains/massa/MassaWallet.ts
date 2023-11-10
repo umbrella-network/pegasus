@@ -1,15 +1,13 @@
-import {Client, ClientFactory, fromMAS, IAccount, IProvider, ProviderType, WalletClient} from "@massalabs/massa-web3";
-import {TransactionRequest} from "@ethersproject/providers";
-import {Logger} from "winston";
+import {Client, ClientFactory, fromMAS, IAccount, IProvider, ProviderType, WalletClient} from '@massalabs/massa-web3';
+import {Logger} from 'winston';
 
-import {ChainsIds} from '../../types/ChainsIds';
-import {IWallet} from '../../interfaces/IWallet';
-import {ProviderFactory} from "../../factories/ProviderFactory";
-import {ProviderInterface} from "../../interfaces/ProviderInterface";
-import {ExecutedTx} from "../../types/Consensus";
-import logger from '../../lib/logger';
-import {MassaProvider} from "./MassaProvider";
-import {parseEther} from "ethers/lib/utils";
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {IWallet} from '../../interfaces/IWallet.js';
+import {ProviderFactory} from '../../factories/ProviderFactory.js';
+import {ProviderInterface} from '../../interfaces/ProviderInterface.js';
+import {ExecutedTx} from '../../types/Consensus.js';
+import logger from '../../lib/logger.js';
+import {MassaProvider} from './MassaProvider.js';
 
 // https://github.com/massalabs/massa-web3/blob/main/examples/wallet/index.ts
 export class MassaWallet implements IWallet {
@@ -52,7 +50,7 @@ export class MassaWallet implements IWallet {
     return 0;
   }
 
-  async sendTransaction(tr: TransactionRequest): Promise<ExecutedTx> {
+  async sendTransaction(): Promise<ExecutedTx> {
     throw Error(`${this.loggerPrefix} sendTransaction(): TODO`);
   }
 
@@ -66,11 +64,9 @@ export class MassaWallet implements IWallet {
     this.publicKey = this.rawWallet.publicKey || 'N/A';
 
     this.client = await ClientFactory.createCustomClient(
-      [
-        { url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC } as IProvider,
-      ],
+      [{url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC} as IProvider],
       true,
-      this.rawWallet
+      this.rawWallet,
     );
 
     this.logger.info(`${this.loggerPrefix} wallet initialised for ${this.address}, ${this.publicKey}`);

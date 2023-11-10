@@ -6,14 +6,14 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
 
-import logger from './logger';
-import Settings from '../types/Settings';
-import HealthController from '../controllers/HealthController';
-import BlocksController from '../controllers/BlocksController';
-import SignatureController from '../controllers/SignatureController';
-import InfoController from '../controllers/InfoController';
-import DebugController from '../controllers/DebugController';
-import DocsController from '../controllers/DocsController';
+import logger from './logger.js';
+import Settings from '../types/Settings.js';
+import HealthController from '../controllers/HealthController.js';
+import BlocksController from '../controllers/BlocksController.js';
+import SignatureController from '../controllers/SignatureController.js';
+import InfoController from '../controllers/InfoController.js';
+import DebugController from '../controllers/DebugController.js';
+import DocsController from '../controllers/DocsController.js';
 
 @injectable()
 class Server {

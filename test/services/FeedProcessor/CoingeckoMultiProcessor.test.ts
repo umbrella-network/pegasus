@@ -1,10 +1,12 @@
-import {expect} from 'chai';
+import chai from 'chai';
 import sinon, {createStubInstance} from 'sinon';
 
-import {FeedFetcher} from '../../../src/types/Feed';
-import {getTestContainer} from '../../helpers/getTestContainer';
-import CoingeckoMultiProcessor from '../../../src/services/FeedProcessor/CoingeckoMultiProcessor';
-import CoingeckoMultiPriceFetcher, {OutputValues} from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher';
+import {FeedFetcher} from '../../../src/types/Feed.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
+import CoingeckoMultiProcessor from '../../../src/services/FeedProcessor/CoingeckoMultiProcessor.js';
+import CoingeckoMultiPriceFetcher, {OutputValues} from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher.js';
+
+const {expect} = chai;
 
 const feedFetchers: FeedFetcher[] = [
   {

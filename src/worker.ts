@@ -1,13 +1,13 @@
-import {boot} from './boot';
+import {boot} from './boot.js';
 import yargs from 'yargs';
-import Application from './lib/Application';
-import BlockMintingWorker from './workers/BlockMintingWorker';
-import MetricsWorker from './workers/MetricsWorker';
-import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent';
-import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker';
-import {DeviationLeaderWorker} from "./workers/DeviationLeaderWorker";
-import {DeviationDispatcherWorker} from "./workers/DeviationDispatcherWorker";
-import {BlockchainMetricsWorker} from "./workers/BlockchainMetricsWorker";
+import Application from './lib/Application.js';
+import BlockMintingWorker from './workers/BlockMintingWorker.js';
+import MetricsWorker from './workers/MetricsWorker.js';
+import {ApplicationUpdateAgent} from './agents/ApplicationUpdateAgent.js';
+import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker.js';
+import {DeviationLeaderWorker} from './workers/DeviationLeaderWorker.js';
+import {DeviationDispatcherWorker} from './workers/DeviationDispatcherWorker.js';
+import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker.js';
 
 (async () => {
   await boot();

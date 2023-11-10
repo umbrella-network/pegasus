@@ -1,6 +1,7 @@
 import {inject, injectable} from 'inversify';
-import Settings from '../types/Settings';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
+
+import Settings from '../types/Settings.js';
 
 @injectable()
 export class BlockchainProviderFactory {

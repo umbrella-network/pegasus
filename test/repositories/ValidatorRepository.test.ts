@@ -1,17 +1,19 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 import mongoose from 'mongoose';
 import {BigNumber} from 'ethers';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import '../../src/config/setupDotenv';
-import {Validator} from '../../src/types/Validator';
-import {ValidatorRepository} from '../../src/repositories/ValidatorRepository';
-import CachedValidator from '../../src/models/CachedValidator';
-import {loadTestEnv} from '../helpers/loadTestEnv';
-import {mockedLogger} from '../mocks/logger';
-import {getTestContainer} from '../helpers/getTestContainer';
-import {ChainsIds} from '../../src/types/ChainsIds';
+import '../../src/config/setupDotenv.js';
+import {Validator} from '../../src/types/Validator.js';
+import {ValidatorRepository} from '../../src/repositories/ValidatorRepository.js';
+import CachedValidator from '../../src/models/CachedValidator.js';
+import {loadTestEnv} from '../helpers/loadTestEnv.js';
+import {mockedLogger} from '../mocks/logger.js';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+import {ChainsIds} from '../../src/types/ChainsIds.js';
+
+const {expect} = chai;
 
 describe('ValidatorRepository', () => {
   let validatorRepository: ValidatorRepository;

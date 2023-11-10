@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 
-import Blockchain from '../lib/Blockchain';
-import Settings from '../types/Settings';
-import {ChainsIds} from '../types/ChainsIds';
+import Blockchain from '../lib/Blockchain.js';
+import Settings from '../types/Settings.js';
+import {ChainsIds} from '../types/ChainsIds.js';
 import {Logger} from 'winston';
 
 export type BlockchainCollection = {

@@ -1,8 +1,10 @@
-import {expect} from 'chai';
+import chai from 'chai';
 import sinon, {SinonFakeTimers} from 'sinon';
-import {DeviationConsensusFactory} from '../../src/factories/DeviationConsensusFactory';
-import {DeviationDataToSign} from '../../src/types/DeviationFeeds';
-import {DataCollection} from '../../src/types/custom';
+import {DeviationConsensusFactory} from '../../src/factories/DeviationConsensusFactory.js';
+import {DeviationDataToSign} from '../../src/types/DeviationFeeds.js';
+import {DataCollection} from '../../src/types/custom.js';
+
+const {expect} = chai;
 
 describe('DeviationConsensusFactory', () => {
   let clock: SinonFakeTimers;

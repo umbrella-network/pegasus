@@ -1,12 +1,12 @@
-import {Client, ClientFactory, EOperationStatus, IEvent, IProvider, ProviderType} from "@massalabs/massa-web3";
-import {GasEstimation} from "@umb-network/toolbox/dist/types/GasEstimation";
-import {Logger} from "winston";
+import {Client, ClientFactory, EOperationStatus, IEvent, IProvider, ProviderType} from '@massalabs/massa-web3';
+import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
+import {Logger} from 'winston';
 
-import {ProviderInterface} from '../../interfaces/ProviderInterface';
-import {ChainsIds} from '../../types/ChainsIds';
-import {NetworkStatus} from '../../types/Network';
-import logger from '../../lib/logger';
-import {Timeout} from "../../services/tools/Timeout";
+import {ProviderInterface} from '../../interfaces/ProviderInterface.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {NetworkStatus} from '../../types/Network.js';
+import logger from '../../lib/logger.js';
+import {Timeout} from '../../services/tools/Timeout.js';
 
 export class MassaProvider implements ProviderInterface {
   protected logger!: Logger;
@@ -35,12 +35,12 @@ export class MassaProvider implements ProviderInterface {
         {url: this.providerUrl, type: ProviderType.PUBLIC} as IProvider,
         // { url: privateApi, type: ProviderType.PRIVATE } as IProvider,
       ],
-      true
+      true,
     );
   }
 
   getRawProvider<T>(): T {
-    return (this.client) as unknown as T;
+    return this.client as unknown as T;
   }
 
   async getBlockNumber(): Promise<bigint> {
@@ -59,7 +59,6 @@ export class MassaProvider implements ProviderInterface {
 
     const status = await this.client.publicApi().getNodeStatus();
     return Math.floor(status.current_time / 1000);
-
   }
 
   async getBalance(address: string): Promise<bigint> {
@@ -77,9 +76,8 @@ export class MassaProvider implements ProviderInterface {
     return {name: this.chainId, id: 13119191};
   }
 
-  async getTransactionCount(address: string): Promise<number> {
+  async getTransactionCount(): Promise<number> {
     await this.beforeAnyAction();
-
     throw Error(`${this.loggerPrefix} getTransactionCount(): use MassaWallet`);
   }
 
@@ -89,30 +87,24 @@ export class MassaProvider implements ProviderInterface {
     if (!this.client) throw new Error(`${this.loggerPrefix} waitForTx: provider not set`);
 
     const finalStatus = await Promise.race([
-      this.client
-        .smartContracts()
-        .awaitRequiredOperationStatus(operationId, EOperationStatus.SPECULATIVE_SUCCESS),
-      this.client
-        .smartContracts()
-        .awaitRequiredOperationStatus(operationId, EOperationStatus.SPECULATIVE_ERROR),
-      Timeout.apply(timeoutMs)
+      this.client.smartContracts().awaitRequiredOperationStatus(operationId, EOperationStatus.SPECULATIVE_SUCCESS),
+      this.client.smartContracts().awaitRequiredOperationStatus(operationId, EOperationStatus.SPECULATIVE_ERROR),
+      Timeout.apply(timeoutMs),
     ]);
 
     if (finalStatus === undefined) {
-      this.logger.error(`${this.loggerPrefix} tx ${operationId} timeout after ${timeoutMs/1000} sec`);
+      this.logger.error(`${this.loggerPrefix} tx ${operationId} timeout after ${timeoutMs / 1000} sec`);
       return false;
     }
 
-    const events: IEvent[] = await this.client
-      .smartContracts()
-      .getFilteredScOutputEvents({
-        emitter_address: null,
-        start: null,
-        end: null,
-        original_caller_address: null,
-        original_operation_id: operationId,
-        is_final: true,
-      });
+    const events: IEvent[] = await this.client.smartContracts().getFilteredScOutputEvents({
+      emitter_address: null,
+      start: null,
+      end: null,
+      original_caller_address: null,
+      original_operation_id: operationId,
+      is_final: true,
+    });
 
     if (finalStatus != EOperationStatus.SPECULATIVE_SUCCESS) {
       this.logger.error(`${this.loggerPrefix} tx ${operationId} ${EOperationStatus[finalStatus]}`);
@@ -127,7 +119,7 @@ export class MassaProvider implements ProviderInterface {
     return 0n;
   }
 
-  async call(transaction: { to: string; data: string }): Promise<string> {
+  async call(): Promise<string> {
     await this.beforeAnyAction();
 
     // this is only needed for new chain architecture detection
@@ -136,7 +128,7 @@ export class MassaProvider implements ProviderInterface {
   }
 
   async gasEstimation(minGasPrice: number, maxGasPrice: number): Promise<GasEstimation> {
-    console.log(`MassaProvider TODO gasEstimation`);
+    console.log('MassaProvider TODO gasEstimation');
 
     return {
       baseFeePerGas: 0,
@@ -146,8 +138,8 @@ export class MassaProvider implements ProviderInterface {
       isTxType2: true,
       min: minGasPrice,
       max: maxGasPrice,
-      avg: 1
-    }
+      avg: 1,
+    };
   }
 
   isNonceError(): boolean {
@@ -155,6 +147,6 @@ export class MassaProvider implements ProviderInterface {
   }
 
   getBlock(): Promise<void> {
-    throw new Error(`${this.loggerPrefix} getBlock(): not supported`)
+    throw new Error(`${this.loggerPrefix} getBlock(): not supported`);
   }
 }

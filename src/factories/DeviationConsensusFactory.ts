@@ -1,7 +1,7 @@
-import {DeviationDataToSign} from '../types/DeviationFeeds';
-import {ChainsIds} from '../types/ChainsIds';
-import {DeviationConsensus} from '../models/DeviationConsensus';
-import {DataCollection} from '../types/custom';
+import {DeviationDataToSign} from '../types/DeviationFeeds.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {DeviationConsensus} from '../models/DeviationConsensus.js';
+import {DataCollection} from '../types/custom.js';
 
 export class DeviationConsensusFactory {
   static create(dataForConsensus: DeviationDataToSign, signatures: DataCollection<string[]>): DeviationConsensus[] {

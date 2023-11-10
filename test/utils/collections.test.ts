@@ -1,6 +1,8 @@
-import {expect} from 'chai';
+import chai from 'chai';
 
-import {mergeArrays, splitIntoBatches} from '../../src/utils/collections';
+import {mergeArrays, splitIntoBatches} from '../../src/utils/collections.js';
+
+const {expect} = chai;
 
 describe('collections', () => {
   describe('.mergeArrays', () => {

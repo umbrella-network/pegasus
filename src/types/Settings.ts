@@ -1,5 +1,5 @@
-import {ChainsIds} from './ChainsIds';
-import {SubmitMonitor} from './SubmitMonitor';
+import {ChainsIds} from './ChainsIds.js';
+import {SubmitMonitor} from './SubmitMonitor.js';
 
 export enum BlockchainType {
   LAYER2 = 'LAYER2',

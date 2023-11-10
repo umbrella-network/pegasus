@@ -1,8 +1,9 @@
-import {expect} from 'chai';
-import {HeartbeatTriggerFilter} from '../../../src/services/deviationsFeeds/HeartbeatTriggerFilter';
-import {ChainsIds} from '../../../src/types/ChainsIds';
-import {DeviationFeed, PriceData} from '../../../src/types/DeviationFeeds';
+import chai from 'chai';
+import {HeartbeatTriggerFilter} from '../../../src/services/deviationsFeeds/HeartbeatTriggerFilter.js';
+import {ChainsIds} from '../../../src/types/ChainsIds.js';
+import {DeviationFeed, PriceData} from '../../../src/types/DeviationFeeds.js';
 
+const {expect} = chai;
 
 describe('HeartbeatTriggerFilter', () => {
   describe('#apply', () => {
@@ -47,21 +48,22 @@ describe('HeartbeatTriggerFilter', () => {
     it('TRUE when heartbeat differs', () => {
       const data = {
         ...priceData,
-        heartbeat: 1
-      }
+        heartbeat: 1,
+      };
 
       expect(HeartbeatTriggerFilter.apply(dataTimestamp, feed, data)).to.be.true;
     });
 
     it('TRUE when heartbeat triggered', () => {
-      expect(HeartbeatTriggerFilter.apply(priceData.timestamp + feed.heartbeat - 5 * 60 + 1, feed, priceData)).to.be.true;
+      expect(HeartbeatTriggerFilter.apply(priceData.timestamp + feed.heartbeat - 5 * 60 + 1, feed, priceData)).to.be
+        .true;
     });
 
     it('TRUE when price is very old', () => {
       const data = {
         ...priceData,
-        timestamp: 1
-      }
+        timestamp: 1,
+      };
 
       expect(HeartbeatTriggerFilter.apply(dataTimestamp, feed, data)).to.be.true;
     });

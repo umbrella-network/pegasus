@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 
-import Feeds from '../../types/Feed';
-import {DeviationTriggerLastIntervals} from '../../repositories/DeviationTriggerLastIntervals';
-import {DeviationFeeds} from '../../types/DeviationFeeds';
-import {DeviationFeedFactory} from '../../factories/DeviationFeedFactory';
+import Feeds from '../../types/Feed.js';
+import {DeviationTriggerLastIntervals} from '../../repositories/DeviationTriggerLastIntervals.js';
+import {DeviationFeeds} from '../../types/DeviationFeeds.js';
+import {DeviationFeedFactory} from '../../factories/DeviationFeedFactory.js';
 
 @injectable()
 export class IntervalTriggerFilter {

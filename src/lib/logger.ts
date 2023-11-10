@@ -1,6 +1,8 @@
-import {Logger, createLogger, format, transports} from 'winston';
+import winston from 'winston';
 
-const logger: Logger = createLogger({
+const {createLogger, format, transports} = winston;
+
+const logger: winston.Logger = createLogger({
   level: process.env.LOG_LEVEL || 'info',
   format: format.combine(
     format.errors({stack: true}),

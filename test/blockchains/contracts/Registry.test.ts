@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
+import chai from 'chai';
 
-import {RegistryContractFactory} from '../../../src/factories/contracts/RegistryContractFactory';
-import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository';
-import settings from '../../../src/config/settings';
-import {RegistryInterface} from '../../../src/interfaces/RegistryInterface';
-import {loadTestEnv} from '../../helpers/loadTestEnv';
-import {ChainsIds} from '../../../src/types/ChainsIds';
-import {expect} from 'chai';
+import {RegistryContractFactory} from '../../../src/factories/contracts/RegistryContractFactory.js';
+import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository.js';
+import settings from '../../../src/config/settings.js';
+import {RegistryInterface} from '../../../src/interfaces/RegistryInterface.js';
+import {loadTestEnv} from '../../helpers/loadTestEnv.js';
+import {ChainsIds} from '../../../src/types/ChainsIds.js';
+
+const {expect} = chai;
 
 describe.skip('Registries debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
@@ -17,7 +19,7 @@ describe.skip('Registries debug integration tests', () => {
     blockchainRepo = new BlockchainRepository(settings);
   });
 
-  [ChainsIds.MASSA].forEach((chainId) => {
+  [ChainsIds.MULTIVERSX].forEach((chainId) => {
     describe(`[${chainId}] provider`, () => {
       let registry: RegistryInterface;
 
@@ -26,8 +28,13 @@ describe.skip('Registries debug integration tests', () => {
       });
 
       it('#getAddress', async () => {
-        const addr = await registry.getAddress('StakingBank');
+        const [addr, feeds] = await Promise.all([
+          registry.getAddress('StakingBank'),
+          registry.getAddress('UmbrellaFeeds'),
+        ]);
+
         console.log(`${chainId} StakingBank: `, addr);
+        console.log(`${chainId} feeds: `, feeds);
 
         switch (chainId) {
           case ChainsIds.MULTIVERSX:

@@ -1,10 +1,10 @@
 import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
-import BlockMinter from '../services/BlockMinter';
-import BasicWorker from './BasicWorker';
-import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer';
-import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer';
+import BlockMinter from '../services/BlockMinter.js';
+import BasicWorker from './BasicWorker.js';
+import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer.js';
+import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer.js';
 
 @injectable()
 class BlockMintingWorker extends BasicWorker {
@@ -28,7 +28,7 @@ class BlockMintingWorker extends BasicWorker {
     const unlocked = await this.connection.set(lockName, 'lock', 'EX', lockTTL, 'NX');
 
     if (!unlocked) {
-      this.logger.info(`BlockMintingWorker apply for job but job !unlocked`);
+      this.logger.info('BlockMintingWorker apply for job but job !unlocked');
       return;
     }
 

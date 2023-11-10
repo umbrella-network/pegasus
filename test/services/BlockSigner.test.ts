@@ -4,20 +4,20 @@ import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {BigNumber, Wallet} from 'ethers';
 
-import BlockSigner from '../../src/services/BlockSigner';
-import Blockchain from '../../src/lib/Blockchain';
-import ChainContract from '../../src/blockchains/evm/contracts/ChainContract';
-import FeedProcessor from '../../src/services/FeedProcessor';
-import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
-import {signAffidavitWithWallet} from '../../src/utils/mining';
-import {getTestContainer} from '../helpers/getTestContainer';
-import BlockRepository from '../../src/repositories/BlockRepository';
-import {FeedDataService} from '../../src/services/FeedDataService';
-import {leavesAndFeedsFactory} from '../mocks/factories/leavesAndFeedsFactory';
-import {chainStatusFactory} from '../mocks/factories/chainStatusFactory';
-import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver';
-import {ChainsStatuses} from '../../src/types/ChainStatus';
-import {mockIWallet} from '../helpers/mockIWallet';
+import BlockSigner from '../../src/services/BlockSigner.js';
+import Blockchain from '../../src/lib/Blockchain.js';
+import ChainContract from '../../src/blockchains/evm/contracts/ChainContract.js';
+import FeedProcessor from '../../src/services/FeedProcessor.js';
+import {leafWithAffidavit} from '../fixtures/leafWithAffidavit.js';
+import {signAffidavitWithWallet} from '../../src/utils/mining.js';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+import BlockRepository from '../../src/repositories/BlockRepository.js';
+import {FeedDataService} from '../../src/services/FeedDataService.js';
+import {leavesAndFeedsFactory} from '../mocks/factories/leavesAndFeedsFactory.js';
+import {chainStatusFactory} from '../mocks/factories/chainStatusFactory.js';
+import {MultiChainStatusResolver} from '../../src/services/multiChain/MultiChainStatusResolver.js';
+import {ChainsStatuses} from '../../src/types/ChainStatus.js';
+import {mockIWallet} from '../helpers/mockIWallet.js';
 
 chai.use(chaiAsPromised);
 

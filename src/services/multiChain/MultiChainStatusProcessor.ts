@@ -1,12 +1,11 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
-import Settings from '../../types/Settings';
-import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus';
-import {ChainStatus} from '../../types/ChainStatus';
-import {CanMint} from '../CanMint';
-import {ValidatorRepository} from "../../repositories/ValidatorRepository";
-import LeaderSelector from "./LeaderSelector";
+import Settings from '../../types/Settings.js';
+import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus.js';
+import {CanMint} from '../CanMint.js';
+import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
+import LeaderSelector from './LeaderSelector.js';
 
 @injectable()
 export class MultiChainStatusProcessor {
@@ -19,7 +18,10 @@ export class MultiChainStatusProcessor {
     return this.processStates(chainStatuses, dataTimestamp);
   }
 
-  private async processStates(chainsStatuses: ChainStatusWithAddress[], dataTimestamp: number): Promise<ChainsStatuses> {
+  private async processStates(
+    chainsStatuses: ChainStatusWithAddress[],
+    dataTimestamp: number,
+  ): Promise<ChainsStatuses> {
     const validators = await this.validatorRepository.list(undefined);
 
     if (validators.length == 0) {
@@ -34,7 +36,11 @@ export class MultiChainStatusProcessor {
 
     return {
       validators,
-      nextLeader: LeaderSelector.apply(dataTimestamp, validators.map(v => v.id), roundLength),
+      nextLeader: LeaderSelector.apply(
+        dataTimestamp,
+        validators.map((v) => v.id),
+        roundLength,
+      ),
       chainsStatuses,
       chainsIdsReadyForBlock,
     };

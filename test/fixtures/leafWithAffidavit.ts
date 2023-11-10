@@ -1,7 +1,7 @@
-import Leaf from '../../src/types/Leaf';
-import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory';
-import {KeyValues} from '../../src/types/SignedBlock';
-import {generateAffidavit} from '../../src/utils/mining';
+import Leaf from '../../src/types/Leaf.js';
+import SortedMerkleTreeFactory from '../../src/services/SortedMerkleTreeFactory.js';
+import {KeyValues} from '../../src/types/SignedBlock.js';
+import {generateAffidavit} from '../../src/utils/mining.js';
 
 const timestamp = 1621508941;
 

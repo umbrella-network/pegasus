@@ -1,6 +1,8 @@
-import {expect} from 'chai';
-import {LeavesToRecord} from '../../../src/services/tools/LeavesToRecord';
-import Leaf from '../../../src/types/Leaf';
+import chai from 'chai';
+import {LeavesToRecord} from '../../../src/services/tools/LeavesToRecord.js';
+import Leaf from '../../../src/types/Leaf.js';
+
+const {expect} = chai;
 
 describe('LeavesToRecord', () => {
   describe('#apply', () => {

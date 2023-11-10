@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 
-import LeaderSelector from "../multiChain/LeaderSelector";
-import Settings from "../../types/Settings";
-import {Wallet} from "ethers";
+import LeaderSelector from '../multiChain/LeaderSelector.js';
+import Settings from '../../types/Settings.js';
+import {Wallet} from 'ethers';
 
 @injectable()
 export class DeviationLeaderSelector {

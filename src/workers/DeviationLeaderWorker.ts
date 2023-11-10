@@ -1,8 +1,8 @@
 import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
-import BasicWorker from './BasicWorker';
-import {DeviationLeader} from '../services/deviationsFeeds/DeviationLeader';
+import BasicWorker from './BasicWorker.js';
+import {DeviationLeader} from '../services/deviationsFeeds/DeviationLeader.js';
 
 @injectable()
 export class DeviationLeaderWorker extends BasicWorker {
@@ -24,7 +24,7 @@ export class DeviationLeaderWorker extends BasicWorker {
     const unlocked = await this.connection.set(lock.name, 'lock', 'EX', lock.ttl, 'NX');
 
     if (!unlocked) {
-      this.logger.error(`[DeviationLeaderWorker] apply for job but job !unlocked`);
+      this.logger.error('[DeviationLeaderWorker] apply for job but job !unlocked');
       return;
     }
 

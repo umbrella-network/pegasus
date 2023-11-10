@@ -1,17 +1,17 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {BlockchainRepository} from '../../repositories/BlockchainRepository';
-import {ChainsIds} from '../../types/ChainsIds';
-import {IDeviationFeedsDispatcher} from "./IDeviationFeedsDispatcher";
-import {BSCDeviationDispatcher} from "./networks/BSCDeviationDispatcher";
-import {AvalancheDeviationDispatcher} from "./networks/AvalancheDeviationDispatcher";
-import {LineaDeviationDispatcher} from "./networks/LineaDeviationDispatcher";
-import {ArbitrumDeviationDispatcher} from "./networks/ArbitrumDeviationDispatcher";
-import {PolygonDeviationDispatcher} from "./networks/PolygonDeviationDispatcher";
-import {BaseDeviationDispatcher} from "./networks/BaseDeviationDispatcher";
-import {MultiversXDeviationDispatcher} from "./networks/MultiversXDeviationDispatcher";
-import {MassaDeviationDispatcher} from "./networks/MassaDeviationDispatcher";
+import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {IDeviationFeedsDispatcher} from './IDeviationFeedsDispatcher.js';
+import {BSCDeviationDispatcher} from './networks/BSCDeviationDispatcher.js';
+import {AvalancheDeviationDispatcher} from './networks/AvalancheDeviationDispatcher.js';
+import {LineaDeviationDispatcher} from './networks/LineaDeviationDispatcher.js';
+import {ArbitrumDeviationDispatcher} from './networks/ArbitrumDeviationDispatcher.js';
+import {PolygonDeviationDispatcher} from './networks/PolygonDeviationDispatcher.js';
+import {BaseDeviationDispatcher} from './networks/BaseDeviationDispatcher.js';
+import {MultiversXDeviationDispatcher} from './networks/MultiversXDeviationDispatcher.js';
+import {MassaDeviationDispatcher} from './networks/MassaDeviationDispatcher.js';
 
 export type DeviationFeedsDispatcherProps = {
   chainId: ChainsIds;

@@ -1,9 +1,9 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
-import {ChainsIds} from '../types/ChainsIds';
-import GasPrice from '../models/GasPrice';
-import {BlockchainGas} from '../types/BlockchainGas';
+import {ChainsIds} from '../types/ChainsIds.js';
+import GasPrice from '../models/GasPrice.js';
+import {BlockchainGas} from '../types/BlockchainGas.js';
 
 @injectable()
 export class BlockchainGasRepository {

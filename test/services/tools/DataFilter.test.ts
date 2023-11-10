@@ -1,5 +1,7 @@
-import {expect} from 'chai';
-import {DataFilter} from '../../../src/services/tools/DataFilter';
+import chai from 'chai';
+import {DataFilter} from '../../../src/services/tools/DataFilter.js';
+
+const {expect} = chai;
 
 describe('DataFilter', () => {
   describe('filter', () => {

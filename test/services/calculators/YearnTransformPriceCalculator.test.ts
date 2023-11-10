@@ -4,7 +4,7 @@ import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {BigNumber} from 'ethers';
 
-import {YearnTransformPriceCalculator} from '../../../src/services/calculators';
+import {YearnTransformPriceCalculator} from '../../../src/services/calculators/index.js';
 
 chai.use(chaiAsPromised);
 

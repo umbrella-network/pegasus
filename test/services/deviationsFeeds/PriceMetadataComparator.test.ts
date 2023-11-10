@@ -1,10 +1,12 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 import {Container} from 'inversify';
-import {PriceMetadataComparator} from '../../../src/services/deviationsFeeds/PriceMetadataComparator';
-import {DeviationDataToSign, DeviationFeeds} from '../../../src/types/DeviationFeeds';
-import {ChainsIds} from '../../../src/types/ChainsIds';
-import Leaf from '../../../src/types/Leaf';
+import {PriceMetadataComparator} from '../../../src/services/deviationsFeeds/PriceMetadataComparator.js';
+import {DeviationDataToSign, DeviationFeeds} from '../../../src/types/DeviationFeeds.js';
+import {ChainsIds} from '../../../src/types/ChainsIds.js';
+import Leaf from '../../../src/types/Leaf.js';
+
+const {expect} = chai;
 
 describe('PriceMetadataComparator', () => {
   let priceMetadataComparator: PriceMetadataComparator;

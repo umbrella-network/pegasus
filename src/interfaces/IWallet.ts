@@ -1,5 +1,5 @@
 import {TransactionRequest} from '@ethersproject/providers';
-import {ExecutedTx} from '../types/Consensus';
+import {ExecutedTx} from '../types/Consensus.js';
 
 export interface IWallet {
   readonly chainId: string;

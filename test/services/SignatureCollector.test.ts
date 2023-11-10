@@ -1,19 +1,21 @@
 import 'reflect-metadata';
 import {Container} from 'inversify';
 import sinon from 'sinon';
-import {expect} from 'chai';
+import chai from 'chai';
 import {BigNumber, Wallet} from 'ethers';
 import moxios from 'moxios';
 
-import SignatureCollector from '../../src/services/SignatureCollector';
-import {mockedLogger} from '../mocks/logger';
-import Blockchain from '../../src/lib/Blockchain';
-import {SignedBlock} from '../../src/types/SignedBlock';
-import {leafWithAffidavit} from '../fixtures/leafWithAffidavit';
-import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse';
-import {signAffidavitWithWallet} from '../../src/utils/mining';
-import {ValidatorStatusChecker} from '../../src/services/ValidatorStatusChecker';
-import {mockIWallet} from '../helpers/mockIWallet';
+import SignatureCollector from '../../src/services/SignatureCollector.js';
+import {mockedLogger} from '../mocks/logger.js';
+import Blockchain from '../../src/lib/Blockchain.js';
+import {SignedBlock} from '../../src/types/SignedBlock.js';
+import {leafWithAffidavit} from '../fixtures/leafWithAffidavit.js';
+import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse.js';
+import {signAffidavitWithWallet} from '../../src/utils/mining.js';
+import {ValidatorStatusChecker} from '../../src/services/ValidatorStatusChecker.js';
+import {mockIWallet} from '../helpers/mockIWallet.js';
+
+const {expect} = chai;
 
 describe('SignatureCollector', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
@@ -65,7 +67,8 @@ describe('SignatureCollector', () => {
         'ETH-USD': '0xABCD',
       },
       signature:
-        '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
+        '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000' +
+        'cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
     const blockSignerResponseWithPower: BlockSignerResponseWithPower[] = await signatureCollector.apply(
@@ -101,7 +104,8 @@ describe('SignatureCollector', () => {
       fcd,
       leaves: fcd,
       signature:
-        '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
+        '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000' +
+        'cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
     const signatures = await signatureCollector.apply(block, affidavit, [
@@ -136,7 +140,8 @@ describe('SignatureCollector', () => {
       fcd: fcd,
       leaves: fcd,
       signature:
-        '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
+        '0x12b403e882c31f087b9f4eb9cfad1b9410e1eb4424dcd8868c6aec9748dfd24866dfdb660c8f53c9056000' +
+        'cfcbeeca53d9f8926ebf59deb7d291b2538a85c0f01c',
     };
 
     const blockSignerResponseWithPower = await signatureCollector.apply(block, affidavit, [

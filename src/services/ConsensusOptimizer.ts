@@ -1,7 +1,8 @@
 import {inject, injectable} from 'inversify';
-import {Combination} from 'js-combinatorics';
 import {Logger} from 'winston';
-import Settings from '../types/Settings';
+import * as combinatorics from 'js-combinatorics';
+
+import Settings from '../types/Settings.js';
 
 type Participant = {
   address: string;
@@ -64,7 +65,7 @@ export class ConsensusOptimizer {
     // iterate over the combination of validators
     // starting with the quantity necessary to achieve consensus
     for (let k = minimumRequiredSignatures; k <= candidates.length; k++) {
-      const combinations = new Combination(candidates, k);
+      const combinations = new combinatorics.Combination(candidates, k);
 
       for (let n = 0; n < combinations.length; n++) {
         const proposedCandidates = combinations.nth(n);

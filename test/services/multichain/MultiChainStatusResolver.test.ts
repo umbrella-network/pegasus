@@ -1,17 +1,19 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
-import {expect} from 'chai';
+import chai from 'chai';
 import {BigNumber, Wallet} from 'ethers';
 
-import {getTestContainer} from '../../helpers/getTestContainer';
-import {MultiChainStatusResolver} from '../../../src/services/multiChain/MultiChainStatusResolver';
-import {ChainContractRepository} from '../../../src/repositories/ChainContractRepository';
-import ChainContract from '../../../src/blockchains/evm/contracts/ChainContract';
-import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
-import {timestamp} from '../../../src/utils/mining';
-import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor';
-import {ChainsStatuses} from '../../../src/types/ChainStatus';
-import TimeService from '../../../src/services/TimeService';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
+import {MultiChainStatusResolver} from '../../../src/services/multiChain/MultiChainStatusResolver.js';
+import {ChainContractRepository} from '../../../src/repositories/ChainContractRepository.js';
+import ChainContract from '../../../src/blockchains/evm/contracts/ChainContract.js';
+import {chainStatusFactory} from '../../mocks/factories/chainStatusFactory.js';
+import {timestamp} from '../../../src/utils/mining.js';
+import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor.js';
+import {ChainsStatuses} from '../../../src/types/ChainStatus.js';
+import TimeService from '../../../src/services/TimeService.js';
+
+const {expect} = chai;
 
 describe('MultiChainStatusResolver', () => {
   let mockedChainContractRepository: sinon.SinonStubbedInstance<ChainContractRepository>;

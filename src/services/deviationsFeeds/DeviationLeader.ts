@@ -1,21 +1,21 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
-import TimeService from '../TimeService';
-import {DeviationConsensusRunner} from "./DeviationConsensusRunner";
-import {ValidatorRepository} from "../../repositories/ValidatorRepository";
-import {FeedsContractRepository} from "../../repositories/FeedsContractRepository";
-import {DeviationTriggerConsensusRepository} from "../../repositories/DeviationTriggerConsensusRepository";
-import Settings, {BlockchainType} from "../../types/Settings";
-import {DeviationTrigger} from "./DeviationTrigger";
-import {FeedsType} from "../../types/Feed";
-import {DeviationLeavesAndFeeds} from "../../types/DeviationFeeds";
-import {FeedDataService} from "../FeedDataService";
-import {DeviationLeaderSelector} from "./DeviationLeaderSelector";
-import {DeviationTriggerLastIntervals} from "../../repositories/DeviationTriggerLastIntervals";
-import {sleep} from "../../utils/sleep";
-import {BalanceMonitorChecker} from "../balanceMonitor/BalanceMonitorChecker";
-import {RequiredSignaturesRepository} from "../../repositories/RequiredSignaturesRepository";
+import TimeService from '../TimeService.js';
+import {DeviationConsensusRunner} from './DeviationConsensusRunner.js';
+import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
+import {FeedsContractRepository} from '../../repositories/FeedsContractRepository.js';
+import {DeviationTriggerConsensusRepository} from '../../repositories/DeviationTriggerConsensusRepository.js';
+import Settings, {BlockchainType} from '../../types/Settings.js';
+import {DeviationTrigger} from './DeviationTrigger.js';
+import {FeedsType} from '../../types/Feed.js';
+import {DeviationLeavesAndFeeds} from '../../types/DeviationFeeds.js';
+import {FeedDataService} from '../FeedDataService.js';
+import {DeviationLeaderSelector} from './DeviationLeaderSelector.js';
+import {DeviationTriggerLastIntervals} from '../../repositories/DeviationTriggerLastIntervals.js';
+import {sleep} from '../../utils/sleep.js';
+import {BalanceMonitorChecker} from '../balanceMonitor/BalanceMonitorChecker.js';
+import {RequiredSignaturesRepository} from '../../repositories/RequiredSignaturesRepository.js';
 
 @injectable()
 export class DeviationLeader {
@@ -35,7 +35,7 @@ export class DeviationLeader {
 
   async apply(): Promise<void> {
     if (!(await this.balanceMonitorChecker.apply(BlockchainType.ON_CHAIN))) {
-      this.logger.error(`[DeviationLeader] There is not enough balance in any of the chains for ${BlockchainType.ON_CHAIN}`);
+      this.logger.error('[DeviationLeader][ON_CHAIN] There is not enough balance in any of the chains');
       await sleep(60_000); // slow down execution
       return;
     }
@@ -45,7 +45,7 @@ export class DeviationLeader {
 
     if (!requiredSignatures) {
       // we do not set last intervals if we didn't manage to get consensus
-      this.logger.error(`[DeviationLeader] unknown requiredSignatures`);
+      this.logger.error('[DeviationLeader] unknown requiredSignatures');
       return;
     }
 
@@ -53,12 +53,17 @@ export class DeviationLeader {
 
     const [validators, pendingChains] = await Promise.all([
       this.validatorRepository.list(undefined),
-      this.deviationConsensusRepository.existedChains()
+      this.deviationConsensusRepository.existedChains(),
     ]);
 
     if (validators.length === 0) throw new Error('validators list is empty');
 
-    if (!this.deviationLeaderSelector.apply(dataTimestamp, validators.map(v => v.id))) {
+    if (
+      !this.deviationLeaderSelector.apply(
+        dataTimestamp,
+        validators.map((v) => v.id),
+      )
+    ) {
       this.logger.debug(`[DeviationLeader] I'm not a leader at ${dataTimestamp}`);
       return;
     }
@@ -89,9 +94,9 @@ export class DeviationLeader {
 
     await Promise.all([
       this.deviationTriggerLastIntervals.set(Object.keys(data.feeds), dataTimestamp),
-      ...consensuses.map(consensus => this.deviationConsensusRepository.save(consensus))
+      ...consensuses.map((consensus) => this.deviationConsensusRepository.save(consensus)),
     ]);
 
-    this.logger.debug(`[DeviationLeader] finished`);
+    this.logger.debug('[DeviationLeader] finished');
   }
 }

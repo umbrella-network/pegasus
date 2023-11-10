@@ -1,16 +1,16 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {ChainsIds} from '../types/ChainsIds';
-import {BlockchainType} from '../types/Settings';
-import {MappingRepository} from './MappingRepository';
-import {NumberOfSignaturesPerChain} from '../types/NumberOfSignatures';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {BlockchainType} from '../types/Settings.js';
+import {MappingRepository} from './MappingRepository.js';
+import {NumberOfSignaturesPerChain} from '../types/NumberOfSignatures.js';
 
 @injectable()
 export class RequiredSignaturesRepository {
   @inject('Logger') logger!: Logger;
   @inject(MappingRepository) mappingRepository!: MappingRepository;
 
-  readonly ID = `NUMBER_OF_SIGNATURES`;
+  readonly ID = 'NUMBER_OF_SIGNATURES';
 
   async get(blockchainType: BlockchainType, chainId: ChainsIds | undefined): Promise<number | undefined> {
     const data = await this.getAll();

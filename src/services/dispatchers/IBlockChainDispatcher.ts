@@ -1,4 +1,4 @@
-import {ChainStatus} from '../../types/ChainStatus';
+import {ChainStatus} from '../../types/ChainStatus.js';
 
 export interface IBlockChainDispatcher {
   getStatus(): Promise<[address: string, status: ChainStatus]>;

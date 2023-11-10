@@ -1,9 +1,15 @@
 import {inject, injectable} from 'inversify';
-import ABI from './UniswapV3Helper.abi.json';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import {BigNumber, Contract} from 'ethers';
-import Settings from '../../../types/Settings';
-import {BlockchainProviderRepository} from '../../../repositories/BlockchainProviderRepository';
+import {readFileSync} from 'fs';
+import {fileURLToPath} from 'url';
+import path from 'path';
+
+import Settings from '../../../types/Settings.js';
+import {BlockchainProviderRepository} from '../../../repositories/BlockchainProviderRepository.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export type Price = {
   price: BigNumber;
@@ -17,7 +23,7 @@ export type PricesResponse = {
 
 @injectable()
 export class UniswapV3Helper {
-  static ABI = ABI;
+  protected ABI!: never;
 
   readonly contractId: string = '';
   readonly provider!: StaticJsonRpcProvider;
@@ -34,9 +40,11 @@ export class UniswapV3Helper {
       return;
     }
 
+    this.ABI = JSON.parse(readFileSync(__dirname + '/UniswapV3Helper.abi.json', 'utf-8')) as never;
+
     this.contractId = settings.api.uniswap.helperContractId;
     this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get(blockchainKey);
-    this.contract = new Contract(this.contractId, UniswapV3Helper.ABI, this.provider);
+    this.contract = new Contract(this.contractId, this.ABI, this.provider);
   }
 
   async translateTokenAddressesToSymbols(tokens: string[]): Promise<string[]> {

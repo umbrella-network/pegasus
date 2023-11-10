@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
-import CryptoCompareWSClient from './ws/CryptoCompareWSClient';
-import loadFeeds from '../services/loadFeeds';
-import {Pair} from '../types/Feed';
-import Settings from '../types/Settings';
+import CryptoCompareWSClient from './ws/CryptoCompareWSClient.js';
+import loadFeeds from '../services/loadFeeds.js';
+import {Pair} from '../types/Feed.js';
+import Settings from '../types/Settings.js';
 import {Logger} from 'winston';
 
 @injectable()

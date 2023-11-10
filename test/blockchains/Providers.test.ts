@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import 'reflect-metadata';
-import {expect} from 'chai';
+import chai from 'chai';
 
-import {ChainsIds} from '../../src/types/ChainsIds';
-import {ProviderFactory} from '../../src/factories/ProviderFactory';
-import {loadTestEnv} from '../helpers/loadTestEnv';
-import {generateChainId} from '../../src/blockchains/generateChainId';
-import {ProviderInterface} from '../../src/interfaces/ProviderInterface';
+import {ChainsIds} from '../../src/types/ChainsIds.js';
+import {ProviderFactory} from '../../src/factories/ProviderFactory.js';
+import {loadTestEnv} from '../helpers/loadTestEnv.js';
+import {generateChainId} from '../../src/blockchains/generateChainId.js';
+import {ProviderInterface} from '../../src/interfaces/ProviderInterface.js';
+
+const {expect} = chai;
 
 describe.skip('Test Providers - debug integration tests', () => {
   before(() => {
@@ -16,7 +18,7 @@ describe.skip('Test Providers - debug integration tests', () => {
   [
     // {chainId: ChainsIds.AVALANCHE, account: '0x4acd5cc057c1b8c771e2e3cd3e30780ca257dec0'},
     // {chainId: ChainsIds.MULTIVERSX, account: 'erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p'},
-    {chainId: ChainsIds.MASSA, account: 'AU1h7jfDGJYHxFYDoG2disme925yopJ359yyYvwjkxPqwKDn1cGa'},
+    // {chainId: ChainsIds.MASSA, account: 'AU1h7jfDGJYHxFYDoG2disme925yopJ359yyYvwjkxPqwKDn1cGa'},
     // {chainId: ChainsIds.CONCORDIUM, account: '41EpZoem2w2UpEYiLihvKEkbUCuuGD8DC7ajqNL6zJnDYeHQkw'},
   ].forEach(({chainId, account}) => {
     describe(`[${chainId}] provider`, () => {
@@ -26,7 +28,7 @@ describe.skip('Test Providers - debug integration tests', () => {
         provider = ProviderFactory.create(chainId as ChainsIds);
       });
 
-      it('#getBlockNumber', async () => {
+      it.skip('#getBlockNumber', async () => {
         const bn = await provider.getBlockNumber();
         console.log(`${chainId} block number: `, bn);
         expect(bn > 0n).true;

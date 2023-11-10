@@ -1,9 +1,6 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 
-import {SubmitTxChecker} from "./SubmitTxChecker";
-import {LastTriggerResolver} from "./LastTriggerResolver";
+import {SubmitTxChecker} from './SubmitTxChecker.js';
 
 @injectable()
-export class TriggerTxChecker extends SubmitTxChecker {
-  @inject(LastTriggerResolver) lastTxResolver!: LastTriggerResolver;
-}
+export class TriggerTxChecker extends SubmitTxChecker {}

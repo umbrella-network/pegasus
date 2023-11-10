@@ -1,7 +1,7 @@
 import {index, modelOptions, prop, Severity} from '@typegoose/typegoose';
-import {SchemaTypes} from 'mongoose';
+import mongoose from 'mongoose';
 
-import {PriceData} from '../types/DeviationFeeds';
+import {PriceData} from '../types/DeviationFeeds.js';
 
 @index({chainId: 1})
 @index({createdAt: 1}, {expireAfterSeconds: 300})
@@ -16,7 +16,7 @@ export class DeviationConsensus {
   @prop({required: true, type: () => [String]})
   signatures!: Array<string>;
 
-  @prop({type: SchemaTypes.Mixed})
+  @prop({type: mongoose.SchemaTypes.Mixed})
   priceData!: Array<PriceData>;
 
   @prop({required: true})

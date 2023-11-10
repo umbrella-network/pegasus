@@ -1,8 +1,8 @@
 import {injectable} from 'inversify';
-import {snakeCase} from 'lodash';
+import lodash from 'lodash';
 
-import {FeedOutput} from '../../types/Feed';
-import {OptionsEntries, OptionsValues} from '../fetchers/OptionsPriceFetcher';
+import {FeedOutput} from '../../types/Feed.js';
+import {OptionsEntries, OptionsValues} from '../fetchers/OptionsPriceFetcher.js';
 
 const SIGNED_NUMBER_PREFIX = 'SN_';
 const CHAIN_PREFIX_LENGTH = 4;
@@ -24,7 +24,7 @@ class OptionsPriceCalculator {
     for (const [optionKey, entryValues] of entries) {
       const key = this.getKeyWithoutPrefix(optionKey);
       for (const [optionParam, value] of Object.entries(entryValues)) {
-        const param = snakeCase(optionParam);
+        const param = lodash.snakeCase(optionParam);
         result.push({key: `${SIGNED_NUMBER_PREFIX}${key}_${param}`, value: value});
       }
     }

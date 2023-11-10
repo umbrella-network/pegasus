@@ -1,15 +1,15 @@
 import {inject, injectable} from 'inversify';
 
-import {ChainsIds} from '../../types/ChainsIds';
-import {MappingRepository} from '../../repositories/MappingRepository';
-import {BalanceMonitorKeyResolver} from "./BalanceMonitorKeyResolver";
+import {ChainsIds} from '../../types/ChainsIds.js';
+import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {BalanceMonitorKeyResolver} from './BalanceMonitorKeyResolver.js';
 
 @injectable()
 export class BalanceMonitorSaver {
   @inject(MappingRepository) mappingRepository!: MappingRepository;
 
   async apply(chainId: ChainsIds, balance: string, error: boolean, walletAddress: string): Promise<void> {
-    const data = {balance, error}
+    const data = {balance, error};
     await this.mappingRepository.set(this.key(chainId, walletAddress), JSON.stringify(data));
   }
 

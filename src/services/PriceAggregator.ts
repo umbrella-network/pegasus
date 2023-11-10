@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
-import MongoDBPriceAggregator from './MongoDBPriceAggregator';
-import {RedisPriceAggregator} from './RedisPriceAggregator';
-import Settings from '../types/Settings';
+import MongoDBPriceAggregator from './MongoDBPriceAggregator.js';
+import {RedisPriceAggregator} from './RedisPriceAggregator.js';
+import Settings from '../types/Settings.js';
 
 @injectable()
 export default class PriceAggregator {

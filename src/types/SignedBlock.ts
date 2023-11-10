@@ -1,4 +1,4 @@
-import {HexStringWith0x} from './Feed';
+import {HexStringWith0x} from './Feed.js';
 
 export interface KeyValues {
   [key: string]: HexStringWith0x;

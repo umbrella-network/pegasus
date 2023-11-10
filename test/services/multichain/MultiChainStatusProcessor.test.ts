@@ -1,18 +1,19 @@
 import 'reflect-metadata';
-import {expect} from 'chai';
-import mongoose from "mongoose";
-import sinon from "sinon";
-import {BigNumber} from "ethers";
+import chai from 'chai';
+import mongoose from 'mongoose';
+import sinon from 'sinon';
+import {BigNumber} from 'ethers';
 
-import {getTestContainer} from '../../helpers/getTestContainer';
-import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor';
-import {ChainStatusWithAddress} from '../../../src/types/ChainStatus';
-import {chainStatusWithAddressFactory, chainStatusFactory} from '../../mocks/factories/chainStatusFactory';
-import {loadTestEnv} from "../../helpers/loadTestEnv";
-import {ValidatorRepository} from "../../../src/repositories/ValidatorRepository";
-import {Validator} from "../../../src/types/Validator";
-import {mockedLogger} from '../../mocks/logger';
-import SignatureCollector from "../../../src/services/SignatureCollector";
+import {getTestContainer} from '../../helpers/getTestContainer.js';
+import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor.js';
+import {ChainStatusWithAddress} from '../../../src/types/ChainStatus.js';
+import {chainStatusWithAddressFactory, chainStatusFactory} from '../../mocks/factories/chainStatusFactory.js';
+import {loadTestEnv} from '../../helpers/loadTestEnv.js';
+import {ValidatorRepository} from '../../../src/repositories/ValidatorRepository.js';
+import {Validator} from '../../../src/types/Validator.js';
+import {mockedLogger} from '../../mocks/logger.js';
+
+const {expect} = chai;
 
 describe('MultiChainStatusProcessor', () => {
   const bscChainStatus = chainStatusWithAddressFactory.build();
