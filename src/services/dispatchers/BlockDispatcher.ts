@@ -60,7 +60,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
     const consensus = await this.consensusDataRepository.read();
 
     if (!consensus) {
-      this.logger.info(`${this.logPrefix} no consensus data found to dispatch`);
+      this.printNotImportantInfo('no consensus data found to dispatch');
       return;
     }
 
