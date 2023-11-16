@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.19.1] - 2023-11-16
+### Changed
+- use gas limit for polygon dispatcher
+
 ## [7.19.0] - 2023-11-10
 ### Changed
 - change app type to `ES Module`
