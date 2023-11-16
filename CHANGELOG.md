@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [7.19.1] - 2023-11-16
-### Changed
-- use gas limit for polygon dispatcher
+## [7.19.2] - 2023-11-16
+### Added
+- option to override `maxFeePerGas` and `maxPriorityFeePerGas`
+
+### Removed
+- removed `massa` code
 
 ## [7.19.0] - 2023-11-10
 ### Changed
