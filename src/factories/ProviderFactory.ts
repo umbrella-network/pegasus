@@ -3,6 +3,7 @@ import {ProviderInterface} from '../interfaces/ProviderInterface.js';
 import {EvmProvider} from '../blockchains/evm/EvmProvider.js';
 import settings from '../config/settings.js';
 import {MultiversXProvider} from '../blockchains/multiversx/MultiversXProvider.js';
+import {MassaProvider} from '../blockchains/massa/MassaProvider.js';
 
 export class ProviderFactory {
   static create(chainId: ChainsIds): ProviderInterface {
@@ -13,6 +14,9 @@ export class ProviderFactory {
     switch (chainId) {
       case ChainsIds.MULTIVERSX:
         return new MultiversXProvider(providerUrl);
+
+      case ChainsIds.MASSA:
+        return new MassaProvider(providerUrl);
 
       case ChainsIds.BSC:
       case ChainsIds.AVALANCHE:

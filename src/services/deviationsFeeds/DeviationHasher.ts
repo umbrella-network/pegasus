@@ -5,6 +5,7 @@ import {ChainsIds} from '../../types/ChainsIds.js';
 import {DeviationHasherMultiversX} from '../../blockchains/multiversx/DeviationHasherMultiversX.js';
 import {DeviationHasherEvm} from '../../blockchains/evm/DeviationHasherEvm.js';
 import {DeviationHasherInterface} from './interfaces/DeviationHasherInterface.js';
+import {DeviationHasherMassa} from '../../blockchains/massa/DeviationHasherMassa.js';
 
 @injectable()
 export class DeviationHasher implements DeviationHasherInterface {
@@ -12,6 +13,9 @@ export class DeviationHasher implements DeviationHasherInterface {
     switch (chainId) {
       case ChainsIds.MULTIVERSX:
         return DeviationHasherMultiversX.apply(networkId, target, keys, priceDatas);
+
+      case ChainsIds.MASSA:
+        return DeviationHasherMassa.apply(networkId, target, keys, priceDatas);
 
       case ChainsIds.BSC:
       case ChainsIds.AVALANCHE:

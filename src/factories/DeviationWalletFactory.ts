@@ -3,6 +3,7 @@ import settings from '../config/settings.js';
 import {IWallet} from '../interfaces/IWallet.js';
 import {EvmWallet} from '../blockchains/evm/EvmWallet.js';
 import {MultiversXWallet} from '../blockchains/multiversx/MultiversXWallet.js';
+import {MassaWallet} from '../blockchains/massa/MassaWallet.js';
 // import {ConcordiumWallet} from '../blockchains/concordium/ConcordiumWallet.js';
 
 export class DeviationWalletFactory {
@@ -13,6 +14,10 @@ export class DeviationWalletFactory {
       case ChainsIds.MULTIVERSX:
         if (!wallets.multiversX.deviationPrivateKey) return;
         return new MultiversXWallet(wallets.multiversX.deviationPrivateKey.split('\n').join('\n'));
+
+      case ChainsIds.MASSA:
+        if (!wallets.massa.deviationPrivateKey) return;
+        return new MassaWallet(wallets.massa.deviationPrivateKey);
 
       // case ChainsIds.CONCORDIUM:
       //   if (!wallets.concordium.deviationPrivateKey) return;
