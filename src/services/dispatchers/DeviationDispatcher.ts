@@ -82,6 +82,15 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       ]);
     } else {
       this.logger.warn(`${this.logPrefix} Consensus ${consensus.dataTimestamp} was not saved on blockchain`);
+
+      const updateFeedsArgs: UmbrellaFeedsUpdateArgs = {
+        keys: consensus.keys.map(ethers.utils.id),
+        priceDatas: consensus.priceData,
+        signatures: consensus.signatures,
+      };
+
+      this.logger.info(`${this.logPrefix} ${JSON.stringify(updateFeedsArgs)}`);
+
       await sleep(15_000); // slow down execution
     }
   };
