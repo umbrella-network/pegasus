@@ -181,7 +181,7 @@ export class MultiversXProvider implements ProviderInterface {
     throw new Error(`${this.loggerPrefix} .call not supported yet`);
   }
 
-  async gasEstimation(minGasPrice: number, maxGasPrice: number): Promise<GasEstimation> {
+  async gasEstimation(minGasPrice: number): Promise<GasEstimation> {
     console.log('TODO gasEstimation');
 
     return {
@@ -191,7 +191,7 @@ export class MultiversXProvider implements ProviderInterface {
       maxFeePerGas: 0,
       isTxType2: true,
       min: minGasPrice,
-      max: maxGasPrice,
+      max: Number.MAX_SAFE_INTEGER,
       avg: 1,
     };
   }

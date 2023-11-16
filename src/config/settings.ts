@@ -51,7 +51,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000', 10),
       minGasPrice: 2000000000,
-      maxGasPrice: 500000000000,
       minBalance: {
         warningLimit: '0.06',
         errorLimit: '0.003',
@@ -64,7 +63,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 25000000000,
-      maxGasPrice: 250000000000,
       minBalance: {
         warningLimit: '0.5',
         errorLimit: '0.008',
@@ -77,7 +75,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 1000000000,
-      maxGasPrice: 99500_000_000_000,
       minBalance: {
         warningLimit: '0.5',
         errorLimit: '0.02',
@@ -90,7 +87,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100_000_000,
-      maxGasPrice: 50_000_000_000,
       minBalance: {
         warningLimit: '0.05',
         errorLimit: '0.001',
@@ -103,7 +99,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 2000000000,
-      maxGasPrice: 500000000000,
       minBalance: {
         warningLimit: '0.6',
         errorLimit: '0.06',
@@ -116,7 +111,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
-      maxGasPrice: 300000000000,
       minBalance: {
         warningLimit: '0.01',
         errorLimit: '0.0005',
@@ -129,7 +123,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
-      maxGasPrice: 300000000000,
       minBalance: {
         warningLimit: '0.01',
         errorLimit: '0.0005',
@@ -143,7 +136,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
-      maxGasPrice: 300000000000,
       minBalance: {
         warningLimit: '0.01',
         errorLimit: '0.0005',
@@ -157,7 +149,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
-      maxGasPrice: 300000000000,
       minBalance: {
         warningLimit: '0.01',
         errorLimit: '0.0001',
@@ -171,7 +162,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
-      maxGasPrice: 300000000000,
       minBalance: {
         warningLimit: '0.01',
         errorLimit: '0.0005',
@@ -279,7 +269,6 @@ const settings: Settings = {
     transactions: {
       waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000'),
       minGasPrice: parseInt(process.env.MIN_GAS_PRICE || '5000000000', 10),
-      maxGasPrice: parseInt(process.env.MAX_GAS_PRICE || '10000000000', 10),
       mintBalance: {
         warningLimit: process.env.BALANCE_WARN || '0.1',
         errorLimit: process.env.BALANCE_ERROR || '0.003',
@@ -418,16 +407,15 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
         minGasPrice:
           parseInt(process.env[`${chain}_MIN_GAS_PRICE`] as string, 10) ||
           defaultByChain[ChainsIds[chain]].transactions.minGasPrice,
-        maxGasPrice:
-          parseInt(process.env[`${chain}_MAX_GAS_PRICE`] as string, 10) ||
-          defaultByChain[ChainsIds[chain]].transactions.maxGasPrice,
         maxFeePerGas: process.env[`${chain}_MAX_FEE_PER_GAS`]
           ? parseInt(process.env[`${chain}_MAX_FEE_PER_GAS`] as string, 10)
           : undefined,
         maxPriorityFeePerGas: process.env[`${chain}_MAX_PRIORITY_FEE_PER_GAS`]
           ? parseInt(process.env[`${chain}_MAX_PRIORITY_FEE_PER_GAS`] as string, 10)
           : undefined,
-        gasMultiplier: parseInt(process.env[`${chain}_GAS_MULTIPLIER`] || '1', 10),
+        gasMultiplier: process.env[`${chain}_GAS_MULTIPLIER`]
+          ? parseFloat(process.env[`${chain}_GAS_MULTIPLIER`] as string)
+          : 1.0,
         minBalance: {
           warningLimit:
             process.env[`${chain}_BALANCE_WARN`] ||

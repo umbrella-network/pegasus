@@ -95,7 +95,6 @@ describe('BlockChainDispatcher', () => {
             transactions: {
               waitForBlockTime: 1000,
               minGasPrice: 5000000000,
-              maxGasPrice: 10000000000,
               minBalance: {
                 warningLimit: '0.15',
                 errorLimit: '0.015',
