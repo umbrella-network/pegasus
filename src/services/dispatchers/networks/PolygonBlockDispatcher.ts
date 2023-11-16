@@ -33,7 +33,7 @@ export class PolygonBlockDispatcher extends BlockDispatcher {
     const gas = await this.chainContract.estimateGasForSubmit(props?.data as ChainSubmitArgs);
 
     return {
-      gasLimit: (gas * 15n) / 10n, // using limit that is 50% more than estimated just in case
+      gasLimit: (gas * 11n) / 100n, // using limit that is 10% more than estimated just in case
     };
   }
 }
