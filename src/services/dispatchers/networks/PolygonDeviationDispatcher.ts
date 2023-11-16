@@ -34,7 +34,7 @@ export class PolygonDeviationDispatcher extends DeviationDispatcher {
     const gas = await (this.feedsContract as FeedContract).estimateGasForUpdate(props?.data as UmbrellaFeedsUpdateArgs);
 
     return {
-      gasLimit: (gas.gasLimit * 15n) / 10n, // using limit that is 50% more than estimated just in case
+      gasLimit: (gas.gasLimit * 11n) / 10n, // using limit that is 10% more than estimated just in case
     };
   }
 }
