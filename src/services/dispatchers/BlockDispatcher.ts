@@ -98,12 +98,41 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
       ]);
     } else {
       this.logger.warn(`${this.logPrefix} Block ${consensus.dataTimestamp} was not minted`);
+      const chainSubmitArgs = this.prepareChainSubmitArgs(
+        consensus.dataTimestamp,
+        consensus.signatures,
+        consensus.root,
+        consensus.fcdKeys,
+        consensus.fcdValues,
+      );
+
+      this.logger.info(`${this.logPrefix} ${JSON.stringify(chainSubmitArgs)}`);
     }
   };
 
   protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
     const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
     return this.blockchain.provider.gasEstimation(minGasPrice, maxGasPrice);
+  }
+
+  protected prepareChainSubmitArgs(
+    dataTimestamp: number,
+    signatures: string[],
+    root: string,
+    keys: string[],
+    values: HexStringWith0x[],
+  ): ChainSubmitArgs {
+    const components = signatures.map((signature) => ethers.utils.splitSignature(signature));
+
+    return {
+      dataTimestamp,
+      root,
+      keys: keys.map(LeafKeyCoder.encode),
+      values: values.map((v) => Buffer.from(remove0x(v), 'hex')),
+      v: components.map((sig) => sig.v),
+      r: components.map((sig) => sig.r),
+      s: components.map((sig) => sig.s),
+    };
   }
 
   private async submitTxData(
@@ -118,17 +147,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
     payableOverrides: PayableOverrides;
     timeout: number;
   }> {
-    const components = signatures.map((signature) => ethers.utils.splitSignature(signature));
-
-    const chainSubmitArgs: ChainSubmitArgs = {
-      dataTimestamp,
-      root,
-      keys: keys.map(LeafKeyCoder.encode),
-      values: values.map((v) => Buffer.from(remove0x(v), 'hex')),
-      v: components.map((sig) => sig.v),
-      r: components.map((sig) => sig.r),
-      s: components.map((sig) => sig.s),
-    };
+    const chainSubmitArgs = this.prepareChainSubmitArgs(dataTimestamp, signatures, root, keys, values);
 
     const payableOverrides = await this.calculatePayableOverrides({
       data: chainSubmitArgs,

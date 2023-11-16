@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.19.3] - 2023-11-16
+### Added
+- dump consensus data on error
+
 ## [7.19.2] - 2023-11-16
 ### Added
 - option to override `maxFeePerGas` and `maxPriorityFeePerGas`
