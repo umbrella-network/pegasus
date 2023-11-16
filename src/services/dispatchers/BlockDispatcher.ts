@@ -111,8 +111,8 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
   };
 
   protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
-    const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
-    return this.blockchain.provider.gasEstimation(minGasPrice, maxGasPrice);
+    const {minGasPrice} = this.blockchain.chainSettings.transactions;
+    return this.blockchain.provider.gasEstimation(minGasPrice);
   }
 
   protected prepareChainSubmitArgs(

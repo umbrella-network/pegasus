@@ -3,7 +3,7 @@ import {NetworkStatus} from '../types/Network.js';
 
 export interface ProviderInterface {
   getRawProvider<T>(): T;
-  gasEstimation(minGasPrice: number, maxGasPrice: number): Promise<GasEstimation>;
+  gasEstimation(minGasPrice: number): Promise<GasEstimation>;
   getBlockNumber(): Promise<bigint>;
   waitForTx(txHash: string, timeoutMs: number): Promise<boolean>;
   waitUntilNextBlock(currentBlockNumber: bigint): Promise<bigint>;
