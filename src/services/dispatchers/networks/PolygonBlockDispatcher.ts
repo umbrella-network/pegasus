@@ -18,6 +18,16 @@ export class PolygonBlockDispatcher extends BlockDispatcher {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async calculatePayableOverrides(props?: {nonce?: number; data?: unknown}): Promise<PayableOverrides> {
+    const transactions = this.settings.blockchain.multiChains[this.chainId]?.transactions;
+
+    if (transactions) {
+      const {maxPriorityFeePerGas, maxFeePerGas} = transactions;
+
+      if (maxFeePerGas && maxPriorityFeePerGas) {
+        return {maxFeePerGas, maxPriorityFeePerGas};
+      }
+    }
+
     // for unknown reason, when we let provider resolve gas limit automatically, it does not work
     // when we call estimation manually and use result it does work
     const gas = await this.chainContract.estimateGasForSubmit(props?.data as ChainSubmitArgs);
