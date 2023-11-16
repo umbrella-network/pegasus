@@ -4,16 +4,12 @@ import Blockchain from '../../lib/Blockchain.js';
 import {StakingBankMultiversX} from '../../blockchains/multiversx/contracts/StakingBankMultiversX.js';
 import settings from '../../config/settings.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
-import {StakingBankMassa} from '../../blockchains/massa/contracts/StakingBankMassa.js';
 
 export class StakingBankContractFactory {
   static create(blockchain: Blockchain): StakingBankInterface {
     switch (blockchain.chainId) {
       case ChainsIds.MULTIVERSX:
         return new StakingBankMultiversX(blockchain, settings.blockchain.contracts.bank.name);
-
-      case ChainsIds.MASSA:
-        return new StakingBankMassa(blockchain, settings.blockchain.contracts.bank.name);
 
       case ChainsIds.BSC:
       case ChainsIds.AVALANCHE:

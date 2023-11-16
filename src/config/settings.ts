@@ -421,6 +421,12 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
         maxGasPrice:
           parseInt(process.env[`${chain}_MAX_GAS_PRICE`] as string, 10) ||
           defaultByChain[ChainsIds[chain]].transactions.maxGasPrice,
+        maxFeePerGas: process.env[`${chain}_MAX_FEE_PER_GAS`]
+          ? parseInt(process.env[`${chain}_MAX_FEE_PER_GAS`] as string, 10)
+          : undefined,
+        maxPriorityFeePerGas: process.env[`${chain}_MAX_PRIORITY_FEE_PER_GAS`]
+          ? parseInt(process.env[`${chain}_MAX_PRIORITY_FEE_PER_GAS`] as string, 10)
+          : undefined,
         gasMultiplier: parseInt(process.env[`${chain}_GAS_MULTIPLIER`] || '1', 10),
         minBalance: {
           warningLimit:

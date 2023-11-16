@@ -4,7 +4,6 @@ import {ChainsIds} from '../types/ChainsIds.js';
 import {DeviationSignerEvm} from '../blockchains/evm/DeviationSignerEvm.js';
 import {DeviationSignerMultiversX} from '../blockchains/multiversx/DeviationSignerMultiversX.js';
 import {DeviationSignerInterface} from '../services/deviationsFeeds/interfaces/DeviationSignerInterface.js';
-import {DeviationSignerMassa} from '../blockchains/massa/DeviationSignerMassa.js';
 import Settings from '../types/Settings.js';
 
 @injectable()
@@ -13,9 +12,6 @@ export class DeviationSignerFactory {
     switch (chainId) {
       case ChainsIds.MULTIVERSX:
         return new DeviationSignerMultiversX(settings);
-
-      case ChainsIds.MASSA:
-        return new DeviationSignerMassa(settings);
 
       case ChainsIds.BSC:
       case ChainsIds.AVALANCHE:
