@@ -18,7 +18,7 @@ export class BlockDispatcherWorker extends BasicWorker {
     try {
       this.logger.info(`[${chainId}] Starting Block Dispatcher`);
       await this.dispatcher.apply({chainId});
-      this.logger.info(`[${chainId}] Block Dispatcher Complete`);
+      this.logger.debug(`[${chainId}] Block Dispatcher Complete`);
     } catch (e: unknown) {
       throw new Error(`[${chainId}] ${(e as Error).message}`);
     }

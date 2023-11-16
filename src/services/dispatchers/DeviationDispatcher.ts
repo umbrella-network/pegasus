@@ -46,7 +46,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
     }
 
     if (!(await this.amILeader())) {
-      this.logger.info(`${this.logPrefix} I'm not a leader atm`);
+      this.printNotImportantInfo("I'm not a leader atm");
       await this.consensusRepository.delete(this.chainId);
       return;
     }

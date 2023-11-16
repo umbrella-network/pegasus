@@ -25,6 +25,8 @@ export abstract class Dispatcher {
   protected sendingWallet!: IWallet;
   protected logPrefix!: string;
 
+  protected lastStatusLogs: Record<string, number> = {};
+
   protected init(): void {
     this.logPrefix = `[${this.chainId}][${this.blockchainType}]`;
 
@@ -85,7 +87,7 @@ export abstract class Dispatcher {
     const {gasMultiplier} = this.blockchain.chainSettings.transactions;
     if (!gasMultiplier) return n;
 
-    return n * gasMultiplier;
+    return Math.trunc(n * gasMultiplier);
   }
 
   protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
@@ -192,4 +194,16 @@ export abstract class Dispatcher {
       this.logger.warn(`${this.logPrefix} Balance (${wallet.address.slice(0, 10)}) is lower than ${warningLimit}`);
     }
   };
+
+  protected printNotImportantInfo(msg: string) {
+    const lastTime = this.lastStatusLogs[msg];
+
+    if (lastTime && lastTime + 60_000 > Date.now()) {
+      // print only once a minute
+      return;
+    }
+
+    this.lastStatusLogs[msg] = Date.now();
+    this.logger.info(`${this.logPrefix} ${msg} (stat)`);
+  }
 }
