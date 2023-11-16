@@ -89,8 +89,8 @@ export abstract class Dispatcher {
   }
 
   protected async resolveGasMetrics(): Promise<GasEstimation | undefined> {
-    const {minGasPrice, maxGasPrice} = this.blockchain.chainSettings.transactions;
-    return this.blockchain.provider.gasEstimation(minGasPrice, maxGasPrice);
+    const {minGasPrice} = this.blockchain.chainSettings.transactions;
+    return this.blockchain.provider.gasEstimation(minGasPrice);
   }
 
   // returns tx hash ONLY when tx was successful

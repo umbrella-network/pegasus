@@ -33,8 +33,8 @@ export class EvmProvider implements ProviderInterface {
     return this.provider as unknown as T;
   }
 
-  async gasEstimation(minGasPrice: number, maxGasPrice: number): Promise<GasEstimation> {
-    return GasEstimator.apply(this.provider, minGasPrice, maxGasPrice);
+  async gasEstimation(minGasPrice: number): Promise<GasEstimation> {
+    return GasEstimator.apply(this.provider, minGasPrice, Number.MAX_SAFE_INTEGER);
   }
 
   async getBlockNumber(): Promise<bigint> {

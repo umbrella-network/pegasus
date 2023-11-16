@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.19.5] - 2023-11-16
+### Removed
+- remove max gas setting
+
 ## [7.19.4] - 2023-11-16
 ### Removed
 - revert RPC estimation to be bale to use higher max gas
