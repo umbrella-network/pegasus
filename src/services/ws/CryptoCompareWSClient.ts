@@ -11,6 +11,7 @@ import Timeout from '../../utils/timeout.js';
 @injectable()
 class CryptoCompareWSClient extends WSClient {
   priceAggregator: PriceAggregator;
+  loggerPrefix = '[CryptoCompareWSClient]';
 
   subscriptions: {[subscription: string]: Pair} = {};
 
@@ -94,7 +95,7 @@ class CryptoCompareWSClient extends WSClient {
   }
 
   onConnected(event: unknown): void {
-    this.logger.info(`WS connected ${JSON.stringify(event)}`);
+    this.logger.info(`${this.loggerPrefix} WS connected ${JSON.stringify(event)}`);
     this.connected = true;
 
     this.staleReconnectJob = new Timeout(70, () => {
@@ -103,7 +104,7 @@ class CryptoCompareWSClient extends WSClient {
     });
 
     this.reconnectJob = new Timeout(this.settings.api.cryptocompare.reconnectTimeoutHours * 60 * 60, () => {
-      this.logger.info('scheduled reconnection...');
+      this.logger.info(`${this.loggerPrefix} scheduled reconnection...`);
       this.close();
     });
 
@@ -112,7 +113,7 @@ class CryptoCompareWSClient extends WSClient {
     });
 
     this.truncateJob = schedule.scheduleJob(this.settings.api.cryptocompare.truncateCronRule, () => {
-      this.logger.info('truncating prices...');
+      this.logger.info(`${this.loggerPrefix} truncating prices...`);
       this.truncatePriceAggregator().catch(this.logger.warn);
     });
 
@@ -266,7 +267,7 @@ class CryptoCompareWSClient extends WSClient {
   private async truncatePriceAggregator(): Promise<void> {
     const beforeTimestamp = this.timeService.apply() - this.settings.api.cryptocompare.truncateIntervalMinutes * 60;
 
-    this.logger.info(`Truncating CryptoCompare prices before ${beforeTimestamp}...`);
+    this.logger.info(`${this.loggerPrefix} Truncating CryptoCompare prices before ${beforeTimestamp}...`);
 
     await Promise.all(
       Object.keys(this.subscriptions).map(async (subscription) => {

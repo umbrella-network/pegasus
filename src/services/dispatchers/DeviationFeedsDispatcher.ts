@@ -52,9 +52,8 @@ export class DeviationFeedsDispatcher {
       const {chainId} = props;
       const dispatcher = this.dispatchers[chainId];
       await dispatcher.apply();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e: any) {
-      e.message = `[${chainId}] ${e.message}`;
+    } catch (e: unknown) {
+      (e as Error).message = `[${chainId}] ${(e as Error).message}`;
       this.logger.error(e);
       return;
     }

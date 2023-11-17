@@ -54,7 +54,7 @@ export class FeedDataService {
     const filteredFeeds = await this.intervalTriggerFilter.apply(dataTimestamp, feeds);
 
     if (Object.keys(filteredFeeds).length == 0) {
-      this.logger.info(`[FeedDataService] intervalTriggerFilter@${dataTimestamp}`);
+      this.logger.debug(`[FeedDataService] nothing trigger at ${dataTimestamp}`);
 
       return {
         leaves: [],

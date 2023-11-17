@@ -65,7 +65,7 @@ export class DeviationSignerResponseProcessor {
         consensuses[chainId] = [...signaturesPerChain[chainId]];
         this.logger.info(`[${chainId}] got consensus for ${chainId} with ${gotSignatures} signatures`);
       } else {
-        this.logger.info(`[${chainId}] Not enough signatures: got ${gotSignatures}, required: ${requiredSignatures}`);
+        this.logger.warn(`[${chainId}] Not enough signatures: got ${gotSignatures}, required: ${requiredSignatures}`);
       }
     });
 

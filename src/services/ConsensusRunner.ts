@@ -181,7 +181,7 @@ class ConsensusRunner {
 
   private hasConsensus(signatures: string[], requiredSignatures: number): boolean {
     if (signatures.length < requiredSignatures) {
-      this.logger.info(
+      this.logger.warn(
         `[ConsensusRunner] Not enough signatures: got ${signatures.length}, required: ${requiredSignatures}`,
       );
       return false;

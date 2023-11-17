@@ -53,7 +53,7 @@ class BlockSigner {
     });
 
     if (discrepancies.length) {
-      this.logger.info(`[BlockSigner] Cannot sign block. Discrepancies found: ${discrepancies.length}`);
+      this.logger.warn(`[BlockSigner] Cannot sign block. Discrepancies found: ${discrepancies.length}`);
       this.logger.debug(`[BlockSigner] Discrepancies: ${JSON.stringify(discrepancies)}`);
       return {discrepancies, signature: '', version: this.settings.version};
     }
