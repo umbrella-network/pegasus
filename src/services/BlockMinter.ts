@@ -104,8 +104,6 @@ class BlockMinter {
       throw new Error(`[masterChainData] master chain data missing and cache empty (${Object.keys(data)})`);
     }
 
-    this.logger.info('[masterChainData] using cached data');
-
     return {
       minSignatures: parseInt(data[MASTERCHAINSTATUS_MIN_SIGNATURES], 10),
     };
@@ -115,7 +113,11 @@ class BlockMinter {
     const walletAddress = new Wallet(this.settings.blockchain.wallets.evm.privateKey).address;
     const addressMatch = nextLeader.toLowerCase() === walletAddress.toLowerCase();
 
-    this.logger.info(`Next leader for ${dataTimestamp}: ${nextLeader}, ${addressMatch}`);
+    if (addressMatch) {
+      this.logger.info(`You are leader for ${dataTimestamp}`);
+    } else {
+      this.logger.debug(`Next leader for ${dataTimestamp}: ${nextLeader}`);
+    }
 
     return addressMatch;
   }

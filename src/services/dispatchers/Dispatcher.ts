@@ -198,7 +198,7 @@ export abstract class Dispatcher {
   protected printNotImportantInfo(msg: string) {
     const lastTime = this.lastStatusLogs[msg];
 
-    if (lastTime && lastTime + 60_000 > Date.now()) {
+    if (lastTime && lastTime + 60_000 * 5 > Date.now()) {
       // print only once a minute
       return;
     }

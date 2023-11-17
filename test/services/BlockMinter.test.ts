@@ -434,9 +434,9 @@ describe('BlockMinter', () => {
         mockedSignatureCollector.apply.resolves([
           {signature, power: BigNumber.from(1), discrepancies: [], version: '1.0.0'},
         ]);
-        const loggerSpy = sinon.spy(mockedLogger, 'info');
+        const loggerSpy = sinon.spy(mockedLogger, 'debug');
         await blockMinter.apply();
-        expect(loggerSpy).to.have.calledWith(`Next leader for ${timestamp}: ${allStates.nextLeader}, false`);
+        expect(loggerSpy).to.have.calledWith(`Next leader for ${timestamp}: ${allStates.nextLeader}`);
       });
     });
   });

@@ -45,7 +45,7 @@ export class ConsensusOptimizer {
     } = props;
 
     if (this.everyoneAgrees(participants)) {
-      this.logger.info('[ConsensusOptimizer] All participants agree. Keeping all keys.');
+      this.logger.debug('[ConsensusOptimizer] All participants agree. Keeping all keys.');
       return new Set<string>();
     }
 
@@ -54,7 +54,7 @@ export class ConsensusOptimizer {
     const candidates: Participant[] = this.selectQualifyingParticipants(participants);
 
     if (candidates.length < minimumRequiredSignatures) {
-      this.logger.info('[ConsensusOptimizer] Not enough candidates to achieve consensus');
+      this.logger.warn('[ConsensusOptimizer] Not enough candidates to achieve consensus');
       this.logger.debug(`[ConsensusOptimizer] Additional Signatures Required: ${minimumRequiredSignatures}`);
       this.logger.debug(`[ConsensusOptimizer] Additional Qualifying Candidates Found: ${candidates.length}`);
       return;
@@ -85,7 +85,7 @@ export class ConsensusOptimizer {
       if (solution) return solution.dropKeys;
     }
 
-    this.logger.info('[ConsensusOptimizer] No solution found.');
+    this.logger.warn('[ConsensusOptimizer] No solution found.');
     return;
   }
 

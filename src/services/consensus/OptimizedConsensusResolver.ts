@@ -41,12 +41,12 @@ export class OptimizedConsensusResolver {
       }
 
       if (!response.validator) {
-        this.logger.info('[OptimizedConsensusResolver] Validator lacks an address, skipping...');
+        this.logger.error('[OptimizedConsensusResolver] Validator lacks an address, skipping');
         continue;
       }
 
       if (response.error) {
-        this.logger.info(
+        this.logger.error(
           `[OptimizedConsensusResolver] ${response.validator} - ` + `the response contains an error: ${response.error}`,
         );
         this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);

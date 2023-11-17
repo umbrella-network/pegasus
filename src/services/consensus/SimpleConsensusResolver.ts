@@ -23,7 +23,7 @@ export class SimpleConsensusResolver {
       this.versionChecker.apply(response.version);
 
       if (response.error) {
-        this.logger.info(`Discarding ${response.validator} - the response contains an error: ${response.error}`);
+        this.logger.error(`Discarding ${response.validator} - the response contains an error: ${response.error}`);
         this.logger.debug(`${response.validator} Dump: ${JSON.stringify(response)}`);
         return;
       }
@@ -42,7 +42,7 @@ export class SimpleConsensusResolver {
         return;
       }
 
-      this.logger.info(
+      this.logger.warn(
         `Discarding ${response.validator} - No valid signature. Discrepancies: ${discrepancies.length}.`,
       );
 

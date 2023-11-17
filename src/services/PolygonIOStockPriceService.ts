@@ -18,6 +18,7 @@ class PolygonIOStockPriceService {
   @inject(PriceAggregator) priceAggregator!: PriceAggregator;
 
   static readonly Prefix = 'pios::';
+  loggerPrefix = '[PolygonIOStockPriceService]';
 
   priceUpdateJob?: Job;
   truncateJob?: Job;
@@ -80,7 +81,7 @@ class PolygonIOStockPriceService {
       return;
     }
 
-    this.logger.info(`updating ${initialSymbols.length} initial stock prices...`);
+    this.logger.info(`${this.loggerPrefix} updating ${initialSymbols.length} initial stock prices`);
 
     const results = await Promise.allSettled(
       initialSymbols.map((sym) => this.polygonIOSingleStockPriceFetcher.apply({sym}, true)),
@@ -111,11 +112,12 @@ class PolygonIOStockPriceService {
   }
 
   private async requestAllPrices(symbols: string[]): Promise<void> {
-    this.logger.info(`updating all ${symbols.length} stock prices...`);
-
     if (!symbols.length) {
+      this.logger.debug(`${this.loggerPrefix} no stock prices to update`);
       return;
     }
+
+    this.logger.info(`${this.loggerPrefix} updating all ${symbols.length} stock prices`);
 
     const result = (await this.polygonIOSnapshotFetcher.apply({symbols}, true)) as SnapshotResponse;
 

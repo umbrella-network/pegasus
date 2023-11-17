@@ -31,7 +31,7 @@ export class GasMonitor {
       const gasData = await this.gasCalculator.apply(chainId, blocks[i]);
 
       if (!gasData) {
-        this.logger.info(`[${chainId}] GasMonitor no gas data @${blocks[i]}`);
+        this.logger.warn(`[${chainId}] GasMonitor no gas data @${blocks[i]}`);
         continue;
       }
 

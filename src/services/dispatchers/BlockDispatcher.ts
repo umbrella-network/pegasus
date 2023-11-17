@@ -46,7 +46,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
 
   apply = async (): Promise<void> => {
     if (!(await this.useDispatcher(this.chainId))) {
-      this.logger.info(`${this.logPrefix} OLD chain architecture detected`);
+      this.logger.warn(`${this.logPrefix} OLD chain architecture detected`);
       await sleep(60_000); // slow down execution
       return;
     }
@@ -97,7 +97,8 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
         this.blockRepository.saveBlock(chainAddress, consensus, true),
       ]);
     } else {
-      this.logger.warn(`${this.logPrefix} Block ${consensus.dataTimestamp} was not minted`);
+      this.logger.error(`${this.logPrefix} Block ${consensus.dataTimestamp} was not minted`);
+
       const chainSubmitArgs = this.prepareChainSubmitArgs(
         consensus.dataTimestamp,
         consensus.signatures,
@@ -106,7 +107,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
         consensus.fcdValues,
       );
 
-      this.logger.info(`${this.logPrefix} ${JSON.stringify(chainSubmitArgs)}`);
+      this.logger.warn(`${this.logPrefix} ${JSON.stringify(chainSubmitArgs)}`);
     }
   };
 
