@@ -433,6 +433,8 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
 }
 
 function isEmptyBlockchainSettings(chain: ChainsIdsKeys): boolean {
+  if (chain == 'MASSA') return true;
+
   return (
     !process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`] ||
     (!process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] && !defaultByChain[ChainsIds[chain]]?.contractRegistryAddress)
