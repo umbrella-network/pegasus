@@ -78,10 +78,12 @@ describe('ConsensusRunner', () => {
     const {leaf, affidavit} = leafWithAffidavit;
 
     mockedFeedDataService.apply.resolves({
-      firstClassLeaves: [leaf],
-      leaves: [leaf],
-      fcdsFeeds: {},
-      leavesFeeds: {},
+      feeds: {
+        firstClassLeaves: [leaf],
+        leaves: [leaf],
+        fcdsFeeds: {},
+        leavesFeeds: {},
+      },
     });
 
     mockedSignatureCollector.apply.resolves([
@@ -119,10 +121,12 @@ describe('ConsensusRunner', () => {
     ] as BlockSignerResponseWithPower[]);
 
     mockedFeedDataService.apply.resolves({
-      firstClassLeaves: [leaf],
-      leaves: [leaf],
-      fcdsFeeds: {},
-      leavesFeeds: {},
+      feeds: {
+        firstClassLeaves: [leaf],
+        leaves: [leaf],
+        fcdsFeeds: {},
+        leavesFeeds: {},
+      },
     });
 
     const dataTimestamp = 1621509082;
@@ -152,10 +156,12 @@ describe('ConsensusRunner', () => {
     ] as BlockSignerResponseWithPower[]);
 
     mockedFeedDataService.apply.resolves({
-      firstClassLeaves: [leaf],
-      leaves: [leaf],
-      fcdsFeeds: {},
-      leavesFeeds: {},
+      feeds: {
+        firstClassLeaves: [leaf],
+        leaves: [leaf],
+        fcdsFeeds: {},
+        leavesFeeds: {},
+      },
     });
 
     const dataTimestamp = 1621509082;
@@ -185,10 +191,12 @@ describe('ConsensusRunner', () => {
     const {leaf} = leafWithAffidavit;
 
     mockedFeedDataService.apply.resolves({
-      firstClassLeaves: [leaf],
-      leaves: [leaf],
-      fcdsFeeds: {},
-      leavesFeeds: {},
+      feeds: {
+        firstClassLeaves: [leaf],
+        leaves: [leaf],
+        fcdsFeeds: {},
+        leavesFeeds: {},
+      },
     });
 
     const dataTimestamp = 1621509082;

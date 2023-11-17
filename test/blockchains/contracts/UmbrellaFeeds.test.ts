@@ -26,7 +26,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
 
     const container = getTestContainer();
     container.rebind('Logger').toConstantValue(mockedLogger);
-    blockchainRepo = new BlockchainRepository(settings);
+    blockchainRepo = new BlockchainRepository(settings, mockedLogger);
 
     container.bind(DeviationSignerRepository).toSelf();
 

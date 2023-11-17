@@ -69,12 +69,17 @@ export class DeviationLeader {
     }
 
     // interval filter is applied in feedDataService
-    const data = (await this.feedDataService.apply(
-      dataTimestamp,
-      FeedsType.DEVIATION_TRIGGER,
-    )) as DeviationLeavesAndFeeds;
+    const data = await this.feedDataService.apply(dataTimestamp, FeedsType.DEVIATION_TRIGGER);
 
-    const dataToUpdate = await this.deviationTrigger.apply(dataTimestamp, data, pendingChains);
+    if (data.rejected) {
+      this.logger.info(`[DeviationLeader] rejected: ${data.rejected}`);
+    }
+
+    const {dataToUpdate} = await this.deviationTrigger.apply(
+      dataTimestamp,
+      data.feeds as DeviationLeavesAndFeeds,
+      pendingChains,
+    );
 
     if (!dataToUpdate) {
       await this.deviationTriggerLastIntervals.set(Object.keys(data.feeds), dataTimestamp);

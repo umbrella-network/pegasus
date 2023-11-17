@@ -9,9 +9,10 @@ import {DeviationFeedFactory} from '../../factories/DeviationFeedFactory.js';
 export class IntervalTriggerFilter {
   @inject(DeviationTriggerLastIntervals) deviationTriggerLastIntervals!: DeviationTriggerLastIntervals;
 
-  async apply(dataTimestamp: number, feeds: Feeds): Promise<DeviationFeeds> {
+  async apply(dataTimestamp: number, feeds: Feeds): Promise<{filteredFeeds: DeviationFeeds; rejected?: string}> {
     const lastIntervals = await this.deviationTriggerLastIntervals.get();
     const filteredFeeds: DeviationFeeds = {};
+    const rejected: string[] = [];
 
     Object.keys(feeds)
       .filter((feedKey) => {
@@ -21,12 +22,20 @@ export class IntervalTriggerFilter {
           return true;
         }
 
-        return dataTimestamp - lastIntervals[feedKey] >= interval;
+        if (dataTimestamp - lastIntervals[feedKey] >= interval) {
+          return true;
+        } else {
+          rejected.push(feedKey);
+          return false;
+        }
       })
       .forEach((feedKey) => {
         filteredFeeds[feedKey] = DeviationFeedFactory.create(feedKey, feeds[feedKey]);
       });
 
-    return filteredFeeds;
+    return {
+      filteredFeeds,
+      rejected: rejected.length == 0 ? undefined : rejected.join(','),
+    };
   }
 }

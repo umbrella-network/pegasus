@@ -7,6 +7,7 @@ import {loadTestEnv} from '../../helpers/loadTestEnv.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
 import {StakingBankInterface} from '../../../src/interfaces/StakingBankInterface.js';
 import {StakingBankContractFactory} from '../../../src/factories/contracts/StakingBankContractFactory.js';
+import {mockedLogger} from '../../mocks/logger.js';
 
 loadTestEnv();
 
@@ -16,7 +17,7 @@ describe.skip('Staking Banks debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
 
   before(() => {
-    blockchainRepo = new BlockchainRepository(settings);
+    blockchainRepo = new BlockchainRepository(settings, mockedLogger);
   });
 
   [ChainsIds.MULTIVERSX].forEach((chainId) => {

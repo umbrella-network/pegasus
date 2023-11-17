@@ -37,11 +37,13 @@ class BlockSigner {
 
     const requestedFeeds = [...proposedConsensus.fcdKeys, ...proposedConsensus.leaves.map((leaf) => leaf.label)];
 
-    const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = (await this.feedDataService.apply(
+    const resolvedFeeds = await this.feedDataService.apply(
       proposedConsensus.dataTimestamp,
       FeedsType.CONSENSUS,
       requestedFeeds,
-    )) as LeavesAndFeeds;
+    );
+
+    const {firstClassLeaves, leaves, fcdsFeeds, leavesFeeds} = resolvedFeeds.feeds as LeavesAndFeeds;
 
     const discrepancies = DiscrepancyFinder.apply({
       proposedFcds: proposedConsensus.fcds,

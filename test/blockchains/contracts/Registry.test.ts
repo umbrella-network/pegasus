@@ -8,6 +8,7 @@ import settings from '../../../src/config/settings.js';
 import {RegistryInterface} from '../../../src/interfaces/RegistryInterface.js';
 import {loadTestEnv} from '../../helpers/loadTestEnv.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
+import {mockedLogger} from '../../mocks/logger.js';
 
 const {expect} = chai;
 
@@ -16,7 +17,7 @@ describe.skip('Registries debug integration tests', () => {
 
   before(() => {
     loadTestEnv();
-    blockchainRepo = new BlockchainRepository(settings);
+    blockchainRepo = new BlockchainRepository(settings, mockedLogger);
   });
 
   [ChainsIds.MULTIVERSX].forEach((chainId) => {
