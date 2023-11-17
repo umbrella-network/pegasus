@@ -13,7 +13,7 @@ export class UniswapVerificationAgent extends LoopAgent {
   constructor(@inject('Settings') settings: Settings) {
     super();
     this.interval = settings.api.uniswap.verificationInterval;
-    this.uniswapActive = !!settings.api.uniswap.helperContractId && !!settings.api.uniswap.scannerContractId;
+    this.uniswapActive = settings.api.uniswap.active;
   }
 
   async execute(): Promise<void> {

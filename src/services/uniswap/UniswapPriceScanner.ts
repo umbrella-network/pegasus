@@ -55,7 +55,7 @@ export class UniswapPriceScanner {
   }
 
   async start(): Promise<void> {
-    if (!this.uniswapV3Helper.contractId) {
+    if (!this.settings.api.uniswap.active) {
       this.log('not active');
       return;
     }

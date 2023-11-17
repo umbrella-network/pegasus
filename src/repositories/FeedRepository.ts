@@ -124,6 +124,10 @@ export class FeedRepository {
 
   // TODO: Consider splitting into a UniswapFeedRepository
   async getVerifiedUniswapFeeds(): Promise<Feeds> {
+    if (!this.settings.api.uniswap.active) {
+      return {};
+    }
+
     const cachedFeeds = this.sourceCache.get<Feeds>('uniswap');
     if (cachedFeeds) return cachedFeeds;
 

@@ -308,6 +308,7 @@ const settings: Settings = {
       apiKey: process.env.DEBUG_API_KEY as string,
     },
     uniswap: {
+      active: !!process.env.UNISWAP_SCANNER_CONTRACT_ID && !!process.env.UNISWAP_HELPER_CONTRACT_ID,
       scannerContractId: <string>process.env.UNISWAP_SCANNER_CONTRACT_ID,
       helperContractId: <string>process.env.UNISWAP_HELPER_CONTRACT_ID,
       startBlock: parseInt(process.env.UNISWAP_START_BLOCK || '0'),
