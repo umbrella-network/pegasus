@@ -19,14 +19,16 @@ export class VersionChecker {
     const expected = this.settings.version?.split('.');
     if (!expected) return;
 
-    const v = version.split('.');
+    const v = version.split('.').map((s) => parseInt(s));
 
-    if (expected[0] !== v[0]) {
-      this.logger.error(`version check fail: expected ${this.settings.version} got ${version}`);
-    } else if (expected[1] !== v[1]) {
-      this.logger.warn(`version check expected: ${this.settings.version} got ${version}`);
-    } else if (expected[2] !== v[2]) {
-      this.logger.info(`version check expected: ${this.settings.version} got ${version}`);
+    const myVersion = expected.map((s) => parseInt(s));
+
+    if (myVersion[0] < v[0]) {
+      this.logger.error(`version check: expected ${version} got ${this.settings.version}, please update!`);
+    } else if (myVersion[1] < v[1]) {
+      this.logger.info(`new version detected: ${version}, got ${this.settings.version}, consider updating`);
+    } else if (myVersion[2] < v[2]) {
+      this.logger.debug(`new version detected: ${version}`);
     }
   }
 }

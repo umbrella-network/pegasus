@@ -34,7 +34,7 @@ export class DeviationTrigger {
     );
 
     if (removed.length != 0) {
-      this.logger.info(`[DeviationTrigger] removed feeds (no price): ${removed}`);
+      this.logger.warn(`[DeviationTrigger] removed feeds (no price): ${removed}`);
     }
 
     this.logger.info(`[DeviationTrigger] feeds: ${Object.keys(feeds)}`);

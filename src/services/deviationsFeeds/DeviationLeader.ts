@@ -90,7 +90,7 @@ export class DeviationLeader {
       return;
     }
 
-    this.logger.info(`[DeviationLeader] got ${consensuses.length} consensus(es)`);
+    this.logger.debug(`[DeviationLeader] got ${consensuses.length} consensus(es)`);
 
     await Promise.all([
       this.deviationTriggerLastIntervals.set(Object.keys(data.feeds), dataTimestamp),

@@ -56,7 +56,7 @@ export default class ApplicationUpdateService {
       const manifest = await this.downloadManifest(url);
 
       if (!manifest) {
-        this.logger.info('[ApplicationUpdateService] No manifest found');
+        this.logger.error('[ApplicationUpdateService] No manifest found');
         return;
       }
 
@@ -68,7 +68,7 @@ export default class ApplicationUpdateService {
       return manifest;
     } catch (e) {
       this.logger.error('[ApplicationUpdateService] Manifest parsing error');
-      this.logger.debug('[ApplicationUpdateService] Error: ', e);
+      this.logger.error(e);
       return;
     }
   }
@@ -79,14 +79,14 @@ export default class ApplicationUpdateService {
 
       if (!this.SUCCESS_CODES.includes(response.status)) {
         this.logger.error(`[ApplicationUpdateService] Manifest Download Failed. HTTP Status: ${response.status}`);
-        this.logger.debug('[ApplicationUpdateService] HTTP Response: ', JSON.stringify(response));
+        this.logger.error(`[ApplicationUpdateService] HTTP Response: ${JSON.stringify(response)}`);
         return;
       }
 
       return response.data;
     } catch (e) {
       this.logger.error('[ApplicationUpdateService] Manifest Download Failed');
-      this.logger.debug('[ApplicationUpdateService] Error: ', e);
+      this.logger.error(e);
       return;
     }
   }
@@ -108,7 +108,7 @@ export default class ApplicationUpdateService {
         `[ApplicationUpdateService] Asset "${asset.url}" Download Failed. HTTP Status: ${response.status}`,
       );
 
-      this.logger.debug('[ApplicationUpdateService] HTTP Response: ', JSON.stringify(response));
+      this.logger.error(`[ApplicationUpdateService] HTTP Response: ${JSON.stringify(response)}`);
       return;
     }
 

@@ -38,7 +38,7 @@ export class BlockChainDispatcher {
 
   async apply(props: BlockChainDispatcherProps): Promise<void> {
     const {chainId} = props;
-    this.logger.info(`[${chainId}] Block Dispatcher initialized`);
+    this.logger.debug(`[${chainId}] Block Dispatcher initialized`);
 
     try {
       const {chainId} = props;

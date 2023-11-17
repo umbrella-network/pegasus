@@ -144,7 +144,7 @@ export class UniswapPriceScanner {
 
   private extractPrice(contractPrice: Price, pool: BlockchainSymbol, ts: BigNumber): UniswapPoolPrice | undefined {
     if (!contractPrice.success) {
-      this.logger.info(`[UniswapPriceScanner] ignored unsuccessful price ${pool.symbol}`);
+      this.logger.warn(`[UniswapPriceScanner] ignored unsuccessful price ${pool.symbol}`);
       return undefined;
     }
 

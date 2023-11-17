@@ -60,7 +60,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
     const consensus = await this.consensusRepository.read(this.chainId);
 
     if (!consensus) {
-      this.logger.info(`${this.logPrefix} no consensus data found to dispatch`);
+      this.printNotImportantInfo('no consensus data found to dispatch');
       return;
     }
 
@@ -81,7 +81,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
         this.consensusRepository.delete(this.chainId),
       ]);
     } else {
-      this.logger.warn(`${this.logPrefix} Consensus ${consensus.dataTimestamp} was not saved on blockchain`);
+      this.logger.error(`${this.logPrefix} Consensus ${consensus.dataTimestamp} was not saved on blockchain`);
 
       const updateFeedsArgs: UmbrellaFeedsUpdateArgs = {
         keys: consensus.keys.map(ethers.utils.id),
@@ -89,7 +89,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
         signatures: consensus.signatures,
       };
 
-      this.logger.info(`${this.logPrefix} ${JSON.stringify(updateFeedsArgs)}`);
+      this.logger.warn(`${this.logPrefix} ${JSON.stringify(updateFeedsArgs)}`);
 
       await sleep(15_000); // slow down execution
     }

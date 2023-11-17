@@ -34,7 +34,7 @@ class InfoController {
 
   info = async (request: Request, response: Response): Promise<void> => {
     if (this.isPing(request)) {
-      this.logger.info('ping');
+      this.logger.debug('ping');
 
       response.send({
         status: 'alive',

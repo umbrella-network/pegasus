@@ -48,7 +48,7 @@ export class DeviationConsensusRunner {
       }
 
       if (i < maxRetries && discrepantKeys.size > 0) {
-        this.logger.info(
+        this.logger.warn(
           `[DCR] Dumping discrepancy data (${discrepantCount}): ` + `${Array.from(discrepantKeys).join(', ')}`,
         );
 
@@ -95,7 +95,7 @@ export class DeviationConsensusRunner {
   }): void {
     const {leafKeyCount, maxLeafKeyCount, consensuses} = props;
     if (consensuses.length == 0) {
-      this.logger.info(`[DCR] Round ${props.round}/${props.maxRounds} - no consensus`);
+      this.logger.warn(`[DCR] Round ${props.round}/${props.maxRounds} - no consensus`);
       return;
     }
 

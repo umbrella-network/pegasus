@@ -64,7 +64,7 @@ export class DeviationVerifier {
     });
 
     if (discrepancies.length) {
-      this.logger.info(`[DeviationVerifier] Cannot sign all feeds. Discrepancies found: ${discrepancies.length}`);
+      this.logger.warn(`[DeviationVerifier] Cannot sign all feeds. Discrepancies found: ${discrepancies.length}`);
       this.logger.debug(`[DeviationVerifier] Discrepancies: ${JSON.stringify(discrepancies)}`);
       return {discrepancies, version: this.settings.version};
     }

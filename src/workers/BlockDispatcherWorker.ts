@@ -16,7 +16,7 @@ export class BlockDispatcherWorker extends BasicWorker {
 
   private execute = async (chainId: ChainsIds): Promise<void> => {
     try {
-      this.logger.info(`[${chainId}] Starting Block Dispatcher`);
+      this.logger.debug(`[${chainId}] Starting Block Dispatcher`);
       await this.dispatcher.apply({chainId});
       this.logger.debug(`[${chainId}] Block Dispatcher Complete`);
     } catch (e: unknown) {

@@ -19,6 +19,7 @@ class PolygonIOCryptoPriceService {
   @inject(PriceAggregator) priceAggregator!: PriceAggregator;
 
   static readonly Prefix = 'pioc::';
+  loggerPrefix = '[PolygonIOCryptoPriceService]';
 
   priceUpdateJob?: Job;
   truncateJob?: Job;
@@ -78,10 +79,11 @@ class PolygonIOCryptoPriceService {
       .map(([, [pair]]) => pair);
 
     if (!initialPairs.length) {
+      this.logger.debug(`${this.loggerPrefix} no initial crypto prices to update`);
       return;
     }
 
-    this.logger.info(`updating ${initialPairs.length} initial crypto prices...`);
+    this.logger.info(`${this.loggerPrefix} updating ${initialPairs.length} initial crypto prices`);
 
     const results = await Promise.allSettled(
       initialPairs.map((pair) => this.polygonIOSingleCryptoPriceFetcher.apply(pair, true)),
@@ -112,11 +114,12 @@ class PolygonIOCryptoPriceService {
   }
 
   private async requestAllPrices(pairs: Pair[]): Promise<void> {
-    this.logger.info(`updating all ${pairs.length} crypto prices...`);
-
     if (!pairs.length) {
+      this.logger.debug(`${this.loggerPrefix} no crypto prices to update`);
       return;
     }
+
+    this.logger.info(`${this.loggerPrefix} updating all ${pairs.length} crypto prices`);
 
     const symbols: {[key: string]: string} = {};
     pairs.forEach(({fsym, tsym}) => {
@@ -131,7 +134,7 @@ class PolygonIOCryptoPriceService {
     result.tickers.forEach(({lastTrade, ticker: symbol}) => {
       symbol = symbols[symbol];
       if (!lastTrade) {
-        console.warn(`no lastTrade for ${symbol}`);
+        this.logger.warn(`${this.loggerPrefix} no lastTrade for ${symbol}`);
         return;
       }
 
@@ -143,7 +146,7 @@ class PolygonIOCryptoPriceService {
   private async truncatePriceAggregator(): Promise<void> {
     const beforeTimestamp = this.timeService.apply() - this.settings.api.polygonIO.truncateIntervalMinutes * 60;
 
-    this.logger.info(`Truncating PolygonIO crypto prices before ${beforeTimestamp}...`);
+    this.logger.info(`${this.loggerPrefix} Truncating crypto prices before ${beforeTimestamp}`);
 
     await Promise.all(
       Object.keys(this.subscriptions).map(async (subscription) => {
