@@ -6,26 +6,30 @@ import {ChainsIds} from '../types/ChainsIds.js';
 import {Logger} from 'winston';
 
 export type BlockchainCollection = {
-  [key: string]: Blockchain;
+  [key: string]: Blockchain | undefined;
 };
 
 @injectable()
 export class BlockchainRepository {
-  @inject('Settings') settings!: Settings;
   @inject('Logger') logger!: Logger;
   private collection: BlockchainCollection = {};
 
-  constructor(@inject('Settings') settings: Settings) {
+  constructor(@inject('Settings') settings: Settings, @inject('Logger') logger: Logger) {
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
 
     keys.forEach((chainId) => {
-      this.collection[chainId] = new Blockchain(settings, chainId);
+      try {
+        this.collection[chainId] = new Blockchain(settings, chainId);
+      } catch (e: unknown) {
+        logger.warn(`[BlockchainRepository] ${(e as Error).message}`);
+        this.collection[chainId] = undefined;
+      }
     });
   }
 
   get(id: string): Blockchain {
     if (!this.collection[id]) {
-      this.logger.warn(`[BlockchainRepository] Blockchain ${id} does not exists`);
+      this.logger.error(`[BlockchainRepository] Blockchain ${id} does not exists`);
     }
 
     return <Blockchain>this.collection[id];

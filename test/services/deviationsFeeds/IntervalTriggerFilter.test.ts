@@ -74,7 +74,7 @@ describe('IntervalTriggerFilter', () => {
 
         const result = await intervalTriggerFilter.apply(dataTimestamp, feeds);
 
-        expect(result).to.deep.include(expected);
+        expect(result).to.deep.include({filteredFeeds: expected});
       },
     );
 
@@ -127,7 +127,7 @@ describe('IntervalTriggerFilter', () => {
 
       const result = await intervalTriggerFilter.apply(dataTimestamp, feeds);
 
-      expect(result).to.deep.include(expected);
+      expect(result).to.deep.include({filteredFeeds: expected});
     });
 
     it('should keep the feed if no last interval data is found for the feed', async () => {
@@ -180,7 +180,7 @@ describe('IntervalTriggerFilter', () => {
 
       const result = await intervalTriggerFilter.apply(dataTimestamp, feeds);
 
-      expect(result).to.deep.include(expected);
+      expect(result).to.deep.include({filteredFeeds: expected});
     });
 
     it(
@@ -236,7 +236,7 @@ describe('IntervalTriggerFilter', () => {
 
         const result = await intervalTriggerFilter.apply(dataTimestamp, feeds);
 
-        expect(result).not.to.deep.include(expected);
+        expect(result).not.to.deep.include({filteredFeeds: expected});
       },
     );
   });

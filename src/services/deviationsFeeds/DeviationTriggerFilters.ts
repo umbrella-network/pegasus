@@ -11,6 +11,7 @@ import {
   DeviationFeeds,
   FilterResult,
   FilterResultWithKey,
+  DeviationTriggerResponse,
 } from '../../types/DeviationFeeds.js';
 import {PriceTriggerFilter} from './PriceTriggerFilter.js';
 import {HeartbeatTriggerFilter} from './HeartbeatTriggerFilter.js';
@@ -33,13 +34,14 @@ export class DeviationTriggerFilters {
     feeds: DeviationFeeds,
     priceDataPerChain: PriceDataPerChain,
     pendingChains: Set<string> | undefined,
-  ): Promise<DeviationDataToSign | undefined> {
+  ): Promise<DeviationTriggerResponse> {
     const leavesByKey = LeavesToRecord.apply(leaves);
     const keysPerChain = DeviationFeedsPerChainSplitter.apply(feeds);
+    const response: DeviationTriggerResponse = {reason: ''};
 
     const keysToUpdateWithChain = Object.keys(keysPerChain).map((chainId) => {
       if (pendingChains?.has(chainId)) {
-        this.logger.info(`[DeviationTriggerFilters] skipping ${chainId}: pending chain submit`);
+        this.logger.info(`[DeviationTriggerFilters] skipping ${chainId}: pending chain update`);
         return;
       }
 
@@ -54,6 +56,7 @@ export class DeviationTriggerFilters {
 
       if (logs.length) {
         this.logger.info(`[DeviationTriggerFilters] [${chainId}]: ${logs.join('; ')}`);
+        response.reason += `[${chainId}]: ${logs.join('; ')}; `;
       }
 
       if (keysToUpdate.length) {
@@ -63,7 +66,9 @@ export class DeviationTriggerFilters {
       return {chainId, keys: keysToUpdate};
     });
 
-    return DeviationDataToSignFactory.create(dataTimestamp, keysToUpdateWithChain, leavesByKey, feeds);
+    response.dataToUpdate = DeviationDataToSignFactory.create(dataTimestamp, keysToUpdateWithChain, leavesByKey, feeds);
+
+    return response;
   }
 
   protected applyFiltersForChain(
@@ -75,16 +80,16 @@ export class DeviationTriggerFilters {
     const results = Object.keys(feedsForChain).map((key): FilterResultWithKey => {
       if (!onChainData) {
         // there was probably some issue with pulling data and there is no data for chain
-        return {result: false, key};
+        return {result: false, key, msg: '!onChainData'};
       }
 
       if (!onChainData[key]) {
-        return {result: true, key};
+        return {result: true, key, msg: `!onChainData[${key}]`};
       }
 
       if (!leaves[key]) {
         this.logger.error(`[DeviationTriggerFilters] ERROR: there is no leaf for ${key}.`);
-        return {result: false, key};
+        return {result: false, key, msg: `there is no leaf for ${key}`};
       }
 
       return {

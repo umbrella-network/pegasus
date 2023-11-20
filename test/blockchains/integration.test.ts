@@ -14,6 +14,7 @@ import {PriceData, UmbrellaFeedsUpdateArgs} from '../../src/types/DeviationFeeds
 import {DeviationHasher} from '../../src/services/deviationsFeeds/DeviationHasher.js';
 import {ProviderFactory} from '../../src/factories/ProviderFactory.js';
 import {DeviationSignerRepository} from '../../src/repositories/DeviationSignerRepository.js';
+import {mockedLogger} from '../mocks/logger.js';
 
 const {expect} = chai;
 
@@ -22,7 +23,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
 
   before(() => {
     loadTestEnv();
-    blockchainRepo = new BlockchainRepository(settings);
+    blockchainRepo = new BlockchainRepository(settings, mockedLogger);
   });
 
   describe('[INTEGRATION] #update', () => {
@@ -102,11 +103,11 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
       console.log('BEFORE UDAPTE:', await umbrellaFeeds.getManyPriceDataRaw(keys));
 
       settings.blockchain.wallets.massa.privateKey = privateKey1;
-      const signerRepo1 = new DeviationSignerRepository(settings);
+      const signerRepo1 = new DeviationSignerRepository(settings, mockedLogger);
       const signer1 = signerRepo1.get(chainId);
 
       settings.blockchain.wallets.massa.privateKey = privateKey2;
-      const signerRepo2 = new DeviationSignerRepository(settings);
+      const signerRepo2 = new DeviationSignerRepository(settings, mockedLogger);
       const signer2 = signerRepo2.get(chainId);
 
       const signatures = await Promise.all([signer1.apply(hash), await signer2.apply(hash)]);

@@ -24,7 +24,7 @@ export class AgentCoordinator {
       return;
     }
 
-    if (!settings.api.uniswap.scannerContractId || !settings.api.uniswap.helperContractId) {
+    if (!settings.api.uniswap.active) {
       return;
     }
 
@@ -47,6 +47,11 @@ export class AgentCoordinator {
       this.logger.info(`Starting Agent: ${agentId}`);
       await this.agents[agentId].start();
     } else {
+      if (Object.keys(this.agents).length == 0) {
+        this.logger.info('Agents list empty.');
+        return;
+      }
+
       this.logger.info('Starting all Agents');
       await Promise.all(Object.values(this.agents).map((agent) => agent.start()));
     }

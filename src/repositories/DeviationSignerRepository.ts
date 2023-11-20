@@ -16,14 +16,14 @@ export class DeviationSignerRepository {
   @inject('Logger') logger!: Logger;
   private collection: DeviationSignerCollection = {};
 
-  constructor(@inject('Settings') settings: Settings) {
+  constructor(@inject('Settings') settings: Settings, @inject('Logger') logger: Logger) {
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
 
     keys.forEach((chainId) => {
       try {
         this.collection[chainId] = DeviationSignerFactory.create(settings, chainId);
       } catch (e: unknown) {
-        this.logger.error(`[DeviationSignerRepository] ${chainId}: ${(e as Error).message}`);
+        logger.error(`[DeviationSignerRepository] ${chainId}: ${(e as Error).message}`);
         this.collection[chainId] = undefined;
       }
     });
