@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.20.2] - 2023-11-20
+### Changed
+- remove last `/` from RPC
+
 ## [7.20.1] - 2023-11-20
 ### Added
 - display network id on info
