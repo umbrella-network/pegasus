@@ -49,10 +49,12 @@ class InfoController {
       feedsFile: this.settings.feedsFile,
       deviationFeedsFile: this.settings.deviationTrigger.feedsFile,
       contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
-      uniswap: {
-        helperContractId: this.settings.api.uniswap.helperContractId,
-        scannerContractId: this.settings.api.uniswap.scannerContractId,
-      },
+      uniswap: this.settings.api.uniswap.active
+        ? {
+            helperContractId: this.settings.api.uniswap.helperContractId,
+            scannerContractId: this.settings.api.uniswap.scannerContractId,
+          }
+        : 'not active',
       chains: await this.getMultichainsSettings(this.getChain(request)),
       version: this.settings.version,
       environment: this.settings.environment,
@@ -95,20 +97,28 @@ class InfoController {
 
     const registry = RegistryContractFactory.create(blockchain);
 
-    const [chainAddress, umbrellaFeedsAddress, walletAddress, deviationWalletAddress, lastTxResolved] =
-      await Promise.allSettled([
-        registry.getAddress(CHAIN_CONTRACT_NAME),
-        registry.getAddress('UmbrellaFeeds'),
-        blockchain.wallet.address +
-          (chainId == ChainsIds.MASSA ? `@${(blockchain.wallet as MassaWallet).publicKey}` : ''),
-        blockchain.deviationWallet?.address,
-        this.lastSubmitResolver.apply(chainId),
-      ]);
+    const [
+      chainAddress,
+      umbrellaFeedsAddress,
+      walletAddress,
+      deviationWalletAddress,
+      lastTxResolved,
+      networkStatusResult,
+    ] = await Promise.allSettled([
+      registry.getAddress(CHAIN_CONTRACT_NAME),
+      registry.getAddress('UmbrellaFeeds'),
+      blockchain.wallet.address +
+        (chainId == ChainsIds.MASSA ? `@${(blockchain.wallet as MassaWallet).publicKey}` : ''),
+      blockchain.deviationWallet?.address,
+      this.lastSubmitResolver.apply(chainId),
+      blockchain.provider.getNetwork(),
+    ]);
 
     const lastTx = this.getPromiseResult<SubmitMonitor | undefined>(lastTxResolved);
 
     return <BlockchainInfoSettings>{
       chainId,
+      onChainId: networkStatusResult.status == 'fulfilled' ? networkStatusResult.value : networkStatusResult.reason,
       contractRegistryAddress: this.settings.blockchain.multiChains[chainId]?.contractRegistryAddress,
       providerUrl: this.settings.blockchain.multiChains[chainId]?.providerUrl?.split('/').slice(0, 3).join('/'),
       lastTx: lastTx ? {...lastTx, date: new Date(lastTx.dataTimestamp * 1000).toUTCString()} : undefined,
