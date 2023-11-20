@@ -32,6 +32,7 @@ interface SubmitMonitorExt extends SubmitMonitor {
 
 export type BlockchainInfoSettings = {
   chainId: string;
+  onChainId: string | number;
   providerUrl?: string;
   contractRegistryAddress?: string;
   chainAddress?: string;
