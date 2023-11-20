@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.20.0] - 2023-11-17
+### Added
+- display all on-chain triggers in API response
+- global flag for uniswap status
+
+### Fixed
+- small code fixes for repositories
+
 ## [7.19.7] - 2023-11-17
 ### Changed
 - better logs

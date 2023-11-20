@@ -47,6 +47,11 @@ export type KeysPerChain = Record<string, string[]>;
 
 export type DeviationSignatures = Record<string, string>; // chainId => signature
 
+export type DeviationTriggerResponse = {
+  dataToUpdate?: DeviationDataToSign | undefined;
+  reason?: string;
+};
+
 export type DeviationDataToSign = {
   dataTimestamp: number;
   leaves: KeyValues; // key/label => value

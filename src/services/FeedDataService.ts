@@ -21,12 +21,14 @@ export class FeedDataService {
     dataTimestamp: number,
     feedsType: FeedsType,
     filter: string[] = [],
-  ): Promise<LeavesAndFeeds | DeviationLeavesAndFeeds> {
+  ): Promise<{feeds: LeavesAndFeeds | DeviationLeavesAndFeeds; rejected?: string}> {
     if (feedsType === FeedsType.DEVIATION_TRIGGER) {
-      return this.getDeviationLeavesAndFeeds(dataTimestamp, filter);
+      const {leavesAndFeeds, rejected} = await this.getDeviationLeavesAndFeeds(dataTimestamp, filter);
+      return {feeds: leavesAndFeeds, rejected};
     }
 
-    return this.getLeavesAndFeeds(dataTimestamp, filter);
+    const leavesAndFeeds = await this.getLeavesAndFeeds(dataTimestamp, filter);
+    return {feeds: leavesAndFeeds};
   }
 
   protected async getLeavesAndFeeds(dataTimestamp: number, filter: string[]): Promise<LeavesAndFeeds> {
@@ -49,16 +51,16 @@ export class FeedDataService {
   protected async getDeviationLeavesAndFeeds(
     dataTimestamp: number,
     filter: string[],
-  ): Promise<DeviationLeavesAndFeeds> {
+  ): Promise<{leavesAndFeeds: DeviationLeavesAndFeeds; rejected?: string}> {
     const feeds = await this.feedRepository.getDeviationTriggerFeeds(filter);
-    const filteredFeeds = await this.intervalTriggerFilter.apply(dataTimestamp, feeds);
+    const {filteredFeeds, rejected} = await this.intervalTriggerFilter.apply(dataTimestamp, feeds);
 
     if (Object.keys(filteredFeeds).length == 0) {
       this.logger.debug(`[FeedDataService] nothing trigger at ${dataTimestamp}`);
 
       return {
-        leaves: [],
-        feeds: {},
+        leavesAndFeeds: {leaves: [], feeds: {}},
+        rejected,
       };
     }
 
@@ -67,8 +69,8 @@ export class FeedDataService {
     const leaves = this.ensureProperLabelLength(deviationLeaves);
 
     return {
-      leaves: this.ignoreZeros(leaves),
-      feeds: filteredFeeds,
+      leavesAndFeeds: {leaves: this.ignoreZeros(leaves), feeds: filteredFeeds},
+      rejected,
     };
   }
 

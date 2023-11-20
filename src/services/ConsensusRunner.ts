@@ -32,10 +32,9 @@ class ConsensusRunner {
   @inject(OptimizedConsensusResolver) optimizedConsensusResolver!: OptimizedConsensusResolver;
 
   async apply(dataTimestamp: number, validators: Validator[], requiredSignatures: number): Promise<Consensus | null> {
-    let {firstClassLeaves, leaves} = (await this.feedDataService.apply(
-      dataTimestamp,
-      FeedsType.CONSENSUS,
-    )) as LeavesAndFeeds;
+    const resolvedFeeds = await this.feedDataService.apply(dataTimestamp, FeedsType.CONSENSUS);
+
+    let {firstClassLeaves, leaves} = resolvedFeeds.feeds as LeavesAndFeeds;
 
     let maxLeafKeyCount!: number;
     let maxFcdKeyCount!: number;

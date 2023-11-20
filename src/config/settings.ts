@@ -308,6 +308,7 @@ const settings: Settings = {
       apiKey: process.env.DEBUG_API_KEY as string,
     },
     uniswap: {
+      active: !!process.env.UNISWAP_SCANNER_CONTRACT_ID && !!process.env.UNISWAP_HELPER_CONTRACT_ID,
       scannerContractId: <string>process.env.UNISWAP_SCANNER_CONTRACT_ID,
       helperContractId: <string>process.env.UNISWAP_HELPER_CONTRACT_ID,
       startBlock: parseInt(process.env.UNISWAP_START_BLOCK || '0'),
@@ -432,6 +433,8 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
 }
 
 function isEmptyBlockchainSettings(chain: ChainsIdsKeys): boolean {
+  if (chain == 'MASSA') return true;
+
   return (
     !process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`] ||
     (!process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] && !defaultByChain[ChainsIds[chain]]?.contractRegistryAddress)

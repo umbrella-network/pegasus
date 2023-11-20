@@ -175,6 +175,7 @@ type Settings = {
       apiKey: string;
     };
     uniswap: {
+      active: boolean;
       scannerContractId: string;
       helperContractId: string;
       startBlock: number;

@@ -191,8 +191,8 @@ describe('BlockSigner', () => {
         allStates.chainsIdsReadyForBlock = ['bsc'];
         mockedMultiChainStatusResolver.apply.resolves(allStates);
 
-        mockedFeedDataService.apply.resolves(
-          leavesAndFeedsFactory.build({
+        mockedFeedDataService.apply.resolves({
+          feeds: leavesAndFeedsFactory.build({
             leaves: [
               {
                 label: 'ETH-USD',
@@ -200,7 +200,7 @@ describe('BlockSigner', () => {
               },
             ],
           }),
-        );
+        });
 
         mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 
@@ -237,7 +237,7 @@ describe('BlockSigner', () => {
         allStates.chainsIdsReadyForBlock = ['bsc'];
         mockedMultiChainStatusResolver.apply.resolves(allStates);
 
-        mockedFeedDataService.apply.resolves(leavesAndFeedsFactory.build());
+        mockedFeedDataService.apply.resolves({feeds: leavesAndFeedsFactory.build()});
 
         mockedFeedProcessor.apply.resolves([[leaf], [leaf]]);
 

@@ -34,25 +34,31 @@ export class DeviationVerifier {
     );
 
     // interval filter is applied in feedDataService
-    const data = (await this.feedDataService.apply(
+    const data = await this.feedDataService.apply(
       deviationDataToSign.dataTimestamp,
       FeedsType.DEVIATION_TRIGGER,
       uniqueKeys,
-    )) as DeviationLeavesAndFeeds;
+    );
 
-    const dataToUpdate = await this.deviationTrigger.apply(deviationDataToSign.dataTimestamp, data, undefined);
+    const {dataTimestamp} = deviationDataToSign;
 
-    if (!dataToUpdate) {
-      this.logger.info(`[DeviationVerifier] nothing is triggered at ${deviationDataToSign.dataTimestamp}`);
+    const triggerResponse = await this.deviationTrigger.apply(
+      dataTimestamp,
+      data.feeds as DeviationLeavesAndFeeds,
+      undefined,
+    );
+
+    if (!triggerResponse.dataToUpdate) {
+      this.logger.info(`[DeviationVerifier] nothing is triggered at ${dataTimestamp}`);
 
       return {
         discrepancies: [],
-        error: `nothing is triggered at ${deviationDataToSign.dataTimestamp}`,
+        error: `nothing triggered at ${dataTimestamp}: ${data.rejected || ''} ${triggerResponse.reason || ''}`,
         version: this.settings.version,
       };
     }
 
-    const {feeds, leaves} = data;
+    const {feeds, leaves} = data.feeds as DeviationLeavesAndFeeds;
 
     const discrepancies = DiscrepancyFinder.apply({
       proposedFcds: [],
@@ -89,8 +95,8 @@ export class DeviationVerifier {
           return deviationDataToSign.proposedPriceData[key];
         });
 
-        const data = deviationDataToSign.feedsForChain[chainId];
-        this.logger.info(`[DeviationVerifier] signing ${data} for ${chainId} (${networkId})`);
+        const feedsForChain = deviationDataToSign.feedsForChain[chainId];
+        this.logger.info(`[DeviationVerifier] signing ${feedsForChain} for ${chainId} (${networkId})`);
 
         const hash = this.deviationHasher.apply(
           chainId,

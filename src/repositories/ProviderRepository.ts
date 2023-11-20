@@ -7,26 +7,30 @@ import {ProviderInterface} from '../interfaces/ProviderInterface.js';
 import {ProviderFactory} from '../factories/ProviderFactory.js';
 
 export type ProviderCollection = {
-  [key: string]: ProviderInterface;
+  [key: string]: ProviderInterface | undefined;
 };
 
 @injectable()
 export class ProviderRepository {
-  @inject('Settings') settings!: Settings;
   @inject('Logger') logger!: Logger;
   private collection: ProviderCollection = {};
 
-  constructor(@inject('Settings') settings: Settings) {
+  constructor(@inject('Settings') settings: Settings, @inject('Logger') logger: Logger) {
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
 
     keys.forEach((chainId) => {
-      this.collection[chainId] = ProviderFactory.create(chainId);
+      try {
+        this.collection[chainId] = ProviderFactory.create(chainId);
+      } catch (e: unknown) {
+        logger.warn(`[ProviderRepository] ${(e as Error).message}`);
+        this.collection[chainId] = undefined;
+      }
     });
   }
 
   get(id: string): ProviderInterface {
     if (!this.collection[id]) {
-      this.logger.warn(`[ProviderRepository] IProvider ${id} does not exists`);
+      this.logger.error(`[ProviderRepository] IProvider ${id} does not exists`);
     }
 
     return <ProviderInterface>this.collection[id];
