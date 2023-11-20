@@ -25,6 +25,12 @@ function parseNl(s: string): string {
   return s ? s.replace(/\\n/g, '\n').split('\n').join('\n') : '';
 }
 
+function clearLastSlash(s: string | undefined): string {
+  if (!s) return '';
+
+  return s.endsWith('/') ? s.slice(0, -1) : s;
+}
+
 function resolveBlockchainType(chain: ChainsIds): BlockchainType[] | undefined {
   const blockchainType = process.env[`${chain}_TYPE`];
   if (!blockchainType) return undefined;
@@ -400,7 +406,7 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
       type: defaultByChain[ChainsIds[chain]].type,
       contractRegistryAddress:
         process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] || defaultByChain[ChainsIds[chain]]?.contractRegistryAddress,
-      providerUrl: process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`],
+      providerUrl: clearLastSlash(process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`]),
       transactions: {
         waitForBlockTime:
           parseInt(process.env[`${chain}_WAIT_FOR_BLOCK_TIME`] as string, 10) ||

@@ -1,6 +1,6 @@
 {
   "name": "pegasus",
-  "version": "7.20.1",
+  "version": "7.20.2",
   "type": "module",
   "packageManager": "npm@9.5.1",
   "repository": {
