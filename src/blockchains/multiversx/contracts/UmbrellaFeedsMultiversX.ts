@@ -28,6 +28,7 @@ import {Signature} from '@multiversx/sdk-core/out/signature.js';
 import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
 import path from 'path';
+import {ethers} from 'ethers';
 
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
 import Blockchain from '../../../lib/Blockchain.js';
@@ -93,7 +94,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     try {
       const response = await this.apiCall(
         'getManyPriceDataRaw',
-        keys.map((k) => new BytesValue(this.bufferFromString(k))),
+        keys.map((k) => new BytesValue(this.bufferFromString(ethers.utils.id(k)))),
       );
 
       if (!response) return;
