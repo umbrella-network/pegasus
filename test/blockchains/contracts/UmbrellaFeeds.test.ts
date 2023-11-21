@@ -36,6 +36,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
   [
     // ChainsIds.AVALANCHE,
     ChainsIds.MULTIVERSX,
+    ChainsIds.LINEA,
   ].forEach((chainId) => {
     describe(`[${chainId}] on-chain feeds tests`, () => {
       let umbrellaFeeds: UmbrellaFeedInterface;
@@ -88,6 +89,21 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         expect(priceData.timestamp).eq(0, 'timestamp');
         expect(priceData.heartbeat).eq(0, 'heartbeat');
         expect(priceData.price).eq(0n, 'price');
+      }).timeout(10000);
+
+      it.skip('#getManyPriceDataRaw with existing keys', async () => {
+        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['USDC-USD', 'EGLD-USD']);
+        console.log(priceDatas);
+        if (!priceDatas) throw Error('undefined priceDatas');
+
+        const priceData = priceDatas[0];
+
+        expect(priceDatas.length).eq(2);
+
+        expect(priceData.data).eq(0, 'data');
+        expect(priceData.timestamp).gt(0, 'timestamp');
+        expect(priceData.heartbeat).gt(0, 'heartbeat');
+        expect(priceData.price > 0n, 'price');
       }).timeout(10000);
 
       describe('#hashData', async () => {

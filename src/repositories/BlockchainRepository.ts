@@ -11,11 +11,12 @@ export type BlockchainCollection = {
 
 @injectable()
 export class BlockchainRepository {
-  @inject('Logger') logger!: Logger;
+  logger!: Logger;
   private collection: BlockchainCollection = {};
 
   constructor(@inject('Settings') settings: Settings, @inject('Logger') logger: Logger) {
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
+    this.logger = logger;
 
     keys.forEach((chainId) => {
       try {
