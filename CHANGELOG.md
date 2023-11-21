@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.20.4] - 2024-01-29
+### Fixed
+- fix `CryptoCompareMultiProcessor`: support case where id of feed might be in different case than feed name
+
+## [7.20.3] - 2023-11-21
+### Fixed
+- MultiversX: hash key for `getManyPriceDataRaw`
+
 ## [7.20.2] - 2023-11-20
 ### Changed
 - remove last `/` from RPC

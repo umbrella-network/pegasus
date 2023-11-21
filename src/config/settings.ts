@@ -253,9 +253,7 @@ const settings: Settings = {
           : undefined,
       },
       concordium: {
-        deviationPrivateKey: process.env.CONCORDIUM_DEVIATION_PRIVATE_KEY
-          ? fs.readFileSync(process.env.CONCORDIUM_DEVIATION_PRIVATE_KEY as string, 'utf8')
-          : undefined,
+        deviationPrivateKey: undefined,
       },
     },
     contracts: {

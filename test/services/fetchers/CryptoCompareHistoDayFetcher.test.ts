@@ -6,6 +6,7 @@ import chaiAsPromised from 'chai-as-promised';
 
 import Settings from '../../../src/types/Settings.js';
 import CryptoCompareHistoDayFetcher from '../../../src/services/fetchers/CryptoCompareHistoDayFetcher.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 chai.use(chaiAsPromised);
 
@@ -19,7 +20,7 @@ describe('CryptoCompareHistoDayFetcher', () => {
   beforeEach(async () => {
     moxios.install();
 
-    const container = new Container();
+    const container = getTestContainer();
 
     settings = {
       api: {
@@ -30,7 +31,7 @@ describe('CryptoCompareHistoDayFetcher', () => {
       },
     } as Settings;
 
-    container.bind('Settings').toConstantValue(settings);
+    container.rebind('Settings').toConstantValue(settings);
 
     container.bind(CryptoCompareHistoDayFetcher).toSelf();
 
