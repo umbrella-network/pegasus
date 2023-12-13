@@ -9,7 +9,6 @@ import {StakingBankInterface} from '../../../interfaces/StakingBankInterface.js'
 import {RegistryInterface} from '../../../interfaces/RegistryInterface.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import logger from '../../../lib/logger.js';
-import {MassaProvider} from '../MassaProvider.js';
 import {ProviderInterface} from '../../../interfaces/ProviderInterface.js';
 
 export class StakingBankMassa implements StakingBankInterface {
@@ -28,7 +27,9 @@ export class StakingBankMassa implements StakingBankInterface {
     this.provider = blockchain.provider;
     this.registry = RegistryContractFactory.create(blockchain);
 
-    this.beforeAnyAction();
+    this.beforeAnyAction().then(() => {
+      this.logger.info(`${this.loggerPrefix} constructor done`);
+    });
   }
 
   async address(): Promise<string> {
@@ -42,6 +43,14 @@ export class StakingBankMassa implements StakingBankInterface {
   async resolveValidators(): Promise<Validator[]> {
     const addresses = await this.resolveValidatorsAddresses();
     return Promise.all(addresses.map((address) => this.getValidator(address)));
+  }
+
+  balanceOf(): Promise<bigint> {
+    throw new Error(`${this.loggerPrefix} balanceOf not implemented`);
+  }
+
+  verifyValidators(): Promise<boolean> {
+    throw new Error(`${this.loggerPrefix} verifyValidators not implemented`);
   }
 
   protected resolveBankAddress = async (): Promise<string> => {
@@ -90,7 +99,6 @@ export class StakingBankMassa implements StakingBankInterface {
   private async beforeAnyAction() {
     if (this.client) return;
 
-    await (this.provider as MassaProvider).beforeAnyAction();
-    this.client = this.provider.getRawProvider();
+    this.client = await this.provider.getRawProvider();
   }
 }

@@ -6,7 +6,6 @@ import {
   DeviationFeed,
   PriceDataByKey,
   PriceDataPerChain,
-  DeviationDataToSign,
   PriceData,
   DeviationFeeds,
   FilterResult,

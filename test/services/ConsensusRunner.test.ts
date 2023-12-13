@@ -4,7 +4,6 @@ import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {BigNumber, Wallet} from 'ethers';
 
-import {mockedLogger} from '../mocks/logger.js';
 import Blockchain from '../../src/lib/Blockchain.js';
 import ChainContract from '../../src/blockchains/evm/contracts/ChainContract.js';
 import Settings from '../../src/types/Settings.js';
@@ -60,7 +59,6 @@ describe('ConsensusRunner', () => {
       },
     } as Settings;
 
-    container.rebind('Logger').toConstantValue(mockedLogger);
     container.rebind('Settings').toConstantValue(settings);
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(ChainContract).toConstantValue(mockedChainContract);
@@ -90,7 +88,7 @@ describe('ConsensusRunner', () => {
       {
         discrepancies: [],
         power: BigNumber.from(10),
-        signature: await signAffidavitWithWallet(mockedBlockchain.wallet.getRawWallet(), affidavit),
+        signature: await signAffidavitWithWallet(mockedBlockchain.wallet.getRawWalletSync(), affidavit),
         version: '1',
       },
     ] as BlockSignerResponseWithPower[]);
@@ -115,7 +113,7 @@ describe('ConsensusRunner', () => {
       {
         discrepancies: [],
         power: BigNumber.from(15),
-        signature: await signAffidavitWithWallet(mockedBlockchain.wallet.getRawWallet(), affidavit),
+        signature: await signAffidavitWithWallet(mockedBlockchain.wallet.getRawWalletSync(), affidavit),
         version: '1',
       },
     ] as BlockSignerResponseWithPower[]);
@@ -150,7 +148,7 @@ describe('ConsensusRunner', () => {
       {
         discrepancies: [],
         power: BigNumber.from(15),
-        signature: await signAffidavitWithWallet(mockedBlockchain.wallet.getRawWallet(), affidavit),
+        signature: await signAffidavitWithWallet(mockedBlockchain.wallet.getRawWalletSync(), affidavit),
         version: '1',
       },
     ] as BlockSignerResponseWithPower[]);

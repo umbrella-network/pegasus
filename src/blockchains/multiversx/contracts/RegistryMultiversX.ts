@@ -21,7 +21,7 @@ export class RegistryMultiversX implements RegistryInterface {
     const query = new Interaction(this.registry, new ContractFunction('getAddressByString'), [
       new StringValue(name),
     ]).buildQuery();
-    const response = await this.blockchain.provider.getRawProvider<ApiNetworkProvider>().queryContract(query);
+    const response = await this.blockchain.provider.getRawProviderSync<ApiNetworkProvider>().queryContract(query);
     // const response = await proxy.queryContract(query);
     const parsedResponse = new ResultsParser().parseUntypedQueryResponse(response);
 

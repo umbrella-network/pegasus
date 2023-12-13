@@ -60,13 +60,13 @@ export abstract class Dispatcher {
       }
 
       const lastNonce = await this.sendingWallet.getNextNonce();
-      const newNonce = lastNonce + 1;
+      const newNonce = lastNonce + 1n;
       this.logger.warn(`${this.logPrefix} Submit tx with nonce ${lastNonce} failed. Retrying with ${newNonce}`);
       return this.sendTx(fn, {...payableOverrides, nonce: newNonce}, timeout);
     }
   }
 
-  protected async calculatePayableOverrides(props?: {nonce?: number; data?: unknown}): Promise<PayableOverrides> {
+  protected async calculatePayableOverrides(props?: {nonce?: bigint; data?: unknown}): Promise<PayableOverrides> {
     const gasMetrics = await this.resolveGasMetrics();
     if (!gasMetrics) return {};
 
@@ -148,8 +148,8 @@ export abstract class Dispatcher {
     const gasMetrics = await this.resolveGasMetrics();
 
     const txData = {
-      from: this.sendingWallet.address,
-      to: this.sendingWallet.address,
+      from: await this.sendingWallet.address(),
+      to: await this.sendingWallet.address(),
       value: BigNumber.from(0),
       nonce: await this.sendingWallet.getNextNonce(),
       gasLimit: 21000,
@@ -172,8 +172,8 @@ export abstract class Dispatcher {
 
   protected checkBalanceIsEnough = async (wallet: IWallet): Promise<boolean> => {
     const balance = await wallet.getBalance();
-    const error = this.testBalanceThreshold(balance, wallet);
-    await this.balanceMonitorSaver.apply(this.chainId, balance.toString(), !!error, wallet.address);
+    const error = await this.testBalanceThreshold(balance, wallet);
+    await this.balanceMonitorSaver.apply(this.chainId, balance.toString(), !!error, await wallet.address());
 
     if (error) {
       this.logger.error(error);
@@ -183,17 +183,18 @@ export abstract class Dispatcher {
     return true;
   };
 
-  protected testBalanceThreshold = (balance: bigint, wallet: IWallet): string | undefined => {
+  protected async testBalanceThreshold(balance: bigint, wallet: IWallet): Promise<string | undefined> {
     const {errorLimit, warningLimit} = this.blockchain.chainSettings.transactions.minBalance;
+    const address = await wallet.address();
 
     if (balance < wallet.toNative(errorLimit)) {
-      return `${this.logPrefix} Balance (${wallet.address.slice(0, 10)}) is lower than ${errorLimit} - ERROR`;
+      return `${this.logPrefix} Balance (${address.slice(0, 10)}) is lower than ${errorLimit} - ERROR`;
     }
 
     if (balance < wallet.toNative(warningLimit)) {
-      this.logger.warn(`${this.logPrefix} Balance (${wallet.address.slice(0, 10)}) is lower than ${warningLimit}`);
+      this.logger.warn(`${this.logPrefix} Balance (${address.slice(0, 10)}) is lower than ${warningLimit}`);
     }
-  };
+  }
 
   protected printNotImportantInfo(msg: string) {
     const lastTime = this.lastStatusLogs[msg];

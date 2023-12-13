@@ -1,21 +1,22 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {KeysPerChain, PriceDataWithKey, PriceDataPerChain} from '../../types/DeviationFeeds.js';
+import {FeedNamesPerChain, PriceDataWithKey, PriceDataPerChain} from '../../types/DeviationFeeds.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 import {FeedsContractRepository} from '../../repositories/FeedsContractRepository.js';
+import {FeedName} from '../../types/Feed';
 
 @injectable()
 export class PriceDataProvider {
   @inject('Logger') logger!: Logger;
   @inject(FeedsContractRepository) protected feedsContractRepository!: FeedsContractRepository;
 
-  async apply(keysPerChain: KeysPerChain): Promise<PriceDataPerChain> {
+  async apply(namesPerChain: FeedNamesPerChain): Promise<PriceDataPerChain> {
     const data: PriceDataPerChain = {};
-    const chainIds = Object.keys(keysPerChain).map((chainId) => chainId);
+    const chainIds = Object.keys(namesPerChain).map((chainId) => chainId);
 
     const priceDatas = await Promise.all(
-      chainIds.map((chainId) => this.getPriceData(chainId as ChainsIds, keysPerChain[chainId])),
+      chainIds.map((chainId) => this.getPriceData(chainId as ChainsIds, namesPerChain[chainId])),
     );
 
     priceDatas.forEach((priceDataArray, i) => {
@@ -39,10 +40,12 @@ export class PriceDataProvider {
     return data;
   }
 
-  protected async getPriceData(chain: ChainsIds, keys: string[]): Promise<PriceDataWithKey[] | undefined> {
+  protected async getPriceData(chain: ChainsIds, names: FeedName[]): Promise<PriceDataWithKey[] | undefined> {
     try {
       const feedContract = await this.feedsContractRepository.get(chain);
-      return await feedContract.getManyPriceDataRaw(keys);
+      if (feedContract) return await feedContract.getManyPriceDataRaw(names);
+
+      this.logger.error(`[PriceDataProvider] there is a call for feed on ${chain}, but chain not active`);
     } catch (e) {
       (e as Error).message = `[${chain}] getManyPriceDataRaw fail: ${(e as Error).message}`;
       this.logger.error(e);

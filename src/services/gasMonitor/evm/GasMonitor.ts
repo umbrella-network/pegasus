@@ -41,7 +41,7 @@ export class GasMonitor {
   }
 
   protected async getListOfBlocksToPull(chainId: ChainsIds): Promise<number[]> {
-    const provider: StaticJsonRpcProvider = this.providerRepository.get(chainId).getRawProvider();
+    const provider: StaticJsonRpcProvider = this.providerRepository.get(chainId).getRawProviderSync();
 
     const [currentBlock, lastGas] = await Promise.all([provider.getBlockNumber(), this.gasRepository.last(chainId)]);
 

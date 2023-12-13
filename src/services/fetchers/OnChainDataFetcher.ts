@@ -43,7 +43,7 @@ class OnChainDataFetcher {
       const blockchain = this.blockchainRepository.get(chainId);
 
       if (blockchain) {
-        return blockchain.provider.getRawProvider();
+        return blockchain.provider.getRawProviderSync();
       }
 
       if (chainId !== ChainsIds.ETH) throw new Error(`[OnChainDataFetcher] chainId:${chainId} is not supported`);

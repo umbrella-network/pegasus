@@ -31,6 +31,12 @@ function clearLastSlash(s: string | undefined): string {
   return s.endsWith('/') ? s.slice(0, -1) : s;
 }
 
+function parseJsonString(s: string): string {
+  if (!s) return '{}';
+
+  return s.replace(/\\n/g, '\n').replace(/\\"/g, '"');
+}
+
 function resolveBlockchainType(chain: ChainsIds): BlockchainType[] | undefined {
   const blockchainType = process.env[`${chain}_TYPE`];
   if (!blockchainType) return undefined;
@@ -167,7 +173,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.CONCORDIUM),
     transactions: {
       waitForBlockTime: 1000,
-      minGasPrice: 100000000,
+      minGasPrice: 0,
       minBalance: {
         warningLimit: '0.01',
         errorLimit: '0.0005',
@@ -253,7 +259,8 @@ const settings: Settings = {
           : undefined,
       },
       concordium: {
-        deviationPrivateKey: undefined,
+        privateKey: process.env.CONCORDIUM_SIGNING_PRIVATE_KEY || '',
+        deviationPrivateKey: process.env.CONCORDIUM_DEVIATION_PRIVATE_KEY || undefined,
       },
     },
     contracts: {

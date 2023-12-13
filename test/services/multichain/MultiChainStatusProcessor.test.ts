@@ -11,7 +11,6 @@ import {chainStatusWithAddressFactory, chainStatusFactory} from '../../mocks/fac
 import {loadTestEnv} from '../../helpers/loadTestEnv.js';
 import {ValidatorRepository} from '../../../src/repositories/ValidatorRepository.js';
 import {Validator} from '../../../src/types/Validator.js';
-import {mockedLogger} from '../../mocks/logger.js';
 
 const {expect} = chai;
 
@@ -40,7 +39,6 @@ describe('MultiChainStatusProcessor', () => {
 
     mockValidatorRepository = sinon.createStubInstance(ValidatorRepository);
 
-    container.rebind('Logger').toConstantValue(mockedLogger);
     container.bind(MultiChainStatusProcessor).toSelf();
     container.bind(ValidatorRepository).toConstantValue(mockValidatorRepository);
 

@@ -105,7 +105,7 @@ describe('BlockSigner', () => {
       const signature = await signAffidavitWithWallet(wallet, affidavit);
       const nextLeader = Wallet.createRandom().address;
 
-      mockedBlockchain.wallet.rawWallet = Wallet.createRandom();
+      mockedBlockchain.wallet.setRawWallet(Wallet.createRandom());
 
       allStates.chainsStatuses = [
         {

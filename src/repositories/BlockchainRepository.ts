@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
 
 import Blockchain from '../lib/Blockchain.js';
 import Settings from '../types/Settings.js';
 import {ChainsIds} from '../types/ChainsIds.js';
-import {Logger} from 'winston';
 
 export type BlockchainCollection = {
   [key: string]: Blockchain | undefined;
@@ -22,7 +22,7 @@ export class BlockchainRepository {
       try {
         this.collection[chainId] = new Blockchain(settings, chainId);
       } catch (e: unknown) {
-        logger.warn(`[BlockchainRepository] ${(e as Error).message}`);
+        logger.warn(`[BlockchainRepository] ${chainId}: ${(e as Error).message}`);
         this.collection[chainId] = undefined;
       }
     });

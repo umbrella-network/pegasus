@@ -4,7 +4,6 @@ import {Logger} from 'winston';
 import Blockchain from '../../../lib/Blockchain.js';
 import {RegistryInterface} from '../../../interfaces/RegistryInterface.js';
 import logger from '../../../lib/logger.js';
-import {MassaProvider} from '../MassaProvider.js';
 import {ProviderInterface} from '../../../interfaces/ProviderInterface.js';
 
 export class RegistryMassa implements RegistryInterface {
@@ -20,6 +19,10 @@ export class RegistryMassa implements RegistryInterface {
     this.provider = blockchain.provider;
 
     this.registryAddress = blockchain.getContractRegistryAddress();
+
+    this.beforeAnyAction().then(() => {
+      this.logger.info(`${this.loggerPrefix} constructor done`);
+    });
   }
 
   async getAddress(name: string): Promise<string> {
@@ -41,10 +44,9 @@ export class RegistryMassa implements RegistryInterface {
     return '';
   }
 
-  private async beforeAnyAction() {
+  private async beforeAnyAction(): Promise<void> {
     if (this.client) return;
 
-    await (this.provider as MassaProvider).beforeAnyAction();
-    this.client = this.provider.getRawProvider();
+    this.client = await this.provider.getRawProvider();
   }
 }

@@ -9,7 +9,6 @@ import {Validator} from '../../src/types/Validator.js';
 import {ValidatorRepository} from '../../src/repositories/ValidatorRepository.js';
 import CachedValidator from '../../src/models/CachedValidator.js';
 import {loadTestEnv} from '../helpers/loadTestEnv.js';
-import {mockedLogger} from '../mocks/logger.js';
 import {getTestContainer} from '../helpers/getTestContainer.js';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
 
@@ -20,7 +19,6 @@ describe('ValidatorRepository', () => {
 
   before(async () => {
     const container = getTestContainer();
-    container.rebind('Logger').toConstantValue(mockedLogger);
 
     const config = loadTestEnv();
     await mongoose.connect(config.MONGODB_URL, {useNewUrlParser: true, useUnifiedTopology: true});

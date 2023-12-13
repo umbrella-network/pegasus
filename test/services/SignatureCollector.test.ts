@@ -1,12 +1,10 @@
 import 'reflect-metadata';
-import {Container} from 'inversify';
 import sinon from 'sinon';
 import chai from 'chai';
 import {BigNumber, Wallet} from 'ethers';
 import moxios from 'moxios';
 
 import SignatureCollector from '../../src/services/SignatureCollector.js';
-import {mockedLogger} from '../mocks/logger.js';
 import Blockchain from '../../src/lib/Blockchain.js';
 import {SignedBlock} from '../../src/types/SignedBlock.js';
 import {leafWithAffidavit} from '../fixtures/leafWithAffidavit.js';
@@ -14,18 +12,18 @@ import {BlockSignerResponseWithPower} from '../../src/types/BlockSignerResponse.
 import {signAffidavitWithWallet} from '../../src/utils/mining.js';
 import {ValidatorStatusChecker} from '../../src/services/ValidatorStatusChecker.js';
 import {mockIWallet} from '../helpers/mockIWallet.js';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+import Settings from '../../src/types/Settings.js';
 
 const {expect} = chai;
 
-describe('SignatureCollector', () => {
+describe.only('SignatureCollector', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let signatureCollector: SignatureCollector;
   const leaderWallet = Wallet.createRandom();
 
   beforeEach(async () => {
     moxios.install();
-
-    const container = new Container();
 
     const settings = {
       signatureTimeout: 5000,
@@ -37,11 +35,10 @@ describe('SignatureCollector', () => {
         },
       },
     };
+    const container = getTestContainer(settings as unknown as Settings);
 
     mockedBlockchain = sinon.createStubInstance(Blockchain);
 
-    container.bind('Settings').toConstantValue(settings);
-    container.bind('Logger').toConstantValue(mockedLogger);
     container.bind(Blockchain).toConstantValue(mockedBlockchain);
     container.bind(ValidatorStatusChecker).toSelf();
     container.bind(SignatureCollector).toSelf();
@@ -109,7 +106,7 @@ describe('SignatureCollector', () => {
     };
 
     const signatures = await signatureCollector.apply(block, affidavit, [
-      {id: mockedBlockchain.wallet.address.toLowerCase(), location: 'http://me', power: BigNumber.from(1)},
+      {id: (await mockedBlockchain.wallet.address()).toLowerCase(), location: 'http://me', power: BigNumber.from(1)},
       {id: walletOfAnotherValidator.address.toLowerCase(), location: 'http://validator', power: BigNumber.from(1)},
     ]);
 
@@ -145,7 +142,7 @@ describe('SignatureCollector', () => {
     };
 
     const blockSignerResponseWithPower = await signatureCollector.apply(block, affidavit, [
-      {id: mockedBlockchain.wallet.address.toLowerCase(), location: 'http://me', power: BigNumber.from(1)},
+      {id: (await mockedBlockchain.wallet.address()).toLowerCase(), location: 'http://me', power: BigNumber.from(1)},
       {id: walletOfAnotherValidator.address.toLowerCase(), location: 'http://validator', power: BigNumber.from(1)},
     ]);
 
@@ -199,7 +196,7 @@ describe('SignatureCollector', () => {
     };
 
     const blockSignerResponseWithPower = await signatureCollector.apply(block, affidavit, [
-      {id: mockedBlockchain.wallet.address.toLowerCase(), location: 'http://me', power: BigNumber.from(1)},
+      {id: (await mockedBlockchain.wallet.address()).toLowerCase(), location: 'http://me', power: BigNumber.from(1)},
       {
         id: walletOfSecondValidator.address.toLowerCase(),
         location: 'http://second-validator',
@@ -262,7 +259,7 @@ describe('SignatureCollector', () => {
     };
 
     const blockSignerResponseWithPower = await signatureCollector.apply(block, affidavit, [
-      {id: mockedBlockchain.wallet.address.toLowerCase(), location: 'http://me', power: BigNumber.from(1)},
+      {id: (await mockedBlockchain.wallet.address()).toLowerCase(), location: 'http://me', power: BigNumber.from(1)},
       {
         id: walletOfSecondValidator.address.toLowerCase(),
         location: 'http://second-validator',

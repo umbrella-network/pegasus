@@ -10,7 +10,7 @@ export class AvalancheBlockDispatcher extends BlockDispatcher {
   readonly chainId = ChainsIds.AVALANCHE;
   readonly blockchainType = BlockchainType.LAYER2;
 
-  protected async calculatePayableOverrides(props?: {nonce?: number; data?: unknown}): Promise<PayableOverrides> {
+  protected async calculatePayableOverrides(props?: {nonce?: bigint; data?: unknown}): Promise<PayableOverrides> {
     const gasMetrics = await this.resolveGasMetrics();
     if (!gasMetrics) return {};
 

@@ -20,6 +20,8 @@ import {ProviderInterface} from '../../../interfaces/ProviderInterface.js';
 import {MassaWallet} from '../MassaWallet.js';
 import {IContractReadOperationResponse} from '@massalabs/web3-utils/dist/esm/interfaces/IContractReadOperationResponse';
 import {MassaEstimatedGas} from '../massaTypes.js';
+import {FeedName} from '../../../types/Feed';
+import {hashFeedName} from '../../../utils/hashFeedName.js';
 
 export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   protected logger!: Logger;
@@ -41,7 +43,9 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     this.registry = RegistryContractFactory.create(blockchain);
     this.blockchain = blockchain;
 
-    this.beforeAnyAction();
+    this.beforeAnyAction().then(() => {
+      this.logger.info(`${this.loggerPrefix} constructor done`);
+    });
   }
 
   resolveAddress(): Promise<string> {
@@ -56,11 +60,11 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     return ChainsIds.MASSA;
   }
 
-  async hashData(bytes32Keys: string[], priceDatas: PriceData[]): Promise<string> {
+  async hashData(names: string[], priceDatas: PriceData[]): Promise<string> {
     await this.beforeAnyAction();
 
     const parameter = new Args();
-    parameter.addSerializableObjectArray(this.serializeKeys(bytes32Keys));
+    parameter.addSerializableObjectArray(this.serializeFeedsNames(names));
     parameter.addSerializableObjectArray(this.serializePriceDatas(priceDatas));
 
     const res = await this.rawCall({targetFunction: 'hashData', parameter, gas: 50_000_000n});
@@ -74,17 +78,17 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     return Number(new Args(res.returnValue).nextU8());
   }
 
-  async getManyPriceDataRaw(keys: string[]): Promise<PriceDataWithKey[] | undefined> {
-    if (keys.length == 0) return [];
+  async getManyPriceDataRaw(names: FeedName[]): Promise<PriceDataWithKey[] | undefined> {
+    if (names.length == 0) return [];
     await this.beforeAnyAction();
 
     const parameter = new Args();
-    parameter.addSerializableObjectArray(this.serializeFeedsNames(keys));
+    parameter.addSerializableObjectArray(this.serializeFeedsNames(names));
 
     const res = await this.rawCall({targetFunction: 'getManyPriceDataRaw', parameter, gas: 10_000_000n});
     const priceDatas = new Args(res.returnValue).nextSerializableObjectArray(MassaPriceDataSerializer);
 
-    return keys.map((key, i) => {
+    return names.map((key, i) => {
       return <PriceDataWithKey>{
         ...priceDatas[i].get(),
         key,
@@ -177,7 +181,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   }
 
   protected serializeFeedsNames(keys: string[]): MassaWBytesSerializer[] {
-    return this.serializeKeys(keys.map((k) => ethers.utils.id(k)));
+    return this.serializeKeys(keys.map((k) => hashFeedName(k)));
   }
 
   protected serializeKeys(keysBytes32: string[]): MassaWBytesSerializer[] {
@@ -219,22 +223,22 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     return updateArgs.serialize();
   }
 
-  protected async beforeAnyAction(): Promise<void> {
+  private async beforeAnyAction(): Promise<void> {
     if (this.client) return;
 
-    await (this.provider as MassaProvider).beforeAnyAction();
+    const provider = await this.provider.getRawProvider<MassaProvider>();
 
     this.client = await ClientFactory.createCustomClient(
-      [{url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC} as IProvider],
+      [{url: provider.providerUrl, type: ProviderType.PUBLIC} as IProvider],
       true,
     );
 
-    await (this.blockchain.deviationWallet as MassaWallet).beforeAnyAction();
+    const deviationWallet = await this.blockchain.deviationWallet?.getRawWallet<MassaWallet>();
 
     this.deviationClient = await ClientFactory.createCustomClient(
       [{url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC} as IProvider],
       true,
-      this.blockchain.deviationWallet?.getRawWallet(),
+      await deviationWallet?.getRawWallet(),
     );
 
     this.logger.info(`${this.loggerPrefix} clients initialised`);

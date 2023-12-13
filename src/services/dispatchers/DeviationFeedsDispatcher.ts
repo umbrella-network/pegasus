@@ -12,6 +12,7 @@ import {PolygonDeviationDispatcher} from './networks/PolygonDeviationDispatcher.
 import {BaseDeviationDispatcher} from './networks/BaseDeviationDispatcher.js';
 import {MultiversXDeviationDispatcher} from './networks/MultiversXDeviationDispatcher.js';
 import {MassaDeviationDispatcher} from './networks/MassaDeviationDispatcher.js';
+import {ConcordiumDeviationDispatcher} from './networks/ConcordiumDeviationDispatcher.js';
 
 export type DeviationFeedsDispatcherProps = {
   chainId: ChainsIds;
@@ -32,6 +33,7 @@ export class DeviationFeedsDispatcher {
     @inject(BaseDeviationDispatcher) baseDeviationDispatcher: BaseDeviationDispatcher,
     @inject(MultiversXDeviationDispatcher) multiversXDeviationDispatcher: MultiversXDeviationDispatcher,
     @inject(MassaDeviationDispatcher) massaDeviationDispatcher: MassaDeviationDispatcher,
+    @inject(ConcordiumDeviationDispatcher) concordiumDeviationDispatcher: ConcordiumDeviationDispatcher,
   ) {
     this.dispatchers = {
       [ChainsIds.ARBITRUM]: arbitrumDeviationDispatcher,
@@ -42,6 +44,7 @@ export class DeviationFeedsDispatcher {
       [ChainsIds.POLYGON]: polygonDeviationDispatcher,
       [ChainsIds.MULTIVERSX]: multiversXDeviationDispatcher,
       [ChainsIds.MASSA]: massaDeviationDispatcher,
+      [ChainsIds.CONCORDIUM]: concordiumDeviationDispatcher,
     };
   }
 

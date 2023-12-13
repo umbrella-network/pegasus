@@ -53,12 +53,22 @@ export class StakingBankContract implements StakingBankInterface {
     }
 
     const bankAddress = await this.registry.getAddress(this.bankName);
-    return new Contract(bankAddress, this.stakingBankAbi, this.blockchain.provider.getRawProvider());
+    return new Contract(bankAddress, this.stakingBankAbi, this.blockchain.provider.getRawProviderSync());
   };
 
   async getNumberOfValidators(): Promise<number> {
     const contract = await this.resolveContract();
     return (await contract.getNumberOfValidators()).toNumber();
+  }
+
+  async balanceOf(validator: string): Promise<bigint> {
+    const contract = await this.resolveContract();
+    return (await contract.balanceOf(validator)).toBigInt();
+  }
+
+  async verifyValidators(validators: string[]): Promise<boolean> {
+    const contract = await this.resolveContract();
+    return contract.verifyValidators(validators);
   }
 
   protected async numberOfValidators(contract: Contract): Promise<number> {

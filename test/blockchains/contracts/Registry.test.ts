@@ -4,11 +4,10 @@ import chai from 'chai';
 
 import {RegistryContractFactory} from '../../../src/factories/contracts/RegistryContractFactory.js';
 import {BlockchainRepository} from '../../../src/repositories/BlockchainRepository.js';
-import settings from '../../../src/config/settings.js';
 import {RegistryInterface} from '../../../src/interfaces/RegistryInterface.js';
 import {loadTestEnv} from '../../helpers/loadTestEnv.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
-import {mockedLogger} from '../../mocks/logger.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 const {expect} = chai;
 
@@ -17,10 +16,12 @@ describe.skip('Registries debug integration tests', () => {
 
   before(() => {
     loadTestEnv();
-    blockchainRepo = new BlockchainRepository(settings, mockedLogger);
+    const container = getTestContainer();
+    container.bind(BlockchainRepository).toSelf();
+    blockchainRepo = container.get(BlockchainRepository);
   });
 
-  [ChainsIds.MULTIVERSX].forEach((chainId) => {
+  [ChainsIds.CONCORDIUM].forEach((chainId) => {
     describe(`[${chainId}] provider`, () => {
       let registry: RegistryInterface;
 
@@ -28,7 +29,7 @@ describe.skip('Registries debug integration tests', () => {
         registry = RegistryContractFactory.create(blockchainRepo.get(chainId));
       });
 
-      it('#getAddress', async () => {
+      it.skip('#getAddress', async () => {
         const [addr, feeds] = await Promise.all([
           registry.getAddress('StakingBank'),
           registry.getAddress('UmbrellaFeeds'),
@@ -46,6 +47,10 @@ describe.skip('Registries debug integration tests', () => {
           case ChainsIds.MASSA:
             expect(addr.length).eq(57);
             expect(addr.slice(0, 3)).eq('5AS');
+            break;
+
+          case ChainsIds.CONCORDIUM:
+            expect(addr.split(',').length).eq(2);
             break;
 
           default:
