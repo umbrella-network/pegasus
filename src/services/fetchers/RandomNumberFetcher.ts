@@ -9,7 +9,7 @@ class RandomNumberFetcher {
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
   async apply({numBlocks = 10} = {}, timestamp: number): Promise<string> {
-    const evmProvider = this.providerRepository.get(ChainsIds.POLYGON).getRawProvider<BaseProvider>();
+    const evmProvider = this.providerRepository.get(ChainsIds.POLYGON).getRawProviderSync<BaseProvider>();
     let latest = await evmProvider.getBlock('latest');
 
     while (latest.timestamp >= timestamp) {

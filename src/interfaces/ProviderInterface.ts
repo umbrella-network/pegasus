@@ -2,7 +2,8 @@ import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
 import {NetworkStatus} from '../types/Network.js';
 
 export interface ProviderInterface {
-  getRawProvider<T>(): T;
+  getRawProvider<T>(): Promise<T>;
+  getRawProviderSync<T>(): T;
   gasEstimation(minGasPrice: number): Promise<GasEstimation>;
   getBlockNumber(): Promise<bigint>;
   waitForTx(txHash: string, timeoutMs: number): Promise<boolean>;
@@ -10,7 +11,7 @@ export interface ProviderInterface {
   getBlockTimestamp(): Promise<number>;
   getBalance(address: string): Promise<bigint>;
   getNetwork(): Promise<NetworkStatus>;
-  getTransactionCount(address: string): Promise<number>;
+  getTransactionCount(address: string): Promise<bigint>;
   call(transaction: {to: string; data: string}): Promise<string>;
   isNonceError(e: Error): boolean;
   isNonceError(e: Error): boolean;

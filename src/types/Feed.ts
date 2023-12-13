@@ -1,5 +1,9 @@
 import {ChainsIds} from './ChainsIds.js';
 
+export type HashedKey = string;
+export type FeedName = string;
+export type ChainsId = string;
+
 export interface Feed {
   // deviation feed attributes
   heartbeat?: number;

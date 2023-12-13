@@ -3,13 +3,15 @@ import {ExecutedTx} from '../types/Consensus.js';
 
 export interface IWallet {
   readonly chainId: string;
-  readonly address: string;
 
-  rawWallet: unknown;
-
-  getRawWallet<T>(): T;
+  getRawWallet<T>(): Promise<T>;
+  getRawWalletSync<T>(): T;
   getBalance(): Promise<bigint>;
-  getNextNonce(): Promise<number>;
+  getNextNonce(): Promise<bigint>;
   sendTransaction(tr: TransactionRequest): Promise<ExecutedTx>;
   toNative(value: string): bigint;
+  address(): Promise<string>;
+
+  // this is only for tests purposes
+  setRawWallet(wallet: unknown): void;
 }

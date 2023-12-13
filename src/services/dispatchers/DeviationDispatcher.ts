@@ -84,7 +84,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       this.logger.error(`${this.logPrefix} Consensus ${consensus.dataTimestamp} was not saved on blockchain`);
 
       const updateFeedsArgs: UmbrellaFeedsUpdateArgs = {
-        keys: consensus.keys.map(ethers.utils.id),
+        keys: consensus.keys,
         priceDatas: consensus.priceData,
         signatures: consensus.signatures,
       };
@@ -113,7 +113,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
     timeout: number;
   }> {
     const updateFeedsArgs: UmbrellaFeedsUpdateArgs = {
-      keys: consensus.keys.map(ethers.utils.id),
+      keys: consensus.keys,
       priceDatas: consensus.priceData,
       signatures: consensus.signatures,
     };
@@ -131,7 +131,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
     return {fn, payableOverrides, timeout: this.getTxTimeout()};
   }
 
-  protected async nextNonce(): Promise<number | undefined> {
+  protected async nextNonce(): Promise<bigint | undefined> {
     return this.blockchain.deviationWallet?.getNextNonce();
   }
 

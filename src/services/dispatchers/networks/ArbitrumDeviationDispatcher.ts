@@ -17,7 +17,7 @@ export class ArbitrumDeviationDispatcher extends DeviationDispatcher {
     return undefined;
   }
 
-  protected async calculatePayableOverrides(props?: {nonce?: number; data?: unknown}): Promise<PayableOverrides> {
+  protected async calculatePayableOverrides(props?: {nonce?: bigint; data?: unknown}): Promise<PayableOverrides> {
     // for unknown reason, when we let provider resolve gas limit automatically, it does not work
     // when we call estimation manually and use result it does work
     const gas = await (this.feedsContract as FeedContract).estimateGasForUpdate(props?.data as UmbrellaFeedsUpdateArgs);

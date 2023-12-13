@@ -19,3 +19,6 @@ yarn-error.log
 newrelic_agent.log
 
 dev-ops
+
+src/blockchains/concordium/contracts/generated/*.js
+src/blockchains/concordium/contracts/generated/*.d.ts

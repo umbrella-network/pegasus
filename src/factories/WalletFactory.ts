@@ -4,6 +4,7 @@ import {EvmWallet} from '../blockchains/evm/EvmWallet.js';
 import {MultiversXWallet} from '../blockchains/multiversx/MultiversXWallet.js';
 import {MassaWallet} from '../blockchains/massa/MassaWallet.js';
 import Settings from '../types/Settings.js';
+import {ConcordiumWallet} from '../blockchains/concordium/ConcordiumWallet.js';
 
 export class WalletFactory {
   static create(settings: Settings, chainId: ChainsIds): IWallet {
@@ -19,8 +20,8 @@ export class WalletFactory {
         return new MassaWallet(wallets.massa.privateKey);
 
       case ChainsIds.CONCORDIUM:
-        if (!wallets.evm.privateKey) throw new Error(`[WalletFactory] empty privateKey for ${chainId}`);
-        return new MassaWallet(wallets.massa.privateKey);
+        if (!wallets.concordium.privateKey) throw new Error(`[WalletFactory] empty privateKey for ${chainId}`);
+        return new ConcordiumWallet(wallets.concordium.privateKey);
 
       case ChainsIds.BSC:
       case ChainsIds.AVALANCHE:

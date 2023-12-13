@@ -14,6 +14,8 @@ import {UmbrellaFeedInterface} from '../../../interfaces/UmbrellaFeedInterface.j
 import {ExecutedTx} from '../../../types/Consensus.js';
 import logger from '../../../lib/logger.js';
 import {EvmEstimatedGas} from '../evmTypes.js';
+import {FeedName} from '../../../types/Feed.js';
+import {hashFeedName0x} from '../../../utils/hashFeedName.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,8 +57,8 @@ export class FeedContract implements UmbrellaFeedInterface {
     }
 
     const txResponse: TransactionResponse = await contract
-      .connect(this.blockchain.deviationWallet.getRawWallet())
-      .update(args.keys, args.priceDatas, signatures, payableOverrides);
+      .connect(this.blockchain.deviationWallet.getRawWalletSync())
+      .update(args.keys.map(hashFeedName0x), args.priceDatas, signatures, payableOverrides);
 
     this.logger.info(`${this.loggerPrefix} tx nonce: ${txResponse.nonce}, hash: ${txResponse.hash}`);
     const atBlock = txResponse.blockNumber ? BigInt(txResponse.blockNumber) : await this.blockchain.getBlockNumber();
@@ -64,18 +66,18 @@ export class FeedContract implements UmbrellaFeedInterface {
     return {hash: txResponse.hash, atBlock};
   }
 
-  async getManyPriceDataRaw(keys: string[]): Promise<PriceDataWithKey[] | undefined> {
+  async getManyPriceDataRaw(names: FeedName[]): Promise<PriceDataWithKey[] | undefined> {
     try {
       const contract = await this.resolveContract();
       if (!contract) return;
 
-      const pricesData = await contract.callStatic.getManyPriceDataRaw(keys.map(ethers.utils.id));
+      const pricesData = await contract.callStatic.getManyPriceDataRaw(names.map(hashFeedName0x));
 
       return pricesData.map((data: PriceDataWithKey, i: number): PriceDataWithKey => {
         return {
           ...data,
           price: BigInt(data.price.toString()),
-          key: keys[i],
+          key: names[i],
         };
       });
     } catch (e: unknown) {
@@ -84,11 +86,14 @@ export class FeedContract implements UmbrellaFeedInterface {
     }
   }
 
-  async hashData(bytes32Keys: string[], priceDatas: PriceData[]): Promise<string> {
+  async hashData(names: FeedName[], priceDatas: PriceData[]): Promise<string> {
     const contract = await this.resolveContract();
     if (!contract) throw new Error(`${this.loggerPrefix} hashData failed`);
 
-    return contract.callStatic.hashData(bytes32Keys, priceDatas);
+    return contract.callStatic.hashData(
+      names.map((k) => hashFeedName0x(k)),
+      priceDatas,
+    );
   }
 
   async requiredSignatures(): Promise<number> {
@@ -107,8 +112,8 @@ export class FeedContract implements UmbrellaFeedInterface {
     if (!contract) return {gasLimit: 0n};
 
     const gasLimit = await contract
-      .connect(this.blockchain.deviationWallet.getRawWallet())
-      .estimateGas.update(args.keys, args.priceDatas, await this.splitSignatures(args.signatures));
+      .connect(this.blockchain.deviationWallet.getRawWalletSync())
+      .estimateGas.update(args.keys.map(hashFeedName0x), args.priceDatas, await this.splitSignatures(args.signatures));
 
     return {gasLimit: gasLimit.toBigInt()};
   }
@@ -117,7 +122,7 @@ export class FeedContract implements UmbrellaFeedInterface {
     try {
       if (!this.registry) {
         this.registry = new ContractRegistry(
-          this.blockchain.provider.getRawProvider(),
+          this.blockchain.provider.getRawProviderSync(),
           this.blockchain.getContractRegistryAddress(),
         );
       }
@@ -132,7 +137,7 @@ export class FeedContract implements UmbrellaFeedInterface {
         return;
       }
 
-      return new Contract(address, this.umbrellaFeedsAbi.abi, this.blockchain.provider.getRawProvider());
+      return new Contract(address, this.umbrellaFeedsAbi.abi, this.blockchain.provider.getRawProviderSync());
     } catch (e: unknown) {
       this.logger.error(`${this.loggerPrefix} resolveContract error: ${(e as Error).message}`);
       return;

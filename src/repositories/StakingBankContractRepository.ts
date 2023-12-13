@@ -15,12 +15,14 @@ export type BankContractCollection = {
 @injectable()
 export class StakingBankContractRepository {
   private collection: BankContractCollection = {};
+  private logger: Logger;
 
   constructor(
     @inject('Settings') settings: Settings,
     @inject('Logger') logger: Logger,
     @inject(BlockchainRepository) blockchainRepository: BlockchainRepository,
   ) {
+    this.logger = logger;
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
 
     keys.forEach((chainId) => {
@@ -40,7 +42,7 @@ export class StakingBankContractRepository {
 
   get(id: string): StakingBankInterface {
     if (!this.collection[id]) {
-      console.warn(`[StakingBankContractRepository] Blockchain ${id} does not exists`);
+      this.logger.error(`[StakingBankContractRepository] Blockchain ${id} does not exists`);
     }
 
     return <StakingBankContract>this.collection[id];

@@ -12,10 +12,11 @@ export type ProviderCollection = {
 
 @injectable()
 export class ProviderRepository {
-  @inject('Logger') logger!: Logger;
+  logger!: Logger;
   private collection: ProviderCollection = {};
 
   constructor(@inject('Settings') settings: Settings, @inject('Logger') logger: Logger) {
+    this.logger = logger;
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
 
     keys.forEach((chainId) => {

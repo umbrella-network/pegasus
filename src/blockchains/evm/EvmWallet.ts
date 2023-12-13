@@ -15,19 +15,23 @@ export class EvmWallet implements IWallet {
 
   readonly chainId!: ChainsIds;
   readonly provider!: BaseProvider;
-  readonly address!: string;
+  readonly publicAddress!: string;
 
   rawWallet!: Wallet;
 
   constructor(chainId: ChainsIds, privateKey: string) {
-    this.provider = ProviderFactory.create(chainId).getRawProvider<BaseProvider>();
+    this.provider = ProviderFactory.create(chainId).getRawProviderSync<BaseProvider>();
     this.rawWallet = new Wallet(privateKey, this.provider);
-    this.address = this.rawWallet.address;
+    this.publicAddress = this.rawWallet.address;
     this.logger = logger;
     this.logPrefix = `[EvmWallet][${chainId}]`;
   }
 
-  getRawWallet<T>(): T {
+  async getRawWallet<T>(): Promise<T> {
+    return new Promise((resolve) => resolve(this.rawWallet as unknown as T));
+  }
+
+  getRawWalletSync<T>(): T {
     return this.rawWallet as unknown as T;
   }
 
@@ -36,8 +40,12 @@ export class EvmWallet implements IWallet {
     return balance.toBigInt();
   }
 
-  async getNextNonce(): Promise<number> {
-    return this.rawWallet.getTransactionCount('latest');
+  async getNextNonce(): Promise<bigint> {
+    return BigInt(await this.rawWallet.getTransactionCount('latest'));
+  }
+
+  async address(): Promise<string> {
+    return this.publicAddress;
   }
 
   async sendTransaction(tr: TransactionRequest): Promise<ExecutedTx> {
@@ -54,5 +62,9 @@ export class EvmWallet implements IWallet {
 
   toNative(value: string): bigint {
     return ethersUtils.parseEther(value).toBigInt();
+  }
+
+  setRawWallet(wallet: never): void {
+    this.rawWallet = wallet;
   }
 }

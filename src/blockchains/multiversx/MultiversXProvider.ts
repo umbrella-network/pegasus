@@ -31,7 +31,11 @@ export class MultiversXProvider implements ProviderInterface {
     this.provider = new ApiNetworkProvider(providerUrl);
   }
 
-  getRawProvider<T>(): T {
+  async getRawProvider<T>(): Promise<T> {
+    return new Promise((resolve) => resolve(this.provider as unknown as T));
+  }
+
+  getRawProviderSync<T>(): T {
     return this.provider as unknown as T;
   }
 
@@ -99,9 +103,9 @@ export class MultiversXProvider implements ProviderInterface {
     return this.cacheChainID;
   }
 
-  async getTransactionCount(address: string): Promise<number> {
+  async getTransactionCount(address: string): Promise<bigint> {
     const account = await this.accountData(address);
-    return account.nonce as number;
+    return BigInt(account.nonce.valueOf());
   }
 
   async waitForTx(txHash: string, timeoutMs: number): Promise<boolean> {

@@ -17,9 +17,11 @@ export class BalanceMonitorChecker {
   async apply(blockchainType: BlockchainType): Promise<boolean> {
     const chainIds = this.chainKeys(blockchainType);
 
+    const wallets = await Promise.all(chainIds.map((id) => this.walletForChainType(blockchainType, id)));
+
     const keysToCheck = chainIds
-      .map((id) => {
-        const wallet = this.walletForChainType(blockchainType, id);
+      .map((id, i) => {
+        const wallet = wallets[i];
         if (!wallet) return;
 
         return BalanceMonitorKeyResolver.apply(id, wallet);
@@ -45,9 +47,11 @@ export class BalanceMonitorChecker {
     );
   }
 
-  protected walletForChainType(blockchainType: BlockchainType, chainId: ChainsIds): string | undefined {
+  protected async walletForChainType(blockchainType: BlockchainType, chainId: ChainsIds): Promise<string | undefined> {
     const blockchain = this.blockchainRepository.get(chainId);
-    return blockchainType == BlockchainType.LAYER2 ? blockchain.wallet.address : blockchain.deviationWallet?.address;
+    return blockchainType == BlockchainType.LAYER2
+      ? await blockchain.wallet.address()
+      : await blockchain.deviationWallet?.address();
   }
 
   protected chainKeys(blockchainType: BlockchainType): ChainsIds[] {

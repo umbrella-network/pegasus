@@ -1,12 +1,11 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
 import chai from 'chai';
-import {Container} from 'inversify';
 import {PriceTriggerFilter} from '../../../src/services/deviationsFeeds/PriceTriggerFilter.js';
-import {mockedLogger} from '../../mocks/logger.js';
 import {DeviationFeed, PriceData} from '../../../src/types/DeviationFeeds.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
 import Leaf from '../../../src/types/Leaf.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 const {expect} = chai;
 
@@ -14,8 +13,7 @@ describe('PriceTriggerFilter', () => {
   let priceTriggerFilter: PriceTriggerFilter;
 
   beforeEach(async () => {
-    const container = new Container();
-    container.bind('Logger').toConstantValue(mockedLogger);
+    const container = getTestContainer();
     container.bind(PriceTriggerFilter).toSelf();
     priceTriggerFilter = container.get(PriceTriggerFilter);
   });

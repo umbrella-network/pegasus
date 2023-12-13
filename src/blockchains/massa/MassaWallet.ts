@@ -15,9 +15,11 @@ export class MassaWallet implements IWallet {
   protected loggerPrefix!: string;
   readonly chainId = ChainsIds.MASSA;
   readonly provider!: ProviderInterface;
-  address!: string;
+
   publicKey!: string;
-  rawWallet!: IAccount;
+
+  protected addr!: string;
+  protected rawWallet!: IAccount;
   protected rawWalletAwait!: Promise<IAccount>;
   protected client!: Client;
 
@@ -28,16 +30,23 @@ export class MassaWallet implements IWallet {
     this.provider = ProviderFactory.create(ChainsIds.MASSA);
     this.rawWalletAwait = WalletClient.getAccountFromSecretKey(privateKeyPem);
 
-    this.beforeAnyAction();
+    this.beforeAnyAction().then(() => {
+      this.logger.info(`${this.loggerPrefix} constructor done`);
+    });
   }
 
-  getRawWallet<T>(): T {
+  async getRawWallet<T>(): Promise<T> {
+    await this.beforeAnyAction();
     return this.rawWallet as unknown as T;
+  }
+
+  getRawWalletSync<T>(): T {
+    throw new Error(`${this.loggerPrefix} please use: getRawWallet()`);
   }
 
   async getBalance(): Promise<bigint> {
     await this.beforeAnyAction();
-    return this.provider.getBalance(this.address);
+    return this.provider.getBalance(this.addr);
   }
 
   async getWallet(): Promise<WalletClient> {
@@ -45,26 +54,35 @@ export class MassaWallet implements IWallet {
     return this.client.wallet();
   }
 
-  async getNextNonce(): Promise<number> {
+  async getNextNonce(): Promise<bigint> {
     this.logger.debug(`${this.loggerPrefix} getNextNonce: there is no nonce concept`);
-    return 0;
+    return 0n;
   }
 
   async sendTransaction(): Promise<ExecutedTx> {
     throw Error(`${this.loggerPrefix} sendTransaction(): TODO`);
   }
 
-  async beforeAnyAction(): Promise<void> {
-    if (this.address) return;
+  toNative(value: string): bigint {
+    return fromMAS(value);
+  }
 
-    await (this.provider as MassaProvider).beforeAnyAction();
+  async address(): Promise<string> {
+    await this.beforeAnyAction();
+    return this.publicKey;
+  }
+
+  private async beforeAnyAction(): Promise<void> {
+    if (this.addr) return;
+
+    const provider = await this.provider.getRawProvider<MassaProvider>();
 
     this.rawWallet = await this.rawWalletAwait;
-    this.address = this.rawWallet.address || 'N/A';
+    this.addr = this.rawWallet.address || 'N/A';
     this.publicKey = this.rawWallet.publicKey || 'N/A';
 
     this.client = await ClientFactory.createCustomClient(
-      [{url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC} as IProvider],
+      [{url: provider.providerUrl, type: ProviderType.PUBLIC} as IProvider],
       true,
       this.rawWallet,
     );
@@ -72,7 +90,7 @@ export class MassaWallet implements IWallet {
     this.logger.info(`${this.loggerPrefix} wallet initialised for ${this.address}, ${this.publicKey}`);
   }
 
-  toNative(value: string): bigint {
-    return fromMAS(value);
+  setRawWallet(): void {
+    throw Error(`${this.loggerPrefix} setRawWallet(): not needed`);
   }
 }

@@ -26,21 +26,13 @@ export class MassaProvider implements ProviderInterface {
     });
   }
 
-  async beforeAnyAction(): Promise<void> {
-    if (this.client) return;
-    if (!this.providerUrl) return;
-
-    this.client = await ClientFactory.createCustomClient(
-      [
-        {url: this.providerUrl, type: ProviderType.PUBLIC} as IProvider,
-        // { url: privateApi, type: ProviderType.PRIVATE } as IProvider,
-      ],
-      true,
-    );
+  async getRawProvider<T>(): Promise<T> {
+    await this.beforeAnyAction();
+    return this.client as unknown as T;
   }
 
-  getRawProvider<T>(): T {
-    return this.client as unknown as T;
+  getRawProviderSync<T>(): T {
+    throw new Error(`${this.loggerPrefix} please use: getRawProvider()`);
   }
 
   async getBlockNumber(): Promise<bigint> {
@@ -76,8 +68,7 @@ export class MassaProvider implements ProviderInterface {
     return {name: this.chainId, id: 13119191};
   }
 
-  async getTransactionCount(): Promise<number> {
-    await this.beforeAnyAction();
+  async getTransactionCount(): Promise<bigint> {
     throw Error(`${this.loggerPrefix} getTransactionCount(): use MassaWallet`);
   }
 
@@ -148,5 +139,18 @@ export class MassaProvider implements ProviderInterface {
 
   getBlock(): Promise<void> {
     throw new Error(`${this.loggerPrefix} getBlock(): not supported`);
+  }
+
+  private async beforeAnyAction(): Promise<void> {
+    if (this.client) return;
+    if (!this.providerUrl) return;
+
+    this.client = await ClientFactory.createCustomClient(
+      [
+        {url: this.providerUrl, type: ProviderType.PUBLIC} as IProvider,
+        // { url: privateApi, type: ProviderType.PRIVATE } as IProvider,
+      ],
+      true,
+    );
   }
 }

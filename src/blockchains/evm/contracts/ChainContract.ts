@@ -72,7 +72,7 @@ class ChainContract {
     if (!contract) throw new Error(`${this.loggerPrefix} can not resolve contract`);
 
     const txResponse: TransactionResponse = await contract
-      .connect(this.blockchain.wallet.getRawWallet())
+      .connect(this.blockchain.wallet.getRawWalletSync())
       .submit(args.dataTimestamp, args.root, args.keys, args.values, args.v, args.r, args.s, payableOverrides);
 
     this.logger.info(`${this.loggerPrefix} tx nonce: ${txResponse.nonce}, hash: ${txResponse.hash}`);
@@ -86,7 +86,7 @@ class ChainContract {
     if (!contract) return 0n;
 
     const gas = await contract
-      .connect(this.blockchain.wallet.getRawWallet())
+      .connect(this.blockchain.wallet.getRawWalletSync())
       .estimateGas.submit(args.dataTimestamp, args.root, args.keys, args.values, args.v, args.r, args.s);
 
     return gas.toBigInt();
@@ -96,13 +96,13 @@ class ChainContract {
     try {
       if (!this.registry) {
         this.registry = new ContractRegistry(
-          this.blockchain.provider.getRawProvider(),
+          this.blockchain.provider.getRawProviderSync(),
           this.blockchain.getContractRegistryAddress(),
         );
       }
 
       const chainAddress = await this.registry.getAddress(this.settings.blockchain.contracts.chain.name);
-      return new Contract(chainAddress, this.chainAbi, this.blockchain.provider.getRawProvider());
+      return new Contract(chainAddress, this.chainAbi, this.blockchain.provider.getRawProviderSync());
     } catch (e: unknown) {
       this.logger.error(`${this.loggerPrefix} ChainContract resolveContract error: ${(e as Error).message}`);
       return;

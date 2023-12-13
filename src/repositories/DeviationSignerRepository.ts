@@ -13,15 +13,18 @@ export type DeviationSignerCollection = {
 @injectable()
 export class DeviationSignerRepository {
   @inject('Settings') settings!: Settings;
-  @inject('Logger') logger!: Logger;
+
+  logger!: Logger;
   private collection: DeviationSignerCollection = {};
 
   constructor(@inject('Settings') settings: Settings, @inject('Logger') logger: Logger) {
+    this.logger = logger;
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
 
     keys.forEach((chainId) => {
       try {
         this.collection[chainId] = DeviationSignerFactory.create(settings, chainId);
+        logger.info(`[DeviationSignerRepository] signer for ${chainId} ready`);
       } catch (e: unknown) {
         logger.error(`[DeviationSignerRepository] ${chainId}: ${(e as Error).message}`);
         this.collection[chainId] = undefined;
@@ -31,7 +34,7 @@ export class DeviationSignerRepository {
 
   get(id: string): DeviationSignerInterface {
     if (!this.collection[id]) {
-      this.logger.warn(`[DeviationSignerRepository] DeviationSignerInterface ${id} does not exists`);
+      this.logger.error(`[DeviationSignerRepository] DeviationSignerInterface ${id} does not exists`);
     }
 
     return <DeviationSignerInterface>this.collection[id];

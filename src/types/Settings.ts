@@ -37,7 +37,7 @@ export type BlockchainInfoSettings = {
   contractRegistryAddress?: string;
   chainAddress?: string;
   umbrellaFeedsAddress?: string;
-  deviationWalletAddress?: string;
+  deviationWalletAddress?: string | undefined;
   walletAddress?: string;
   lastTx: SubmitMonitorExt | undefined;
 };
@@ -115,7 +115,7 @@ type Settings = {
         deviationPrivateKey?: string;
       };
       concordium: {
-        // privateKey: string; looks like we can use evm key
+        privateKey: string;
         deviationPrivateKey?: string;
       };
     };

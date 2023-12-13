@@ -10,7 +10,7 @@ export class BlockchainGasCalculator {
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
   async apply(chainId: ChainsIds, blockNumber: number): Promise<BlockchainGas | undefined> {
-    const provider: StaticJsonRpcProvider = this.providerRepository.get(chainId).getRawProvider();
+    const provider: StaticJsonRpcProvider = this.providerRepository.get(chainId).getRawProviderSync();
 
     const block = await provider.getBlock(blockNumber);
     if (block.transactions.length == 0) return;
@@ -30,7 +30,7 @@ export class BlockchainGasCalculator {
   }
 
   protected async getReceipts(chainId: ChainsIds, txs: string[]): Promise<TransactionReceipt[]> {
-    const provider: StaticJsonRpcProvider = this.providerRepository.get(chainId).getRawProvider();
+    const provider: StaticJsonRpcProvider = this.providerRepository.get(chainId).getRawProviderSync();
     return Promise.all(txs.map((tx) => provider.getTransactionReceipt(tx)));
   }
 

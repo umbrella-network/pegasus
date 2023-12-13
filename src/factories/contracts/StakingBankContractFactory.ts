@@ -5,6 +5,7 @@ import {StakingBankMultiversX} from '../../blockchains/multiversx/contracts/Stak
 import settings from '../../config/settings.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 import {StakingBankMassa} from '../../blockchains/massa/contracts/StakingBankMassa.js';
+import {StakingBankConcordium} from '../../blockchains/concordium/contracts/StakingBankConcordium.js';
 
 export class StakingBankContractFactory {
   static create(blockchain: Blockchain): StakingBankInterface {
@@ -14,6 +15,9 @@ export class StakingBankContractFactory {
 
       case ChainsIds.MASSA:
         return new StakingBankMassa(blockchain, settings.blockchain.contracts.bank.name);
+
+      case ChainsIds.CONCORDIUM:
+        return new StakingBankConcordium(blockchain, settings.blockchain.contracts.bank.name);
 
       case ChainsIds.BSC:
       case ChainsIds.AVALANCHE:

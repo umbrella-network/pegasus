@@ -107,9 +107,9 @@ class InfoController {
     ] = await Promise.allSettled([
       registry.getAddress(CHAIN_CONTRACT_NAME),
       registry.getAddress('UmbrellaFeeds'),
-      blockchain.wallet.address +
+      (await blockchain.wallet.address()) +
         (chainId == ChainsIds.MASSA ? `@${(blockchain.wallet as MassaWallet).publicKey}` : ''),
-      blockchain.deviationWallet?.address,
+      blockchain.deviationWallet?.address(),
       this.lastSubmitResolver.apply(chainId),
       blockchain.provider.getNetwork(),
     ]);

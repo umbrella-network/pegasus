@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import chai from 'chai';
 import {ethers} from 'ethers';
+import {Logger} from 'winston';
 
 import {PayableOverrides} from '@ethersproject/contracts';
 
@@ -14,37 +15,51 @@ import {PriceData, UmbrellaFeedsUpdateArgs} from '../../src/types/DeviationFeeds
 import {DeviationHasher} from '../../src/services/deviationsFeeds/DeviationHasher.js';
 import {ProviderFactory} from '../../src/factories/ProviderFactory.js';
 import {DeviationSignerRepository} from '../../src/repositories/DeviationSignerRepository.js';
-import {mockedLogger} from '../mocks/logger.js';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+import {FeedName} from '../../src/types/Feed';
+import {StakingBankContractFactory} from '../../src/factories/contracts/StakingBankContractFactory.js';
+import {StakingBankInterface} from '../../src/interfaces/StakingBankInterface.js';
+import {UmbrellaFeedsConcordium} from '../../src/blockchains/concordium/contracts/UmbrellaFeedsConcordium';
 
 const {expect} = chai;
 
-describe.skip('Umbrella Feeds debug integration tests', () => {
+describe.skip('final integration tests', () => {
   let blockchainRepo: BlockchainRepository;
+  let logger: Logger;
 
   before(() => {
     loadTestEnv();
-    blockchainRepo = new BlockchainRepository(settings, mockedLogger);
+
+    const container = getTestContainer();
+
+    container.bind(BlockchainRepository).toSelf();
+    container.bind(DeviationSignerRepository).toSelf();
+
+    blockchainRepo = container.get(BlockchainRepository);
+    logger = container.get('Logger');
   });
 
   describe('[INTEGRATION] #update', () => {
-    const chainId = ChainsIds.MASSA;
+    const chainId = ChainsIds.CONCORDIUM;
     let umbrellaFeeds: UmbrellaFeedInterface;
+    let bank: StakingBankInterface;
 
     beforeEach(() => {
       umbrellaFeeds = UmbrellaFeedsContractFactory.create(blockchainRepo.get(chainId));
+      bank = StakingBankContractFactory.create(blockchainRepo.get(chainId));
     });
 
     it('#getManyPriceDataRaw', async () => {
-      const data = await umbrellaFeeds.getManyPriceDataRaw(['ETH-USD', 'TEST'].map((k) => ethers.utils.id(k)));
+      const data = await umbrellaFeeds.getManyPriceDataRaw(['ETH-USD', 'TEST']);
       console.log(data);
     });
 
-    it.skip('DEBUG: check tx hash', async () => {
+    it('DEBUG: check tx hash', async () => {
       const provider = ProviderFactory.create(chainId);
       expect(await provider.waitForTx('e00ece29f3b90c12d9aacde215bf4e0aa5f32cc8bd9ecaaaba3a192c5f1fb1c2', 10000)).true;
     });
 
-    it.skip('DEBUG: base update', async () => {
+    it('DEBUG: base update', async () => {
       const provider = ProviderFactory.create(chainId);
       const umbrellaFeed = UmbrellaFeedsContractFactory.create(blockchainRepo.get(ChainsIds.BASE));
 
@@ -75,55 +90,75 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
 
       const priceDatas: PriceData[] = [
         {
-          data: 9,
+          data: 0,
           heartbeat: 1,
           timestamp: Math.trunc(Date.now() / 1000),
           price: 16535n,
         },
         {
-          data: 8,
+          data: 0,
           heartbeat: 1,
           timestamp: Math.trunc(Date.now() / 1000),
           price: 1821n,
         },
       ];
 
-      const keys = ['GOOD-PRICE', 'BAD-PRICE'];
+      const keys: FeedName[] = ['PRICE_A', 'PRICE_B'];
 
       const umbrellaFeeds = UmbrellaFeedsContractFactory.create(blockchainRepo.get(chainId));
+      await (umbrellaFeeds as UmbrellaFeedsConcordium).contractSetup();
+      console.log('umbrellaFeeds', await umbrellaFeeds.address());
+      console.log('bank', await bank.address());
       const target = await umbrellaFeeds.address();
 
       const hasher = new DeviationHasher();
 
       const hash = hasher.apply(chainId, network.id, target, keys, priceDatas);
 
+      const [hasOnChain, validators] = await Promise.all([
+        umbrellaFeeds.hashData(keys, priceDatas),
+        bank.resolveValidators(),
+      ]);
+
+      expect(hash).eq(hasOnChain, 'hash is wrong');
+      console.log('HASH OK!');
+
       const privateKey1 = process.env.TEST_SIGNING_PRIVATE_KEY1 || '';
       const privateKey2 = process.env.TEST_SIGNING_PRIVATE_KEY2 || '';
 
-      console.log('BEFORE UDAPTE:', await umbrellaFeeds.getManyPriceDataRaw(keys));
+      console.log('umbrellaFeeds address', await umbrellaFeeds.address());
+      console.log('BEFORE UPDATE:', await umbrellaFeeds.getManyPriceDataRaw(keys));
 
-      settings.blockchain.wallets.massa.privateKey = privateKey1;
-      const signerRepo1 = new DeviationSignerRepository(settings, mockedLogger);
+      settings.blockchain.wallets.concordium.privateKey = privateKey1;
+      const signerRepo1 = new DeviationSignerRepository(settings, logger);
       const signer1 = signerRepo1.get(chainId);
+      const signer1Addr = await signer1.address();
+      console.log({signer1Addr});
+      console.log(ethers.utils.arrayify(Buffer.from(signer1Addr, 'hex')));
+      expect(signer1Addr).eq(validators[0].id, 'invalid validator1');
 
-      settings.blockchain.wallets.massa.privateKey = privateKey2;
-      const signerRepo2 = new DeviationSignerRepository(settings, mockedLogger);
+      settings.blockchain.wallets.concordium.privateKey = privateKey2;
+      const signerRepo2 = new DeviationSignerRepository(settings, logger);
       const signer2 = signerRepo2.get(chainId);
+      const signer2Addr = await signer2.address();
+      console.log({signer2Addr});
+      console.log(ethers.utils.arrayify(Buffer.from(signer2Addr, 'hex')));
+      expect(signer2Addr).eq(validators[1].id, 'invalid validator2');
 
-      const signatures = await Promise.all([signer1.apply(hash), await signer2.apply(hash)]);
+      const signatures = await Promise.all([signer2.apply(hash), await signer1.apply(hash)]);
 
       const args: UmbrellaFeedsUpdateArgs = {
-        keys: keys.map((k) => ethers.utils.id(k)),
+        keys: keys,
         priceDatas,
         signatures,
       };
 
-      console.log(args);
+      console.log({args});
 
       const payableOverrides: PayableOverrides = {};
       const executed = await umbrellaFeeds.update(args, payableOverrides);
 
-      console.log(executed);
+      console.log({executed});
 
       const success = await blockchainRepo.get(chainId).provider.waitForTx(executed.hash, 65000);
       console.log('success:', success);

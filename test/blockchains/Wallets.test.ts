@@ -9,13 +9,14 @@ import {IWallet} from '../../src/interfaces/IWallet.js';
 
 const {expect} = chai;
 
-describe('Test Wallets', () => {
+describe.skip('Test Wallets', () => {
   before(() => {
     loadTestEnv();
   });
 
   [
-    // ChainsIds.MASSA, ChainsIds.CONCORDIUM
+    // ChainsIds.MASSA,
+    ChainsIds.CONCORDIUM,
   ].forEach((chainId) => {
     describe(`[${chainId}] provider`, () => {
       let wallet: IWallet;
@@ -41,7 +42,7 @@ describe('Test Wallets', () => {
       it('#getNextNonce', async () => {
         const nonce = await wallet.getNextNonce();
         console.log(`${chainId}: getNextNonce: ${nonce} `);
-        expect(nonce).gt(0);
+        expect(nonce > 0).true;
       }).timeout(5000);
     });
   });

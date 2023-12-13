@@ -5,6 +5,7 @@ import {RegistryInterface} from '../../interfaces/RegistryInterface.js';
 import {RegistryMultiversX} from '../../blockchains/multiversx/contracts/RegistryMultiversX.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 import {RegistryMassa} from '../../blockchains/massa/contracts/RegistryMassa.js';
+import {RegistryConcordium} from '../../blockchains/concordium/contracts/RegistryConcordium.js';
 
 export class RegistryContractFactory {
   static create(blockchain: Blockchain): RegistryInterface {
@@ -15,6 +16,9 @@ export class RegistryContractFactory {
       case ChainsIds.MASSA:
         return new RegistryMassa(blockchain);
 
+      case ChainsIds.CONCORDIUM:
+        return new RegistryConcordium(blockchain);
+
       case ChainsIds.BSC:
       case ChainsIds.AVALANCHE:
       case ChainsIds.ARBITRUM:
@@ -22,7 +26,7 @@ export class RegistryContractFactory {
       case ChainsIds.ETH:
       case ChainsIds.LINEA:
       case ChainsIds.BASE:
-        return new ContractRegistry(blockchain.provider.getRawProvider(), blockchain.getContractRegistryAddress());
+        return new ContractRegistry(blockchain.provider.getRawProviderSync(), blockchain.getContractRegistryAddress());
 
       default:
         throw new Error(`[RegistryContractFactory] ${blockchain.chainId} not supported`);
