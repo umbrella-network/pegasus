@@ -30,6 +30,7 @@ export class ProviderFactory {
       case ChainsIds.LINEA:
       case ChainsIds.BASE:
       case ChainsIds.AVAX_MELD:
+      case ChainsIds.XDC:
         return new EvmProvider(chainId, providerUrl);
 
       default:

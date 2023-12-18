@@ -193,6 +193,19 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
+  [ChainsIds.XDC]: {
+    // TODO
+    type: resolveBlockchainType(ChainsIds.XDC) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.XDC),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      minBalance: {
+        warningLimit: '0.5',
+        errorLimit: '0.005',
+      },
+    },
+  },
 };
 
 const settings: Settings = {

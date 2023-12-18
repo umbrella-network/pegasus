@@ -10,6 +10,7 @@ export enum ChainsIds {
   MASSA = 'massa',
   CONCORDIUM = 'concordium',
   AVAX_MELD = 'avax_meld',
+  XDC = 'xdc',
 }
 
 export type ChainsIdsKeys = keyof typeof ChainsIds;
