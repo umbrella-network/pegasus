@@ -21,7 +21,7 @@ describe.skip('Registries debug integration tests', () => {
     blockchainRepo = container.get(BlockchainRepository);
   });
 
-  [ChainsIds.CONCORDIUM].forEach((chainId) => {
+  [ChainsIds.MULTIVERSX].forEach((chainId) => {
     describe(`[${chainId}] provider`, () => {
       let registry: RegistryInterface;
 
@@ -29,7 +29,7 @@ describe.skip('Registries debug integration tests', () => {
         registry = RegistryContractFactory.create(blockchainRepo.get(chainId));
       });
 
-      it.skip('#getAddress', async () => {
+      it(`[${chainId}] #getAddress`, async () => {
         const [addr, feeds] = await Promise.all([
           registry.getAddress('StakingBank'),
           registry.getAddress('UmbrellaFeeds'),

@@ -16,7 +16,8 @@ describe.skip('Test Wallets', () => {
 
   [
     // ChainsIds.MASSA,
-    ChainsIds.CONCORDIUM,
+    // ChainsIds.CONCORDIUM,
+    ChainsIds.MULTIVERSX,
   ].forEach((chainId) => {
     describe(`[${chainId}] provider`, () => {
       let wallet: IWallet;
@@ -28,18 +29,18 @@ describe.skip('Test Wallets', () => {
         wallet = w;
       });
 
-      it('#address', async () => {
-        console.log(`${chainId}: address: ${wallet.address} `);
-        expect(wallet.address).not.empty;
+      it(`[${chainId}] #address`, async () => {
+        console.log(`${chainId}: address: ${await wallet.address()} `);
+        expect(await wallet.address()).not.empty;
       });
 
-      it('#getBalance', async () => {
+      it(`[${chainId}] #getBalance`, async () => {
         const balance = await wallet.getBalance();
         console.log(`${chainId}: balance: ${balance} `);
         expect(balance > 0n).true;
       }).timeout(5000);
 
-      it('#getNextNonce', async () => {
+      it(`[${chainId}] #getNextNonce`, async () => {
         const nonce = await wallet.getNextNonce();
         console.log(`${chainId}: getNextNonce: ${nonce} `);
         expect(nonce > 0).true;
