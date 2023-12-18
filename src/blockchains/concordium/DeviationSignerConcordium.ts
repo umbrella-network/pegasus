@@ -15,7 +15,6 @@ export class DeviationSignerConcordium implements DeviationSignerInterface {
     if (!privateKey) throw new Error('[DeviationSignerConcordium] empty privateKey');
 
     this.pk = parseWallet(privateKey);
-    console.log('DeviationSignerConcordium:', JSON.stringify(this.pk));
     this.signer = buildAccountSigner(this.signKey());
     this.publicKey = this.verifyKey();
 

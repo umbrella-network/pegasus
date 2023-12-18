@@ -17,9 +17,9 @@ describe.skip('Test Providers - debug integration tests', () => {
 
   [
     // {chainId: ChainsIds.AVALANCHE, account: '0x4acd5cc057c1b8c771e2e3cd3e30780ca257dec0'},
-    // {chainId: ChainsIds.MULTIVERSX, account: 'erd1rf4hv70arudgzus0ymnnsnc4pml0jkywg2xjvzslg0mz4nn2tg7q7k0t6p'},
+    {chainId: ChainsIds.MULTIVERSX, account: 'erd1ydry2dkxlmghe7fvyj0u9tne40zmrm8rngk6hdcukkcjusxrpvuq9mq2l6'},
     // {chainId: ChainsIds.MASSA, account: 'AU1h7jfDGJYHxFYDoG2disme925yopJ359yyYvwjkxPqwKDn1cGa'},
-    {chainId: ChainsIds.CONCORDIUM, account: '41EpZoem2w2UpEYiLihvKEkbUCuuGD8DC7ajqNL6zJnDYeHQkw'},
+    // {chainId: ChainsIds.CONCORDIUM, account: '41EpZoem2w2UpEYiLihvKEkbUCuuGD8DC7ajqNL6zJnDYeHQkw'},
   ].forEach(({chainId, account}) => {
     describe(`[${chainId}] provider`, () => {
       let provider: ProviderInterface;
@@ -28,19 +28,19 @@ describe.skip('Test Providers - debug integration tests', () => {
         provider = ProviderFactory.create(chainId as ChainsIds);
       });
 
-      it('#getBlockNumber', async () => {
+      it(`[${chainId}] #getBlockNumber`, async () => {
         const bn = await provider.getBlockNumber();
         console.log(`${chainId} block number: `, bn);
         expect(bn > 0n).true;
       }).timeout(5000);
 
-      it('#getBlockTimestamp', async () => {
+      it(`[${chainId}] #getBlockTimestamp`, async () => {
         const bn = await provider.getBlockTimestamp();
         console.log(`${chainId} block timestamp: `, bn);
         expect(bn > 0n).true;
       }).timeout(5000);
 
-      it('#getNetwork', async () => {
+      it(`[${chainId}] #getNetwork`, async () => {
         const {id, name} = await provider.getNetwork();
         console.log(`${chainId}: id: ${id}, name: ${name} `);
         expect(id).not.undefined;
@@ -49,7 +49,7 @@ describe.skip('Test Providers - debug integration tests', () => {
         expect(id).eq(generateChainId(chainId));
       }).timeout(5000);
 
-      it('#getBalance', async () => {
+      it(`[${chainId}] #getBalance`, async () => {
         const balance = await provider.getBalance(account);
         console.log(`${chainId}: balance: ${balance} `);
         expect(balance > 0n).true;

@@ -102,7 +102,7 @@ export class UmbrellaFeedsConcordium implements UmbrellaFeedInterface {
 
         return {
           price: empty ? 0n : BigInt(p.content.price),
-          data: empty ? 0 : p.content.data,
+          data: empty ? 0 : Number(p.content.data),
           timestamp: empty ? 0 : Number(p.content.timestamp.value),
           heartbeat: empty ? 0 : Number(p.content.heartbeat),
           key: names[i],

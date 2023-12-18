@@ -28,7 +28,6 @@ import {Signature} from '@multiversx/sdk-core/out/signature.js';
 import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
 import path from 'path';
-import {ethers} from 'ethers';
 
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
 import Blockchain from '../../../lib/Blockchain.js';
@@ -197,7 +196,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
       const data = {
         value: '0',
         receiver: receiver,
-        sender: this.blockchain.deviationWallet?.address || '',
+        sender: await this.blockchain.deviationWallet?.address(),
         data: payload.encoded(),
         chainID: chainID,
         version: 1,
@@ -222,7 +221,10 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
         },
       };
     } catch (e) {
-      this.logger.error(`${this.loggerPrefix} estimateCost: (${(e as AxiosError).code}) ${(e as AxiosError).message}`);
+      this.logger.error(
+        `${this.loggerPrefix} estimateCost: (${(e as AxiosError).code}) ${(e as AxiosError).message}: ` +
+          (e as AxiosError).response?.data.error,
+      );
 
       throw e;
     }

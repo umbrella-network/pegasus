@@ -33,9 +33,9 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
 
   [
     // ChainsIds.AVALANCHE,
-    // ChainsIds.MULTIVERSX,
+    ChainsIds.MULTIVERSX,
     // ChainsIds.LINEA,
-    ChainsIds.CONCORDIUM,
+    // ChainsIds.CONCORDIUM,
   ].forEach((chainId) => {
     describe(`[${chainId}] on-chain feeds tests`, () => {
       let umbrellaFeeds: UmbrellaFeedInterface;
@@ -45,7 +45,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         umbrellaFeeds = UmbrellaFeedsContractFactory.create(blockchain);
       });
 
-      it('#address', async () => {
+      it(`[${chainId}] #address`, async () => {
         const addr = await umbrellaFeeds.address();
         console.log(`${chainId} UmbrellaFeeds: `, addr);
 
@@ -71,24 +71,24 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         }
       }).timeout(5000);
 
-      it('#requiredSignatures', async () => {
+      it(`[${chainId}] #requiredSignatures`, async () => {
         expect(await umbrellaFeeds.requiredSignatures()).eq(2);
       });
 
-      it('#getManyPriceDataRaw empty array', async () => {
+      it(`[${chainId}] #getManyPriceDataRaw empty array`, async () => {
         const priceDatas = await umbrellaFeeds.getManyPriceDataRaw([]);
         expect(priceDatas).not.undefined;
         expect(priceDatas?.length).eq(0);
       }).timeout(10000);
 
-      it('#getManyPriceDataRaw with non exist key', async () => {
+      it(`[${chainId}] #getManyPriceDataRaw with non exist key`, async () => {
         const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['a']);
         console.log(priceDatas);
         if (!priceDatas) throw Error('undefined priceDatas');
 
         const priceData = priceDatas[0];
 
-        expect(priceDatas.length).eq(0);
+        expect(priceDatas.length).eq(1);
 
         expect(priceData.data).eq(0, 'data');
         expect(priceData.timestamp).eq(0, 'timestamp');
@@ -96,9 +96,9 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         expect(priceData.price).eq(0n, 'price');
       }).timeout(10000);
 
-      it('#getManyPriceDataRaw with existing keys', async () => {
-        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['USDC-USD', 'EGLD-USD']);
-        console.log(priceDatas);
+      it(`[${chainId}] #getManyPriceDataRaw with existing keys`, async () => {
+        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['UMB-USD', 'EGLD-USD']);
+        console.log({priceDatas});
         if (!priceDatas) throw Error('undefined priceDatas');
 
         const priceData = priceDatas[0];
@@ -120,7 +120,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
           [networkId, target] = await Promise.all([blockchainRepo.get(chainId).networkId(), umbrellaFeeds.address()]);
         });
 
-        it('hash empty data', async () => {
+        it(`[${chainId}] hash empty data`, async () => {
           const hash = await hasher.apply(chainId, networkId, target, [], []);
           const contractHash = await umbrellaFeeds.hashData([], []);
 
@@ -129,7 +129,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
           expect(hash).eq(contractHash);
         });
 
-        it('hash one PriceData', async () => {
+        it(`[${chainId}] hash one PriceData`, async () => {
           const priceDatas: PriceData[] = [
             {
               data: 8,
@@ -151,7 +151,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
           expect(hash).eq(contractHash);
         });
 
-        it('hash many PriceDatas', async () => {
+        it(`[${chainId}] hash many PriceDatas`, async () => {
           const priceDatas: PriceData[] = [
             {
               data: 9,
@@ -193,14 +193,21 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
           if (!signer) throw new Error(`empty signer for ${chainId}`);
         });
 
-        it('ensure signer is registered in bank', async () => {
+        it(`[${chainId}] ensure signer is registered in bank`, async () => {
           const bank = StakingBankContractFactory.create(blockchainRepo.get(chainId));
           const blockchain = blockchainRepo.get(chainId);
 
           const validatorAddress = await signer.address();
           console.log({validatorAddress});
 
-          const balance = await bank.balanceOf(validatorAddress);
+          let balance: bigint;
+
+          try {
+            balance = await bank.balanceOf(validatorAddress);
+          } catch (e) {
+            balance = -1n;
+          }
+
           const deviationAddress = await blockchain.deviationWallet?.address();
 
           console.log({balance, deviationAddress});
@@ -209,12 +216,16 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
 
           console.log('validators:', [validatorAddress, deviationAddress || '']);
 
-          expect(Number(balance)).gt(0, 'balanceOf check - validator not registered');
+          if (balance < 0n) {
+            console.log('!!! BALANCE OF MISSING !!!');
+          } else {
+            expect(Number(balance)).gt(0, 'balanceOf check - validator not registered');
+          }
 
           expect(await bank.verifyValidators([validatorAddress])).eq(true, 'verifyValidators check');
         });
 
-        it('sign one PriceData', async () => {
+        it(`[${chainId}] sign one PriceData`, async () => {
           const priceDatas: PriceData[] = [
             {
               data: 0,

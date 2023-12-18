@@ -21,7 +21,7 @@ describe.skip('Staking Banks debug integration tests', () => {
     blockchainRepo = container.get(BlockchainRepository);
   });
 
-  [ChainsIds.CONCORDIUM].forEach((chainId) => {
+  [ChainsIds.MULTIVERSX].forEach((chainId) => {
     describe(`[${chainId}] bank tests`, () => {
       let bank: StakingBankInterface;
 
@@ -30,7 +30,7 @@ describe.skip('Staking Banks debug integration tests', () => {
         console.log('bank address', await bank.address());
       });
 
-      it('#address', async () => {
+      it(`[${chainId}] #address`, async () => {
         const addr = await bank.address();
         console.log(`${chainId} StakingBank: `, addr);
 
@@ -50,13 +50,13 @@ describe.skip('Staking Banks debug integration tests', () => {
         }
       }).timeout(5000);
 
-      it('#getNumberOfValidators', async () => {
+      it(`[${chainId}] #getNumberOfValidators`, async () => {
         const getNumberOfValidators = await bank.getNumberOfValidators();
         console.log({getNumberOfValidators});
         expect(getNumberOfValidators).gt(0);
       });
 
-      it('#resolveValidators', async () => {
+      it(`[${chainId}] #resolveValidators`, async () => {
         const addr = await bank.resolveValidators();
         console.log(addr);
         console.log(addr.length);

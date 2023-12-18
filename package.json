@@ -1,6 +1,6 @@
 {
   "name": "pegasus",
-  "version": "7.21.0-beta.20",
+  "version": "7.21.0-alpha.1",
   "type": "module",
   "packageManager": "npm@9.5.1",
   "repository": {
@@ -86,8 +86,8 @@
     "@grpc/grpc-js": "~1.9.12",
     "@massalabs/massa-as-sdk": "~2.5.1",
     "@massalabs/massa-web3": "~2.2.1",
-    "@multiversx/sdk-core": "~12.12.0",
-    "@multiversx/sdk-network-providers": "~2.0.0",
+    "@multiversx/sdk-core": "~12.16.0",
+    "@multiversx/sdk-network-providers": "~2.2.0",
     "@multiversx/sdk-transaction-decoder": "~1.0.2",
     "@multiversx/sdk-wallet": "~4.2.0",
     "@multiversx/sdk-web-wallet-provider": "~3.1.0",

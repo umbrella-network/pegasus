@@ -19,7 +19,7 @@ import {getTestContainer} from '../helpers/getTestContainer.js';
 import {FeedName} from '../../src/types/Feed';
 import {StakingBankContractFactory} from '../../src/factories/contracts/StakingBankContractFactory.js';
 import {StakingBankInterface} from '../../src/interfaces/StakingBankInterface.js';
-import {UmbrellaFeedsConcordium} from '../../src/blockchains/concordium/contracts/UmbrellaFeedsConcordium';
+// import {UmbrellaFeedsConcordium} from '../../src/blockchains/concordium/contracts/UmbrellaFeedsConcordium';
 
 const {expect} = chai;
 
@@ -40,7 +40,7 @@ describe.skip('final integration tests', () => {
   });
 
   describe('[INTEGRATION] #update', () => {
-    const chainId = ChainsIds.CONCORDIUM;
+    const chainId = ChainsIds.MULTIVERSX;
     let umbrellaFeeds: UmbrellaFeedInterface;
     let bank: StakingBankInterface;
 
@@ -49,17 +49,17 @@ describe.skip('final integration tests', () => {
       bank = StakingBankContractFactory.create(blockchainRepo.get(chainId));
     });
 
-    it('#getManyPriceDataRaw', async () => {
+    it(`[${chainId}] #getManyPriceDataRaw`, async () => {
       const data = await umbrellaFeeds.getManyPriceDataRaw(['ETH-USD', 'TEST']);
       console.log(data);
     });
 
-    it('DEBUG: check tx hash', async () => {
+    it(`[${chainId}] DEBUG: check tx hash`, async () => {
       const provider = ProviderFactory.create(chainId);
       expect(await provider.waitForTx('e00ece29f3b90c12d9aacde215bf4e0aa5f32cc8bd9ecaaaba3a192c5f1fb1c2', 10000)).true;
     });
 
-    it('DEBUG: base update', async () => {
+    it(`[${chainId}] DEBUG: base update`, async () => {
       const provider = ProviderFactory.create(chainId);
       const umbrellaFeed = UmbrellaFeedsContractFactory.create(blockchainRepo.get(ChainsIds.BASE));
 
@@ -85,38 +85,38 @@ describe.skip('final integration tests', () => {
       expect(await provider.waitForTx(tx.hash, 10000)).true;
     });
 
-    it.skip('sign, update', async () => {
+    it.skip(`[${chainId}] sign, update`, async () => {
       const network = await ProviderFactory.create(chainId).getNetwork();
 
       const priceDatas: PriceData[] = [
         {
           data: 0,
           heartbeat: 1,
-          timestamp: Math.trunc(Date.now() / 1000),
+          timestamp: 1702896406,
           price: 16535n,
         },
         {
           data: 0,
           heartbeat: 1,
-          timestamp: Math.trunc(Date.now() / 1000),
+          timestamp: 1702896406,
           price: 1821n,
         },
       ];
 
-      const keys: FeedName[] = ['PRICE_A', 'PRICE_B'];
+      const feedsNames: FeedName[] = ['GOOD-PRICE', 'BAD-PRICE'];
 
       const umbrellaFeeds = UmbrellaFeedsContractFactory.create(blockchainRepo.get(chainId));
-      await (umbrellaFeeds as UmbrellaFeedsConcordium).contractSetup();
+      // await (umbrellaFeeds as UmbrellaFeedsConcordium).contractSetup();
       console.log('umbrellaFeeds', await umbrellaFeeds.address());
       console.log('bank', await bank.address());
       const target = await umbrellaFeeds.address();
 
       const hasher = new DeviationHasher();
 
-      const hash = hasher.apply(chainId, network.id, target, keys, priceDatas);
+      const hash = hasher.apply(chainId, network.id, target, feedsNames, priceDatas);
 
       const [hasOnChain, validators] = await Promise.all([
-        umbrellaFeeds.hashData(keys, priceDatas),
+        umbrellaFeeds.hashData(feedsNames, priceDatas),
         bank.resolveValidators(),
       ]);
 
@@ -127,28 +127,30 @@ describe.skip('final integration tests', () => {
       const privateKey2 = process.env.TEST_SIGNING_PRIVATE_KEY2 || '';
 
       console.log('umbrellaFeeds address', await umbrellaFeeds.address());
-      console.log('BEFORE UPDATE:', await umbrellaFeeds.getManyPriceDataRaw(keys));
+      console.log('BEFORE UPDATE:', await umbrellaFeeds.getManyPriceDataRaw(feedsNames));
 
-      settings.blockchain.wallets.concordium.privateKey = privateKey1;
+      settings.blockchain.wallets.multiversX.privateKey = privateKey1;
       const signerRepo1 = new DeviationSignerRepository(settings, logger);
       const signer1 = signerRepo1.get(chainId);
       const signer1Addr = await signer1.address();
       console.log({signer1Addr});
       console.log(ethers.utils.arrayify(Buffer.from(signer1Addr, 'hex')));
       expect(signer1Addr).eq(validators[0].id, 'invalid validator1');
+      console.log(`signer1 ${signer1Addr} OK`);
 
-      settings.blockchain.wallets.concordium.privateKey = privateKey2;
+      settings.blockchain.wallets.multiversX.privateKey = privateKey2;
       const signerRepo2 = new DeviationSignerRepository(settings, logger);
       const signer2 = signerRepo2.get(chainId);
       const signer2Addr = await signer2.address();
       console.log({signer2Addr});
       console.log(ethers.utils.arrayify(Buffer.from(signer2Addr, 'hex')));
       expect(signer2Addr).eq(validators[1].id, 'invalid validator2');
+      console.log(`signer2 ${signer2Addr} OK`);
 
-      const signatures = await Promise.all([signer2.apply(hash), await signer1.apply(hash)]);
+      const signatures = await Promise.all([await signer1.apply(hash), signer2.apply(hash)]);
 
       const args: UmbrellaFeedsUpdateArgs = {
-        keys: keys,
+        keys: feedsNames,
         priceDatas,
         signatures,
       };
@@ -163,7 +165,7 @@ describe.skip('final integration tests', () => {
       const success = await blockchainRepo.get(chainId).provider.waitForTx(executed.hash, 65000);
       console.log('success:', success);
 
-      console.log(await umbrellaFeeds.getManyPriceDataRaw(keys));
+      console.log(await umbrellaFeeds.getManyPriceDataRaw(feedsNames));
       expect(success).true;
     }).timeout(65000);
   });

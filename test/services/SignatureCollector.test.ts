@@ -17,7 +17,7 @@ import Settings from '../../src/types/Settings.js';
 
 const {expect} = chai;
 
-describe.only('SignatureCollector', () => {
+describe('SignatureCollector', () => {
   let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let signatureCollector: SignatureCollector;
   const leaderWallet = Wallet.createRandom();

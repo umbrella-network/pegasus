@@ -13,6 +13,8 @@ import {BaseDeviationDispatcher} from './networks/BaseDeviationDispatcher.js';
 import {MultiversXDeviationDispatcher} from './networks/MultiversXDeviationDispatcher.js';
 import {MassaDeviationDispatcher} from './networks/MassaDeviationDispatcher.js';
 import {ConcordiumDeviationDispatcher} from './networks/ConcordiumDeviationDispatcher.js';
+import {AvaxMeldDeviationDispatcher} from './networks/AvaxMeldDeviationDispatcher.js';
+import {XDCDeviationDispatcher} from './networks/XDCDeviationDispatcher.js';
 
 export type DeviationFeedsDispatcherProps = {
   chainId: ChainsIds;
@@ -34,6 +36,8 @@ export class DeviationFeedsDispatcher {
     @inject(MultiversXDeviationDispatcher) multiversXDeviationDispatcher: MultiversXDeviationDispatcher,
     @inject(MassaDeviationDispatcher) massaDeviationDispatcher: MassaDeviationDispatcher,
     @inject(ConcordiumDeviationDispatcher) concordiumDeviationDispatcher: ConcordiumDeviationDispatcher,
+    @inject(AvaxMeldDeviationDispatcher) avaxMeldDeviationDispatcher: AvaxMeldDeviationDispatcher,
+    @inject(XDCDeviationDispatcher) xdcDeviationDispatcher: XDCDeviationDispatcher,
   ) {
     this.dispatchers = {
       [ChainsIds.ARBITRUM]: arbitrumDeviationDispatcher,
@@ -45,6 +49,8 @@ export class DeviationFeedsDispatcher {
       [ChainsIds.MULTIVERSX]: multiversXDeviationDispatcher,
       [ChainsIds.MASSA]: massaDeviationDispatcher,
       [ChainsIds.CONCORDIUM]: concordiumDeviationDispatcher,
+      [ChainsIds.AVAX_MELD]: avaxMeldDeviationDispatcher,
+      [ChainsIds.XDC]: xdcDeviationDispatcher,
     };
   }
 

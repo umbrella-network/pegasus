@@ -30,6 +30,8 @@ export class WalletFactory {
       case ChainsIds.ETH:
       case ChainsIds.LINEA:
       case ChainsIds.BASE:
+      case ChainsIds.AVAX_MELD:
+      case ChainsIds.XDC:
         if (!wallets.evm.privateKey) throw new Error(`[WalletFactory] empty privateKey for ${chainId}`);
         return new EvmWallet(chainId, wallets.evm.privateKey);
 
