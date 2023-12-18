@@ -2,14 +2,15 @@
     "buildInfo": {
         "rustc": {
             "version": "1.71.0-nightly",
-            "commitHash": "7f94b314cead7059a71a265a8b64905ef2511796",
-            "commitDate": "2023-04-23",
+            "commitHash": "a2b1646c597329d0a25efa3889b66650f65de1de",
+            "commitDate": "2023-05-25",
             "channel": "Nightly",
-            "short": "rustc 1.71.0-nightly (7f94b314c 2023-04-23)"
+            "short": "rustc 1.71.0-nightly (a2b1646c5 2023-05-25)"
         },
         "contractCrate": {
             "name": "umbrella-feeds",
-            "version": "0.0.0"
+            "version": "0.0.0",
+            "gitVersion": "1.0.0-7-g94aa929"
         },
         "framework": {
             "name": "multiversx-sc",
@@ -30,6 +31,10 @@
             {
                 "name": "decimals",
                 "type": "u8"
+            },
+            {
+                "name": "chain_id",
+                "type": "u32"
             }
         ],
         "outputs": []
@@ -199,7 +204,7 @@
             "mutability": "readonly",
             "inputs": [
                 {
-                    "name": "hash",
+                    "name": "initial_hash",
                     "type": "array32<u8>"
                 },
                 {
@@ -242,6 +247,16 @@
             "outputs": [
                 {
                     "type": "u8"
+                }
+            ]
+        },
+        {
+            "name": "chain_id",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u32"
                 }
             ]
         },
