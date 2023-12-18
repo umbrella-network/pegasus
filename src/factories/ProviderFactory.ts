@@ -29,6 +29,7 @@ export class ProviderFactory {
       case ChainsIds.ETH:
       case ChainsIds.LINEA:
       case ChainsIds.BASE:
+      case ChainsIds.AVAX_MELD:
         return new EvmProvider(chainId, providerUrl);
 
       default:

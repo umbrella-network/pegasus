@@ -28,6 +28,7 @@ export class DeviationSignerFactory {
       case ChainsIds.ETH:
       case ChainsIds.LINEA:
       case ChainsIds.BASE:
+      case ChainsIds.AVAX_MELD:
         return new DeviationSignerEvm(settings, chainId);
 
       default:

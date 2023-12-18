@@ -9,6 +9,7 @@ export enum ChainsIds {
   MULTIVERSX = 'multiversx',
   MASSA = 'massa',
   CONCORDIUM = 'concordium',
+  AVAX_MELD = 'avax_meld',
 }
 
 export type ChainsIdsKeys = keyof typeof ChainsIds;
