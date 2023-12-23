@@ -142,15 +142,14 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   [ChainsIds.MULTIVERSX]: {
-    // TODO
     type: resolveBlockchainType(ChainsIds.MULTIVERSX) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.MULTIVERSX),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
-        warningLimit: '0.01',
-        errorLimit: '0.0005',
+        warningLimit: '0.1',
+        errorLimit: '0.0015',
       },
     },
   },
@@ -168,20 +167,18 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   [ChainsIds.CONCORDIUM]: {
-    // TODO
     type: resolveBlockchainType(ChainsIds.CONCORDIUM) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.CONCORDIUM),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 0,
       minBalance: {
-        warningLimit: '0.01',
-        errorLimit: '0.0005',
+        warningLimit: '250.00',
+        errorLimit: '50.0',
       },
     },
   },
   [ChainsIds.AVAX_MELD]: {
-    // TODO
     type: resolveBlockchainType(ChainsIds.AVAX_MELD) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.AVAX_MELD),
     transactions: {
@@ -194,7 +191,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   [ChainsIds.XDC]: {
-    // TODO
     type: resolveBlockchainType(ChainsIds.XDC) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.XDC),
     transactions: {
