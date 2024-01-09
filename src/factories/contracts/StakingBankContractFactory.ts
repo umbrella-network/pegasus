@@ -28,6 +28,7 @@ export class StakingBankContractFactory {
       case ChainsIds.BASE:
       case ChainsIds.AVAX_MELD:
       case ChainsIds.XDC:
+      case ChainsIds.OKX:
         return new StakingBankContract(blockchain, settings.blockchain.contracts.bank.name);
 
       default:

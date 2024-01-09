@@ -192,7 +192,7 @@ export abstract class Dispatcher {
     }
 
     if (balance < wallet.toNative(warningLimit)) {
-      this.logger.warn(`${this.logPrefix} Balance (${address.slice(0, 10)}) is lower than ${warningLimit}`);
+      this.printNotImportantWarn(`${this.logPrefix} Balance (${address.slice(0, 10)}) is lower than ${warningLimit}`);
     }
   }
 
@@ -206,5 +206,17 @@ export abstract class Dispatcher {
 
     this.lastStatusLogs[msg] = Date.now();
     this.logger.info(`${this.logPrefix} ${msg} (stat)`);
+  }
+
+  protected printNotImportantWarn(msg: string) {
+    const lastTime = this.lastStatusLogs[msg];
+
+    if (lastTime && lastTime + 60_000 * 5 > Date.now()) {
+      // print only once a minute
+      return;
+    }
+
+    this.lastStatusLogs[msg] = Date.now();
+    this.logger.warn(`${this.logPrefix} ${msg} (stat)`);
   }
 }

@@ -28,6 +28,7 @@ export class RegistryContractFactory {
       case ChainsIds.BASE:
       case ChainsIds.AVAX_MELD:
       case ChainsIds.XDC:
+      case ChainsIds.OKX:
         return new ContractRegistry(blockchain.provider.getRawProviderSync(), blockchain.getContractRegistryAddress());
 
       default:

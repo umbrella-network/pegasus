@@ -202,6 +202,18 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
+  [ChainsIds.OKX]: {
+    type: resolveBlockchainType(ChainsIds.OKX) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.OKX),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      minBalance: {
+        warningLimit: '0.5',
+        errorLimit: '0.035',
+      },
+    },
+  },
 };
 
 const settings: Settings = {
