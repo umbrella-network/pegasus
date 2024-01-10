@@ -33,6 +33,7 @@ export class ProviderFactory {
       case ChainsIds.XDC:
       case ChainsIds.OKX:
       case ChainsIds.ARTHERA:
+      case ChainsIds.ASTAR:
         return new EvmProvider(chainId, providerUrl);
 
       default:

@@ -30,6 +30,7 @@ export class RegistryContractFactory {
       case ChainsIds.XDC:
       case ChainsIds.OKX:
       case ChainsIds.ARTHERA:
+      case ChainsIds.ASTAR:
         return new ContractRegistry(blockchain.provider.getRawProviderSync(), blockchain.getContractRegistryAddress());
 
       default:

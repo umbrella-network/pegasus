@@ -33,6 +33,7 @@ export class DeviationHasher implements DeviationHasherInterface {
       case ChainsIds.XDC:
       case ChainsIds.OKX:
       case ChainsIds.ARTHERA:
+      case ChainsIds.ASTAR:
         return DeviationHasherEvm.apply(networkId, target, names, priceDatas);
 
       default:

@@ -17,6 +17,7 @@ import {AvaxMeldDeviationDispatcher} from './networks/AvaxMeldDeviationDispatche
 import {XDCDeviationDispatcher} from './networks/XDCDeviationDispatcher.js';
 import {OKXDeviationDispatcher} from './networks/OKXDeviationDispatcher.js';
 import {ArtheraDeviationDispatcher} from './networks/ArtheraDeviationDispatcher.js';
+import {AstarDeviationDispatcher} from './networks/AstarDeviationDispatcher.js';
 
 export type DeviationFeedsDispatcherProps = {
   chainId: ChainsIds;
@@ -42,6 +43,7 @@ export class DeviationFeedsDispatcher {
     @inject(XDCDeviationDispatcher) xdcDeviationDispatcher: XDCDeviationDispatcher,
     @inject(OKXDeviationDispatcher) okxDeviationDispatcher: OKXDeviationDispatcher,
     @inject(ArtheraDeviationDispatcher) artheraDeviationDispatcher: ArtheraDeviationDispatcher,
+    @inject(AstarDeviationDispatcher) astarDeviationDispatcher: AstarDeviationDispatcher,
   ) {
     this.dispatchers = {
       [ChainsIds.ARBITRUM]: arbitrumDeviationDispatcher,
@@ -57,6 +59,7 @@ export class DeviationFeedsDispatcher {
       [ChainsIds.XDC]: xdcDeviationDispatcher,
       [ChainsIds.OKX]: okxDeviationDispatcher,
       [ChainsIds.ARTHERA]: artheraDeviationDispatcher,
+      [ChainsIds.ASTAR]: astarDeviationDispatcher,
     };
   }
 
