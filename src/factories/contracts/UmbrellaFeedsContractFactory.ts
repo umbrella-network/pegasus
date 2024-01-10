@@ -31,6 +31,7 @@ export class UmbrellaFeedsContractFactory {
       case ChainsIds.AVAX_MELD:
       case ChainsIds.XDC:
       case ChainsIds.OKX:
+      case ChainsIds.ARTHERA:
         return new FeedContract(settings, blockchain);
 
       default:

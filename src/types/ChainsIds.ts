@@ -12,6 +12,7 @@ export enum ChainsIds {
   AVAX_MELD = 'avax_meld',
   XDC = 'xdc',
   OKX = 'okx',
+  ARTHERA = 'arthera',
 }
 
 export type ChainsIdsKeys = keyof typeof ChainsIds;
