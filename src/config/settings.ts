@@ -222,7 +222,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       minGasPrice: 100000000,
       minBalance: {
         warningLimit: '0.5',
-        errorLimit: '0.00005',
+        errorLimit: '0.0008',
       },
     },
   },
@@ -233,7 +233,19 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
-        warningLimit: '0.5',
+        warningLimit: '0.15',
+        errorLimit: '0.0015',
+      },
+    },
+  },
+  [ChainsIds.ROOTSTCK]: {
+    type: resolveBlockchainType(ChainsIds.ROOTSTCK) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ROOTSTCK),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      minBalance: {
+        warningLimit: '0.001',
         errorLimit: '0.00005',
       },
     },

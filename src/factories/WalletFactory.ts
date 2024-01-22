@@ -35,6 +35,7 @@ export class WalletFactory {
       case ChainsIds.OKX:
       case ChainsIds.ARTHERA:
       case ChainsIds.ASTAR:
+      case ChainsIds.ROOTSTCK:
         if (!wallets.evm.privateKey) throw new Error(`[WalletFactory] empty privateKey for ${chainId}`);
         return new EvmWallet(chainId, wallets.evm.privateKey);
 

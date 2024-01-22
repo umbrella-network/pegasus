@@ -31,6 +31,7 @@ export class StakingBankContractFactory {
       case ChainsIds.OKX:
       case ChainsIds.ARTHERA:
       case ChainsIds.ASTAR:
+      case ChainsIds.ROOTSTCK:
         return new StakingBankContract(blockchain, settings.blockchain.contracts.bank.name);
 
       default:

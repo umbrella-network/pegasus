@@ -34,6 +34,7 @@ export class ProviderFactory {
       case ChainsIds.OKX:
       case ChainsIds.ARTHERA:
       case ChainsIds.ASTAR:
+      case ChainsIds.ROOTSTCK:
         return new EvmProvider(chainId, providerUrl);
 
       default:

@@ -33,6 +33,7 @@ export class UmbrellaFeedsContractFactory {
       case ChainsIds.OKX:
       case ChainsIds.ARTHERA:
       case ChainsIds.ASTAR:
+      case ChainsIds.ROOTSTCK:
         return new FeedContract(settings, blockchain);
 
       default:
