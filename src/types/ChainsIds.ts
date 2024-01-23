@@ -14,7 +14,7 @@ export enum ChainsIds {
   OKX = 'okx',
   ARTHERA = 'arthera',
   ASTAR = 'astar',
-  ROOTSTCK = 'rootstck',
+  ROOTSTOCK = 'rootstock',
 }
 
 export type ChainsIdsKeys = keyof typeof ChainsIds;

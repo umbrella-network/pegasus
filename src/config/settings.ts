@@ -238,9 +238,9 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
-  [ChainsIds.ROOTSTCK]: {
-    type: resolveBlockchainType(ChainsIds.ROOTSTCK) || [BlockchainType.ON_CHAIN],
-    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ROOTSTCK),
+  [ChainsIds.ROOTSTOCK]: {
+    type: resolveBlockchainType(ChainsIds.ROOTSTOCK) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ROOTSTOCK),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
