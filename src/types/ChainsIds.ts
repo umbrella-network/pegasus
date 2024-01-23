@@ -11,6 +11,10 @@ export enum ChainsIds {
   CONCORDIUM = 'concordium',
   AVAX_MELD = 'avax_meld',
   XDC = 'xdc',
+  OKX = 'okx',
+  ARTHERA = 'arthera',
+  ASTAR = 'astar',
+  ROOTSTCK = 'rootstck',
 }
 
 export type ChainsIdsKeys = keyof typeof ChainsIds;

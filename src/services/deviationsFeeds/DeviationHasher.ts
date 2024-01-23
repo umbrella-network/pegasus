@@ -31,6 +31,10 @@ export class DeviationHasher implements DeviationHasherInterface {
       case ChainsIds.BASE:
       case ChainsIds.AVAX_MELD:
       case ChainsIds.XDC:
+      case ChainsIds.OKX:
+      case ChainsIds.ARTHERA:
+      case ChainsIds.ASTAR:
+      case ChainsIds.ROOTSTCK:
         return DeviationHasherEvm.apply(networkId, target, names, priceDatas);
 
       default:

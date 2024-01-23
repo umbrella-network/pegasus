@@ -30,6 +30,10 @@ export class DeviationSignerFactory {
       case ChainsIds.BASE:
       case ChainsIds.AVAX_MELD:
       case ChainsIds.XDC:
+      case ChainsIds.OKX:
+      case ChainsIds.ARTHERA:
+      case ChainsIds.ASTAR:
+      case ChainsIds.ROOTSTCK:
         return new DeviationSignerEvm(settings, chainId);
 
       default:
