@@ -5,7 +5,7 @@ import {DeviationDispatcher} from '../DeviationDispatcher.js';
 import {BlockchainType} from '../../../types/Settings.js';
 
 @injectable()
-export class RootstckDeviationDispatcher extends DeviationDispatcher {
-  readonly chainId = ChainsIds.ROOTSTCK;
+export class RootstockDeviationDispatcher extends DeviationDispatcher {
+  readonly chainId = ChainsIds.ROOTSTOCK;
   readonly blockchainType = BlockchainType.ON_CHAIN;
 }

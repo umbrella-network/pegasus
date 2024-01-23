@@ -31,7 +31,7 @@ export class RegistryContractFactory {
       case ChainsIds.OKX:
       case ChainsIds.ARTHERA:
       case ChainsIds.ASTAR:
-      case ChainsIds.ROOTSTCK:
+      case ChainsIds.ROOTSTOCK:
         return new ContractRegistry(blockchain.provider.getRawProviderSync(), blockchain.getContractRegistryAddress());
 
       default:
