@@ -1,5 +1,6 @@
 import axios, {AxiosResponse} from 'axios';
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 import {splitIntoBatches} from '../../utils/collections.js';
@@ -22,6 +23,8 @@ interface APIParams {
 
 @injectable()
 export default class CoingeckoPriceMultiFetcher {
+  @inject('Logger') private logger!: Logger;
+
   private timeout: number;
   private maxBatchSize: number;
 
@@ -32,6 +35,7 @@ export default class CoingeckoPriceMultiFetcher {
 
   async apply(inputs: InputParams[]): Promise<OutputValues[]> {
     const batchedInputs = <InputParams[][]>splitIntoBatches(inputs, this.maxBatchSize);
+    this.logger.debug(`[CoingeckoPriceMultiFetcher] call for: ${inputs.map((i) => i.id).join(', ')}`);
 
     const responses = await Promise.all(
       batchedInputs.map((inputs) => {
@@ -92,6 +96,8 @@ export default class CoingeckoPriceMultiFetcher {
       const value: number | undefined = (response.data[id] || {})[currency.toLowerCase()];
 
       if (value) {
+        this.logger.debug(`[CoingeckoPriceMultiFetcher] resolved price: ${id}-${currency}: ${value}`);
+
         outputs.push({
           id,
           currency,

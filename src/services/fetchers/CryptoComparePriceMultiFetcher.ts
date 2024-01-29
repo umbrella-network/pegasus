@@ -1,11 +1,14 @@
 import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
+import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 
 @injectable()
 class CryptoComparePriceMultiFetcher {
+  @inject('Logger') private logger!: Logger;
+
   private apiKey: string;
   private timeout: number;
 
@@ -43,16 +46,19 @@ class CryptoComparePriceMultiFetcher {
       throw new Error(response.data.Message);
     }
 
+    this.logger.debug(`[CryptoComparePriceMultiFetcher] call for: ${fsyms.join(',')}}`);
+
     return this.extractValues(response.data, '$.*');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractValues = (data: any, valuePath: string): OutputValue[] => {
+  private extractValues = (responseData: any, valuePath: string): OutputValue[] => {
     const valuePairs: OutputValue[] = [];
-    const valuesArrays = JSONPath({json: data, path: valuePath});
+    const valuesArrays = JSONPath({json: responseData, path: valuePath});
 
-    Object.keys(data).forEach((fk, index) => {
+    Object.keys(responseData).forEach((fk, index) => {
       Object.keys(valuesArrays[index]).forEach((tk) => {
+        this.logger.debug(`[CryptoComparePriceMultiFetcher] resolved prices: ${fk}-${tk}: ${valuesArrays[index][tk]}`);
         valuePairs.push({fsym: fk, tsym: tk, value: valuesArrays[index][tk]});
       });
     });

@@ -24,7 +24,8 @@ interface FetcherError {
 
 @injectable()
 class FeedProcessor {
-  @inject('Logger') logger!: Logger;
+  @inject('Logger') private logger!: Logger;
+
   @inject(MultiFeedProcessor) multiFeedProcessor!: MultiFeedProcessor;
   @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
@@ -98,6 +99,8 @@ class FeedProcessor {
 
       result.push(leaves);
     });
+
+    this.logger.debug(`[FeedProcessor] result: ${JSON.stringify(result)}`);
 
     return result;
   }
