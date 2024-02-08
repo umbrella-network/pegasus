@@ -1,11 +1,14 @@
-import {injectable} from 'inversify';
-import Feeds from '../types/Feed.js';
-import {Validator, ValidatorResult} from 'jsonschema';
-import FeedsSchema from '../config/feeds-schema.js';
+import {inject, injectable} from 'inversify';
 import jsYaml from 'js-yaml';
+import {Logger} from 'winston';
+import {Validator, ValidatorResult} from 'jsonschema';
+import Feeds from '../types/Feed.js';
+import FeedsSchema from '../config/feeds-schema.js';
 
 @injectable()
 export class FeedFactory {
+  @inject('Logger') private logger!: Logger;
+
   validator: Validator;
 
   constructor() {
@@ -16,7 +19,14 @@ export class FeedFactory {
   createCollectionFromYaml(data: string): Feeds {
     const feeds = jsYaml.load(data) as Feeds;
     const validation = this.validate(feeds);
-    if (!validation.valid) throw new Error(`Invalid YAML ${JSON.stringify(validation.errors)}`);
+
+    if (!validation.valid) {
+      if (validation.errors.every((error) => error.property.split('.').pop() == 'fetcher')) {
+        this.logger.warn(`[FeedFactory] Invalid YAML: ${validation.errors.map((e) => e.property)}`);
+      } else {
+        throw new Error(`[FeedFactory] Invalid YAML ${JSON.stringify(validation.errors)}`);
+      }
+    }
 
     return feeds;
   }
