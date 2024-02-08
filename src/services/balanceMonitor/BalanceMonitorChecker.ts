@@ -47,7 +47,7 @@ export class BalanceMonitorChecker {
 
   protected walletForChainType(blockchainType: BlockchainType, chainId: ChainsIds): string | undefined {
     const blockchain = this.blockchainRepository.get(chainId);
-    return blockchainType == BlockchainType.LAYER2 ? blockchain.wallet.address : blockchain.deviationWallet?.address;
+    return blockchainType == BlockchainType.LAYER2 ? blockchain.wallet.address : blockchain?.deviationWallet?.address;
   }
 
   protected chainKeys(blockchainType: BlockchainType): ChainsIds[] {

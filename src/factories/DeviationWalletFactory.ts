@@ -14,9 +14,10 @@ export class DeviationWalletFactory {
         if (!wallets.multiversX.deviationPrivateKey) return;
         return new MultiversXWallet(wallets.multiversX.deviationPrivateKey.split('\n').join('\n'));
 
-      // case ChainsIds.CONCORDIUM:
-      //   if (!wallets.concordium.deviationPrivateKey) return;
-      //   return new ConcordiumWallet(wallets.concordium.deviationPrivateKey);
+      case ChainsIds.CONCORDIUM:
+        if (!wallets.concordium.deviationPrivateKey) return;
+        // return new ConcordiumWallet(wallets.concordium.deviationPrivateKey);
+        throw new Error(`[DeviationWalletFactory] ${chainId} not supported yet`);
 
       case ChainsIds.BSC:
       case ChainsIds.AVALANCHE:
