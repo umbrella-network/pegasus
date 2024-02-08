@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.20.5] - 2024-02-08
+### Fixed
+- on invalid fetcher, display error but do not halt the worker
+
 ## [7.20.4] - 2024-01-29
 ### Fixed
 - fix `CryptoCompareMultiProcessor`: support case where id of feed might be in different case than feed name

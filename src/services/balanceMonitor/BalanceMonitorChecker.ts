@@ -49,9 +49,10 @@ export class BalanceMonitorChecker {
 
   protected async walletForChainType(blockchainType: BlockchainType, chainId: ChainsIds): Promise<string | undefined> {
     const blockchain = this.blockchainRepository.get(chainId);
+
     return blockchainType == BlockchainType.LAYER2
       ? await blockchain.wallet.address()
-      : await blockchain.deviationWallet?.address();
+      : await blockchain?.deviationWallet?.address();
   }
 
   protected chainKeys(blockchainType: BlockchainType): ChainsIds[] {
