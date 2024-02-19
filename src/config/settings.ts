@@ -398,6 +398,18 @@ const settings: Settings = {
       defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '1.0'),
       verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
     },
+    goldApi: {
+      apiKey: process.env.GOLD_API_KEY as string,
+      timeout: timeoutWithCode(process.env.GOLD_API_TIMEOUT || '5000', TimeoutCodes.GOLD_API),
+    },
+    metalsApi: {
+      apiKey: process.env.METALS_API_KEY as string,
+      timeout: timeoutWithCode(process.env.METALS_API_TIMEOUT || '5000', TimeoutCodes.METALS_API),
+    },
+    futuresApi: {
+      apiKey: process.env.FUTURES_API_KEY as string,
+      timeout: timeoutWithCode(process.env.FUTURES_API_TIMEOUT || '5000', TimeoutCodes.FUTURES_API),
+    },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,

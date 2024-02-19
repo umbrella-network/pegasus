@@ -185,6 +185,18 @@ type Settings = {
       defaultDiscrepancy: number;
       verificationInterval: number;
     };
+    goldApi: {
+      apiKey: string;
+      timeout: number;
+    };
+    metalsApi: {
+      apiKey: string;
+      timeout: number;
+    };
+    futuresApi: {
+      apiKey: string;
+      timeout: number;
+    };
     priceFreshness: number;
   };
   rpcSelectionStrategy: string;
