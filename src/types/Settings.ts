@@ -189,11 +189,11 @@ type Settings = {
       apiKey: string;
       timeout: number;
     };
-    metalsApi: {
+    metalPriceApi: {
       apiKey: string;
       timeout: number;
     };
-    futuresApi: {
+    metalsDevApi: {
       apiKey: string;
       timeout: number;
     };

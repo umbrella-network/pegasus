@@ -402,13 +402,13 @@ const settings: Settings = {
       apiKey: process.env.GOLD_API_KEY as string,
       timeout: timeoutWithCode(process.env.GOLD_API_TIMEOUT || '5000', TimeoutCodes.GOLD_API),
     },
-    metalsApi: {
-      apiKey: process.env.METALS_API_KEY as string,
-      timeout: timeoutWithCode(process.env.METALS_API_TIMEOUT || '5000', TimeoutCodes.METALS_API),
+    metalPriceApi: {
+      apiKey: process.env.METAL_PRICE_API_KEY as string,
+      timeout: timeoutWithCode(process.env.METAL_PRICE_API_TIMEOUT || '5000', TimeoutCodes.METAL_PRICE_API),
     },
-    futuresApi: {
-      apiKey: process.env.FUTURES_API_KEY as string,
-      timeout: timeoutWithCode(process.env.FUTURES_API_TIMEOUT || '5000', TimeoutCodes.FUTURES_API),
+    metalsDevApi: {
+      apiKey: process.env.METALS_DEV_API_KEY as string,
+      timeout: timeoutWithCode(process.env.METALS_DEV_API_TIMEOUT || '5000', TimeoutCodes.METALS_DEV_API),
     },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
   },

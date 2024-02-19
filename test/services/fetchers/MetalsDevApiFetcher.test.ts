@@ -1,30 +1,28 @@
 import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
-import GoldApiPriceMultiFetcher, {
-  GoldApiInputParams,
-  GoldApiOutputValues,
-} from '../../../src/services/fetchers/GoldApiPriceFetcher.js';
+import MetalsDevApiFetcher, {
+  MetalsDevApiInputParams,
+  MetalsDevApiOutputValues,
+} from '../../../src/services/fetchers/MetalsDevApiFetcher.js';
 
 const {expect} = chai;
 
-describe('GoldApiPriceFetcher', () => {
-  const fetcher = Application.get(GoldApiPriceMultiFetcher);
+describe('MetalsDevApiFetcher', () => {
+  const fetcher = Application.get(MetalsDevApiFetcher);
 
-  const input: GoldApiInputParams = {symbol: 'XAU', currency: 'USD'};
+  const input: MetalsDevApiInputParams = {metal: 'gold', currency: 'USD'};
 
   describe('#apply', () => {
     describe('with valid parameters', () => {
-      let output: GoldApiOutputValues;
+      let output: MetalsDevApiOutputValues;
 
       before(async () => {
         output = await fetcher.apply(input);
       });
 
       it('returns the proper response format', () => {
-        console.log(output);
-
-        expect(output).to.have.property('symbol');
+        expect(output).to.have.property('metal');
         expect(output).to.have.property('currency');
         expect(output).to.have.property('priceGram24k').greaterThan(0);
       });
@@ -34,7 +32,7 @@ describe('GoldApiPriceFetcher', () => {
       it('rejects', async () => {
         await expect(
           fetcher.apply({
-            symbol: 'StrangeSymbol',
+            metal: 'StrangeSymbol',
             currency: 'StrangeCurrency',
           }),
         ).to.be.rejected;
