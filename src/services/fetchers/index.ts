@@ -11,8 +11,8 @@ import OptionsPriceFetcher from './OptionsPriceFetcher.js';
 import RandomNumberFetcher from './RandomNumberFetcher.js';
 import OnChainDataFetcher from './OnChainDataFetcher.js';
 import EvmTWAPGasPriceFetcher from './EvmTWAPGasPriceFetcher.js';
-import MetalsApiPriceMultiFetcher from './MetalsApiPriceMultiFetcher.js';
-import FuturesApiPriceFetcher from './FuturesApiPriceFetcher.js';
+import MetalPriceApiFetcher from './MetalPriceApiFetcher.js';
+import MetalsDevApiPriceFetcher from './MetalsDevApiFetcher.js';
 import GoldApiPriceFetcher from './GoldApiPriceFetcher.js';
 
 export {
@@ -30,6 +30,6 @@ export {
   OnChainDataFetcher,
   EvmTWAPGasPriceFetcher,
   GoldApiPriceFetcher,
-  MetalsApiPriceMultiFetcher,
-  FuturesApiPriceFetcher,
+  MetalPriceApiFetcher,
+  MetalsDevApiPriceFetcher,
 };
