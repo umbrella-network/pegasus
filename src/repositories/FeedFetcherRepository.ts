@@ -24,6 +24,9 @@ export class FeedFetcherRepository {
     @inject(fetchers.UniswapPriceFetcher) UniswapPriceFetcher: fetchers.UniswapPriceFetcher,
     @inject(fetchers.RandomNumberFetcher) RandomNumber: fetchers.RandomNumberFetcher,
     @inject(fetchers.EvmTWAPGasPriceFetcher) evmTWAPGasPriceFetcher: fetchers.EvmTWAPGasPriceFetcher,
+    @inject(fetchers.GoldApiPriceFetcher) GoldApiPriceFetcher: fetchers.GoldApiPriceFetcher,
+    @inject(fetchers.MetalPriceApiFetcher) MetalPriceApiFetcher: fetchers.MetalPriceApiFetcher,
+    @inject(fetchers.MetalsDevApiPriceFetcher) MetalsDevApiPriceFetcher: fetchers.MetalsDevApiPriceFetcher,
   ) {
     this.collection = {
       CryptoCompareHistoHour,
@@ -38,6 +41,9 @@ export class FeedFetcherRepository {
       UniswapPriceFetcher,
       RandomNumber,
       TWAPGasPrice: evmTWAPGasPriceFetcher,
+      GoldApiPriceFetcher,
+      MetalPriceApiFetcher,
+      MetalsDevApiPriceFetcher,
     };
   }
 
