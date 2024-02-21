@@ -1,21 +1,18 @@
 import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
-import GoldApiPriceMultiFetcher, {
-  GoldApiInputParams,
-  GoldApiOutputValues,
-} from '../../../src/services/fetchers/GoldApiPriceFetcher.js';
+import GoldApiPriceMultiFetcher, {GoldApiInputParams} from '../../../src/services/fetchers/GoldApiPriceFetcher.js';
 
 const {expect} = chai;
 
-describe('GoldApiPriceFetcher', () => {
+describe.skip('GoldApiPriceFetcher (to run them we need API keys)', () => {
   const fetcher = Application.get(GoldApiPriceMultiFetcher);
 
   const input: GoldApiInputParams = {symbol: 'XAU', currency: 'USD'};
 
   describe('#apply', () => {
     describe('with valid parameters', () => {
-      let output: GoldApiOutputValues;
+      let output = 0;
 
       before(async () => {
         output = await fetcher.apply(input);
@@ -23,10 +20,7 @@ describe('GoldApiPriceFetcher', () => {
 
       it('returns the proper response format', () => {
         console.log(output);
-
-        expect(output).to.have.property('symbol');
-        expect(output).to.have.property('currency');
-        expect(output).to.have.property('priceGram24k').greaterThan(0);
+        expect(output).greaterThan(0);
       });
     });
 
