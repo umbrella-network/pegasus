@@ -26,7 +26,7 @@ export class FeedFetcherRepository {
     @inject(fetchers.EvmTWAPGasPriceFetcher) evmTWAPGasPriceFetcher: fetchers.EvmTWAPGasPriceFetcher,
     @inject(fetchers.GoldApiPriceFetcher) GoldApiPrice: fetchers.GoldApiPriceFetcher,
     @inject(fetchers.MetalPriceApiFetcher) MetalPriceApi: fetchers.MetalPriceApiFetcher,
-    @inject(fetchers.MetalsDevApiPriceFetcher) MetalsDevApiPrice: fetchers.MetalsDevApiPriceFetcher,
+    @inject(fetchers.MetalsDevApiPriceFetcher) MetalsDevApi: fetchers.MetalsDevApiPriceFetcher,
   ) {
     this.collection = {
       CryptoCompareHistoHour,
@@ -43,7 +43,7 @@ export class FeedFetcherRepository {
       TWAPGasPrice: evmTWAPGasPriceFetcher,
       GoldApiPrice,
       MetalPriceApi,
-      MetalsDevApiPrice,
+      MetalsDevApi,
     };
   }
 
