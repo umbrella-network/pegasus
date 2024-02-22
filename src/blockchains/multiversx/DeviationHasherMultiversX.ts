@@ -4,11 +4,13 @@ import {Address} from '@multiversx/sdk-core';
 
 import {PriceData} from '../../types/DeviationFeeds.js';
 import {NumberToBuffer} from './utils/NumberToBuffer.js';
+import {FeedName} from '../../types/Feed';
+import {hashFeedName} from '../../utils/hashFeedName.js';
 
 @injectable()
 export class DeviationHasherMultiversX {
-  static apply(chainId: number, target: string, priceKeysRaw: string[], priceDatas: PriceData[]): string {
-    const priceKeys = priceKeysRaw.map((k) => Buffer.from(ethers.utils.id(k).slice(2), 'hex'));
+  static apply(chainId: number, target: string, names: FeedName[], priceDatas: PriceData[]): string {
+    const priceKeys = names.map((k) => Buffer.from(hashFeedName(k), 'hex'));
     const contractAddress = Address.fromBech32(target).pubkey();
 
     const dataList = [

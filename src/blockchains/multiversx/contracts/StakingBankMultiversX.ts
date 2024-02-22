@@ -52,6 +52,38 @@ export class StakingBankMultiversX implements StakingBankInterface {
     return Promise.all(addresses.map((address) => this.getValidator(bank, address)));
   }
 
+  async balanceOf(validator: string): Promise<bigint> {
+    const bank = await this.resolveContract();
+
+    const query = new Interaction(bank, new ContractFunction('balanceOf'), [
+      MultiversXAddress.toAddressValue(validator),
+    ]).buildQuery();
+
+    const response = await this.blockchain.provider.getRawProviderSync<ApiNetworkProvider>().queryContract(query);
+
+    const endpointDefinition = AbiRegistry.create(this.bankAbi).getEndpoint('balanceOf');
+    const parsedResponse = new ResultsParser().parseQueryResponse(response, endpointDefinition);
+
+    return BigInt(parsedResponse.values[0].toString());
+  }
+
+  async verifyValidators(validators: string[]): Promise<boolean> {
+    const bank = await this.resolveContract();
+
+    const query = new Interaction(
+      bank,
+      new ContractFunction('verifyValidators'),
+      validators.map((v) => MultiversXAddress.toAddressValue(v)),
+    ).buildQuery();
+
+    const response = await this.blockchain.provider.getRawProviderSync<ApiNetworkProvider>().queryContract(query);
+
+    const endpointDefinition = AbiRegistry.create(this.bankAbi).getEndpoint('verifyValidators');
+    const parsedResponse = new ResultsParser().parseQueryResponse(response, endpointDefinition);
+
+    return parsedResponse.values[0].valueOf();
+  }
+
   protected resolveContract = async (): Promise<SmartContract> => {
     if (!this.registry) {
       this.registry = RegistryContractFactory.create(this.blockchain);
@@ -68,7 +100,7 @@ export class StakingBankMultiversX implements StakingBankInterface {
 
   protected async numberOfValidators(bank: SmartContract): Promise<number> {
     const query = new Interaction(bank, new ContractFunction('getNumberOfValidators'), []).buildQuery();
-    const response = await this.blockchain.provider.getRawProvider<ApiNetworkProvider>().queryContract(query);
+    const response = await this.blockchain.provider.getRawProviderSync<ApiNetworkProvider>().queryContract(query);
 
     const endpointDefinition = AbiRegistry.create(this.bankAbi).getEndpoint('getNumberOfValidators');
     const parsedResponse = new ResultsParser().parseQueryResponse(response, endpointDefinition);
@@ -81,7 +113,7 @@ export class StakingBankMultiversX implements StakingBankInterface {
       MultiversXAddress.toAddressValue(validatorAddress),
     ]).buildQuery();
 
-    const response = await this.blockchain.provider.getRawProvider<ApiNetworkProvider>().queryContract(query);
+    const response = await this.blockchain.provider.getRawProviderSync<ApiNetworkProvider>().queryContract(query);
     const endpointDefinition = AbiRegistry.create(this.bankAbi).getEndpoint('validators');
     const parsedResponse = new ResultsParser().parseQueryResponse(response, endpointDefinition);
 
@@ -95,7 +127,7 @@ export class StakingBankMultiversX implements StakingBankInterface {
   }
 
   protected async resolveValidatorsAddresses(contract: SmartContract): Promise<string[]> {
-    const provider = this.blockchain.provider.getRawProvider<ApiNetworkProvider>();
+    const provider = this.blockchain.provider.getRawProviderSync<ApiNetworkProvider>();
     // const proxy = new ProxyNetworkProvider('https://devnet-gateway.multiversx.com');
     const query = new Interaction(contract, new ContractFunction('addresses'), []).buildQuery();
     const response = await provider.queryContract(query);

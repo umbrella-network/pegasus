@@ -3,7 +3,8 @@ import settings from '../config/settings.js';
 import {IWallet} from '../interfaces/IWallet.js';
 import {EvmWallet} from '../blockchains/evm/EvmWallet.js';
 import {MultiversXWallet} from '../blockchains/multiversx/MultiversXWallet.js';
-// import {ConcordiumWallet} from '../blockchains/concordium/ConcordiumWallet.js';
+import {MassaWallet} from '../blockchains/massa/MassaWallet.js';
+import {ConcordiumWallet} from '../blockchains/concordium/ConcordiumWallet.js';
 
 export class DeviationWalletFactory {
   static create(chainId: ChainsIds): IWallet | undefined {
@@ -14,10 +15,13 @@ export class DeviationWalletFactory {
         if (!wallets.multiversX.deviationPrivateKey) return;
         return new MultiversXWallet(wallets.multiversX.deviationPrivateKey.split('\n').join('\n'));
 
+      case ChainsIds.MASSA:
+        if (!wallets.massa.deviationPrivateKey) return;
+        return new MassaWallet(wallets.massa.deviationPrivateKey);
+
       case ChainsIds.CONCORDIUM:
         if (!wallets.concordium.deviationPrivateKey) return;
-        // return new ConcordiumWallet(wallets.concordium.deviationPrivateKey);
-        throw new Error(`[DeviationWalletFactory] ${chainId} not supported yet`);
+        return new ConcordiumWallet(wallets.concordium.deviationPrivateKey);
 
       case ChainsIds.BSC:
       case ChainsIds.AVALANCHE:
@@ -26,6 +30,12 @@ export class DeviationWalletFactory {
       case ChainsIds.ETH:
       case ChainsIds.LINEA:
       case ChainsIds.BASE:
+      case ChainsIds.AVAX_MELD:
+      case ChainsIds.XDC:
+      case ChainsIds.OKX:
+      case ChainsIds.ARTHERA:
+      case ChainsIds.ASTAR:
+      case ChainsIds.ROOTSTOCK:
         if (!wallets.evm.deviationPrivateKey) return;
         return new EvmWallet(chainId, wallets.evm.deviationPrivateKey);
 

@@ -37,7 +37,7 @@ export type BlockchainInfoSettings = {
   contractRegistryAddress?: string;
   chainAddress?: string;
   umbrellaFeedsAddress?: string;
-  deviationWalletAddress?: string;
+  deviationWalletAddress?: string | undefined;
   walletAddress?: string;
   lastTx: SubmitMonitorExt | undefined;
 };
@@ -115,7 +115,7 @@ type Settings = {
         deviationPrivateKey?: string;
       };
       concordium: {
-        // privateKey: string; looks like we can use evm key
+        privateKey: string;
         deviationPrivateKey?: string;
       };
     };
@@ -184,6 +184,18 @@ type Settings = {
       defaultPrecision: number;
       defaultDiscrepancy: number;
       verificationInterval: number;
+    };
+    goldApi: {
+      apiKey: string;
+      timeout: number;
+    };
+    metalPriceApi: {
+      apiKey: string;
+      timeout: number;
+    };
+    metalsDevApi: {
+      apiKey: string;
+      timeout: number;
     };
     priceFreshness: number;
   };

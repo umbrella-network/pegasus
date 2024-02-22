@@ -13,12 +13,14 @@ export type ChainContractCollection = {
 @injectable()
 export class ChainContractRepository {
   private collection: ChainContractCollection = {};
+  private logger: Logger;
 
   constructor(
     @inject('Settings') settings: Settings,
     @inject('Logger') logger: Logger,
     @inject(BlockchainRepository) blockchainRepository: BlockchainRepository,
   ) {
+    this.logger = logger;
     const keys = Object.keys(settings.blockchain.multiChains) as ChainsIds[];
 
     keys.forEach((chainId) => {
@@ -44,7 +46,7 @@ export class ChainContractRepository {
 
   get(id: string): ChainContract {
     if (!this.collection[id]) {
-      console.warn(`[ChainContractRepository] Blockchain ${id} does not exists`);
+      this.logger.error(`[ChainContractRepository] Blockchain ${id} does not exists`);
     }
 
     return <ChainContract>this.collection[id];

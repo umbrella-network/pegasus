@@ -1,10 +1,9 @@
 import 'reflect-metadata';
-import {Container} from 'inversify';
 import chai from 'chai';
 
 import Settings from '../../../src/types/Settings.js';
 import OptionsPriceCalculator from '../../../src/services/calculators/OptionsPriceCalculator.js';
-import {mockedLogger} from '../../mocks/logger.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 const {expect} = chai;
 
@@ -13,7 +12,7 @@ describe('OptionsPriceCalculator', () => {
   let optionsPriceCalculator: OptionsPriceCalculator;
 
   beforeEach(async () => {
-    const container = new Container();
+    const container = getTestContainer();
 
     settings = {
       api: {
@@ -25,7 +24,6 @@ describe('OptionsPriceCalculator', () => {
     } as Settings;
 
     container.bind('Settings').toConstantValue(settings);
-    container.bind('Logger').toConstantValue(mockedLogger);
 
     container.bind(OptionsPriceCalculator).toSelf();
 

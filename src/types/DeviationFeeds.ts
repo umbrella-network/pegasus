@@ -1,4 +1,4 @@
-import {Feed} from './Feed.js';
+import {ChainsId, Feed, FeedName} from './Feed.js';
 import Leaf from '../types/Leaf.js';
 import {ChainsIds} from './ChainsIds.js';
 import {KeyValues} from './SignedBlock.js';
@@ -14,7 +14,7 @@ export interface DeviationFeed extends Feed {
 }
 
 export interface DeviationFeeds {
-  [leafLabel: string]: DeviationFeed;
+  [leafLabel: FeedName]: DeviationFeed;
 }
 
 export interface DeviationLeavesAndFeeds {
@@ -36,14 +36,14 @@ export interface PriceData {
 }
 
 export interface PriceDataWithKey extends PriceData {
-  key: string;
+  key: FeedName;
 }
 
 export type PriceDataByKey = DataCollection<PriceDataWithKey>;
 
 export type PriceDataPerChain = DataCollection<PriceDataByKey>;
 
-export type KeysPerChain = Record<string, string[]>;
+export type FeedNamesPerChain = Record<ChainsId, FeedName[]>;
 
 export type DeviationSignatures = Record<string, string>; // chainId => signature
 
@@ -67,7 +67,7 @@ export interface DeviationSignerResponse {
 }
 
 export type UmbrellaFeedsUpdateArgs = {
-  keys: string[];
+  keys: FeedName[];
   priceDatas: PriceData[];
   signatures: string[];
 };

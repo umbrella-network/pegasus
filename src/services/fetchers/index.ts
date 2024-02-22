@@ -11,6 +11,9 @@ import OptionsPriceFetcher from './OptionsPriceFetcher.js';
 import RandomNumberFetcher from './RandomNumberFetcher.js';
 import OnChainDataFetcher from './OnChainDataFetcher.js';
 import EvmTWAPGasPriceFetcher from './EvmTWAPGasPriceFetcher.js';
+import MetalPriceApiFetcher from './MetalPriceApiFetcher.js';
+import MetalsDevApiPriceFetcher from './MetalsDevApiFetcher.js';
+import GoldApiPriceFetcher from './GoldApiPriceFetcher.js';
 
 export {
   CryptoComparePriceMultiFetcher,
@@ -26,4 +29,7 @@ export {
   RandomNumberFetcher,
   OnChainDataFetcher,
   EvmTWAPGasPriceFetcher,
+  GoldApiPriceFetcher,
+  MetalPriceApiFetcher,
+  MetalsDevApiPriceFetcher,
 };

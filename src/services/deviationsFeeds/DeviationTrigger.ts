@@ -7,6 +7,7 @@ import {DeviationTriggerFilters} from './DeviationTriggerFilters.js';
 import {DataFilter} from '../tools/DataFilter.js';
 import {DeviationFeedsPerChainSplitter} from './DeviationFeedsPerChainSplitter.js';
 import {PriceDataOverflowChecker} from './PriceDataOverflowChecker.js';
+import {ChainsId, FeedName} from '../../types/Feed';
 
 @injectable()
 export class DeviationTrigger {
@@ -42,7 +43,7 @@ export class DeviationTrigger {
 
     this.logger.info(`[DeviationTrigger] feeds: ${Object.keys(feeds)}`);
 
-    const keysPerChain = DeviationFeedsPerChainSplitter.apply(feeds);
+    const keysPerChain: Record<ChainsId, FeedName[]> = DeviationFeedsPerChainSplitter.apply(feeds);
 
     const priceDataPerChain = await this.priceDataProvider.apply(keysPerChain);
 

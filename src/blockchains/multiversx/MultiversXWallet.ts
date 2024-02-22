@@ -11,32 +11,40 @@ import logger from '../../lib/logger.js';
 
 export class MultiversXWallet implements IWallet {
   protected logger!: Logger;
-  protected logPrefix!: string;
+  protected loggerPrefix!: string;
+  protected readonly provider!: ProviderInterface;
+  protected readonly rawWallet!: UserSigner;
+  protected readonly publicAddress!: string;
 
   readonly chainId = ChainsIds.MULTIVERSX;
-  readonly provider!: ProviderInterface;
-  readonly rawWallet!: UserSigner;
-  readonly address!: string;
 
   constructor(privateKeyPem: string) {
     this.logger = logger;
-    this.logPrefix = '[MultiversXWallet]';
+    this.loggerPrefix = '[MultiversXWallet]';
 
     this.provider = ProviderFactory.create(ChainsIds.MULTIVERSX);
     this.rawWallet = UserSigner.fromPem(privateKeyPem);
-    this.address = this.rawWallet.getAddress().toString();
+    this.publicAddress = this.rawWallet.getAddress().toString();
   }
 
-  getRawWallet<T>(): T {
+  async getRawWallet<T>(): Promise<T> {
+    return new Promise((resolve) => resolve(this.rawWallet as unknown as T));
+  }
+
+  getRawWalletSync<T>(): T {
     return this.rawWallet as unknown as T;
   }
 
-  async getBalance(): Promise<bigint> {
-    return this.provider.getBalance(this.address);
+  async address(): Promise<string> {
+    return this.publicAddress;
   }
 
-  async getNextNonce(): Promise<number> {
-    return this.provider.getTransactionCount(this.address);
+  async getBalance(): Promise<bigint> {
+    return this.provider.getBalance(this.publicAddress);
+  }
+
+  async getNextNonce(): Promise<bigint> {
+    return this.provider.getTransactionCount(this.publicAddress);
   }
 
   async sendTransaction(): Promise<ExecutedTx> {
@@ -45,5 +53,9 @@ export class MultiversXWallet implements IWallet {
 
   toNative(value: string): bigint {
     return ethersUtils.parseEther(value).toBigInt();
+  }
+
+  setRawWallet(): void {
+    throw Error(`${this.loggerPrefix} setRawWallet(): not needed`);
   }
 }

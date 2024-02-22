@@ -29,7 +29,11 @@ export class EvmProvider implements ProviderInterface {
     this.provider = new ethers.providers.StaticJsonRpcProvider(url);
   }
 
-  getRawProvider<T>(): T {
+  async getRawProvider<T>(): Promise<T> {
+    return new Promise((resolve) => resolve(this.provider as unknown as T));
+  }
+
+  getRawProviderSync<T>(): T {
     return this.provider as unknown as T;
   }
 
@@ -57,8 +61,8 @@ export class EvmProvider implements ProviderInterface {
     return {name: status.name, id: status.chainId};
   }
 
-  async getTransactionCount(address: string): Promise<number> {
-    return this.provider.getTransactionCount(address);
+  async getTransactionCount(address: string): Promise<bigint> {
+    return BigInt(await this.provider.getTransactionCount(address));
   }
 
   async waitForTx(txHash: string, timeoutMs: number): Promise<boolean> {

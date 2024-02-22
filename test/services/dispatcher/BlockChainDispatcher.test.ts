@@ -122,7 +122,7 @@ describe('BlockChainDispatcher', () => {
     mockedBlockchain.chainSettings = settings.blockchain.multiChains.avax;
     mockedBlockchain.wallet = mockIWallet(wallet);
     mockedBlockchain.wallet.getBalance = async () => ethersUtils.parseEther('10').toBigInt();
-    mockedBlockchain.wallet.getNextNonce = async () => 1;
+    mockedBlockchain.wallet.getNextNonce = async () => 1n;
     mockedBlockchain.getBlockNumber.onCall(0).resolves(10n);
     mockedBlockchain.getBlockNumber.onCall(1).resolves(11n);
 
@@ -172,7 +172,7 @@ describe('BlockChainDispatcher', () => {
     describe('when balance is lower than mintBalance.errorLimit', () => {
       beforeEach(() => {
         mockedBlockchain.wallet.getBalance = async () => 0n;
-        mockedBlockchain.wallet.getNextNonce = async () => 1;
+        mockedBlockchain.wallet.getNextNonce = async () => 1n;
       });
 
       it.skip('throws an error, do not execute transaction and do not save on mongo', async () => {
@@ -190,7 +190,7 @@ describe('BlockChainDispatcher', () => {
     describe('when balance is lower than mintBalance.warnLimit', () => {
       beforeEach(() => {
         mockedBlockchain.wallet.getBalance = async () => ethersUtils.parseEther('0.1').toBigInt();
-        mockedBlockchain.wallet.getNextNonce = async () => 1;
+        mockedBlockchain.wallet.getNextNonce = async () => 1n;
       });
 
       it.skip('logs a warning message', async () => {
@@ -217,7 +217,7 @@ describe('BlockChainDispatcher', () => {
     describe('when balance is higher than mintBalance.warnLimit', () => {
       beforeEach(() => {
         mockedBlockchain.wallet.getBalance = async () => ethersUtils.parseEther('1').toBigInt();
-        mockedBlockchain.wallet.getNextNonce = async () => 1;
+        mockedBlockchain.wallet.getNextNonce = async () => 1n;
       });
 
       it.skip('does save block to database', async () => {
@@ -290,7 +290,7 @@ describe('BlockChainDispatcher', () => {
           mockedChainContract.submit.rejects({
             message: 'nonce has already been used',
           });
-          mockedBlockchain.wallet.getNextNonce = async () => 1;
+          mockedBlockchain.wallet.getNextNonce = async () => 1n;
         });
 
         it.skip('retries submitTx with different nonce', async () => {

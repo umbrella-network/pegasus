@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import {Logger} from 'winston';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 
 import {
   AbiRegistry,
@@ -28,7 +28,6 @@ import {Signature} from '@multiversx/sdk-core/out/signature.js';
 import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
 import path from 'path';
-import {ethers} from 'ethers';
 
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
 import Blockchain from '../../../lib/Blockchain.js';
@@ -41,6 +40,8 @@ import {ExecutedTx} from '../../../types/Consensus.js';
 import logger from '../../../lib/logger.js';
 import {MultiversXProvider} from '../MultiversXProvider.js';
 import {MultiversXAbi} from '../types';
+import {FeedName} from '../../../types/Feed';
+import {hashFeedName} from '../../../utils/hashFeedName.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,8 +74,11 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     return this.blockchain.chainId;
   }
 
-  async hashData(bytes32Keys: string[], priceDatas: PriceData[]): Promise<string> {
-    const args = this.parseDataForHashing(bytes32Keys, priceDatas);
+  async hashData(names: string[], priceDatas: PriceData[]): Promise<string> {
+    const args = this.parseDataForHashing(
+      names.map((k) => hashFeedName(k)),
+      priceDatas,
+    );
     const response = await this.apiCall('hashData', args);
     if (!response) throw new Error(`${this.loggerPrefix} hashData failed`);
 
@@ -90,11 +94,11 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     return parseInt(parsedResponse.values[0].toString('hex'), 16);
   }
 
-  async getManyPriceDataRaw(keys: string[]): Promise<PriceDataWithKey[] | undefined> {
+  async getManyPriceDataRaw(names: FeedName[]): Promise<PriceDataWithKey[] | undefined> {
     try {
       const response = await this.apiCall(
         'getManyPriceDataRaw',
-        keys.map((k) => new BytesValue(this.bufferFromString(ethers.utils.id(k)))),
+        names.map((k) => new BytesValue(this.bufferFromString(hashFeedName(k)))),
       );
 
       if (!response) return;
@@ -113,7 +117,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
           heartbeat: parseInt(heartbeat.value.toString(10)),
           timestamp: parseInt(timestamp.value.toString(10)),
           price: BigInt(new BigNumber(price.value).toFixed()),
-          key: keys[i],
+          key: names[i],
         };
       });
     } catch (e: unknown) {
@@ -135,7 +139,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     const deviationWallet = this.blockchain.deviationWallet;
     if (!deviationWallet) throw new Error(`${this.loggerPrefix} deviationWallet not set`);
 
-    const multiversXWallet = deviationWallet.getRawWallet<UserSigner>();
+    const multiversXWallet = deviationWallet.getRawWalletSync<UserSigner>();
 
     const parsedArgs = this.parseDataForUpdate(args);
 
@@ -147,16 +151,20 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     const updateTransaction = contract.methods
       .update(parsedArgs)
       .withSender(multiversXWallet.getAddress())
-      .withNonce(nonce)
+      .withNonce(Number(nonce))
       .withChainID(chainID)
       .buildTransaction();
+
+    this.logger.info(`${this.loggerPrefix} estimate cost`);
 
     const gasLimit = await this.estimateCost(
       contract.getAddress().bech32(),
       updateTransaction.getData(),
       chainID,
-      nonce,
+      Number(nonce),
     );
+
+    this.logger.info(`${this.loggerPrefix} gasLimit: ${gasLimit.valueOf()}`);
 
     updateTransaction.setGasLimit(gasLimit);
 
@@ -165,7 +173,9 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
     updateTransaction.applySignature(Signature.fromBuffer(txSignature));
 
-    const apiNetworkProvider = this.blockchain.provider.getRawProvider<ApiNetworkProvider>();
+    const apiNetworkProvider = this.blockchain.provider.getRawProviderSync<ApiNetworkProvider>();
+
+    this.logger.info(`${this.loggerPrefix} sending tx...`);
 
     const hash = await apiNetworkProvider.sendTransaction(updateTransaction);
     const atBlock = await this.blockchain.getBlockNumber();
@@ -179,33 +189,45 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     chainID: string,
     nonce: number,
   ): Promise<IGasLimit> {
-    const provider = this.blockchain.provider as MultiversXProvider;
-    const costUrl = `${provider.getProviderUrl()}/transaction/cost`;
+    try {
+      const provider = this.blockchain.provider as MultiversXProvider;
+      const costUrl = `${provider.getProviderUrl()}/transaction/cost`;
 
-    const data = {
-      value: '0',
-      receiver: receiver,
-      sender: this.blockchain.deviationWallet?.address || '',
-      data: payload.encoded(),
-      chainID: chainID,
-      version: 1,
-      nonce: nonce,
-    };
+      const data = {
+        value: '0',
+        receiver: receiver,
+        sender: await this.blockchain.deviationWallet?.address(),
+        data: payload.encoded(),
+        chainID: chainID,
+        version: 1,
+        nonce: nonce,
+      };
 
-    const res = await axios.post(costUrl, data);
+      this.logger.error(`${costUrl} ${JSON.stringify(data)}`);
 
-    const gas = parseInt(res.data.data.txGasUnits, 10);
+      const res = await axios.post(costUrl, data);
+      this.logger.info(`${this.loggerPrefix} post`);
 
-    if (gas == 0 && res.data.data.returnMessage) {
-      this.logger.error(`${this.loggerPrefix} gas: ${JSON.stringify(res.data)}`);
-      throw new Error(`${this.loggerPrefix} estimateCost error: ${res.data.data.returnMessage}`);
+      const gas = parseInt(res.data.data.txGasUnits, 10);
+
+      if (gas == 0 && res.data.data.returnMessage) {
+        this.logger.error(`${this.loggerPrefix} gas: ${JSON.stringify(res.data)}`);
+        throw new Error(`${this.loggerPrefix} estimateCost error: ${res.data.data.returnMessage}`);
+      }
+
+      return {
+        valueOf(): number {
+          return Math.trunc(gas * 1.05); // +5% to have some margin
+        },
+      };
+    } catch (e) {
+      this.logger.error(
+        `${this.loggerPrefix} estimateCost: (${(e as AxiosError).code}) ${(e as AxiosError).message}: ` +
+          (e as AxiosError).response?.data.error,
+      );
+
+      throw e;
     }
-
-    return {
-      valueOf(): number {
-        return Math.trunc(gas * 1.05); // +5% to have some margin
-      },
-    };
   }
 
   protected resolveContract = async (): Promise<SmartContract | undefined> => {
@@ -231,7 +253,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
     if (!contract) return;
 
     const query = new Interaction(contract, new ContractFunction(functionName), args).buildQuery();
-    return this.blockchain.provider.getRawProvider<ApiNetworkProvider>().queryContract(query);
+    return this.blockchain.provider.getRawProviderSync<ApiNetworkProvider>().queryContract(query);
   }
 
   protected parseDataForHashing(bytes32Keys: string[], priceDatas: PriceData[]): TypedValue[] {
@@ -251,7 +273,7 @@ export class UmbrellaFeedsMultiversX implements UmbrellaFeedInterface {
 
   protected parseDataForUpdate(args: UmbrellaFeedsUpdateArgs): TypedValue[] {
     return [
-      VariadicValue.fromItemsCounted(...args.keys.map((k) => new BytesValue(this.bufferFromString(k)))),
+      VariadicValue.fromItemsCounted(...args.keys.map((k) => new BytesValue(this.bufferFromString(hashFeedName(k))))),
       VariadicValue.fromItemsCounted(
         ...args.priceDatas.map((priceData) =>
           Tuple.fromItems([

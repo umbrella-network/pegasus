@@ -5,7 +5,6 @@ import chai from 'chai';
 import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {sleep} from '../../src/utils/sleep.js';
 import Feeds, {FeedInput} from '../../src/types/Feed.js';
-import {mockedLogger} from '../mocks/logger.js';
 import {getContainer} from '../../src/lib/getContainer.js';
 import PriceRepository from '../../src/repositories/PriceRepository.js';
 import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
@@ -89,7 +88,7 @@ describe('FeedProcessor integration tests', () => {
       describe(`when running feeds for ${name} fetcher`, () => {
         before(function () {
           if (apiKey && !process.env[apiKey]) {
-            mockedLogger.warn(`Skipping some FeedProcessor integration tests that require ${apiKey}`);
+            console.log(`Skipping some FeedProcessor integration tests that require ${apiKey}`);
             this.skip();
           }
         });

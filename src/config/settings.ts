@@ -31,6 +31,12 @@ function clearLastSlash(s: string | undefined): string {
   return s.endsWith('/') ? s.slice(0, -1) : s;
 }
 
+function parseJsonString(s: string): string {
+  if (!s) return '{}';
+
+  return s.replace(/\\n/g, '\n').replace(/\\"/g, '"');
+}
+
 function resolveBlockchainType(chain: ChainsIds): BlockchainType[] | undefined {
   const blockchainType = process.env[`${chain}_TYPE`];
   if (!blockchainType) return undefined;
@@ -136,15 +142,14 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   [ChainsIds.MULTIVERSX]: {
-    // TODO
     type: resolveBlockchainType(ChainsIds.MULTIVERSX) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.MULTIVERSX),
     transactions: {
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
-        warningLimit: '0.01',
-        errorLimit: '0.0005',
+        warningLimit: '0.1',
+        errorLimit: '0.0015',
       },
     },
   },
@@ -162,15 +167,86 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   [ChainsIds.CONCORDIUM]: {
-    // TODO
     type: resolveBlockchainType(ChainsIds.CONCORDIUM) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.CONCORDIUM),
     transactions: {
       waitForBlockTime: 1000,
+      minGasPrice: 0,
+      minBalance: {
+        warningLimit: '250.00',
+        errorLimit: '50.0',
+      },
+    },
+  },
+  [ChainsIds.AVAX_MELD]: {
+    type: resolveBlockchainType(ChainsIds.AVAX_MELD) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.AVAX_MELD),
+    transactions: {
+      waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
-        warningLimit: '0.01',
-        errorLimit: '0.0005',
+        warningLimit: '0.5',
+        errorLimit: '0.005',
+      },
+    },
+  },
+  [ChainsIds.XDC]: {
+    type: resolveBlockchainType(ChainsIds.XDC) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.XDC),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      minBalance: {
+        warningLimit: '0.5',
+        errorLimit: '0.005',
+      },
+    },
+  },
+  [ChainsIds.OKX]: {
+    type: resolveBlockchainType(ChainsIds.OKX) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.OKX),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      minBalance: {
+        warningLimit: '0.5',
+        errorLimit: '0.035',
+      },
+    },
+  },
+  [ChainsIds.ARTHERA]: {
+    type: resolveBlockchainType(ChainsIds.ARTHERA) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ARTHERA),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      minBalance: {
+        warningLimit: '0.5',
+        errorLimit: '0.0008',
+      },
+    },
+  },
+  [ChainsIds.ASTAR]: {
+    type: resolveBlockchainType(ChainsIds.ASTAR) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ASTAR),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      minBalance: {
+        warningLimit: '0.15',
+        errorLimit: '0.0015',
+      },
+    },
+  },
+  [ChainsIds.ROOTSTOCK]: {
+    type: resolveBlockchainType(ChainsIds.ROOTSTOCK) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ROOTSTOCK),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      minBalance: {
+        warningLimit: '0.001',
+        errorLimit: '0.00005',
       },
     },
   },
@@ -253,7 +329,8 @@ const settings: Settings = {
           : undefined,
       },
       concordium: {
-        deviationPrivateKey: undefined,
+        privateKey: process.env.CONCORDIUM_SIGNING_PRIVATE_KEY || '',
+        deviationPrivateKey: process.env.CONCORDIUM_DEVIATION_PRIVATE_KEY || undefined,
       },
     },
     contracts: {
@@ -320,6 +397,18 @@ const settings: Settings = {
       defaultPrecision: Number(process.env.UNISWAP_DEFAULT_PRECISION || '6'),
       defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '1.0'),
       verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
+    },
+    goldApi: {
+      apiKey: process.env.GOLD_API_KEY as string,
+      timeout: timeoutWithCode(process.env.GOLD_API_TIMEOUT || '5000', TimeoutCodes.GOLD_API),
+    },
+    metalPriceApi: {
+      apiKey: process.env.METAL_PRICE_API_KEY as string,
+      timeout: timeoutWithCode(process.env.METAL_PRICE_API_TIMEOUT || '5000', TimeoutCodes.METAL_PRICE_API),
+    },
+    metalsDevApi: {
+      apiKey: process.env.METALS_DEV_API_KEY as string,
+      timeout: timeoutWithCode(process.env.METALS_DEV_API_TIMEOUT || '5000', TimeoutCodes.METALS_DEV_API),
     },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
   },

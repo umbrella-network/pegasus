@@ -29,7 +29,7 @@ class YearnVaultTokenPriceFetcher {
 
     const provider = network
       ? this.blockChainProviderFactory.apply(network)
-      : this.providerRepository.get(ChainsIds.ETH).getRawProvider<BaseProvider>();
+      : await this.providerRepository.get(ChainsIds.ETH).getRawProvider<BaseProvider>();
 
     const contract = new ethers.Contract(address, this.yearnAbi, provider);
 

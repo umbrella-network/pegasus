@@ -5,16 +5,18 @@ import {fileURLToPath} from 'url';
 import path from 'path';
 
 import {PriceData} from '../../types/DeviationFeeds.js';
+import {FeedName} from '../../types/Feed.js';
+import {hashFeedName0x} from '../../utils/hashFeedName.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 @injectable()
 export class DeviationHasherEvm {
-  static apply(networkId: number, target: string, keys: string[], priceDatas: PriceData[]): string {
+  static apply(networkId: number, target: string, names: FeedName[], priceDatas: PriceData[]): string {
     const testimony = ethers.utils.defaultAbiCoder.encode(
       ['uint256', 'address', ...this.priceDatasAbi()],
-      [networkId, target, keys.map(ethers.utils.id), priceDatas],
+      [networkId, target, names.map(hashFeedName0x), priceDatas],
     );
 
     return ethers.utils.keccak256(testimony);
