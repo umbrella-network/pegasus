@@ -9,12 +9,6 @@ export interface GoldApiInputParams {
   currency: string;
 }
 
-export interface GoldApiOutputValues {
-  symbol: string;
-  currency: string;
-  priceGram24k: number;
-}
-
 @injectable()
 export default class GoldApiPriceFetcher {
   @inject('Logger') private logger!: Logger;
@@ -27,7 +21,7 @@ export default class GoldApiPriceFetcher {
     this.timeout = settings.api.goldApi.timeout;
   }
 
-  async apply(input: GoldApiInputParams): Promise<GoldApiOutputValues> {
+  async apply(input: GoldApiInputParams): Promise<number> {
     this.logger.debug(`[GoldApiPriceFetcher] call for: ${input.symbol}/${input.currency}`);
 
     const url = this.assembleUrl(input.symbol, input.currency);
@@ -50,12 +44,7 @@ export default class GoldApiPriceFetcher {
     const {metal, currency, price_gram_24k} = response.data;
     if (price_gram_24k !== undefined) {
       this.logger.debug(`[GoldApiPriceFetcher] resolved price: ${input.symbol}/${input.currency}: ${price_gram_24k}`);
-
-      return {
-        symbol: metal,
-        currency,
-        priceGram24k: price_gram_24k,
-      };
+      return price_gram_24k;
     } else {
       throw new Error(`[GoldApiPriceFetcher] Missing rate for ${input.symbol}/${input.currency}`);
     }

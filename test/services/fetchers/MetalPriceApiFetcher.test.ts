@@ -1,30 +1,25 @@
 import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
-import MetalPriceApiFetcher, {
-  MetalPriceApiInputParams,
-  MetalPriceApiOutputValues,
-} from '../../../src/services/fetchers/MetalPriceApiFetcher.js';
+import MetalPriceApiFetcher, {MetalPriceApiInputParams} from '../../../src/services/fetchers/MetalPriceApiFetcher.js';
 
 const {expect} = chai;
 
-describe('MetalPriceApiFetcher', () => {
+describe.skip('MetalPriceApiFetcher (this test needs API key)', () => {
   const fetcher = Application.get(MetalPriceApiFetcher);
 
   const input: MetalPriceApiInputParams = {symbol: 'XAU', currency: 'USD'};
 
   describe('#apply', () => {
     describe('with valid parameters', () => {
-      let output: MetalPriceApiOutputValues;
+      let output = 0;
 
       before(async () => {
         output = await fetcher.apply(input);
       });
 
       it('returns the proper response format', () => {
-        expect(output).to.have.property('symbol');
-        expect(output).to.have.property('currency');
-        expect(output).to.have.property('priceGram24k').greaterThan(0);
+        expect(output).greaterThan(0);
       });
     });
 

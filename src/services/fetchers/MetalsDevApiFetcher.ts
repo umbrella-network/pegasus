@@ -9,12 +9,6 @@ export interface MetalsDevApiInputParams {
   currency: string;
 }
 
-export interface MetalsDevApiOutputValues {
-  metal: string;
-  currency: string;
-  priceGram24k: number;
-}
-
 @injectable()
 export default class MetalsDevApiPriceFetcher {
   @inject('Logger') private logger!: Logger;
@@ -27,7 +21,7 @@ export default class MetalsDevApiPriceFetcher {
     this.timeout = settings.api.metalsDevApi.timeout;
   }
 
-  async apply(input: MetalsDevApiInputParams): Promise<MetalsDevApiOutputValues> {
+  async apply(input: MetalsDevApiInputParams): Promise<number> {
     this.logger.debug(`[MetalsDevApiFetcherFetcher] call for: ${input.metal}/${input.currency}`);
 
     const url = `https://api.metals.dev/v1/latest?api_key=${this.apiKey}&currency=${input.currency}&unit=g`;
@@ -40,22 +34,20 @@ export default class MetalsDevApiPriceFetcher {
 
       if (response.status !== 200) {
         this.logger.error(
-          `[MetalsDevApiFetcherFetcher] Error fetching data for ${input.metal}/${input.currency}: ${response.statusText}`,
+          `[MetalsDevApiFetcherFetcher] Error for ${input.metal}/${input.currency}: ${response.statusText}`,
         );
+
         throw new Error(response.data);
       }
 
       const pricePerGram = response.data.metals[input.metal.toLowerCase()];
+
       if (pricePerGram !== undefined) {
         this.logger.debug(
           `[MetalsDevApiFetcherFetcher] resolved price per gram: ${input.metal}/${input.currency}: ${pricePerGram}`,
         );
 
-        return {
-          metal: input.metal,
-          currency: input.currency,
-          priceGram24k: pricePerGram,
-        };
+        return pricePerGram;
       } else {
         throw new Error(`[MetalsDevApiFetcherFetcher] Missing price for ${input.metal} in ${input.currency}`);
       }

@@ -1,3 +1,6 @@
+import MetalPriceApiFetcher from '../services/fetchers/MetalPriceApiFetcher';
+import MetalsDevApiPriceFetcher from '../services/fetchers/MetalsDevApiFetcher';
+
 export default {
   description: 'Feeds schema for the JSONSchema validator',
   type: 'object',
@@ -41,12 +44,13 @@ export default {
             {$ref: '#/definitions/CoinmarketcapHistoHourFetcher'},
             {$ref: '#/definitions/CoinmarketcapHistoDayFetcher'},
             {$ref: '#/definitions/OnChainDataFetcher'},
-            {$ref: '#/definitions/KaikoPriceStreamFetcher'},
-            {$ref: '#/definitions/KaikoSpotPriceFetcher'},
             {$ref: '#/definitions/OptionsPriceFetcher'},
             {$ref: '#/definitions/YearnVaultTokenPriceFetcher'},
             {$ref: '#/definitions/RandomNumberFetcher'},
             {$ref: '#/definitions/TWAPGasPriceFetcher'},
+            {$ref: '#/definitions/GoldApiPriceFetcher'},
+            {$ref: '#/definitions/MetalPriceApiFetcher'},
+            {$ref: '#/definitions/MetalsDevApiPriceFetcher'},
           ],
         },
         calculator: {
@@ -325,33 +329,48 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    KaikoPriceStreamFetcher: {
+    GoldApiPriceFetcher: {
       properties: {
-        name: {const: 'KaikoPriceStream'},
+        name: {const: 'GoldApiPrice'},
         params: {
           type: 'object',
           properties: {
-            fsym: {type: 'string'},
-            tsym: {type: 'string'},
-            freshness: {type: 'number'},
+            symbol: {type: 'string'},
+            currency: {type: 'string'},
           },
-          required: ['fsym', 'tsym'],
+          required: ['symbol', 'currency'],
           additionalProperties: false,
         },
       },
       required: ['params'],
       additionalProperties: false,
     },
-    KaikoSpotPriceFetcher: {
+    MetalPriceApiFetcher: {
       properties: {
-        name: {const: 'KaikoSpotPrice'},
+        name: {const: 'MetalPriceApi'},
         params: {
           type: 'object',
           properties: {
-            fsym: {type: 'string'},
-            tsym: {type: 'string'},
+            symbol: {type: 'string'},
+            currency: {type: 'string'},
           },
-          required: ['fsym', 'tsym'],
+          required: ['symbol', 'currency'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    MetalsDevApiPriceFetcher: {
+      properties: {
+        name: {const: 'MetalsDevApiPrice'},
+        params: {
+          type: 'object',
+          properties: {
+            metal: {type: 'string'},
+            currency: {type: 'string'},
+          },
+          required: ['metal', 'currency'],
           additionalProperties: false,
         },
       },
