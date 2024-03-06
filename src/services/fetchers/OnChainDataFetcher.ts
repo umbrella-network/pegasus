@@ -5,16 +5,21 @@ import {OnChainCall} from '../../types/Feed.js';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
 import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds.js';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
-import {Logger} from 'winston';
+import {AbstractFetcher} from "./AbstractFetcher.js";
+import {OnChainDataFetcherResult} from "../../types/fetchers.js";
 
 @injectable()
-class OnChainDataFetcher {
-  @inject('Logger') logger!: Logger;
+class OnChainDataFetcher extends AbstractFetcher {
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(BlockchainProviderRepository) blockchainProviderRepository!: BlockchainProviderRepository;
 
-  async apply(params: OnChainCall): Promise<string | number> {
+  async apply(params: OnChainCall): Promise<OnChainDataFetcherResult> {
     const data = await this.fetchData(params);
+
+    await this.saveHistory({
+      fetcher: 'OnChainDataFetcher',
+      symbol: params.
+    });
 
     if (params.decimals === undefined) {
       return ethers.BigNumber.from(data).toString();

@@ -6,7 +6,7 @@ import Feeds from '@umb-network/toolbox/dist/types/Feed';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
 import {getTestContainer} from '../helpers/getTestContainer.js';
-import {FeedFetcherRepository, FeedFetcher} from '../../src/repositories/FeedFetcherRepository.js';
+import {FeedFetcherRepository, FeedFetcherInterface} from '../../src/repositories/FeedFetcherRepository.js';
 import {CalculatorRepository} from '../../src/repositories/CalculatorRepository.js';
 import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {IdentityCalculator} from '../../src/services/calculators/index.js';
@@ -20,7 +20,7 @@ const {expect} = chai;
 describe('FeedProcessor', () => {
   let instance: FeedProcessor;
   let container: Container;
-  let testFetcher: FeedFetcher;
+  let testFetcher: FeedFetcherInterface;
   let result: Leaf[][];
   let feedFetcherRepository: SinonStubbedInstance<FeedFetcherRepository>;
   let calculatorRepository: SinonStubbedInstance<CalculatorRepository>;
@@ -31,7 +31,7 @@ describe('FeedProcessor', () => {
 
   before(() => {
     container = getTestContainer();
-    testFetcher = <FeedFetcher>{};
+    testFetcher = <FeedFetcherInterface>{};
 
     feedFetcherRepository = createStubInstance(FeedFetcherRepository);
     calculatorRepository = createStubInstance(CalculatorRepository);

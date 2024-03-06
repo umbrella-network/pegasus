@@ -1,25 +1,25 @@
 import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
-import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 import {mapParams} from '../../utils/request.js';
+import {AbstractFetcher} from './AbstractFetcher';
+import {CryptoCompareHistoFetcherResult} from '../../types/fetchers';
 
 @injectable()
-class CryptoCompareHistoDayFetcher {
-  @inject('Logger') private logger!: Logger;
-
+class CryptoCompareHistoDayFetcher extends AbstractFetcher {
   private apiKey: string;
   private timeout: number;
 
   constructor(@inject('Settings') settings: Settings) {
+    super();
     this.apiKey = settings.api.cryptocompare.apiKey;
     this.timeout = settings.api.cryptocompare.timeout;
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-explicit-any
-  async apply(params: any): Promise<[any, number][] | undefined> {
+  async apply(params: any): Promise<CryptoCompareHistoFetcherResult[] | undefined> {
     const sourceUrl = `https://min-api.cryptocompare.com/data/v2/histoday${mapParams(params)}`;
     this.logger.debug(`[CryptoCompareHistoDayFetcher] call for: ${JSON.stringify(params)}`);
 
@@ -48,8 +48,10 @@ class CryptoCompareHistoDayFetcher {
     ]);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractValue = (data: any, valuePath: string): any[] => {
+  private extractValue = (
+    data: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    valuePath: string,
+  ): {high: number; low: number; open: number; close: number; volumefrom: number}[] => {
     this.logger.debug(`[CryptoCompareHistoDayFetcher] resolved price: ${JSON.stringify(data)}`);
     return JSONPath({json: data, path: valuePath});
   };
