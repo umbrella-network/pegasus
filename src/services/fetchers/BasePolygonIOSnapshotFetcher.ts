@@ -10,11 +10,11 @@ export interface Ticker {
   };
 }
 
-@injectable()
 export interface SnapshotResponse {
   tickers: Ticker[];
 }
 
+@injectable()
 export abstract class BasePolygonIOSnapshotFetcher {
   protected apiKey!: string;
   protected timeout!: number;
