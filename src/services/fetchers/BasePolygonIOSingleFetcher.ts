@@ -1,3 +1,4 @@
+import {injectable} from 'inversify';
 import axios from 'axios';
 import {JSONPath} from 'jsonpath-plus';
 
@@ -9,6 +10,7 @@ export interface SinglePriceResponse {
   };
 }
 
+@injectable()
 export abstract class BasePolygonIOSingleFetcher {
   protected apiKey!: string;
   protected timeout!: number;

@@ -1,3 +1,4 @@
+import {injectable} from 'inversify';
 import axios from 'axios';
 import {JSONPath} from 'jsonpath-plus';
 
@@ -9,6 +10,7 @@ export interface Ticker {
   };
 }
 
+@injectable()
 export interface SnapshotResponse {
   tickers: Ticker[];
 }
