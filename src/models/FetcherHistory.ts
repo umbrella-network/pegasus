@@ -19,7 +19,7 @@ export class FetcherHistory {
   quote!: string;
 
   @prop({required: true})
-  timestamp!: Date;
+  timestamp!: number;
 
   @prop({required: true})
   value!: string;

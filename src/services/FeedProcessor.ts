@@ -9,6 +9,8 @@ import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
+import {FetcherHistory} from "../models/FetcherHistory";
+import {FetcherHistoryInterface} from "../types/fetchers";
 
 interface Calculator {
   // eslint-disable-next-line
@@ -33,6 +35,7 @@ class FeedProcessor {
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     // collect unique inputs
     const uniqueFeedFetcherMap: {[hash: string]: FeedFetcher} = {};
+    const history: FetcherHistoryInterface[] = [];
 
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);
@@ -85,6 +88,13 @@ class FeedProcessor {
           ignoredMap[ticker] = true;
         } else if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
           leaves.push(this.buildLeaf(feedValues[0].key, feedValues[0].value));
+
+          history.push(<FetcherHistoryInterface>{
+            fetcher: feed.inputs[0].fetcher.name,
+            symbol: feedValues[0].key,
+            value: typeof feedValues[0].value == 'string' ? feedValues[0].value : feedValues[0].value.toString(),
+            timestamp
+          });
         } else {
           // calculateFeed is allowed to return different keys
           const groups = FeedProcessor.groupInputs(feedValues);
@@ -93,6 +103,13 @@ class FeedProcessor {
             const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
             keyValueMap[key] = value;
             leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
+
+            history.push(<FetcherHistoryInterface>{
+              fetcher: feed.inputs[0].fetcher.name,
+              symbol: feedValues[0].key,
+              value: typeof feedValues[0].value == 'string' ? feedValues[0].value : feedValues[0].value.toString(),
+              timestamp
+            });
           }
         }
       });

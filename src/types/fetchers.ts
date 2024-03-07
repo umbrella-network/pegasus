@@ -3,7 +3,7 @@ export type FetcherHistoryInterface = {
   symbol: string;
   base: string;
   quote: string;
-  timestamp: Date;
+  timestamp: number;
   value: string;
 };
 
