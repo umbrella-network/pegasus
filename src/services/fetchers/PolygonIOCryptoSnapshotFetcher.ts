@@ -1,17 +1,16 @@
-import axios from 'axios';
 import {inject, injectable} from 'inversify';
-import {JSONPath} from 'jsonpath-plus';
 
 import Settings from '../../types/Settings.js';
+import {BasePolygonIOSnapshotFetcher, SnapshotResponse} from './BasePolygonIOSnapshotFetcher.js';
 
 @injectable()
-class PolygonIOCryptoSnapshotFetcher {
-  private apiKey: string;
-  private timeout: number;
-
+class PolygonIOCryptoSnapshotFetcher extends BasePolygonIOSnapshotFetcher {
   constructor(@inject('Settings') settings: Settings) {
+    super();
+
     this.apiKey = settings.api.polygonIO.apiKey;
     this.timeout = settings.api.polygonIO.timeout;
+    this.valuePath = '$.tickers[*].lastTrade.p';
   }
 
   async apply({symbols}: {symbols: string[]}, raw = false): Promise<SnapshotResponse | number[]> {
@@ -19,36 +18,8 @@ class PolygonIOCryptoSnapshotFetcher {
       ',',
     )}&apiKey=${this.apiKey}`;
 
-    const response = await axios.get(sourceUrl, {
-      timeout: this.timeout,
-      timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-    });
-
-    if (response.status !== 200) {
-      throw new Error(response.data);
-    }
-
-    return raw
-      ? (response.data as SnapshotResponse)
-      : (this.extractValues(response.data, '$.tickers[*].lastTrade.p') as number[]);
+    return this.fetch(sourceUrl, raw);
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractValues = (data: any, valuePath: string): number[] => {
-    return JSONPath({json: data, path: valuePath});
-  };
-}
-
-export interface Ticker {
-  ticker: string;
-  lastTrade: {
-    p: number;
-    t: number;
-  };
-}
-
-export interface SnapshotResponse {
-  tickers: Ticker[];
 }
 
 export default PolygonIOCryptoSnapshotFetcher;

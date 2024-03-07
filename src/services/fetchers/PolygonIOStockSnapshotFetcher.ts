@@ -4,6 +4,7 @@ import {Logger} from 'winston';
 import {JSONPath} from 'jsonpath-plus';
 
 import Settings from '../../types/Settings.js';
+import {SnapshotResponse, Ticker} from './BasePolygonIOSnapshotFetcher.js';
 
 @injectable()
 class PolygonIOStockSnapshotFetcher {
@@ -75,18 +76,6 @@ class PolygonIOStockSnapshotFetcher {
 
     return acc;
   };
-}
-
-export interface Ticker {
-  ticker: string;
-  lastTrade: {
-    p: number;
-    t: number;
-  };
-}
-
-export interface SnapshotResponse {
-  tickers: Ticker[];
 }
 
 export interface SnapshotDataResponse {
