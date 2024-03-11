@@ -3,6 +3,10 @@ import {inject, injectable} from 'inversify';
 import Settings from '../../types/Settings.js';
 import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';
 
+type PolygonIOCurrencySnapshotFetcherParams = {
+  ticker: string;
+};
+
 @injectable()
 class PolygonIOCurrencySnapshotFetcher extends BasePolygonIOSingleFetcher {
   constructor(@inject('Settings') settings: Settings) {
@@ -12,9 +16,8 @@ class PolygonIOCurrencySnapshotFetcher extends BasePolygonIOSingleFetcher {
     this.valuePath = '$.ticker.lastQuote.a';
   }
 
-  async apply(ticker: string): Promise<number> {
+  async apply({ticker}: PolygonIOCurrencySnapshotFetcherParams): Promise<number> {
     const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers/${ticker}?apiKey=${this.apiKey}`;
-
     const data = await this.fetch(sourceUrl);
     return data as number;
   }
