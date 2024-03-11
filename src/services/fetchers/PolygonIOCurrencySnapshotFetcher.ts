@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
-import {BasePolygonIOSingleFetcher} from "./BasePolygonIOSingleFetcher.js";
+import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';
 
 @injectable()
 class PolygonIOCurrencySnapshotFetcher extends BasePolygonIOSingleFetcher {

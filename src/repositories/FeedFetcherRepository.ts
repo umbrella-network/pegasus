@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import * as fetchers from '../services/fetchers/index.js';
-import PolygonIOCurrencySnapshotFetcher from "../services/fetchers/PolygonIOCurrencySnapshotFetcher";
+import PolygonIOCurrencySnapshotFetcher from '../services/fetchers/PolygonIOCurrencySnapshotFetcher';
 
 export interface FeedFetcher {
   // eslint-disable-next-line
@@ -18,7 +18,8 @@ export class FeedFetcherRepository {
     @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPrice: fetchers.PolygonIOStockPriceFetcher,
     @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOPrice: fetchers.PolygonIOStockPriceFetcher,
     @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPrice: fetchers.PolygonIOCryptoPriceFetcher,
-    @inject(fetchers.PolygonIOCurrencySnapshotFetcher) PolygonIOCurrencySnapshot: fetchers.PolygonIOCurrencySnapshotFetcher,
+    @inject(fetchers.PolygonIOCurrencySnapshotFetcher)
+    PolygonIOCurrencySnapshot: fetchers.PolygonIOCurrencySnapshotFetcher,
     @inject(fetchers.CryptoComparePriceWSFetcher) CryptoComparePriceWS: fetchers.CryptoComparePriceWSFetcher,
     @inject(fetchers.OnChainDataFetcher) OnChainData: fetchers.OnChainDataFetcher,
     @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPrice: fetchers.YearnVaultTokenPriceFetcher,
