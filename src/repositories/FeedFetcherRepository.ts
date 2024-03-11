@@ -1,6 +1,5 @@
 import {inject, injectable} from 'inversify';
 import * as fetchers from '../services/fetchers/index.js';
-import PolygonIOCurrencySnapshotFetcher from '../services/fetchers/PolygonIOCurrencySnapshotFetcher';
 
 export interface FeedFetcher {
   // eslint-disable-next-line
