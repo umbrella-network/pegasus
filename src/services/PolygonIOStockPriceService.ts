@@ -5,8 +5,10 @@ import {Logger} from 'winston';
 import PriceAggregator from './PriceAggregator.js';
 import Settings from '../types/Settings.js';
 import TimeService from './TimeService.js';
-import PolygonIOStockSnapshotFetcher, {SnapshotResponse} from './fetchers/PolygonIOStockSnapshotFetcher.js';
-import PolygonIOSingleStockPriceFetcher, {SinglePriceResponse} from './fetchers/PolygonIOSingleStockPriceFetcher.js';
+import PolygonIOStockSnapshotFetcher from './fetchers/PolygonIOStockSnapshotFetcher.js';
+import PolygonIOSingleStockPriceFetcher from './fetchers/PolygonIOSingleStockPriceFetcher.js';
+import {SinglePriceResponse} from './fetchers/BasePolygonIOSingleFetcher.js';
+import {SnapshotResponse} from './fetchers/BasePolygonIOSnapshotFetcher.js';
 
 @injectable()
 class PolygonIOStockPriceService {
