@@ -13,8 +13,7 @@ class PolygonIOCurrencySnapshotFetcher extends BasePolygonIOSingleFetcher {
   }
 
   async apply(ticker: string): Promise<number> {
-    const sourceUrl =
-      `https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers/${ticker}?apiKey=${this.apiKey}`;
+    const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers/${ticker}?apiKey=${this.apiKey}`;
 
     const data = await this.fetch(sourceUrl);
     return data as number;

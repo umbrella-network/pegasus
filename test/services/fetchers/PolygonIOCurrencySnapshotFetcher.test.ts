@@ -35,7 +35,7 @@ describe('PolygonIOCurrencySnapshotFetcher', () => {
   });
 
   describe('#apply', () => {
-    it.only('responds with a number', async () => {
+    it('responds with a number', async () => {
       if (!process.env.POLYGON_IO_API_KEY) {
         console.error('PolygonIOCurrencySnapshotFetcher: POLYGON_IO_API_KEY not set, test can run only with this key');
         return;
