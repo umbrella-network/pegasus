@@ -9,11 +9,12 @@ class PolygonIOCurrencySnapshotFetcher extends BasePolygonIOSingleFetcher {
     super();
     this.apiKey = settings.api.polygonIO.apiKey;
     this.timeout = settings.api.polygonIO.timeout;
-    this.valuePath = '$.tickers[*].min.c';
+    this.valuePath = '$.ticker.lastQuote.a';
   }
 
   async apply(ticker: string): Promise<number> {
-    const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers/${ticker}?apiKey=${this.apiKey}`;
+    const sourceUrl =
+      `https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers/${ticker}?apiKey=${this.apiKey}`;
 
     const data = await this.fetch(sourceUrl);
     return data as number;

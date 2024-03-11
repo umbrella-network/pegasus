@@ -23,7 +23,13 @@ export abstract class BasePolygonIOFetcher {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected extractValues = (data: any, valuePath: string): number | number[] => {
-    return JSONPath({json: data, path: valuePath});
+  protected extractValues = (data: any, valuePath: string): number[] => {
+    const extracted = JSONPath({json: data, path: valuePath});
+
+    if (extracted.length == 0) {
+      throw new Error(`[extractValues] ${JSON.stringify(data)} does not have path ${valuePath}`);
+    }
+
+    return extracted;
   };
 }

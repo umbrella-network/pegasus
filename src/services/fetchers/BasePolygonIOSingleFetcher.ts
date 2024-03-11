@@ -13,6 +13,13 @@ export interface SinglePriceResponse {
 export abstract class BasePolygonIOSingleFetcher extends BasePolygonIOFetcher {
   protected async fetch(sourceUrl: string, raw = false): Promise<SinglePriceResponse | number> {
     const responseData = await this.fetchRaw(sourceUrl);
-    return raw ? (responseData as SinglePriceResponse) : (this.extractValues(responseData, this.valuePath) as number);
+
+    const [extractedData] = raw
+      ? ([responseData] as [SinglePriceResponse])
+      : this.extractValues(responseData, this.valuePath);
+
+    if (!extractedData) throw new Error('[BasePolygonIOSingleFetcher] empty data');
+
+    return extractedData;
   }
 }

@@ -41,9 +41,10 @@ describe('PolygonIOCurrencySnapshotFetcher', () => {
         return;
       }
 
-      const result = await polygonIOCurrencySnapshotFetcher.apply('X:BTCUSD');
+      const result = await polygonIOCurrencySnapshotFetcher.apply('C:EURUSD');
       console.log('PolygonIOCurrencySnapshotFetcher', result);
-      expect(result).to.gt(0);
+      expect(typeof result).to.eql('number');
+      expect(result).gt(0);
     });
   });
 });
