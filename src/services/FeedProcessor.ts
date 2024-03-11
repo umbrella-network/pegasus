@@ -105,9 +105,9 @@ class FeedProcessor {
             leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
 
             history.push(<FetcherHistoryInterface>{
-              fetcher: feed.inputs[0].fetcher.name,
-              symbol: feedValues[0].key,
-              value: typeof feedValues[0].value == 'string' ? feedValues[0].value : feedValues[0].value.toString(),
+              fetcher: feed.inputs[0].fetcher.name, // TODO
+              symbol: key,
+              value: typeof keyValueMap[key] == 'string' ? keyValueMap[key] : keyValueMap[key].toString(),
               timestamp
             });
           }
