@@ -1,6 +1,5 @@
 import {injectable} from 'inversify';
-import axios from 'axios';
-import {JSONPath} from 'jsonpath-plus';
+import {BasePolygonIOFetcher} from './BasePolygonIOFetcher.js';
 
 export interface SinglePriceResponse {
   symbol: string;
@@ -11,26 +10,9 @@ export interface SinglePriceResponse {
 }
 
 @injectable()
-export abstract class BasePolygonIOSingleFetcher {
-  protected apiKey!: string;
-  protected timeout!: number;
-  protected valuePath!: string;
-
+export abstract class BasePolygonIOSingleFetcher extends BasePolygonIOFetcher {
   protected async fetch(sourceUrl: string, raw = false): Promise<SinglePriceResponse | number> {
-    const response = await axios.get(sourceUrl, {
-      timeout: this.timeout,
-      timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-    });
-
-    if (response.status !== 200) {
-      throw new Error(response.data);
-    }
-
-    return raw ? (response.data as SinglePriceResponse) : (this.extractValues(response.data, this.valuePath) as number);
+    const responseData = await this.fetchRaw(sourceUrl);
+    return raw ? (responseData as SinglePriceResponse) : (this.extractValues(responseData, this.valuePath) as number);
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractValues = (data: any, valuePath: string): number => {
-    return JSONPath({json: data, path: valuePath});
-  };
 }

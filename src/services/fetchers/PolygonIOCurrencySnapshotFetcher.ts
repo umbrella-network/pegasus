@@ -1,10 +1,10 @@
 import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
-import {BasePolygonIOSnapshotFetcher, SnapshotResponse} from './BasePolygonIOSnapshotFetcher';
+import {BasePolygonIOSingleFetcher} from "./BasePolygonIOSingleFetcher.js";
 
 @injectable()
-class PolygonIOCryptoSnapshotFetcher extends BasePolygonIOSnapshotFetcher {
+class PolygonIOCurrencySnapshotFetcher extends BasePolygonIOSingleFetcher {
   constructor(@inject('Settings') settings: Settings) {
     super();
     this.apiKey = settings.api.polygonIO.apiKey;
@@ -12,13 +12,12 @@ class PolygonIOCryptoSnapshotFetcher extends BasePolygonIOSnapshotFetcher {
     this.valuePath = '$.tickers[*].min.c';
   }
 
-  async apply({symbols}: {symbols: string[]}, raw = false): Promise<SnapshotResponse | number[]> {
-    const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers?tickers=${symbols.join(
-      ',',
-    )}&apiKey=${this.apiKey}`;
+  async apply(ticker: string): Promise<number> {
+    const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers/${ticker}?apiKey=${this.apiKey}`;
 
-    return this.fetch(sourceUrl, raw);
+    const data = await this.fetch(sourceUrl);
+    return data as number;
   }
 }
 
-export default PolygonIOCryptoSnapshotFetcher;
+export default PolygonIOCurrencySnapshotFetcher;
