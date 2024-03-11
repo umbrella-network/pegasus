@@ -10,7 +10,7 @@ chai.use(chaiAsPromised);
 
 const {expect} = chai;
 
-describe('PolygonIOCurrencySnapshotFetcher', () => {
+describe.skip('PolygonIOCurrencySnapshotFetcher', () => {
   let settings: Settings;
   let polygonIOCurrencySnapshotFetcher: PolygonIOCurrencySnapshotFetcher;
 
@@ -37,8 +37,7 @@ describe('PolygonIOCurrencySnapshotFetcher', () => {
   describe('#apply', () => {
     it('responds with a number', async () => {
       if (!process.env.POLYGON_IO_API_KEY) {
-        console.error('PolygonIOCurrencySnapshotFetcher: POLYGON_IO_API_KEY not set, test can run only with this key');
-        return;
+        throw new Error('POLYGON_IO_API_KEY not set, test can run only with this key');
       }
 
       const result = await polygonIOCurrencySnapshotFetcher.apply('C:EURUSD');
