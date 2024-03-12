@@ -23,7 +23,7 @@ export class FetcherHistoryRepository {
   }
 
   async latestSymbol(symbol: string, limit = 150): Promise<FetcherHistoryInterface[]> {
-    if (!symbol) throw new Error(`[FetcherHistoryRepository] empty symbol`);
+    if (!symbol) throw new Error('[FetcherHistoryRepository] empty symbol');
     return getModelForClass(FetcherHistory).find({symbol}).sort({timestamp: -1}).limit(limit).exec();
   }
 

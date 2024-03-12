@@ -10,7 +10,11 @@ export class HistoryController {
   @inject(FetcherHistoryRepository) protected fetcherHistoryRepository!: FetcherHistoryRepository;
 
   constructor(@inject('Settings') private readonly settings: Settings) {
-    this.router = express.Router().get('/latest', this.latestHistory).get('/:symbol', this.symbolHistory);
+    this.router = express
+      .Router()
+      .get('/latest', this.latestHistory)
+      .get('/:symbol', this.symbolHistory)
+      .get('/:symbol/csv', this.symbolHistoryCsv);
   }
 
   private latestHistory = async (request: Request, response: Response): Promise<void> => {
@@ -19,8 +23,12 @@ export class HistoryController {
   };
 
   private symbolHistory = async (request: Request, response: Response): Promise<void> => {
-    const symbol = parseInt(request.params.symbol);
-    const records = await this.fetcherHistoryRepository.latestSymbol(symbol);
+    const records = await this.fetcherHistoryRepository.latestSymbol(request.params.symbol);
     response.send(records);
+  };
+
+  private symbolHistoryCsv = async (request: Request, response: Response): Promise<void> => {
+    const records = await this.fetcherHistoryRepository.latestSymbol(request.params.symbol);
+    response.send(records.map((r) => [r.symbol, r.fetcher, r.value, r.timestamp].join(';')).join('<br/>\n'));
   };
 }

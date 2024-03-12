@@ -12,12 +12,6 @@ export class FetcherHistory {
   @prop({required: true})
   symbol!: string;
 
-  @prop()
-  base!: string;
-
-  @prop()
-  quote!: string;
-
   @prop({required: true})
   timestamp!: number;
 
