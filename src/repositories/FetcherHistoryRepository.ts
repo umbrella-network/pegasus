@@ -27,7 +27,13 @@ export class FetcherHistoryRepository {
 
     await getModelForClass(FetcherHistory).bulkWrite(
       data.map((p) => {
-        return {...p, expireAt};
+        return {
+          updateOne: {
+            update: {...p, expireAt},
+            upsert: true,
+            new: true,
+          },
+        };
       }),
     );
 
