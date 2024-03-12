@@ -25,19 +25,20 @@ export class FetcherHistoryRepository {
   async saveMany(data: FetcherHistoryInterface[]): Promise<void> {
     const expireAt = dayjs().add(this.settings.fetcherHistory.ttl, 'second').toDate();
 
-    await getModelForClass(FetcherHistory).bulkWrite(
-      data.map((p) => {
-        return {
-          updateOne: {
-            update: {...p, expireAt},
-            upsert: true,
-            new: true,
-          },
-        };
-      }),
-    );
+    this.logger.info(JSON.stringify(data));
 
-    this.logger.info(`[FetcherHistoryRepository] saved ${data.length} records`);
-    this.logger.info(`[FetcherHistoryRepository] ${data.map((d) => `${d.fetcher}@${d.symbol}`).join(', ')}`);
+    try {
+      await getModelForClass(FetcherHistory).bulkWrite(
+        data.map((p) => {
+          return {insertOne: {...p, expireAt}};
+        }),
+        { ordered : false }
+      );
+
+      this.logger.info(`[FetcherHistoryRepository] saved ${data.length} records`);
+      this.logger.info(`[FetcherHistoryRepository] ${data.map((d) => `${d.fetcher}@${d.symbol}`).join(', ')}`);
+    } catch (e: unknown) {
+      this.logger.error(`[FetcherHistoryRepository] ${(e as Error).message}`);
+    }
   }
 }
