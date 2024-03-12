@@ -31,14 +31,23 @@ export class FetcherHistoryRepository {
     const expireAt = dayjs().add(this.settings.fetcherHistory.ttl, 'second').toDate();
 
     try {
-      await getModelForClass(FetcherHistory).bulkWrite(
-        data.map((p) => {
-          return {insertOne: {document: {...p, expireAt}}};
+      const done = await getModelForClass(FetcherHistory).bulkWrite(
+        data.map(({fetcher, symbol, timestamp, value}) => {
+          return {
+            updateOne: {
+              filter: {fetcher, symbol, timestamp},
+              update: {fetcher, symbol, timestamp, value, expireAt},
+              upsert: true,
+              new: true,
+            },
+          };
         }),
         {ordered: false},
       );
 
-      this.logger.info(`[FetcherHistoryRepository] saved ${data.length} records`);
+      this.logger.info(
+        `[FetcherHistoryRepository] new/updated ${done.insertedCount}/${done.modifiedCount}, total ${data.length}`,
+      );
       this.logger.info(`[FetcherHistoryRepository] ${data.map((d) => `${d.fetcher}@${d.symbol}`).join(', ')}`);
     } catch (e: unknown) {
       this.logger.error(`[FetcherHistoryRepository] ${(e as Error).message}`);

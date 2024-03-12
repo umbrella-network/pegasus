@@ -301,7 +301,7 @@ const settings: Settings = {
     roundInterval: parseInt(process.env.CONSENSUS_ROUND_INTERVAL || '1000'),
   },
   fetcherHistory: {
-    ttl: parseInt(process.env.PRICE_HISTORY_TTL || '31536000'), // 31536000 == 365 days
+    ttl: parseInt(process.env.PRICE_HISTORY_TTL || (60 * 60 * 24 * 30 * 12).toString()),
   },
   blockchains: {
     ethereum: {

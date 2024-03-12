@@ -3,8 +3,6 @@ import {OptionsEntries} from '../services/fetchers/OptionsPriceFetcher.js';
 export type FetcherHistoryInterface = {
   fetcher: string;
   symbol: string;
-  base: string;
-  quote: string;
   timestamp: number;
   value: string;
 };
