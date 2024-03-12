@@ -9,8 +9,8 @@ import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {FetcherHistory} from "../models/FetcherHistory";
-import {FetcherHistoryInterface} from "../types/fetchers";
+import {FetcherHistoryInterface} from '../types/fetchers';
+import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository';
 
 interface Calculator {
   // eslint-disable-next-line
@@ -31,6 +31,7 @@ class FeedProcessor {
   @inject(MultiFeedProcessor) multiFeedProcessor!: MultiFeedProcessor;
   @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
+  @inject(FetcherHistoryRepository) fetcherHistoryRepository!: FetcherHistoryRepository;
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     // collect unique inputs
@@ -71,7 +72,7 @@ class FeedProcessor {
     const ignoredMap: {[key: string]: boolean} = {};
     const keyValueMap: {[key: string]: number} = {};
 
-    feedsArray.forEach((feeds) => {
+    feedsArray.forEach((feeds, ix) => {
       const tickers = Object.keys(feeds);
       const leaves: Leaf[] = [];
 
@@ -93,23 +94,25 @@ class FeedProcessor {
             fetcher: feed.inputs[0].fetcher.name,
             symbol: feedValues[0].key,
             value: typeof feedValues[0].value == 'string' ? feedValues[0].value : feedValues[0].value.toString(),
-            timestamp
+            timestamp,
           });
         } else {
           // calculateFeed is allowed to return different keys
           const groups = FeedProcessor.groupInputs(feedValues);
 
+          feedValues.forEach((feedValue, feedIx) => {
+            history.push(<FetcherHistoryInterface>{
+              fetcher: feed.inputs[feedIx].fetcher.name,
+              symbol: feedValue.key,
+              value: typeof feedValue.value == 'string' ? feedValue.value : feedValue.value.toString(),
+              timestamp,
+            });
+          });
+
           for (const key in groups) {
             const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
             keyValueMap[key] = value;
             leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
-
-            history.push(<FetcherHistoryInterface>{
-              fetcher: feed.inputs[0].fetcher.name, // TODO
-              symbol: key,
-              value: typeof keyValueMap[key] == 'string' ? keyValueMap[key] : keyValueMap[key].toString(),
-              timestamp
-            });
           }
         }
       });
@@ -118,6 +121,8 @@ class FeedProcessor {
     });
 
     this.logger.debug(`[FeedProcessor] result: ${JSON.stringify(result)}`);
+
+    await this.fetcherHistoryRepository.saveMany(history);
 
     return result;
   }

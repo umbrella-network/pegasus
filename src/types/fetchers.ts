@@ -1,3 +1,5 @@
+import {OptionsEntries} from '../services/fetchers/OptionsPriceFetcher.js';
+
 export type FetcherHistoryInterface = {
   fetcher: string;
   symbol: string;
@@ -20,7 +22,8 @@ export type FeedFetcherInterfaceResult =
   | Promise<number | undefined>
   | Promise<OnChainDataFetcherResult>
   | Promise<CryptoCompareHistoFetcherResult[] | undefined>
-  | Promise<CryptoCompareMultiProcessorResult[]>;
+  | Promise<CryptoCompareMultiProcessorResult[]>
+  | Promise<OptionsEntries>;
 
 export interface FeedFetcherInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

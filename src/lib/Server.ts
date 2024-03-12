@@ -14,6 +14,7 @@ import SignatureController from '../controllers/SignatureController.js';
 import InfoController from '../controllers/InfoController.js';
 import DebugController from '../controllers/DebugController.js';
 import DocsController from '../controllers/DocsController.js';
+import {HistoryController} from '../controllers/HistoryController.js';
 
 @injectable()
 class Server {
@@ -31,6 +32,7 @@ class Server {
     @inject(SignatureController) signatureController: SignatureController,
     @inject(InfoController) infoController: InfoController,
     @inject(DocsController) docsController: DocsController,
+    @inject(HistoryController) historyController: HistoryController,
   ) {
     this.port = settings.port;
     this.logger = logger;
@@ -46,7 +48,8 @@ class Server {
       .use('/health', healthController.router)
       .use('/signature', signatureController.router)
       .use('/info', infoController.router)
-      .use('/docs', docsController.router);
+      .use('/docs', docsController.router)
+      .use('/history', historyController.router);
 
     this.server = http.createServer(this.router);
   }

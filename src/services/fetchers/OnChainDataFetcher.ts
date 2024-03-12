@@ -16,11 +16,6 @@ class OnChainDataFetcher extends AbstractFetcher {
   async apply(params: OnChainCall): Promise<OnChainDataFetcherResult> {
     const data = await this.fetchData(params);
 
-    await this.saveHistory({
-      fetcher: 'OnChainDataFetcher',
-      symbol: params.
-    });
-
     if (params.decimals === undefined) {
       return ethers.BigNumber.from(data).toString();
     }

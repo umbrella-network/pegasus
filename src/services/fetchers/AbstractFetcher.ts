@@ -13,11 +13,11 @@ export abstract class AbstractFetcher implements FeedFetcherInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   abstract apply(params: any, timestamp?: number): FeedFetcherInterfaceResult;
 
-  protected async saveHistory(params: FetcherHistoryInterface): Promise<void> {
-    await this.priceHistoryRepository.save(params);
-  }
+  // protected async saveHistory(params: FetcherHistoryInterface): Promise<void> {
+  //   await this.priceHistoryRepository.save(params);
+  // }
 
-  protected async saveHistories(params: FetcherHistoryInterface[]): Promise<void> {
-    await this.priceHistoryRepository.saveMany(params);
-  }
+  // protected async saveHistories(params: FetcherHistoryInterface[]): Promise<void> {
+  //   await this.priceHistoryRepository.saveMany(params);
+  // }
 }
