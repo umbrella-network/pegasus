@@ -5,8 +5,8 @@ import {OnChainCall} from '../../types/Feed.js';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
 import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds.js';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
-import {AbstractFetcher} from "./AbstractFetcher.js";
-import {OnChainDataFetcherResult} from "../../types/fetchers.js";
+import {AbstractFetcher} from './AbstractFetcher.js';
+import {OnChainDataFetcherResult} from '../../types/fetchers.js';
 
 @injectable()
 class OnChainDataFetcher extends AbstractFetcher {

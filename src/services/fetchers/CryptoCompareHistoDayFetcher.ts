@@ -4,8 +4,8 @@ import {JSONPath} from 'jsonpath-plus';
 
 import Settings from '../../types/Settings.js';
 import {mapParams} from '../../utils/request.js';
-import {AbstractFetcher} from './AbstractFetcher';
-import {CryptoCompareHistoFetcherResult} from '../../types/fetchers';
+import {AbstractFetcher} from './AbstractFetcher.js';
+import {CryptoCompareHistoFetcherResult} from '../../types/fetchers.js';
 
 @injectable()
 class CryptoCompareHistoDayFetcher extends AbstractFetcher {
