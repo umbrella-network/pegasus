@@ -22,6 +22,11 @@ export class FetcherHistoryRepository {
     return getModelForClass(FetcherHistory).find().sort({timestamp: -1}).limit(limit).exec();
   }
 
+  async latestSymbol(symbol: string, limit = 150): Promise<FetcherHistoryInterface[]> {
+    if (!symbol) throw new Error(`[FetcherHistoryRepository] empty symbol`);
+    return getModelForClass(FetcherHistory).find({symbol}).sort({timestamp: -1}).limit(limit).exec();
+  }
+
   async saveMany(data: FetcherHistoryInterface[]): Promise<void> {
     const expireAt = dayjs().add(this.settings.fetcherHistory.ttl, 'second').toDate();
 
