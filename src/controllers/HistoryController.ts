@@ -95,7 +95,7 @@ export class HistoryController {
       if (!data[r.timestamp]) data[r.timestamp] = {};
       data[r.timestamp][r.fetcher] = parseFloat(r.value);
 
-      if (!fetchers[r.fetcher]) {
+      if (fetchers[r.fetcher] === undefined) {
         fetchers[r.fetcher] = Object.keys(fetchers).length;
       }
     });
