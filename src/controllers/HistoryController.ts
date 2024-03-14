@@ -58,11 +58,11 @@ export class HistoryController {
   };
 
   private symbolHistoryChart = async (request: Request, response: Response): Promise<void> => {
-    const records = await this.fetcherHistoryRepository.latestSymbol(request.params.symbol);
+    const records = await this.fetcherHistoryRepository.latestSymbol(request.params.symbol, {asc: true});
 
     response.set('Content-Type', 'text/html');
     let html = fs.readFileSync(`${__dirname}/../assets/symbolHistoryChart.html`).toString();
-    html = html.replace('{{SYMBOL}}', request.params.symbol);
+    html = html.split('{{SYMBOL}}').join(request.params.symbol);
     html = html.replace('{{ROWS}}', this.toJsArray(records.map((r, i) => [i, parseFloat(r.value)])));
     response.send(html);
   };

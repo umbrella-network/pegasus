@@ -1,18 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src * self blob: data: gap:; style-src * self 'unsafe-inline' blob: data: gap:; script-src * 'self' 'unsafe-eval' 'unsafe-inline' blob: data: gap:; object-src * 'self' blob: data: gap:; img-src * self 'unsafe-inline' blob: data: gap:; connect-src self * 'unsafe-inline' blob: data: gap:; frame-src * self blob: data: gap:;">
+
+    <title>{{SYMBOL}} History Price chart</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
         google.charts.load('current', {packages: ['corechart', 'line']});
         google.charts.setOnLoadCallback(drawCurveTypes);
 
         function drawCurveTypes() {
-            var symbol = '{{SYMBOL}}';
             var data = new google.visualization.DataTable();
             data.addColumn('number', 'X');
-            data.addColumn('number', symbol +' Price');
+            data.addColumn('number', '{{SYMBOL}} Price');
 
             data.addRows([
                 {{ROWS}}
@@ -20,10 +19,10 @@
 
             var options = {
                 hAxis: {
-                    title: 'Time'
+                    title: 'LP'
                 },
                 vAxis: {
-                    title: symbol +' Price'
+                    title: '{{SYMBOL}} Price'
                 },
                 series: {
                     1: {curveType: 'function'}
@@ -37,5 +36,6 @@
 </head>
 <body>
 <div id="chart_div"></div>
+
 </body>
 </html>

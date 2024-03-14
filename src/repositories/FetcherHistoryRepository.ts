@@ -22,9 +22,11 @@ export class FetcherHistoryRepository {
     return getModelForClass(FetcherHistory).find().sort({timestamp: -1}).limit(limit).exec();
   }
 
-  async latestSymbol(symbol: string, limit = 150): Promise<FetcherHistoryInterface[]> {
+  async latestSymbol(symbol: string, options?: {limit?: number, asc: boolean}): Promise<FetcherHistoryInterface[]> {
     if (!symbol) throw new Error('[FetcherHistoryRepository] empty symbol');
-    return getModelForClass(FetcherHistory).find({symbol}).sort({timestamp: -1}).limit(limit).exec();
+    const limit = options?.limit ?? 150;
+    const sort = options?.asc ? 1 : -1;
+    return getModelForClass(FetcherHistory).find({symbol}).sort({timestamp: sort}).limit(limit).exec();
   }
 
   async saveMany(data: FetcherHistoryInterface[]): Promise<void> {
