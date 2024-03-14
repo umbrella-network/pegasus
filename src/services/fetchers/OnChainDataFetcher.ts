@@ -5,15 +5,14 @@ import {OnChainCall} from '../../types/Feed.js';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
 import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds.js';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
-import {Logger} from 'winston';
+import {FeedFetcherInterface, OnChainDataFetcherResult} from '../../types/fetchers.js';
 
 @injectable()
-class OnChainDataFetcher {
-  @inject('Logger') logger!: Logger;
+class OnChainDataFetcher implements FeedFetcherInterface {
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(BlockchainProviderRepository) blockchainProviderRepository!: BlockchainProviderRepository;
 
-  async apply(params: OnChainCall): Promise<string | number> {
+  async apply(params: OnChainCall): Promise<OnChainDataFetcherResult> {
     const data = await this.fetchData(params);
 
     if (params.decimals === undefined) {

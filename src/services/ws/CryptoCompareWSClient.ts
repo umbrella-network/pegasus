@@ -83,7 +83,7 @@ class CryptoCompareWSClient extends WSClient {
 
     this.lastTimeUpdated[subscription] = Date.now();
 
-    this.logger.debug(`${subscription}: ${median} at ${timestamp}`);
+    this.logger.debug(`${this.loggerPrefix} ${subscription}: ${median} at ${timestamp}`);
 
     this.priceAggregator
       .add(`${CryptoCompareWSClient.Prefix}${subscription}`, median, timestamp)
@@ -99,7 +99,7 @@ class CryptoCompareWSClient extends WSClient {
     this.connected = true;
 
     this.staleReconnectJob = new Timeout(70, () => {
-      this.logger.warn('closing a stale connection...');
+      this.logger.warn(`${this.loggerPrefix} closing a stale connection...`);
       this.close();
     });
 
@@ -135,25 +135,25 @@ class CryptoCompareWSClient extends WSClient {
   }
 
   onHeartbeat(event: unknown): void {
-    this.logger.debug(`heartbeat ${event}`);
+    this.logger.debug(`${this.loggerPrefix} heartbeat ${event}`);
 
     this.staleReconnectJob?.reschedule();
   }
 
   onLoad(event: unknown): void {
-    this.logger.debug(`load ${event}`);
+    this.logger.debug(`${this.loggerPrefix} load ${event}`);
   }
 
   onSubscribe(event: unknown): void {
-    this.logger.debug(`subscribe ${event}`);
+    this.logger.debug(`${this.loggerPrefix} subscribe ${event}`);
   }
 
   onUnsubscribe(event: unknown): void {
-    this.logger.debug(`unsubscribe ${event}`);
+    this.logger.debug(`${this.loggerPrefix} unsubscribe ${event}`);
   }
 
   onUnsubscribeAll(event: unknown): void {
-    this.logger.debug(`unsubscribe all ${event}`);
+    this.logger.debug(`${this.loggerPrefix} unsubscribe all ${event}`);
   }
 
   onMessage(message: string): void {

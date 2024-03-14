@@ -1,25 +1,23 @@
 import 'reflect-metadata';
-import {Container} from 'inversify';
 import chai from 'chai';
 import moxios from 'moxios';
 import chaiAsPromised from 'chai-as-promised';
 
 import Settings from '../../../src/types/Settings.js';
 import CryptoCompareHistoHourFetcher from '../../../src/services/fetchers/CryptoCompareHistoHourFetcher.js';
+import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 chai.use(chaiAsPromised);
 
 const {expect} = chai;
 
-describe('CryptoCompareHistoHourFetcher', () => {
+describe.only('CryptoCompareHistoHourFetcher', () => {
   let settings: Settings;
 
   let сryptoCompareHistoHourFetcher: CryptoCompareHistoHourFetcher;
 
   beforeEach(async () => {
     moxios.install();
-
-    const container = new Container();
 
     settings = {
       api: {
@@ -30,8 +28,7 @@ describe('CryptoCompareHistoHourFetcher', () => {
       },
     } as Settings;
 
-    container.bind('Settings').toConstantValue(settings);
-
+    const container = getTestContainer(settings);
     container.bind(CryptoCompareHistoHourFetcher).toSelf();
 
     сryptoCompareHistoHourFetcher = container.get(CryptoCompareHistoHourFetcher);

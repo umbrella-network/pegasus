@@ -9,11 +9,12 @@ class CryptoComparePriceWSFetcher {
 
   async apply(pair: PairWithFreshness, timestamp: number): Promise<number> {
     const price = await this.cryptoCompareWSClient.getLatestPrice(pair, timestamp);
+
     if (price !== null) {
       return price;
     }
 
-    throw new Error(`NO recent price for ${pair.fsym}-${pair.tsym}`);
+    throw new Error(`[CryptoComparePriceWSFetcher] NO recent price for ${pair.fsym}-${pair.tsym}`);
   }
 }
 

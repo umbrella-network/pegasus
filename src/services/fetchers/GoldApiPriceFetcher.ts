@@ -41,7 +41,8 @@ export default class GoldApiPriceFetcher {
       throw new Error(response.data);
     }
 
-    const {metal, currency, price_gram_24k} = response.data;
+    const {price_gram_24k} = response.data;
+
     if (price_gram_24k !== undefined) {
       this.logger.debug(`[GoldApiPriceFetcher] resolved price: ${input.symbol}/${input.currency}: ${price_gram_24k}`);
       return price_gram_24k;

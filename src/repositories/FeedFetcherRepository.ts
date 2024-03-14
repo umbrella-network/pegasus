@@ -1,21 +1,15 @@
 import {inject, injectable} from 'inversify';
 import * as fetchers from '../services/fetchers/index.js';
-
-export interface FeedFetcher {
-  // eslint-disable-next-line
-  apply: (params: any, timestamp: number) => Promise<any>;
-}
+import {FeedFetcherInterface} from '../types/fetchers.js';
 
 @injectable()
 export class FeedFetcherRepository {
-  readonly collection: {[key: string]: FeedFetcher};
+  readonly collection: {[key: string]: FeedFetcherInterface};
 
   constructor(
-    @inject(fetchers.CryptoCompareHistoHourFetcher)
-    CryptoCompareHistoHour: fetchers.CryptoCompareHistoHourFetcher,
+    @inject(fetchers.CryptoCompareHistoHourFetcher) CryptoCompareHistoHour: fetchers.CryptoCompareHistoHourFetcher,
     @inject(fetchers.CryptoCompareHistoDayFetcher) CryptoCompareHistoDay: fetchers.CryptoCompareHistoDayFetcher,
     @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPrice: fetchers.PolygonIOStockPriceFetcher,
-    @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOPrice: fetchers.PolygonIOStockPriceFetcher,
     @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPrice: fetchers.PolygonIOCryptoPriceFetcher,
     @inject(fetchers.PolygonIOCurrencySnapshotFetcher)
     PolygonIOCurrencySnapshot: fetchers.PolygonIOCurrencySnapshotFetcher,
@@ -34,7 +28,6 @@ export class FeedFetcherRepository {
       CryptoCompareHistoHour,
       CryptoCompareHistoDay,
       PolygonIOStockPrice,
-      PolygonIOPrice,
       PolygonIOCryptoPrice,
       PolygonIOCurrencySnapshot,
       CryptoComparePriceWS,
@@ -50,11 +43,11 @@ export class FeedFetcherRepository {
     };
   }
 
-  find(id: string): FeedFetcher | undefined {
+  find(id: string): FeedFetcherInterface | undefined {
     return this.collection[id];
   }
 
-  all(): FeedFetcher[] {
+  all(): FeedFetcherInterface[] {
     return Object.values(this.collection);
   }
 }

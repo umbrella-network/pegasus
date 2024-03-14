@@ -12,7 +12,7 @@ class PolygonIOCryptoPriceFetcher {
       return price;
     }
 
-    throw new Error(`NO price for ${fsym}-${tsym}`);
+    throw new Error(`[PolygonIOCryptoPriceFetcher] NO price for ${fsym}-${tsym}`);
   }
 }
 
