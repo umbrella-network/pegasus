@@ -11,7 +11,7 @@
         function drawCurveTypes() {
             var data = new google.visualization.DataTable();
             var customColumns = [{{COLUMNS}}];// [''];
-            data.addColumn('number', 'Timestamp');
+            data.addColumn('string', 'Date');
 
             for (let i = 0; i < customColumns.length; i++) {
                 data.addColumn('number', customColumns[i]);
