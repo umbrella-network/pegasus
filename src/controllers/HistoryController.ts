@@ -87,18 +87,20 @@ export class HistoryController {
   private makeHistoryChartData = async (
     symbol: string,
   ): Promise<{data: Record<number, Record<string, number>>; fetchers: Record<string, number>}> => {
-    const records = await this.fetcherHistoryRepository.latestSymbol(symbol, {asc: true});
+    const records = await this.fetcherHistoryRepository.latestSymbol(symbol);
     const data: Record<number, Record<string, number>> = {};
     const fetchers: Record<string, number> = {};
 
-    records.forEach((r) => {
-      if (!data[r.timestamp]) data[r.timestamp] = {};
-      data[r.timestamp][r.fetcher] = parseFloat(r.value);
+    records
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .forEach((r) => {
+        if (!data[r.timestamp]) data[r.timestamp] = {};
+        data[r.timestamp][r.fetcher] = parseFloat(r.value);
 
-      if (fetchers[r.fetcher] === undefined) {
-        fetchers[r.fetcher] = Object.keys(fetchers).length;
-      }
-    });
+        if (fetchers[r.fetcher] === undefined) {
+          fetchers[r.fetcher] = Object.keys(fetchers).length;
+        }
+      });
 
     return {data, fetchers};
   };
