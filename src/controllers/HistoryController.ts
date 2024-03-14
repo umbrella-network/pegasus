@@ -76,6 +76,7 @@ export class HistoryController {
     html = html.split('{{SYMBOL}}').join(request.params.symbol);
     html = html.replace('{{COLUMNS}}', `'${columns.join("','")}'`);
     html = html.replace('{{ROWS}}', this.toJsArray(rows));
+    html = html.replace('{{OBSERVATIONS}}', rows.length.toString());
 
     response.send(html);
   };
