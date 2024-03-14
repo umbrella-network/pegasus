@@ -58,15 +58,48 @@ export class HistoryController {
   };
 
   private symbolHistoryChart = async (request: Request, response: Response): Promise<void> => {
-    const records = await this.fetcherHistoryRepository.latestSymbol(request.params.symbol, {asc: true});
+    const {data, fetchers} = await this.makeHistoryChartData(request.params.symbol);
+
+    const columns: string[] = new Array(Object.keys(fetchers).length).fill('');
+    Object.keys(fetchers).forEach((fetcher) => (columns[fetchers[fetcher]] = fetcher));
+
+    const rows: number[][] = [];
+
+    Object.keys(data).forEach((timestamp) => {
+      const t = parseInt(timestamp);
+      rows.push([t, ...columns.map((f) => data[t][f] ?? 'null')]);
+    });
 
     response.set('Content-Type', 'text/html');
     let html = fs.readFileSync(`${__dirname}/../assets/symbolHistoryChart.html`).toString();
+
     html = html.split('{{SYMBOL}}').join(request.params.symbol);
-    html = html.replace('{{ROWS}}', this.toJsArray(records.map((r, i) => [i, parseFloat(r.value)])));
+    html = html.replace('{{COLUMNS}}', `'${columns.join("','")}'`);
+    html = html.replace('{{ROWS}}', this.toJsArray(rows));
+
     response.send(html);
   };
 
   private toDate = (t: number): string => new Date(t * 1000).toISOString();
-  private toJsArray = (arr: number[][]): string => `[${arr.map(a => a.toString()).join('],[')}]`;
+
+  private toJsArray = (arr: number[][]): string => `[${arr.map((a) => a.toString()).join('],[')}]`;
+
+  private makeHistoryChartData = async (
+    symbol: string,
+  ): Promise<{data: Record<number, Record<string, number>>; fetchers: Record<string, number>}> => {
+    const records = await this.fetcherHistoryRepository.latestSymbol(symbol, {asc: true});
+    const data: Record<number, Record<string, number>> = {};
+    const fetchers: Record<string, number> = {};
+
+    records.forEach((r) => {
+      if (!data[r.timestamp]) data[r.timestamp] = {};
+      data[r.timestamp][r.fetcher] = parseFloat(r.value);
+
+      if (!fetchers[r.fetcher]) {
+        fetchers[r.fetcher] = Object.keys(fetchers).length;
+      }
+    });
+
+    return {data, fetchers};
+  };
 }

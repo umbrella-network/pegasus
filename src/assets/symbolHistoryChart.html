@@ -10,8 +10,12 @@
 
         function drawCurveTypes() {
             var data = new google.visualization.DataTable();
+            var customColumns = [{{COLUMNS}}];// [''];
             data.addColumn('number', 'X');
-            data.addColumn('number', '{{SYMBOL}} Price');
+
+            for (let i = 0; i < customColumns.length; i++) {
+                data.addColumn('number', customColumns[i]);
+            }
 
             data.addRows([
                 {{ROWS}}
