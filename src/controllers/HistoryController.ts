@@ -63,7 +63,7 @@ export class HistoryController {
     const columns: string[] = new Array(Object.keys(fetchers).length).fill('');
     Object.keys(fetchers).forEach((fetcher) => (columns[fetchers[fetcher]] = fetcher));
 
-    const rows: (number|string)[][] = [];
+    const rows: (number | string)[][] = [];
 
     Object.keys(data).forEach((timestamp) => {
       const t = parseInt(timestamp);
@@ -83,7 +83,7 @@ export class HistoryController {
 
   private toDate = (t: number): string => new Date(t * 1000).toISOString().replace('.000Z', '').replace('T', ' ');
 
-  private toJsArray = (arr: (number|string)[][]): string => `[${arr.map((a) => a.toString()).join('],[')}]`;
+  private toJsArray = (arr: (number | string)[][]): string => `[${arr.map((a) => a.toString()).join('],[')}]`;
 
   private makeHistoryChartData = async (
     symbol: string,
