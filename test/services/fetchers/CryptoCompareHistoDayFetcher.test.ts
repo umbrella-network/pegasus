@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import {Container} from 'inversify';
 import chai from 'chai';
 import moxios from 'moxios';
 import chaiAsPromised from 'chai-as-promised';

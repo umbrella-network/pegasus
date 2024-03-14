@@ -300,6 +300,9 @@ const settings: Settings = {
     discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '800'),
     roundInterval: parseInt(process.env.CONSENSUS_ROUND_INTERVAL || '1000'),
   },
+  fetcherHistory: {
+    ttl: parseInt(process.env.PRICE_HISTORY_TTL || (60 * 60 * 24 * 30 * 12).toString()),
+  },
   blockchains: {
     ethereum: {
       providerUrl: process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL

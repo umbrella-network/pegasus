@@ -1,0 +1,45 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src gap://ready file://* *; style-src 'self' http://* https://* 'unsafe-inline'; script-src 'self' http://* https://* 'unsafe-inline' 'unsafe-eval'">
+
+    <title>{{SYMBOL}} History Price chart</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {packages: ['corechart', 'line']});
+        google.charts.setOnLoadCallback(drawCurveTypes);
+
+        function drawCurveTypes() {
+            var data = new google.visualization.DataTable();
+            var customColumns = [{{COLUMNS}}];// [''];
+            data.addColumn('string', 'Date');
+
+            for (let i = 0; i < customColumns.length; i++) {
+                data.addColumn('number', customColumns[i]);
+            }
+
+            data.addRows([
+                {{ROWS}}
+            ]);
+
+            var options = {
+                hAxis: {
+                    title: `Time, last ${{{OBSERVATIONS}}} observations`
+                },
+                vAxis: {
+                    title: '{{SYMBOL}}'
+                },
+                series: {
+                    1: {curveType: 'function'}
+                }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+    </script>
+</head>
+<body>
+<div id="chart_div"></div>
+
+</body>
+</html>

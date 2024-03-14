@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.23.0] - 2024-03-14
+### Added
+- price history
+
 ## [7.22.0] - 2024-03-11
 ### Added
 - new `PolygonIOCurrencySnapshotFetcher`

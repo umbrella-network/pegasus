@@ -5,6 +5,7 @@ import {CryptoComparePriceMultiFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
 import {InputParams, OutputValue} from '../fetchers/CryptoComparePriceMultiFetcher.js';
+import {CryptoCompareMultiProcessorResult, FeedFetcherInterface} from '../../types/fetchers.js';
 
 interface FeedFetcherParams {
   fsym: string;
@@ -12,12 +13,12 @@ interface FeedFetcherParams {
 }
 
 @injectable()
-export default class CryptoCompareMultiProcessor {
+export default class CryptoCompareMultiProcessor implements FeedFetcherInterface {
   @inject('Logger') private logger!: Logger;
 
   @inject(CryptoComparePriceMultiFetcher) cryptoComparePriceMultiFetcher!: CryptoComparePriceMultiFetcher;
 
-  async apply(feedFetchers: FeedFetcher[]): Promise<(number | undefined)[]> {
+  async apply(feedFetchers: FeedFetcher[]): Promise<CryptoCompareMultiProcessorResult[]> {
     const params = this.createParams(feedFetchers);
     const outputs = await this.cryptoComparePriceMultiFetcher.apply(params);
 
