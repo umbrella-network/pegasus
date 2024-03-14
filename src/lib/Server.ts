@@ -38,7 +38,9 @@ class Server {
     this.logger = logger;
 
     this.router = express()
-      .use(helmet())
+      .use(helmet({
+        contentSecurityPolicy: false,
+      }))
       .use(compression())
       .use(express.json({limit: '8mb'}))
       .use(express.urlencoded({extended: true}))
