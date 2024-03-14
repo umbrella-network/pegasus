@@ -1,19 +1,20 @@
 import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
+import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 import {mapParams} from '../../utils/request.js';
-import {AbstractFetcher} from './AbstractFetcher.js';
-import {CryptoCompareHistoFetcherResult} from '../../types/fetchers.js';
+import {CryptoCompareHistoFetcherResult, FeedFetcherInterface} from '../../types/fetchers.js';
 
 @injectable()
-class CryptoCompareHistoDayFetcher extends AbstractFetcher {
+class CryptoCompareHistoDayFetcher implements FeedFetcherInterface {
+  @inject('Logger') protected logger!: Logger;
+
   private apiKey: string;
   private timeout: number;
 
   constructor(@inject('Settings') settings: Settings) {
-    super();
     this.apiKey = settings.api.cryptocompare.apiKey;
     this.timeout = settings.api.cryptocompare.timeout;
   }
