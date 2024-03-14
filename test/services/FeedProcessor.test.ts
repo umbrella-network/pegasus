@@ -6,7 +6,7 @@ import Feeds from '@umb-network/toolbox/dist/types/Feed';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
 import {getTestContainer} from '../helpers/getTestContainer.js';
-import {FeedFetcherRepository, FeedFetcherInterface} from '../../src/repositories/FeedFetcherRepository.js';
+import {FeedFetcherRepository} from '../../src/repositories/FeedFetcherRepository.js';
 import {CalculatorRepository} from '../../src/repositories/CalculatorRepository.js';
 import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {IdentityCalculator} from '../../src/services/calculators/index.js';
@@ -14,6 +14,7 @@ import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
 import Leaf from '../../src/types/Leaf.js';
 import CryptoCompareMultiProcessor from '../../src/services/FeedProcessor/CryptoCompareMultiProcessor.js';
 import CoingeckoMultiProcessor from '../../src/services/FeedProcessor/CoingeckoMultiProcessor.js';
+import {FeedFetcherInterface} from '../../src/types/fetchers.js';
 
 const {expect} = chai;
 
