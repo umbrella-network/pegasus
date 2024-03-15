@@ -22,6 +22,16 @@ export class FetcherHistoryRepository {
     return getModelForClass(FetcherHistory).find().sort({timestamp: -1}).limit(limit).exec();
   }
 
+  async latestSymbols(): Promise<string[]> {
+    const symbols = await getModelForClass(FetcherHistory).find({}, {symbol: 1}).limit(1000).exec();
+    const unique: Record<string, number> = {};
+    symbols.forEach((s) => (unique[s.symbol] = unique[s.symbol] ? unique[s.symbol] + 1 : 1));
+
+    return Object.keys(unique).sort((a, b) => {
+      return unique[a] == unique[b] ? (a < b ? -1 : 1) : unique[b] - unique[a];
+    });
+  }
+
   async latestSymbol(symbol: string, limit = 150): Promise<FetcherHistoryInterface[]> {
     if (!symbol) throw new Error('[FetcherHistoryRepository] empty symbol');
     return getModelForClass(FetcherHistory).find({symbol}).sort({timestamp: -1}).limit(limit).exec();
