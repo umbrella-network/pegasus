@@ -20,11 +20,29 @@ export class HistoryController {
   constructor(@inject('Settings') private readonly settings: Settings) {
     this.router = express
       .Router()
+      .get('/', this.index)
       .get('/latest', this.latestHistory)
       .get('/:symbol', this.symbolHistory)
       .get('/:symbol/csv', this.symbolHistoryCsv)
       .get('/:symbol/chart', this.symbolHistoryChart);
   }
+
+  private index = async (request: Request, response: Response): Promise<void> => {
+    const symbols = await this.fetcherHistoryRepository.latestSymbols();
+
+    let html = fs.readFileSync(`${__dirname}/../assets/symbolHistoryIndex.html`).toString();
+
+    const links = [
+      '<li><a href="/history/latest">all latest</a></li>',
+      ...symbols.map(
+        (s) => `<li>${s} <a href="/history/${s}/chart">chart</a>, <a href="/history/${s}/csv">csv</a></li>`,
+      ),
+    ];
+
+    html = html.replace('{{LINKS}}', links.join(''));
+    response.set('Content-Type', 'text/html');
+    response.send(html);
+  };
 
   private latestHistory = async (request: Request, response: Response): Promise<void> => {
     const records = await this.fetcherHistoryRepository.latest();
