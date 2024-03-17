@@ -12,15 +12,14 @@ export type CryptoCompareHistoFetcherResult = [
   volume: number,
 ];
 
-export type CryptoCompareMultiProcessorResult = number | undefined;
-
+export type NumberProcessorResult = number | undefined;
 export type OnChainDataFetcherResult = string | number;
 
 export type FeedFetcherInterfaceResult =
-  | Promise<number | undefined>
+  | Promise<NumberProcessorResult>
   | Promise<OnChainDataFetcherResult>
   | Promise<CryptoCompareHistoFetcherResult[] | undefined>
-  | Promise<CryptoCompareMultiProcessorResult[]>
+  | Promise<NumberProcessorResult[]>
   | Promise<OptionsEntries>;
 
 export interface FeedFetcherInterface {
