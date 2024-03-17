@@ -1,56 +1,53 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {CryptoComparePriceMultiFetcher} from '../fetchers/index.js';
+import {ByBitSpotFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
-import {InputParams, OutputValue} from '../fetchers/CryptoComparePriceMultiFetcher.js';
+import {ByBitSpotFetcherParams, OutputValue} from '../fetchers/ByBitSpotFetcher.js';
 import {NumberProcessorResult, FeedFetcherInterface} from '../../types/fetchers.js';
 
 interface FeedFetcherParams {
+  symbol: string;
   fsym: string;
-  tsyms: string;
+  tsym: string;
 }
 
 @injectable()
-export default class CryptoCompareMultiProcessor implements FeedFetcherInterface {
-  @inject('Logger') private logger!: Logger;
-
-  @inject(CryptoComparePriceMultiFetcher) cryptoComparePriceMultiFetcher!: CryptoComparePriceMultiFetcher;
+export default class ByBitMultiProcessor implements FeedFetcherInterface {
+  @inject(ByBitSpotFetcher) byBitSpotFetcher!: ByBitSpotFetcher;
 
   async apply(feedFetchers: FeedFetcher[]): Promise<NumberProcessorResult[]> {
     const params = this.createParams(feedFetchers);
-    const outputs = await this.cryptoComparePriceMultiFetcher.apply(params);
+    const outputs = await this.byBitSpotFetcher.apply(params);
 
-    return this.sortOutput(feedFetchers, outputs);
+    return this.sortOutput(feedFetchers, outputs.flat());
   }
 
-  private createParams(feedInputs: FeedFetcher[]): InputParams {
-    const fsymSet = new Set<string>(),
-      tsymSet = new Set<string>();
+  private createParams(feedInputs: FeedFetcher[]): ByBitSpotFetcherParams {
+    const symbolMap = new Map<string, {fsym: string; tsym: string}>();
 
     feedInputs.forEach((fetcher) => {
-      if (!fetcher.name.includes('CryptoCompare')) return;
+      if (!fetcher.name.includes('ByBit')) return;
 
-      const {fsym, tsyms} = fetcher.params as FeedFetcherParams;
+      const {symbol, fsym, tsym} = fetcher.params as FeedFetcherParams;
 
-      fsymSet.add(fsym);
-      tsymSet.add(tsyms);
+      symbolMap.set(symbol, {
+        fsym,
+        tsym,
+      });
     });
 
-    return {
-      fsyms: [...fsymSet],
-      tsyms: [...tsymSet],
-    };
+    return symbolMap;
   }
 
   protected sortOutput(feedFetchers: FeedFetcher[], values: OutputValue[]): number[] {
     const inputsIndexMap: {[key: string]: number} = {};
 
     feedFetchers.forEach((fetcher, index) => {
-      const {fsym, tsyms} = fetcher.params as FeedFetcherParams;
+      const {fsym, tsym} = fetcher.params as FeedFetcherParams;
       // params might have different case but it will be accepted in API call and it will produce valid oputput
-      inputsIndexMap[`${fsym}:${tsyms}`.toUpperCase()] = index;
+      inputsIndexMap[`${fsym}:${tsym}`.toUpperCase()] = index;
     });
 
     const result: number[] = [];
