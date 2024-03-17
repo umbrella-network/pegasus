@@ -392,6 +392,9 @@ const settings: Settings = {
     resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '5000'),
   },
   api: {
+    byBit: {
+      timeout: timeoutWithCode(process.env.BYBIT_TIMEOUT || '5000', TimeoutCodes.BYBIT),
+    },
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
       timeout: timeoutWithCode(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', TimeoutCodes.CRYPTOCOMPARE),

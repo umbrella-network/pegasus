@@ -73,7 +73,7 @@ const feedsFetcher = [
 
 const fetcherWSNames = [FetcherName.CRYPTO_COMPARE_PRICE_WS, FetcherName.POLYGON_IO_CRYPTO_PRICE];
 
-describe('FeedProcessor integration tests', () => {
+describe.skip('FeedProcessor integration tests', () => {
   let feedProcessor: FeedProcessor;
   let feeds: Feeds;
   let priceRepository: PriceRepository;

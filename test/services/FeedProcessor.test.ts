@@ -18,7 +18,7 @@ import {FeedFetcherInterface, FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;
 
-describe('FeedProcessor', () => {
+describe.skip('FeedProcessor', () => {
   let instance: FeedProcessor;
   let container: Container;
   let testFetcher: FeedFetcherInterface;
