@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.25.0] - 2024-03-20
+### Added
+- support for zk-Link Nova
+
 ## [7.24.0] - 2024-03-15
 ### Added
 - price history index
