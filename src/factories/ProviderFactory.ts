@@ -35,6 +35,7 @@ export class ProviderFactory {
       case ChainsIds.ARTHERA:
       case ChainsIds.ASTAR:
       case ChainsIds.ROOTSTOCK:
+      case ChainsIds.ZK_LINK_NOVA:
         return new EvmProvider(chainId, providerUrl);
 
       default:

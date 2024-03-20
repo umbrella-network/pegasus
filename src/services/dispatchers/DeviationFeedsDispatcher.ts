@@ -19,6 +19,7 @@ import {OKXDeviationDispatcher} from './networks/OKXDeviationDispatcher.js';
 import {ArtheraDeviationDispatcher} from './networks/ArtheraDeviationDispatcher.js';
 import {AstarDeviationDispatcher} from './networks/AstarDeviationDispatcher.js';
 import {RootstockDeviationDispatcher} from './networks/RootstockDeviationDispatcher.js';
+import {ZkLinkNovaDeviationDispatcher} from './networks/ZkLinkNovaDeviationDispatcher.js';
 
 export type DeviationFeedsDispatcherProps = {
   chainId: ChainsIds;
@@ -46,6 +47,7 @@ export class DeviationFeedsDispatcher {
     @inject(ArtheraDeviationDispatcher) artheraDeviationDispatcher: ArtheraDeviationDispatcher,
     @inject(AstarDeviationDispatcher) astarDeviationDispatcher: AstarDeviationDispatcher,
     @inject(RootstockDeviationDispatcher) rootstockDeviationDispatcher: RootstockDeviationDispatcher,
+    @inject(ZkLinkNovaDeviationDispatcher) zkLinkNovaDeviationDispatcher: ZkLinkNovaDeviationDispatcher,
   ) {
     this.dispatchers = {
       [ChainsIds.ARBITRUM]: arbitrumDeviationDispatcher,
@@ -63,6 +65,7 @@ export class DeviationFeedsDispatcher {
       [ChainsIds.ARTHERA]: artheraDeviationDispatcher,
       [ChainsIds.ASTAR]: astarDeviationDispatcher,
       [ChainsIds.ROOTSTOCK]: rootstockDeviationDispatcher,
+      [ChainsIds.ZK_LINK_NOVA]: zkLinkNovaDeviationDispatcher,
     };
   }
 
