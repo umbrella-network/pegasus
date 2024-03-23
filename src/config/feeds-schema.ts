@@ -32,6 +32,7 @@ export default {
         fetcher: {
           oneOf: [
             {$ref: '#/definitions/ByBitSpotFetcher'},
+            {$ref: '#/definitions/BinanceFetcher'},
             {$ref: '#/definitions/GVolImpliedVolatilityFetcher'},
             {$ref: '#/definitions/CryptoCompareHistoDayFetcher'},
             {$ref: '#/definitions/CryptoCompareHistoHourFetcher'},
@@ -83,6 +84,19 @@ export default {
             tsym: {type: 'string'},
           },
           required: ['symbol', 'fsym', 'tsym'],
+        },
+      },
+    },
+    BinanceFetcher: {
+      properties: {
+        name: {const: FetcherName.BINANCE},
+        params: {
+          type: 'object',
+          properties: {
+            id: {type: 'string'},
+            currency: {type: 'string'},
+          },
+          required: ['id', 'currency'],
           additionalProperties: false,
         },
       },
