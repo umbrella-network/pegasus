@@ -1,3 +1,4 @@
+import BinancePriceMultiFetcher from './BinancePriceMultiFetcher.js';
 import CryptoComparePriceMultiFetcher from './CryptoComparePriceMultiFetcher.js';
 import CryptoCompareHistoHourFetcher from './CryptoCompareHistoHourFetcher.js';
 import CryptoCompareHistoDayFetcher from './CryptoCompareHistoDayFetcher.js';
@@ -17,6 +18,7 @@ import MetalsDevApiPriceFetcher from './MetalsDevApiFetcher.js';
 import GoldApiPriceFetcher from './GoldApiPriceFetcher.js';
 
 export {
+  BinancePriceMultiFetcher,
   CryptoComparePriceMultiFetcher,
   CryptoCompareHistoDayFetcher,
   CryptoCompareHistoHourFetcher,

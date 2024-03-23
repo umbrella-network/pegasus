@@ -13,12 +13,15 @@ import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRe
 import {Redis} from 'ioredis';
 import {initRedis} from '../config/initRedis.js';
 import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository.js';
+import FetcherAPILimit from '../types/FetcherAPILimit.js';
+import fetcherAPILimit from '../config/fetcherAPILimit.js';
 import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
   container.bind<Settings>('Settings').toConstantValue(settings);
   container.bind<Logger>('Logger').toConstantValue(logger);
+  container.bind<FetcherAPILimit>('FetcherAPILimit').toConstantValue(fetcherAPILimit);
   container.bind<CryptoCompareWSClient>(CryptoCompareWSClient).toSelf().inSingletonScope();
   container.bind(PriceRepository).toSelf().inSingletonScope();
   container.bind(FeedFetcherRepository).toSelf().inSingletonScope();

@@ -152,6 +152,16 @@ npm run start
 npm run start:dev
 ```
 
+# Run Tasks
+
+## Task Feeds
+
+Run feedProcessor using the feeds file in .env config. 
+The output is the leaves 
+```shell script
+npm run task:dev:feed
+```
+
 # Testing
 
 Setup a testing dotenv file (`.testing.env`) with local configuration values and set MONDODB_URL for use local instance. 

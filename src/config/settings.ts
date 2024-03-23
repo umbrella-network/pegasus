@@ -362,6 +362,10 @@ const settings: Settings = {
     resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '5000'),
   },
   api: {
+    binance: {
+      timeout: timeoutWithCode(process.env.BINANCE_TIMEOUT || '5000', TimeoutCodes.BINANCE),
+      maxBatchSize: parseInt(process.env.BINANCE_MAX_BATCH_SIZE || '500', 10),
+    },
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
       timeout: timeoutWithCode(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', TimeoutCodes.CRYPTOCOMPARE),

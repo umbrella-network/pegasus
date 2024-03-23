@@ -29,6 +29,7 @@ export default {
       properties: {
         fetcher: {
           oneOf: [
+            {$ref: '#/definitions/BinanceFetcher'},
             {$ref: '#/definitions/GVolImpliedVolatilityFetcher'},
             {$ref: '#/definitions/CryptoCompareHistoDayFetcher'},
             {$ref: '#/definitions/CryptoCompareHistoHourFetcher'},
@@ -64,6 +65,22 @@ export default {
         },
       },
       required: ['fetcher'],
+      additionalProperties: false,
+    },
+    BinanceFetcher: {
+      properties: {
+        name: {const: 'Binance'},
+        params: {
+          type: 'object',
+          properties: {
+            id: {type: 'string'},
+            currency: {type: 'string'},
+          },
+          required: ['id', 'currency'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
       additionalProperties: false,
     },
     GVolImpliedVolatilityFetcher: {

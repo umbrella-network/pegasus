@@ -149,6 +149,10 @@ type Settings = {
     resolveStatusTimeout: number;
   };
   api: {
+    binance: {
+      timeout: number;
+      maxBatchSize: number;
+    };
     cryptocompare: {
       apiKey: string;
       timeout: number;
