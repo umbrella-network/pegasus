@@ -4,7 +4,7 @@ import CryptoCompareHistoDayFetcher from './CryptoCompareHistoDayFetcher.js';
 import CryptoComparePriceWSFetcher from './CryptoComparePriceWSFetcher.js';
 import PolygonIOCryptoPriceFetcher from './PolygonIOCryptoPriceFetcher.js';
 import PolygonIOStockPriceFetcher from './PolygonIOStockPriceFetcher.js';
-import PolygonIOCurrencySnapshotFetcher from './PolygonIOCurrencySnapshotFetcher.js';
+import PolygonIOCurrencySnapshotGramsFetcher from './PolygonIOCurrencySnapshotGramsFetcher.js';
 import YearnVaultTokenPriceFetcher from './YearnVaultTokenPriceFetcher.js';
 import CoingeckoPriceMultiFetcher from './CoingeckoPriceMultiFetcher.js';
 import {UniswapPriceFetcher} from './UniswapPriceFetcher.js';
@@ -23,7 +23,7 @@ export {
   CryptoComparePriceWSFetcher,
   PolygonIOStockPriceFetcher,
   PolygonIOCryptoPriceFetcher,
-  PolygonIOCurrencySnapshotFetcher,
+  PolygonIOCurrencySnapshotGramsFetcher,
   YearnVaultTokenPriceFetcher,
   CoingeckoPriceMultiFetcher,
   OptionsPriceFetcher,

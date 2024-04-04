@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.25.1] - 2024-04-04
+### Fixed
+- add `PolygonIOCurrencySnapshotFetcher` to schema
+- fix `MetalsDevApi` name in schema
+
+### Updated
+- make `PolygonIOCurrencySnapshotFetcher` to return price in grams instead of troy oz
+
 ## [7.25.0] - 2024-03-20
 ### Added
 - support for zk-Link Nova
