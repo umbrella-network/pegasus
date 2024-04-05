@@ -1,6 +1,3 @@
-import MetalPriceApiFetcher from '../services/fetchers/MetalPriceApiFetcher';
-import MetalsDevApiPriceFetcher from '../services/fetchers/MetalsDevApiFetcher';
-
 export default {
   description: 'Feeds schema for the JSONSchema validator',
   type: 'object',
@@ -37,6 +34,7 @@ export default {
             {$ref: '#/definitions/PolygonIOPriceFetcher'},
             {$ref: '#/definitions/PolygonIOStockPriceFetcher'},
             {$ref: '#/definitions/PolygonIOCryptoPriceFetcher'},
+            {$ref: '#/definitions/PolygonIOCurrencySnapshotGramsFetcher'},
             {$ref: '#/definitions/IEXEnergyFetcher'},
             {$ref: '#/definitions/BEACPIAverageFetcher'},
             {$ref: '#/definitions/CoingeckoPriceFetcher'},
@@ -363,7 +361,23 @@ export default {
     },
     MetalsDevApiPriceFetcher: {
       properties: {
-        name: {const: 'MetalsDevApiPrice'},
+        name: {const: 'MetalsDevApi'},
+        params: {
+          type: 'object',
+          properties: {
+            metal: {type: 'string'},
+            currency: {type: 'string'},
+          },
+          required: ['metal', 'currency'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    PolygonIOCurrencySnapshotGramsFetcher: {
+      properties: {
+        name: {const: 'PolygonIOCurrencySnapshotGrams'},
         params: {
           type: 'object',
           properties: {
