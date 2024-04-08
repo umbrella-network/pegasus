@@ -75,13 +75,6 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         expect(await umbrellaFeeds.requiredSignatures()).eq(2);
       });
 
-      it(`[${chainId}] #getChainId`, async () => {
-        const id = await umbrellaFeeds.getChainId();
-        console.log(`[${chainId}] ${id}`);
-
-        expect(await blockchainRepo.get(chainId).networkId()).eq(id);
-      });
-
       it(`[${chainId}] #getManyPriceDataRaw empty array`, async () => {
         const priceDatas = await umbrellaFeeds.getManyPriceDataRaw([]);
         expect(priceDatas).not.undefined;
@@ -118,7 +111,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         expect(priceData.price > 0n, 'price');
       }).timeout(10000);
 
-      describe.only('#hashData', async () => {
+      describe('#hashData', async () => {
         const hasher = new DeviationHasher();
         let networkId: number;
         let target: string;
