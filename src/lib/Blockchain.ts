@@ -28,7 +28,7 @@ class Blockchain {
 
     this.provider = ProviderFactory.create(chainId);
     this.wallet = WalletFactory.create(settings, chainId);
-    this.deviationWallet = DeviationWalletFactory.create(chainId);
+    this.deviationWallet = DeviationWalletFactory.create(settings, chainId);
 
     this.selectionStrategy = settings.rpcSelectionStrategy;
   }

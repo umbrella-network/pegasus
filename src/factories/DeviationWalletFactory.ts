@@ -1,5 +1,5 @@
 import {ChainsIds} from '../types/ChainsIds.js';
-import settings from '../config/settings.js';
+import Settings from '../types/Settings.js';
 import {IWallet} from '../interfaces/IWallet.js';
 import {EvmWallet} from '../blockchains/evm/EvmWallet.js';
 import {MultiversXWallet} from '../blockchains/multiversx/MultiversXWallet.js';
@@ -7,7 +7,7 @@ import {MassaWallet} from '../blockchains/massa/MassaWallet.js';
 import {ConcordiumWallet} from '../blockchains/concordium/ConcordiumWallet.js';
 
 export class DeviationWalletFactory {
-  static create(chainId: ChainsIds): IWallet | undefined {
+  static create(settings: Settings, chainId: ChainsIds): IWallet | undefined {
     const {wallets} = settings.blockchain;
 
     switch (chainId) {
@@ -17,7 +17,7 @@ export class DeviationWalletFactory {
 
       case ChainsIds.MASSA:
         if (!wallets.massa.deviationPrivateKey) return;
-        return new MassaWallet(wallets.massa.deviationPrivateKey);
+        return new MassaWallet(wallets.massa.deviationPrivateKey, true);
 
       case ChainsIds.CONCORDIUM:
         if (!wallets.concordium.deviationPrivateKey) return;

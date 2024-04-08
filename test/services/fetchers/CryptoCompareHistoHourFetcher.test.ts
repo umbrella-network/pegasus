@@ -11,7 +11,7 @@ chai.use(chaiAsPromised);
 
 const {expect} = chai;
 
-describe.only('CryptoCompareHistoHourFetcher', () => {
+describe('CryptoCompareHistoHourFetcher', () => {
   let settings: Settings;
 
   let сryptoCompareHistoHourFetcher: CryptoCompareHistoHourFetcher;

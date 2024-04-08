@@ -12,14 +12,16 @@ export class MassaProvider implements ProviderInterface {
   protected logger!: Logger;
   protected loggerPrefix!: string;
   protected readonly chainId = ChainsIds.MASSA;
+  protected massaChainId: bigint;
   protected client: Client | undefined;
 
   readonly providerUrl!: string;
 
-  constructor(providerUrl: string) {
+  constructor(providerUrl: string, massaChainId: bigint) {
     this.logger = logger;
     this.loggerPrefix = '[MassaProvider]';
     this.providerUrl = providerUrl;
+    this.massaChainId = massaChainId;
 
     this.beforeAnyAction().then(() => {
       this.logger.info(`${this.loggerPrefix} Client initialised`);
@@ -63,9 +65,7 @@ export class MassaProvider implements ProviderInterface {
   }
 
   async getNetwork(): Promise<NetworkStatus> {
-    // generateChainId(this.chainId) => 786005736
-    // For now, return 13119191 (m=13, a=1, s=19, s=19, a=1)
-    return {name: this.chainId, id: 13119191};
+    return {name: this.chainId, id: Number(this.massaChainId)};
   }
 
   async getTransactionCount(): Promise<bigint> {
@@ -84,7 +84,7 @@ export class MassaProvider implements ProviderInterface {
     ]);
 
     if (finalStatus === undefined) {
-      this.logger.error(`${this.loggerPrefix} tx ${operationId} timeout after ${timeoutMs / 1000} sec`);
+      this.logger.error(`${this.loggerPrefix} waitForTx ${operationId} timeout after ${timeoutMs / 1000} sec`);
       return false;
     }
 
@@ -150,6 +150,7 @@ export class MassaProvider implements ProviderInterface {
         {url: this.providerUrl, type: ProviderType.PUBLIC} as IProvider,
         // { url: privateApi, type: ProviderType.PRIVATE } as IProvider,
       ],
+      this.massaChainId,
       true,
     );
   }

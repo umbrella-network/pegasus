@@ -18,17 +18,17 @@ export class MassaWallet implements IWallet {
 
   publicKey!: string;
 
-  protected addr!: string;
+  protected addr = '';
   protected rawWallet!: IAccount;
   protected rawWalletAwait!: Promise<IAccount>;
   protected client!: Client;
 
-  constructor(privateKeyPem: string) {
-    this.loggerPrefix = '[MassaWallet]';
+  constructor(secretKeyBase58: string, deviation = false) {
+    this.loggerPrefix = `[Massa${deviation ? 'Deviation' : ''}Wallet]`;
     this.logger = logger;
 
     this.provider = ProviderFactory.create(ChainsIds.MASSA);
-    this.rawWalletAwait = WalletClient.getAccountFromSecretKey(privateKeyPem);
+    this.rawWalletAwait = WalletClient.getAccountFromSecretKey(secretKeyBase58);
 
     this.beforeAnyAction().then(() => {
       this.logger.info(`${this.loggerPrefix} constructor done`);
@@ -69,25 +69,26 @@ export class MassaWallet implements IWallet {
 
   async address(): Promise<string> {
     await this.beforeAnyAction();
-    return this.publicKey;
+    return this.addr;
   }
 
   private async beforeAnyAction(): Promise<void> {
     if (this.addr) return;
 
-    const provider = await this.provider.getRawProvider<MassaProvider>();
-
     this.rawWallet = await this.rawWalletAwait;
     this.addr = this.rawWallet.address || 'N/A';
     this.publicKey = this.rawWallet.publicKey || 'N/A';
 
+    const {id} = await this.provider.getNetwork();
+
     this.client = await ClientFactory.createCustomClient(
-      [{url: provider.providerUrl, type: ProviderType.PUBLIC} as IProvider],
+      [{url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC} as IProvider],
+      BigInt(id),
       true,
       this.rawWallet,
     );
 
-    this.logger.info(`${this.loggerPrefix} wallet initialised for ${this.address}, ${this.publicKey}`);
+    this.logger.info(`${this.loggerPrefix} wallet initialised for ${this.addr}, ${this.publicKey}`);
   }
 
   setRawWallet(): void {

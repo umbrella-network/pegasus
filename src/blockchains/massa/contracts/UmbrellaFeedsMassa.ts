@@ -1,6 +1,7 @@
 import {Logger} from 'winston';
 
 import {Args, ArrayTypes, Client, ClientFactory, IProvider, ProviderType} from '@massalabs/massa-web3';
+import {IContractReadOperationResponse} from '@massalabs/web3-utils/dist/esm/interfaces/IContractReadOperationResponse';
 
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
 import Blockchain from '../../../lib/Blockchain.js';
@@ -11,14 +12,11 @@ import {PriceData, PriceDataWithKey, UmbrellaFeedsUpdateArgs} from '../../../typ
 import {ExecutedTx} from '../../../types/Consensus.js';
 import logger from '../../../lib/logger.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
-import {ethers} from 'ethers';
 import {MassaWBytesSerializer} from '../utils/MassaWBytesSerializer.js';
 import {MassaPriceDataSerializer} from '../utils/MassaPriceDataSerializer.js';
 import {MassaAddress} from '../utils/MassaAddress.js';
 import {MassaProvider} from '../MassaProvider.js';
 import {ProviderInterface} from '../../../interfaces/ProviderInterface.js';
-import {MassaWallet} from '../MassaWallet.js';
-import {IContractReadOperationResponse} from '@massalabs/web3-utils/dist/esm/interfaces/IContractReadOperationResponse';
 import {MassaEstimatedGas} from '../massaTypes.js';
 import {FeedName} from '../../../types/Feed';
 import {hashFeedName} from '../../../utils/hashFeedName.js';
@@ -39,7 +37,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     this.umbrellaFeedsName = umbrellaFeedsName;
     this.loggerPrefix = `[${blockchain.chainId}][UmbrellaFeedsMassa]`;
 
-    this.provider = blockchain.provider;
+    this.provider = blockchain.getProvider();
     this.registry = RegistryContractFactory.create(blockchain);
     this.blockchain = blockchain;
 
@@ -106,6 +104,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     const [targetAddress, blockNumber] = await Promise.all([this.resolveAddress(), this.provider.getBlockNumber()]);
 
     const estimateGas = await this.estimateGasForUpdate(targetAddress, args);
+
     this.logger.info(`${this.loggerPrefix} estimatedGas: ${JSON.stringify(estimateGas)}`);
 
     const operationId = await this.client.smartContracts().callSmartContract(
@@ -124,7 +123,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   }
 
   async estimateGasForUpdate(targetAddress: string, args: UmbrellaFeedsUpdateArgs): Promise<MassaEstimatedGas> {
-    const MAX_GAS = 4_294_967_295n; // Max gas for an op on Massa blockchain
+    const MAX_GAS = 4_294_167_295n; // Max gas for an op on Massa blockchain
 
     let estimatedGas = MAX_GAS;
     let estimatedStorageCost = 0n;
@@ -149,14 +148,16 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
       } else {
         this.logger.error(`${this.loggerPrefix} Failed to get storage cost: no event`);
       }
+
+      return {
+        estimatedGas: estimatedGas > MAX_GAS ? MAX_GAS : estimatedGas,
+        estimatedStorageCost,
+      };
     } catch (e: unknown) {
       this.logger.error(`${this.loggerPrefix} Failed to get dynamic gas cost for update: ${(e as Error).message}`);
     }
 
-    return {
-      estimatedGas: estimatedGas > MAX_GAS ? MAX_GAS : estimatedGas,
-      estimatedStorageCost,
-    };
+    throw new Error(`${this.loggerPrefix} gas estimation error`);
   }
 
   protected resolveContract = async (): Promise<undefined> => {
@@ -215,7 +216,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     const {sortedSignatures, publicKeys} = this.sortSignatures(args.signatures);
 
     const updateArgs = new Args();
-    updateArgs.addSerializableObjectArray(this.serializeKeys(args.keys));
+    updateArgs.addSerializableObjectArray(this.serializeFeedsNames(args.keys));
     updateArgs.addSerializableObjectArray(this.serializePriceDatas(args.priceDatas));
     updateArgs.addArray(sortedSignatures, ArrayTypes.STRING);
     updateArgs.addArray(publicKeys, ArrayTypes.STRING);
@@ -226,19 +227,22 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   private async beforeAnyAction(): Promise<void> {
     if (this.client) return;
 
-    const provider = await this.provider.getRawProvider<MassaProvider>();
+    const {id} = await (this.provider as MassaProvider).getNetwork();
+    const providerUrl = (this.provider as MassaProvider).providerUrl;
 
     this.client = await ClientFactory.createCustomClient(
-      [{url: provider.providerUrl, type: ProviderType.PUBLIC} as IProvider],
+      [{url: providerUrl, type: ProviderType.PUBLIC} as IProvider],
+      BigInt(id),
       true,
     );
 
-    const deviationWallet = await this.blockchain.deviationWallet?.getRawWallet<MassaWallet>();
+    if (!this.blockchain.deviationWallet) throw new Error(`${this.loggerPrefix} deviation wallet empty`);
 
     this.deviationClient = await ClientFactory.createCustomClient(
       [{url: (this.provider as MassaProvider).providerUrl, type: ProviderType.PUBLIC} as IProvider],
+      BigInt(id),
       true,
-      await deviationWallet?.getRawWallet(),
+      await this.blockchain.deviationWallet.getRawWallet(),
     );
 
     this.logger.info(`${this.loggerPrefix} clients initialised`);
