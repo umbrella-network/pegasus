@@ -14,6 +14,7 @@ import {TimeoutCodes} from '../types/TimeoutCodes.js';
 import {timeoutWithCode} from '../utils/request.js';
 import './setupDotenv.js';
 import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
+import {DexProtocolName} from '../types/DexProtocolName.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -373,6 +374,22 @@ const settings: Settings = {
     multiChains: resolveMultichainSettings(),
     resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '5000'),
   },
+  dexes: {
+    [ChainsIds.ETH]: {
+      [DexProtocolName.UNISWAP_V3]: {
+        active: !!process.env['ETHEREUM_UNISWAP_SCANNER_CONTRACT_ID'],
+        scannerContractId: <string>process.env['ETHEREUM_UNISWAP_SCANNER_CONTRACT_ID'],
+        helperContractId: <string>process.env['ETHEREUM_UNISWAP_HELPER_CONTRACT_ID'],
+        startBlock: parseInt(process.env['ETHEREUM_UNISWAP_START_BLOCK'] || '0'),
+        agentStep: parseInt(process.env['ETHEREUM_UNISWAP_STEP'] || '1000'),
+        defaultPrecision: Number(process.env['ETHEREUM_UNISWAP_DEFAULT_PRECISION'] || '6'),
+        defaultDiscrepancy: Number(process.env['ETHEREUM_UNISWAP_DEFAULT_DISCREPANCY'] || '1.0'),
+        backoffTime: getTimeSetting(parseInt(process.env['ETHEREUM_UNISWAP_BACKOFF_TIME'] || '1000'), 18000),
+        interval: getTimeSetting(parseInt(process.env['ETHEREUM_UNISWAP_RESTART_TIME'] || '1000'), 1000),
+        blockTime: getTimeSetting(parseInt(process.env['ETHEREUM_UNISWAP_BLOCK_TIME'] || '1000'), 1000),
+      },
+    },
+  },
   api: {
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
@@ -404,7 +421,7 @@ const settings: Settings = {
       apiKey: process.env.DEBUG_API_KEY as string,
     },
     uniswap: {
-      active: !!process.env.UNISWAP_SCANNER_CONTRACT_ID && !!process.env.UNISWAP_HELPER_CONTRACT_ID,
+      active: !!process.env.UNISWAP_SCANNER_CONTRACT_ID,
       scannerContractId: <string>process.env.UNISWAP_SCANNER_CONTRACT_ID,
       helperContractId: <string>process.env.UNISWAP_HELPER_CONTRACT_ID,
       startBlock: parseInt(process.env.UNISWAP_START_BLOCK || '0'),

@@ -13,9 +13,14 @@ import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer.js';
 import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer.js';
 import TimeService from './services/TimeService.js';
 import Blockchain from './lib/Blockchain.js';
+import {DexCoordinator} from './agents/DexCoordinator.js';
+import {DexProtocolName} from './types/DexProtocolName.js';
+import {ChainsIds} from './types/ChainsIds.js';
 
 const argv = yargs(process.argv.slice(2)).options({
   task: {type: 'string', demandOption: true},
+  chainId: {type: 'string', demandOption: false},
+  dexProtocol: {type: 'string', demandOption: false},
 }).argv;
 
 async function testFeeds(settings: Settings): Promise<void> {
@@ -56,6 +61,15 @@ ev.on('done', () => process.exit());
     }
     case 'test:feeds': {
       await testFeeds(settings);
+      ev.emit('done');
+      break;
+    }
+
+    case 'test:dex': {
+      if (argv.chainId && Object.values(ChainsIds).includes(argv.chainId as ChainsIds)) {
+        console.log(`Starting Agent: chainId ${argv.chainId}; dexProtocol ${argv.dexProtocol}`);
+        await Application.get(DexCoordinator).startOne(argv.chainId as ChainsIds, argv.dexProtocol as DexProtocolName);
+      }
       ev.emit('done');
       break;
     }

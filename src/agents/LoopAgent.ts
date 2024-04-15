@@ -1,5 +1,4 @@
-import {inject, injectable} from 'inversify';
-import {Logger} from 'winston';
+import {injectable} from 'inversify';
 
 import {BasicAgent} from './BasicAgent.js';
 
@@ -10,12 +9,14 @@ export enum AgentState {
 
 @injectable()
 export abstract class LoopAgent extends BasicAgent {
-  @inject('Logger') logger!: Logger;
-
   shutdownGracePeriod = 10000;
   state = AgentState.OFFLINE;
   interval: number | undefined;
   delay: number | undefined;
+
+  constructor() {
+    super();
+  }
 
   abstract execute(): Promise<void>;
 

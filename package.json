@@ -31,6 +31,8 @@
     "start:agent": "node dist/agent.js",
     "start:scheduler": "node dist/scheduler.js",
     "task": "node dist/tasks.js",
+    "task:dev:feed": "npm run task:dev -- --task test:feeds",
+    "task:dev:dex": "npm run task:dev -- --task test:dex",
     "test": "cross-env NODE_ENV=testing mocha --exit",
     "list:top:cryptopairs": "ts-node src/scripts/listTopCryptoPairs.ts",
     "concordium:registry": "ccd-js-gen --module ../phoenix-concordium/registry/registry.wasm.v1 --out-dir ./src/blockchains/concordium/contracts/generated/",

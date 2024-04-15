@@ -72,7 +72,7 @@ class FeedProcessor {
     const ignoredMap: {[key: string]: boolean} = {};
     const keyValueMap: {[key: string]: number} = {};
 
-    feedsArray.forEach((feeds, ix) => {
+    feedsArray.forEach((feeds) => {
       const tickers = Object.keys(feeds);
       const leaves: Leaf[] = [];
 
@@ -181,7 +181,7 @@ class FeedProcessor {
    * @return multiInputs will be aggregated by the respective processor to be fetched in one API call
    */
   private separateInputs(uniqueFeedFetcherMap: {[hash: string]: FeedFetcher}) {
-    const multiFetchingInputsNames = ['CryptoComparePrice', 'CoingeckoPrice'];
+    const multiFetchingInputsNames = ['CryptoComparePrice', 'CoingeckoPrice', 'UniswapV3'];
 
     const fetcherMapArr = Object.values(uniqueFeedFetcherMap);
     const fetcherKeys = Object.keys(uniqueFeedFetcherMap);

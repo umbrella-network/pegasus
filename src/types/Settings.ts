@@ -1,4 +1,5 @@
 import {ChainsIds} from './ChainsIds.js';
+import {DexProtocolName} from './DexProtocolName.js';
 import {SubmitMonitor} from './SubmitMonitor.js';
 
 export enum BlockchainType {
@@ -24,6 +25,19 @@ export type BlockchainSettings = {
       errorLimit: string;
     };
   };
+};
+
+export type DexSettings = {
+  active: boolean;
+  scannerContractId: string;
+  helperContractId: string;
+  startBlock: number;
+  agentStep: number;
+  defaultPrecision: number;
+  defaultDiscrepancy: number;
+  backoffTime: number;
+  interval: number;
+  blockTime: number;
 };
 
 interface SubmitMonitorExt extends SubmitMonitor {
@@ -148,6 +162,7 @@ type Settings = {
     multiChains: Partial<Record<ChainsIds, BlockchainSettings>>;
     resolveStatusTimeout: number;
   };
+  dexes: Partial<Record<ChainsIds, Record<DexProtocolName, DexSettings>>>;
   api: {
     cryptocompare: {
       apiKey: string;

@@ -3,9 +3,11 @@ import {inject, injectable} from 'inversify';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import Settings from '../types/Settings.js';
 import lodash from 'lodash';
+import {Logger} from 'winston';
 
 @injectable()
 export class BlockchainProviderRepository {
+  @inject('Logger') logget!: Logger;
   @inject('Settings') settings!: Settings;
   @inject(BlockchainProviderFactory) providerFactory!: BlockchainProviderFactory;
 

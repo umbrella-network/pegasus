@@ -150,6 +150,29 @@ npm run start
 
 # run in the debug mode
 npm run start:dev
+
+```
+# Run Tasks
+
+## Task Feeds
+
+Run feedProcessor using the feeds file in .env config. 
+The output is the leaves 
+```shell script
+npm run task:dev:feed
+```
+
+## Task Dex
+
+Run DexCoordinator using the settings or a chainId.  
+The agent doesn't run constantly, only once.
+```shell script
+npm run task:dev:dex
+```
+
+Using one chainId and dexProtocol:
+```shell script
+npm run task:dev:dex -- --dexProtocol uniswapV3 --chainId ethereum
 ```
 
 # Testing

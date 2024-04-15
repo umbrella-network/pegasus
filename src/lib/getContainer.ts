@@ -14,6 +14,10 @@ import {Redis} from 'ioredis';
 import {initRedis} from '../config/initRedis.js';
 import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository.js';
 import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
+import {MappingRepository} from '../repositories/MappingRepository.js';
+import {DexRepository} from '../repositories/DexRepository.js';
+import {DexProtocolFactory} from '../factories/DexProtocolFactory.js';
+import UniswapV3MultiFetcher from '../services/fetchers/UniswapV3MultiFetcher.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -26,8 +30,12 @@ export function getContainer(): Container {
   container.bind(FeedRepository).toSelf().inSingletonScope();
   container.bind(UniswapPoolService).toSelf().inSingletonScope();
   container.bind(BlockchainProviderRepository).toSelf().inSingletonScope();
+  container.bind(MappingRepository).toSelf().inSingletonScope();
+  container.bind(DexRepository).toSelf().inSingletonScope();
+  container.bind(DexProtocolFactory).toSelf().inSingletonScope();
   container.bind(MongoDBPriceRepository).toSelf().inSingletonScope();
   container.bind(FetcherHistoryRepository).toSelf().inSingletonScope();
+  container.bind(UniswapV3MultiFetcher).toSelf().inSingletonScope();
 
   container
     .bind<Redis>('Redis')

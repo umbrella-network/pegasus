@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- new `DexCoordinator` to coordinate decentralized pool scanner agents
+- new `UniswapV3MultiFetcher`
 
 ## [7.25.1] - 2024-04-04
 ### Fixed

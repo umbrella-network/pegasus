@@ -25,7 +25,7 @@ export type PricesResponse = {
 export class UniswapV3Helper {
   protected ABI!: never;
 
-  readonly contractId: string = '';
+  readonly contractAddress: string = '';
   readonly provider!: StaticJsonRpcProvider;
   readonly contract!: Contract;
   readonly periodForAveragePrice = 60;
@@ -42,9 +42,9 @@ export class UniswapV3Helper {
 
     this.ABI = JSON.parse(readFileSync(__dirname + '/UniswapV3Helper.abi.json', 'utf-8')) as never;
 
-    this.contractId = settings.api.uniswap.helperContractId;
+    this.contractAddress = settings.api.uniswap.helperContractId;
     this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get(blockchainKey);
-    this.contract = new Contract(this.contractId, this.ABI, this.provider);
+    this.contract = new Contract(this.contractAddress, this.ABI, this.provider);
   }
 
   async translateTokenAddressesToSymbols(tokens: string[]): Promise<string[]> {

@@ -11,6 +11,7 @@ import {UniswapPriceFetcher} from './UniswapPriceFetcher.js';
 import OptionsPriceFetcher from './OptionsPriceFetcher.js';
 import RandomNumberFetcher from './RandomNumberFetcher.js';
 import OnChainDataFetcher from './OnChainDataFetcher.js';
+import UniswapV3MultiFetcher from './UniswapV3MultiFetcher.js';
 import EvmTWAPGasPriceFetcher from './EvmTWAPGasPriceFetcher.js';
 import MetalPriceApiFetcher from './MetalPriceApiFetcher.js';
 import MetalsDevApiPriceFetcher from './MetalsDevApiFetcher.js';
@@ -30,6 +31,7 @@ export {
   UniswapPriceFetcher,
   RandomNumberFetcher,
   OnChainDataFetcher,
+  UniswapV3MultiFetcher,
   EvmTWAPGasPriceFetcher,
   GoldApiPriceFetcher,
   MetalPriceApiFetcher,
