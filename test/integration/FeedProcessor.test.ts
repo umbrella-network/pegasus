@@ -129,11 +129,12 @@ describe('FeedProcessor integration tests', () => {
             }),
           );
 
+          console.log(`feedsPriceFetcher for ${name}: ${Object.keys(feedsPriceFetcher).length}`);
+          console.log(`feedsPriceFetcher for ${name}: ${JSON.stringify(feedsPriceFetcher)}`);
+
           await sleep(1000); // It doesn't get leaves with the same timestamp
 
           const leaves = await feedProcessor.apply(Math.floor(Date.now() / 1000), feedsPriceFetcher);
-          console.log(`feedsPriceFetcher for ${name}: ${Object.keys(feedsPriceFetcher).length}`);
-          console.log(`feedsPriceFetcher for ${name}: ${feedsPriceFetcher}`);
           expect(leaves[0]).to.be.an('array').that.has.lengthOf(Object.keys(feedsPriceFetcher).length);
         });
       });
