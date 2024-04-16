@@ -11,7 +11,6 @@ import PriceRepository from '../../src/repositories/PriceRepository.js';
 import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
 import CryptoCompareWSClient from '../../src/services/ws/CryptoCompareWSClient.js';
 import {FetcherHistoryRepository} from '../../src/repositories/FetcherHistoryRepository.js';
-import {getTestContainer} from "../helpers/getTestContainer.js";
 
 const {expect} = chai;
 
