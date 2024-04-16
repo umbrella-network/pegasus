@@ -115,7 +115,7 @@ describe('FeedProcessor integration tests', () => {
   describe('when running feeds that uses WS', () => {
     fetcherWSNames.forEach((name) => {
       describe(`when running feeds for ${name} fetcher`, () => {
-        it.only(`returns data for leaves for feeds with ${name} fetcher`, async () => {
+        it(`returns data for leaves for feeds with ${name} fetcher`, async () => {
           const feedsPriceFetcher = getFeedsByFetcher(feeds, name);
           const fetcherParams = getFetcherParams(feeds, name);
 
