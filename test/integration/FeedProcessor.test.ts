@@ -71,7 +71,7 @@ const feedsFetcher = [
   },
 ];
 
-const fetcherWSNames = ['CryptoComparePriceWS', 'PolygonIOCryptoPrice', 'PolygonIOPrice'];
+const fetcherWSNames = ['CryptoComparePriceWS', 'PolygonIOCryptoPrice'];
 
 describe('FeedProcessor integration tests', () => {
   let feedProcessor: FeedProcessor;
