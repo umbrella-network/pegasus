@@ -73,7 +73,7 @@ const feedsFetcher = [
 
 const fetcherWSNames = ['CryptoComparePriceWS', 'PolygonIOCryptoPrice', 'PolygonIOPrice'];
 
-describe.only('FeedProcessor integration tests', () => {
+describe('FeedProcessor integration tests', () => {
   let feedProcessor: FeedProcessor;
   let feeds: Feeds;
   let priceRepository: PriceRepository;
@@ -115,7 +115,7 @@ describe.only('FeedProcessor integration tests', () => {
   describe('when running feeds that uses WS', () => {
     fetcherWSNames.forEach((name) => {
       describe(`when running feeds for ${name} fetcher`, () => {
-        it(`returns data for leaves for feeds with ${name} fetcher`, async () => {
+        it.only(`returns data for leaves for feeds with ${name} fetcher`, async () => {
           const feedsPriceFetcher = getFeedsByFetcher(feeds, name);
           const fetcherParams = getFetcherParams(feeds, name);
 
@@ -132,6 +132,8 @@ describe.only('FeedProcessor integration tests', () => {
           await sleep(1000); // It doesn't get leaves with the same timestamp
 
           const leaves = await feedProcessor.apply(Math.floor(Date.now() / 1000), feedsPriceFetcher);
+          console.log(`feedsPriceFetcher for ${name}: ${Object.keys(feedsPriceFetcher).length}`);
+          console.log(`feedsPriceFetcher for ${name}: ${feedsPriceFetcher}`);
           expect(leaves[0]).to.be.an('array').that.has.lengthOf(Object.keys(feedsPriceFetcher).length);
         });
       });
