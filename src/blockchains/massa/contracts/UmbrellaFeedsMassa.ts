@@ -126,7 +126,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     const MAX_GAS = 4_294_167_295n; // Max gas for an op on Massa blockchain
 
     // max can change in the future, so le's use some safer value, simple tx should never be even close to the max
-    let estimatedGas = MAX_GAS * 8n / 10n;
+    let estimatedGas = (MAX_GAS * 8n) / 10n;
     let estimatedStorageCost = 0n;
 
     try {
