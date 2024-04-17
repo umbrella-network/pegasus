@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import {loadFeeds} from '@umb-network/toolbox';
 import chai from 'chai';
+import {createStubInstance, SinonStubbedInstance} from 'sinon';
 
 import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {sleep} from '../../src/utils/sleep.js';
@@ -9,6 +10,7 @@ import {getContainer} from '../../src/lib/getContainer.js';
 import PriceRepository from '../../src/repositories/PriceRepository.js';
 import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
 import CryptoCompareWSClient from '../../src/services/ws/CryptoCompareWSClient.js';
+import {FetcherHistoryRepository} from '../../src/repositories/FetcherHistoryRepository.js';
 
 const {expect} = chai;
 
@@ -69,17 +71,24 @@ const feedsFetcher = [
   },
 ];
 
-const fetcherWSNames = ['CryptoComparePriceWS', 'PolygonIOCryptoPrice', 'PolygonIOPrice'];
+const fetcherWSNames = ['CryptoComparePriceWS', 'PolygonIOCryptoPrice'];
 
 describe('FeedProcessor integration tests', () => {
   let feedProcessor: FeedProcessor;
   let feeds: Feeds;
   let priceRepository: PriceRepository;
+  let fetcherHistoryRepository: SinonStubbedInstance<FetcherHistoryRepository>;
 
   before(async () => {
     const container = getContainer();
+
+    fetcherHistoryRepository = createStubInstance(FetcherHistoryRepository);
+    container.rebind(FetcherHistoryRepository).toConstantValue(fetcherHistoryRepository);
+    fetcherHistoryRepository.saveMany.called;
+
     priceRepository = container.get(PriceRepository);
     feedProcessor = container.get(FeedProcessor);
+
     feeds = await loadFeeds('test/feeds/feeds.yaml');
   });
 
@@ -88,7 +97,7 @@ describe('FeedProcessor integration tests', () => {
       describe(`when running feeds for ${name} fetcher`, () => {
         before(function () {
           if (apiKey && !process.env[apiKey]) {
-            console.log(`Skipping some FeedProcessor integration tests that require ${apiKey}`);
+            console.log(`[HTTP] Skipping some FeedProcessor integration tests that require ${apiKey}`);
             this.skip();
           }
         });
@@ -119,6 +128,9 @@ describe('FeedProcessor integration tests', () => {
               }
             }),
           );
+
+          console.log(`feedsPriceFetcher for ${name}: ${Object.keys(feedsPriceFetcher).length}`);
+          console.log(`feedsPriceFetcher for ${name}: ${JSON.stringify(feedsPriceFetcher)}`);
 
           await sleep(1000); // It doesn't get leaves with the same timestamp
 

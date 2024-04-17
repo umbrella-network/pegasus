@@ -10,6 +10,7 @@ export type BlockchainTypeKeys = keyof typeof BlockchainType;
 
 export type BlockchainSettings = {
   providerUrl?: string;
+  blockchainId?: string;
   contractRegistryAddress?: string;
   type: BlockchainType[];
   gasPriceCheckBlocksInterval?: number;

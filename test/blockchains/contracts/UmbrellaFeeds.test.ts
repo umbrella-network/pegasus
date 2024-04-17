@@ -33,7 +33,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
 
   [
     // ChainsIds.AVALANCHE,
-    ChainsIds.MULTIVERSX,
+    ChainsIds.MASSA,
     // ChainsIds.LINEA,
     // ChainsIds.CONCORDIUM,
   ].forEach((chainId) => {
@@ -57,7 +57,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
 
           case ChainsIds.MASSA:
             // expect(Utilities.isAddressEoa(addr)).false;
-            expect(addr.slice(0, 4)).eq('AS');
+            expect(addr.slice(0, 3)).eq('AS1');
             break;
 
           case ChainsIds.CONCORDIUM:
@@ -82,7 +82,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
       }).timeout(10000);
 
       it(`[${chainId}] #getManyPriceDataRaw with non exist key`, async () => {
-        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['a']);
+        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['abcdefghij']);
         console.log(priceDatas);
         if (!priceDatas) throw Error('undefined priceDatas');
 
@@ -121,10 +121,10 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         });
 
         it(`[${chainId}] hash empty data`, async () => {
-          const hash = await hasher.apply(chainId, networkId, target, [], []);
+          const hash = hasher.apply(chainId, networkId, target, [], []);
           const contractHash = await umbrellaFeeds.hashData([], []);
 
-          console.log({hash, contractHash});
+          console.log({chainId, networkId, hash, contractHash});
 
           expect(hash).eq(contractHash);
         });
@@ -146,7 +146,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
             umbrellaFeeds.hashData(names, priceDatas),
           ]);
 
-          console.log({hash, contractHash});
+          console.log({chainId, networkId, hash, contractHash});
 
           expect(hash).eq(contractHash);
         });

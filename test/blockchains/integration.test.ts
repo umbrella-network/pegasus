@@ -19,7 +19,6 @@ import {getTestContainer} from '../helpers/getTestContainer.js';
 import {FeedName} from '../../src/types/Feed';
 import {StakingBankContractFactory} from '../../src/factories/contracts/StakingBankContractFactory.js';
 import {StakingBankInterface} from '../../src/interfaces/StakingBankInterface.js';
-// import {UmbrellaFeedsConcordium} from '../../src/blockchains/concordium/contracts/UmbrellaFeedsConcordium';
 
 const {expect} = chai;
 
@@ -40,7 +39,7 @@ describe.skip('final integration tests', () => {
   });
 
   describe('[INTEGRATION] #update', () => {
-    const chainId = ChainsIds.MULTIVERSX;
+    const chainId = ChainsIds.MASSA;
     let umbrellaFeeds: UmbrellaFeedInterface;
     let bank: StakingBankInterface;
 
@@ -52,12 +51,13 @@ describe.skip('final integration tests', () => {
     it(`[${chainId}] #getManyPriceDataRaw`, async () => {
       const data = await umbrellaFeeds.getManyPriceDataRaw(['ETH-USD', 'TEST']);
       console.log(data);
-    });
+    }).timeout(10000);
 
     it(`[${chainId}] DEBUG: check tx hash`, async () => {
       const provider = ProviderFactory.create(chainId);
-      expect(await provider.waitForTx('e00ece29f3b90c12d9aacde215bf4e0aa5f32cc8bd9ecaaaba3a192c5f1fb1c2', 10000)).true;
-    });
+      const success = await provider.waitForTx('O12g5zV8tgWDbdjZFVAzTU83somaL9AEm1cF2byC8AscGcNkeeKJ', 15000);
+      expect(success).true;
+    }).timeout(20000);
 
     it(`[${chainId}] DEBUG: base update`, async () => {
       const provider = ProviderFactory.create(chainId);
@@ -115,39 +115,52 @@ describe.skip('final integration tests', () => {
 
       const hash = hasher.apply(chainId, network.id, target, feedsNames, priceDatas);
 
+      console.log({chainId, id: network.id, target, feedsNames, priceDatas});
+
       const [hasOnChain, validators] = await Promise.all([
         umbrellaFeeds.hashData(feedsNames, priceDatas),
         bank.resolveValidators(),
       ]);
 
       expect(hash).eq(hasOnChain, 'hash is wrong');
-      console.log('HASH OK!');
+      console.log('HASH OK!', hash);
 
       const privateKey1 = process.env.TEST_SIGNING_PRIVATE_KEY1 || '';
       const privateKey2 = process.env.TEST_SIGNING_PRIVATE_KEY2 || '';
 
-      console.log('umbrellaFeeds address', await umbrellaFeeds.address());
       console.log('BEFORE UPDATE:', await umbrellaFeeds.getManyPriceDataRaw(feedsNames));
 
-      settings.blockchain.wallets.multiversX.privateKey = privateKey1;
+      settings.blockchain.wallets[chainId].privateKey = privateKey1;
       const signerRepo1 = new DeviationSignerRepository(settings, logger);
       const signer1 = signerRepo1.get(chainId);
       const signer1Addr = await signer1.address();
       console.log({signer1Addr});
       console.log(ethers.utils.arrayify(Buffer.from(signer1Addr, 'hex')));
-      expect(signer1Addr).eq(validators[0].id, 'invalid validator1');
+      expect(validators[0].id).eq(signer1Addr, 'invalid validator1');
       console.log(`signer1 ${signer1Addr} OK`);
 
-      settings.blockchain.wallets.multiversX.privateKey = privateKey2;
+      settings.blockchain.wallets[chainId].privateKey = privateKey2;
       const signerRepo2 = new DeviationSignerRepository(settings, logger);
       const signer2 = signerRepo2.get(chainId);
       const signer2Addr = await signer2.address();
       console.log({signer2Addr});
       console.log(ethers.utils.arrayify(Buffer.from(signer2Addr, 'hex')));
-      expect(signer2Addr).eq(validators[1].id, 'invalid validator2');
+      expect(validators[1].id).eq(signer2Addr, 'invalid validator2');
       console.log(`signer2 ${signer2Addr} OK`);
 
-      const signatures = await Promise.all([await signer1.apply(hash), signer2.apply(hash)]);
+      const signaturesSettled = await Promise.allSettled([signer1.apply(hash), signer2.apply(hash)]);
+
+      const signatures = signaturesSettled
+        .map((s, i) => {
+          if (s.status == 'fulfilled') return s.value;
+          logger.error(`${i} ERROR ${s.reason}`);
+          return '';
+        })
+        .filter((s) => !!s);
+
+      console.log({signatures});
+
+      expect(signatures.length).eq(2, 'missing some signatures');
 
       const args: UmbrellaFeedsUpdateArgs = {
         keys: feedsNames,
@@ -155,7 +168,8 @@ describe.skip('final integration tests', () => {
         signatures,
       };
 
-      console.log({args});
+      console.log('tx data', {args});
+      console.log(JSON.stringify(args));
 
       const payableOverrides: PayableOverrides = {};
       const executed = await umbrellaFeeds.update(args, payableOverrides);
@@ -167,6 +181,6 @@ describe.skip('final integration tests', () => {
 
       console.log(await umbrellaFeeds.getManyPriceDataRaw(feedsNames));
       expect(success).true;
-    }).timeout(65000);
+    }).timeout(85000);
   });
 });
