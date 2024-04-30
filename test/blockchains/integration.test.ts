@@ -135,7 +135,7 @@ describe.skip('final integration tests', () => {
       const signer1Addr = await signer1.address();
       console.log({signer1Addr});
       console.log(ethers.utils.arrayify(Buffer.from(signer1Addr, 'hex')));
-      expect(signer1Addr).eq(validators[0].id, 'invalid validator1');
+      expect(validators[0].id).eq(signer1Addr, 'invalid validator1');
       console.log(`signer1 ${signer1Addr} OK`);
 
       settings.blockchain.wallets.multiversX.privateKey = privateKey2;
@@ -144,7 +144,7 @@ describe.skip('final integration tests', () => {
       const signer2Addr = await signer2.address();
       console.log({signer2Addr});
       console.log(ethers.utils.arrayify(Buffer.from(signer2Addr, 'hex')));
-      expect(signer2Addr).eq(validators[1].id, 'invalid validator2');
+      expect(validators[1].id).eq(signer2Addr, 'invalid validator2');
       console.log(`signer2 ${signer2Addr} OK`);
 
       const signatures = await Promise.all([await signer1.apply(hash), signer2.apply(hash)]);
