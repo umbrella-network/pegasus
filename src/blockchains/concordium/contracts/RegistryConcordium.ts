@@ -25,18 +25,28 @@ export class RegistryConcordium implements RegistryInterface {
   async getAddress(name: string): Promise<string> {
     await this.beforeAnyAction();
 
-    const result = await RegistryContract.dryRunGetAddress(this.registry, name);
-    const parsed = RegistryContract.parseReturnValueGetAddress(result);
+    try {
+      const result = await RegistryContract.dryRunGetAddress(this.registry, name);
+      const parsed = RegistryContract.parseReturnValueGetAddress(result);
 
-    if (!parsed) return '';
+      if (!parsed) return '';
 
-    return ConcordiumAddress.toIndexedString(parsed);
+      return ConcordiumAddress.toIndexedString(parsed);
+    } catch (e) {
+      this.logger.error(`${this.loggerPrefix} getAddress(${name}): ${(e as Error).message}`);
+    }
+
+    return '';
   }
 
   private async beforeAnyAction(): Promise<void> {
     if (this.registry) return;
 
-    const contractAddress = ConcordiumAddress.fromIndexedString(this.blockchain.getContractRegistryAddress());
-    this.registry = await RegistryContract.create(this.blockchain.provider.getRawProviderSync(), contractAddress);
+    try {
+      const contractAddress = ConcordiumAddress.fromIndexedString(this.blockchain.getContractRegistryAddress());
+      this.registry = await RegistryContract.create(this.blockchain.provider.getRawProviderSync(), contractAddress);
+    } catch (e) {
+      this.logger.error(`${this.loggerPrefix} ${(e as Error).message}`);
+    }
   }
 }

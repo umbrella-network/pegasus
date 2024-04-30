@@ -32,10 +32,10 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
   });
 
   [
-    // ChainsIds.AVALANCHE,
-    ChainsIds.MASSA,
+    // ChainsIds.MULTIVERSX,
+    // ChainsIds.MASSA,
     // ChainsIds.LINEA,
-    // ChainsIds.CONCORDIUM,
+    ChainsIds.CONCORDIUM,
   ].forEach((chainId) => {
     describe(`[${chainId}] on-chain feeds tests`, () => {
       let umbrellaFeeds: UmbrellaFeedInterface;
@@ -97,8 +97,8 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
       }).timeout(10000);
 
       it(`[${chainId}] #getManyPriceDataRaw with existing keys`, async () => {
-        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['UMB-USD', 'EGLD-USD']);
-        console.log({priceDatas});
+        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['GOLD-USD', 'aa']);
+        console.log('result', {chainId, priceDatas});
         if (!priceDatas) throw Error('undefined priceDatas');
 
         const priceData = priceDatas[0];

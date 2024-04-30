@@ -1,9 +1,9 @@
 import * as SDK from "@concordium/web-sdk";
 
 /** The reference of the smart contract module supported by the provided client. */
-export const moduleReference: SDK.ModuleReference.Type = /*#__PURE__*/ SDK.ModuleReference.fromHexString('7aa4deb0b74e4c107ecbf8fc2addeb919a139926bc34e4833eebf729cdf4ecd7');
+export const moduleReference: SDK.ModuleReference.Type = /*#__PURE__*/ SDK.ModuleReference.fromHexString('5bd5b03d59b91ae3595289c84635fa6a6e3784c5874650785eda2a573a1a7a0b');
 
-/** Client for an on-chain smart contract module with module reference '7aa4deb0b74e4c107ecbf8fc2addeb919a139926bc34e4833eebf729cdf4ecd7', can be used for instantiating new smart contract instances. */
+/** Client for an on-chain smart contract module with module reference '5bd5b03d59b91ae3595289c84635fa6a6e3784c5874650785eda2a573a1a7a0b', can be used for instantiating new smart contract instances. */
 class StakingBankModule {
     /** Having a private field prevents similar structured objects to be considered the same type (similar to nominal typing). */
     private __nominal = true;
@@ -16,7 +16,7 @@ class StakingBankModule {
     }
 }
 
-/** Client for an on-chain smart contract module with module reference '7aa4deb0b74e4c107ecbf8fc2addeb919a139926bc34e4833eebf729cdf4ecd7', can be used for instantiating new smart contract instances. */
+/** Client for an on-chain smart contract module with module reference '5bd5b03d59b91ae3595289c84635fa6a6e3784c5874650785eda2a573a1a7a0b', can be used for instantiating new smart contract instances. */
 export type Type = StakingBankModule;
 
 /**
@@ -45,7 +45,7 @@ export function createUnchecked(grpcClient: SDK.ConcordiumGRPCClient): StakingBa
 /**
  * Construct a StakingBankModule client for interacting with a smart contract module on chain.
  * This function ensures the smart contract module is deployed on chain.
- * @param {StakingBankModule} moduleClient - The client of the on-chain smart contract module with referecence '7aa4deb0b74e4c107ecbf8fc2addeb919a139926bc34e4833eebf729cdf4ecd7'.
+ * @param {StakingBankModule} moduleClient - The client of the on-chain smart contract module with referecence '5bd5b03d59b91ae3595289c84635fa6a6e3784c5874650785eda2a573a1a7a0b'.
  * @throws If failing to communicate with the concordium node or if the module reference is not present on chain.
  * @returns {StakingBankModule} A module client ensured to be deployed on chain.
  */
@@ -55,7 +55,7 @@ export function checkOnChain(moduleClient: StakingBankModule): Promise<void> {
 
 /**
  * Get the module source of the deployed smart contract module.
- * @param {StakingBankModule} moduleClient - The client of the on-chain smart contract module with referecence '7aa4deb0b74e4c107ecbf8fc2addeb919a139926bc34e4833eebf729cdf4ecd7'.
+ * @param {StakingBankModule} moduleClient - The client of the on-chain smart contract module with referecence '5bd5b03d59b91ae3595289c84635fa6a6e3784c5874650785eda2a573a1a7a0b'.
  * @throws {SDK.RpcError} If failing to communicate with the concordium node or module not found.
  * @returns {SDK.VersionedModuleSource} Module source of the deployed smart contract module.
  */
@@ -77,7 +77,7 @@ export function createStakingBankParameter(parameter: StakingBankParameter): SDK
 
 /**
  * Send transaction for instantiating a new 'staking_bank' smart contract instance.
- * @param {StakingBankModule} moduleClient - The client of the on-chain smart contract module with referecence '7aa4deb0b74e4c107ecbf8fc2addeb919a139926bc34e4833eebf729cdf4ecd7'.
+ * @param {StakingBankModule} moduleClient - The client of the on-chain smart contract module with referecence '5bd5b03d59b91ae3595289c84635fa6a6e3784c5874650785eda2a573a1a7a0b'.
  * @param {SDK.ContractTransactionMetadata} transactionMetadata - Metadata related to constructing a transaction for a smart contract module.
  * @param {StakingBankParameter} parameter - Parameter to provide as part of the transaction for the instantiation of a new smart contract contract.
  * @param {SDK.AccountSigner} signer - The signer of the update contract transaction.

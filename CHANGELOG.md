@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - support for Massa
 
+## [7.25.2] - 2024-04-30
+### Fixed
+- update concordium auto-generated ABI files
+- cach error on concordium registry module
+
 ## [7.25.1] - 2024-04-04
 ### Fixed
 - add `PolygonIOCurrencySnapshotFetcher` to schema
