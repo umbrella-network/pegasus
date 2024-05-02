@@ -102,6 +102,6 @@ export class StakingBankConcordium implements StakingBankInterface {
     this.logger.info(`${this.loggerPrefix} bank: ${bankAddress}`);
 
     const contractAddress = ConcordiumAddress.fromIndexedString(bankAddress);
-    return BankContract.create(this.blockchain.provider.getRawProviderSync(), contractAddress);
+    return BankContract.createUnchecked(this.blockchain.provider.getRawProviderSync(), contractAddress);
   };
 }

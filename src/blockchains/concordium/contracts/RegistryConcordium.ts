@@ -44,7 +44,10 @@ export class RegistryConcordium implements RegistryInterface {
 
     try {
       const contractAddress = ConcordiumAddress.fromIndexedString(this.blockchain.getContractRegistryAddress());
-      this.registry = await RegistryContract.create(this.blockchain.provider.getRawProviderSync(), contractAddress);
+      this.registry = await RegistryContract.createUnchecked(
+        this.blockchain.provider.getRawProviderSync(),
+        contractAddress,
+      );
     } catch (e) {
       this.logger.error(`${this.loggerPrefix} ${(e as Error).message}`);
     }
