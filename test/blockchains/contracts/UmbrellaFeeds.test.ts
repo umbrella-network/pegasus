@@ -32,6 +32,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
   });
 
   [
+    // ChainsIds.AVALANCHE,
     // ChainsIds.MULTIVERSX,
     // ChainsIds.MASSA,
     // ChainsIds.LINEA,
@@ -71,7 +72,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         }
       }).timeout(5000);
 
-      it(`[${chainId}] #requiredSignatures`, async () => {
+      it.skip(`[${chainId}] #requiredSignatures`, async () => {
         expect(await umbrellaFeeds.requiredSignatures()).eq(2);
       });
 
@@ -97,8 +98,8 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
       }).timeout(10000);
 
       it(`[${chainId}] #getManyPriceDataRaw with existing keys`, async () => {
-        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['GOLD-USD', 'aa']);
-        console.log('result', {chainId, priceDatas});
+        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['UMB-USD', 'EGLD-USD']);
+        console.log({priceDatas});
         if (!priceDatas) throw Error('undefined priceDatas');
 
         const priceData = priceDatas[0];
@@ -180,7 +181,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         }).timeout(10000);
       });
 
-      describe('#signData', async () => {
+      describe.skip('#signData', async () => {
         const hasher = new DeviationHasher();
         let signer: DeviationSignerInterface;
         let networkId: number;
