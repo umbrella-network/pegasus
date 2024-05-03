@@ -1,47 +1,38 @@
 import {Contract, ethers} from 'ethers';
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
 import path from 'path';
 
-import {BlockchainProviderRepository} from '../../../repositories/BlockchainProviderRepository.js';
 import Settings from '../../../types/Settings.js';
+import {ChainsIds} from '../../../types/ChainsIds.js';
+import {DexProtocolName} from '../../../types/DexProtocolName.js';
+import {PoolCreatedEvent} from '../../../factories/DexProtocolFactory.js';
+import Application from '../../../lib/Application.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-export type PoolCreatedEvent = {
-  token0: string;
-  token1: string;
-  fee: bigint;
-  pool: string;
-  anchor: number;
-};
 
 @injectable()
 export class UniswapV3Factory {
   protected ABI!: never;
 
-  readonly contractId: string = '';
+  readonly settings: Settings;
+  readonly contractAddress?: string = '';
   readonly provider!: StaticJsonRpcProvider;
   readonly contract!: Contract;
 
-  constructor(
-    @inject('Settings') settings: Settings,
-    @inject(BlockchainProviderRepository) blockchainProviderRepository: BlockchainProviderRepository,
-  ) {
-    const blockchainKey = 'ethereum';
+  constructor(chainId: ChainsIds, provider: StaticJsonRpcProvider) {
+    this.settings = Application.get('Settings');
+    this.contractAddress = this.settings.dexes[chainId]?.[DexProtocolName.UNISWAP_V3]?.scannerContractId;
 
-    if (!settings.api.uniswap.scannerContractId || !settings.blockchains[blockchainKey].providerUrl.join('')) {
-      return;
+    if (!this.contractAddress || !this.settings.blockchains[chainId].providerUrl.join('')) {
+      throw Error(`[UniswapV3PoolScanner][${chainId}] uniswapV3Factory creation failed`);
     }
 
     this.ABI = JSON.parse(readFileSync(__dirname + '/UniswapV3Factory.abi.json', 'utf-8')) as never;
-
-    this.contractId = settings.api.uniswap.scannerContractId;
-    this.provider = <StaticJsonRpcProvider>blockchainProviderRepository.get(blockchainKey);
-    this.contract = new Contract(this.contractId, this.ABI, this.provider);
+    this.contract = new Contract(this.contractAddress, this.ABI, provider);
   }
 
   async getPoolCreatedEvents(fromBlock: number, toBlock?: number): Promise<PoolCreatedEvent[]> {

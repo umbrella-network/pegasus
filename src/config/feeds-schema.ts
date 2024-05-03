@@ -43,6 +43,7 @@ export default {
             {$ref: '#/definitions/CoinmarketcapHistoDayFetcher'},
             {$ref: '#/definitions/OnChainDataFetcher'},
             {$ref: '#/definitions/OptionsPriceFetcher'},
+            {$ref: '#/definitions/UniswapV3'},
             {$ref: '#/definitions/YearnVaultTokenPriceFetcher'},
             {$ref: '#/definitions/RandomNumberFetcher'},
             {$ref: '#/definitions/TWAPGasPriceFetcher'},
@@ -321,6 +322,22 @@ export default {
             decimals: {type: 'number'},
           },
           required: ['address', 'method', 'inputs', 'outputs', 'args'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    UniswapV3: {
+      properties: {
+        name: {const: 'UniswapV3'},
+        params: {
+          type: 'object',
+          properties: {
+            token0: {type: 'string'},
+            token1: {type: 'string'},
+          },
+          required: ['token0', 'token1'],
           additionalProperties: false,
         },
       },

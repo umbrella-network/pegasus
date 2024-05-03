@@ -152,6 +152,29 @@ npm run start
 npm run start:dev
 ```
 
+# Run Tasks
+
+## Task Feeds
+
+Run feedProcessor using the feeds file in .env config. 
+The output is the leaves 
+```shell script
+npm run task:dev:feed
+```
+
+## Task Dex
+
+Run DexCoordinator using the settings or a chainId.  
+The agent doesn't run constantly, only once.
+```shell script
+npm run task:dev:dex
+```
+
+Using one chainId and dexProtocol:
+```shell script
+npm run task:dev:dex -- --dexProtocol uniswapV3 --chainId ethereum
+```
+
 # Testing
 
 Setup a testing dotenv file (`.testing.env`) with local configuration values and set MONDODB_URL for use local instance. 

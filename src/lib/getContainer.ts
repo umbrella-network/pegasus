@@ -15,6 +15,9 @@ import {initRedis} from '../config/initRedis.js';
 import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository.js';
 import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
 import FeedProcessor from '../services/FeedProcessor.js';
+import {MappingRepository} from '../repositories/MappingRepository.js';
+import {DexRepository} from '../repositories/DexRepository.js';
+import {DexProtocolFactory} from '../factories/DexProtocolFactory.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -27,6 +30,9 @@ export function getContainer(): Container {
   container.bind(FeedRepository).toSelf().inSingletonScope();
   container.bind(UniswapPoolService).toSelf().inSingletonScope();
   container.bind(BlockchainProviderRepository).toSelf().inSingletonScope();
+  container.bind(MappingRepository).toSelf().inSingletonScope();
+  container.bind(DexRepository).toSelf().inSingletonScope();
+  container.bind(DexProtocolFactory).toSelf().inSingletonScope();
   container.bind(MongoDBPriceRepository).toSelf().inSingletonScope();
   container.bind(FetcherHistoryRepository).toSelf().inSingletonScope();
   container.bind(FeedProcessor).toSelf().inSingletonScope();
