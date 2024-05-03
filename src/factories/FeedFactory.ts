@@ -37,7 +37,7 @@ export class FeedFactory {
   }
 
   private validate(feeds: unknown): ValidatorResult {
-    return this.validator.validate(feeds, FeedsSchema, {throwError: false});
+    return this.validator.validate(feeds, FeedsSchema);
   }
 
   private isYamlEmpty(data: string): boolean {
