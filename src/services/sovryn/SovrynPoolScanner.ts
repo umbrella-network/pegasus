@@ -3,7 +3,16 @@ export abstract class GraphQLClientBase {
 
   abstract connect(subgraphUrl: string): Promise<boolean>;
   abstract validateQuery(query: string): boolean;
-  abstract query(query: string): Promise<any>;
+  abstract query(query: string): Promise<unknown>;
+}
+
+interface PoolsQueryResponse {
+  data: {
+    liquidityPools: {
+      id: string;
+      poolTokens: {name: string};
+    }[];
+  };
 }
 
 export class SovrynPoolScanner {
@@ -24,6 +33,20 @@ export class SovrynPoolScanner {
   }
 
   async scanPools(): Promise<string[]> {
-    return [];
+    const query = `
+query MyQuery {
+  liquidityPools(where: {poolTokens_: {name_not: ""}}) {
+    id
+    poolTokens {
+      name
+    }
+  }
+}
+    `;
+    const result = await this.client.query(query);
+
+    const pools = <PoolsQueryResponse>result;
+
+    return pools.data.liquidityPools.map((pool) => pool.id);
   }
 }

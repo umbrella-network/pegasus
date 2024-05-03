@@ -10,7 +10,7 @@ describe('SovrynPoolScanner', () => {
       validateQuery(_query: string): boolean {
         return true;
       }
-      query(_query: string): Promise<any> {
+      query(_query: string): Promise<unknown> {
         return Promise.resolve({});
       }
     }
@@ -29,7 +29,7 @@ describe('SovrynPoolScanner', () => {
       validateQuery(_query: string): boolean {
         return true;
       }
-      query(_query: string): Promise<any> {
+      query(_query: string): Promise<unknown> {
         return Promise.resolve({});
       }
     }
@@ -38,20 +38,20 @@ describe('SovrynPoolScanner', () => {
     const scanner = new SovrynPoolScanner(client);
 
     let validSubgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
-    await scanner.connect(validSubgraphUrl);
+    const connected = await scanner.connect(validSubgraphUrl);
 
-    expect(scanner.connected()).to.be.true;
+    expect(connected).to.be.true;
   });
 
   it('fails to connect to the subgraph with invalid url', async () => {
     class MockClient extends GraphQLClientBase {
       async connect(_subgraphUrl: string): Promise<boolean> {
-        return Promise.resolve(true);
+        return Promise.resolve(false);
       }
       validateQuery(_query: string): boolean {
         return true;
       }
-      query(_query: string): Promise<any> {
+      query(_query: string): Promise<unknown> {
         return Promise.resolve({});
       }
     }
@@ -60,12 +60,17 @@ describe('SovrynPoolScanner', () => {
     const scanner = new SovrynPoolScanner(client);
 
     let invalidSubgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
-    await scanner.connect(invalidSubgraphUrl);
+    const connected = await scanner.connect(invalidSubgraphUrl);
 
-    expect(scanner.connected()).to.be.false;
+    expect(connected).to.be.false;
   });
 
   it('scans available pools', async () => {
+    const p1 = '0x11111111111111111111';
+    const p2 = '0x22222222222222222222';
+    const p3 = '0x33333333333333333333';
+    const expected = [p1, p2, p3];
+
     class MockClient extends GraphQLClientBase {
       async connect(_subgraphUrl: string): Promise<boolean> {
         return Promise.resolve(true);
@@ -73,8 +78,38 @@ describe('SovrynPoolScanner', () => {
       validateQuery(_query: string): boolean {
         return true;
       }
-      query(_query: string): Promise<any> {
-        return Promise.resolve({});
+      query(_query: string): Promise<unknown> {
+        const result = {
+          data: {
+            liquidityPools: [
+              {
+                id: p1,
+                poolTokens: [
+                  {
+                    name: '(WR)BTC/RIF Liquidity Pool',
+                  },
+                ],
+              },
+              {
+                id: p2,
+                poolTokens: [
+                  {
+                    name: '(WR)BTC/SOV Liquidity Pool',
+                  },
+                ],
+              },
+              {
+                id: p3,
+                poolTokens: [
+                  {
+                    name: '(WR)BTC/ETHs Liquidity Pool',
+                  },
+                ],
+              },
+            ],
+          },
+        };
+        return Promise.resolve(result);
       }
     }
 
@@ -83,8 +118,6 @@ describe('SovrynPoolScanner', () => {
 
     let subgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
     await scanner.connect(subgraphUrl);
-
-    const expected = ['0x47283'];
 
     const pools = await scanner.scanPools();
 
