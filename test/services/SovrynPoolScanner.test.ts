@@ -62,19 +62,9 @@ describe('SovrynPoolScanner', () => {
         liquidityPools: [
           {
             id: p1,
-            poolTokens: [
-              {
-                name: '(WR)BTC/RIF Liquidity Pool',
-              },
-            ],
           },
           {
             id: p2,
-            poolTokens: [
-              {
-                name: '(WR)BTC/SOV Liquidity Pool',
-              },
-            ],
           },
         ],
       },
@@ -84,5 +74,56 @@ describe('SovrynPoolScanner', () => {
 
     const pools = await scanner.scanPools();
     expect(pools).to.eql(expected);
+  });
+
+  it('fails to scan pools when the client response is bad formed - case 1', async () => {
+    const queryResponse = {
+      data: {
+        liquidityPoolsBadName: [
+          {
+            id: '0x11111111111111111111',
+          },
+        ],
+      },
+    };
+    const client = new MockClient(false, queryResponse);
+    const scanner = new SovrynPoolScanner(client);
+
+    const pools = await scanner.scanPools();
+    expect(pools).to.eql([]);
+  });
+
+  it('fails to scan pools when the client response is bad formed - case 2', async () => {
+    const queryResponse = {
+      data: {
+        liquidityPools: [
+          {
+            idBadName: '0x11111111111111111111',
+          },
+        ],
+      },
+    };
+    const client = new MockClient(false, queryResponse);
+    const scanner = new SovrynPoolScanner(client);
+
+    const pools = await scanner.scanPools();
+    expect(pools).to.eql([]);
+  });
+
+  it('fails to scan pools when the client response is bad formed - case 3', async () => {
+    const queryResponse = {
+      dataBadName: {
+        liquidityPools: [
+          {
+            id: '0x11111111111111111111',
+          },
+        ],
+      },
+    };
+    const client = new MockClient(false, queryResponse);
+    const scanner = new SovrynPoolScanner(client);
+
+    const pools = await scanner.scanPools();
+    expect(pools).to.eql([]);
   });
 });

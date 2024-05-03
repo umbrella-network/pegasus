@@ -10,9 +10,18 @@ interface PoolsQueryResponse {
   data: {
     liquidityPools: {
       id: string;
-      poolTokens: {name: string};
     }[];
   };
+}
+
+function isValidPoolQueryResponse(obj: any): obj is PoolsQueryResponse {
+  // Perform necessary checks to validate the structure
+  return (
+    obj &&
+    obj.data &&
+    Array.isArray(obj.data.liquidityPools) &&
+    obj.data.liquidityPools.every((pool: any) => pool.id && typeof pool.id === 'string')
+  );
 }
 
 export class SovrynPoolScanner {
@@ -37,16 +46,16 @@ export class SovrynPoolScanner {
 query MyQuery {
   liquidityPools(where: {poolTokens_: {name_not: ""}}) {
     id
-    poolTokens {
-      name
-    }
   }
 }
     `;
-    const result = await this.client.query(query);
+    const response = await this.client.query(query);
 
-    const pools = <PoolsQueryResponse>result;
-
-    return pools.data.liquidityPools.map((pool) => pool.id);
+    if (isValidPoolQueryResponse(response)) {
+      const pools = <PoolsQueryResponse>response;
+      return pools.data.liquidityPools.map((pool) => pool.id);
+    } else {
+      return [];
+    }
   }
 }
