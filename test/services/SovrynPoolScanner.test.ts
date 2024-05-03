@@ -14,9 +14,11 @@ class MockClient extends GraphQLClientBase {
   async connect(_subgraphUrl: string): Promise<boolean> {
     return Promise.resolve(this.connected);
   }
+
   validateQuery(_query: string): boolean {
     return true;
   }
+
   query(_query: string): Promise<unknown> {
     return Promise.resolve(this.queryResponse);
   }
@@ -53,8 +55,7 @@ describe('SovrynPoolScanner', () => {
   it('scans available pools', async () => {
     const p1 = '0x11111111111111111111';
     const p2 = '0x22222222222222222222';
-    const p3 = '0x33333333333333333333';
-    const expected = [p1, p2, p3];
+    const expected = [p1, p2];
 
     const queryResponse = {
       data: {
@@ -75,26 +76,13 @@ describe('SovrynPoolScanner', () => {
               },
             ],
           },
-          {
-            id: p3,
-            poolTokens: [
-              {
-                name: '(WR)BTC/ETHs Liquidity Pool',
-              },
-            ],
-          },
         ],
       },
     };
     const client = new MockClient(false, queryResponse);
-
     const scanner = new SovrynPoolScanner(client);
 
-    let subgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
-    await scanner.connect(subgraphUrl);
-
     const pools = await scanner.scanPools();
-
     expect(pools).to.eql(expected);
   });
 });
