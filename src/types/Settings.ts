@@ -1,4 +1,5 @@
 import {ChainsIds} from './ChainsIds.js';
+import {DexProtocolName} from './DexProtocolName.js';
 import {SubmitMonitor} from './SubmitMonitor.js';
 
 export enum BlockchainType {
@@ -25,6 +26,10 @@ export type BlockchainSettings = {
       errorLimit: string;
     };
   };
+};
+
+export type DexAPISettings = {
+  helperContractId: string;
 };
 
 interface SubmitMonitorExt extends SubmitMonitor {
@@ -201,6 +206,7 @@ type Settings = {
       apiKey: string;
       timeout: number;
     };
+    pools: Partial<Record<ChainsIds, Record<DexProtocolName, DexAPISettings>>>;
     priceFreshness: number;
   };
   rpcSelectionStrategy: string;

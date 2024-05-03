@@ -14,6 +14,7 @@ import {TimeoutCodes} from '../types/TimeoutCodes.js';
 import {timeoutWithCode} from '../utils/request.js';
 import './setupDotenv.js';
 import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
+import {DexProtocolName} from '../types/DexProtocolName.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -424,6 +425,13 @@ const settings: Settings = {
     metalsDevApi: {
       apiKey: process.env.METALS_DEV_API_KEY as string,
       timeout: timeoutWithCode(process.env.METALS_DEV_API_TIMEOUT || '5000', TimeoutCodes.METALS_DEV_API),
+    },
+    pools: {
+      [ChainsIds.ETH]: {
+        [DexProtocolName.UNISWAP_V3]: {
+          helperContractId: <string>process.env['UNISWAPV3_HELPER_CONTRACT_ID'],
+        },
+      },
     },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
   },
