@@ -1,40 +1,37 @@
 import {expect} from 'chai';
 import {GraphQLClientBase, SovrynPoolScanner} from '../../src/services/sovryn/SovrynPoolScanner.js';
 
+class MockClient extends GraphQLClientBase {
+  connected: boolean;
+  queryResponse: unknown;
+
+  constructor(connected: boolean, queryResponse: unknown) {
+    super();
+    this.connected = connected;
+    this.queryResponse = queryResponse;
+  }
+
+  async connect(_subgraphUrl: string): Promise<boolean> {
+    return Promise.resolve(this.connected);
+  }
+  validateQuery(_query: string): boolean {
+    return true;
+  }
+  query(_query: string): Promise<unknown> {
+    return Promise.resolve(this.queryResponse);
+  }
+}
+
 describe('SovrynPoolScanner', () => {
   it('creates a SovrynPoolScanner instance', async () => {
-    class MockClient extends GraphQLClientBase {
-      async connect(_subgraphUrl: string): Promise<boolean> {
-        return Promise.resolve(true);
-      }
-      validateQuery(_query: string): boolean {
-        return true;
-      }
-      query(_query: string): Promise<unknown> {
-        return Promise.resolve({});
-      }
-    }
-
-    const client = new MockClient();
+    const client = new MockClient(true, {});
     const scanner = new SovrynPoolScanner(client);
 
     expect(scanner !== undefined);
   });
 
   it('connects to the subgraph', async () => {
-    class MockClient extends GraphQLClientBase {
-      async connect(_subgraphUrl: string): Promise<boolean> {
-        return Promise.resolve(true);
-      }
-      validateQuery(_query: string): boolean {
-        return true;
-      }
-      query(_query: string): Promise<unknown> {
-        return Promise.resolve({});
-      }
-    }
-
-    const client = new MockClient();
+    const client = new MockClient(true, {});
     const scanner = new SovrynPoolScanner(client);
 
     let validSubgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
@@ -44,19 +41,7 @@ describe('SovrynPoolScanner', () => {
   });
 
   it('fails to connect to the subgraph with invalid url', async () => {
-    class MockClient extends GraphQLClientBase {
-      async connect(_subgraphUrl: string): Promise<boolean> {
-        return Promise.resolve(false);
-      }
-      validateQuery(_query: string): boolean {
-        return true;
-      }
-      query(_query: string): Promise<unknown> {
-        return Promise.resolve({});
-      }
-    }
-
-    const client = new MockClient();
+    const client = new MockClient(false, {});
     const scanner = new SovrynPoolScanner(client);
 
     let invalidSubgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
@@ -71,49 +56,38 @@ describe('SovrynPoolScanner', () => {
     const p3 = '0x33333333333333333333';
     const expected = [p1, p2, p3];
 
-    class MockClient extends GraphQLClientBase {
-      async connect(_subgraphUrl: string): Promise<boolean> {
-        return Promise.resolve(true);
-      }
-      validateQuery(_query: string): boolean {
-        return true;
-      }
-      query(_query: string): Promise<unknown> {
-        const result = {
-          data: {
-            liquidityPools: [
+    const queryResponse = {
+      data: {
+        liquidityPools: [
+          {
+            id: p1,
+            poolTokens: [
               {
-                id: p1,
-                poolTokens: [
-                  {
-                    name: '(WR)BTC/RIF Liquidity Pool',
-                  },
-                ],
-              },
-              {
-                id: p2,
-                poolTokens: [
-                  {
-                    name: '(WR)BTC/SOV Liquidity Pool',
-                  },
-                ],
-              },
-              {
-                id: p3,
-                poolTokens: [
-                  {
-                    name: '(WR)BTC/ETHs Liquidity Pool',
-                  },
-                ],
+                name: '(WR)BTC/RIF Liquidity Pool',
               },
             ],
           },
-        };
-        return Promise.resolve(result);
-      }
-    }
+          {
+            id: p2,
+            poolTokens: [
+              {
+                name: '(WR)BTC/SOV Liquidity Pool',
+              },
+            ],
+          },
+          {
+            id: p3,
+            poolTokens: [
+              {
+                name: '(WR)BTC/ETHs Liquidity Pool',
+              },
+            ],
+          },
+        ],
+      },
+    };
+    const client = new MockClient(false, queryResponse);
 
-    const client = new MockClient();
     const scanner = new SovrynPoolScanner(client);
 
     let subgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
