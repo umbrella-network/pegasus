@@ -83,8 +83,8 @@ describe('DexCoordinator', () => {
       expect(mockedDexPoolScannerAgentRepository.get.called).to.be.false;
     });
 
-    it('calls logger warning', async () => {
-      const loggerSpy = sinon.spy(mockedLogger, 'warning');
+    it('calls logger warn', async () => {
+      const loggerSpy = sinon.spy(mockedLogger, 'warn');
       await dexCoordinator.start();
 
       expect(loggerSpy).to.have.calledWith(
