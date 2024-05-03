@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [7.25.2] - 2024-04-30
+## [7.25.3] - 2024-05-02
 ### Fixed
-- update concordium auto-generated ABI files
-- cach error on concordium registry module
+- use unchecked versions of concordium modules
+- added back fixed support for Massa
+
+## [7.25.2] - 2024-05-02
+### Fixed
+- update concordium auto-generated files
 
 ## [7.25.1] - 2024-04-04
 ### Fixed

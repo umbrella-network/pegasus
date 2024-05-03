@@ -9,6 +9,7 @@ import {ConcordiumProvider} from '../blockchains/concordium/ConcordiumProvider.j
 export class ProviderFactory {
   static create(chainId: ChainsIds): ProviderInterface {
     const providerUrl = settings.blockchain.multiChains[chainId]?.providerUrl;
+    let blockchainId;
 
     if (!providerUrl) throw new Error(`[ProviderFactory] empty providerUrl for ${chainId}`);
 
@@ -17,7 +18,10 @@ export class ProviderFactory {
         return new MultiversXProvider(providerUrl);
 
       case ChainsIds.MASSA:
-        return new MassaProvider(providerUrl);
+        blockchainId = settings.blockchain.multiChains[chainId]?.blockchainId;
+        if (!blockchainId) throw new Error(`[ProviderFactory] empty chainId for ${chainId}`);
+
+        return new MassaProvider(providerUrl, BigInt(blockchainId));
 
       case ChainsIds.CONCORDIUM:
         return new ConcordiumProvider(providerUrl);

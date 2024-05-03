@@ -21,7 +21,7 @@ describe.skip('Staking Banks debug integration tests', () => {
     blockchainRepo = container.get(BlockchainRepository);
   });
 
-  [ChainsIds.MULTIVERSX].forEach((chainId) => {
+  [ChainsIds.CONCORDIUM].forEach((chainId) => {
     describe(`[${chainId}] bank tests`, () => {
       let bank: StakingBankInterface;
 
@@ -40,6 +40,11 @@ describe.skip('Staking Banks debug integration tests', () => {
             expect(addr.slice(0, 4)).eq('erd1');
             break;
 
+          case ChainsIds.MASSA:
+            expect(addr.length).eq(52);
+            expect(addr.slice(0, 3)).eq('AS1');
+            break;
+
           case ChainsIds.CONCORDIUM:
             expect(addr.split(',').length).eq(2);
             break;
@@ -51,6 +56,11 @@ describe.skip('Staking Banks debug integration tests', () => {
       }).timeout(5000);
 
       it(`[${chainId}] #getNumberOfValidators`, async () => {
+        if (chainId == ChainsIds.MASSA) {
+          console.log('#getNumberOfValidators not needed for MASSA');
+          return;
+        }
+
         const getNumberOfValidators = await bank.getNumberOfValidators();
         console.log({getNumberOfValidators});
         expect(getNumberOfValidators).gt(0);

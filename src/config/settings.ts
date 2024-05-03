@@ -418,7 +418,7 @@ const settings: Settings = {
       timeout: timeoutWithCode(process.env.GOLD_API_TIMEOUT || '5000', TimeoutCodes.GOLD_API),
     },
     metalPriceApi: {
-      apiKey: process.env.METAL_PRICE_API_KEY as string,
+      apiKey: process.env.METAL_PRICE_API_KEY || '',
       timeout: timeoutWithCode(process.env.METAL_PRICE_API_TIMEOUT || '5000', TimeoutCodes.METAL_PRICE_API),
     },
     metalsDevApi: {
@@ -509,6 +509,7 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
       contractRegistryAddress:
         process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] || defaultByChain[ChainsIds[chain]]?.contractRegistryAddress,
       providerUrl: clearLastSlash(process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`]),
+      blockchainId: process.env[`${chain}_CHAIN_ID`],
       transactions: {
         waitForBlockTime:
           parseInt(process.env[`${chain}_WAIT_FOR_BLOCK_TIME`] as string, 10) ||
@@ -541,8 +542,6 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
 }
 
 function isEmptyBlockchainSettings(chain: ChainsIdsKeys): boolean {
-  if (chain == 'MASSA') return true;
-
   return (
     !process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`] ||
     (!process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] && !defaultByChain[ChainsIds[chain]]?.contractRegistryAddress)

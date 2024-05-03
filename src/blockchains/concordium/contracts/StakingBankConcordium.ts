@@ -1,6 +1,6 @@
 import {BigNumber} from 'ethers';
 import {Logger} from 'winston';
-import {HexString, Parameter} from '@concordium/web-sdk';
+import {HexString, InvokeContractResult, Parameter, ReturnValue} from '@concordium/web-sdk';
 
 import * as BankContract from './generated/staking_bank_staking_bank.js';
 
@@ -89,19 +89,44 @@ export class StakingBankConcordium implements StakingBankInterface {
   }
 
   protected async resolveValidatorsAddresses(bank: BankContract.Type): Promise<string[]> {
-    const result = await BankContract.dryRunGetPublicKeys(bank, Parameter.empty());
-    const parsed = BankContract.parseReturnValueGetPublicKeys(result);
+    const [numberOfValidators, result] = await Promise.all([
+      this.getNumberOfValidators(),
+      BankContract.dryRunGetPublicKeys(bank, Parameter.empty()),
+    ]);
+
+    // const parsed = BankContract.parseReturnValueGetPublicKeys(result);
+    const parsed = this.parseReturnValueGetPublicKeys(numberOfValidators, result);
 
     if (!parsed) throw new Error(`${this.loggerPrefix} resolveValidatorsAddresses failed`);
 
-    return parsed;
+    return parsed as unknown as string[];
   }
+
+  // based on BankContract.parseReturnValueGetPublicKeys but work for all size arrays
+  private parseReturnValueGetPublicKeys = async (
+    numberOfValidators: number,
+    invokeResult: InvokeContractResult,
+  ): Promise<HexString[] | undefined> => {
+    if (invokeResult.tag !== 'success') {
+      return undefined;
+    }
+
+    if (invokeResult.returnValue === undefined) {
+      throw new Error(`${this.loggerPrefix} missing 'returnValue' in result. Client expected a V1 smart contract.`);
+    }
+
+    return <HexString[]>ReturnValue.parseWithSchemaType(invokeResult.returnValue, {
+      type: 'Array',
+      size: numberOfValidators,
+      item: {type: 'ByteArray', size: 32},
+    });
+  };
 
   private resolveContract = async (): Promise<BankContract.Type> => {
     const bankAddress = await this.registry.getAddress(this.bankName);
     this.logger.info(`${this.loggerPrefix} bank: ${bankAddress}`);
 
     const contractAddress = ConcordiumAddress.fromIndexedString(bankAddress);
-    return BankContract.create(this.blockchain.provider.getRawProviderSync(), contractAddress);
+    return BankContract.createUnchecked(this.blockchain.provider.getRawProviderSync(), contractAddress);
   };
 }

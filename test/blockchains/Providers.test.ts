@@ -5,7 +5,6 @@ import chai from 'chai';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
 import {ProviderFactory} from '../../src/factories/ProviderFactory.js';
 import {loadTestEnv} from '../helpers/loadTestEnv.js';
-import {generateChainId} from '../../src/blockchains/generateChainId.js';
 import {ProviderInterface} from '../../src/interfaces/ProviderInterface.js';
 
 const {expect} = chai;
@@ -17,8 +16,8 @@ describe.skip('Test Providers - debug integration tests', () => {
 
   [
     // {chainId: ChainsIds.AVALANCHE, account: '0x4acd5cc057c1b8c771e2e3cd3e30780ca257dec0'},
-    {chainId: ChainsIds.MULTIVERSX, account: 'erd1ydry2dkxlmghe7fvyj0u9tne40zmrm8rngk6hdcukkcjusxrpvuq9mq2l6'},
-    // {chainId: ChainsIds.MASSA, account: 'AU1h7jfDGJYHxFYDoG2disme925yopJ359yyYvwjkxPqwKDn1cGa'},
+    // {chainId: ChainsIds.MULTIVERSX, account: 'erd1ydry2dkxlmghe7fvyj0u9tne40zmrm8rngk6hdcukkcjusxrpvuq9mq2l6'},
+    {chainId: ChainsIds.MASSA, account: 'AU1h7jfDGJYHxFYDoG2disme925yopJ359yyYvwjkxPqwKDn1cGa'},
     // {chainId: ChainsIds.CONCORDIUM, account: '41EpZoem2w2UpEYiLihvKEkbUCuuGD8DC7ajqNL6zJnDYeHQkw'},
   ].forEach(({chainId, account}) => {
     describe(`[${chainId}] provider`, () => {
@@ -46,7 +45,7 @@ describe.skip('Test Providers - debug integration tests', () => {
         expect(id).not.undefined;
         expect(name).not.undefined;
 
-        expect(id).eq(generateChainId(chainId));
+        expect(id).gt(0);
       }).timeout(5000);
 
       it(`[${chainId}] #getBalance`, async () => {

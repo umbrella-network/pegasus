@@ -1,6 +1,6 @@
 {
   "name": "pegasus",
-  "version": "7.25.2",
+  "version": "7.25.3",
   "type": "module",
   "packageManager": "npm@9.5.1",
   "repository": {
@@ -84,8 +84,8 @@
     "@concordium/common-sdk": "9.5.3",
     "@concordium/web-sdk": "7.1.0",
     "@grpc/grpc-js": "1.9.12",
-    "@massalabs/massa-as-sdk": "2.5.1",
-    "@massalabs/massa-web3": "2.2.1",
+    "@massalabs/massa-as-sdk": "2.5.4",
+    "@massalabs/massa-web3": "3.0.2",
     "@multiversx/sdk-core": "12.16.0",
     "@multiversx/sdk-network-providers": "2.2.0",
     "@multiversx/sdk-transaction-decoder": "1.0.2",
