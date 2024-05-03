@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.25.5] - 2024-05-03
+### Removed
+- revert `throwError` option
+
 ## [7.25.4] - 2024-05-03
 ### Fixed
 - do throw error on empty yaml config
