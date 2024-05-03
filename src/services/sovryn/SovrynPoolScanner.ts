@@ -1,12 +1,6 @@
-export abstract class GraphQLClientBase {
-  connected!: boolean;
+import {GraphClientBase} from '../graph/GraphClient';
 
-  abstract connect(subgraphUrl: string): Promise<boolean>;
-  abstract validateQuery(query: string): boolean;
-  abstract query(query: string): Promise<unknown>;
-}
-
-interface PoolsQueryResponse {
+interface SovrynPoolsQueryResponse {
   data: {
     liquidityPools: {
       id: string;
@@ -14,8 +8,7 @@ interface PoolsQueryResponse {
   };
 }
 
-function isValidPoolQueryResponse(obj: any): obj is PoolsQueryResponse {
-  // Perform necessary checks to validate the structure
+function isValidPoolQueryResponse(obj: any): obj is SovrynPoolsQueryResponse {
   return (
     obj &&
     obj.data &&
@@ -25,9 +18,9 @@ function isValidPoolQueryResponse(obj: any): obj is PoolsQueryResponse {
 }
 
 export class SovrynPoolScanner {
-  client: GraphQLClientBase;
+  client: GraphClientBase;
 
-  constructor(client_: GraphQLClientBase) {
+  constructor(client_: GraphClientBase) {
     this.client = client_;
   }
 
@@ -52,7 +45,7 @@ query MyQuery {
     const response = await this.client.query(query);
 
     if (isValidPoolQueryResponse(response)) {
-      const pools = <PoolsQueryResponse>response;
+      const pools = <SovrynPoolsQueryResponse>response;
       return pools.data.liquidityPools.map((pool) => pool.id);
     } else {
       return [];
