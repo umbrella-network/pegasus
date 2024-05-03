@@ -21,7 +21,7 @@ describe.skip('Staking Banks debug integration tests', () => {
     blockchainRepo = container.get(BlockchainRepository);
   });
 
-  [ChainsIds.MASSA].forEach((chainId) => {
+  [ChainsIds.CONCORDIUM].forEach((chainId) => {
     describe(`[${chainId}] bank tests`, () => {
       let bank: StakingBankInterface;
 

@@ -39,7 +39,7 @@ describe.skip('final integration tests', () => {
   });
 
   describe('[INTEGRATION] #update', () => {
-    const chainId = ChainsIds.MASSA;
+    const chainId = ChainsIds.CONCORDIUM;
     let umbrellaFeeds: UmbrellaFeedInterface;
     let bank: StakingBankInterface;
 
@@ -136,7 +136,7 @@ describe.skip('final integration tests', () => {
       const signer1Addr = await signer1.address();
       console.log({signer1Addr});
       console.log(ethers.utils.arrayify(Buffer.from(signer1Addr, 'hex')));
-      expect(validators[0].id).eq(signer1Addr, 'invalid validator1');
+      expect(signer1Addr).eq(validators[0].id, 'invalid validator1');
       console.log(`signer1 ${signer1Addr} OK`);
 
       settings.blockchain.wallets[chainId].privateKey = privateKey2;
@@ -145,7 +145,7 @@ describe.skip('final integration tests', () => {
       const signer2Addr = await signer2.address();
       console.log({signer2Addr});
       console.log(ethers.utils.arrayify(Buffer.from(signer2Addr, 'hex')));
-      expect(validators[1].id).eq(signer2Addr, 'invalid validator2');
+      expect(signer2Addr).eq(validators[1].id, 'invalid validator2');
       console.log(`signer2 ${signer2Addr} OK`);
 
       const signaturesSettled = await Promise.allSettled([signer1.apply(hash), signer2.apply(hash)]);

@@ -6,13 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Added
-- support for Massa
 
-## [7.25.2] - 2024-04-30
+## [7.25.3] - 2024-05-02
 ### Fixed
-- update concordium auto-generated ABI files
-- cach error on concordium registry module
+- use unchecked versions of concordium modules
+- added back fixed support for Massa
+
+## [7.25.2] - 2024-05-02
+### Fixed
+- update concordium auto-generated files
 
 ## [7.25.1] - 2024-04-04
 ### Fixed
