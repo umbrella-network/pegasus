@@ -5,7 +5,6 @@ export abstract class GraphClientBase {
   connected!: boolean;
 
   abstract connect(subgraphUrl: string): Promise<boolean>;
-  abstract validateQuery(query: string): boolean;
   abstract query(query: string): Promise<unknown>;
 }
 
@@ -21,15 +20,7 @@ export class GraphClient extends GraphClientBase {
     return Promise.resolve(true);
   }
 
-  validateQuery(_query: string): boolean {
-    return true;
-  }
-
-  async query(query_: string): Promise<unknown> {
-    if (!this.validateQuery(query_)) {
-      return Promise.resolve(false);
-    }
-
-    return (this.client as Client).query(query_, {id: 'test'});
+  async query(query: string): Promise<unknown> {
+    return (this.client as Client).query(query, {id: 'test'});
   }
 }

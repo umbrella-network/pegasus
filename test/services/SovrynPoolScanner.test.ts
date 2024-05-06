@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {SovrynPoolScanner} from '../../src/services/sovryn/SovrynPoolScanner.js';
+import {Pool, PoolRepositoryBase, SearchToken, SovrynPoolScanner} from '../../src/services/sovryn/SovrynPoolScanner.js';
 import {GraphClientBase} from '../../src/services/graph/GraphClient.js';
 
 class MockGraphClient extends GraphClientBase {
@@ -12,66 +12,87 @@ class MockGraphClient extends GraphClientBase {
     this.queryResponse = queryResponse;
   }
 
-  async connect(_subgraphUrl: string): Promise<boolean> {
+  async connect(): Promise<boolean> {
     return Promise.resolve(this.connected);
   }
 
-  validateQuery(_query: string): boolean {
+  validateQuery(): boolean {
     return true;
   }
 
-  query(_query: string): Promise<unknown> {
+  query(): Promise<unknown> {
     return Promise.resolve(this.queryResponse);
   }
 }
 
-describe('SovrynPoolScanner', () => {
+class MockPoolRepository extends PoolRepositoryBase {
+  pools: {[key: string]: Pool} = {};
+
+  async upsert(pool: Pool): Promise<boolean> {
+    this.pools[pool.address] = pool;
+    return Promise.resolve(true);
+  }
+
+  async find(searchToken: SearchToken): Promise<Pool[]> {
+    if (searchToken.address in this.pools) {
+      return Promise.resolve([this.pools[searchToken.address]]);
+    } else {
+      return Promise.resolve([]);
+    }
+  }
+}
+
+describe('SovrynPoolScanner - Scan Pools', () => {
   it('creates a SovrynPoolScanner instance', async () => {
-    const client = new MockGraphClient(true, {});
-    const scanner = new SovrynPoolScanner(client);
+    const graphClient = new MockGraphClient(true, {});
+    const poolRepository = new MockPoolRepository();
+    const scanner = new SovrynPoolScanner(graphClient, poolRepository);
 
     expect(scanner !== undefined);
   });
 
   it('connects to the subgraph', async () => {
-    const client = new MockGraphClient(true, {});
-    const scanner = new SovrynPoolScanner(client);
+    const graphClient = new MockGraphClient(true, {});
+    const poolRepository = new MockPoolRepository();
+    const scanner = new SovrynPoolScanner(graphClient, poolRepository);
 
-    let validSubgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
+    const validSubgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
     const connected = await scanner.connect(validSubgraphUrl);
 
     expect(connected).to.be.true;
   });
 
   it('fails to connect to the subgraph with invalid url', async () => {
-    const client = new MockGraphClient(false, {});
-    const scanner = new SovrynPoolScanner(client);
+    const graphClient = new MockGraphClient(false, {});
+    const poolRepository = new MockPoolRepository();
+    const scanner = new SovrynPoolScanner(graphClient, poolRepository);
 
-    let invalidSubgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
+    const invalidSubgraphUrl = 'https://eth.network.thegraph.com/api/[api-key]/subgraphs/id/[subgraph-id]';
     const connected = await scanner.connect(invalidSubgraphUrl);
 
     expect(connected).to.be.false;
   });
 
   it('scans available pools', async () => {
-    const p1 = '0x11111111111111111111';
-    const p2 = '0x22222222222222222222';
+    const p1: Pool = {address: '0x11111111111111111111'};
+    const p2: Pool = {address: '0x22222222222222222222'};
     const expected = [p1, p2];
 
     const queryResponse = {
       data: {
         liquidityPools: [
           {
-            id: p1,
+            id: p1.address,
           },
           {
-            id: p2,
+            id: p2.address,
           },
         ],
       },
     };
-    const client = new MockGraphClient(false, queryResponse);
-    const scanner = new SovrynPoolScanner(client);
+    const graphClient = new MockGraphClient(false, queryResponse);
+    const poolRepository = new MockPoolRepository();
+    const scanner = new SovrynPoolScanner(graphClient, poolRepository);
 
     const pools = await scanner.scanPools();
     expect(pools).to.eql(expected);
@@ -87,8 +108,9 @@ describe('SovrynPoolScanner', () => {
         ],
       },
     };
-    const client = new MockGraphClient(false, queryResponse);
-    const scanner = new SovrynPoolScanner(client);
+    const graphClient = new MockGraphClient(false, queryResponse);
+    const poolRepository = new MockPoolRepository();
+    const scanner = new SovrynPoolScanner(graphClient, poolRepository);
 
     const pools = await scanner.scanPools();
     expect(pools).to.eql([]);
@@ -104,8 +126,9 @@ describe('SovrynPoolScanner', () => {
         ],
       },
     };
-    const client = new MockGraphClient(false, queryResponse);
-    const scanner = new SovrynPoolScanner(client);
+    const graphClient = new MockGraphClient(false, queryResponse);
+    const poolRepository = new MockPoolRepository();
+    const scanner = new SovrynPoolScanner(graphClient, poolRepository);
 
     const pools = await scanner.scanPools();
     expect(pools).to.eql([]);
@@ -121,8 +144,9 @@ describe('SovrynPoolScanner', () => {
         ],
       },
     };
-    const client = new MockGraphClient(false, queryResponse);
-    const scanner = new SovrynPoolScanner(client);
+    const graphClient = new MockGraphClient(false, queryResponse);
+    const poolRepository = new MockPoolRepository();
+    const scanner = new SovrynPoolScanner(graphClient, poolRepository);
 
     const pools = await scanner.scanPools();
     expect(pools).to.eql([]);
