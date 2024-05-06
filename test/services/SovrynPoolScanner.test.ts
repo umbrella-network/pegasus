@@ -1,5 +1,7 @@
 import {expect} from 'chai';
-import {Pool, PoolRepositoryBase, SearchToken, SovrynPoolScanner} from '../../src/services/sovryn/SovrynPoolScanner.js';
+
+import {Pool, SovrynPoolScanner} from '../../src/services/sovryn/SovrynPoolScanner.js';
+import {PoolRepositoryBase, SearchToken} from '../../src/services/sovryn/SovrynPoolRepository.js';
 import {GraphClientBase} from '../../src/services/graph/GraphClient.js';
 
 class MockGraphClient extends GraphClientBase {

@@ -1,23 +1,28 @@
-import {inject, injectable} from 'inversify';
-
+import {SovrynPoolRepository} from 'src/services/sovryn/SovrynPoolRepository.js';
 import {SovrynPoolScanner} from '../services/sovryn/SovrynPoolScanner.js';
 import {LoopAgent} from './LoopAgent.js';
+import {GraphClient} from 'src/services/graph/GraphClient.js';
 
-@injectable()
 export class SovrynPoolScannerAgent extends LoopAgent {
   backoffTime = 10000;
-  interval = 100;
 
-  @inject(SovrynPoolScanner) scanner!: SovrynPoolScanner;
+  scanner: SovrynPoolScanner;
+
+  constructor() {
+    super();
+    const poolReposity = new SovrynPoolRepository();
+    const graphClient = new GraphClient();
+    this.scanner = new SovrynPoolScanner(graphClient, poolReposity);
+  }
 
   async execute(): Promise<void> {
-    const result = await this.scanner.run();
+    const success = await this.scanner.run();
 
-    if (!result.success) {
-      this.logger.error('[SovrynPoolScannerAgent] Pool scan failed. Waiting...');
-      this.sleep(this.backoffTime);
-    } else if (result.synchronized) {
+    if (success) {
       this.logger.info('[SovrynPoolScannerAgent] Synchronized. Waiting...');
+      this.sleep(this.backoffTime);
+    } else {
+      this.logger.error('[SovrynPoolScannerAgent] Pool scan failed. Waiting...');
       this.sleep(this.backoffTime);
     }
   }

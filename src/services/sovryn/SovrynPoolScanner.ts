@@ -1,4 +1,5 @@
 import {GraphClientBase} from '../graph/GraphClient';
+import {PoolRepositoryBase} from './SovrynPoolRepository';
 
 interface SovrynPoolsQueryResponse {
   data: {
@@ -8,12 +9,14 @@ interface SovrynPoolsQueryResponse {
   };
 }
 
-function isValidPoolQueryResponse(obj: any): obj is SovrynPoolsQueryResponse {
+export function isSovrynPoolsQueryResponse(obj_: unknown): obj_ is SovrynPoolsQueryResponse {
+  const obj = obj_ as SovrynPoolsQueryResponse;
   return (
     obj &&
-    obj.data &&
+    typeof obj === 'object' &&
+    typeof obj['data'] === 'object' &&
     Array.isArray(obj.data.liquidityPools) &&
-    obj.data.liquidityPools.every((pool: any) => pool.id && typeof pool.id === 'string')
+    obj.data.liquidityPools.every((pool: {id: string}) => pool.id && typeof pool.id === 'string')
   );
 }
 
@@ -25,19 +28,6 @@ export type Pool = {
   chainId?: string;
   dexProtocol?: string;
 };
-
-export type SearchToken = {
-  address: string;
-  token0?: string;
-  token1?: string;
-  chainId?: string;
-  dexProtocol?: string;
-};
-
-export abstract class PoolRepositoryBase {
-  abstract upsert(pool: Pool): Promise<boolean>;
-  abstract find(searchToken: SearchToken): Promise<Pool[]>;
-}
 
 export class SovrynPoolScanner {
   client: GraphClientBase;
@@ -69,7 +59,7 @@ query MyQuery {
     `;
     const response = await this.client.query(query);
 
-    if (isValidPoolQueryResponse(response)) {
+    if (isSovrynPoolsQueryResponse(response)) {
       const pools = <SovrynPoolsQueryResponse>response;
       return pools.data.liquidityPools.map((pool) => {
         return {address: pool.id};
