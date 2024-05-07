@@ -1,23 +1,25 @@
+import {Validator} from 'jsonschema';
+
 import {GraphClientBase} from '../graph/GraphClient';
-import {PoolRepositoryBase} from './SovrynPoolRepository';
+import {PoolRepositoryBase} from './SovrynPoolRepository.js';
+import {SovrynGraphPoolsResponseJSONSchema} from './SovrynGraphResponseSchema.js';
+import {liquidityPoolsQuery} from './SovrynGraphQueries.js';
 
 interface SovrynPoolsQueryResponse {
   data: {
     liquidityPools: {
       id: string;
+      poolTokens: {
+        name: string;
+      }[];
+      token0: {
+        id: string;
+      };
+      token1: {
+        id: string;
+      };
     }[];
   };
-}
-
-export function isSovrynPoolsQueryResponse(obj_: unknown): obj_ is SovrynPoolsQueryResponse {
-  const obj = obj_ as SovrynPoolsQueryResponse;
-  return (
-    obj &&
-    typeof obj === 'object' &&
-    typeof obj['data'] === 'object' &&
-    Array.isArray(obj.data.liquidityPools) &&
-    obj.data.liquidityPools.every((pool: {id: string}) => pool.id && typeof pool.id === 'string')
-  );
 }
 
 export type Pool = {
@@ -38,28 +40,14 @@ export class SovrynPoolScanner {
     this.repository = repository;
   }
 
-  async connect(subgraphUrl: string): Promise<boolean> {
-    const connected = await this.client.connect(subgraphUrl);
-
-    return connected;
-  }
-
   connected(): boolean {
     return this.client.connected;
   }
 
   async scanPools(): Promise<Pool[]> {
-    const query = `
-query MyQuery {
-  liquidityPools(where: {poolTokens_: {name_not: ""}}) {
+    const response = await this.client.query(liquidityPoolsQuery);
 
-    id
-  }
-}
-    `;
-    const response = await this.client.query(query);
-
-    if (isSovrynPoolsQueryResponse(response)) {
+    if (SovrynPoolScanner.isSovrynPoolsQueryResponse(response)) {
       const pools = <SovrynPoolsQueryResponse>response;
       return pools.data.liquidityPools.map((pool) => {
         return {address: pool.id};
@@ -77,5 +65,11 @@ query MyQuery {
     }
 
     return Promise.resolve(true);
+  }
+
+  static isSovrynPoolsQueryResponse(obj_: unknown): obj_ is SovrynPoolsQueryResponse {
+    const validator = new Validator();
+    const result = validator.validate(obj_, SovrynGraphPoolsResponseJSONSchema);
+    return result.valid;
   }
 }
