@@ -55,7 +55,6 @@ class UniswapV3MultiFetcher {
 
     for (const input of inputs) {
       const {chainFrom, token0, token1} = input;
-      this.logPrefix = '[UniswapV3MultiFetcher]';
 
       const data = await this.poolRepository.find({
         protocol: this.dexProtocol,

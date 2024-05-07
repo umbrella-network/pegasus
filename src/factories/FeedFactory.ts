@@ -17,6 +17,11 @@ export class FeedFactory {
 
   // TODO: add Uniswap support in the future
   createCollectionFromYaml(data: string): Feeds {
+    if (this.isYamlEmpty(data)) {
+      this.logger.warn('[FeedFactory] Empty YAML');
+      return {} as Feeds;
+    }
+
     const feeds = jsYaml.load(data) as Feeds;
     const validation = this.validate(feeds);
 
@@ -33,5 +38,13 @@ export class FeedFactory {
 
   private validate(feeds: unknown): ValidatorResult {
     return this.validator.validate(feeds, FeedsSchema);
+  }
+
+  private isYamlEmpty(data: string): boolean {
+    return data.split('\n').every((line) => {
+      if (!line) return true;
+      if (line.startsWith('#')) return true;
+      return line.replace(/ /g, '').length == 0;
+    });
   }
 }
