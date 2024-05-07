@@ -156,7 +156,70 @@ describe('SovrynPoolScanner', () => {
     });
   });
 
-  describe('storesPools', () => {
+  describe('isSovrynPoolsQueryResponse', () => {
+    it('validates a well-formed query response', () => {
+      const response = {
+        data: {
+          liquidityPools: [
+            {
+              id: '0x1769044cba7ad37719bade16cc71ec3f027b943d',
+              poolTokens: [
+                {
+                  name: '(WR)BTC/RIF Liquidity Pool',
+                },
+              ],
+              token0: {
+                id: '0x542fda317318ebf1d3deaf76e0b632741a7e677d',
+              },
+              token1: {
+                id: '0x2acc95758f8b5f583470ba265eb685a8f45fc9d5',
+              },
+            },
+            {
+              id: '0x1d2c04967e8b17168310fd7035cc219de477be82',
+              poolTokens: [
+                {
+                  name: '(WR)BTC/SOV Liquidity Pool',
+                },
+              ],
+              token0: {
+                id: '0x542fda317318ebf1d3deaf76e0b632741a7e677d',
+              },
+              token1: {
+                id: '0xefc78fc7d48b64958315949279ba181c2114abbd',
+              },
+            },
+          ],
+        },
+      };
+
+      expect(SovrynPoolScanner.isSovrynPoolsQueryResponse(response)).to.be.true;
+    });
+
+    it('invalidates that a wrong-formed query response', () => {
+      const response = {
+        data: {
+          liquidityPools: [
+            {
+              id: '0x1769044cba7ad37719bade16cc71ec3f027b943d',
+              poolTokens: [
+                {
+                  name: '(WR)BTC/RIF Liquidity Pool',
+                },
+              ],
+              token0: {
+                id: '0x542fda317318ebf1d3deaf76e0b632741a7e677d',
+              },
+            },
+          ],
+        },
+      };
+
+      expect(SovrynPoolScanner.isSovrynPoolsQueryResponse(response)).to.be.false;
+    });
+  });
+
+  describe('storePools', () => {
     it('stores pools in the pool repository', async () => {
       const p1 = {address: '0x11111111111111111111'};
       const p2 = {address: '0x22222222222222222222'};
