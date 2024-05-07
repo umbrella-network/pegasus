@@ -150,6 +150,9 @@ type Settings = {
     resolveStatusTimeout: number;
   };
   api: {
+    sovryn: {
+      apiKey: string;
+    };
     cryptocompare: {
       apiKey: string;
       timeout: number;

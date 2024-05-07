@@ -374,6 +374,9 @@ const settings: Settings = {
     resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '5000'),
   },
   api: {
+    sovryn: {
+      apiKey: process.env.SOVRYN_SUBGRAPH_API as string,
+    },
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
       timeout: timeoutWithCode(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', TimeoutCodes.CRYPTOCOMPARE),
