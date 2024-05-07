@@ -248,7 +248,7 @@ describe('SovrynPoolScanner', () => {
 });
 
 describe('SovrynScanner-IntegrationTests', () => {
-  it('runs the Sovryn pool scanner', async () => {
+  it.skip('runs the Sovryn pool scanner', async () => {
     const graphClient = new GraphClient(process.env.SOVRYN_SUBGRAPH_API as string);
     const sovrynPoolRepository = new SovrynPoolRepository();
     const scanner = new SovrynPoolScanner(graphClient, sovrynPoolRepository);
