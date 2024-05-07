@@ -1,8 +1,11 @@
 import {expect} from 'chai';
+import mongoose from 'mongoose';
 
 import {Pool, SovrynPoolScanner} from '../../src/services/sovryn/SovrynPoolScanner.js';
-import {PoolRepositoryBase, SearchToken} from '../../src/services/sovryn/SovrynPoolRepository.js';
-import {GraphClientBase} from '../../src/services/graph/GraphClient.js';
+import {PoolRepositoryBase, SearchToken, SovrynPoolRepository} from '../../src/services/sovryn/SovrynPoolRepository.js';
+import {GraphClient, GraphClientBase} from '../../src/services/graph/GraphClient.js';
+import {SovrynPoolScannerAgent} from '../../src/agents/SovrynPoolScannerAgent.js';
+import Settings from '../../src/types/Settings.js';
 
 class MockGraphClient extends GraphClientBase {
   connected: boolean;
@@ -241,5 +244,17 @@ describe('SovrynPoolScanner', () => {
 
       expect([p1_result[0], p2_result[0]]).to.eql(expected);
     });
+  });
+});
+
+describe('SovrynScanner-IntegrationTests', () => {
+  it('runs the Sovryn pool scanner', async () => {
+    const graphClient = new GraphClient(process.env.SOVRYN_SUBGRAPH_API as string);
+    const sovrynPoolRepository = new SovrynPoolRepository();
+    const scanner = new SovrynPoolScanner(graphClient, sovrynPoolRepository);
+
+    await mongoose.connect(process.env.MONGODB_URL as string, {useNewUrlParser: true, useUnifiedTopology: true});
+
+    await scanner.run();
   });
 });

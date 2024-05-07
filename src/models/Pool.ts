@@ -8,10 +8,10 @@ export class Pool {
   @prop({required: true})
   address!: string;
 
-  @prop({required: true})
+  @prop({required: false})
   token0!: string;
 
-  @prop({required: true})
+  @prop({required: false})
   token1!: string;
 
   @prop()

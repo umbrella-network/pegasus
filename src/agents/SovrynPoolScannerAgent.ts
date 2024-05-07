@@ -1,9 +1,9 @@
 import {inject, injectable} from 'inversify';
 
-import {SovrynPoolRepository} from 'src/services/sovryn/SovrynPoolRepository.js';
+import {SovrynPoolRepository} from '../services/sovryn/SovrynPoolRepository.js';
 import {SovrynPoolScanner} from '../services/sovryn/SovrynPoolScanner.js';
 import {LoopAgent} from './LoopAgent.js';
-import {GraphClient} from 'src/services/graph/GraphClient.js';
+import {GraphClient} from '../services/graph/GraphClient.js';
 import Settings from '../types/Settings.js';
 
 @injectable()

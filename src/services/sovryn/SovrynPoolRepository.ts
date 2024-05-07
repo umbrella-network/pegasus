@@ -16,14 +16,12 @@ export abstract class PoolRepositoryBase {
 
 export class SovrynPoolRepository extends PoolRepositoryBase {
   async upsert(pool: Pool): Promise<boolean> {
-    const attributes = {
+    const newToken = {
       ...pool,
       lastUpdatedAt: new Date(),
     };
 
-    const searchToken = {address: pool.address};
-
-    await getModelForClass(PoolSymbol).findOneAndUpdate(searchToken, attributes, {upsert: true, new: true}).exec();
+    await getModelForClass(PoolSymbol).findOneAndUpdate(pool, newToken, {upsert: true, new: true}).exec();
 
     return Promise.resolve(true);
   }
