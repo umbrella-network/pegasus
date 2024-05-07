@@ -57,12 +57,16 @@ export class SovrynPoolScanner {
     }
   }
 
-  async run(): Promise<boolean> {
-    const pools = await this.scanPools();
-
+  async storePools(pools: Pool[]) {
     for (const pool of pools) {
       await this.repository.upsert(pool);
     }
+  }
+
+  async run(): Promise<boolean> {
+    const pools = await this.scanPools();
+
+    this.storePools(pools);
 
     return Promise.resolve(true);
   }

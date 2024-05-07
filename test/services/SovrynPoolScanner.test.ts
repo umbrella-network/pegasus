@@ -37,7 +37,7 @@ class MockPoolRepository extends PoolRepositoryBase {
 }
 
 describe('SovrynPoolScanner', () => {
-  describe('scans pools using a graph client', () => {
+  describe('scanPools', () => {
     it('creates a SovrynPoolScanner instance', async () => {
       const graphClient = new MockGraphClient(true, {});
       const poolRepository = new MockPoolRepository();
@@ -156,7 +156,27 @@ describe('SovrynPoolScanner', () => {
     });
   });
 
-  describe('stores pools in pool repository', () => {
-    //const
+  describe('storesPools', () => {
+    it('stores pools in the pool repository', async () => {
+      const p1 = {address: '0x11111111111111111111'};
+      const p2 = {address: '0x22222222222222222222'};
+      const pools = [p1, p2];
+
+      const graphClient = new MockGraphClient(false, {});
+      const poolRepository = new MockPoolRepository();
+      const scanner = new SovrynPoolScanner(graphClient, poolRepository);
+
+      await scanner.storePools(pools);
+
+      const p1_result = await poolRepository.find({address: p1.address});
+      const p2_result = await poolRepository.find({address: p2.address});
+
+      expect(p1_result.length).to.equal(1);
+      expect(p2_result.length).to.equal(1);
+
+      const expected = [p1, p2];
+
+      expect([p1_result[0], p2_result[0]]).to.eql(expected);
+    });
   });
 });
