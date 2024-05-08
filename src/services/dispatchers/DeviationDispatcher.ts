@@ -1,5 +1,4 @@
 import {inject, injectable, postConstruct} from 'inversify';
-import {ethers} from 'ethers';
 import {PayableOverrides} from '@ethersproject/contracts';
 
 import BlockRepository from '../../repositories/BlockRepository.js';
