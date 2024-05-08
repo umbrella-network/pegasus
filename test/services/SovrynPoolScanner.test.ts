@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import {LoggerBase, Pool, SovrynPoolScanner} from '../../src/services/sovryn/SovrynPoolScanner.js';
 import {PoolRepositoryBase, SearchToken, SovrynPoolRepository} from '../../src/services/sovryn/SovrynPoolRepository.js';
 import {GraphClient, GraphClientBase} from '../../src/services/graph/GraphClient.js';
+import {ChainsIds} from '../../src/types/ChainsIds.js';
 
 class MockLogger extends LoggerBase {
   message: string = '';
@@ -55,8 +56,16 @@ describe('SovrynPoolScanner', () => {
     });
 
     it('scans available pools', async () => {
-      const p1: Pool = {address: '0x11111111111111111111'};
-      const p2: Pool = {address: '0x22222222222222222222'};
+      const p1: Pool = {
+        address: '0x11111111111111111111',
+        token0: '0x11111111111111111111',
+        token1: '0x11111111111111111111',
+      };
+      const p2: Pool = {
+        address: '0x22222222222222222222',
+        token0: '0x22222222222222222222',
+        token1: '0x22222222222222222222',
+      };
       const expected = [p1, p2];
 
       const queryResponse = {
@@ -245,8 +254,16 @@ describe('SovrynPoolScanner', () => {
 
   describe('storePools', () => {
     it('stores pools in the pool repository', async () => {
-      const p1 = {address: '0x11111111111111111111'};
-      const p2 = {address: '0x22222222222222222222'};
+      const p1: Pool = {
+        address: '0x11111111111111111111',
+        token0: '0x11111111111111111111',
+        token1: '0x11111111111111111111',
+      };
+      const p2: Pool = {
+        address: '0x22222222222222222222',
+        token0: '0x22222222222222222222',
+        token1: '0x22222222222222222222',
+      };
       const pools = [p1, p2];
 
       const graphClient = new MockGraphClient({});
@@ -276,6 +293,6 @@ describe.skip('SovrynPoolScanner-IntegrationTests', () => {
 
     await mongoose.connect(process.env.MONGODB_URL as string, {useNewUrlParser: true, useUnifiedTopology: true});
 
-    await scanner.run(process.env.SOVRYN_SUBGRAPH_API as string);
+    await scanner.run(ChainsIds.ROOTSTOCK, process.env.SOVRYN_SUBGRAPH_API as string);
   });
 });

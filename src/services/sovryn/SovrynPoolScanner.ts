@@ -4,6 +4,7 @@ import {GraphClientBase} from '../graph/GraphClient';
 import {PoolRepositoryBase} from './SovrynPoolRepository.js';
 import {SovrynGraphPoolsResponseJSONSchema} from './SovrynGraphResponseSchema.js';
 import {liquidityPoolsQuery} from './SovrynGraphQueries.js';
+import {ChainsIds} from 'src/types/ChainsIds';
 
 interface SovrynPoolsQueryResponse {
   data: {
@@ -24,8 +25,8 @@ interface SovrynPoolsQueryResponse {
 
 export type Pool = {
   address: string;
-  token0?: string;
-  token1?: string;
+  token0: string;
+  token1: string;
   fee?: number;
   chainId?: string;
   dexProtocol?: string;
@@ -58,7 +59,7 @@ export class SovrynPoolScanner {
     if (SovrynPoolScanner.isSovrynPoolsQueryResponse(response)) {
       const pools = <SovrynPoolsQueryResponse>response;
       return pools.data.liquidityPools.map((pool) => {
-        return {address: pool.id};
+        return {address: pool.id, token0: pool.token0.id, token1: pool.token1.id};
       });
     } else {
       this.logger.error(
@@ -74,8 +75,10 @@ export class SovrynPoolScanner {
     }
   }
 
-  async run(subgraphUrl: string): Promise<boolean> {
-    const pools = await this.scanPools(subgraphUrl);
+  async run(chainId: ChainsIds, subgraphUrl: string): Promise<boolean> {
+    let pools = await this.scanPools(subgraphUrl);
+
+    pools = pools.map((pool) => ({...pool, chainId}));
 
     this.storePools(pools);
 

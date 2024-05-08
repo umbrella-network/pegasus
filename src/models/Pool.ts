@@ -8,11 +8,14 @@ export class Pool {
   @prop({required: true})
   address!: string;
 
-  @prop({required: false})
+  @prop({required: true})
   token0!: string;
 
-  @prop({required: false})
+  @prop({required: true})
   token1!: string;
+
+  @prop({required: true})
+  chainId!: string;
 
   @prop()
   lastUpdatedAt?: Date;
