@@ -1,11 +1,18 @@
 import {expect} from 'chai';
 import mongoose from 'mongoose';
-import sinon from 'sinon';
 
-import {mockedLogger} from '../mocks/logger.js';
-import {Pool, SovrynPoolScanner} from '../../src/services/sovryn/SovrynPoolScanner.js';
+import {LoggerBase, Pool, SovrynPoolScanner} from '../../src/services/sovryn/SovrynPoolScanner.js';
 import {PoolRepositoryBase, SearchToken, SovrynPoolRepository} from '../../src/services/sovryn/SovrynPoolRepository.js';
 import {GraphClient, GraphClientBase} from '../../src/services/graph/GraphClient.js';
+
+class MockLogger extends LoggerBase {
+  message: string = '';
+  error(message: string): void {
+    this.message = message;
+  }
+}
+
+const mockedLogger = new MockLogger();
 
 class MockGraphClient extends GraphClientBase {
   connected: boolean;
@@ -40,8 +47,6 @@ class MockPoolRepository extends PoolRepositoryBase {
 }
 
 describe('SovrynPoolScanner', () => {
-  const loggerSpy = sinon.spy(mockedLogger, 'error');
-
   describe('scanPools', () => {
     it('creates a SovrynPoolScanner instance', async () => {
       const graphClient = new MockGraphClient(true, {});
@@ -122,7 +127,7 @@ describe('SovrynPoolScanner', () => {
 
       const pools = await scanner.scanPools();
       expect(pools).to.eql([]);
-      expect(loggerSpy).to.have.been.calledWithMatch(
+      expect(mockedLogger.message).to.contain(
         '[SovrynPoolScanner] Failed to convert JSON query response into SovrynPoolsQueryResponse object',
       );
     });
@@ -143,7 +148,7 @@ describe('SovrynPoolScanner', () => {
 
       const pools = await scanner.scanPools();
       expect(pools).to.eql([]);
-      expect(loggerSpy).to.have.been.calledWithMatch(
+      expect(mockedLogger.message).to.contain(
         '[SovrynPoolScanner] Failed to convert JSON query response into SovrynPoolsQueryResponse object',
       );
     });
@@ -165,7 +170,7 @@ describe('SovrynPoolScanner', () => {
 
       const pools = await scanner.scanPools();
       expect(pools).to.eql([]);
-      expect(loggerSpy).to.have.been.calledWithMatch(
+      expect(mockedLogger.message).to.contain(
         '[SovrynPoolScanner] Failed to convert JSON query response into SovrynPoolsQueryResponse object',
       );
     });
@@ -181,7 +186,7 @@ describe('SovrynPoolScanner', () => {
 
       const pools = await scanner.scanPools();
       expect(pools).to.eql([]);
-      expect(loggerSpy).to.have.been.calledWithMatch('[SovrynPoolScanner] Failed to make query. Error:');
+      expect(mockedLogger.message).to.contain('[SovrynPoolScanner] Failed to make query. Error: Query failed');
     });
   });
 

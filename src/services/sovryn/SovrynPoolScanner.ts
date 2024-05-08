@@ -1,4 +1,3 @@
-import {Logger} from 'winston';
 import {Validator} from 'jsonschema';
 
 import {GraphClientBase} from '../graph/GraphClient';
@@ -32,12 +31,16 @@ export type Pool = {
   dexProtocol?: string;
 };
 
+export abstract class LoggerBase {
+  abstract error(message: string): void;
+}
+
 export class SovrynPoolScanner {
   client: GraphClientBase;
   repository: PoolRepositoryBase;
-  logger: Logger;
+  logger: LoggerBase;
 
-  constructor(client: GraphClientBase, repository: PoolRepositoryBase, logger: Logger) {
+  constructor(client: GraphClientBase, repository: PoolRepositoryBase, logger: LoggerBase) {
     this.client = client;
     this.repository = repository;
     this.logger = logger;
@@ -52,7 +55,7 @@ export class SovrynPoolScanner {
     try {
       response = await this.client.query(liquidityPoolsQuery);
     } catch (error) {
-      this.logger.error(`[SovrynPoolScanner] Failed to make query. Error: ${error}`);
+      this.logger.error(`[SovrynPoolScanner] Failed to make query. ${error}`);
       return [];
     }
 
