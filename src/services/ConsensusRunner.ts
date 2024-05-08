@@ -42,8 +42,15 @@ class ConsensusRunner {
     const maxRetries = this.settings.consensus.retries;
 
     for (let i = 1; i <= maxRetries; i++) {
-      this.logger.info(`[ConsensusRunner] Starting Consensus Round ${i}.`);
       const dataForConsensus = this.getDataForConsensus(dataTimestamp, firstClassLeaves, leaves);
+
+      if (dataForConsensus.leaves.length == 0) {
+        this.logger.info(`[ConsensusRunner] no data for consensus at ${dataForConsensus.dataTimestamp}`);
+        return null;
+      }
+
+      this.logger.info(`[ConsensusRunner] Starting Consensus Round ${i}.`);
+
       const {consensus, discrepantKeys} = await this.runConsensus(dataForConsensus, validators, requiredSignatures);
       const leafKeyCount = dataForConsensus.leaves.length;
       const fcdKeyCount = dataForConsensus.fcdKeys.length;
