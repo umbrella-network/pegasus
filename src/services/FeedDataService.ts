@@ -5,7 +5,7 @@ import Settings from '../types/Settings.js';
 import {LeavesAndFeeds} from '../types/Consensus.js';
 import Leaf from '../types/Leaf.js';
 import {Logger} from 'winston';
-import {FeedsDataServiceResponse, FeedsType} from '../types/Feed.js';
+import {FeedsType} from '../types/Feed.js';
 import {DeviationLeavesAndFeeds} from '../types/DeviationFeeds.js';
 import {IntervalTriggerFilter} from './deviationsFeeds/IntervalTriggerFilter.js';
 
@@ -17,7 +17,11 @@ export class FeedDataService {
   @inject(IntervalTriggerFilter) intervalTriggerFilter!: IntervalTriggerFilter;
   @inject('Logger') logger!: Logger;
 
-  async apply(dataTimestamp: number, feedsType: FeedsType, filter: string[] = []): Promise<FeedsDataServiceResponse> {
+  async apply(
+    dataTimestamp: number,
+    feedsType: FeedsType,
+    filter: string[] = [],
+  ): Promise<{feeds: LeavesAndFeeds | DeviationLeavesAndFeeds; rejected?: string}> {
     if (feedsType === FeedsType.DEVIATION_TRIGGER) {
       const {leavesAndFeeds, rejected} = await this.getDeviationLeavesAndFeeds(dataTimestamp, filter);
       return {feeds: leavesAndFeeds, rejected};

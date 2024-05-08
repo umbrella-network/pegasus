@@ -1,15 +1,8 @@
 import {ChainsIds} from './ChainsIds.js';
-import {LeavesAndFeeds} from './Consensus';
-import {DeviationLeavesAndFeeds} from './DeviationFeeds.js';
 
 export type HashedKey = string;
 export type FeedName = string;
 export type ChainsId = string;
-
-export interface FeedsDataServiceResponse {
-  feeds: LeavesAndFeeds | DeviationLeavesAndFeeds;
-  rejected?: string;
-}
 
 export interface Feed {
   // deviation feed attributes

@@ -15,11 +15,9 @@ import {MultichainArchitectureDetector} from './MultichainArchitectureDetector.j
 import {ValidatorRepository} from '../repositories/ValidatorRepository.js';
 import {ChainStatus} from '../types/ChainStatus.js';
 import {MappingRepository} from '../repositories/MappingRepository.js';
-import {LeavesAndFeeds, MasterChainData} from '../types/Consensus.js';
+import {MasterChainData} from '../types/Consensus.js';
 import {BalanceMonitorChecker} from './balanceMonitor/BalanceMonitorChecker.js';
 import {sleep} from '../utils/sleep.js';
-import {FeedsDataServiceResponse, FeedsType} from '../types/Feed.js';
-import {FeedDataService} from './FeedDataService.js';
 
 const MASTERCHAINSTATUS_MIN_SIGNATURES = 'masterChainStatus.minSignatures';
 
@@ -38,19 +36,10 @@ class BlockMinter {
   @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
   @inject(MappingRepository) mappingRepository!: MappingRepository;
   @inject(BalanceMonitorChecker) balanceMonitorChecker!: BalanceMonitorChecker;
-  @inject(FeedDataService) feedDataService!: FeedDataService;
   @inject('Settings') settings!: Settings;
 
   async apply(): Promise<void> {
     const dataTimestamp = this.timeService.apply(this.settings.dataTimestampOffsetSeconds);
-
-    const resolvedFeeds = await this.feedDataService.apply(dataTimestamp, FeedsType.CONSENSUS);
-
-    if (this.noFeedsToSubmit(resolvedFeeds)) {
-      this.logger.error(`[BlockMinter] There is not feeds to submit for ${BlockchainType.LAYER2}`);
-      await sleep(60_000); // slow down execution
-      return;
-    }
 
     if (!(await this.balanceMonitorChecker.apply(BlockchainType.LAYER2))) {
       this.logger.error(`[BlockMinter] There is not enough balance in any of the chains for ${BlockchainType.LAYER2}`);
@@ -84,12 +73,7 @@ class BlockMinter {
 
     const masterChainData = await this.resolveMasterChainData(chainsStatuses[0].chainStatus);
 
-    const consensus = await this.consensusRunner.apply(
-      dataTimestamp,
-      validators,
-      masterChainData.minSignatures,
-      resolvedFeeds,
-    );
+    const consensus = await this.consensusRunner.apply(dataTimestamp, validators, masterChainData.minSignatures);
 
     if (!consensus) {
       this.logger.warn(`No consensus at ${dataTimestamp}`);
@@ -102,11 +86,6 @@ class BlockMinter {
     });
 
     this.logger.info(`consensus for ${dataTimestamp} successfully saved`);
-  }
-
-  private noFeedsToSubmit(resolvedFeeds: FeedsDataServiceResponse): boolean {
-    const {firstClassLeaves, leaves} = resolvedFeeds.feeds as LeavesAndFeeds;
-    return !(firstClassLeaves.length != 0 || leaves.length != 0);
   }
 
   private async resolveMasterChainData(anyChainStatus: ChainStatus): Promise<MasterChainData> {

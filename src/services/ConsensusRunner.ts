@@ -14,7 +14,8 @@ import {KeyValues, SignedBlock} from '../types/SignedBlock.js';
 import {Validator} from '../types/Validator.js';
 import {ValidatorsResponses} from '../types/ValidatorsResponses.js';
 import {generateAffidavit, signAffidavitWithWallet, sortLeaves, sortSignaturesBySigner} from '../utils/mining.js';
-import {FeedsDataServiceResponse, HexStringWith0x} from '../types/Feed.js';
+import {FeedDataService} from './FeedDataService.js';
+import {FeedsType, HexStringWith0x} from '../types/Feed.js';
 import {SimpleConsensusResolver} from './consensus/SimpleConsensusResolver.js';
 import {OptimizedConsensusResolver} from './consensus/OptimizedConsensusResolver.js';
 import {sleep} from '../utils/sleep.js';
@@ -26,15 +27,13 @@ class ConsensusRunner {
   @inject(TimeService) timeService!: TimeService;
   @inject(SignatureCollector) signatureCollector!: SignatureCollector;
   @inject(BlockRepository) blockRepository!: BlockRepository;
+  @inject(FeedDataService) feedDataService!: FeedDataService;
   @inject(SimpleConsensusResolver) simpleConsensusResolver!: SimpleConsensusResolver;
   @inject(OptimizedConsensusResolver) optimizedConsensusResolver!: OptimizedConsensusResolver;
 
-  async apply(
-    dataTimestamp: number,
-    validators: Validator[],
-    requiredSignatures: number,
-    resolvedFeeds: FeedsDataServiceResponse,
-  ): Promise<Consensus | null> {
+  async apply(dataTimestamp: number, validators: Validator[], requiredSignatures: number): Promise<Consensus | null> {
+    const resolvedFeeds = await this.feedDataService.apply(dataTimestamp, FeedsType.CONSENSUS);
+
     let {firstClassLeaves, leaves} = resolvedFeeds.feeds as LeavesAndFeeds;
 
     let maxLeafKeyCount!: number;
@@ -47,7 +46,7 @@ class ConsensusRunner {
 
       if (dataForConsensus.leaves.length == 0) {
         this.logger.info(`[ConsensusRunner] no data for consensus at ${dataForConsensus.dataTimestamp}`);
-        await sleep(this.settings.consensus.roundInterval * maxRetries); // do not retry
+        await sleep(this.settings.jobs.blockCreation.interval); // do not retry
         return null;
       }
 
