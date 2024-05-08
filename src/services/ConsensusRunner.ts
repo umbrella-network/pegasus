@@ -46,6 +46,7 @@ class ConsensusRunner {
 
       if (dataForConsensus.leaves.length == 0) {
         this.logger.info(`[ConsensusRunner] no data for consensus at ${dataForConsensus.dataTimestamp}`);
+        await sleep(this.settings.jobs.blockCreation.interval); // do not retry
         return null;
       }
 
