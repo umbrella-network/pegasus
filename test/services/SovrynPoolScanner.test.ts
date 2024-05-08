@@ -1,11 +1,11 @@
 import {expect} from 'chai';
 import mongoose from 'mongoose';
+import sinon from 'sinon';
 
+import {mockedLogger} from '../mocks/logger.js';
 import {Pool, SovrynPoolScanner} from '../../src/services/sovryn/SovrynPoolScanner.js';
 import {PoolRepositoryBase, SearchToken, SovrynPoolRepository} from '../../src/services/sovryn/SovrynPoolRepository.js';
 import {GraphClient, GraphClientBase} from '../../src/services/graph/GraphClient.js';
-import {SovrynPoolScannerAgent} from '../../src/agents/SovrynPoolScannerAgent.js';
-import Settings from '../../src/types/Settings.js';
 
 class MockGraphClient extends GraphClientBase {
   connected: boolean;
@@ -40,11 +40,13 @@ class MockPoolRepository extends PoolRepositoryBase {
 }
 
 describe('SovrynPoolScanner', () => {
+  const loggerSpy = sinon.spy(mockedLogger, 'error');
+
   describe('scanPools', () => {
     it('creates a SovrynPoolScanner instance', async () => {
       const graphClient = new MockGraphClient(true, {});
       const poolRepository = new MockPoolRepository();
-      const scanner = new SovrynPoolScanner(graphClient, poolRepository);
+      const scanner = new SovrynPoolScanner(graphClient, poolRepository, mockedLogger);
 
       expect(scanner !== undefined);
     });
@@ -52,7 +54,7 @@ describe('SovrynPoolScanner', () => {
     it('connects to the subgraph', async () => {
       const graphClient = new MockGraphClient(true, {});
       const poolRepository = new MockPoolRepository();
-      const scanner = new SovrynPoolScanner(graphClient, poolRepository);
+      const scanner = new SovrynPoolScanner(graphClient, poolRepository, mockedLogger);
 
       expect(scanner.connected()).to.be.true;
     });
@@ -98,7 +100,7 @@ describe('SovrynPoolScanner', () => {
       };
       const graphClient = new MockGraphClient(false, queryResponse);
       const poolRepository = new MockPoolRepository();
-      const scanner = new SovrynPoolScanner(graphClient, poolRepository);
+      const scanner = new SovrynPoolScanner(graphClient, poolRepository, mockedLogger);
 
       const pools = await scanner.scanPools();
       expect(pools).to.eql(expected);
@@ -116,10 +118,13 @@ describe('SovrynPoolScanner', () => {
       };
       const graphClient = new MockGraphClient(false, queryResponse);
       const poolRepository = new MockPoolRepository();
-      const scanner = new SovrynPoolScanner(graphClient, poolRepository);
+      const scanner = new SovrynPoolScanner(graphClient, poolRepository, mockedLogger);
 
       const pools = await scanner.scanPools();
       expect(pools).to.eql([]);
+      expect(loggerSpy).to.have.been.calledWithMatch(
+        '[SovrynPoolScanner] Failed to convert JSON query response into SovrynPoolsQueryResponse object',
+      );
     });
 
     it('fails to scan pools when the client response is bad formed - case 2', async () => {
@@ -134,10 +139,13 @@ describe('SovrynPoolScanner', () => {
       };
       const graphClient = new MockGraphClient(false, queryResponse);
       const poolRepository = new MockPoolRepository();
-      const scanner = new SovrynPoolScanner(graphClient, poolRepository);
+      const scanner = new SovrynPoolScanner(graphClient, poolRepository, mockedLogger);
 
       const pools = await scanner.scanPools();
       expect(pools).to.eql([]);
+      expect(loggerSpy).to.have.been.calledWithMatch(
+        '[SovrynPoolScanner] Failed to convert JSON query response into SovrynPoolsQueryResponse object',
+      );
     });
 
     it('fails to scan pools when the client response is bad formed - case 3', async () => {
@@ -150,12 +158,30 @@ describe('SovrynPoolScanner', () => {
           ],
         },
       };
+
       const graphClient = new MockGraphClient(false, queryResponse);
       const poolRepository = new MockPoolRepository();
-      const scanner = new SovrynPoolScanner(graphClient, poolRepository);
+      const scanner = new SovrynPoolScanner(graphClient, poolRepository, mockedLogger);
 
       const pools = await scanner.scanPools();
       expect(pools).to.eql([]);
+      expect(loggerSpy).to.have.been.calledWithMatch(
+        '[SovrynPoolScanner] Failed to convert JSON query response into SovrynPoolsQueryResponse object',
+      );
+    });
+
+    it('returns an empty pool array even if the graph client fails catastrophically', async () => {
+      const graphClient = new MockGraphClient(false, {});
+      graphClient.query = () => {
+        throw new Error('Query failed');
+      };
+
+      const poolRepository = new MockPoolRepository();
+      const scanner = new SovrynPoolScanner(graphClient, poolRepository, mockedLogger);
+
+      const pools = await scanner.scanPools();
+      expect(pools).to.eql([]);
+      expect(loggerSpy).to.have.been.calledWithMatch('[SovrynPoolScanner] Failed to make query. Error:');
     });
   });
 
@@ -230,7 +256,7 @@ describe('SovrynPoolScanner', () => {
 
       const graphClient = new MockGraphClient(false, {});
       const poolRepository = new MockPoolRepository();
-      const scanner = new SovrynPoolScanner(graphClient, poolRepository);
+      const scanner = new SovrynPoolScanner(graphClient, poolRepository, mockedLogger);
 
       await scanner.storePools(pools);
 
@@ -247,11 +273,12 @@ describe('SovrynPoolScanner', () => {
   });
 });
 
-describe('SovrynScanner-IntegrationTests', () => {
-  it.skip('runs the Sovryn pool scanner', async () => {
+describe.skip('SovrynPoolScanner-IntegrationTests', () => {
+  it('runs the Sovryn pool scanner', async () => {
     const graphClient = new GraphClient(process.env.SOVRYN_SUBGRAPH_API as string);
     const sovrynPoolRepository = new SovrynPoolRepository();
-    const scanner = new SovrynPoolScanner(graphClient, sovrynPoolRepository);
+
+    const scanner = new SovrynPoolScanner(graphClient, sovrynPoolRepository, mockedLogger);
 
     await mongoose.connect(process.env.MONGODB_URL as string, {useNewUrlParser: true, useUnifiedTopology: true});
 

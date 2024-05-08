@@ -1,3 +1,4 @@
+import {Logger} from 'winston';
 import {Validator} from 'jsonschema';
 
 import {GraphClientBase} from '../graph/GraphClient';
@@ -34,10 +35,12 @@ export type Pool = {
 export class SovrynPoolScanner {
   client: GraphClientBase;
   repository: PoolRepositoryBase;
+  logger: Logger;
 
-  constructor(client: GraphClientBase, repository: PoolRepositoryBase) {
+  constructor(client: GraphClientBase, repository: PoolRepositoryBase, logger: Logger) {
     this.client = client;
     this.repository = repository;
+    this.logger = logger;
   }
 
   connected(): boolean {
@@ -45,7 +48,13 @@ export class SovrynPoolScanner {
   }
 
   async scanPools(): Promise<Pool[]> {
-    const response = await this.client.query(liquidityPoolsQuery);
+    let response;
+    try {
+      response = await this.client.query(liquidityPoolsQuery);
+    } catch (error) {
+      this.logger.error(`[SovrynPoolScanner] Failed to make query. Error: ${error}`);
+      return [];
+    }
 
     if (SovrynPoolScanner.isSovrynPoolsQueryResponse(response)) {
       const pools = <SovrynPoolsQueryResponse>response;
@@ -53,6 +62,9 @@ export class SovrynPoolScanner {
         return {address: pool.id};
       });
     } else {
+      this.logger.error(
+        '[SovrynPoolScanner] Failed to convert JSON query response into SovrynPoolsQueryResponse object',
+      );
       return [];
     }
   }

@@ -5,6 +5,7 @@ import {SovrynPoolScanner} from '../services/sovryn/SovrynPoolScanner.js';
 import {LoopAgent} from './LoopAgent.js';
 import {GraphClient} from '../services/graph/GraphClient.js';
 import Settings from '../types/Settings.js';
+import logger from '../lib/logger.js';
 
 @injectable()
 export class SovrynPoolScannerAgent extends LoopAgent {
@@ -16,7 +17,7 @@ export class SovrynPoolScannerAgent extends LoopAgent {
     super();
     const poolReposity = new SovrynPoolRepository();
     const graphClient = new GraphClient(settings.api.sovryn.apiKey);
-    this.scanner = new SovrynPoolScanner(graphClient, poolReposity);
+    this.scanner = new SovrynPoolScanner(graphClient, poolReposity, logger);
   }
 
   async execute(): Promise<void> {
