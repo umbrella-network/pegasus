@@ -46,14 +46,10 @@ export class SovrynPoolScanner {
     this.logger = logger;
   }
 
-  connected(): boolean {
-    return this.client.connected;
-  }
-
-  async scanPools(): Promise<Pool[]> {
+  async scanPools(subgraphUrl: string): Promise<Pool[]> {
     let response;
     try {
-      response = await this.client.query(liquidityPoolsQuery);
+      response = await this.client.query(subgraphUrl, liquidityPoolsQuery);
     } catch (error) {
       this.logger.error(`[SovrynPoolScanner] Failed to make query. ${error}`);
       return [];
@@ -78,8 +74,8 @@ export class SovrynPoolScanner {
     }
   }
 
-  async run(): Promise<boolean> {
-    const pools = await this.scanPools();
+  async run(subgraphUrl: string): Promise<boolean> {
+    const pools = await this.scanPools(subgraphUrl);
 
     this.storePools(pools);
 

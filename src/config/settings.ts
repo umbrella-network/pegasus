@@ -375,7 +375,9 @@ const settings: Settings = {
   },
   api: {
     sovryn: {
-      apiKey: process.env.SOVRYN_SUBGRAPH_API as string,
+      [ChainsIds.ROOTSTOCK]: {
+        subgraphUrl: process.env.SOVRYN_SUBGRAPH_API as string,
+      },
     },
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,

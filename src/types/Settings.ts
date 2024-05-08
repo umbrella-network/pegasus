@@ -150,9 +150,7 @@ type Settings = {
     resolveStatusTimeout: number;
   };
   api: {
-    sovryn: {
-      apiKey: string;
-    };
+    sovryn: Partial<Record<ChainsIds, {subgraphUrl: string}>>;
     cryptocompare: {
       apiKey: string;
       timeout: number;
