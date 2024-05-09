@@ -1,13 +1,13 @@
 import {inject, injectable} from 'inversify';
 
-import {SovrynPoolRepository} from '../services/sovryn/SovrynPoolRepository.js';
-import {SovrynPoolScanner} from '../services/sovryn/SovrynPoolScanner.js';
 import {LoopAgent} from './LoopAgent.js';
 import {GraphClient} from '../services/graph/GraphClient.js';
 import Settings from '../types/Settings.js';
 import logger from '../lib/logger.js';
-import {ChainsIds} from 'src/types/ChainsIds.js';
-import {DexAPISettings, DexProtocolName} from 'src/types/Dexes.js';
+import {SovrynPoolRepository} from '../services/sovryn/SovrynPoolRepository.js';
+import {SovrynPoolScanner} from '../services/sovryn/SovrynPoolScanner.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {DexAPISettings, DexProtocolName} from '../types/Dexes.js';
 
 @injectable()
 export class SovrynPoolScannerAgent extends LoopAgent {
