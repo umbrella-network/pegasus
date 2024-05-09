@@ -25,15 +25,19 @@ export class SovrynPoolScannerAgent extends LoopAgent {
   }
 
   async execute(): Promise<void> {
+    const promises = [];
     for (const [chainId, {subgraphUrl}] of Object.entries(this.chains)) {
-      const success = await this.scanner.run(chainId as ChainsIds, subgraphUrl);
-
-      if (success) {
-        this.logger.info(`[SovrynPoolScannerAgent][${chainId}] Synchronized. Waiting...`);
-      } else {
-        this.logger.error(`[SovrynPoolScannerAgent][${chainId}] Pool scan failed. Waiting...`);
-      }
+      const promise = this.scanner.run(chainId as ChainsIds, subgraphUrl).then((success) => {
+        if (success) {
+          this.logger.info(`[SovrynPoolScannerAgent][${chainId}] Synchronized. Waiting...`);
+        } else {
+          this.logger.error(`[SovrynPoolScannerAgent][${chainId}] Pool scan failed. Waiting...`);
+        }
+      });
+      promises.push(promise);
     }
+
+    await Promise.all(promises);
 
     this.sleep(this.backoffTime);
   }
