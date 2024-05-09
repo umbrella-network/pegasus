@@ -46,7 +46,7 @@ class UniswapV3MultiFetcher {
     return prices;
   }
 
-  protected async getPoolsToFetch(inputs: UniswapV3MultiFetcherParams[]) {
+  public async getPoolsToFetch(inputs: UniswapV3MultiFetcherParams[]) {
     const poolsToFetch: {
       pools: string[];
       base: string;
@@ -76,7 +76,7 @@ class UniswapV3MultiFetcher {
     return poolsToFetch;
   }
 
-  protected async fetchData(poolsToFetch: {pools: string[]; base: string; quote: string}[]): Promise<OutputValues[]> {
+  public async fetchData(poolsToFetch: {pools: string[]; base: string; quote: string}[]): Promise<OutputValues[]> {
     const contract = this.contractRepository.get(this.chainId, this.dexProtocol).getContract();
     const [results] = (await contract.callStatic.getPrices(poolsToFetch)) as {success: boolean; price: BigNumber}[][];
     this.logger.debug(`${this.logPrefix} fetched data: ${results}`);
@@ -89,7 +89,7 @@ class UniswapV3MultiFetcher {
     return this.processResult(results, poolsToFetch);
   }
 
-  protected processResult(
+  public processResult(
     results: {success: boolean; price: BigNumber}[],
     poolsToFetch: {pools: string[]; base: string; quote: string}[],
   ) {
