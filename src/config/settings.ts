@@ -14,6 +14,7 @@ import {TimeoutCodes} from '../types/TimeoutCodes.js';
 import {timeoutWithCode} from '../utils/request.js';
 import './setupDotenv.js';
 import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
+import {DexProtocolName} from '../types/Dexes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -374,11 +375,6 @@ const settings: Settings = {
     resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '5000'),
   },
   api: {
-    sovryn: {
-      [ChainsIds.ROOTSTOCK]: {
-        subgraphUrl: process.env.SOVRYN_SUBGRAPH_API as string,
-      },
-    },
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
       timeout: timeoutWithCode(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', TimeoutCodes.CRYPTOCOMPARE),
@@ -431,6 +427,13 @@ const settings: Settings = {
       timeout: timeoutWithCode(process.env.METALS_DEV_API_TIMEOUT || '5000', TimeoutCodes.METALS_DEV_API),
     },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
+  },
+  dexes: {
+    [DexProtocolName.SOVRYN]: {
+      [ChainsIds.ROOTSTOCK]: {
+        subgraphUrl: <string>process.env['SOVRYN_SUBGRAPH_API'],
+      },
+    },
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
   feedsFile:

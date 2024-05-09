@@ -4,7 +4,7 @@ import {index, modelOptions, prop, Severity} from '@typegoose/typegoose';
 @index({token0: 1})
 @index({token1: 1})
 @modelOptions({options: {allowMixed: Severity.ALLOW}})
-export class Pool {
+export class SovrynPoolSchema {
   @prop({required: true})
   address!: string;
 

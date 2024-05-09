@@ -1,7 +1,7 @@
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {Pool} from './SovrynPoolScanner.js';
-import {Pool as PoolSymbol} from '../../models/Pool.js';
+import {SovrynPoolSchema} from '../../models/Pools.js';
 
 export type SearchToken = {
   address: string;
@@ -22,13 +22,13 @@ export class SovrynPoolRepository extends PoolRepositoryBase {
       lastUpdatedAt: new Date(),
     };
 
-    await getModelForClass(PoolSymbol).findOneAndUpdate(pool, newToken, {upsert: true, new: true}).exec();
+    await getModelForClass(SovrynPoolSchema).findOneAndUpdate(pool, newToken, {upsert: true, new: true}).exec();
 
     return Promise.resolve(true);
   }
 
   async find(searchToken: SearchToken): Promise<Pool[]> {
-    const pools = await getModelForClass(PoolSymbol)
+    const pools = await getModelForClass(SovrynPoolSchema)
       .find({...searchToken, verified: true})
       .exec();
 

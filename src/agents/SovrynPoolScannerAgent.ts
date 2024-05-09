@@ -7,24 +7,25 @@ import {GraphClient} from '../services/graph/GraphClient.js';
 import Settings from '../types/Settings.js';
 import logger from '../lib/logger.js';
 import {ChainsIds} from 'src/types/ChainsIds.js';
+import {DexAPISettings, DexProtocolName} from 'src/types/Dexes.js';
 
 @injectable()
 export class SovrynPoolScannerAgent extends LoopAgent {
   backoffTime = 10000;
 
   scanner: SovrynPoolScanner;
-  subgraphUrls: Partial<Record<ChainsIds, {subgraphUrl: string}>>;
+  chains: Record<ChainsIds, DexAPISettings>;
 
   constructor(@inject('Settings') settings: Settings) {
     super();
     const poolReposity = new SovrynPoolRepository();
     const graphClient = new GraphClient();
     this.scanner = new SovrynPoolScanner(graphClient, poolReposity, logger);
-    this.subgraphUrls = settings.api.sovryn;
+    this.chains = settings.dexes[DexProtocolName.SOVRYN] as Record<ChainsIds, DexAPISettings>;
   }
 
   async execute(): Promise<void> {
-    for (const [chainId, {subgraphUrl}] of Object.entries(this.subgraphUrls)) {
+    for (const [chainId, {subgraphUrl}] of Object.entries(this.chains)) {
       const success = await this.scanner.run(chainId as ChainsIds, subgraphUrl);
 
       if (success) {
