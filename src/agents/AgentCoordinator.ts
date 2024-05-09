@@ -1,10 +1,12 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
+// This code will be refactor in the next PR
 import {BasicAgent} from './BasicAgent.js';
-import {UniswapPoolScannerAgent} from './UniswapPoolScannerAgent.js';
-import {UniswapPriceScannerAgent} from './UniswapPriceScannerAgent.js';
-import {UniswapVerificationAgent} from './UniswapVerificationAgent.js';
+// import {UniswapPoolScannerAgent} from './UniswapPoolScannerAgent.js';
+// import {UniswapPriceScannerAgent} from './UniswapPriceScannerAgent.js';
+// import {UniswapVerificationAgent} from './UniswapVerificationAgent.js';
+import {SovrynPoolScannerAgent} from './SovrynPoolScannerAgent.js';
 import Settings from '../types/Settings.js';
 
 @injectable()
@@ -14,24 +16,26 @@ export class AgentCoordinator {
 
   constructor(
     @inject('Settings') settings: Settings,
-    @inject(UniswapPoolScannerAgent) UniswapPoolScannerAgent: UniswapPoolScannerAgent,
-    @inject(UniswapPriceScannerAgent) UniswapPriceScannerAgent: UniswapPriceScannerAgent,
-    @inject(UniswapVerificationAgent) UniswapVerificationAgent: UniswapVerificationAgent,
+    // @inject(UniswapPoolScannerAgent) UniswapPoolScannerAgent: UniswapPoolScannerAgent,
+    // @inject(UniswapPriceScannerAgent) UniswapPriceScannerAgent: UniswapPriceScannerAgent,
+    // @inject(UniswapVerificationAgent) UniswapVerificationAgent: UniswapVerificationAgent,
+    @inject(SovrynPoolScannerAgent) sovrynPoolScannerAgent: SovrynPoolScannerAgent,
   ) {
-    const blockchainKey = 'ethereum';
+    //const blockchainKey = 'ethereum';
 
-    if (!settings.blockchains[blockchainKey].providerUrl.join('')) {
-      return;
-    }
+    // if (!settings.blockchains[blockchainKey].providerUrl.join('')) {
+    //   return;
+    // }
 
-    if (!settings.api.uniswap.active) {
-      return;
-    }
+    // if (!settings.api.uniswap.active) {
+    //   return;
+    // }
 
     this.agents = {
-      UniswapPoolScannerAgent,
-      UniswapPriceScannerAgent,
-      UniswapVerificationAgent,
+      // UniswapPoolScannerAgent,
+      // UniswapPriceScannerAgent,
+      // UniswapVerificationAgent,
+      sovrynPoolScannerAgent,
     };
   }
 
