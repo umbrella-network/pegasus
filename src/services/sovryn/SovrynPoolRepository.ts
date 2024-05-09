@@ -7,6 +7,7 @@ export type SearchToken = {
   address: string;
   token0?: string;
   token1?: string;
+  chainId?: string;
 };
 
 export abstract class PoolRepositoryBase {
