@@ -1,7 +1,7 @@
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {Pool} from './SovrynPoolScanner.js';
-import {SovrynPoolSchema} from '../../models/Pools.js';
+import {SovrynPoolSchema} from '../../../models/Pools.js';
 
 export type SearchToken = {
   address: string;

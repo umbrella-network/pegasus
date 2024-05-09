@@ -4,8 +4,8 @@ import {LoopAgent} from './LoopAgent.js';
 import {GraphClient} from '../services/graph/GraphClient.js';
 import Settings from '../types/Settings.js';
 import logger from '../lib/logger.js';
-import {SovrynPoolRepository} from '../services/sovryn/SovrynPoolRepository.js';
-import {SovrynPoolScanner} from '../services/sovryn/SovrynPoolScanner.js';
+import {SovrynPoolRepository} from '../services/dexes/sovryn/SovrynPoolRepository.js';
+import {SovrynPoolScanner} from '../services/dexes/sovryn/SovrynPoolScanner.js';
 import {ChainsIds} from '../types/ChainsIds.js';
 import {DexAPISettings, DexProtocolName} from '../types/Dexes.js';
 
@@ -26,6 +26,7 @@ export class SovrynPoolScannerAgent extends LoopAgent {
 
   async execute(): Promise<void> {
     const promises = [];
+
     for (const [chainId, {subgraphUrl}] of Object.entries(this.dexes)) {
       const promise = this.scanner.run(chainId as ChainsIds, subgraphUrl).then((success) => {
         if (success) {
@@ -34,6 +35,7 @@ export class SovrynPoolScannerAgent extends LoopAgent {
           this.logger.error(`[SovrynPoolScannerAgent][${chainId}] Pool scan failed. Waiting...`);
         }
       });
+
       promises.push(promise);
     }
 

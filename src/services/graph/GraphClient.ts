@@ -11,6 +11,7 @@ export class GraphClient extends GraphClientBase {
       url: subgraphUrl,
       exchanges: [cacheExchange, fetchExchange],
     });
+
     return client.query(query, {});
   }
 }

@@ -1,6 +1,6 @@
 export const liquidityPoolsQuery = `
 query LiquidityPoolsQuery {
-    liquidityPools(where: {poolTokens_: {name_not: ""}}, first: 2) {
+    liquidityPools(where: {poolTokens_: {name_not: ""}}) {
         id
         poolTokens {
             name
