@@ -14,19 +14,19 @@ export class SovrynPoolScannerAgent extends LoopAgent {
   backoffTime = 10000;
 
   scanner: SovrynPoolScanner;
-  chains: Record<ChainsIds, DexAPISettings>;
+  dexes: Record<ChainsIds, DexAPISettings>;
 
   constructor(@inject('Settings') settings: Settings) {
     super();
     const poolReposity = new SovrynPoolRepository();
     const graphClient = new GraphClient();
     this.scanner = new SovrynPoolScanner(graphClient, poolReposity, logger);
-    this.chains = settings.dexes[DexProtocolName.SOVRYN] as Record<ChainsIds, DexAPISettings>;
+    this.dexes = settings.dexes[DexProtocolName.SOVRYN] as Record<ChainsIds, DexAPISettings>;
   }
 
   async execute(): Promise<void> {
     const promises = [];
-    for (const [chainId, {subgraphUrl}] of Object.entries(this.chains)) {
+    for (const [chainId, {subgraphUrl}] of Object.entries(this.dexes)) {
       const promise = this.scanner.run(chainId as ChainsIds, subgraphUrl).then((success) => {
         if (success) {
           this.logger.info(`[SovrynPoolScannerAgent][${chainId}] Synchronized. Waiting...`);

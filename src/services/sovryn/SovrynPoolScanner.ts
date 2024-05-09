@@ -70,9 +70,7 @@ export class SovrynPoolScanner {
   }
 
   async storePools(pools: Pool[]) {
-    for (const pool of pools) {
-      await this.repository.upsert(pool);
-    }
+    await Promise.all(pools.map((pool) => this.repository.upsert(pool)));
   }
 
   async run(chainId: ChainsIds, subgraphUrl: string): Promise<boolean> {
