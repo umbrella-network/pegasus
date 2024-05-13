@@ -28,6 +28,14 @@ export type BlockchainSettings = {
   };
 };
 
+export type LiquidityWorker = {
+  interval: number;
+  lock: {
+    name: string;
+    ttl: number;
+  };
+};
+
 interface SubmitMonitorExt extends SubmitMonitor {
   date?: string;
 }
@@ -74,6 +82,7 @@ type Settings = {
         ttl: number;
       };
     };
+    liquidities: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, LiquidityWorker>>>>;
     blockchainMetrics: {
       interval: number;
       lock: {

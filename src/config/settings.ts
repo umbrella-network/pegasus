@@ -290,6 +290,17 @@ const settings: Settings = {
         ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),
       },
     },
+    liquidities: {
+      [ChainsIds.ETH]: {
+        [DexProtocolName.UNISWAP_V3]: {
+          interval: parseInt(process.env.UNISWAPV3_LIQUIDITY_JOB_INTERVAL || String(getDayInMillisecond(3))),
+          lock: {
+            name: process.env.UNISWAPV3_LIQUIDITY_LOCK_NAME || 'lock::UniswapV3Liquidity',
+            ttl: parseInt(process.env.UNISWAPV3_LIQUIDITY_LOCK_TTL || '60'),
+          },
+        },
+      },
+    },
     blockchainMetrics: {
       interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '600000'),
       lock: {
@@ -434,6 +445,11 @@ const settings: Settings = {
         subgraphUrl: <string>process.env['SOVRYN_SUBGRAPH_API'],
       },
     },
+    [DexProtocolName.UNISWAP_V3]: {
+      [ChainsIds.ETH]: {
+        subgraphUrl: <string>process.env['ETHEREUM_UNISWAPV3_SUBGRAPH_API'],
+      },
+    },
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
   feedsFile:
@@ -470,6 +486,10 @@ const settings: Settings = {
 
 function getTimeSetting(value: number, min: number): number {
   return value > min ? value : min;
+}
+
+function getDayInMillisecond(days: number): number {
+  return days * 1000 * 60 * 60 * 24;
 }
 
 function resolveBlockchainProviders() {

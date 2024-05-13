@@ -31,6 +31,29 @@ export class FeedDataService {
     return {feeds: leavesAndFeeds};
   }
 
+  getParamsByFetcherName<T>(data: LeavesAndFeeds, fetcherName: string): T[] {
+    const {fcdsFeeds, leavesFeeds} = data;
+
+    if (Object.keys(fcdsFeeds).length === 0 && Object.keys(leavesFeeds).length === 0) {
+      throw new Error('[FeedDataService] No leaves to process');
+    }
+
+    const fetcherParams = [];
+
+    for (const [i, feed] of Object.entries(leavesFeeds)) {
+      const feedInput = feed.inputs.find((entry) => {
+        return entry.fetcher.name === fetcherName;
+      });
+
+      if (feedInput) {
+        const params = feedInput.fetcher.params as T;
+        fetcherParams.push({...params});
+      }
+    }
+
+    return fetcherParams;
+  }
+
   protected async getLeavesAndFeeds(dataTimestamp: number, filter: string[]): Promise<LeavesAndFeeds> {
     const fcdFeeds = await this.feedRepository.getFcdFeeds(filter);
     const leafFeeds = await this.feedRepository.getLeafFeeds(filter);

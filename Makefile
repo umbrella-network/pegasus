@@ -62,6 +62,8 @@ publish-bsc1:
 	# @kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-feedwsdata-worker-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-deviation-leader-worker-bsc01 -n dev
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-deviation-leader-worker-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-uniswapv3-liquidity-worker-bsc01 -n dev
+	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-uniswapv3-liquidity-worker-bsc01 -n dev
 
 publish-bsc2:
 	@kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc02 -n dev
