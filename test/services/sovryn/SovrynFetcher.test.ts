@@ -1,30 +1,14 @@
 import {expect} from 'chai';
 
+import {
+  SovrynPriceFetcher,
+  SovrynConnectionBase,
+  Prices,
+  Pair,
+} from '../../../src/services/dexes/sovryn/SovrynPriceFetcher.js';
+
 const nodeUrl = 'https://sovryn.node.com';
 const sovrynHelperContractAddress = '0x11111111111111111111';
-
-export interface Pair {
-  inputTokenAddress: string;
-  outputTokenAddress: string;
-  amount: string;
-}
-
-export interface Prices {
-  values: string[];
-  timestamp: string;
-}
-
-abstract class SovrynConnectionBase {
-  blockchainNodeUrl: string;
-  sovrynHelperContractAddress: string;
-
-  constructor(blockchainNodeUrl: string, sovrynHelperContractAddress: string) {
-    this.blockchainNodeUrl = blockchainNodeUrl;
-    this.sovrynHelperContractAddress = sovrynHelperContractAddress;
-  }
-
-  abstract getPrices(pairs: Pair[]): Prices;
-}
 
 class SovrynConnectionMock extends SovrynConnectionBase {
   prices!: Prices;
@@ -42,15 +26,15 @@ class SovrynConnectionMock extends SovrynConnectionBase {
 describe('SovrynFetcher', () => {
   it('creates successfully an instance of the SovrynFetcher', () => {
     const sovrynConnection = new SovrynConnectionMock(nodeUrl, sovrynHelperContractAddress, {} as Prices);
-    const sovrynFetcher = new SovrynFetcher(sovrynConnection);
+    const sovrynFetcher = new SovrynPriceFetcher(sovrynConnection);
 
     expect(sovrynFetcher !== undefined);
   });
 
-  it('fetches the prices for the pairs passed', () => {
+  it('fetches the prices for the pairs passed', async () => {
     const expectedPrices = {values: ['12982.92', '19281.341239', '238982.23'], timestamp: '3283723933'};
     const sovrynConnection = new SovrynConnectionMock(nodeUrl, sovrynHelperContractAddress, expectedPrices);
-    const sovrynFetcher = new SovrynFetcher(sovrynConnection);
+    const sovrynFetcher = new SovrynPriceFetcher(sovrynConnection);
 
     const pairs: Pair[] = [
       {
@@ -70,7 +54,7 @@ describe('SovrynFetcher', () => {
       },
     ];
 
-    const prices = sovrynFetcher.GetPrices(pairs);
+    const prices = await sovrynFetcher.getPrices(pairs);
 
     expect(prices).to.eql(expectedPrices);
   });
