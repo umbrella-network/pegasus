@@ -1,5 +1,5 @@
 import path from 'path';
-import {Contract} from 'ethers';
+import ethers, {Contract} from 'ethers';
 import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
 
@@ -18,27 +18,21 @@ export type PairRequest = {
 };
 
 export abstract class SovrynHelperBase {
-  blockchainNodeUrl: string;
-  sovrynHelperContractAddress: string;
-
-  constructor(blockchainNodeUrl: string, sovrynHelperContractAddress: string) {
-    this.blockchainNodeUrl = blockchainNodeUrl;
-    this.sovrynHelperContractAddress = sovrynHelperContractAddress;
-  }
+  contract!: Contract;
 
   abstract getPrices(pairs: PairRequest[]): Promise<PricesResponse>;
 }
 
 export class SovrynHelper extends SovrynHelperBase {
   protected ABI!: never;
-  readonly contract!: Contract;
 
   constructor(contractAddress: string, blockchainNodeUrl: string) {
-    super(contractAddress, blockchainNodeUrl);
+    super();
 
     this.ABI = JSON.parse(readFileSync(__dirname + '/UniswapV3Helper.abi.json', 'utf-8')) as never;
 
-    //this.contract = new Contract(this.sovrynHelperContractAddress, this.ABI, this.provider);
+    const provider = new ethers.providers.JsonRpcProvider(blockchainNodeUrl);
+    this.contract = new Contract(contractAddress, this.ABI, provider);
   }
 
   async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {

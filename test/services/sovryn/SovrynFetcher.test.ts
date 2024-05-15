@@ -4,14 +4,11 @@ import {SovrynPriceFetcher} from '../../../src/services/dexes/sovryn/SovrynPrice
 
 import {PricesResponse, PairRequest, SovrynHelperBase} from '../../../src/blockchains/evm/contracts/SovrynHelper.js';
 
-const nodeUrl = 'https://sovryn.node.com';
-const sovrynHelperContractAddress = '0x11111111111111111111';
-
 class SovrynHelperMock extends SovrynHelperBase {
   prices!: PricesResponse;
 
-  constructor(blockchainNodeUrl: string, sovrynHelperContractAddress: string, pricesToReturn: PricesResponse) {
-    super(blockchainNodeUrl, sovrynHelperContractAddress);
+  constructor(pricesToReturn: PricesResponse) {
+    super();
     this.prices = pricesToReturn;
   }
 
@@ -22,7 +19,7 @@ class SovrynHelperMock extends SovrynHelperBase {
 
 describe('SovrynFetcher', () => {
   it('creates successfully an instance of the SovrynFetcher', () => {
-    const sovrynConnection = new SovrynHelperMock(nodeUrl, sovrynHelperContractAddress, {} as PricesResponse);
+    const sovrynConnection = new SovrynHelperMock({} as PricesResponse);
     const sovrynFetcher = new SovrynPriceFetcher(sovrynConnection);
 
     expect(sovrynFetcher !== undefined);
@@ -30,7 +27,7 @@ describe('SovrynFetcher', () => {
 
   it('fetches the prices for the pairs passed', async () => {
     const expectedPrices = {values: ['12982.92', '19281.341239', '238982.23'], timestamp: '3283723933'};
-    const sovrynConnection = new SovrynHelperMock(nodeUrl, sovrynHelperContractAddress, expectedPrices);
+    const sovrynConnection = new SovrynHelperMock(expectedPrices);
     const sovrynFetcher = new SovrynPriceFetcher(sovrynConnection);
 
     const pairs: PairRequest[] = [
