@@ -1,40 +1,19 @@
-export interface Pair {
-  inputTokenAddress: string;
-  outputTokenAddress: string;
-  amount: string;
-}
-
-export interface Prices {
-  values: string[];
-  timestamp: string;
-}
-
-export abstract class SovrynConnectionBase {
-  blockchainNodeUrl: string;
-  sovrynHelperContractAddress: string;
-
-  constructor(blockchainNodeUrl: string, sovrynHelperContractAddress: string) {
-    this.blockchainNodeUrl = blockchainNodeUrl;
-    this.sovrynHelperContractAddress = sovrynHelperContractAddress;
-  }
-
-  abstract getPrices(pairs: Pair[]): Prices;
-}
+import {PricesResponse, PairRequest, SovrynHelperBase} from '../../../blockchains/evm/contracts/SovrynHelper.js';
 
 export abstract class SovrynPriceFetcherBase {
-  sovrynConnection!: SovrynConnectionBase;
-  constructor(sovrynConnection: SovrynConnectionBase) {
+  sovrynConnection!: SovrynHelperBase;
+  constructor(sovrynConnection: SovrynHelperBase) {
     this.sovrynConnection = sovrynConnection;
   }
-  abstract getPrices(pairs: Pair[]): Promise<Prices>;
+  abstract getPrices(pairs: PairRequest[]): Promise<PricesResponse>;
 }
 
 export class SovrynPriceFetcher extends SovrynPriceFetcherBase {
-  constructor(sovrynConnection: SovrynConnectionBase) {
+  constructor(sovrynConnection: SovrynHelperBase) {
     super(sovrynConnection);
   }
 
-  async getPrices(pairs: Pair[]): Promise<Prices> {
+  async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {
     const prices = await this.sovrynConnection.getPrices(pairs);
 
     return prices;
