@@ -15,6 +15,7 @@ import EvmTWAPGasPriceFetcher from './EvmTWAPGasPriceFetcher.js';
 import MetalPriceApiFetcher from './MetalPriceApiFetcher.js';
 import MetalsDevApiPriceFetcher from './MetalsDevApiFetcher.js';
 import GoldApiPriceFetcher from './GoldApiPriceFetcher.js';
+import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
 
 export {
   CryptoComparePriceMultiFetcher,
@@ -34,4 +35,5 @@ export {
   GoldApiPriceFetcher,
   MetalPriceApiFetcher,
   MetalsDevApiPriceFetcher,
+  SovrynPriceFetcher,
 };
