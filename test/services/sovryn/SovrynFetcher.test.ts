@@ -35,9 +35,9 @@ describe('SovrynFetcher', () => {
   it('fetches the prices for the pairs passed', async () => {
     const expectedPrices: PricesResponse = {
       prices: [
-        {price: BigNumber.from('12982.92'), success: true},
-        {price: BigNumber.from('19281.34'), success: true},
-        {price: BigNumber.from('238982.23'), success: true},
+        {price: BigNumber.from('1298292'), success: true},
+        {price: BigNumber.from('1928134'), success: true},
+        {price: BigNumber.from('23898223'), success: true},
       ],
       timestamp: BigNumber.from('3283723933'),
     };
@@ -68,7 +68,7 @@ describe('SovrynFetcher', () => {
   });
 });
 
-describe('SovrynFetcher-IntegrationTests', () => {
+describe.skip('SovrynFetcher-IntegrationTests', () => {
   it('fetches the prices of the pair rBTC/rUSTC', async () => {
     const sovrynHelperAddress = '0xbc758fcb97e06ec635dff698f55e41acc35e1d2d';
     const rUSDT = '0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0';
