@@ -448,7 +448,6 @@ export default {
         params: {
           type: 'object',
           properties: {
-            fromChain: {type: 'array'},
             base: {type: 'string'},
             quote: {type: 'string'},
             amount: {type: 'bigint'},
