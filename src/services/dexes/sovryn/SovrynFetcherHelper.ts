@@ -28,13 +28,13 @@ export abstract class SovrynHelperBase {
   abstract getPrices(pairs: PairRequest[]): Promise<PricesResponse>;
 }
 
-export class SovrynHelper extends SovrynHelperBase {
+export class SovrynFetcherHelper extends SovrynHelperBase {
   protected ABI!: never;
 
   constructor(contractAddress: string, blockchainNodeUrl: string) {
     super();
 
-    this.ABI = JSON.parse(readFileSync(__dirname + '/SovrynHelper.abi.json', 'utf-8')).abi as never;
+    this.ABI = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
     const provider = new ethers.providers.JsonRpcProvider(blockchainNodeUrl);
     this.contract = new Contract(contractAddress, this.ABI, provider);

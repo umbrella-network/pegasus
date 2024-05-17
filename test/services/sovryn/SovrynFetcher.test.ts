@@ -5,7 +5,7 @@ import {SovrynPriceFetcher} from '../../../src/services/dexes/sovryn/SovrynPrice
 import {
   PricesResponse,
   PairRequest,
-  SovrynHelper,
+  SovrynFetcherHelper,
   SovrynHelperBase,
 } from '../../../src/services/dexes/sovryn/SovrynFetcherHelper.js';
 
@@ -68,7 +68,7 @@ describe('SovrynFetcher', () => {
   });
 });
 
-describe.skip('SovrynFetcher-IntegrationTests', () => {
+describe('SovrynFetcher-IntegrationTests', () => {
   it('fetches the prices of the pair rBTC/rUSTC', async () => {
     const sovrynHelperAddress = '0xbc758fcb97e06ec635dff698f55e41acc35e1d2d';
     const rUSDT = '0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0';
@@ -77,7 +77,7 @@ describe.skip('SovrynFetcher-IntegrationTests', () => {
     const amount = 10 ** 8;
 
     const requestPairs: PairRequest[] = [{base: weBTC, quote: rUSDT, amount}];
-    const sovrynConnection = new SovrynHelper(sovrynHelperAddress, testnetNodeUrl);
+    const sovrynConnection = new SovrynFetcherHelper(sovrynHelperAddress, testnetNodeUrl);
     const sovrynFetcher = new SovrynPriceFetcher(sovrynConnection);
 
     const result: PricesResponse = await sovrynFetcher.getPrices(requestPairs);
