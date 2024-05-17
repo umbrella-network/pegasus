@@ -1,3 +1,4 @@
+import {injectable} from 'inversify';
 import path from 'path';
 import ethers, {BigNumber, Contract} from 'ethers';
 import {readFileSync} from 'fs';
@@ -22,12 +23,14 @@ export type PairRequest = {
   amount: bigint | number;
 };
 
+@injectable()
 export abstract class SovrynHelperBase {
   contract!: Contract;
 
   abstract getPrices(pairs: PairRequest[]): Promise<PricesResponse>;
 }
 
+@injectable()
 export class SovrynFetcherHelper extends SovrynHelperBase {
   protected ABI!: never;
 

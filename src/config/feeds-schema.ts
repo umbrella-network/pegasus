@@ -444,13 +444,13 @@ export default {
     },
     SovrynPriceFetcher: {
       properties: {
-        name: {const: 'Sovryn'},
+        name: {const: 'SovrynPriceFetcher'},
         params: {
           type: 'object',
           properties: {
             base: {type: 'string'},
             quote: {type: 'string'},
-            amount: {type: 'bigint'},
+            amount: {type: 'string'},
           },
           required: ['base', 'quote', 'amount'],
           additionalProperties: false,
