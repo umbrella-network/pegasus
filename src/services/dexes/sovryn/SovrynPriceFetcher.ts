@@ -1,4 +1,4 @@
-import {PricesResponse, PairRequest, SovrynHelperBase} from '../../../blockchains/evm/contracts/SovrynHelper.js';
+import {PricesResponse, PairRequest, SovrynHelperBase} from './SovrynFetcherHelper.js';
 import {FeedFetcherInterface} from 'src/types/fetchers.js';
 
 export class SovrynPriceFetcher implements FeedFetcherInterface {
