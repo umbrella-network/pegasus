@@ -7,7 +7,7 @@ import {
   PairRequest,
   SovrynHelper,
   SovrynHelperBase,
-} from '../../../src/blockchains/evm/contracts/SovrynHelper.js';
+} from '../../../src/services/dexes/sovryn/SovrynFetcherHelper.js';
 
 import {BigNumber} from 'ethers';
 
