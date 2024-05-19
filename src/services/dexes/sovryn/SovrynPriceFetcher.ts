@@ -1,32 +1,21 @@
 import {injectable} from 'inversify';
-import {PricesResponse, PairRequest, SovrynFetcherHelperBase} from './SovrynFetcherHelper.js';
+import {PricesResponse, PairRequest, SovrynFetcherHelper, SovrynFetcherHelperBase} from './SovrynFetcherHelper.js';
 import {FeedFetcherInterface} from 'src/types/fetchers.js';
 
 /*
-For getting the prices of different Sovryn pools the `pairs` argument of
-targetPrices(pairs) should have the following structure:
+For getting the prices of different of a Sovryn pool the `base` (input token)
+and `quote` (output token), and the `amount` of the input token should be provided.
 
-const pairs = [
-    {
-        base: "0x<address_of_base_token_contract>"
-        quote: "0x<address_of_quote_token_contract>"
-        amount: "amount of base token that would be used as trade input"
-    },
-    ...
-]
-
-The output would have the following structure:
-
-prices = [
-    {
-        price: {
-            price: BigInt
-            success: <true: the pair exists | false: the pair doesn't exist>
-        },
-        timestamp
-    },
-    ...
-]
+weBTC-rUSDT:
+  discrepancy: 1
+  precision: 2
+  inputs:
+    - fetcher:
+        name: SovrynPriceFetcher
+        params:
+          base: '0x69fe5cec81d5ef92600c1a0db1f11986ab3758ab'
+          quote: '0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0'
+          amount: "1000"
 */
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
@@ -40,8 +29,16 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
     return await this.sovrynConnection.getPrices(pairs);
   }
 
-  async apply(pairs: PairRequest[]): Promise<number[]> {
-    const prices = this.getPrices(pairs);
-    return (await prices).prices.map((price) => price.price.toNumber());
+  async apply(pair: PairRequest): Promise<number> {
+    const sovrynHelperAddress = '0xbc758fcb97e06ec635dff698f55e41acc35e1d2d';
+    const testnetNodeUrl = 'https://public-node.testnet.rsk.co/';
+    const sovrynConnection = new SovrynFetcherHelper(sovrynHelperAddress, testnetNodeUrl);
+
+    pair.amount = Number(pair.amount);
+    const prices = await sovrynConnection.getPrices([pair]);
+
+    const result = prices.prices[0].price.toNumber();
+    console.log(result);
+    return result;
   }
 }

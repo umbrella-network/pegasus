@@ -71,15 +71,14 @@ describe('SovrynFetcher', () => {
 describe('SovrynFetcher-IntegrationTests', () => {
   it('fetches the prices of the pair rBTC/rUSTC', async () => {
     const sovrynHelperAddress = '0xbc758fcb97e06ec635dff698f55e41acc35e1d2d';
-    const rUSDT = '0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0';
-    const weBTC = '0x69fe5cec81d5ef92600c1a0db1f11986ab3758ab';
     const testnetNodeUrl = 'https://public-node.testnet.rsk.co/';
-    const amount = 10 ** 8;
-
-    const requestPairs: PairRequest[] = [{base: weBTC, quote: rUSDT, amount}];
     const sovrynConnection = new SovrynFetcherHelper(sovrynHelperAddress, testnetNodeUrl);
     const sovrynFetcher = new SovrynPriceFetcher(sovrynConnection);
 
+    const rUSDT = '0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0';
+    const weBTC = '0x69fe5cec81d5ef92600c1a0db1f11986ab3758ab';
+    const amount = 10 ** 8;
+    const requestPairs: PairRequest[] = [{base: weBTC, quote: rUSDT, amount}];
     const result: PricesResponse = await sovrynFetcher.getPrices(requestPairs);
 
     console.log('timestamp:', result.timestamp.toString());
