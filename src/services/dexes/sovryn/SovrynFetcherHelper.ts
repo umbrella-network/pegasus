@@ -24,14 +24,14 @@ export type PairRequest = {
 };
 
 @injectable()
-export abstract class SovrynHelperBase {
+export abstract class SovrynFetcherHelperBase {
   contract!: Contract;
 
   abstract getPrices(pairs: PairRequest[]): Promise<PricesResponse>;
 }
 
 @injectable()
-export class SovrynFetcherHelper extends SovrynHelperBase {
+export class SovrynFetcherHelper extends SovrynFetcherHelperBase {
   protected ABI!: never;
 
   constructor(contractAddress: string, blockchainNodeUrl: string) {

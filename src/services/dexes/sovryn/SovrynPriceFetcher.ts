@@ -1,5 +1,5 @@
 import {injectable} from 'inversify';
-import {PricesResponse, PairRequest, SovrynHelperBase} from './SovrynFetcherHelper.js';
+import {PricesResponse, PairRequest, SovrynFetcherHelperBase} from './SovrynFetcherHelper.js';
 import {FeedFetcherInterface} from 'src/types/fetchers.js';
 
 /*
@@ -30,9 +30,9 @@ prices = [
 */
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
-  sovrynConnection!: SovrynHelperBase;
+  sovrynConnection!: SovrynFetcherHelperBase;
 
-  constructor(sovrynConnection: SovrynHelperBase) {
+  constructor(sovrynConnection: SovrynFetcherHelperBase) {
     this.sovrynConnection = sovrynConnection;
   }
 

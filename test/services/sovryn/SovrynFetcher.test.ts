@@ -6,12 +6,12 @@ import {
   PricesResponse,
   PairRequest,
   SovrynFetcherHelper,
-  SovrynHelperBase,
+  SovrynFetcherHelperBase,
 } from '../../../src/services/dexes/sovryn/SovrynFetcherHelper.js';
 
 import {BigNumber} from 'ethers';
 
-class SovrynHelperMock extends SovrynHelperBase {
+class SovrynHelperMock extends SovrynFetcherHelperBase {
   prices!: PricesResponse;
 
   constructor(pricesToReturn: PricesResponse) {
