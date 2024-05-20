@@ -14,7 +14,7 @@ import {TimeoutCodes} from '../types/TimeoutCodes.js';
 import {timeoutWithCode} from '../utils/request.js';
 import './setupDotenv.js';
 import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
-import {DexProtocolName} from '../types/DexProtocolName.js';
+import {DexProtocolName} from '../types/Dexes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -434,6 +434,13 @@ const settings: Settings = {
       },
     },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
+  },
+  dexes: {
+    [DexProtocolName.SOVRYN]: {
+      [ChainsIds.ROOTSTOCK]: {
+        subgraphUrl: <string>process.env['SOVRYN_SUBGRAPH_API'],
+      },
+    },
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
   feedsFile:
