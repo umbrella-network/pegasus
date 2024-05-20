@@ -1,11 +1,14 @@
 import {inject, injectable} from 'inversify';
 import path from 'path';
-import ethers, {BigNumber, Contract} from 'ethers';
+import {BigNumber, Contract} from 'ethers';
 import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
+import {BaseProvider} from '@ethersproject/providers';
 
 import {FeedFetcherInterface} from 'src/types/fetchers.js';
 import Settings from 'src/types/Settings';
+import {ProviderRepository} from '../../../repositories/ProviderRepository.js';
+import {ChainsIds} from '../../../types/ChainsIds.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,15 +49,15 @@ weBTC-rUSDT:
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject('Settings') settings!: Settings;
+  @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
   async apply(pair: PairRequest): Promise<number> {
     pair.amount = Number(pair.amount);
 
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
-    const blockchainNodeUrl = this.settings.blockchain.multiChains.rootstock?.providerUrl as string;
     const contractAddress = this.settings.dexes.sovryn?.rootstock?.helperContractAddress as string;
-    const provider = new ethers.providers.JsonRpcProvider(blockchainNodeUrl);
+    const provider = this.providerRepository.get(ChainsIds.ROOTSTOCK).getRawProviderSync<BaseProvider>();
     const contract = new Contract(contractAddress, abi, provider);
 
     const prices = await contract.callStatic.getPrices([pair]);
