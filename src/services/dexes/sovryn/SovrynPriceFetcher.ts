@@ -20,23 +20,15 @@ weBTC-rUSDT:
 */
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
-  @inject('SovrynFetcherHelper') sovrynConnection!: SovrynFetcherHelperBase;
-
-  constructor(sovrynConnection: SovrynFetcherHelperBase) {
-    this.sovrynConnection = sovrynConnection;
-  }
+  @inject('SovrynFetcherHelper') sovrynFetcherHelper!: SovrynFetcherHelperBase;
 
   async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {
-    return await this.sovrynConnection.getPrices(pairs);
+    return await this.sovrynFetcherHelper.getPrices(pairs);
   }
 
   async apply(pair: PairRequest): Promise<number> {
-    const sovrynHelperAddress = '0xbc758fcb97e06ec635dff698f55e41acc35e1d2d';
-    const testnetNodeUrl = 'https://public-node.testnet.rsk.co/';
-    //const sovrynConnection = new SovrynFetcherHelper(sovrynHelperAddress, testnetNodeUrl);
-
     pair.amount = Number(pair.amount);
-    const prices = await this.sovrynConnection.getPrices([pair]);
+    const prices = await this.sovrynFetcherHelper.getPrices([pair]);
 
     const bigIntPrice = prices.prices[0].price.toBigInt();
 
