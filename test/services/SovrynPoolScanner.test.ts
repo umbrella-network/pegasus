@@ -7,7 +7,6 @@ import {
   SearchToken,
   SovrynPoolRepository,
 } from '../../src/services/dexes/sovryn/SovrynPoolRepository.js';
-
 import {GraphClient, GraphClientBase} from '../../src/services/graph/GraphClient.js';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
 
