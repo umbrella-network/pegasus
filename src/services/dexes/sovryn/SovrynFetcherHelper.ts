@@ -1,8 +1,10 @@
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import path from 'path';
 import ethers, {BigNumber, Contract} from 'ethers';
 import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
+
+import Settings from 'src/types/Settings';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,25 +29,20 @@ export type PairRequest = {
 @injectable()
 export abstract class SovrynFetcherHelperBase {
   contract!: Contract;
-
   abstract getPrices(pairs: PairRequest[]): Promise<PricesResponse>;
 }
 
 @injectable()
 export class SovrynFetcherHelper extends SovrynFetcherHelperBase {
-  protected ABI!: never;
-
-  constructor(contractAddress: string, blockchainNodeUrl: string) {
-    super();
-
-    this.ABI = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
-
-    const provider = new ethers.providers.JsonRpcProvider(blockchainNodeUrl);
-    this.contract = new Contract(contractAddress, this.ABI, provider);
-  }
+  @inject('Settings') settings!: Settings;
 
   async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {
-    const result = await this.contract.callStatic.getPrices(pairs);
-    return result;
+    const blockchainNodeUrl = this.settings.blockchain.multiChains.rootstock?.providerUrl;
+    const contractAddress = this.settings.dexes.sovryn?.rootstock?.helperContractAddress as string;
+    const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
+
+    const provider = new ethers.providers.JsonRpcProvider(blockchainNodeUrl);
+    this.contract = new Contract(contractAddress, abi, provider);
+    return await this.contract.callStatic.getPrices(pairs);
   }
 }

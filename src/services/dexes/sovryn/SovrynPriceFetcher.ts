@@ -1,4 +1,4 @@
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {PricesResponse, PairRequest, SovrynFetcherHelper, SovrynFetcherHelperBase} from './SovrynFetcherHelper.js';
 import {FeedFetcherInterface} from 'src/types/fetchers.js';
 
@@ -20,7 +20,7 @@ weBTC-rUSDT:
 */
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
-  sovrynConnection!: SovrynFetcherHelperBase;
+  @inject('SovrynFetcherHelper') sovrynConnection!: SovrynFetcherHelperBase;
 
   constructor(sovrynConnection: SovrynFetcherHelperBase) {
     this.sovrynConnection = sovrynConnection;
@@ -33,10 +33,10 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   async apply(pair: PairRequest): Promise<number> {
     const sovrynHelperAddress = '0xbc758fcb97e06ec635dff698f55e41acc35e1d2d';
     const testnetNodeUrl = 'https://public-node.testnet.rsk.co/';
-    const sovrynConnection = new SovrynFetcherHelper(sovrynHelperAddress, testnetNodeUrl);
+    //const sovrynConnection = new SovrynFetcherHelper(sovrynHelperAddress, testnetNodeUrl);
 
     pair.amount = Number(pair.amount);
-    const prices = await sovrynConnection.getPrices([pair]);
+    const prices = await this.sovrynConnection.getPrices([pair]);
 
     const bigIntPrice = prices.prices[0].price.toBigInt();
 
