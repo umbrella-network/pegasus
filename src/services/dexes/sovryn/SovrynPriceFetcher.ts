@@ -1,6 +1,31 @@
 import {inject, injectable} from 'inversify';
-import {PricesResponse, PairRequest, SovrynPriceFetcherHelperBase} from './SovrynPriceFetcherHelper.js';
+import path from 'path';
+import ethers, {BigNumber, Contract} from 'ethers';
+import {readFileSync} from 'fs';
+import {fileURLToPath} from 'url';
+
 import {FeedFetcherInterface} from 'src/types/fetchers.js';
+import Settings from 'src/types/Settings';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export interface Price {
+  price: BigNumber;
+  success: boolean;
+}
+
+export type PricesResponse = {
+  prices: Price[];
+  timestamp: BigNumber;
+};
+
+export type PairRequest = {
+  base: string;
+  quote: string;
+  quoteDecimals: number;
+  amount: bigint | number;
+};
 
 /*
 For getting the prices of different of a Sovryn pool the `base` (input token)
@@ -20,15 +45,19 @@ weBTC-rUSDT:
 */
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
-  @inject('SovrynFetcherHelper') sovrynFetcherHelper!: SovrynPriceFetcherHelperBase;
-
-  async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {
-    return await this.sovrynFetcherHelper.getPrices(pairs);
-  }
+  @inject('Settings') settings!: Settings;
 
   async apply(pair: PairRequest): Promise<number> {
     pair.amount = Number(pair.amount);
-    const prices = await this.sovrynFetcherHelper.getPrices([pair]);
+
+    const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
+
+    const blockchainNodeUrl = this.settings.blockchain.multiChains.rootstock?.providerUrl as string;
+    const contractAddress = this.settings.dexes.sovryn?.rootstock?.helperContractAddress as string;
+    const provider = new ethers.providers.JsonRpcProvider(blockchainNodeUrl);
+    const contract = new Contract(contractAddress, abi, provider);
+
+    const prices = await contract.callStatic.getPrices([pair]);
 
     const bigIntPrice = prices.prices[0].price.toBigInt();
 
