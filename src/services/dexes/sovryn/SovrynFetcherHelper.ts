@@ -20,6 +20,7 @@ export type PricesResponse = {
 export type PairRequest = {
   base: string;
   quote: string;
+  quoteDecimals: number;
   amount: bigint | number;
 };
 

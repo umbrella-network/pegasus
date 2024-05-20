@@ -450,6 +450,7 @@ export default {
           properties: {
             base: {type: 'string'},
             quote: {type: 'string'},
+            quoteDecimals: {type: 'number'},
             amount: {type: 'string'},
           },
           required: ['base', 'quote', 'amount'],
