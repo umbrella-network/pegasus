@@ -1,5 +1,5 @@
 import {inject, injectable} from 'inversify';
-import {PricesResponse, PairRequest, SovrynFetcherHelper, SovrynFetcherHelperBase} from './SovrynFetcherHelper.js';
+import {PricesResponse, PairRequest, SovrynPriceFetcherHelperBase} from './SovrynPriceFetcherHelper.js';
 import {FeedFetcherInterface} from 'src/types/fetchers.js';
 
 /*
@@ -20,7 +20,7 @@ weBTC-rUSDT:
 */
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
-  @inject('SovrynFetcherHelper') sovrynFetcherHelper!: SovrynFetcherHelperBase;
+  @inject('SovrynFetcherHelper') sovrynFetcherHelper!: SovrynPriceFetcherHelperBase;
 
   async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {
     return await this.sovrynFetcherHelper.getPrices(pairs);

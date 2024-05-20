@@ -5,14 +5,14 @@ import {
   PricesResponse,
   PairRequest,
   SovrynFetcherHelper,
-  SovrynFetcherHelperBase,
-} from '../../../src/services/dexes/sovryn/SovrynFetcherHelper.js';
+  SovrynPriceFetcherHelperBase,
+} from '../../../src/services/dexes/sovryn/SovrynPriceFetcherHelper.js';
 
 import {BigIntToFloatingPoint, SovrynPriceFetcher} from '../../../src/services/dexes/sovryn/SovrynPriceFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import Settings from '../../../src/types/Settings.js';
 
-class SovrynHelperMock extends SovrynFetcherHelperBase {
+class SovrynHelperMock extends SovrynPriceFetcherHelperBase {
   prices!: PricesResponse;
 
   constructor(pricesToReturn: PricesResponse) {

@@ -27,13 +27,13 @@ export type PairRequest = {
 };
 
 @injectable()
-export abstract class SovrynFetcherHelperBase {
+export abstract class SovrynPriceFetcherHelperBase {
   contract!: Contract;
   abstract getPrices(pairs: PairRequest[]): Promise<PricesResponse>;
 }
 
 @injectable()
-export class SovrynFetcherHelper extends SovrynFetcherHelperBase {
+export class SovrynFetcherHelper extends SovrynPriceFetcherHelperBase {
   @inject('Settings') settings!: Settings;
 
   async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {
