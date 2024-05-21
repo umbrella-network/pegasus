@@ -46,12 +46,13 @@ weBTC-rUSDT:
 */
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
-  @inject('Settings') settings!: Settings;
-  @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
+  @inject('Settings') private settings!: Settings;
+  @inject(ProviderRepository) private providerRepository!: ProviderRepository;
 
-  async getPrice(pair: PairRequest): Promise<PricesResponse> {
+  private async getPrice(pair: PairRequest): Promise<PricesResponse> {
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
+    // TODO: the contract address should be get from the registry contract
     const contractAddress = this.settings.dexes.sovryn?.rootstock?.helperContractAddress as string;
     const provider = this.providerRepository.get(ChainsIds.ROOTSTOCK).getRawProviderSync<BaseProvider>();
     const contract = new Contract(contractAddress, abi, provider);
