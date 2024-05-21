@@ -429,7 +429,7 @@ const settings: Settings = {
     pools: {
       [ChainsIds.ETH]: {
         [DexProtocolName.UNISWAP_V3]: {
-          helperContractId: <string>process.env['UNISWAPV3_HELPER_CONTRACT_ID'],
+          helperContractAddress: <string>process.env.UNISWAPV3_HELPER_CONTRACT_ADDRESS,
         },
       },
     },
