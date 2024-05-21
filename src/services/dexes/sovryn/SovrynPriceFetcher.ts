@@ -26,8 +26,7 @@ export type PricesResponse = {
 export type PairRequest = {
   base: string;
   quote: string;
-  amount: bigint | number;
-  quoteDecimals: number;
+  amountInDecimals: bigint | number;
 };
 
 /*
@@ -51,8 +50,8 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject('Settings') settings!: Settings;
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
-  async apply(pair: PairRequest): Promise<number> {
-    pair.amount = Number(pair.amount);
+  async getPrice(pair: PairRequest): Promise<PricesResponse> {
+    //pair.amountInDecimals = Number(pair.amountInDecimals);
 
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
@@ -60,11 +59,15 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
     const provider = this.providerRepository.get(ChainsIds.ROOTSTOCK).getRawProviderSync<BaseProvider>();
     const contract = new Contract(contractAddress, abi, provider);
 
-    const prices = await contract.callStatic.getPrices([pair]);
+    return await contract.callStatic.getPrices([pair]);
+  }
+
+  async apply(pair: PairRequest): Promise<number> {
+    const prices = await this.getPrice(pair);
 
     const bigIntPrice = prices.prices[0].price.toBigInt();
 
-    return BigIntToFloatingPoint(bigIntPrice, pair.quoteDecimals);
+    return BigIntToFloatingPoint(bigIntPrice, 18);
   }
 }
 

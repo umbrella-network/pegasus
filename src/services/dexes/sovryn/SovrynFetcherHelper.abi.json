@@ -1,4 +1,4 @@
-  {
+{
   "_format": "hh-sol-artifact-1",
   "contractName": "SovrynFetcherHelper",
   "sourceName": "contracts/fetchers/soveryn/SovrynFetcherHelper.sol",
@@ -29,9 +29,9 @@
               "type": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
+              "internalType": "uint8",
+              "name": "amountInDecimals",
+              "type": "uint8"
             }
           ],
           "internalType": "struct SovrynFetcherHelper.InputData[]",

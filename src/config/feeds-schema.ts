@@ -450,10 +450,10 @@ export default {
           properties: {
             base: {type: 'string'},
             quote: {type: 'string'},
+            amountInDecimals: {type: 'number'},
             quoteDecimals: {type: 'number'},
-            amount: {type: 'string'},
           },
-          required: ['base', 'quote', 'amount'],
+          required: ['base', 'quote', 'amountInDecimals'],
           additionalProperties: false,
         },
       },
