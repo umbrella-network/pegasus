@@ -44,7 +44,7 @@ export class ContractHelperRepository {
 
         dexProtocolKey.forEach((dexProtocol) => {
           logPrefix = `[ContractHelperRepository][${chainId}][${dexProtocol}]`;
-          const contractAddress = settings.api.pools[chainId]?.[dexProtocol]?.helperContractId;
+          const contractAddress = settings.api.pools[chainId]?.[dexProtocol]?.helperContractAddress;
 
           if (!contractAddress) {
             logger.error(`${logPrefix} empty contractAddress`);

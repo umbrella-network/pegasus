@@ -1,5 +1,4 @@
 import {ChainsIds} from './ChainsIds.js';
-import {DexProtocolName} from './DexProtocolName.js';
 import {SubmitMonitor} from './SubmitMonitor.js';
 import {DexProtocolName, DexAPISettings} from './Dexes.js';
 
@@ -29,8 +28,8 @@ export type BlockchainSettings = {
   };
 };
 
-export type DexAPISettings = {
-  helperContractId: string;
+export type DexPoolAPISettings = {
+  helperContractAddress: string;
 };
 
 interface SubmitMonitorExt extends SubmitMonitor {
@@ -207,7 +206,7 @@ type Settings = {
       apiKey: string;
       timeout: number;
     };
-    pools: Partial<Record<ChainsIds, Record<DexProtocolName, DexAPISettings>>>;
+    pools: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, DexPoolAPISettings>>>>;
     priceFreshness: number;
   };
   dexes: Partial<Record<DexProtocolName, Partial<Record<ChainsIds, DexAPISettings>>>>;
