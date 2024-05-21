@@ -18,9 +18,11 @@ export class UniswapV3LiquidityCalculator {
   @inject(ActiveLiquititySDK) activeLiquititySDK!: ActiveLiquititySDK;
 
   async apply(poolAddress: string, token0: Token, token1: Token, fee: FeeAmount, chainId: ChainsIds) {
+    // TODO get helper address from registry
     const provider = this.blockchainProviderRepository.get(chainId);
     const poolContract = new ethers.Contract(poolAddress, IUniswapV3PoolABI.abi, provider);
 
+    // TODO replace with contract call
     const [slot0, liquidity, graphTicks] = await Promise.all([
       poolContract.slot0(),
       poolContract.liquidity(),
@@ -41,6 +43,7 @@ export class UniswapV3LiquidityCalculator {
 
     const tickSpacing = TICK_SPACINGS[fee];
     const fullPool = new Pool(token0, token1, fee, slot0.sqrtPriceX96, liquidity, slot0.tick, sdkTicks);
+    // reference: https://docs.uniswap.org/sdk/v3/guides/advanced/active-liquidity#calculating-active-liquidity
     const activeTickIdx = Math.floor(fullPool.tickCurrent / tickSpacing) * tickSpacing;
     const numSurroundingTicks = 100;
 
@@ -48,10 +51,10 @@ export class UniswapV3LiquidityCalculator {
       activeTickIdx,
       fullPool.liquidity,
       tickSpacing,
-      fullPool.token0,
-      fullPool.token1,
+      token1,
+      token0,
       numSurroundingTicks,
-      fullPool.fee,
+      fee,
       graphTicks,
     );
   }

@@ -31,16 +31,16 @@ export class FeedDataService {
     return {feeds: leavesAndFeeds};
   }
 
-  getParamsByFetcherName<T>(data: LeavesAndFeeds, fetcherName: string): T[] {
-    const {fcdsFeeds, leavesFeeds} = data;
+  getParamsByFetcherName<T>(data: DeviationLeavesAndFeeds, fetcherName: string): T[] {
+    const {feeds} = data;
 
-    if (Object.keys(fcdsFeeds).length === 0 && Object.keys(leavesFeeds).length === 0) {
-      throw new Error('[FeedDataService] No leaves to process');
+    if (!feeds || Object.keys(feeds).length === 0) {
+      return [];
     }
 
     const fetcherParams = [];
 
-    for (const [i, feed] of Object.entries(leavesFeeds)) {
+    for (const [i, feed] of Object.entries(feeds)) {
       const feedInput = feed.inputs.find((entry) => {
         return entry.fetcher.name === fetcherName;
       });

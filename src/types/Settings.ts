@@ -36,6 +36,10 @@ export type LiquidityWorker = {
   };
 };
 
+export type DexPoolAPISettings = {
+  helperContractAddress: string;
+};
+
 interface SubmitMonitorExt extends SubmitMonitor {
   date?: string;
 }
@@ -211,6 +215,7 @@ type Settings = {
       apiKey: string;
       timeout: number;
     };
+    pools: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, DexPoolAPISettings>>>>;
     priceFreshness: number;
   };
   dexes: Partial<Record<DexProtocolName, Partial<Record<ChainsIds, DexAPISettings>>>>;

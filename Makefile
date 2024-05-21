@@ -5,13 +5,14 @@ DEVELOP="$(AWS_REPOSITORY)/pegasus:develop"
 
 CRED_TMP := /tmp/.credentials.tmp
 DURATION := 900
-AWS_REGION := us-east-2
+AWS_REGION := eu-central-1
+ECR_AWS_REGION := us-east-2
 
 
 assume:
 	@aws sts assume-role --profile umb-master \
 	--role-arn $(ECR_ROLE_ARN) \
-	--region us-east-2 --role-session-name temp-session --duration $(DURATION) --query 'Credentials' > $(CRED_TMP)
+	--region $(ECR_AWS_REGION) --role-session-name temp-session --duration $(DURATION) --query 'Credentials' > $(CRED_TMP)
 	@aws --profile umb-central configure set aws_access_key_id $$(cat ${CRED_TMP} | jq -r '.AccessKeyId' )
 	@aws --profile umb-central configure set aws_secret_access_key $$(cat ${CRED_TMP} | jq -r '.SecretAccessKey' )
 	@aws --profile umb-central configure set aws_session_token $$(cat ${CRED_TMP} | jq -r '.SessionToken' )
@@ -20,11 +21,11 @@ assume:
 update-stg-kubeconfig:
 	@aws sts assume-role --profile umb-master \
 	--role-arn $(KUBE_ROLE_ARN) \
-	--region us-east-2 --role-session-name temp-session --duration $(DURATION) --query 'Credentials' > $(CRED_TMP)
+	--region $(AWS_REGION) --role-session-name temp-session --duration $(DURATION) --query 'Credentials' > $(CRED_TMP)
 	@aws --profile umb-staging configure set aws_access_key_id $$(cat ${CRED_TMP} | jq -r '.AccessKeyId' )
 	@aws --profile umb-staging configure set aws_secret_access_key $$(cat ${CRED_TMP} | jq -r '.SecretAccessKey' )
 	@aws --profile umb-staging configure set aws_session_token $$(cat ${CRED_TMP} | jq -r '.SessionToken' )
-	@aws --profile umb-staging --region us-east-2 eks update-kubeconfig --kubeconfig ~/.kube/config-staging --name umb_staging
+	@aws --profile umb-staging --region $(AWS_REGION) eks update-kubeconfig --kubeconfig ~/.kube/config-staging --name umb_staging
 
 
 build-dev1:
@@ -40,7 +41,7 @@ build-sbx:
 	@docker buildx build  --push --platform linux/arm64 -t "$(shell kubectl --kubeconfig ~/.kube/config-staging get deployments -n sandbox pegasus-api-bsc01 -o=jsonpath='{$$.spec.template.spec.containers[:1].image}')_arm64" .
 
 login:
-	@aws ecr --profile umb-central --region $(AWS_REGION) get-login-password  | docker login --username AWS --password-stdin $(AWS_REPOSITORY)
+	@aws ecr --profile umb-central --region $(ECR_AWS_REGION) get-login-password  | docker login --username AWS --password-stdin $(AWS_REPOSITORY)
 
 
 publish-bsc1:

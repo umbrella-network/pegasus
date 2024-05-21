@@ -9,13 +9,14 @@ import {DotenvParseOutput} from 'dotenv';
 import {mockedLogger} from '../../../mocks/logger.js';
 import {getTestContainer} from '../../../helpers/getTestContainer.js';
 import {ChainsIds} from '../../../../src/types/ChainsIds.js';
-import {LiquidityService} from '../../../../src/services/dexes/uniswapV3/LiquidityService.js';
+import {LiquiditySummingService} from '../../../../src/services/dexes/uniswapV3/LiquiditySummingService.js';
 import {UniswapV3PoolRepository} from '../../../../src/repositories/UniswapV3PoolRepository.js';
 import {UniswapV3LiquidityResolver} from '../../../../src/services/dexes/uniswapV3/UniswapV3LiquidityResolver.js';
 import {loadTestEnv} from '../../../helpers/loadTestEnv.js';
 import {UniswapV3Pool} from '../../../../src/models/UniswapV3Pool.js';
 import {FeedDataService} from '../../../../src/services/FeedDataService.js';
 import {Token} from '../../../../src/models/Token.js';
+import {FetcherName} from '../../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -29,7 +30,7 @@ const uniswapV3Pool = {
 };
 
 describe('UniswapV3LiquidityResolver', () => {
-  let mockedLiquidityService: sinon.SinonStubbedInstance<LiquidityService>;
+  let mockedLiquiditySummingService: sinon.SinonStubbedInstance<LiquiditySummingService>;
   let mockedFeedDataService: sinon.SinonStubbedInstance<FeedDataService>;
   let uniswapV3LiquidityResolver: UniswapV3LiquidityResolver;
   let uniswapV3PoolRepository: UniswapV3PoolRepository;
@@ -94,7 +95,7 @@ describe('UniswapV3LiquidityResolver', () => {
             inputs: [
               {
                 fetcher: {
-                  name: 'UniswapV3',
+                  name: FetcherName.UNISWAP_V3,
                   params: {
                     fromChain: ['ethereum', 'bsc'],
                     token0: uniswapV3Pool.token0,
@@ -112,7 +113,7 @@ describe('UniswapV3LiquidityResolver', () => {
             inputs: [
               {
                 fetcher: {
-                  name: 'UniswapV3',
+                  name: FetcherName.UNISWAP_V3,
                   params: {
                     fromChain: ['ethereum', 'bsc'],
                     token0: uniswapV3Pool.token0,
@@ -126,16 +127,16 @@ describe('UniswapV3LiquidityResolver', () => {
       },
     });
 
-    mockedLiquidityService = sinon.createStubInstance(LiquidityService);
+    mockedLiquiditySummingService = sinon.createStubInstance(LiquiditySummingService);
 
-    mockedLiquidityService.apply.resolves({
+    mockedLiquiditySummingService.apply.resolves({
       liquidityActive: '200',
       liquidityLockedToken0: 500,
       liquidityLockedToken1: 500,
     });
 
     container.rebind('Logger').toConstantValue(mockedLogger);
-    container.bind(LiquidityService).toConstantValue(mockedLiquidityService);
+    container.bind(LiquiditySummingService).toConstantValue(mockedLiquiditySummingService);
     container.bind(FeedDataService).toConstantValue(mockedFeedDataService);
 
     uniswapV3PoolRepository = container.get(UniswapV3PoolRepository);

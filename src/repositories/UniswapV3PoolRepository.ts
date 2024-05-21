@@ -35,9 +35,11 @@ export class UniswapV3PoolRepository {
   }
 
   async saveLiquidity(filter: LiquidityFilterParams, liquidity: SaveLiquidityParams): Promise<UniswapV3Pool | null> {
+    const {token0, token1} = filter;
+
     return getModelForClass(UniswapV3Pool)
       .findOneAndUpdate(
-        filter,
+        {...filter, token0: {$in: [token0, token1]}, token1: {$in: [token0, token1]}},
         {...liquidity, liquidityUpdatedAt: new Date(Date.now())},
         {
           new: true,
@@ -48,8 +50,13 @@ export class UniswapV3PoolRepository {
 
   async find(props: {protocol: string; fromChain: string[]; token0: string; token1: string}): Promise<UniswapV3Pool[]> {
     const {protocol, fromChain, token0, token1} = props;
-    const filter = {protocol, chainId: {$in: fromChain}, token0, token1};
+    const filter = {
+      protocol,
+      chainId: {$in: fromChain},
+      token0: {$in: [token0, token1]},
+      token1: {$in: [token0, token1]},
+    };
 
-    return getModelForClass(UniswapV3Pool).find(filter).sort({token0: 1, token1: 1}).exec();
+    return getModelForClass(UniswapV3Pool).find(filter).exec();
   }
 }

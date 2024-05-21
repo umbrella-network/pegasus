@@ -170,7 +170,7 @@ jobs:
       - name: Update GitOps Sandbox repository
         env:
           VERSION: ${{ steps.atifact-reader.outputs.version }}_sbx
-          BUILDING_ENVIRONMENT: "non-prod/sbx"
+          BUILDING_ENVIRONMENT: "staging/sbx"
         run: |
           yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/deployments/bsc-01/kustomization.yaml
 

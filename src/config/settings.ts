@@ -437,6 +437,13 @@ const settings: Settings = {
       apiKey: process.env.METALS_DEV_API_KEY as string,
       timeout: timeoutWithCode(process.env.METALS_DEV_API_TIMEOUT || '5000', TimeoutCodes.METALS_DEV_API),
     },
+    pools: {
+      [ChainsIds.ETH]: {
+        [DexProtocolName.UNISWAP_V3]: {
+          helperContractAddress: <string>process.env.UNISWAPV3_HELPER_CONTRACT_ADDRESS,
+        },
+      },
+    },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
   },
   dexes: {

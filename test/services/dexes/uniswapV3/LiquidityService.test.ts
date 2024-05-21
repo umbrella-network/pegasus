@@ -9,13 +9,13 @@ import Settings from '../../../../src/types/Settings.js';
 import {getTestContainer} from '../../../helpers/getTestContainer.js';
 import {ChainsIds} from '../../../../src/types/ChainsIds.js';
 import {UniswapV3LiquidityCalculator} from '../../../../src/services/dexes/uniswapV3/UniswapV3LiquidityCalculator.js';
-import {LiquidityService} from '../../../../src/services/dexes/uniswapV3/LiquidityService.js';
+import {LiquiditySummingService} from '../../../../src/services/dexes/uniswapV3/LiquiditySummingService.js';
 
 const {expect} = chai;
 
-describe('LiquidityService', () => {
+describe('LiquiditySummingService', () => {
   let mockedUniswapV3LiquidityCalculator: sinon.SinonStubbedInstance<UniswapV3LiquidityCalculator>;
-  let liquidityService: LiquidityService;
+  let liquiditySummingService: LiquiditySummingService;
   let settings: Settings;
 
   beforeEach(async () => {
@@ -58,7 +58,7 @@ describe('LiquidityService', () => {
     container.rebind('Settings').toConstantValue(settings);
     container.bind(UniswapV3LiquidityCalculator).toConstantValue(mockedUniswapV3LiquidityCalculator);
 
-    liquidityService = container.get(LiquidityService);
+    liquiditySummingService = container.get(LiquiditySummingService);
   });
 
   afterEach(() => {
@@ -76,7 +76,7 @@ describe('LiquidityService', () => {
       const token0 = new Token(ChainId.MAINNET, token0Address, 18, 'TEST', 'TESTING');
       const token1 = new Token(ChainId.MAINNET, token1Address, 18, 'TEST 2', 'TESTING 2');
 
-      const tickSum = await liquidityService.apply(poolAddress, token0, token1, fee, chainId);
+      const tickSum = await liquiditySummingService.apply(poolAddress, token0, token1, fee, chainId);
 
       expect(tickSum).to.eql({
         liquidityActive: '200',

@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Added
-- added `uniswapV3LiquidityWorker`
+- new `uniswapV3LiquidityWorker`
+- new `UniswapV3MultiFetcher`
+
+## [7.25.6] - 2024-05-20
+### Removed
+- Update Makefile and cicd actions due to Non Prod migration to Frankfurt
 
 ## [7.25.5] - 2024-05-03
 ### Removed
