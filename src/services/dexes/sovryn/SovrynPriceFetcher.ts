@@ -42,8 +42,7 @@ weBTC-rUSDT:
         params:
           base: '0x69fe5cec81d5ef92600c1a0db1f11986ab3758ab'
           quote: '0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0'
-          quoteDecimals: 8
-          amount: "1000"
+          amountIdDecimals: 18
 */
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
