@@ -51,8 +51,6 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
   async getPrice(pair: PairRequest): Promise<PricesResponse> {
-    //pair.amountInDecimals = Number(pair.amountInDecimals);
-
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
     const contractAddress = this.settings.dexes.sovryn?.rootstock?.helperContractAddress as string;
