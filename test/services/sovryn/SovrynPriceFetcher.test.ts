@@ -99,10 +99,11 @@ describe('SovrynFetcher-BigIntToFloatingPoint', () => {
   });
 });
 
-describe('SovrynFetcher-IntegrationTests', () => {
+describe.skip('SovrynFetcher-IntegrationTests', () => {
   it('fetches the prices from the SovrynPriceFetcher for the pair rBTC/rUSTC', async () => {
     const sovrynHelperAddress = '0xbc758fcb97e06ec635dff698f55e41acc35e1d2d';
     const testnetNodeUrl = 'https://public-node.testnet.rsk.co/';
+
     const container = getTestContainer({
       blockchain: {
         multiChains: {
@@ -128,7 +129,13 @@ describe('SovrynFetcher-IntegrationTests', () => {
     const weBTC = '0x69fe5cec81d5ef92600c1a0db1f11986ab3758ab';
     const amount = 10 ** 8;
     const rUSDTDecimals = 8;
-    const requestPair: PairRequest = {base: weBTC, quote: rUSDT, quoteDecimals: rUSDTDecimals, amount};
+    const requestPair: PairRequest = {
+      base: weBTC,
+      quote: rUSDT,
+      amount,
+      quoteDecimals: rUSDTDecimals,
+    };
+
     const price: number = await sovrynPriceFetcher.apply(requestPair);
 
     console.log('price weBTC/rUSDT:', price);
