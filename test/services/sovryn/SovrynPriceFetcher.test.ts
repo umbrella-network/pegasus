@@ -73,7 +73,7 @@ describe('SovrynFetcher-BigIntToFloatingPoint', () => {
   });
 });
 
-describe('SovrynFetcher-IntegrationTests', () => {
+describe.skip('SovrynFetcher-IntegrationTests', () => {
   it('fetches the prices from the SovrynPriceFetcher for the pair rBTC/rUSTC', async () => {
     const sovrynHelperAddress = '0x26fd86791fce0946e8d8c685446dd257634a2b28';
     const testnetNodeUrl = 'https://public-node.testnet.rsk.co/';
