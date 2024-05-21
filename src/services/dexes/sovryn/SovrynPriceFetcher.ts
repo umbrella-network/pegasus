@@ -65,7 +65,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
 
     const bigIntPrice = prices.prices[0].price.toBigInt();
 
-    return BigIntToFloatingPoint(bigIntPrice, 18);
+    return bigIntToFloatingPoint(bigIntPrice, 18);
   }
 }
 
@@ -84,4 +84,4 @@ export function bigIntToFloatingPoint(integerValue: bigint, decimals: number): n
   }
 
   return Number(intPart + '.' + decPart);
-};
+}

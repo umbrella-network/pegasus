@@ -4,7 +4,7 @@ import {BigNumber} from 'ethers';
 import {
   PairRequest,
   PricesResponse,
-  BigIntToFloatingPoint,
+  bigIntToFloatingPoint,
   SovrynPriceFetcher,
 } from '../../../src/services/dexes/sovryn/SovrynPriceFetcher.js';
 
@@ -42,32 +42,32 @@ describe('SovrynFetcher-BigIntToFloatingPoint', () => {
   it('converts BigInt values into floating-point ones', () => {
     {
       const integerValue = BigInt('1234567891234');
-      const result = BigIntToFloatingPoint(integerValue, 0);
+      const result = bigIntToFloatingPoint(integerValue, 0);
       expect(result).to.equal(1234567891234);
     }
     {
       const integerValue = BigInt('1234567891234');
-      const result = BigIntToFloatingPoint(integerValue, 1);
+      const result = bigIntToFloatingPoint(integerValue, 1);
       expect(result).to.equal(123456789123.4);
     }
     {
       const integerValue = BigInt('1234567891234');
-      const result = BigIntToFloatingPoint(integerValue, 5);
+      const result = bigIntToFloatingPoint(integerValue, 5);
       expect(result).to.equal(12345678.91234);
     }
     {
       const integerValue = BigInt('1234567891234');
-      const result = BigIntToFloatingPoint(integerValue, 12);
+      const result = bigIntToFloatingPoint(integerValue, 12);
       expect(result).to.equal(1.234567891234);
     }
     {
       const integerValue = BigInt('12345');
-      const result = BigIntToFloatingPoint(integerValue, 5);
+      const result = bigIntToFloatingPoint(integerValue, 5);
       expect(result).to.equal(0.12345);
     }
     {
       const integerValue = BigInt('12345');
-      const result = BigIntToFloatingPoint(integerValue, 10);
+      const result = bigIntToFloatingPoint(integerValue, 10);
       expect(result).to.equal(0.0000012345);
     }
   });
