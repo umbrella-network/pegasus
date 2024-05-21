@@ -1,7 +1,6 @@
 import {ChainsIds} from './ChainsIds.js';
 import {DexProtocolName} from './DexProtocolName.js';
 import {SubmitMonitor} from './SubmitMonitor.js';
-import {DexProtocolName, DexAPISettings} from './Dexes.js';
 
 export enum BlockchainType {
   LAYER2 = 'LAYER2',
@@ -210,7 +209,6 @@ type Settings = {
     pools: Partial<Record<ChainsIds, Record<DexProtocolName, DexAPISettings>>>;
     priceFreshness: number;
   };
-  dexes: Partial<Record<DexProtocolName, Partial<Record<ChainsIds, DexAPISettings>>>>;
   rpcSelectionStrategy: string;
   feedsCacheRefreshCronRule: string;
   statusCheckTimeout: number;

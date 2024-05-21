@@ -1,12 +1,15 @@
 import {index, modelOptions, prop, Severity} from '@typegoose/typegoose';
 
-@index({address: 1})
-@index({token0: 1})
-@index({token1: 1})
+@index({chainId: 1, protocol: 1, token0: 1, token1: 1})
+@index({chainId: 1, fee: 1, token0: 1, token1: 1})
+@index({chainId: 1, pool: 1})
 @modelOptions({options: {allowMixed: Severity.ALLOW}})
-export class SovrynPoolSchema {
+export class Pools {
   @prop({required: true})
-  address!: string;
+  chainId!: string;
+
+  @prop({required: true})
+  protocol!: string;
 
   @prop({required: true})
   token0!: string;
@@ -15,7 +18,10 @@ export class SovrynPoolSchema {
   token1!: string;
 
   @prop({required: true})
-  chainId!: string;
+  fee!: number;
+
+  @prop({required: true})
+  pool!: string;
 
   @prop()
   lastUpdatedAt?: Date;
