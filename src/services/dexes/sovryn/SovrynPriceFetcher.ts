@@ -69,7 +69,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   }
 }
 
-export const BigIntToFloatingPoint = (integerValue: bigint, decimals: number): number => {
+export function bigIntToFloatingPoint(integerValue: bigint, decimals: number): number {
   const stringValue = integerValue.toString();
 
   let intPart = '';
