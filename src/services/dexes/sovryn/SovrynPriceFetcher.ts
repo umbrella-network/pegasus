@@ -26,7 +26,7 @@ export type PricesResponse = {
 export type PairRequest = {
   base: string;
   quote: string;
-  amountInDecimals: bigint | number;
+  amountInDecimals: number;
 };
 
 /*
