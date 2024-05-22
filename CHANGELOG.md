@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [7.26.0] - 2024-05-22
+### Changed
+- Use SSL by default for concordium provider plus option to use insecure
+
 ## [7.25.6] - 2024-05-20
 ### Removed
 - Update Makefile and cicd actions due to Non Prod migration to Frankfurt
