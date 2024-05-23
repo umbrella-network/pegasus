@@ -381,10 +381,9 @@ export default {
         params: {
           type: 'object',
           properties: {
-            metal: {type: 'string'},
-            currency: {type: 'string'},
+            ticker: {type: 'string'},
           },
-          required: ['metal', 'currency'],
+          required: ['ticker'],
           additionalProperties: false,
         },
       },
