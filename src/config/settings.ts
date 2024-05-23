@@ -251,6 +251,18 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
+  [ChainsIds.SEPOLIA]: {
+    type: resolveBlockchainType(ChainsIds.SEPOLIA) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.SEPOLIA),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      minBalance: {
+        warningLimit: '0.001',
+        errorLimit: '0.00005',
+      },
+    },
+  },
   [ChainsIds.ZK_LINK_NOVA]: {
     type: resolveBlockchainType(ChainsIds.ZK_LINK_NOVA) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ZK_LINK_NOVA),
@@ -293,10 +305,19 @@ const settings: Settings = {
     liquidities: {
       [ChainsIds.ETH]: {
         [DexProtocolName.UNISWAP_V3]: {
-          interval: parseInt(process.env.UNISWAPV3_LIQUIDITY_JOB_INTERVAL || String(getDayInMillisecond(3))),
+          interval: parseInt(process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_JOB_INTERVAL || String(getDayInMillisecond(3))),
           lock: {
-            name: process.env.UNISWAPV3_LIQUIDITY_LOCK_NAME || 'lock::UniswapV3Liquidity',
-            ttl: parseInt(process.env.UNISWAPV3_LIQUIDITY_LOCK_TTL || '60'),
+            name: process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_LOCK_NAME || 'lock::EthereumUniswapV3Liquidity',
+            ttl: parseInt(process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_LOCK_TTL || '60'),
+          },
+        },
+      },
+      [ChainsIds.SEPOLIA]: {
+        [DexProtocolName.UNISWAP_V3]: {
+          interval: parseInt(process.env.SEPOLIA_UNISWAPV3_LIQUIDITY_JOB_INTERVAL || String(getDayInMillisecond(3))),
+          lock: {
+            name: process.env.SEPOLIA_UNISWAPV3_LIQUIDITY_LOCK_NAME || 'lock::SepoliaUniswapV3Liquidity',
+            ttl: parseInt(process.env.SEPOLIA_UNISWAPV3_LIQUIDITY_LOCK_TTL || '60'),
           },
         },
       },
@@ -331,6 +352,11 @@ const settings: Settings = {
     ethereum: {
       providerUrl: process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL
         ? (<string>process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL).split(',')
+        : [],
+    },
+    sepolia: {
+      providerUrl: process.env.BLOCKCHAINS_SEPOLIA_PROVIDER_URL
+        ? (<string>process.env.BLOCKCHAINS_SEPOLIA_PROVIDER_URL).split(',')
         : [],
     },
   },
@@ -440,7 +466,7 @@ const settings: Settings = {
     pools: {
       [ChainsIds.ETH]: {
         [DexProtocolName.UNISWAP_V3]: {
-          helperContractAddress: <string>process.env.UNISWAPV3_HELPER_CONTRACT_ADDRESS,
+          helperContractAddress: <string>process.env.ETHEREUM_UNISWAPV3_HELPER_CONTRACT_ADDRESS,
         },
       },
     },
@@ -455,6 +481,9 @@ const settings: Settings = {
     [DexProtocolName.UNISWAP_V3]: {
       [ChainsIds.ETH]: {
         subgraphUrl: <string>process.env['ETHEREUM_UNISWAPV3_SUBGRAPH_API'],
+      },
+      [ChainsIds.SEPOLIA]: {
+        subgraphUrl: <string>process.env['SEPOLIA_UNISWAPV3_SUBGRAPH_API'],
       },
     },
   },

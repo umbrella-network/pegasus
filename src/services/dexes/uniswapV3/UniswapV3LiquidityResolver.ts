@@ -6,7 +6,6 @@ import TimeService from '../../TimeService.js';
 import {FeedsType} from '../../../types/Feed.js';
 import {FeedDataService} from '../../FeedDataService.js';
 import {LiquiditySummingService} from './LiquiditySummingService.js';
-import {LeavesAndFeeds} from '../../../types/Consensus.js';
 import {UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {TokenRepository} from '../../../repositories/TokenRepository.js';
@@ -15,6 +14,15 @@ import {DexProtocolName} from '../../../types/Dexes.js';
 import {UniswapV3Pool} from '../../../models/UniswapV3Pool.js';
 import {FetcherName} from '../../../types/fetchers.js';
 import {DeviationLeavesAndFeeds} from 'src/types/DeviationFeeds.js';
+
+export const UniswapV3ChainNumber: Partial<Record<ChainsIds, number>> = {
+  [ChainsIds.ETH]: ChainId.MAINNET,
+  [ChainsIds.SEPOLIA]: ChainId.SEPOLIA,
+  [ChainsIds.POLYGON]: ChainId.POLYGON,
+  [ChainsIds.AVALANCHE]: ChainId.AVALANCHE,
+  [ChainsIds.BASE]: ChainId.BASE,
+  [ChainsIds.ROOTSTOCK]: ChainId.ROOTSTOCK,
+};
 
 @injectable()
 export class UniswapV3LiquidityResolver {
@@ -65,11 +73,13 @@ export class UniswapV3LiquidityResolver {
       throw new Error(`${this.logPrefix}[${chainId}] token1: ${token1} not found`);
     }
 
+    if (!UniswapV3ChainNumber[chainId]) {
+      throw new Error(`${this.logPrefix}[${chainId}] chain number found`);
     }
 
     return [
-      new Token(ChainId.MAINNET, tokenA.address, tokenA.decimals, tokenA.symbol, tokenA.name),
-      new Token(ChainId.MAINNET, tokenB.address, tokenB.decimals, tokenB.symbol, tokenB.name),
+      new Token(UniswapV3ChainNumber[chainId]!, tokenA.address, tokenA.decimals, tokenA.symbol, tokenA.name),
+      new Token(UniswapV3ChainNumber[chainId]!, tokenB.address, tokenB.decimals, tokenB.symbol, tokenB.name),
     ];
   }
 
@@ -78,27 +88,27 @@ export class UniswapV3LiquidityResolver {
       uniswapV3Params
         .filter((param) => param.fromChain.includes(chainId))
         .map(async (param) => {
-        const pools = await this.uniswapV3PoolRepository.find({
-          token0: param.token0,
-          token1: param.token1,
-          fromChain: [chainId],
-          protocol: this.protocol,
-        });
+          const pools = await this.uniswapV3PoolRepository.find({
+            token0: param.token0,
+            token1: param.token1,
+            fromChain: [chainId],
+            protocol: this.protocol,
+          });
 
-        if (pools.length === 0) {
+          if (pools.length === 0) {
             this.logger.error(`${this.logPrefix}[${chainId}] pool not found for token ${param.token0}-${param.token1}`);
-          return;
-        }
+            return;
+          }
 
-        const [token0, token1] = await this.getTokens(param.token0, param.token1, chainId);
+          const [token0, token1] = await this.getTokens(param.token0, param.token1, chainId);
 
-        await Promise.all(
-          pools.map(async (pool) => {
-            const liquidity = await this.getLiquidities(pool, token0, token1, chainId);
-            if (liquidity) await this.saveLiquidities(pool, token0, token1, chainId, liquidity);
-          }),
-        );
-      }),
+          await Promise.all(
+            pools.map(async (pool) => {
+              const liquidity = await this.getLiquidities(pool, token0, token1, chainId);
+              if (liquidity) await this.saveLiquidities(pool, token0, token1, chainId, liquidity);
+            }),
+          );
+        }),
     );
   }
 
