@@ -7,6 +7,12 @@ type PolygonIOCurrencySnapshotGramsFetcherParams = {
   ticker: string;
 };
 
+/*
+    - fetcher:
+        name: PolygonIOCurrencySnapshot
+        params:
+          ticker: C:XAUUSD
+ */
 @injectable()
 class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher {
   constructor(@inject('Settings') settings: Settings) {
