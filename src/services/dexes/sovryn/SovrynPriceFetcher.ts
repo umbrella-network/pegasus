@@ -31,6 +31,10 @@ export type PairRequest = {
   amountInDecimals: number;
 };
 
+const pairRequestToString = (pair: PairRequest) => {
+  return '{' + pair.base + ' -> ' + pair.quote + ' amount:' + pair.amountInDecimals + '}';
+};
+
 /*
 For getting the prices of different of a Sovryn pool the `base` (input token)
 and `quote` (output token), and the `amount` of the input token should be provided.
@@ -55,12 +59,19 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   public async apply(pair: PairRequest): Promise<number> {
     try {
       const prices = await this.getPrice(pair);
+      const priceResponse = prices.prices[0];
 
-      const bigIntPrice = prices.prices[0].price.toBigInt();
+      const successfulPrice = priceResponse.success;
+      if (!successfulPrice) {
+        this.logger.error(`[SovrynPriceFetcher] price is not successful for pair: ${pairRequestToString(pair)}.`);
+        return 0;
+      }
+
+      const bigIntPrice = priceResponse.price.toBigInt();
 
       return bigIntToFloatingPoint(bigIntPrice, 18);
     } catch (error) {
-      this.logger.error(`[SovrynPriceFetcher] failed to get price. ${error}`);
+      this.logger.error(`[SovrynPriceFetcher] failed to get price for pair: ${pairRequestToString(pair)}. ${error}`);
       return 0;
     }
   }
