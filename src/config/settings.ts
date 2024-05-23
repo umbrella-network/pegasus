@@ -322,11 +322,6 @@ const settings: Settings = {
         ? (<string>process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL).split(',')
         : [],
     },
-    rootstock: {
-      providerUrl: process.env.BLOCKCHAINS_ROOTSTOCK_PROVIDER_URL
-        ? (<string>process.env.BLOCKCHAINS_ROOTSTOCK_PROVIDER_URL).split(',')
-        : [],
-    },
   },
   blockchain: {
     providers: resolveBlockchainProviders(),
