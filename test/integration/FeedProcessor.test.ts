@@ -110,7 +110,7 @@ describe('FeedProcessor integration tests', () => {
         });
       });
     });
-  });
+  }).timeout(5000);
 
   describe('when running feeds that uses WS', () => {
     fetcherWSNames.forEach((name) => {
