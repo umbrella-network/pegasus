@@ -15,15 +15,6 @@ import {UniswapV3Pool} from '../../../models/UniswapV3Pool.js';
 import {FetcherName} from '../../../types/fetchers.js';
 import {DeviationLeavesAndFeeds} from 'src/types/DeviationFeeds.js';
 
-export const UniswapV3ChainNumber: Partial<Record<ChainsIds, number>> = {
-  [ChainsIds.ETH]: ChainId.MAINNET,
-  [ChainsIds.SEPOLIA]: ChainId.SEPOLIA,
-  [ChainsIds.POLYGON]: ChainId.POLYGON,
-  [ChainsIds.AVALANCHE]: ChainId.AVALANCHE,
-  [ChainsIds.BASE]: ChainId.BASE,
-  [ChainsIds.ROOTSTOCK]: ChainId.ROOTSTOCK,
-};
-
 @injectable()
 export class UniswapV3LiquidityResolver {
   @inject(FeedDataService) feedDataService!: FeedDataService;
@@ -73,13 +64,15 @@ export class UniswapV3LiquidityResolver {
       throw new Error(`${this.logPrefix}[${chainId}] token1: ${token1} not found`);
     }
 
-    if (!UniswapV3ChainNumber[chainId]) {
+    const UniswapV3ChainNumber = this.getUniswapV3ChainNumber(chainId);
+
+    if (!UniswapV3ChainNumber) {
       throw new Error(`${this.logPrefix}[${chainId}] chain number found`);
     }
 
     return [
-      new Token(UniswapV3ChainNumber[chainId]!, tokenA.address, tokenA.decimals, tokenA.symbol, tokenA.name),
-      new Token(UniswapV3ChainNumber[chainId]!, tokenB.address, tokenB.decimals, tokenB.symbol, tokenB.name),
+      new Token(UniswapV3ChainNumber, tokenA.address, tokenA.decimals, tokenA.symbol, tokenA.name),
+      new Token(UniswapV3ChainNumber, tokenB.address, tokenB.decimals, tokenB.symbol, tokenB.name),
     ];
   }
 
@@ -149,5 +142,18 @@ export class UniswapV3LiquidityResolver {
         `${this.logPrefix}[${chainId}] data saved for pool address: ${pool.address}, token0: ${token0.address}, token1: ${token1.address}`,
       );
     }
+  }
+
+  private getUniswapV3ChainNumber(chainId: ChainsIds) {
+    const uniswapV3ChainNumbers: Partial<Record<ChainsIds, number>> = {
+      [ChainsIds.ETH]: ChainId.MAINNET,
+      [ChainsIds.SEPOLIA]: ChainId.SEPOLIA,
+      [ChainsIds.POLYGON]: ChainId.POLYGON,
+      [ChainsIds.AVALANCHE]: ChainId.AVALANCHE,
+      [ChainsIds.BASE]: ChainId.BASE,
+      [ChainsIds.ROOTSTOCK]: ChainId.ROOTSTOCK,
+    };
+
+    return uniswapV3ChainNumbers[chainId];
   }
 }
