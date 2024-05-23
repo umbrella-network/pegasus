@@ -9,6 +9,7 @@ import {FeedFetcherInterface} from 'src/types/fetchers.js';
 import Settings from 'src/types/Settings';
 import {ProviderRepository} from '../../../repositories/ProviderRepository.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
+import {bigIntToFloatingPoint} from '../../../utils/math.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -67,21 +68,4 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
 
     return bigIntToFloatingPoint(bigIntPrice, 18);
   }
-}
-
-export function bigIntToFloatingPoint(integerValue: bigint, decimals: number): number {
-  const stringValue = integerValue.toString();
-
-  let intPart = '';
-  let decPart = '';
-  const lengthDiff = stringValue.length - decimals;
-  if (lengthDiff > 0) {
-    intPart = stringValue.substring(0, lengthDiff);
-    decPart = stringValue.substring(lengthDiff);
-  } else {
-    intPart = '0';
-    decPart = '0'.repeat(-lengthDiff) + stringValue;
-  }
-
-  return Number(intPart + '.' + decPart);
 }

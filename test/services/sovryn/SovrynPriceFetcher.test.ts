@@ -1,15 +1,10 @@
 import {expect} from 'chai';
-import {BigNumber} from 'ethers';
 
-import {
-  PairRequest,
-  PricesResponse,
-  bigIntToFloatingPoint,
-  SovrynPriceFetcher,
-} from '../../../src/services/dexes/sovryn/SovrynPriceFetcher.js';
+import {PairRequest, SovrynPriceFetcher} from '../../../src/services/dexes/sovryn/SovrynPriceFetcher.js';
 
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import Settings from '../../../src/types/Settings.js';
+import {bigIntToFloatingPoint} from '../../../src/utils/math.js';
 
 describe('SovrynFetcher', () => {
   it('gets successfully an instance of the SovrynFetcher from the container', () => {
@@ -18,23 +13,6 @@ describe('SovrynFetcher', () => {
     const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceFetcher;
 
     expect(sovrynPriceFetcher !== undefined);
-  });
-
-  it('fetches the prices for the pairs passed', async () => {
-    // const contractPriceResponse: PricesResponse = {
-    //   prices: [{price: BigNumber.from('129829220112102'), success: true}],
-    //   timestamp: BigNumber.from('3283723933'),
-    // };
-    // const container = getTestContainer();
-    // container.bind('SovrynPriceFetcher').to(SovrynPriceFetcher);
-    // const pair: PairRequest = {
-    //   base: '0x11111111111111111111',
-    //   quote: '0x22222222222222222222',
-    //   amountInDecimals: 1,
-    // };
-    // const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceFetcher;
-    //const price = await sovrynPriceFetcher.apply(pair);
-    //expect(price).to.eql(1298292.20112102);
   });
 });
 
@@ -69,6 +47,36 @@ describe('SovrynFetcher-BigIntToFloatingPoint', () => {
       const integerValue = BigInt('12345');
       const result = bigIntToFloatingPoint(integerValue, 10);
       expect(result).to.equal(0.0000012345);
+    }
+    {
+      const integerValue = BigInt('123');
+      const result = bigIntToFloatingPoint(integerValue, 0);
+      expect(result).to.equal(123);
+    }
+    {
+      const integerValue = BigInt('123');
+      const result = bigIntToFloatingPoint(integerValue, 1);
+      expect(result).to.equal(12.3);
+    }
+    {
+      const integerValue = BigInt('123456789000000000');
+      const result = bigIntToFloatingPoint(integerValue, 18);
+      expect(result).to.equal(0.123456789);
+    }
+    {
+      const integerValue = BigInt('123456789000000001');
+      const result = bigIntToFloatingPoint(integerValue, 18);
+      expect(result).to.equal(0.123456789);
+    }
+    {
+      const integerValue = BigInt('99123456789000000000');
+      const result = bigIntToFloatingPoint(integerValue, 18);
+      expect(result).to.equal(99.123456789);
+    }
+    {
+      const integerValue = BigInt('123456789000000000');
+      const result = bigIntToFloatingPoint(integerValue, 9);
+      expect(result).to.equal(123456789.0);
     }
   });
 });
