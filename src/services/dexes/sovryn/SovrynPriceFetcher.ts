@@ -50,6 +50,14 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject('Settings') private settings!: Settings;
   @inject(ProviderRepository) private providerRepository!: ProviderRepository;
 
+  public async apply(pair: PairRequest): Promise<number> {
+    const prices = await this.getPrice(pair);
+
+    const bigIntPrice = prices.prices[0].price.toBigInt();
+
+    return bigIntToFloatingPoint(bigIntPrice, 18);
+  }
+
   private async getPrice(pair: PairRequest): Promise<PricesResponse> {
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
@@ -59,13 +67,5 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
     const contract = new Contract(contractAddress, abi, provider);
 
     return await contract.callStatic.getPrices([pair]);
-  }
-
-  async apply(pair: PairRequest): Promise<number> {
-    const prices = await this.getPrice(pair);
-
-    const bigIntPrice = prices.prices[0].price.toBigInt();
-
-    return bigIntToFloatingPoint(bigIntPrice, 18);
   }
 }
