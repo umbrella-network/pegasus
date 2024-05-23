@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - new `UniswapV3MultiFetcher`
 
+## [7.26.1] - 2024-05-23
+### Fixed
+- fix schema for `PolygonIOCurrencySnapshotGramsFetcher`
+
 ## [7.26.0] - 2024-05-22
 ### Changed
 - Use SSL by default for concordium provider plus option to use insecure
