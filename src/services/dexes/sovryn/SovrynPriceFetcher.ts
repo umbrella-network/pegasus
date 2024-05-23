@@ -10,6 +10,7 @@ import Settings from 'src/types/Settings';
 import {ProviderRepository} from '../../../repositories/ProviderRepository.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {bigIntToFloatingPoint} from '../../../utils/math.js';
+import {Logger} from 'winston';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,15 +48,21 @@ weBTC-rUSDT:
 */
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
+  @inject('Logger') private logger!: Logger;
   @inject('Settings') private settings!: Settings;
   @inject(ProviderRepository) private providerRepository!: ProviderRepository;
 
   public async apply(pair: PairRequest): Promise<number> {
-    const prices = await this.getPrice(pair);
+    try {
+      const prices = await this.getPrice(pair);
 
-    const bigIntPrice = prices.prices[0].price.toBigInt();
+      const bigIntPrice = prices.prices[0].price.toBigInt();
 
-    return bigIntToFloatingPoint(bigIntPrice, 18);
+      return bigIntToFloatingPoint(bigIntPrice, 18);
+    } catch (error) {
+      this.logger.error(`[SovrynPriceFetcher] failed to get price. ${error}`);
+      return 0;
+    }
   }
 
   private async getPrice(pair: PairRequest): Promise<PricesResponse> {
