@@ -439,6 +439,7 @@ const settings: Settings = {
     [DexProtocolName.SOVRYN]: {
       [ChainsIds.ROOTSTOCK]: {
         subgraphUrl: <string>process.env['SOVRYN_SUBGRAPH_API'],
+        helperContractAddress: <string>process.env['SOVRYN_HELPER_CONTRACT_ADDRESS_ROOTSTOCK'],
       },
     },
   },

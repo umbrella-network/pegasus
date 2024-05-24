@@ -50,6 +50,7 @@ export default {
             {$ref: '#/definitions/GoldApiPriceFetcher'},
             {$ref: '#/definitions/MetalPriceApiFetcher'},
             {$ref: '#/definitions/MetalsDevApiPriceFetcher'},
+            {$ref: '#/definitions/SovrynPriceFetcher'},
           ],
         },
         calculator: {
@@ -439,6 +440,24 @@ export default {
           },
         },
       },
+      additionalProperties: false,
+    },
+    SovrynPriceFetcher: {
+      properties: {
+        name: {const: 'SovrynPriceFetcher'},
+        params: {
+          type: 'object',
+          properties: {
+            base: {type: 'string'},
+            quote: {type: 'string'},
+            amountInDecimals: {type: 'number'},
+            quoteDecimals: {type: 'number'},
+          },
+          required: ['base', 'quote', 'amountInDecimals'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
       additionalProperties: false,
     },
     YearnTransformPriceCalculator: {
