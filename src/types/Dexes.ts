@@ -5,7 +5,6 @@ export enum DexProtocolName {
 
 export type DexAPISettings = {
   subgraphUrl: string;
-  helperContractAddress: string;
 };
 
 export type DexProtocolNameKeys = keyof typeof DexProtocolName;
