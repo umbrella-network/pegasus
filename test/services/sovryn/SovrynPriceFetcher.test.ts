@@ -115,7 +115,7 @@ describe.skip('SovrynFetcher-IntegrationTests', () => {
     };
 
     const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceFetcher;
-    const price: number = await sovrynPriceFetcher.apply(requestPair);
+    const price = await sovrynPriceFetcher.apply(requestPair);
 
     console.log('price weBTC/rUSDT:', price);
   });
