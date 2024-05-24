@@ -14,7 +14,7 @@ export default class MultiFeedProcessor {
   @inject(CoingeckoMultiProcessor) coingeckoMultiProcessor!: CoingeckoMultiProcessor;
   @inject(CryptoCompareMultiProcessor) cryptoCompareMultiProcessor!: CryptoCompareMultiProcessor;
   @inject(UniswapV3MultiProcessor) uniswapV3MultiProcessor!: UniswapV3MultiProcessor;
-  @inject(SovrynMultiProcessor) sovrynV3MultiProcessor!: SovrynMultiProcessor;
+  @inject(SovrynMultiProcessor) sovrynMultiProcessor!: SovrynMultiProcessor;
 
   async apply(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
     if (!feedFetchers.length) return [];
@@ -26,6 +26,7 @@ export default class MultiFeedProcessor {
       this.cryptoCompareMultiProcessor.apply(feedFetchers),
       this.coingeckoMultiProcessor.apply(feedFetchers),
       this.uniswapV3MultiProcessor.apply(feedFetchers),
+      this.sovrynMultiProcessor.apply(feedFetchers),
     ]);
 
     promisesResults.forEach((result, i) => {
