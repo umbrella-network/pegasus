@@ -1,6 +1,6 @@
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 
-import {DexProtocolName} from '../types/DexProtocolName.js';
+import {DexProtocolName} from '../types/Dexes.js';
 import {UniswapV3Helper} from '../services/fetcherHelper/contracts/UniswapV3Helper.js';
 import {ContractHelperInterface} from '../services/fetcherHelper/interfaces/ContractHelperInterface.js';
 

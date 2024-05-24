@@ -5,7 +5,7 @@ import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import Settings from '../types/Settings.js';
 import {ChainsIds} from '../types/ChainsIds.js';
 import {ContractHelperFactory} from '../factories/ContractHelperFactory.js';
-import {DexProtocolName} from '../types/DexProtocolName.js';
+import {DexProtocolName} from '../types/Dexes.js';
 import {ContractHelperInterface} from '../services/fetcherHelper/interfaces/ContractHelperInterface.js';
 import {BlockchainProviderRepository} from './BlockchainProviderRepository.js';
 

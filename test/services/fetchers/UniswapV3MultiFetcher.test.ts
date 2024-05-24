@@ -11,7 +11,7 @@ import {ContractHelperRepository} from '../../../src/repositories/ContractHelper
 import {UniswapV3Helper} from '../../../src/services/fetcherHelper/contracts/UniswapV3Helper.js';
 import {PoolRepository} from '../../../src/repositories/PoolRepository.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
-import {DexProtocolName} from '../../../src/types/DexProtocolName.js';
+import {DexProtocolName} from '../../../src/types/Dexes.js';
 import {Container} from 'inversify';
 
 const {expect} = chai;
