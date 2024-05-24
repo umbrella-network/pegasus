@@ -33,7 +33,12 @@ export default class MultiFeedProcessor {
       if (result.status === 'fulfilled') {
         response = mergeArrays(response, result.value);
       } else {
-        const processors = ['cryptoCompareMultiProcessor', 'coingeckoMultiProcessor', 'uniswapV3'];
+        const processors = [
+          'cryptoCompareMultiProcessor',
+          'coingeckoMultiProcessor',
+          'uniswapV3',
+          'SovrynMultiProcessor',
+        ];
         this.logger.warn(`[MultiFeedProcessor] Ignored ${processors[i]}. Reason: ${result.reason}`);
       }
     });
