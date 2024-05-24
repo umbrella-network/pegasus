@@ -56,7 +56,6 @@ export class SovrynPriceFetcher {
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
 
   public async apply(pairs: PairRequest[]): Promise<(number | undefined)[]> {
-    console.log(pairs);
     let response;
     try {
       response = await this.getPrices(pairs);
