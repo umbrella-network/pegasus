@@ -81,9 +81,8 @@ describe('SovrynFetcher-BigIntToFloatingPoint', () => {
   });
 });
 
-describe.skip('SovrynFetcher-IntegrationTests', () => {
+describe('SovrynFetcher-IntegrationTests', () => {
   it('fetches the prices from the SovrynPriceFetcher for the pair rBTC/rUSTC', async () => {
-    const sovrynHelperAddress = '0x26fd86791fce0946e8d8c685446dd257634a2b28';
     const testnetNodeUrl = 'https://public-node.testnet.rsk.co/';
 
     const container = getTestContainer({
@@ -91,13 +90,12 @@ describe.skip('SovrynFetcher-IntegrationTests', () => {
         multiChains: {
           rootstock: {
             providerUrl: testnetNodeUrl,
+            contractRegistryAddress: '0x8f98d3B5C911206C1Ac08B9938875620A03BCd59',
           },
         },
-      },
-      dexes: {
-        sovryn: {
-          rootstock: {
-            helperContractAddress: sovrynHelperAddress,
+        wallets: {
+          evm: {
+            privateKey: '0x0000000000000000000000000000000000000000000000000000000000000001',
           },
         },
       },

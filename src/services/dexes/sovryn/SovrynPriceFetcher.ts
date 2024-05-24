@@ -4,13 +4,13 @@ import {BigNumber, Contract} from 'ethers';
 import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
 import {BaseProvider} from '@ethersproject/providers';
+import {Logger} from 'winston';
 
-import {FeedFetcherInterface} from 'src/types/fetchers.js';
-import Settings from 'src/types/Settings';
-import {ProviderRepository} from '../../../repositories/ProviderRepository.js';
+import {FeedFetcherInterface} from '../../../types/fetchers.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {bigIntToFloatingPoint} from '../../../utils/math.js';
-import {Logger} from 'winston';
+import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
+import {BlockchainRepository} from '../../../repositories/BlockchainRepository.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,8 +53,7 @@ weBTC-rUSDT:
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject('Logger') private logger!: Logger;
-  @inject('Settings') private settings!: Settings;
-  @inject(ProviderRepository) private providerRepository!: ProviderRepository;
+  @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
 
   public async apply(pair: PairRequest): Promise<number | undefined> {
     try {
@@ -79,9 +78,11 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   private async getPrice(pair: PairRequest): Promise<PricesResponse> {
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
-    // TODO: the contract address should be get from the registry contract
-    const contractAddress = this.settings.dexes.sovryn?.rootstock?.helperContractAddress as string;
-    const provider = this.providerRepository.get(ChainsIds.ROOTSTOCK).getRawProviderSync<BaseProvider>();
+    const blockchain = this.blockchainRepository.get(ChainsIds.ROOTSTOCK);
+    const registry = RegistryContractFactory.create(blockchain);
+    const contractAddress = await registry.getAddress('SovrynFetcherHelper');
+
+    const provider = blockchain.provider.getRawProviderSync<BaseProvider>();
     const contract = new Contract(contractAddress, abi, provider);
 
     return await contract.callStatic.getPrices([pair]);
