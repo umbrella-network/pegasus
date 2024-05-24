@@ -27,3 +27,7 @@ export interface FeedFetcherInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apply(params: any, timestamp?: number): FeedFetcherInterfaceResult;
 }
+
+export enum FetcherName {
+  UNISWAP_V3 = 'UniswapV3Fetcher',
+}

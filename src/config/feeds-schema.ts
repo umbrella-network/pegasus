@@ -1,3 +1,5 @@
+import {FetcherName} from '../types/fetchers.js';
+
 export default {
   description: 'Feeds schema for the JSONSchema validator',
   type: 'object',
@@ -42,7 +44,7 @@ export default {
             {$ref: '#/definitions/CoinmarketcapHistoHourFetcher'},
             {$ref: '#/definitions/CoinmarketcapHistoDayFetcher'},
             {$ref: '#/definitions/OnChainDataFetcher'},
-            {$ref: '#/definitions/UniswapV3'},
+            {$ref: '#/definitions/UniswapV3Fetcher'},
             {$ref: '#/definitions/OptionsPriceFetcher'},
             {$ref: '#/definitions/YearnVaultTokenPriceFetcher'},
             {$ref: '#/definitions/RandomNumberFetcher'},
@@ -329,17 +331,17 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    UniswapV3: {
+    UniswapV3Fetcher: {
       properties: {
-        name: {const: 'UniswapV3'},
+        name: {const: FetcherName.UNISWAP_V3},
         params: {
           type: 'object',
           properties: {
-            chainFrom: {type: 'array'},
+            fromChain: {type: 'array'},
             token0: {type: 'string'},
             token1: {type: 'string'},
           },
-          required: ['chainFrom', 'token0', 'token1'],
+          required: ['fromChain', 'token0', 'token1'],
           additionalProperties: false,
         },
       },

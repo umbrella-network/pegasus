@@ -12,6 +12,8 @@ import {DeviationDispatcherWorker} from './workers/DeviationDispatcherWorker.js'
 import BasicWorker from './workers/BasicWorker.js';
 import {ChainsIds} from './types/ChainsIds.js';
 import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker.js';
+import {LiquidityWorkerRepository} from './repositories/LiquidityWorkerRepository.js';
+import {DexProtocolName} from './types/Dexes.js';
 
 (async (): Promise<void> => {
   await boot();
@@ -24,6 +26,7 @@ import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker.js';
   const dataPurger = Application.get(DataPurger);
   const blockDispatcherWorker = Application.get(BlockDispatcherWorker);
   const deviationDispatcherWorker = Application.get(DeviationDispatcherWorker);
+  const liquidityWorkerRepository = Application.get(LiquidityWorkerRepository);
   const blockchainMetricsWorker = Application.get(BlockchainMetricsWorker);
 
   const jobCode = Math.floor(Math.random() * 1000).toString();
@@ -139,5 +142,43 @@ import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker.js';
       async () => scheduleDispatching(deviationDispatcherWorker, 'deviation-dispatcher', chainId),
       deviationInterval,
     );
+  }
+
+  for (const chainId of Object.keys(settings.jobs.liquidities)) {
+    for (const [protocol, jobSettings] of Object.entries(settings.jobs.liquidities[chainId as ChainsIds]!)) {
+      const workerName = `[${chainId}-${protocol}]`;
+      const worker = liquidityWorkerRepository.find(protocol as DexProtocolName);
+
+      if (!worker) {
+        logger.error(`${workerName} not found`);
+        continue;
+      }
+
+      setTimeout(async () => {
+        logger.info(`initial run for ${workerName}`);
+
+        await worker!.enqueue(
+          {name: workerName, chainId, settings: jobSettings},
+          {
+            removeOnComplete: true,
+            removeOnFail: true,
+            jobId: `${chainId}-${protocol}`,
+          },
+        );
+      }, 1000);
+
+      setInterval(async () => {
+        logger.info(`[Scheduler] Scheduling ${workerName}`);
+
+        await worker!.enqueue(
+          {name: workerName, chainId, settings: jobSettings},
+          {
+            removeOnComplete: true,
+            removeOnFail: true,
+            jobId: `${chainId}-${protocol}`,
+          },
+        );
+      }, jobSettings.interval);
+    }
   }
 })();

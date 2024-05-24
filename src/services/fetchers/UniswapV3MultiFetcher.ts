@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {PoolRepository} from '../../repositories/PoolRepository.js';
-import {DexProtocolName} from '../../types/DexProtocolName.js';
+import {DexProtocolName} from '../../types/Dexes.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 import {ContractHelperRepository} from '../../repositories/ContractHelperRepository.js';
 import {BigNumber} from 'ethers';

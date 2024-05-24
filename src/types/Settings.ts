@@ -28,6 +28,14 @@ export type BlockchainSettings = {
   };
 };
 
+export type LiquidityWorker = {
+  interval: number;
+  lock: {
+    name: string;
+    ttl: number;
+  };
+};
+
 export type DexPoolAPISettings = {
   helperContractAddress: string;
 };
@@ -78,6 +86,7 @@ type Settings = {
         ttl: number;
       };
     };
+    liquidities: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, LiquidityWorker>>>>;
     blockchainMetrics: {
       interval: number;
       lock: {
