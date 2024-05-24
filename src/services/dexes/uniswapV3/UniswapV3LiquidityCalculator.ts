@@ -7,7 +7,7 @@ import {ethers} from 'ethers';
 
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {UniswapV3TickQuery} from './UniswapV3TickQuery.js';
-import {GraphTick} from './interfaces.js';
+import {BarChartTick, GraphTick} from './interfaces.js';
 import {BlockchainProviderRepository} from '../../../repositories/BlockchainProviderRepository.js';
 import {ActiveLiquititySDK} from './ActiveLiquiditySDK.js';
 
@@ -17,7 +17,13 @@ export class UniswapV3LiquidityCalculator {
   @inject(UniswapV3TickQuery) uniswapV3TickQuery!: UniswapV3TickQuery;
   @inject(ActiveLiquititySDK) activeLiquititySDK!: ActiveLiquititySDK;
 
-  async apply(poolAddress: string, token0: Token, token1: Token, fee: FeeAmount, chainId: ChainsIds) {
+  async apply(
+    poolAddress: string,
+    token0: Token,
+    token1: Token,
+    fee: FeeAmount,
+    chainId: ChainsIds,
+  ): Promise<BarChartTick[]> {
     // TODO get helper address from registry
     const provider = this.blockchainProviderRepository.get(chainId);
     const poolContract = new ethers.Contract(poolAddress, IUniswapV3PoolABI.abi, provider);

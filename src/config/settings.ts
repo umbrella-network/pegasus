@@ -251,18 +251,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
-  [ChainsIds.SEPOLIA]: {
-    type: resolveBlockchainType(ChainsIds.SEPOLIA) || [BlockchainType.ON_CHAIN],
-    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.SEPOLIA),
-    transactions: {
-      waitForBlockTime: 1000,
-      minGasPrice: 100000000,
-      minBalance: {
-        warningLimit: '0.001',
-        errorLimit: '0.00005',
-      },
-    },
-  },
   [ChainsIds.ZK_LINK_NOVA]: {
     type: resolveBlockchainType(ChainsIds.ZK_LINK_NOVA) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ZK_LINK_NOVA),
@@ -312,15 +300,6 @@ const settings: Settings = {
           },
         },
       },
-      [ChainsIds.SEPOLIA]: {
-        [DexProtocolName.UNISWAP_V3]: {
-          interval: parseInt(process.env.SEPOLIA_UNISWAPV3_LIQUIDITY_JOB_INTERVAL || String(getDayInMillisecond(3))),
-          lock: {
-            name: process.env.SEPOLIA_UNISWAPV3_LIQUIDITY_LOCK_NAME || 'lock::SepoliaUniswapV3Liquidity',
-            ttl: parseInt(process.env.SEPOLIA_UNISWAPV3_LIQUIDITY_LOCK_TTL || '60'),
-          },
-        },
-      },
     },
     blockchainMetrics: {
       interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '600000'),
@@ -352,11 +331,6 @@ const settings: Settings = {
     ethereum: {
       providerUrl: process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL
         ? (<string>process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL).split(',')
-        : [],
-    },
-    sepolia: {
-      providerUrl: process.env.BLOCKCHAINS_SEPOLIA_PROVIDER_URL
-        ? (<string>process.env.BLOCKCHAINS_SEPOLIA_PROVIDER_URL).split(',')
         : [],
     },
   },
@@ -481,9 +455,6 @@ const settings: Settings = {
     [DexProtocolName.UNISWAP_V3]: {
       [ChainsIds.ETH]: {
         subgraphUrl: <string>process.env['ETHEREUM_UNISWAPV3_SUBGRAPH_API'],
-      },
-      [ChainsIds.SEPOLIA]: {
-        subgraphUrl: <string>process.env['SEPOLIA_UNISWAPV3_SUBGRAPH_API'],
       },
     },
   },

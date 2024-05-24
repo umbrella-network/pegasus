@@ -6,14 +6,14 @@ import TimeService from '../../TimeService.js';
 import {FeedsType} from '../../../types/Feed.js';
 import {FeedDataService} from '../../FeedDataService.js';
 import {LiquiditySummingService} from './LiquiditySummingService.js';
-import {UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
+import {SaveLiquidityParams, UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {TokenRepository} from '../../../repositories/TokenRepository.js';
 import {UniswapV3Param} from './interfaces.js';
 import {DexProtocolName} from '../../../types/Dexes.js';
 import {UniswapV3Pool} from '../../../models/UniswapV3Pool.js';
 import {FetcherName} from '../../../types/fetchers.js';
-import {DeviationLeavesAndFeeds} from 'src/types/DeviationFeeds.js';
+import {DeviationLeavesAndFeeds} from '../../../types/DeviationFeeds.js';
 
 @injectable()
 export class UniswapV3LiquidityResolver {
@@ -27,7 +27,7 @@ export class UniswapV3LiquidityResolver {
   readonly protocol = DexProtocolName.UNISWAP_V3;
   readonly logPrefix = '[UniswapV3LiquidityResolver]';
 
-  async apply(chainId: ChainsIds) {
+  async apply(chainId: ChainsIds): Promise<void> {
     const feeds = await this.getFeeds(chainId);
     const uniswapV3Params = this.feedDataService.getParamsByFetcherName<UniswapV3Param>(feeds, FetcherName.UNISWAP_V3);
 
@@ -76,7 +76,7 @@ export class UniswapV3LiquidityResolver {
     ];
   }
 
-  private async processParams(uniswapV3Params: UniswapV3Param[], chainId: ChainsIds) {
+  private async processParams(uniswapV3Params: UniswapV3Param[], chainId: ChainsIds): Promise<void> {
     await Promise.all(
       uniswapV3Params
         .filter((param) => param.fromChain.includes(chainId))
@@ -105,7 +105,12 @@ export class UniswapV3LiquidityResolver {
     );
   }
 
-  private async getLiquidities(pool: UniswapV3Pool, token0: Token, token1: Token, chainId: ChainsIds) {
+  private async getLiquidities(
+    pool: UniswapV3Pool,
+    token0: Token,
+    token1: Token,
+    chainId: ChainsIds,
+  ): Promise<SaveLiquidityParams | undefined> {
     const liquidity = await this.liquiditySummingService.apply(pool.address, token0, token1, pool.fee, chainId);
     return liquidity;
   }
@@ -115,12 +120,8 @@ export class UniswapV3LiquidityResolver {
     token0: Token,
     token1: Token,
     chainId: ChainsIds,
-    liquidity: {
-      liquidityActive: string;
-      liquidityLockedToken0: number;
-      liquidityLockedToken1: number;
-    },
-  ) {
+    liquidity: SaveLiquidityParams,
+  ): Promise<void> {
     const save = await this.uniswapV3PoolRepository.saveLiquidity(
       {
         address: pool.address,
@@ -144,10 +145,9 @@ export class UniswapV3LiquidityResolver {
     }
   }
 
-  private getUniswapV3ChainNumber(chainId: ChainsIds) {
+  private getUniswapV3ChainNumber(chainId: ChainsIds): number | undefined {
     const uniswapV3ChainNumbers: Partial<Record<ChainsIds, number>> = {
       [ChainsIds.ETH]: ChainId.MAINNET,
-      [ChainsIds.SEPOLIA]: ChainId.SEPOLIA,
       [ChainsIds.POLYGON]: ChainId.POLYGON,
       [ChainsIds.AVALANCHE]: ChainId.AVALANCHE,
       [ChainsIds.BASE]: ChainId.BASE,

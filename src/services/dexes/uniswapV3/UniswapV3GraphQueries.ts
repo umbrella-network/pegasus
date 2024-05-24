@@ -1,4 +1,4 @@
-export const liquidityPoolsQuery = (poolAddress: string, skip: number) => `
+export const liquidityPoolsQuery = (poolAddress: string, skip: number): string => `
 query TickPoolsQuery {
     ticks(
         where: {poolAddress: "${poolAddress.toLowerCase()}", liquidityNet_not: "0"}

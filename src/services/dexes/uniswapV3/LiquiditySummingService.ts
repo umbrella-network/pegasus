@@ -7,13 +7,20 @@ import JSBI from 'jsbi';
 import {BarChartTick} from './interfaces.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {UniswapV3LiquidityCalculator} from './UniswapV3LiquidityCalculator.js';
+import {SaveLiquidityParams} from '../../../repositories/UniswapV3PoolRepository.js';
 
 @injectable()
 export class LiquiditySummingService {
   @inject('Logger') logger!: Logger;
   @inject(UniswapV3LiquidityCalculator) uniswapV3LiquidityCalculator!: UniswapV3LiquidityCalculator;
 
-  async apply(poolAddress: string, token0: Token, token1: Token, fee: FeeAmount, chainId: ChainsIds) {
+  async apply(
+    poolAddress: string,
+    token0: Token,
+    token1: Token,
+    fee: FeeAmount,
+    chainId: ChainsIds,
+  ): Promise<SaveLiquidityParams | undefined> {
     const logPrefix = `[LiquiditySummingService][${chainId}]`;
     const barChartTicks = await this.uniswapV3LiquidityCalculator.apply(poolAddress, token0, token1, fee, chainId);
 
@@ -25,7 +32,7 @@ export class LiquiditySummingService {
     return this.getLiquiditySum(barChartTicks);
   }
 
-  private async getLiquiditySum(createBarChartTicks: BarChartTick[]) {
+  private async getLiquiditySum(createBarChartTicks: BarChartTick[]): Promise<SaveLiquidityParams | undefined> {
     const liquiditiesSum = {liquidityActive: '0', liquidityLockedToken0: 0, liquidityLockedToken1: 0};
 
     createBarChartTicks.forEach((curr) => {

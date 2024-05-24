@@ -13,7 +13,7 @@ type SavePoolParams = {
   address: string;
 };
 
-type SaveLiquidityParams = {
+export type SaveLiquidityParams = {
   liquidityActive: string;
   liquidityLockedToken0: number;
   liquidityLockedToken1: number;
