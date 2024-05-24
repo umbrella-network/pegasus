@@ -56,23 +56,23 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject('Settings') private settings!: Settings;
   @inject(ProviderRepository) private providerRepository!: ProviderRepository;
 
-  public async apply(pair: PairRequest): Promise<number> {
+  public async apply(pair: PairRequest): Promise<number | undefined> {
     try {
       const prices = await this.getPrice(pair);
-      const priceResponse = prices.prices[0];
+      const {price, success} = prices.prices[0];
 
-      const successfulPrice = priceResponse.success;
+      const successfulPrice = success;
       if (!successfulPrice) {
         this.logger.error(`[SovrynPriceFetcher] price is not successful for pair: ${pairRequestToString(pair)}.`);
-        return 0;
+        return;
       }
 
-      const bigIntPrice = priceResponse.price.toBigInt();
+      const bigIntPrice = price.toBigInt();
 
       return bigIntToFloatingPoint(bigIntPrice, 18);
     } catch (error) {
       this.logger.error(`[SovrynPriceFetcher] failed to get price for pair: ${pairRequestToString(pair)}. ${error}`);
-      return 0;
+      return;
     }
   }
 
