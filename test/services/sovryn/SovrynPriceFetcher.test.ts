@@ -106,15 +106,15 @@ describe('SovrynFetcher-IntegrationTests', () => {
     const rUSDT = '0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0';
     const weBTC = '0x69fe5cec81d5ef92600c1a0db1f11986ab3758ab';
     const amountInDecimals = 8;
-    const requestPair: PairRequest = {
+    const requestPair1: PairRequest = {
       base: weBTC,
       quote: rUSDT,
       amountInDecimals,
     };
 
     const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceFetcher;
-    const price = await sovrynPriceFetcher.apply(requestPair);
+    const prices = await sovrynPriceFetcher.apply([requestPair1, requestPair1]);
 
-    console.log('price weBTC/rUSDT:', price);
+    console.log('price weBTC/rUSDT:', prices[0]);
   });
 });

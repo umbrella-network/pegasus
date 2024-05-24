@@ -6,6 +6,7 @@ import {mergeArrays} from '../../utils/collections.js';
 import CoingeckoMultiProcessor from './CoingeckoMultiProcessor.js';
 import CryptoCompareMultiProcessor from './CryptoCompareMultiProcessor.js';
 import UniswapV3MultiProcessor from './UniswapV3MultiProcessor.js';
+import SovrynMultiProcessor from '../dexes/sovryn/SovrynMultiProcessor.js';
 
 @injectable()
 export default class MultiFeedProcessor {
@@ -13,6 +14,7 @@ export default class MultiFeedProcessor {
   @inject(CoingeckoMultiProcessor) coingeckoMultiProcessor!: CoingeckoMultiProcessor;
   @inject(CryptoCompareMultiProcessor) cryptoCompareMultiProcessor!: CryptoCompareMultiProcessor;
   @inject(UniswapV3MultiProcessor) uniswapV3MultiProcessor!: UniswapV3MultiProcessor;
+  @inject(SovrynMultiProcessor) sovrynV3MultiProcessor!: SovrynMultiProcessor;
 
   async apply(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
     if (!feedFetchers.length) return [];
