@@ -55,27 +55,41 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject('Logger') private logger!: Logger;
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
 
-  public async apply(pair: PairRequest): Promise<number | undefined> {
+  public async apply(pairs: PairRequest[]): Promise<(number | undefined)[]> {
+    console.log(pairs);
+    let response;
     try {
-      const prices = await this.getPrice(pair);
-      const {price, success} = prices.prices[0];
+      response = await this.getPrices(pairs);
+    } catch (error) {
+      this.logger.error('[SovrynPriceFetcher] failed to get price for pairs.');
+
+      for (const pair of pairs) {
+        this.logger.error(`[SovrynPriceFetcher] price is not successful for pair: ${pairRequestToString(pair)}.`);
+      }
+
+      return [];
+    }
+
+    const pricesResponse: (number | undefined)[] = [];
+    for (const [ix, price_] of response.prices.entries()) {
+      const {price, success} = price_;
 
       const successfulPrice = success;
       if (!successfulPrice) {
-        this.logger.error(`[SovrynPriceFetcher] price is not successful for pair: ${pairRequestToString(pair)}.`);
-        return;
+        this.logger.error(`[SovrynPriceFetcher] price is not successful for pair: ${pairRequestToString(pairs[ix])}.`);
+        pricesResponse.push(undefined);
+        continue;
       }
 
       const bigIntPrice = price.toBigInt();
 
-      return bigIntToFloatingPoint(bigIntPrice, 18);
-    } catch (error) {
-      this.logger.error(`[SovrynPriceFetcher] failed to get price for pair: ${pairRequestToString(pair)}. ${error}`);
-      return;
+      pricesResponse.push(bigIntToFloatingPoint(bigIntPrice, 18));
     }
+    console.log(pricesResponse);
+    return pricesResponse;
   }
 
-  private async getPrice(pair: PairRequest): Promise<PricesResponse> {
+  private async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
     const blockchain = this.blockchainRepository.get(ChainsIds.ROOTSTOCK);
@@ -85,6 +99,6 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
     const provider = blockchain.provider.getRawProviderSync<BaseProvider>();
     const contract = new Contract(contractAddress, abi, provider);
 
-    return await contract.callStatic.getPrices([pair]);
+    return await contract.callStatic.getPrices(pairs);
   }
 }
