@@ -57,6 +57,6 @@ export class UniswapV3PoolRepository {
       token1: {$in: [token0, token1]},
     };
 
-    return getModelForClass(UniswapV3Pool).find(filter).exec();
+    return getModelForClass(UniswapV3Pool).find(filter).sort({token0: 1, token1: 1}).exec();
   }
 }
