@@ -116,5 +116,6 @@ describe('SovrynFetcher-IntegrationTests', () => {
     const prices = await sovrynPriceFetcher.apply([requestPair1, requestPair1]);
 
     console.log('price weBTC/rUSDT:', prices[0]);
+    console.log('price weBTC/rUSDT:', prices[1]);
   });
 });
