@@ -10,8 +10,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
 
   async apply(feedFetchers: FeedFetcher[]): Promise<(number | undefined)[]> {
     const request = this.createRequest(feedFetchers);
-    const response = await this.sovrynFetcher.apply(request);
-    return response;
+    return await this.sovrynFetcher.apply(request);
   }
 
   private createRequest(feedInputs: FeedFetcher[]): PairRequest[] {
