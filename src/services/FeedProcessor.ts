@@ -9,7 +9,7 @@ import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {FetcherHistoryInterface} from '../types/fetchers.js';
+import {FetcherHistoryInterface, FetcherName} from '../types/fetchers.js';
 import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
 
 interface Calculator {
@@ -181,7 +181,7 @@ class FeedProcessor {
    * @return multiInputs will be aggregated by the respective processor to be fetched in one API call
    */
   private separateInputs(uniqueFeedFetcherMap: {[hash: string]: FeedFetcher}) {
-    const multiFetchingInputsNames = ['CryptoComparePrice', 'CoingeckoPrice', 'UniswapV3'];
+    const multiFetchingInputsNames = ['CryptoComparePrice', 'CoingeckoPrice', FetcherName.UNISWAP_V3];
 
     const fetcherMapArr = Object.values(uniqueFeedFetcherMap);
     const fetcherKeys = Object.keys(uniqueFeedFetcherMap);

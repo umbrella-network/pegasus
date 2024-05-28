@@ -24,6 +24,7 @@ class Blockchain {
 
     this.chainId = chainId;
     this.chainSettings = (<Record<string, BlockchainSettings>>settings.blockchain.multiChains)[chainId];
+    console.log('chainSettings: ', this.chainSettings);
     if (!this.chainSettings) return;
 
     this.provider = ProviderFactory.create(chainId);

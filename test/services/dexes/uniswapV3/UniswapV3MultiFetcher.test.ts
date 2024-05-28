@@ -4,15 +4,17 @@ import sinon from 'sinon';
 
 import UniswapV3MultiFetcher, {
   UniswapV3MultiFetcherParams,
-} from '../../../src/services/fetchers/UniswapV3MultiFetcher.js';
-import Settings from '../../../src/types/Settings.js';
-import {getTestContainer} from '../../helpers/getTestContainer.js';
-import {ContractHelperRepository} from '../../../src/repositories/ContractHelperRepository.js';
-import {UniswapV3Helper} from '../../../src/services/fetcherHelper/contracts/UniswapV3Helper.js';
-import {PoolRepository} from '../../../src/repositories/PoolRepository.js';
-import {ChainsIds} from '../../../src/types/ChainsIds.js';
-import {DexProtocolName} from '../../../src/types/Dexes.js';
+} from '../../../../src/services/dexes/uniswapV3/UniswapV3MultiFetcher.js';
+import Settings from '../../../../src/types/Settings.js';
+import {getTestContainer} from '../../../helpers/getTestContainer.js';
+import {UniswapV3PoolRepository} from '../../../../src/repositories/UniswapV3PoolRepository.js';
+import {ChainsIds} from '../../../../src/types/ChainsIds.js';
+import {DexProtocolName} from '../../../../src/types/Dexes.js';
 import {Container} from 'inversify';
+import {UniswapV3Pool} from '../../../../src/models/UniswapV3Pool.js';
+import {BlockchainRepository} from '../../../../src/repositories/BlockchainRepository.js';
+import Blockchain from '../../../../src/lib/Blockchain.js';
+import {RegistryContractFactory} from '../../../../src/factories/contracts/RegistryContractFactory.js';
 
 const {expect} = chai;
 
@@ -20,9 +22,10 @@ describe('UniswapV3MultiFetcher', () => {
   let settings: Settings;
   let uniswapV3MultiFetcher: UniswapV3MultiFetcher;
   let container: Container;
-  let mockedContractHelperRepository: sinon.SinonStubbedInstance<ContractHelperRepository>;
-  let mockedUniswapV3Helper: sinon.SinonStubbedInstance<UniswapV3Helper>;
-  let mockedPoolRepository: sinon.SinonStubbedInstance<PoolRepository>;
+  let mockedUniswapV3PoolRepository: sinon.SinonStubbedInstance<UniswapV3PoolRepository>;
+  let mockedBlockchainRepository: sinon.SinonStubbedInstance<BlockchainRepository>;
+  let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
+  let mockedRegistryContractFactory: sinon.SinonStubbedInstance<RegistryContractFactory>;
   let mockedContract: sinon.SinonStubbedInstance<any>;
 
   const tokenTest0 = '0x01ac9633f13aa16e0f8d4514c806a55f9e9abd01';
@@ -35,12 +38,13 @@ describe('UniswapV3MultiFetcher', () => {
 
   const params: UniswapV3MultiFetcherParams[] = [
     {
-      chainFrom: ['ethereum'],
+      fromChain: ['ethereum'],
       token0: tokenTest0,
       token1: tokenTest1,
+      amountInDecimals: 10,
     },
-    {chainFrom: ['ethereum', 'bsc'], token0: tokenTest1, token1: tokenTest2},
-    {chainFrom: ['ethereum'], token0: tokenTest1, token1: tokenTest3},
+    {fromChain: ['ethereum', 'bsc'], token0: tokenTest1, token1: tokenTest2, amountInDecimals: 10},
+    {fromChain: ['ethereum'], token0: tokenTest1, token1: tokenTest3, amountInDecimals: 10},
   ];
 
   const responseGetPrices: [{success: boolean; price: BigNumber}[], number] = [
@@ -65,8 +69,8 @@ describe('UniswapV3MultiFetcher', () => {
       pool: pool2,
       chainId: ChainsIds.ETH,
       protocol: DexProtocolName.UNISWAP_V3,
-      token0: tokenTest0,
-      token1: tokenTest1,
+      token0: tokenTest2,
+      token1: tokenTest3,
       fee: 123,
     },
   ];
@@ -92,37 +96,44 @@ describe('UniswapV3MultiFetcher', () => {
   });
 
   describe('#apply', () => {
-    const responseFindQuery = [
+    const responseFindQuery: UniswapV3Pool[] = [
       {
-        pool: pool1,
+        address: pool1,
         chainId: ChainsIds.ETH,
         protocol: DexProtocolName.UNISWAP_V3,
         token0: tokenTest0,
         token1: tokenTest1,
         fee: 123,
+        liquidityActive: '10',
+        liquidityLockedToken0: 20,
+        liquidityLockedToken1: 30,
       },
       {
-        pool: pool2,
+        address: pool2,
         chainId: ChainsIds.ETH,
         protocol: DexProtocolName.UNISWAP_V3,
-        token0: tokenTest0,
-        token1: tokenTest1,
+        token0: tokenTest2,
+        token1: tokenTest3,
         fee: 123,
+        liquidityActive: '10',
+        liquidityLockedToken0: 20,
+        liquidityLockedToken1: 30,
       },
     ];
 
     describe('when get value from DB and from contract returns data', () => {
       beforeEach(() => {
-        mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
-        mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-        mockedPoolRepository = sinon.createStubInstance(PoolRepository);
-        mockedPoolRepository.find.resolves(responseFindQuery);
+        mockedBlockchain = sinon.createStubInstance(Blockchain);
+        mockedBlockchain;
+        mockedBlockchainRepository = sinon.createStubInstance(BlockchainRepository);
+        mockedBlockchainRepository.get.returns(mockedBlockchain);
+        mockedUniswapV3PoolRepository = sinon.createStubInstance(UniswapV3PoolRepository);
+        mockedUniswapV3PoolRepository.findStrictPair.resolves(responseFindQuery);
         mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
         mockedUniswapV3Helper.getContract.returns(mockedContract);
-        mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
 
         container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-        container.bind(PoolRepository).toConstantValue(mockedPoolRepository);
+        container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
         container.bind(UniswapV3MultiFetcher).toSelf();
 
         uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
@@ -156,14 +167,14 @@ describe('UniswapV3MultiFetcher', () => {
       beforeEach(() => {
         mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
         mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-        mockedPoolRepository = sinon.createStubInstance(PoolRepository);
-        mockedPoolRepository.find.resolves(responseFindQuery);
+        mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
+        mockedUniswapV3PoolRepository.find.resolves(responseFindQuery);
         mockedContract = {callStatic: {getPrices: sinon.stub().rejects()}};
         mockedUniswapV3Helper.getContract.returns(mockedContract);
         mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
 
         container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-        container.bind(PoolRepository).toConstantValue(mockedPoolRepository);
+        container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
         container.bind(UniswapV3MultiFetcher).toSelf();
 
         uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
@@ -178,15 +189,15 @@ describe('UniswapV3MultiFetcher', () => {
       beforeEach(() => {
         mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
         mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-        mockedPoolRepository = sinon.createStubInstance(PoolRepository);
-        mockedPoolRepository.find.resolves([]);
+        mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
+        mockedUniswapV3PoolRepository.find.resolves([]);
 
         mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
         mockedUniswapV3Helper.getContract.returns(mockedContract);
         mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
 
         container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-        container.bind(PoolRepository).toConstantValue(mockedPoolRepository);
+        container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
         container.bind(UniswapV3MultiFetcher).toSelf();
 
         uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
@@ -206,13 +217,13 @@ describe('UniswapV3MultiFetcher', () => {
       beforeEach(() => {
         mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
         mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-        mockedPoolRepository = sinon.createStubInstance(PoolRepository);
-        mockedPoolRepository.find.onCall(0).resolves(responseFindQuery0);
-        mockedPoolRepository.find.onCall(1).resolves(responseFindQuery1);
-        mockedPoolRepository.find.onCall(2).resolves([]);
+        mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
+        mockedUniswapV3PoolRepository.find.onCall(0).resolves(responseFindQuery0);
+        mockedUniswapV3PoolRepository.find.onCall(1).resolves(responseFindQuery1);
+        mockedUniswapV3PoolRepository.find.onCall(2).resolves([]);
 
         container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-        container.bind(PoolRepository).toConstantValue(mockedPoolRepository);
+        container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
         container.bind(UniswapV3MultiFetcher).toSelf();
 
         uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
@@ -243,13 +254,13 @@ describe('UniswapV3MultiFetcher', () => {
       beforeEach(() => {
         mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
         mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-        mockedPoolRepository = sinon.createStubInstance(PoolRepository);
+        mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
         mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
         mockedUniswapV3Helper.getContract.returns(mockedContract);
         mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
 
         container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-        container.bind(PoolRepository).toConstantValue(mockedPoolRepository);
+        container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
         container.bind(UniswapV3MultiFetcher).toSelf();
 
         uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
@@ -301,13 +312,13 @@ describe('UniswapV3MultiFetcher', () => {
       beforeEach(() => {
         mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
         mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-        mockedPoolRepository = sinon.createStubInstance(PoolRepository);
+        mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
         mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
         mockedUniswapV3Helper.getContract.returns(mockedContract);
         mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
 
         container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-        container.bind(PoolRepository).toConstantValue(mockedPoolRepository);
+        container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
         container.bind(UniswapV3MultiFetcher).toSelf();
 
         uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
@@ -359,13 +370,13 @@ describe('UniswapV3MultiFetcher', () => {
     beforeEach(() => {
       mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
       mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-      mockedPoolRepository = sinon.createStubInstance(PoolRepository);
+      mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
       mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
       mockedUniswapV3Helper.getContract.returns(mockedContract);
       mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
 
       container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-      container.bind(PoolRepository).toConstantValue(mockedPoolRepository);
+      container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
       container.bind(UniswapV3MultiFetcher).toSelf();
 
       uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
