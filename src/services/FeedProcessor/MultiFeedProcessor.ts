@@ -33,6 +33,7 @@ export default class MultiFeedProcessor {
       if (result.status === 'fulfilled') {
         response = mergeArrays(response, result.value);
       } else {
+        // TODO: implement this using an enum
         const processors = [
           'cryptoCompareMultiProcessor',
           'coingeckoMultiProcessor',
