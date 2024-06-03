@@ -51,7 +51,7 @@ weBTC-rUSDT:
           amountIdDecimals: 18
 */
 @injectable()
-export class SovrynPriceFetcher {
+export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject('Logger') private logger!: Logger;
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
 
