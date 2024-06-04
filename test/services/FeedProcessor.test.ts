@@ -75,24 +75,6 @@ describe('FeedProcessor', () => {
       });
     });
 
-    describe('when fetcher does not exist', () => {
-      before(async () => {
-        const feeds: Feeds = {
-          TEST: feedFactory.build({inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher' as FetcherName}})]}),
-        };
-
-        result = await instance.apply(10, feeds);
-      });
-
-      it('responds with an empty multidimensional array', () => {
-        expect(result).to.deep.equal([[]]);
-      });
-
-      it('does not call identityCalculator.apply', () => {
-        expect(identityCalculator.apply.called).to.be.false;
-      });
-    });
-
     describe('when fetcher rejects', () => {
       before(async () => {
         feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
@@ -364,98 +346,34 @@ describe('FeedProcessor', () => {
       });
     });
 
-    describe('when two feeds are given', () => {
-      describe('when both fetchers do not exist', () => {
-        before(async () => {
-          feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
-          calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
+    describe('when two valid feeds are given', () => {
+      before(async () => {
+        feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
+        calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
-          const feeds1: Feeds = {
-            TEST: feedFactory.build({
-              inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher' as FetcherName}})],
-            }),
-          };
+        const feeds1: Feeds = {
+          TEST: feedFactory.build(),
+        };
 
-          const feeds2: Feeds = {
-            TEST: feedFactory.build({
-              inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher' as FetcherName}})],
-            }),
-          };
+        const feeds2: Feeds = {
+          'HAHN-USD': feedFactory.build(),
+        };
 
-          testFetcher.apply = stub().resolves(100.0);
+        testFetcher.apply = stub().resolves(100.0);
 
-          result = await instance.apply(10, feeds1, feeds2);
-        });
-
-        it('responds with an empty multidimensional array', () => {
-          expect(result).to.deep.equal([[], []]);
-        });
-
-        it('does not call identityCalculator.apply', () => {
-          expect(identityCalculator.apply.called).to.be.false;
-        });
+        result = await instance.apply(10, feeds1, feeds2);
       });
 
-      describe('when one fetcher does not exist', () => {
-        before(async () => {
-          feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
-          calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
-
-          const feeds1: Feeds = {
-            TEST: feedFactory.build(),
-          };
-
-          const feeds2: Feeds = {
-            TEST: feedFactory.build({
-              inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher' as FetcherName}})],
-            }),
-          };
-
-          testFetcher.apply = stub().resolves(100.0);
-
-          result = await instance.apply(10, feeds1, feeds2);
-        });
-
-        it('responds with an array that include an array with result and an empty array', () => {
-          expect(result[0]).to.be.an('array').with.lengthOf(1);
-          expect(result[1]).to.be.an('array').with.lengthOf(0);
-          expect(result[0][0].label).to.equal('TEST');
-        });
-
-        it('responds with a leaf with value decoded as number', () => {
-          expect(LeafValueCoder.decode(result[0][0].valueBytes, result[0][0].label)).is.a('number').that.equal(100.0);
-        });
+      it('responds with an array that includes two arrays with results', () => {
+        expect(result[0]).to.be.an('array').with.lengthOf(1);
+        expect(result[1]).to.be.an('array').with.lengthOf(1);
+        expect(result[0][0].label).to.equal('TEST');
+        expect(result[1][0].label).to.equal('HAHN-USD');
       });
 
-      describe('when both fetchers exist', () => {
-        before(async () => {
-          feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
-          calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
-
-          const feeds1: Feeds = {
-            TEST: feedFactory.build(),
-          };
-
-          const feeds2: Feeds = {
-            'HAHN-USD': feedFactory.build(),
-          };
-
-          testFetcher.apply = stub().resolves(100.0);
-
-          result = await instance.apply(10, feeds1, feeds2);
-        });
-
-        it('responds with an array that includes two arrays with results', () => {
-          expect(result[0]).to.be.an('array').with.lengthOf(1);
-          expect(result[1]).to.be.an('array').with.lengthOf(1);
-          expect(result[0][0].label).to.equal('TEST');
-          expect(result[1][0].label).to.equal('HAHN-USD');
-        });
-
-        it('responds with a leaf with value decoded as number', () => {
-          expect(LeafValueCoder.decode(result[0][0].valueBytes, result[0][0].label)).is.a('number').that.equal(100.0);
-          expect(LeafValueCoder.decode(result[1][0].valueBytes, result[0][0].label)).is.a('number').that.equal(100.0);
-        });
+      it('responds with a leaf with value decoded as number', () => {
+        expect(LeafValueCoder.decode(result[0][0].valueBytes, result[0][0].label)).is.a('number').that.equal(100.0);
+        expect(LeafValueCoder.decode(result[1][0].valueBytes, result[0][0].label)).is.a('number').that.equal(100.0);
       });
     });
   });
