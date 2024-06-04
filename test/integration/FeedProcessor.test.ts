@@ -90,7 +90,7 @@ describe('FeedProcessor integration tests', () => {
     priceRepository = container.get(PriceRepository);
     feedProcessor = container.get(FeedProcessor);
 
-    feeds = await loadFeeds('test/feeds/feeds.yaml');
+    feeds = (await loadFeeds('test/feeds/feeds.yaml')) as Feeds;
   });
 
   describe('when running feeds that uses HTTP', () => {

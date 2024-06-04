@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import {Container} from 'inversify';
 import sinon, {createStubInstance, SinonStubbedInstance, stub} from 'sinon';
 import chai from 'chai';
-import Feeds from '@umb-network/toolbox/dist/types/Feed';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
 import {getTestContainer} from '../helpers/getTestContainer.js';
@@ -10,6 +9,7 @@ import {FeedFetcherRepository} from '../../src/repositories/FeedFetcherRepositor
 import {CalculatorRepository} from '../../src/repositories/CalculatorRepository.js';
 import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {IdentityCalculator} from '../../src/services/calculators/index.js';
+import Feeds from '../../src/types/Feed.js';
 import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
 import Leaf from '../../src/types/Leaf.js';
 import CryptoCompareMultiProcessor from '../../src/services/FeedProcessor/CryptoCompareMultiProcessor.js';
