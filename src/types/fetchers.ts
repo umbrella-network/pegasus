@@ -31,7 +31,7 @@ export interface FeedFetcherInterface {
 export enum FetcherName {
   G_VOL_IMPLIED_VOLATILITY = 'GVolImpliedVolatility',
   CRYPTO_COMPARE_PRICE = 'CryptoComparePrice',
-  CRYPTO_COMPARE_PRICE_WS = 'CRYPTOCOMPAREPRICE_WS',
+  CRYPTO_COMPARE_PRICE_WS = 'CryptoComparePriceWS',
   CRYPTO_COMPARE_HISTO_HOUR = 'CryptoCompareHistoHour',
   CRYPTO_COMPARE_HISTO_DAY = 'CryptoCompareHistoDay',
   COINMARKETCAP_PRICE = 'CoinmarketcapPrice',
