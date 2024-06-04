@@ -11,6 +11,7 @@ import PriceRepository from '../../src/repositories/PriceRepository.js';
 import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
 import CryptoCompareWSClient from '../../src/services/ws/CryptoCompareWSClient.js';
 import {FetcherHistoryRepository} from '../../src/repositories/FetcherHistoryRepository.js';
+import {FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -55,19 +56,19 @@ const saveStockSymbols = async ({fetcher}: any, priceRepository: PriceRepository
 const feedsFetcher = [
   {
     apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: 'CryptoCompareHistoDay',
+    name: FetcherName.CRYPTO_COMPARE_HISTO_DAY,
   },
   {
     apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: 'CryptoCompareHistoHour',
+    name: FetcherName.CRYPTO_COMPARE_HISTO_HOUR,
   },
   {
     apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: 'CryptoComparePrice',
+    name: FetcherName.CRYPTO_COMPARE_PRICE,
   },
   {
     apiKey: null,
-    name: 'CoingeckoPrice',
+    name: FetcherName.COINGECKO_PRICE,
   },
 ];
 

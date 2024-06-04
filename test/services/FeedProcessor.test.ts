@@ -14,7 +14,7 @@ import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
 import Leaf from '../../src/types/Leaf.js';
 import CryptoCompareMultiProcessor from '../../src/services/FeedProcessor/CryptoCompareMultiProcessor.js';
 import CoingeckoMultiProcessor from '../../src/services/FeedProcessor/CoingeckoMultiProcessor.js';
-import {FeedFetcherInterface} from '../../src/types/fetchers.js';
+import {FeedFetcherInterface, FetcherName} from '../../src/types/fetchers.js';
 import {FetcherHistoryRepository} from '../../src/repositories/FetcherHistoryRepository.js';
 
 const {expect} = chai;
@@ -78,7 +78,7 @@ describe('FeedProcessor', () => {
     describe('when fetcher does not exist', () => {
       before(async () => {
         const feeds: Feeds = {
-          TEST: feedFactory.build({inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher'}})]}),
+          TEST: feedFactory.build({inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher' as FetcherName}})]}),
         };
 
         result = await instance.apply(10, feeds);
@@ -177,7 +177,7 @@ describe('FeedProcessor', () => {
               inputs: [
                 feedInputFactory.build({
                   fetcher: {
-                    name: 'TestFetcher',
+                    name: 'TestFetcher' as FetcherName,
                     params: {
                       fsym: 'ETH',
                       tsym: 'USD',
@@ -187,7 +187,7 @@ describe('FeedProcessor', () => {
                 }),
                 feedInputFactory.build({
                   fetcher: {
-                    name: 'CryptoComparePrice',
+                    name: FetcherName.CRYPTO_COMPARE_PRICE,
                     params: {
                       fsym: 'ETH',
                       tsyms: 'USD',
@@ -222,7 +222,7 @@ describe('FeedProcessor', () => {
             inputs: [
               feedInputFactory.build({
                 fetcher: {
-                  name: 'CoingeckoPrice',
+                  name: FetcherName.COINGECKO_PRICE,
                   params: {
                     id: 'umbrella-network',
                     currency: 'USD',
@@ -231,7 +231,7 @@ describe('FeedProcessor', () => {
               }),
               feedInputFactory.build({
                 fetcher: {
-                  name: 'CryptoComparePrice',
+                  name: FetcherName.CRYPTO_COMPARE_PRICE,
                   params: {
                     fsym: 'UMB',
                     tsyms: 'USD',
@@ -244,7 +244,7 @@ describe('FeedProcessor', () => {
             inputs: [
               feedInputFactory.build({
                 fetcher: {
-                  name: 'CoingeckoPrice',
+                  name: FetcherName.COINGECKO_PRICE,
                   params: {
                     id: 'umbrella-network',
                     currency: 'BTC',
@@ -253,7 +253,7 @@ describe('FeedProcessor', () => {
               }),
               feedInputFactory.build({
                 fetcher: {
-                  name: 'CryptoComparePrice',
+                  name: FetcherName.CRYPTO_COMPARE_PRICE,
                   params: {
                     fsym: 'UMB',
                     tsyms: 'BTC',
@@ -336,7 +336,7 @@ describe('FeedProcessor', () => {
               inputs: [
                 feedInputFactory.build({
                   fetcher: {
-                    name: 'CryptoComparePrice',
+                    name: FetcherName.CRYPTO_COMPARE_PRICE,
                     params: {
                       fsym: 'ETH',
                       tsyms: 'USD',
@@ -371,11 +371,15 @@ describe('FeedProcessor', () => {
           calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
           const feeds1: Feeds = {
-            TEST: feedFactory.build({inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher'}})]}),
+            TEST: feedFactory.build({
+              inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher' as FetcherName}})],
+            }),
           };
 
           const feeds2: Feeds = {
-            TEST: feedFactory.build({inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher'}})]}),
+            TEST: feedFactory.build({
+              inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher' as FetcherName}})],
+            }),
           };
 
           testFetcher.apply = stub().resolves(100.0);
@@ -402,7 +406,9 @@ describe('FeedProcessor', () => {
           };
 
           const feeds2: Feeds = {
-            TEST: feedFactory.build({inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher'}})]}),
+            TEST: feedFactory.build({
+              inputs: [feedInputFactory.build({fetcher: {name: 'WrongFetcher' as FetcherName}})],
+            }),
           };
 
           testFetcher.apply = stub().resolves(100.0);
