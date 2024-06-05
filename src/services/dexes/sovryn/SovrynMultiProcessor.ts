@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 
-import {FeedFetcher} from '../../../types/Feed.js';
-import {FeedFetcherInterface} from '../../../types/fetchers.js';
 import {SovrynPriceFetcher, PairRequest} from './SovrynPriceFetcher.js';
+import {FeedFetcherInterface, FetcherName} from '../../../types/fetchers.js';
+import {FeedFetcher} from '../../../types/Feed.js';
 
 @injectable()
 export default class SovrynMultiProcessor implements FeedFetcherInterface {
@@ -17,7 +17,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
     const request: PairRequest[] = [];
 
     feedInputs.forEach((fetcher) => {
-      if (!fetcher.name.includes('SovrynPriceFetcher')) return;
+      if (!fetcher.name.includes(FetcherName.SOVRYN_PRICE)) return;
 
       const request_ = fetcher.params as PairRequest;
 
