@@ -40,7 +40,7 @@ export class UniswapV3TickQuery {
 
   private async getTickDataFromSubgraph(poolAddress: string, chainId: ChainsIds, skip: number): Promise<GraphTick[]> {
     try {
-      const subgraphURL = this.settings.dexes?.[DexProtocolName.UNISWAP_V3]?.[chainId]?.subgraphUrl || '';
+      const subgraphURL = this.settings.dexes?.[chainId]?.[DexProtocolName.UNISWAP_V3]?.subgraphUrl || '';
 
       const response = (await this.graphClient.query(subgraphURL, liquidityPoolsQuery(poolAddress, skip))) as {
         data: LiquidityTick;

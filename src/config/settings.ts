@@ -447,13 +447,13 @@ const settings: Settings = {
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
   },
   dexes: {
-    [DexProtocolName.SOVRYN]: {
-      [ChainsIds.ROOTSTOCK]: {
+    [ChainsIds.ROOTSTOCK]: {
+      [DexProtocolName.SOVRYN]: {
         subgraphUrl: <string>process.env['SOVRYN_SUBGRAPH_API'],
       },
     },
-    [DexProtocolName.UNISWAP_V3]: {
-      [ChainsIds.ETH]: {
+    [ChainsIds.ETH]: {
+      [DexProtocolName.UNISWAP_V3]: {
         subgraphUrl: <string>process.env['ETHEREUM_UNISWAPV3_SUBGRAPH_API'],
       },
     },
