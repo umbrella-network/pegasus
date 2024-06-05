@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - new `SovrynPriceFetcher`
 - new `UniswapV3MultiFetcher`
 
+## Changed
+- Added all fetcher in FetcherName
+
 ## [7.26.1] - 2024-05-23
 ### Fixed
 - fix schema for `PolygonIOCurrencySnapshotGramsFetcher`
