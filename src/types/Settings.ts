@@ -218,7 +218,7 @@ type Settings = {
     pools: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, DexPoolAPISettings>>>>;
     priceFreshness: number;
   };
-  dexes: Partial<Record<DexProtocolName, Partial<Record<ChainsIds, DexAPISettings>>>>;
+  dexes: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, DexAPISettings>>>>;
   rpcSelectionStrategy: string;
   feedsCacheRefreshCronRule: string;
   statusCheckTimeout: number;
