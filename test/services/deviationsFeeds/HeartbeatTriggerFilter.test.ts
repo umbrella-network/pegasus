@@ -2,6 +2,7 @@ import chai from 'chai';
 import {HeartbeatTriggerFilter} from '../../../src/services/deviationsFeeds/HeartbeatTriggerFilter.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
 import {DeviationFeed, PriceData} from '../../../src/types/DeviationFeeds.js';
+import {FetcherName} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -19,12 +20,12 @@ describe('HeartbeatTriggerFilter', () => {
       inputs: [
         {
           fetcher: {
-            name: 'CoingeckoPrice',
+            name: FetcherName.COINGECKO_PRICE,
           },
         },
         {
           fetcher: {
-            name: 'CryptoComparePrice',
+            name: FetcherName.CRYPTO_COMPARE_PRICE,
           },
         },
       ],

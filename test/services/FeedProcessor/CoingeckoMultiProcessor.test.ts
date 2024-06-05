@@ -5,16 +5,17 @@ import {FeedFetcher} from '../../../src/types/Feed.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import CoingeckoMultiProcessor from '../../../src/services/FeedProcessor/CoingeckoMultiProcessor.js';
 import CoingeckoMultiPriceFetcher, {OutputValues} from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher.js';
+import {FetcherName} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
 const feedFetchers: FeedFetcher[] = [
   {
-    name: 'CoingeckoPrice',
+    name: FetcherName.COINGECKO_PRICE,
     params: {id: 'umbrella-network', currency: 'BTC'},
   },
   {
-    name: 'CoingeckoPrice',
+    name: FetcherName.COINGECKO_PRICE,
     params: {id: 'umbrella-network', currency: 'USD'},
   },
 ];
@@ -65,7 +66,7 @@ describe('CoingeckoMultiProcessor', () => {
         const fetchers = [
           ...feedFetchers,
           {
-            name: 'OtherFetcher',
+            name: 'OtherFetcher' as FetcherName,
             params: {from: 'crypto', to: 'fiat'},
           },
         ];
@@ -81,7 +82,7 @@ describe('CoingeckoMultiProcessor', () => {
         const fetchers = [
           ...feedFetchers,
           {
-            name: 'CoingeckoPrice',
+            name: FetcherName.COINGECKO_PRICE,
             params: {id: 'paramThatDoesNotExist', currency: 'fiat'},
           },
         ];

@@ -9,7 +9,7 @@ import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {FetcherHistoryInterface} from '../types/fetchers.js';
+import {FetcherHistoryInterface, FetcherName} from '../types/fetchers.js';
 import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
 
 interface Calculator {

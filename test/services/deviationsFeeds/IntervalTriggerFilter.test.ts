@@ -4,6 +4,7 @@ import {Container} from 'inversify';
 import {IntervalTriggerFilter} from '../../../src/services/deviationsFeeds/IntervalTriggerFilter.js';
 import {DeviationTriggerLastIntervals} from '../../../src/repositories/DeviationTriggerLastIntervals.js';
 import Feeds from '../../../src/types/Feed.js';
+import {FetcherName} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -38,12 +39,12 @@ describe('IntervalTriggerFilter', () => {
             inputs: [
               {
                 fetcher: {
-                  name: 'CoingeckoPrice',
+                  name: FetcherName.COINGECKO_PRICE,
                 },
               },
               {
                 fetcher: {
-                  name: 'CryptoComparePrice',
+                  name: FetcherName.CRYPTO_COMPARE_PRICE,
                 },
               },
             ],
@@ -60,12 +61,12 @@ describe('IntervalTriggerFilter', () => {
             inputs: [
               {
                 fetcher: {
-                  name: 'CoingeckoPrice',
+                  name: FetcherName.COINGECKO_PRICE,
                 },
               },
               {
                 fetcher: {
-                  name: 'CryptoComparePrice',
+                  name: FetcherName.CRYPTO_COMPARE_PRICE,
                 },
               },
             ],
@@ -91,12 +92,12 @@ describe('IntervalTriggerFilter', () => {
           inputs: [
             {
               fetcher: {
-                name: 'CoingeckoPrice',
+                name: FetcherName.COINGECKO_PRICE,
               },
             },
             {
               fetcher: {
-                name: 'CryptoComparePrice',
+                name: FetcherName.CRYPTO_COMPARE_PRICE,
               },
             },
           ],
@@ -113,12 +114,12 @@ describe('IntervalTriggerFilter', () => {
           inputs: [
             {
               fetcher: {
-                name: 'CoingeckoPrice',
+                name: FetcherName.COINGECKO_PRICE,
               },
             },
             {
               fetcher: {
-                name: 'CryptoComparePrice',
+                name: FetcherName.CRYPTO_COMPARE_PRICE,
               },
             },
           ],
@@ -144,12 +145,12 @@ describe('IntervalTriggerFilter', () => {
           inputs: [
             {
               fetcher: {
-                name: 'CoingeckoPrice',
+                name: FetcherName.COINGECKO_PRICE,
               },
             },
             {
               fetcher: {
-                name: 'CryptoComparePrice',
+                name: FetcherName.CRYPTO_COMPARE_PRICE,
               },
             },
           ],
@@ -166,12 +167,12 @@ describe('IntervalTriggerFilter', () => {
           inputs: [
             {
               fetcher: {
-                name: 'CoingeckoPrice',
+                name: FetcherName.COINGECKO_PRICE,
               },
             },
             {
               fetcher: {
-                name: 'CryptoComparePrice',
+                name: FetcherName.CRYPTO_COMPARE_PRICE,
               },
             },
           ],
@@ -200,12 +201,12 @@ describe('IntervalTriggerFilter', () => {
             inputs: [
               {
                 fetcher: {
-                  name: 'CoingeckoPrice',
+                  name: FetcherName.COINGECKO_PRICE,
                 },
               },
               {
                 fetcher: {
-                  name: 'CryptoComparePrice',
+                  name: FetcherName.CRYPTO_COMPARE_PRICE,
                 },
               },
             ],
@@ -222,12 +223,12 @@ describe('IntervalTriggerFilter', () => {
             inputs: [
               {
                 fetcher: {
-                  name: 'CoingeckoPrice',
+                  name: FetcherName.COINGECKO_PRICE,
                 },
               },
               {
                 fetcher: {
-                  name: 'CryptoComparePrice',
+                  name: FetcherName.CRYPTO_COMPARE_PRICE,
                 },
               },
             ],

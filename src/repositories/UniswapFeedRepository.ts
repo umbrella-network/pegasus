@@ -2,6 +2,7 @@ import {inject, injectable} from 'inversify';
 import {Feed} from '../types/Feed.js';
 import {UniswapPoolService} from '../services/uniswap/UniswapPoolService.js';
 import Settings from '../types/Settings.js';
+import {FetcherName} from '../types/fetchers.js';
 
 @injectable()
 export class UniswapFeedRepository {
@@ -25,7 +26,7 @@ export class UniswapFeedRepository {
           inputs: [
             {
               fetcher: {
-                name: 'UniswapPriceFetcher',
+                name: FetcherName.UNISWAP_PRICE,
                 params: {
                   fsym: tuple[0],
                   tsym: tuple[1],
