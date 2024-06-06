@@ -185,6 +185,7 @@ class FeedProcessor {
       FetcherName.CRYPTO_COMPARE_PRICE,
       FetcherName.COINGECKO_PRICE,
       FetcherName.UNISWAP_V3,
+      FetcherName.SOVRYN_PRICE,
     ];
 
     const fetcherMapArr = Object.values(uniqueFeedFetcherMap);
