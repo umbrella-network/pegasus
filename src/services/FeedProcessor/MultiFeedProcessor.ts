@@ -22,29 +22,23 @@ export default class MultiFeedProcessor {
     let response: unknown[] = [];
     response.length = feedFetchers.length;
 
-    const promiseObjects = [
-      {
-        promise: this.cryptoCompareMultiProcessor.apply(feedFetchers),
-        className: this.cryptoCompareMultiProcessor.constructor.name,
-      },
-      {
-        promise: this.coingeckoMultiProcessor.apply(feedFetchers),
-        className: this.coingeckoMultiProcessor.constructor.name,
-      },
-      {
-        promise: this.uniswapV3MultiProcessor.apply(feedFetchers),
-        className: this.uniswapV3MultiProcessor.constructor.name,
-      },
-      {promise: this.sovrynMultiProcessor.apply(feedFetchers), className: this.sovrynMultiProcessor.constructor.name},
-    ];
+    const promiseMap = {
+      CryptoCompareMultiProcessor: () => this.cryptoCompareMultiProcessor.apply(feedFetchers),
+      CoingeckoMultiProcessor: () => this.coingeckoMultiProcessor.apply(feedFetchers),
+      UniswapV3MultiProcessor: () => this.uniswapV3MultiProcessor.apply(feedFetchers),
+      SovrynMultiProcessor: () => this.sovrynMultiProcessor.apply(feedFetchers),
+    };
 
-    const promisesResults = await Promise.allSettled(promiseObjects.map((obj) => obj.promise));
+    const promises = Object.values(promiseMap).map((fn) => fn());
+    const classNames = Object.keys(promiseMap);
+
+    const promisesResults = await Promise.allSettled(promises);
 
     promisesResults.forEach((result, i) => {
       if (result.status === 'fulfilled') {
         response = mergeArrays(response, result.value);
       } else {
-        this.logger.warn(`[MultiFeedProcessor] Ignored ${promiseObjects[i].className}. Reason: ${result.reason}`);
+        this.logger.warn(`[MultiFeedProcessor] Ignored ${classNames[i]}. Reason: ${result.reason}`);
       }
     });
 
