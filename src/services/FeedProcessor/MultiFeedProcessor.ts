@@ -22,25 +22,23 @@ export default class MultiFeedProcessor {
     let response: unknown[] = [];
     response.length = feedFetchers.length;
 
-    const promisesResults = await Promise.allSettled([
-      this.cryptoCompareMultiProcessor.apply(feedFetchers),
-      this.coingeckoMultiProcessor.apply(feedFetchers),
-      this.uniswapV3MultiProcessor.apply(feedFetchers),
-      this.sovrynMultiProcessor.apply(feedFetchers),
-    ]);
+    const promiseMap = {
+      CryptoCompareMultiProcessor: () => this.cryptoCompareMultiProcessor.apply(feedFetchers),
+      CoingeckoMultiProcessor: () => this.coingeckoMultiProcessor.apply(feedFetchers),
+      UniswapV3MultiProcessor: () => this.uniswapV3MultiProcessor.apply(feedFetchers),
+      SovrynMultiProcessor: () => this.sovrynMultiProcessor.apply(feedFetchers),
+    };
+
+    const promises = Object.values(promiseMap).map((fn) => fn());
+    const classNames = Object.keys(promiseMap);
+
+    const promisesResults = await Promise.allSettled(promises);
 
     promisesResults.forEach((result, i) => {
       if (result.status === 'fulfilled') {
         response = mergeArrays(response, result.value);
       } else {
-        // TODO: implement this using an enum
-        const processors = [
-          'cryptoCompareMultiProcessor',
-          'coingeckoMultiProcessor',
-          'uniswapV3',
-          'SovrynMultiProcessor',
-        ];
-        this.logger.warn(`[MultiFeedProcessor] Ignored ${processors[i]}. Reason: ${result.reason}`);
+        this.logger.warn(`[MultiFeedProcessor] Ignored ${classNames[i]}. Reason: ${result.reason}`);
       }
     });
 
