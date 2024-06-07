@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Added
+
+## Changed
+
+## [7.27.0] - 2024-07-27
+### Added
 - new `uniswapV3LiquidityWorker`
 - new `SovrynPriceFetcher`
 - new `UniswapV3MultiFetcher`
