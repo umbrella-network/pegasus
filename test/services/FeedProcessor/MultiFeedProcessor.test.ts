@@ -6,24 +6,25 @@ import {getTestContainer} from '../../helpers/getTestContainer.js';
 import MultiFeedProcessor from '../../../src/services/FeedProcessor/MultiFeedProcessor.js';
 import CoingeckoMultiProcessor from '../../../src/services/FeedProcessor/CoingeckoMultiProcessor.js';
 import CryptoCompareMultiProcessor from '../../../src/services/FeedProcessor/CryptoCompareMultiProcessor.js';
+import {FetcherName} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
 const feedFetchers: FeedFetcher[] = [
   {
-    name: 'CryptoComparePrice',
+    name: FetcherName.CRYPTO_COMPARE_PRICE,
     params: {fsym: 'UMB', tsyms: 'BTC'},
   },
   {
-    name: 'CoingeckoPrice',
+    name: FetcherName.COINGECKO_PRICE,
     params: {id: 'umbrella-network', currency: 'BTC'},
   },
   {
-    name: 'CryptoComparePrice',
+    name: FetcherName.CRYPTO_COMPARE_PRICE,
     params: {fsym: 'UMB', tsyms: 'USD'},
   },
   {
-    name: 'CoingeckoPrice',
+    name: FetcherName.COINGECKO_PRICE,
     params: {id: 'umbrella-network', currency: 'USD'},
   },
 ];

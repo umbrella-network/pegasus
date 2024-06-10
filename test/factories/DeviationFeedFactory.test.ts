@@ -3,6 +3,7 @@ import {DeviationFeedFactory} from '../../src/factories/DeviationFeedFactory.js'
 import {ChainsIds} from '../../src/types/ChainsIds.js';
 import {DeviationFeed} from '../../src/types/DeviationFeeds.js';
 import {Feed} from '../../src/types/Feed.js';
+import {FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -19,7 +20,7 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: 'CoingeckoPrice',
+              name: FetcherName.COINGECKO_PRICE,
             },
           },
         ],
@@ -37,7 +38,7 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: 'CoingeckoPrice',
+              name: FetcherName.COINGECKO_PRICE,
             },
           },
         ],
@@ -56,7 +57,7 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: 'CoingeckoPrice',
+              name: FetcherName.COINGECKO_PRICE,
             },
           },
         ],
@@ -74,7 +75,7 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: 'CoingeckoPrice',
+              name: FetcherName.COINGECKO_PRICE,
             },
           },
         ],
@@ -93,7 +94,7 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: 'CoingeckoPrice',
+              name: FetcherName.COINGECKO_PRICE,
             },
           },
         ],
@@ -115,7 +116,7 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: 'CoingeckoPrice',
+              name: FetcherName.COINGECKO_PRICE,
             },
           },
         ],

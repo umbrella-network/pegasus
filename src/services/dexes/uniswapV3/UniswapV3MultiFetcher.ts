@@ -49,20 +49,18 @@ class UniswapV3MultiFetcher {
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
 
   async apply(inputs: UniswapV3MultiFetcherParams[]): Promise<OutputValues[]> {
-    this.logger.debug(`${this.logPrefix}: start with inputs ${JSON.stringify(inputs)}`);
+    this.logger.debug(`[UniswapV3MultiFetcher]: start with inputs ${JSON.stringify(inputs)}`);
 
     const poolsToFetch = await this.getPoolsToFetch(inputs);
 
     if (poolsToFetch.size === 0) {
-      this.logger.error(`${this.logPrefix} no data to fetch`);
+      this.logger.error('[UniswapV3MultiFetcher] no data to fetch');
       return [];
     }
 
     const prices = await Promise.all(
       [...poolsToFetch.entries()].map(([chainId, pools]) => this.fetchData(chainId, pools)),
     );
-
-    console.log('Prices: ', prices);
 
     return prices.flat();
   }

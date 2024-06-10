@@ -181,7 +181,12 @@ class FeedProcessor {
    * @return multiInputs will be aggregated by the respective processor to be fetched in one API call
    */
   private separateInputs(uniqueFeedFetcherMap: {[hash: string]: FeedFetcher}) {
-    const multiFetchingInputsNames = ['CryptoComparePrice', 'CoingeckoPrice', FetcherName.UNISWAP_V3];
+    const multiFetchingInputsNames = [
+      FetcherName.CRYPTO_COMPARE_PRICE,
+      FetcherName.COINGECKO_PRICE,
+      FetcherName.UNISWAP_V3,
+      FetcherName.SOVRYN_PRICE,
+    ];
 
     const fetcherMapArr = Object.values(uniqueFeedFetcherMap);
     const fetcherKeys = Object.keys(uniqueFeedFetcherMap);

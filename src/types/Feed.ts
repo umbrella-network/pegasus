@@ -1,4 +1,5 @@
 import {ChainsIds} from './ChainsIds.js';
+import {FetcherName} from './fetchers.js';
 
 export type HashedKey = string;
 export type FeedName = string;
@@ -32,7 +33,7 @@ export type HexStringWith0x = string;
 export type FeedValue = number | HexStringWith0x;
 
 export interface FeedFetcher {
-  name: string;
+  name: FetcherName;
   params?: unknown;
 }
 
