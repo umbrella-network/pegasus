@@ -39,12 +39,12 @@ describe('UniswapV3MultiFetcher', () => {
   const params: UniswapV3MultiFetcherParams[] = [
     {
       fromChain: ['ethereum'],
-      token0: tokenTest0,
-      token1: tokenTest1,
+      quote: tokenTest0,
+      base: tokenTest1,
       amountInDecimals: 10,
     },
-    {fromChain: ['ethereum', 'bsc'], token0: tokenTest1, token1: tokenTest2, amountInDecimals: 10},
-    {fromChain: ['ethereum'], token0: tokenTest1, token1: tokenTest3, amountInDecimals: 10},
+    {fromChain: ['ethereum', 'bsc'], quote: tokenTest1, base: tokenTest2, amountInDecimals: 10},
+    {fromChain: ['ethereum'], quote: tokenTest1, base: tokenTest3, amountInDecimals: 10},
   ];
 
   const responseGetPrices: [{success: boolean; price: BigNumber}[], number] = [
@@ -128,12 +128,10 @@ describe('UniswapV3MultiFetcher', () => {
         mockedBlockchainRepository = sinon.createStubInstance(BlockchainRepository);
         mockedBlockchainRepository.get.returns(mockedBlockchain);
         mockedUniswapV3PoolRepository = sinon.createStubInstance(UniswapV3PoolRepository);
-        mockedUniswapV3PoolRepository.findStrictPair.resolves(responseFindQuery);
+        mockedUniswapV3PoolRepository.findUpdatedLiquidity.resolves(responseFindQuery);
         mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
-        mockedUniswapV3Helper.getContract.returns(mockedContract);
 
-        container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-        container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
+        container.bind(UniswapV3PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
         container.bind(UniswapV3MultiFetcher).toSelf();
 
         uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
@@ -187,7 +185,6 @@ describe('UniswapV3MultiFetcher', () => {
 
     describe('when get value from DB return nothing', () => {
       beforeEach(() => {
-        mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
         mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
         mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
         mockedUniswapV3PoolRepository.find.resolves([]);

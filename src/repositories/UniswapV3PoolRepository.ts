@@ -60,20 +60,28 @@ export class UniswapV3PoolRepository {
     return getModelForClass(UniswapV3Pool).find(filter).sort({token0: 1, token1: 1}).exec();
   }
 
-  async findStrictPair(props: {
+  async findUpdatedLiquidity(props: {
     protocol: string;
     fromChain: string[];
-    token0: string;
-    token1: string;
+    base: string;
+    quote: string;
+    liquidityUpdatedLimit: Date;
   }): Promise<UniswapV3Pool[]> {
-    const {protocol, fromChain, token0, token1} = props;
+    const {protocol, fromChain, base, quote, liquidityUpdatedLimit} = props;
+
     const filter = {
       protocol,
       chainId: {$in: fromChain},
-      token0,
-      token1,
+      $or: [
+        {token0: base, token1: quote},
+        {token0: quote, token1: base},
+      ],
+      liquidityUpdatedAt: {$gt: liquidityUpdatedLimit},
     };
 
-    return getModelForClass(UniswapV3Pool).find(filter).sort({token0: 1, token1: 1}).exec();
+    return getModelForClass(UniswapV3Pool)
+      .find(filter)
+      .sort({liquidityLockedToken0: 1, liquidityLockedToken1: 1})
+      .exec();
   }
 }

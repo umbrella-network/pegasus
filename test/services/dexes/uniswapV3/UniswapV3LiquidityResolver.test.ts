@@ -69,8 +69,8 @@ describe('UniswapV3LiquidityResolver', () => {
     mockedFeedDataService.getParamsByFetcherName.returns([
       {
         fromChain: [ChainsIds.ETH],
-        token0: uniswapV3Pool.token0,
-        token1: uniswapV3Pool.token1,
+        base: uniswapV3Pool.token0,
+        quote: uniswapV3Pool.token1,
       },
     ]);
 
@@ -98,8 +98,8 @@ describe('UniswapV3LiquidityResolver', () => {
                   name: FetcherName.UNISWAP_V3,
                   params: {
                     fromChain: ['ethereum', 'bsc'],
-                    token0: uniswapV3Pool.token0,
-                    token1: uniswapV3Pool.token1,
+                    quote: uniswapV3Pool.token0,
+                    base: uniswapV3Pool.token1,
                   },
                 },
               },
@@ -116,8 +116,8 @@ describe('UniswapV3LiquidityResolver', () => {
                   name: FetcherName.UNISWAP_V3,
                   params: {
                     fromChain: ['ethereum', 'bsc'],
-                    token0: uniswapV3Pool.token0,
-                    token1: uniswapV3Pool.token1,
+                    quote: uniswapV3Pool.token0,
+                    base: uniswapV3Pool.token1,
                   },
                 },
               },

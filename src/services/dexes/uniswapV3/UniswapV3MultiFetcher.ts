@@ -13,14 +13,15 @@ import {UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolReposi
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
 import {BlockchainProviderRepository} from '../../../repositories/BlockchainProviderRepository.js';
 import {BlockchainRepository} from '../../../repositories/BlockchainRepository.js';
+import Settings from '../../../types/Settings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export type UniswapV3MultiFetcherParams = {
   fromChain: string[];
-  token0: string;
-  token1: string;
+  base: string;
+  quote: string;
   amountInDecimals: number;
 };
 
@@ -39,11 +40,10 @@ export interface OutputValues {
 @injectable()
 class UniswapV3MultiFetcher {
   provider: StaticJsonRpcProvider | undefined;
-  logPrefix = '[UniswapV3MultiFetcher]';
   readonly dexProtocol = DexProtocolName.UNISWAP_V3;
-  readonly chainId = ChainsIds.ETH;
 
   @inject('Logger') protected logger!: Logger;
+  @inject('Settings') protected settings!: Settings;
   @inject(UniswapV3PoolRepository) protected uniswapV3PoolRepository!: UniswapV3PoolRepository;
   @inject(BlockchainProviderRepository) blockchainProviderRepository!: BlockchainProviderRepository;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
@@ -69,26 +69,29 @@ class UniswapV3MultiFetcher {
     inputs: UniswapV3MultiFetcherParams[],
   ): Promise<Map<ChainsIds, UniswapV3ContractHelperInput[]>> {
     const helperInputMap: Map<ChainsIds, UniswapV3ContractHelperInput[]> = new Map();
+    const liquidityFreshness = this.settings.api.liquidityFreshness;
+    const liquidityUpdatedLimit = new Date(Date.now() - liquidityFreshness);
 
     for (const input of inputs) {
-      const {fromChain, token0, token1, amountInDecimals} = input;
+      const {fromChain, base, quote, amountInDecimals} = input;
 
-      const data = await this.uniswapV3PoolRepository.findStrictPair({
+      const data = await this.uniswapV3PoolRepository.findUpdatedLiquidity({
         protocol: this.dexProtocol,
         fromChain,
-        token0,
-        token1,
+        base,
+        quote,
+        liquidityUpdatedLimit,
       });
 
       if (data.length === 0) {
-        this.logger.error(`${this.logPrefix} no data found for ${token0}-${token1}`);
+        this.logger.error(`[UniswapV3MultiFetcher] no data found for ${base}-${quote}`);
         continue;
       }
 
-      this.logger.debug(`${this.logPrefix} data found ${token0}-${token1}`);
+      this.logger.debug(`[UniswapV3MultiFetcher] data found ${base}-${quote}`);
 
       data.forEach((item) => {
-        const helperInput = {pool: item.address, base: token0, quote: token1, amountInDecimals};
+        const helperInput = {pool: item.address, base, quote, amountInDecimals};
         const currentChainId = item.chainId as ChainsIds;
         const chainPools = helperInputMap.get(currentChainId);
 
@@ -118,10 +121,10 @@ class UniswapV3MultiFetcher {
     const provider = blockchain.provider.getRawProviderSync<BaseProvider>();
     const contract = new Contract(contractAddress, abi, provider);
     const [results] = (await contract.callStatic.getPrices(poolsToFetch)) as {success: boolean; price: BigNumber}[][];
-    this.logger.debug(`${this.logPrefix} fetched data: ${results}`);
+    this.logger.debug(`[UniswapV3MultiFetcher] fetched data: ${results}`);
 
     if (results.length === 0) {
-      this.logger.error(`${this.logPrefix} no data fetched`);
+      this.logger.error('[UniswapV3MultiFetcher] no data fetched');
       return [];
     }
 
@@ -137,14 +140,16 @@ class UniswapV3MultiFetcher {
     for (const [i, result] of results.entries()) {
       if (!result.success) {
         outputs.push({token0: poolsToFetch[i].base, token1: poolsToFetch[i].quote, value: 0});
-        this.logger.debug(`${this.logPrefix} failed to fetch: ${poolsToFetch[i].base}, ${poolsToFetch[i].quote}: 0`);
+        this.logger.debug(
+          `[UniswapV3MultiFetcher] failed to fetch: ${poolsToFetch[i].base}, ${poolsToFetch[i].quote}: 0`,
+        );
         continue;
       }
 
       outputs.push({token0: poolsToFetch[i].base, token1: poolsToFetch[i].quote, value: result.price.toNumber()});
 
       this.logger.debug(
-        `${this.logPrefix} resolved price: ${poolsToFetch[i].base}, ${poolsToFetch[i].quote}: ${result.price}`,
+        `[UniswapV3MultiFetcher] resolved price: ${poolsToFetch[i].base}, ${poolsToFetch[i].quote}: ${result.price}`,
       );
     }
 

@@ -8,8 +8,8 @@ import UniswapV3MultiFetcher, {
 } from '../dexes/uniswapV3/UniswapV3MultiFetcher.js';
 
 interface FeedFetcherParams {
-  token0: string;
-  token1: string;
+  base: string;
+  quote: string;
 }
 
 @injectable()
@@ -28,8 +28,8 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     feedInputs.forEach((fetcher) => {
       if (!fetcher.name.includes('UniswapV3')) return;
 
-      const {fromChain, token0, token1, amountInDecimals} = fetcher.params as UniswapV3MultiFetcherParams;
-      params.push({fromChain, token0, token1, amountInDecimals});
+      const {fromChain, base, quote, amountInDecimals} = fetcher.params as UniswapV3MultiFetcherParams;
+      params.push({fromChain, base, quote, amountInDecimals});
     });
 
     return params;
@@ -39,8 +39,8 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     const inputsIndexMap: {[key: string]: number} = {};
 
     feedFetchers.forEach((fetcher, index) => {
-      const {token0, token1} = fetcher.params as FeedFetcherParams;
-      inputsIndexMap[this.getKey(token0, token1)] = index;
+      const {base, quote} = fetcher.params as FeedFetcherParams;
+      inputsIndexMap[this.getKey(base, quote)] = index;
     });
 
     const result: number[] = [];

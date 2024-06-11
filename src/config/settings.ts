@@ -445,6 +445,7 @@ const settings: Settings = {
       },
     },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
+    liquidityFreshness: parseInt(process.env.LIQUIDITY_FRESHNESS || String(getDayInMillisecond(1)), 10),
   },
   dexes: {
     [ChainsIds.ROOTSTOCK]: {
