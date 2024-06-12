@@ -217,7 +217,6 @@ type Settings = {
     };
     pools: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, DexPoolAPISettings>>>>;
     priceFreshness: number;
-    liquidityFreshness: number;
   };
   dexes: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, DexAPISettings>>>>;
   rpcSelectionStrategy: string;

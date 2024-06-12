@@ -10,7 +10,7 @@ import {ChainsIds} from '../types/ChainsIds';
 export class ContractAddressService {
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
 
-  async getContract(chainId: ChainsIds, address: string, abi: string) {
+  async getContract(chainId: ChainsIds, address: string, abi: string): Promise<Contract> {
     const blockchain = this.blockchainRepository.get(chainId);
     const registry = RegistryContractFactory.create(blockchain);
     const contractAddress = await registry.getAddress(address);

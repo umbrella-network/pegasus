@@ -5,7 +5,6 @@ import sinon from 'sinon';
 import UniswapV3MultiFetcher, {
   UniswapV3MultiFetcherParams,
 } from '../../../../src/services/dexes/uniswapV3/UniswapV3MultiFetcher.js';
-import settings from '../../../../src/config/settings.js';
 import {getTestContainer} from '../../../helpers/getTestContainer.js';
 import {UniswapV3PoolRepository} from '../../../../src/repositories/UniswapV3PoolRepository.js';
 import {ChainsIds} from '../../../../src/types/ChainsIds.js';
@@ -14,17 +13,15 @@ import {Container} from 'inversify';
 import {UniswapV3Pool} from '../../../../src/models/UniswapV3Pool.js';
 import {BlockchainRepository} from '../../../../src/repositories/BlockchainRepository.js';
 import {ContractAddressService} from '../../../../src/services/ContractAddressService.js';
-import Blockchain from '../../../../src/lib/Blockchain.js';
 import {loadTestEnv} from '../../../helpers/loadTestEnv.js';
 
 const {expect} = chai;
 
-describe.only('UniswapV3MultiFetcher', () => {
+describe('UniswapV3MultiFetcher', () => {
   let uniswapV3MultiFetcher: UniswapV3MultiFetcher;
   let container: Container;
   let mockedUniswapV3PoolRepository: sinon.SinonStubbedInstance<UniswapV3PoolRepository>;
   let mockedContractAddressService: sinon.SinonStubbedInstance<ContractAddressService>;
-  let mockedBlockchain: sinon.SinonStubbedInstance<Blockchain>;
   let mockedContract: sinon.SinonStubbedInstance<any>;
 
   const tokenTest0 = '0x01ac9633f13aa16e0f8d4514c806a55f9e9abd01';
@@ -33,7 +30,6 @@ describe.only('UniswapV3MultiFetcher', () => {
   const tokenTest3 = '0x01f64f5dd704f7179c6a0733f625577677b48e3e';
 
   const pool1 = '0x01f64f5dd704f7179c6a0733f625577677b48e4e';
-  const pool2 = '0x01f64f5dd704f7179c6a0733f625577677b48e6e';
 
   const params: UniswapV3MultiFetcherParams[] = [
     {
@@ -53,36 +49,6 @@ describe.only('UniswapV3MultiFetcher', () => {
       {success: false, price: BigNumber.from(0)},
     ],
     1710809300476,
-  ];
-
-  const responseFindQuery0 = [
-    {
-      pool: pool1,
-      chainId: ChainsIds.ETH,
-      protocol: DexProtocolName.UNISWAP_V3,
-      token0: tokenTest0,
-      token1: tokenTest1,
-      fee: 123,
-    },
-    {
-      pool: pool2,
-      chainId: ChainsIds.ETH,
-      protocol: DexProtocolName.UNISWAP_V3,
-      token0: tokenTest2,
-      token1: tokenTest3,
-      fee: 123,
-    },
-  ];
-
-  const responseFindQuery1 = [
-    {
-      pool: pool1,
-      chainId: ChainsIds.ETH,
-      protocol: DexProtocolName.UNISWAP_V3,
-      token0: tokenTest1,
-      token1: tokenTest2,
-      fee: 300,
-    },
   ];
 
   before(() => {
@@ -143,9 +109,9 @@ describe.only('UniswapV3MultiFetcher', () => {
         mockedContractAddressService = sinon.createStubInstance(ContractAddressService);
         mockedContractAddressService.getContract.resolves(mockedContract);
         mockedUniswapV3PoolRepository = sinon.createStubInstance(UniswapV3PoolRepository);
-        mockedUniswapV3PoolRepository.findUpdatedLiquidity.onCall(0).resolves(responseFindUpdatedLiquidity0);
-        mockedUniswapV3PoolRepository.findUpdatedLiquidity.onCall(1).resolves(responseFindUpdatedLiquidity1);
-        mockedUniswapV3PoolRepository.findUpdatedLiquidity.onCall(2).resolves(responseFindUpdatedLiquidity2);
+        mockedUniswapV3PoolRepository.findBestPool.onCall(0).resolves(responseFindUpdatedLiquidity0);
+        mockedUniswapV3PoolRepository.findBestPool.onCall(1).resolves(responseFindUpdatedLiquidity1);
+        mockedUniswapV3PoolRepository.findBestPool.onCall(2).resolves(responseFindUpdatedLiquidity2);
 
         container.bind(ContractAddressService).toConstantValue(mockedContractAddressService);
         container.bind(UniswapV3PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);

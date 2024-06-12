@@ -9,7 +9,6 @@ import path from 'path';
 import {DexProtocolName} from '../../../types/Dexes.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
-import Settings from '../../../types/Settings.js';
 import {ContractAddressService} from '../../../services/ContractAddressService.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +27,7 @@ type UniswapV3ContractHelperInput = {
   quote: string;
   amountInDecimals: number;
 };
+
 export interface OutputValues {
   base: string;
   quote: string;
@@ -40,7 +40,6 @@ class UniswapV3MultiFetcher {
   readonly dexProtocol = DexProtocolName.UNISWAP_V3;
 
   @inject('Logger') protected logger!: Logger;
-  @inject('Settings') protected settings!: Settings;
   @inject(UniswapV3PoolRepository) protected uniswapV3PoolRepository!: UniswapV3PoolRepository;
   @inject(ContractAddressService) contractAddressService!: ContractAddressService;
 
@@ -65,29 +64,24 @@ class UniswapV3MultiFetcher {
     inputs: UniswapV3MultiFetcherParams[],
   ): Promise<Map<ChainsIds, UniswapV3ContractHelperInput[]>> {
     const helperInputMap: Map<ChainsIds, UniswapV3ContractHelperInput[]> = new Map();
-    const liquidityFreshness = this.settings.api.liquidityFreshness;
-    const liquidityUpdatedLimit = new Date(Date.now() - liquidityFreshness);
 
-    for (const input of inputs) {
-      const {fromChain, base, quote, amountInDecimals} = input;
-
-      const data = await this.uniswapV3PoolRepository.findUpdatedLiquidity({
+    for (const {fromChain, base, quote, amountInDecimals} of inputs) {
+      const pool = await this.uniswapV3PoolRepository.findBestPool({
         protocol: this.dexProtocol,
         fromChain,
         base,
         quote,
-        liquidityUpdatedLimit,
       });
 
-      if (!data) {
-        this.logger.error(`[UniswapV3MultiFetcher] no data found for ${base}-${quote}`);
+      if (!pool) {
+        this.logger.error(`[UniswapV3MultiFetcher] no pool found for ${base}-${quote}`);
         continue;
       }
 
-      this.logger.debug(`[UniswapV3MultiFetcher] data found ${base}-${quote}`);
+      this.logger.debug(`[UniswapV3MultiFetcher] pool found ${base}-${quote}: ${JSON.stringify(pool)}`);
 
-      const helperInput = {pool: data.address, base, quote, amountInDecimals};
-      const currentChainId = data.chainId as ChainsIds;
+      const helperInput = {pool: pool.address, base, quote, amountInDecimals};
+      const currentChainId = pool.chainId as ChainsIds;
       const chainPools = helperInputMap.get(currentChainId);
 
       if (!chainPools) {
@@ -122,7 +116,7 @@ class UniswapV3MultiFetcher {
   public processResult(
     results: {success: boolean; price: BigNumber}[],
     poolsToFetch: {pool: string; base: string; quote: string; amountInDecimals: number}[],
-  ) {
+  ): OutputValues[] {
     const outputs: OutputValues[] = [];
 
     for (const [i, result] of results.entries()) {

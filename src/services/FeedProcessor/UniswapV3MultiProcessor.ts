@@ -57,7 +57,7 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     return result;
   }
 
-  private getKey(base: string, quote: string) {
+  private getKey(base: string, quote: string): string {
     return `${base}:${quote}`;
   }
 }

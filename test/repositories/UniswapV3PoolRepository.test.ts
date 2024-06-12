@@ -10,6 +10,7 @@ import {UniswapV3Pool} from '../../src/models/UniswapV3Pool.js';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
 import {DexProtocolName} from '../../src/types/Dexes.js';
 import lodash from 'lodash';
+import Settings from '../../src/types/Settings.js';
 
 const {expect} = chai;
 
@@ -19,6 +20,7 @@ const tokenC = '0x233';
 const poolAddressA = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8';
 const poolAddressB = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D1';
 const poolAddressC = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D2';
+const oneDayInMs = 1 * 1000 * 60 * 60 * 24;
 
 const pool1 = {
   address: poolAddressA,
@@ -28,9 +30,9 @@ const pool1 = {
   token1: tokenB,
   chainId: ChainsIds.ETH,
   liquidityActive: '2090386241959957974528',
-  liquidityLockedToken0: 0.00006402189699766422,
-  liquidityLockedToken1: 17061.479326096796,
-  liquidityUpdatedAt: new Date(2022, 0, 1), // Old updated Date
+  liquidityLockedToken0: 1.0000640218969976,
+  liquidityLockedToken1: 29061.479326096796,
+  liquidityUpdatedAt: new Date(Date.now() - oneDayInMs * 3), // Old updated Date
 };
 
 const pool2 = {
@@ -76,6 +78,7 @@ const uniswapV3Pools = [pool1, pool2, pool3, pool4];
 
 describe('UniswapV3PoolRepository', () => {
   let uniswapV3PoolRepository: UniswapV3PoolRepository;
+  let settings: Settings;
 
   before(async () => {
     const config = loadTestEnv();
@@ -93,7 +96,18 @@ describe('UniswapV3PoolRepository', () => {
       ),
     );
 
+    settings = {
+      dexes: {
+        [ChainsIds.ETH]: {
+          [DexProtocolName.UNISWAP_V3]: {
+            liquidityFreshness: oneDayInMs,
+          },
+        },
+      },
+    } as Settings;
+
     container.bind(UniswapV3PoolRepository).to(UniswapV3PoolRepository);
+    container.rebind('Settings').toConstantValue(settings);
 
     uniswapV3PoolRepository = container.get(UniswapV3PoolRepository);
   });
@@ -131,14 +145,13 @@ describe('UniswapV3PoolRepository', () => {
     });
   });
 
-  describe('findUpdatedLiquidity', () => {
+  describe('findBestPool', () => {
     it('responds with matching tokens with higher liquidity and fresh', async () => {
-      const result = await uniswapV3PoolRepository.findUpdatedLiquidity({
+      const result = await uniswapV3PoolRepository.findBestPool({
         base: tokenA,
         quote: tokenB,
         protocol: DexProtocolName.UNISWAP_V3,
         fromChain: [ChainsIds.ETH],
-        liquidityUpdatedLimit: new Date(Date.now() - 1 * 1000 * 60 * 60 * 24),
       });
 
       expect(result).to.be.an('object');

@@ -1,8 +1,10 @@
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {UniswapV3Pool} from '../models/UniswapV3Pool.js';
 import {ChainsIds} from '../types/ChainsIds.js';
+import Settings from '../types/Settings.js';
+import {DexProtocolName} from 'src/types/Dexes.js';
 
 type SavePoolParams = {
   chainId: string;
@@ -23,6 +25,8 @@ type LiquidityFilterParams = {chainId: ChainsIds; token0: string; token1: string
 
 @injectable()
 export class UniswapV3PoolRepository {
+  @inject('Settings') protected settings!: Settings;
+
   async savePool(props: SavePoolParams): Promise<UniswapV3Pool> {
     const UniswapV3PoolModel = getModelForClass(UniswapV3Pool);
 
@@ -50,6 +54,7 @@ export class UniswapV3PoolRepository {
 
   async find(props: {protocol: string; fromChain: string[]; token0: string; token1: string}): Promise<UniswapV3Pool[]> {
     const {protocol, fromChain, token0, token1} = props;
+
     const filter = {
       protocol,
       chainId: {$in: fromChain},
@@ -60,14 +65,15 @@ export class UniswapV3PoolRepository {
     return getModelForClass(UniswapV3Pool).find(filter).sort({token0: 1, token1: 1}).exec();
   }
 
-  async findUpdatedLiquidity(props: {
+  async findBestPool(props: {
     protocol: string;
     fromChain: string[];
     base: string;
     quote: string;
-    liquidityUpdatedLimit: Date;
   }): Promise<UniswapV3Pool | undefined> {
-    const {protocol, fromChain, base, quote, liquidityUpdatedLimit} = props;
+    const {protocol, fromChain, base, quote} = props;
+    const liquidityFreshness = this.getLiquidityFreshness(fromChain[0] as ChainsIds, protocol as DexProtocolName);
+    const liquidityUpdatedLimit = new Date(Date.now() - liquidityFreshness);
 
     const filterToken0 = {
       protocol,
@@ -105,5 +111,13 @@ export class UniswapV3PoolRepository {
     return liquidityToken0[0].liquidityLockedToken0 > liquidityToken1[0].liquidityLockedToken1
       ? liquidityToken0[0]
       : liquidityToken1[0];
+  }
+
+  private getLiquidityFreshness(chainId: ChainsIds, protocol: DexProtocolName): number {
+    return this.settings.dexes[chainId]?.[protocol]?.liquidityFreshness || this.getDayInMillisecond(365);
+  }
+
+  private getDayInMillisecond(days: number): number {
+    return days * 1000 * 60 * 60 * 24;
   }
 }
