@@ -9,6 +9,7 @@ import {getTestContainer} from '../helpers/getTestContainer.js';
 import {UniswapV3Pool} from '../../src/models/UniswapV3Pool.js';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
 import {DexProtocolName} from '../../src/types/Dexes.js';
+import lodash from 'lodash';
 
 const {expect} = chai;
 
@@ -26,6 +27,10 @@ const pool1 = {
   token0: tokenA,
   token1: tokenB,
   chainId: ChainsIds.ETH,
+  liquidityActive: '2090386241959957974528',
+  liquidityLockedToken0: 0.00006402189699766422,
+  liquidityLockedToken1: 17061.479326096796,
+  liquidityUpdatedAt: new Date(2022, 0, 1), // Old updated Date
 };
 
 const pool2 = {
@@ -35,6 +40,10 @@ const pool2 = {
   token0: tokenB,
   token1: tokenA,
   chainId: ChainsIds.ETH,
+  liquidityActive: '2090386241959957974528',
+  liquidityLockedToken0: 27061.479326096796,
+  liquidityLockedToken1: 0.00006402189699766422,
+  liquidityUpdatedAt: new Date(Date.now()),
 };
 
 const pool3 = {
@@ -44,9 +53,26 @@ const pool3 = {
   token0: tokenA,
   token1: tokenC,
   chainId: ChainsIds.ETH,
+  liquidityActive: '2090386241959957974528',
+  liquidityLockedToken0: 17061.479326096796,
+  liquidityLockedToken1: 0.00006402189699766422,
+  liquidityUpdatedAt: new Date(Date.now()),
 };
 
-const uniswapV3Pools = [pool1, pool2, pool3];
+const pool4 = {
+  address: poolAddressB,
+  protocol: 'uniswapV3',
+  fee: 500,
+  token0: tokenA,
+  token1: tokenB,
+  chainId: ChainsIds.ETH,
+  liquidityActive: '2090386241959957974528',
+  liquidityLockedToken0: 17061.479326096796,
+  liquidityLockedToken1: 0.00006402189699766422,
+  liquidityUpdatedAt: new Date(Date.now()),
+};
+
+const uniswapV3Pools = [pool1, pool2, pool3, pool4];
 
 describe('UniswapV3PoolRepository', () => {
   let uniswapV3PoolRepository: UniswapV3PoolRepository;
@@ -72,11 +98,8 @@ describe('UniswapV3PoolRepository', () => {
     uniswapV3PoolRepository = container.get(UniswapV3PoolRepository);
   });
 
-  afterEach(async () => {
-    await getModelForClass(UniswapV3Pool).deleteMany({});
-  });
-
   after(async () => {
+    await getModelForClass(UniswapV3Pool).deleteMany({});
     await mongoose.connection.close();
   });
 
@@ -89,9 +112,10 @@ describe('UniswapV3PoolRepository', () => {
         fromChain: [ChainsIds.ETH],
       });
 
-      expect(result).to.be.an('array').with.lengthOf(2);
-      expect(result[0]).to.include(pool1);
-      expect(result[1]).to.include(pool2);
+      expect(result).to.be.an('array').with.lengthOf(3);
+      expect(result[0]).to.include(lodash.omit(pool1, 'liquidityUpdatedAt'));
+      expect(result[1]).to.include(lodash.omit(pool4, 'liquidityUpdatedAt'));
+      expect(result[2]).to.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
 
       const resultInverted = await uniswapV3PoolRepository.find({
         token0: tokenA,
@@ -100,9 +124,25 @@ describe('UniswapV3PoolRepository', () => {
         fromChain: [ChainsIds.ETH],
       });
 
-      expect(result).to.be.an('array').with.lengthOf(2);
-      expect(resultInverted[0]).to.include(pool1);
-      expect(resultInverted[1]).to.include(pool2);
+      expect(result).to.be.an('array').with.lengthOf(3);
+      expect(resultInverted[0]).to.include(lodash.omit(pool1, 'liquidityUpdatedAt'));
+      expect(resultInverted[1]).to.include(lodash.omit(pool4, 'liquidityUpdatedAt'));
+      expect(resultInverted[2]).to.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
+    });
+  });
+
+  describe('findUpdatedLiquidity', () => {
+    it('responds with matching tokens with higher liquidity and fresh', async () => {
+      const result = await uniswapV3PoolRepository.findUpdatedLiquidity({
+        base: tokenA,
+        quote: tokenB,
+        protocol: DexProtocolName.UNISWAP_V3,
+        fromChain: [ChainsIds.ETH],
+        liquidityUpdatedLimit: new Date(Date.now() - 1 * 1000 * 60 * 60 * 24),
+      });
+
+      expect(result).to.be.an('object');
+      expect(result).to.deep.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
     });
   });
 });

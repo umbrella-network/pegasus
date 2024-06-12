@@ -46,8 +46,8 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     const result: number[] = [];
     result.length = feedFetchers.length;
 
-    values.forEach(({token0, token1, value}) => {
-      const index = inputsIndexMap[this.getKey(token0, token1)];
+    values.forEach(({base, quote, value}) => {
+      const index = inputsIndexMap[this.getKey(base, quote)];
 
       if (index !== undefined) {
         result[index] = value;
@@ -57,7 +57,7 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     return result;
   }
 
-  private getKey(token0: string, token1: string) {
-    return `${token0}:${token1}`;
+  private getKey(base: string, quote: string) {
+    return `${base}:${quote}`;
   }
 }

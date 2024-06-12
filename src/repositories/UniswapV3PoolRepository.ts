@@ -66,22 +66,44 @@ export class UniswapV3PoolRepository {
     base: string;
     quote: string;
     liquidityUpdatedLimit: Date;
-  }): Promise<UniswapV3Pool[]> {
+  }): Promise<UniswapV3Pool | undefined> {
     const {protocol, fromChain, base, quote, liquidityUpdatedLimit} = props;
 
-    const filter = {
+    const filterToken0 = {
       protocol,
       chainId: {$in: fromChain},
-      $or: [
-        {token0: base, token1: quote},
-        {token0: quote, token1: base},
-      ],
+      token0: quote,
+      token1: base,
       liquidityUpdatedAt: {$gt: liquidityUpdatedLimit},
     };
 
-    return getModelForClass(UniswapV3Pool)
-      .find(filter)
-      .sort({liquidityLockedToken0: 1, liquidityLockedToken1: 1})
-      .exec();
+    const filterToken1 = {
+      protocol,
+      chainId: {$in: fromChain},
+      token0: base,
+      token1: quote,
+      liquidityUpdatedAt: {$gt: liquidityUpdatedLimit},
+    };
+
+    const [liquidityToken0, liquidityToken1] = await Promise.all([
+      getModelForClass(UniswapV3Pool).find(filterToken0).sort({liquidityLockedToken0: 1}).exec(),
+      getModelForClass(UniswapV3Pool).find(filterToken1).sort({liquidityLockedToken1: 1}).exec(),
+    ]);
+
+    if (liquidityToken0.length === 0 && liquidityToken1.length === 0) {
+      return undefined;
+    }
+
+    if (liquidityToken0.length > 0 && liquidityToken1.length === 0) {
+      return liquidityToken0[0];
+    }
+
+    if (liquidityToken1.length > 0 && liquidityToken0.length === 0) {
+      return liquidityToken1[0];
+    }
+
+    return liquidityToken0[0].liquidityLockedToken0 > liquidityToken1[0].liquidityLockedToken1
+      ? liquidityToken0[0]
+      : liquidityToken1[0];
   }
 }
