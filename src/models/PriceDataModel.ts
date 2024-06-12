@@ -4,7 +4,7 @@ import {index, prop} from '@typegoose/typegoose';
 @index({fetcher: 1})
 @index({symbol: 1})
 @index({chainId: 1})
-@index({fetcher: 1, symbol: 1, timestamp: 1}, {unique: true})
+@index({fetcher: 1, symbol: 1, timestamp: 1, chainId: 1}, {unique: true})
 export class PriceDataModel {
   @prop({required: true})
   fetcher!: string;
@@ -20,7 +20,4 @@ export class PriceDataModel {
 
   @prop({required: true})
   chainId!: string;
-
-  @prop({required: true})
-  expireAt!: Date;
 }
