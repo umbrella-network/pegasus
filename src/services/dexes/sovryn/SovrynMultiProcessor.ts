@@ -19,11 +19,11 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
       return symbols.length != 2 ? ['not-found', 'not-found'] : symbols;
     };
 
-    prices.forEach((price, ix) => {
+    for (const [ix, price] of prices.entries()) {
       const [feedBase, feedQuote] = symbolToBaseAndQuote(feedFetchers[ix].symbol || '-');
 
       if (price) {
-        this.priceDataRepository.savePrice({
+        await this.priceDataRepository.savePrice({
           fetcher: FetcherName.SOVRYN_PRICE,
           value: price.toString(),
           valueType: 'string',
@@ -33,7 +33,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
           fetcherSource: 'Sovryn Protocol',
         });
       }
-    });
+    }
 
     return prices;
   }
