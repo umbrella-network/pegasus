@@ -43,7 +43,7 @@ class FeedProcessor {
 
       keys.forEach((leafLabel) =>
         feeds[leafLabel].inputs.forEach((input) => {
-          uniqueFeedFetcherMap[hash(input.fetcher)] = input.fetcher;
+          uniqueFeedFetcherMap[hash(input.fetcher)] = {...input.fetcher, symbol: leafLabel};
         }),
       );
     });
