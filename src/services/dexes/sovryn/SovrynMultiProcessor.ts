@@ -27,7 +27,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
           fetcher: FetcherName.SOVRYN_PRICE,
           value: price.toString(),
           valueType: 'string',
-          timestamp: 0,
+          timestamp: Date.now(), // prices coming from SovrynFetcher don't contain any timestamp
           feedBase,
           feedQuote,
           fetcherSource: 'Sovryn Protocol',
