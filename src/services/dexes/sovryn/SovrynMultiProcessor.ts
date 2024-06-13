@@ -26,7 +26,8 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
         this.priceDataRepository.savePrice({
           fetcher: FetcherName.SOVRYN_PRICE,
           value: price.toString(),
-          timestamp: 1000000,
+          valueType: 'string',
+          timestamp: 0,
           feedBase,
           feedQuote,
           fetcherSource: 'Sovryn Protocol',

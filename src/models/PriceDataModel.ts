@@ -14,6 +14,9 @@ export class PriceDataModel {
   value!: string;
 
   @prop({required: true})
+  valueType!: string; // e.g. number, hex, string
+
+  @prop({required: true})
   timestamp!: number;
 
   @prop({required: true})
