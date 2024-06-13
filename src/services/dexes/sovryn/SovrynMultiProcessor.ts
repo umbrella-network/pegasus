@@ -14,14 +14,21 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
     const request = this.createRequest(feedFetchers);
     const prices = await this.sovrynFetcher.apply(request);
 
+    const symbolToBaseAndQuote = (symbol: string) => {
+      const symbols = symbol.split('-');
+      return symbols.length != 2 ? ['not-found', 'not-found'] : symbols;
+    };
+
     prices.forEach((price, ix) => {
-      const symbol = feedFetchers[ix].symbol || '';
+      const [feedBase, feedQuote] = symbolToBaseAndQuote(feedFetchers[ix].symbol || '-');
+
       if (price) {
         this.priceDataRepository.savePrice({
           fetcher: FetcherName.SOVRYN_PRICE,
           value: price.toString(),
           timestamp: 1000000,
-          symbol: symbol,
+          feedBase,
+          feedQuote,
           fetcherSource: 'Sovryn Protocol',
         });
       }

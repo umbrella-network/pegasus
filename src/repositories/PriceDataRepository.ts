@@ -9,7 +9,8 @@ export type PriceDataPayload = {
   fetcher: string;
   value: string;
   timestamp: number; // timestamp stamp associated with the value (not the timestamp to when it is stored)
-  symbol: string; // symbol configurable on feeds.yaml e.g. WBTC-USDC
+  feedBase: string; // base configurable on feeds.yaml e.g. WBTC-USDC -> base is WBTC
+  feedQuote: string; // quote configurable on feeds.yaml e.g. WBTC-USDC -> quote is USDC
   fetcherSource: string;
 };
 
