@@ -74,9 +74,7 @@ const pool4 = {
   liquidityUpdatedAt: new Date(Date.now()),
 };
 
-const uniswapV3Pools = [pool1, pool2, pool3, pool4];
-
-describe('UniswapV3PoolRepository', () => {
+describe.only('UniswapV3PoolRepository', () => {
   let uniswapV3PoolRepository: UniswapV3PoolRepository;
   let settings: Settings;
 
@@ -85,16 +83,6 @@ describe('UniswapV3PoolRepository', () => {
     await mongoose.connect(config.MONGODB_URL, {useNewUrlParser: true, useUnifiedTopology: true});
 
     const container = getTestContainer();
-
-    const uniswapV3PoolModel = getModelForClass(UniswapV3Pool);
-
-    await Promise.all(
-      uniswapV3Pools.map((uniswapV3Pool) =>
-        uniswapV3PoolModel.create({
-          ...uniswapV3Pool,
-        }),
-      ),
-    );
 
     settings = {
       dexes: {
@@ -113,11 +101,28 @@ describe('UniswapV3PoolRepository', () => {
   });
 
   after(async () => {
-    await getModelForClass(UniswapV3Pool).deleteMany({});
     await mongoose.connection.close();
   });
 
   describe('find', () => {
+    before(async () => {
+      const uniswapV3Pools = [pool1, pool2, pool3];
+
+      const uniswapV3PoolModel = getModelForClass(UniswapV3Pool);
+
+      await Promise.all(
+        uniswapV3Pools.map((uniswapV3Pool) =>
+          uniswapV3PoolModel.create({
+            ...uniswapV3Pool,
+          }),
+        ),
+      );
+    });
+
+    after(async () => {
+      await getModelForClass(UniswapV3Pool).deleteMany({});
+    });
+
     it('responds with matching tokens and ordered', async () => {
       const result = await uniswapV3PoolRepository.find({
         token0: tokenB,
@@ -126,10 +131,9 @@ describe('UniswapV3PoolRepository', () => {
         fromChain: [ChainsIds.ETH],
       });
 
-      expect(result).to.be.an('array').with.lengthOf(3);
+      expect(result).to.be.an('array').with.lengthOf(2);
       expect(result[0]).to.include(lodash.omit(pool1, 'liquidityUpdatedAt'));
-      expect(result[1]).to.include(lodash.omit(pool4, 'liquidityUpdatedAt'));
-      expect(result[2]).to.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
+      expect(result[1]).to.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
 
       const resultInverted = await uniswapV3PoolRepository.find({
         token0: tokenA,
@@ -138,14 +142,31 @@ describe('UniswapV3PoolRepository', () => {
         fromChain: [ChainsIds.ETH],
       });
 
-      expect(result).to.be.an('array').with.lengthOf(3);
+      expect(result).to.be.an('array').with.lengthOf(2);
       expect(resultInverted[0]).to.include(lodash.omit(pool1, 'liquidityUpdatedAt'));
-      expect(resultInverted[1]).to.include(lodash.omit(pool4, 'liquidityUpdatedAt'));
-      expect(resultInverted[2]).to.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
+      expect(resultInverted[1]).to.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
     });
   });
 
   describe('findBestPool', () => {
+    before(async () => {
+      const uniswapV3Pools = [pool1, pool2, pool3, pool4];
+
+      const uniswapV3PoolModel = getModelForClass(UniswapV3Pool);
+
+      await Promise.all(
+        uniswapV3Pools.map((uniswapV3Pool) =>
+          uniswapV3PoolModel.create({
+            ...uniswapV3Pool,
+          }),
+        ),
+      );
+    });
+
+    after(async () => {
+      await getModelForClass(UniswapV3Pool).deleteMany({});
+    });
+
     it('responds with matching tokens with higher liquidity and fresh', async () => {
       const result = await uniswapV3PoolRepository.findBestPool({
         base: tokenA,

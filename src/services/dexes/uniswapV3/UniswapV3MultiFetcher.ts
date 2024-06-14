@@ -60,7 +60,7 @@ class UniswapV3MultiFetcher {
     return prices.flat();
   }
 
-  public async getPoolsToFetch(
+  private async getPoolsToFetch(
     inputs: UniswapV3MultiFetcherParams[],
   ): Promise<Map<ChainsIds, UniswapV3ContractHelperInput[]>> {
     const helperInputMap: Map<ChainsIds, UniswapV3ContractHelperInput[]> = new Map();
@@ -96,7 +96,7 @@ class UniswapV3MultiFetcher {
     return helperInputMap;
   }
 
-  public async fetchData(
+  private async fetchData(
     chainId: ChainsIds,
     poolsToFetch: {pool: string; base: string; quote: string; amountInDecimals: number}[],
   ): Promise<OutputValues[]> {
@@ -113,7 +113,7 @@ class UniswapV3MultiFetcher {
     return this.processResult(results, poolsToFetch);
   }
 
-  public processResult(
+  private processResult(
     results: {success: boolean; price: BigNumber}[],
     poolsToFetch: {pool: string; base: string; quote: string; amountInDecimals: number}[],
   ): OutputValues[] {

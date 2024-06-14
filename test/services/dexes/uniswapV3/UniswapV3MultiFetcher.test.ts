@@ -145,268 +145,48 @@ describe('UniswapV3MultiFetcher', () => {
       });
     });
 
-    //   describe('when get value from DB returns data and getPrices is rejected', () => {
-    //     beforeEach(() => {
-    //       mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
-    //       mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-    //       mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
-    //       mockedUniswapV3PoolRepository.find.resolves(responseFindQuery);
-    //       mockedContract = {callStatic: {getPrices: sinon.stub().rejects()}};
-    //       mockedUniswapV3Helper.getContract.returns(mockedContract);
-    //       mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
+    describe('when get value from DB returns data and getPrices is rejected', () => {
+      beforeEach(() => {
+        mockedContract = {callStatic: {getPrices: sinon.stub().rejects()}};
+        mockedContractAddressService = sinon.createStubInstance(ContractAddressService);
+        mockedContractAddressService.getContract.resolves(mockedContract);
+        mockedUniswapV3PoolRepository = sinon.createStubInstance(UniswapV3PoolRepository);
 
-    //       container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-    //       container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
-    //       container.bind(UniswapV3MultiFetcher).toSelf();
+        container.bind(ContractAddressService).toConstantValue(mockedContractAddressService);
+        container.bind(UniswapV3PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
+        container.bind(UniswapV3MultiFetcher).toSelf();
+        container.bind(BlockchainRepository).toSelf();
 
-    //       uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
-    //     });
+        uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
+      });
 
-    //     it('throw an error', async () => {
-    //       await expect(uniswapV3MultiFetcher.apply(params)).to.throw;
-    //     });
-    //   });
+      it('throw an error', async () => {
+        await expect(uniswapV3MultiFetcher.apply(params)).to.throw;
+      });
+    });
 
-    //   describe('when get value from DB return nothing', () => {
-    //     beforeEach(() => {
-    //       mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-    //       mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
-    //       mockedUniswapV3PoolRepository.find.resolves([]);
+    describe('when get value from DB return nothing', () => {
+      beforeEach(() => {
+        mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
+        mockedContractAddressService = sinon.createStubInstance(ContractAddressService);
+        mockedContractAddressService.getContract.resolves(mockedContract);
+        mockedUniswapV3PoolRepository = sinon.createStubInstance(UniswapV3PoolRepository);
+        mockedUniswapV3PoolRepository.findBestPool.resolves(undefined);
 
-    //       mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
-    //       mockedUniswapV3Helper.getContract.returns(mockedContract);
-    //       mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
+        container.bind(ContractAddressService).toConstantValue(mockedContractAddressService);
+        container.bind(UniswapV3PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
+        container.bind(UniswapV3MultiFetcher).toSelf();
+        container.bind(BlockchainRepository).toSelf();
 
-    //       container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-    //       container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
-    //       container.bind(UniswapV3MultiFetcher).toSelf();
+        uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
+      });
 
-    //       uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
-    //     });
+      it('responds without values', async () => {
+        const result = await uniswapV3MultiFetcher.apply(params);
 
-    //     it('responds without values', async () => {
-    //       const result = await uniswapV3MultiFetcher.apply(params);
-
-    //       expect(result).to.be.an('array').with.lengthOf(0);
-    //       expect(result).to.eql([]);
-    //     });
-    //   });
-    // });
-
-    // describe('#getPoolsToFetch', () => {
-    //   describe('when get value from DB', () => {
-    //     beforeEach(() => {
-    //       mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
-    //       mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-    //       mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
-    //       mockedUniswapV3PoolRepository.find.onCall(0).resolves(responseFindQuery0);
-    //       mockedUniswapV3PoolRepository.find.onCall(1).resolves(responseFindQuery1);
-    //       mockedUniswapV3PoolRepository.find.onCall(2).resolves([]);
-
-    //       container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-    //       container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
-    //       container.bind(UniswapV3MultiFetcher).toSelf();
-
-    //       uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
-    //     });
-
-    //     it('responds with aggregated pools and only with data found', async () => {
-    //       const result = await uniswapV3MultiFetcher.getPoolsToFetch(params);
-
-    //       expect(result).to.be.an('array').with.lengthOf(2);
-    //       expect(result).to.eql([
-    //         {
-    //           pools: [responseFindQuery0[0].pool, responseFindQuery0[1].pool],
-    //           base: responseFindQuery0[0].token0,
-    //           quote: responseFindQuery0[0].token1,
-    //         },
-    //         {
-    //           pools: [responseFindQuery1[0].pool],
-    //           base: responseFindQuery1[0].token0,
-    //           quote: responseFindQuery1[0].token1,
-    //         },
-    //       ]);
-    //     });
-    //   });
-    // });
-
-    // describe('#fetchData', () => {
-    //   describe('when get value from DB', () => {
-    //     beforeEach(() => {
-    //       mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
-    //       mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-    //       mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
-    //       mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
-    //       mockedUniswapV3Helper.getContract.returns(mockedContract);
-    //       mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
-
-    //       container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-    //       container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
-    //       container.bind(UniswapV3MultiFetcher).toSelf();
-
-    //       uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
-    //     });
-
-    //     it('responds with processed pools', async () => {
-    //       const poolsToFetch = [
-    //         {
-    //           pools: [responseFindQuery0[0].pool, responseFindQuery0[1].pool],
-    //           base: responseFindQuery0[0].token0,
-    //           quote: responseFindQuery0[0].token1,
-    //         },
-    //         {
-    //           pools: [responseFindQuery1[0].pool],
-    //           base: responseFindQuery1[0].token0,
-    //           quote: responseFindQuery1[0].token1,
-    //         },
-    //         {
-    //           pools: [responseFindQuery1[0].pool],
-    //           base: responseFindQuery1[0].token0,
-    //           quote: responseFindQuery1[0].token1,
-    //         },
-    //       ];
-    //       const result = await uniswapV3MultiFetcher.fetchData(poolsToFetch);
-
-    //       expect(result).to.be.an('array').with.lengthOf(3);
-    //       expect(result).to.eql([
-    //         {
-    //           token0: poolsToFetch[0].base,
-    //           token1: poolsToFetch[0].quote,
-    //           value: responseGetPrices[0][0].price.toNumber(),
-    //         },
-    //         {
-    //           token0: poolsToFetch[1].base,
-    //           token1: poolsToFetch[1].quote,
-    //           value: responseGetPrices[0][1].price.toNumber(),
-    //         },
-    //         {
-    //           token0: poolsToFetch[2].base,
-    //           token1: poolsToFetch[2].quote,
-    //           value: 0,
-    //         },
-    //       ]);
-    //     });
-    //   });
-    // });
-    // describe('#fetchData', () => {
-    //   describe('when get value from DB', () => {
-    //     beforeEach(() => {
-    //       mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
-    //       mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-    //       mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
-    //       mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
-    //       mockedUniswapV3Helper.getContract.returns(mockedContract);
-    //       mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
-
-    //       container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-    //       container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
-    //       container.bind(UniswapV3MultiFetcher).toSelf();
-
-    //       uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
-    //     });
-
-    //     it('responds with processed pools', async () => {
-    //       const poolsToFetch = [
-    //         {
-    //           pools: [responseFindQuery0[0].pool, responseFindQuery0[1].pool],
-    //           base: responseFindQuery0[0].token0,
-    //           quote: responseFindQuery0[0].token1,
-    //         },
-    //         {
-    //           pools: [responseFindQuery1[0].pool],
-    //           base: responseFindQuery1[0].token0,
-    //           quote: responseFindQuery1[0].token1,
-    //         },
-    //         {
-    //           pools: [responseFindQuery1[0].pool],
-    //           base: responseFindQuery1[0].token0,
-    //           quote: responseFindQuery1[0].token1,
-    //         },
-    //       ];
-    //       const result = await uniswapV3MultiFetcher.fetchData(poolsToFetch);
-
-    //       expect(result).to.be.an('array').with.lengthOf(3);
-    //       expect(result).to.eql([
-    //         {
-    //           token0: poolsToFetch[0].base,
-    //           token1: poolsToFetch[0].quote,
-    //           value: responseGetPrices[0][0].price.toNumber(),
-    //         },
-    //         {
-    //           token0: poolsToFetch[1].base,
-    //           token1: poolsToFetch[1].quote,
-    //           value: responseGetPrices[0][1].price.toNumber(),
-    //         },
-    //         {
-    //           token0: poolsToFetch[2].base,
-    //           token1: poolsToFetch[2].quote,
-    //           value: 0,
-    //         },
-    //       ]);
-    //     });
-    //   });
-    // });
-
-    // describe('#processResult', () => {
-    //   beforeEach(() => {
-    //     mockedContractHelperRepository = sinon.createStubInstance(ContractHelperRepository);
-    //     mockedUniswapV3Helper = sinon.createStubInstance(UniswapV3Helper);
-    //     mockedUniswapV3PoolRepository = sinon.createStubInstance(PoolRepository);
-    //     mockedContract = {callStatic: {getPrices: async () => responseGetPrices}};
-    //     mockedUniswapV3Helper.getContract.returns(mockedContract);
-    //     mockedContractHelperRepository.get.returns(mockedUniswapV3Helper);
-
-    //     container.bind(ContractHelperRepository).toConstantValue(mockedContractHelperRepository);
-    //     container.bind(PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
-    //     container.bind(UniswapV3MultiFetcher).toSelf();
-
-    //     uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
-    //   });
-
-    //   it('responds with processed success pools', async () => {
-    //     const poolsToFetch = [
-    //       {
-    //         pools: [responseFindQuery0[0].pool, responseFindQuery0[1].pool],
-    //         base: responseFindQuery0[0].token0,
-    //         quote: responseFindQuery0[0].token1,
-    //       },
-    //       {
-    //         pools: [responseFindQuery1[0].pool],
-    //         base: responseFindQuery1[0].token0,
-    //         quote: responseFindQuery1[0].token1,
-    //       },
-    //       {
-    //         pools: [responseFindQuery1[0].pool],
-    //         base: responseFindQuery1[0].token0,
-    //         quote: responseFindQuery1[0].token1,
-    //       },
-    //     ];
-
-    //     const results = [
-    //       {success: true, price: BigNumber.from(123)},
-    //       {success: true, price: BigNumber.from(333)},
-    //       {success: false, price: BigNumber.from(13)},
-    //     ];
-    //     const result = await uniswapV3MultiFetcher.processResult(results, poolsToFetch);
-
-    //     expect(result).to.be.an('array').with.lengthOf(3);
-    //     expect(result).to.eql([
-    //       {
-    //         token0: poolsToFetch[0].base,
-    //         token1: poolsToFetch[0].quote,
-    //         value: results[0].price.toNumber(),
-    //       },
-    //       {
-    //         token0: poolsToFetch[1].base,
-    //         token1: poolsToFetch[1].quote,
-    //         value: results[1].price.toNumber(),
-    //       },
-    //       {
-    //         token0: poolsToFetch[2].base,
-    //         token1: poolsToFetch[2].quote,
-    //         value: 0,
-    //       },
-    //     ]);
-    //   });
+        expect(result).to.be.an('array').with.lengthOf(0);
+        expect(result).to.eql([]);
+      });
+    });
   });
 });
