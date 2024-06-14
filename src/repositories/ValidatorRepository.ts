@@ -5,6 +5,7 @@ import {Validator} from '../types/Validator.js';
 import CachedValidator from '../models/CachedValidator.js';
 import {Logger} from 'winston';
 import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds.js';
+import {DataCollection} from '../types/custom.js';
 
 @injectable()
 export class ValidatorRepository {
@@ -27,6 +28,22 @@ export class ValidatorRepository {
           location: data.location,
         };
       });
+  }
+
+  async getAll(): Promise<DataCollection<Set<string>>> {
+    const result: DataCollection<Set<string>> = {};
+    const validators = await getModelForClass(CachedValidator).find().exec();
+
+    validators.forEach((data) => {
+      if (!result[data.chainId]) {
+        result[data.chainId] = new Set<string>();
+      }
+
+      // remove `/` from the end
+      result[data.chainId].add(data.location.endsWith('/') ? data.location.slice(0, -1) : data.location);
+    });
+
+    return result;
   }
 
   protected async anyChainWithList(): Promise<ChainsIds | undefined> {
