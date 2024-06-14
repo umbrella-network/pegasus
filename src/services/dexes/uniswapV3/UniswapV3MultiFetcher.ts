@@ -1,7 +1,7 @@
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {BigNumber} from 'ethers';
+import {BigNumber, ethers} from 'ethers';
 import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
 import path from 'path';
@@ -31,7 +31,7 @@ type UniswapV3ContractHelperInput = {
 export interface OutputValues {
   base: string;
   quote: string;
-  value: number;
+  value: string;
 }
 
 @injectable()
@@ -128,14 +128,19 @@ class UniswapV3MultiFetcher {
 
     for (const [i, result] of results.entries()) {
       if (!result.success) {
-        outputs.push({base: poolsToFetch[i].base, quote: poolsToFetch[i].quote, value: 0});
+        outputs.push({base: poolsToFetch[i].base, quote: poolsToFetch[i].quote, value: '0'});
+
         this.logger.debug(
           `[UniswapV3MultiFetcher] failed to fetch: ${poolsToFetch[i].base}, ${poolsToFetch[i].quote}: 0`,
         );
         continue;
       }
 
-      outputs.push({base: poolsToFetch[i].base, quote: poolsToFetch[i].quote, value: result.price.toNumber()});
+      outputs.push({
+        base: poolsToFetch[i].base,
+        quote: poolsToFetch[i].quote,
+        value: ethers.utils.parseUnits(result.price.toString(), 18).toString(),
+      });
 
       this.logger.debug(
         `[UniswapV3MultiFetcher] resolved price: ${poolsToFetch[i].base}, ${poolsToFetch[i].quote}: ${result.price}`,
