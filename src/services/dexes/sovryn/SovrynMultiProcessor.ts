@@ -1,14 +1,20 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
 
 import {SovrynPriceFetcher, PairRequest} from './SovrynPriceFetcher.js';
 import {FeedFetcherInterface, FetcherName} from '../../../types/fetchers.js';
 import {FeedFetcher} from '../../../types/Feed.js';
 import {PriceDataRepository} from '../../../repositories/PriceDataRepository.js';
+import TimeService from '../../../services/TimeService.js';
+import {PriceDataPayload} from '../../../repositories/PriceDataRepository.js';
 
 @injectable()
 export default class SovrynMultiProcessor implements FeedFetcherInterface {
   @inject(SovrynPriceFetcher) sovrynFetcher!: SovrynPriceFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject('Logger') private logger!: Logger;
+
+  static fetcherSource = '';
 
   async apply(feedFetchers: FeedFetcher[]): Promise<(number | undefined)[]> {
     const request = this.createRequest(feedFetchers);
@@ -16,24 +22,35 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
 
     const symbolToBaseAndQuote = (symbol: string) => {
       const symbols = symbol.split('-');
-      return symbols.length != 2 ? ['not-found', 'not-found'] : symbols;
+      if (symbols.length != 2) {
+        throw new Error(`couldn't get base and quote from symbol: ${symbol}`);
+      } else {
+        return symbols;
+      }
     };
 
+    const payloads: PriceDataPayload[] = [];
     for (const [ix, price] of prices.entries()) {
-      const [feedBase, feedQuote] = symbolToBaseAndQuote(feedFetchers[ix].symbol || '-');
+      try {
+        const [feedBase, feedQuote] = symbolToBaseAndQuote(feedFetchers[ix].symbol || '-');
 
-      if (price) {
-        await this.priceDataRepository.savePrice({
-          fetcher: FetcherName.SOVRYN_PRICE,
-          value: price.toString(),
-          valueType: 'string',
-          timestamp: Date.now(), // prices coming from SovrynFetcher don't contain any timestamp
-          feedBase,
-          feedQuote,
-          fetcherSource: 'Sovryn Protocol',
-        });
+        if (price) {
+          payloads.push({
+            fetcher: FetcherName.SOVRYN_PRICE,
+            value: price.toString(),
+            valueType: 'string',
+            timestamp: new TimeService().apply(), // prices coming from SovrynFetcher don't contain any timestamp
+            feedBase,
+            feedQuote,
+            fetcherSource: SovrynMultiProcessor.fetcherSource,
+          });
+        }
+      } catch {
+        this.logger.error('[SovrynPriceFetcher] failed to get price for pairs.');
       }
     }
+
+    await this.priceDataRepository.savePrices(payloads);
 
     return prices;
   }

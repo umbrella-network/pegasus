@@ -24,4 +24,22 @@ export class PriceDataRepository {
     const doc = await getModelForClass(PriceDataModel).create({...data});
     await doc.save();
   }
+
+  async savePrices(data: PriceDataPayload[]): Promise<void> {
+    const model = await getModelForClass(PriceDataModel);
+
+    const bulkOps = data.map((doc) => ({
+      updateOne: {
+        filter: {...doc},
+        update: doc,
+        upsert: true,
+      },
+    }));
+
+    try {
+      await model.bulkWrite(bulkOps);
+    } catch (error) {
+      this.logger.error(`couldn't perform bulkWrite of PriceData: ${error}`);
+    }
+  }
 }
