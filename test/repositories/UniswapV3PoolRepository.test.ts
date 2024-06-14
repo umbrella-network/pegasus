@@ -44,7 +44,7 @@ const pool2 = {
   chainId: ChainsIds.ETH,
   liquidityActive: '2090386241959957974528',
   liquidityLockedToken0: 27061.479326096796,
-  liquidityLockedToken1: 0.00006402189699766422,
+  liquidityLockedToken1: 0.00006402189699,
   liquidityUpdatedAt: new Date(Date.now()),
 };
 
@@ -57,7 +57,7 @@ const pool3 = {
   chainId: ChainsIds.ETH,
   liquidityActive: '2090386241959957974528',
   liquidityLockedToken0: 17061.479326096796,
-  liquidityLockedToken1: 0.00006402189699766422,
+  liquidityLockedToken1: 0.00006402189699,
   liquidityUpdatedAt: new Date(Date.now()),
 };
 
@@ -70,11 +70,11 @@ const pool4 = {
   chainId: ChainsIds.ETH,
   liquidityActive: '2090386241959957974528',
   liquidityLockedToken0: 17061.479326096796,
-  liquidityLockedToken1: 0.00006402189699766422,
+  liquidityLockedToken1: 0.00006402189699,
   liquidityUpdatedAt: new Date(Date.now()),
 };
 
-describe.only('UniswapV3PoolRepository', () => {
+describe('UniswapV3PoolRepository', () => {
   let uniswapV3PoolRepository: UniswapV3PoolRepository;
   let settings: Settings;
 
