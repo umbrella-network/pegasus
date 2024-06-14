@@ -160,8 +160,11 @@ describe('UniswapV3MultiFetcher', () => {
         uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
       });
 
-      it('throw an error', async () => {
-        await expect(uniswapV3MultiFetcher.apply(params)).to.throw;
+      it('responds without values', async () => {
+        const result = await uniswapV3MultiFetcher.apply(params);
+
+        expect(result).to.be.an('array').with.lengthOf(0);
+        expect(result).to.eql([]);
       });
     });
 

@@ -102,15 +102,22 @@ class UniswapV3MultiFetcher {
   ): Promise<OutputValues[]> {
     const abi = JSON.parse(readFileSync(__dirname + '/UniswapV3FetcherHelper.abi.json', 'utf-8')).abi as never;
     const contract = await this.contractAddressService.getContract(chainId, 'UniswapV3FetcherHelper', abi);
-    const [results] = (await contract.callStatic.getPrices(poolsToFetch)) as {success: boolean; price: BigNumber}[][];
-    this.logger.debug(`[UniswapV3MultiFetcher] fetched data: ${results}`);
 
-    if (results.length === 0) {
-      this.logger.error('[UniswapV3MultiFetcher] no data fetched');
-      return [];
+    try {
+      const [results] = (await contract.callStatic.getPrices(poolsToFetch)) as {success: boolean; price: BigNumber}[][];
+      this.logger.debug(`[UniswapV3MultiFetcher] fetched data: ${results}`);
+
+      if (results.length === 0) {
+        this.logger.error('[UniswapV3MultiFetcher] no data fetched');
+        return [];
+      }
+
+      return this.processResult(results, poolsToFetch);
+    } catch (error) {
+      this.logger.error(`[UniswapV3MultiFetcher] getPrices failed: ${error}`);
     }
 
-    return this.processResult(results, poolsToFetch);
+    return [];
   }
 
   private processResult(
