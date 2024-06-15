@@ -129,17 +129,17 @@ describe('UniswapV3MultiFetcher', () => {
           {
             base: '0xfff9976782d46cc05630d1f6ebab18b2324d6b14',
             quote: '0x01ac9633f13aa16e0f8d4514c806a55f9e9abd01',
-            value: 100,
+            value: '100.0',
           },
           {
             base: '0x01d69ed9cc3e7c1d04145c9a28e306fbc982be7a',
             quote: '0xfff9976782d46cc05630d1f6ebab18b2324d6b14',
-            value: 200,
+            value: '200.0',
           },
           {
             base: '0x01f64f5dd704f7179c6a0733f625577677b48e3e',
             quote: '0xfff9976782d46cc05630d1f6ebab18b2324d6b14',
-            value: 0,
+            value: '0',
           },
         ]);
       });

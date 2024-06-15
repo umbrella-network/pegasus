@@ -136,10 +136,12 @@ class UniswapV3MultiFetcher {
         continue;
       }
 
+      const value = result.price.toString();
+
       outputs.push({
         base: poolsToFetch[i].base,
         quote: poolsToFetch[i].quote,
-        value: ethers.utils.parseUnits(result.price.toString(), 18).toString(),
+        value: ethers.utils.formatUnits(ethers.utils.parseUnits(value, 18), 18).toString(),
       });
 
       this.logger.debug(
