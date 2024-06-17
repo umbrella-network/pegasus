@@ -2,6 +2,9 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
+import {PriceDataRepository, PriceDataPayload} from '../../repositories/PriceDataRepository.js';
+import TimeService from '../TimeService.js';
+import {FetcherName} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 
 export interface MetalsDevApiInputParams {
@@ -11,10 +14,14 @@ export interface MetalsDevApiInputParams {
 
 @injectable()
 export default class MetalsDevApiPriceFetcher {
+  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private apiKey: string;
   private timeout: number;
+
+  static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
     this.apiKey = settings.api.metalsDevApi.apiKey;
@@ -46,6 +53,18 @@ export default class MetalsDevApiPriceFetcher {
         this.logger.debug(
           `[MetalsDevApiFetcherFetcher] resolved price per gram: ${input.metal}/${input.currency}: ${pricePerGram}`,
         );
+
+        const payload: PriceDataPayload = {
+          fetcher: FetcherName.METALS_DEV_API,
+          value: pricePerGram.toString(),
+          valueType: 'string',
+          timestamp: this.timeService.apply(),
+          feedBase: input.currency,
+          feedQuote: input.metal,
+          fetcherSource: MetalsDevApiPriceFetcher.fetcherSource,
+        };
+
+        await this.priceDataRepository.savePrices([payload]);
 
         return pricePerGram;
       } else {
