@@ -7,6 +7,11 @@ import {FeedFetcher} from '../../types/Feed.js';
 import {InputParams, OutputValue} from '../fetchers/CryptoComparePriceMultiFetcher.js';
 import {CryptoCompareMultiProcessorResult, FeedFetcherInterface} from '../../types/fetchers.js';
 
+import {PriceDataRepository, PriceDataPayload} from '../../repositories/PriceDataRepository.js';
+import {FetcherName} from '../../types/fetchers.js';
+import TimeService from '../TimeService.js';
+import {feedNameToBaseAndQuote} from '../../utils/hashFeedName.js';
+
 interface FeedFetcherParams {
   fsym: string;
   tsyms: string;
@@ -14,13 +19,39 @@ interface FeedFetcherParams {
 
 @injectable()
 export default class CryptoCompareMultiProcessor implements FeedFetcherInterface {
+  @inject(CryptoComparePriceMultiFetcher) cryptoComparePriceMultiFetcher!: CryptoComparePriceMultiFetcher;
+  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
-  @inject(CryptoComparePriceMultiFetcher) cryptoComparePriceMultiFetcher!: CryptoComparePriceMultiFetcher;
+  static fetcherSource = '';
 
   async apply(feedFetchers: FeedFetcher[]): Promise<CryptoCompareMultiProcessorResult[]> {
     const params = this.createParams(feedFetchers);
     const outputs = await this.cryptoComparePriceMultiFetcher.apply(params);
+
+    const payloads: PriceDataPayload[] = [];
+    for (const [ix, output] of outputs.entries()) {
+      try {
+        const [feedBase, feedQuote] = feedNameToBaseAndQuote(feedFetchers[ix].symbol || '-');
+
+        if (output) {
+          payloads.push({
+            fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
+            value: output.value.toString(),
+            valueType: 'string',
+            timestamp: this.timeService.apply(), // prices coming from SovrynFetcher don't contain any timestamp
+            feedBase,
+            feedQuote,
+            fetcherSource: CryptoCompareMultiProcessor.fetcherSource,
+          });
+        }
+      } catch (error) {
+        this.logger.error('[CoingeckoMultiProcessor] failed to get price for pairs.', error);
+      }
+    }
+
+    await this.priceDataRepository.savePrices(payloads);
 
     return this.sortOutput(feedFetchers, outputs);
   }
