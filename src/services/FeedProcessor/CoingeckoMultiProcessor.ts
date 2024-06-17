@@ -1,17 +1,49 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
 
 import {InputParams, OutputValues} from '../fetchers/CoingeckoPriceMultiFetcher.js';
-
-import {FeedFetcher} from '../../types/Feed.js';
+import {PriceDataRepository, PriceDataPayload} from '../../repositories/PriceDataRepository.js';
 import {CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
+import {FeedFetcher} from '../../types/Feed.js';
+import {FetcherName} from '../../types/fetchers.js';
+import TimeService from '../TimeService.js';
+import {feedNameToBaseAndQuote} from '../../utils/hashFeedName.js';
 
 @injectable()
 export default class CoingeckoMultiProcessor {
   @inject(CoingeckoPriceMultiFetcher) coingeckoPriceMultiFetcher!: CoingeckoPriceMultiFetcher;
+  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) private timeService!: TimeService;
+  @inject('Logger') private logger!: Logger;
+
+  static fetcherSource = '';
 
   async apply(feedFetchers: FeedFetcher[]): Promise<(number | undefined)[]> {
     const params = this.createParams(feedFetchers);
     const outputs = await this.coingeckoPriceMultiFetcher.apply(params);
+
+    const payloads: PriceDataPayload[] = [];
+    for (const [ix, output] of outputs.entries()) {
+      try {
+        const [feedBase, feedQuote] = feedNameToBaseAndQuote(feedFetchers[ix].symbol || '-');
+
+        if (output) {
+          payloads.push({
+            fetcher: FetcherName.COINGECKO_PRICE,
+            value: output.value.toString(),
+            valueType: 'string',
+            timestamp: this.timeService.apply(), // prices coming from SovrynFetcher don't contain any timestamp
+            feedBase,
+            feedQuote,
+            fetcherSource: CoingeckoMultiProcessor.fetcherSource,
+          });
+        }
+      } catch (error) {
+        this.logger.error('[CoingeckoMultiProcessor] failed to get price for pairs.', error);
+      }
+    }
+
+    await this.priceDataRepository.savePrices(payloads);
 
     return this.sortOutput(feedFetchers, outputs);
   }

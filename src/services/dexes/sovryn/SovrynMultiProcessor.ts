@@ -7,6 +7,7 @@ import {FeedFetcher} from '../../../types/Feed.js';
 import {PriceDataRepository} from '../../../repositories/PriceDataRepository.js';
 import TimeService from '../../../services/TimeService.js';
 import {PriceDataPayload} from '../../../repositories/PriceDataRepository.js';
+import {feedNameToBaseAndQuote} from '../../../utils/hashFeedName.js';
 
 @injectable()
 export default class SovrynMultiProcessor implements FeedFetcherInterface {
@@ -21,19 +22,10 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
     const request = this.createRequest(feedFetchers);
     const prices = await this.sovrynFetcher.apply(request);
 
-    const symbolToBaseAndQuote = (symbol: string) => {
-      const symbols = symbol.split('-');
-      if (symbols.length != 2) {
-        throw new Error(`couldn't get base and quote from symbol: ${symbol}`);
-      } else {
-        return symbols;
-      }
-    };
-
     const payloads: PriceDataPayload[] = [];
     for (const [ix, price] of prices.entries()) {
       try {
-        const [feedBase, feedQuote] = symbolToBaseAndQuote(feedFetchers[ix].symbol || '-');
+        const [feedBase, feedQuote] = feedNameToBaseAndQuote(feedFetchers[ix].symbol || '-');
 
         if (price) {
           payloads.push({
@@ -46,8 +38,8 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
             fetcherSource: SovrynMultiProcessor.fetcherSource,
           });
         }
-      } catch {
-        this.logger.error('[SovrynPriceFetcher] failed to get price for pairs.');
+      } catch (error) {
+        this.logger.error('[SovrynPriceFetcher] failed to get price for pairs.', error);
       }
     }
 

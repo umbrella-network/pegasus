@@ -9,3 +9,7 @@ export function hashFeedName(feenName: FeedName): HexString {
 export function hashFeedName0x(feenName: FeedName): HexStringWith0x {
   return ethers.utils.id(feenName);
 }
+
+export function feedNameToBaseAndQuote(symbol: string): string[] {
+  return symbol.split('-');
+}
