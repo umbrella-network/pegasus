@@ -32,7 +32,7 @@ export default class CoingeckoMultiProcessor {
             fetcher: FetcherName.COINGECKO_PRICE,
             value: output.value.toString(),
             valueType: 'string',
-            timestamp: this.timeService.apply(), // prices coming from SovrynFetcher don't contain any timestamp
+            timestamp: this.timeService.apply(),
             feedBase,
             feedQuote,
             fetcherSource: CoingeckoMultiProcessor.fetcherSource,

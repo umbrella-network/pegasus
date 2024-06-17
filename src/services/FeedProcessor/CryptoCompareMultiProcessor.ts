@@ -40,7 +40,7 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
             fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
             value: output.value.toString(),
             valueType: 'string',
-            timestamp: this.timeService.apply(), // prices coming from SovrynFetcher don't contain any timestamp
+            timestamp: this.timeService.apply(),
             feedBase,
             feedQuote,
             fetcherSource: CryptoCompareMultiProcessor.fetcherSource,
