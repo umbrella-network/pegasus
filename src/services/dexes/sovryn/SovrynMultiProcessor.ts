@@ -12,6 +12,7 @@ import {PriceDataPayload} from '../../../repositories/PriceDataRepository.js';
 export default class SovrynMultiProcessor implements FeedFetcherInterface {
   @inject(SovrynPriceFetcher) sovrynFetcher!: SovrynPriceFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   static fetcherSource = '';
@@ -39,7 +40,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
             fetcher: FetcherName.SOVRYN_PRICE,
             value: price.toString(),
             valueType: 'string',
-            timestamp: new TimeService().apply(), // prices coming from SovrynFetcher don't contain any timestamp
+            timestamp: this.timeService.apply(), // prices coming from SovrynFetcher don't contain any timestamp
             feedBase,
             feedQuote,
             fetcherSource: SovrynMultiProcessor.fetcherSource,
