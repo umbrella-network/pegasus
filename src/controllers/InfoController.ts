@@ -11,6 +11,7 @@ import {Logger} from 'winston';
 import {CHAIN_CONTRACT_NAME} from '@umb-network/toolbox/dist/constants.js';
 import {MassaWallet} from '../blockchains/massa/MassaWallet.js';
 import {SubmitMonitor} from '../types/SubmitMonitor.js';
+import {ConcordiumWallet} from '../blockchains/concordium/ConcordiumWallet';
 
 @injectable()
 class InfoController {
@@ -108,7 +109,8 @@ class InfoController {
       registry.getAddress(CHAIN_CONTRACT_NAME),
       registry.getAddress('UmbrellaFeeds'),
       (await blockchain.wallet.address()) +
-        (chainId == ChainsIds.MASSA ? `@${(blockchain.wallet as MassaWallet).publicKey}` : ''),
+        (chainId == ChainsIds.MASSA ? `@${(blockchain.wallet as MassaWallet).publicKey}` : '') +
+        (chainId == ChainsIds.CONCORDIUM ? `@${(blockchain.wallet as ConcordiumWallet).verifyKey()}` : ''),
       blockchain.deviationWallet?.address(),
       this.lastSubmitResolver.apply(chainId),
       blockchain.provider.getNetwork(),
