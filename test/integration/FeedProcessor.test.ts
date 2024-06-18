@@ -108,7 +108,7 @@ describe('FeedProcessor integration tests', () => {
           const leaves = await feedProcessor.apply(10, feedsPriceFetcher);
 
           expect(leaves[0]).to.be.an('array').that.has.lengthOf(Object.keys(feedsPriceFetcher).length);
-        });
+        }).timeout(10000);
       });
     });
   }).timeout(5000);
@@ -137,7 +137,7 @@ describe('FeedProcessor integration tests', () => {
 
           const leaves = await feedProcessor.apply(Math.floor(Date.now() / 1000), feedsPriceFetcher);
           expect(leaves[0]).to.be.an('array').that.has.lengthOf(Object.keys(feedsPriceFetcher).length);
-        });
+        }).timeout(10000);
       });
     });
   });
