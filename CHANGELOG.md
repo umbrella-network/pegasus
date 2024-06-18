@@ -31,6 +31,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - filter out signatures that are unknown to staking bank
 
+## [7.26.3] - 2024-06-17
+### Updated
+- display `verifyKey` in info
+
+## [7.26.2] - 2024-06-14
+### Fixed
+- filter out signatures that are unknown to staking bank
+
 ## [7.26.1] - 2024-05-23
 ### Fixed
 - fix schema for `PolygonIOCurrencySnapshotGramsFetcher`
