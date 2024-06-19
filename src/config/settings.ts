@@ -450,11 +450,23 @@ const settings: Settings = {
     [ChainsIds.ROOTSTOCK]: {
       [DexProtocolName.SOVRYN]: {
         subgraphUrl: <string>process.env['SOVRYN_SUBGRAPH_API'],
+        liquidityFreshness: parseInt(process.env.SOVRYN_LIQUIDITY_FRESHNESS || String(getDayInMillisecond(365)), 10),
+      },
+      [DexProtocolName.UNISWAP_V3]: {
+        subgraphUrl: <string>process.env['ROOTSTOCK_UNISWAPV3_SUBGRAPH_API'],
+        liquidityFreshness: parseInt(
+          process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_FRESHNESS || String(getDayInMillisecond(365)),
+          10,
+        ),
       },
     },
     [ChainsIds.ETH]: {
       [DexProtocolName.UNISWAP_V3]: {
         subgraphUrl: <string>process.env['ETHEREUM_UNISWAPV3_SUBGRAPH_API'],
+        liquidityFreshness: parseInt(
+          process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_FRESHNESS || String(getDayInMillisecond(365)),
+          10,
+        ),
       },
     },
   },

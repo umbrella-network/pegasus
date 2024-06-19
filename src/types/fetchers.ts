@@ -14,10 +14,14 @@ export type CryptoCompareHistoFetcherResult = [
 
 export type CryptoCompareMultiProcessorResult = number | undefined;
 
+export type StringMultiProcessorResult = string | undefined;
+
 export type OnChainDataFetcherResult = string | number;
 
+// TODO: refactor this type
 export type FeedFetcherInterfaceResult =
   | Promise<number | undefined>
+  | Promise<StringMultiProcessorResult[]>
   | Promise<OnChainDataFetcherResult>
   | Promise<CryptoCompareHistoFetcherResult[] | undefined>
   | Promise<CryptoCompareMultiProcessorResult[]>
