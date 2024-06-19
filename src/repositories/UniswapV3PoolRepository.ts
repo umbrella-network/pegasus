@@ -108,6 +108,7 @@ export class UniswapV3PoolRepository {
       return liquidityToken1[0];
     }
 
+    // TODO Needs to be done for quote liquidity
     return liquidityToken0[0].liquidityLockedToken0 > liquidityToken1[0].liquidityLockedToken1
       ? liquidityToken0[0]
       : liquidityToken1[0];
