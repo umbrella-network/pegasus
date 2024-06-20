@@ -4,6 +4,7 @@ import {Logger} from 'winston';
 import {Validator, ValidatorResult} from 'jsonschema';
 import Feeds from '../types/Feed.js';
 import FeedsSchema from '../config/feeds-schema.js';
+import {isYamlEmpty} from '../utils/isYamlEmpty.js';
 
 @injectable()
 export class FeedFactory {
@@ -17,7 +18,7 @@ export class FeedFactory {
 
   // TODO: add Uniswap support in the future
   createCollectionFromYaml(data: string): Feeds {
-    if (this.isYamlEmpty(data)) {
+    if (isYamlEmpty(data)) {
       this.logger.warn('[FeedFactory] Empty YAML');
       return {} as Feeds;
     }
@@ -38,13 +39,5 @@ export class FeedFactory {
 
   private validate(feeds: unknown): ValidatorResult {
     return this.validator.validate(feeds, FeedsSchema);
-  }
-
-  private isYamlEmpty(data: string): boolean {
-    return data.split('\n').every((line) => {
-      if (!line) return true;
-      if (line.startsWith('#')) return true;
-      return line.replace(/ /g, '').length == 0;
-    });
   }
 }

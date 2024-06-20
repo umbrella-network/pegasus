@@ -1,0 +1,84 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "SovrynFetcherHelper",
+  "sourceName": "contracts/fetchers/soveryn/SovrynFetcherHelper.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_sovrynSwapNetwork",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "base",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "quote",
+              "type": "address"
+            },
+            {
+              "internalType": "uint8",
+              "name": "amountInDecimals",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct SovrynFetcherHelper.InputData[]",
+          "name": "_data",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "getPrices",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "success",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct SovrynFetcherHelper.Price[]",
+          "name": "prices",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "sovrynSwapNetwork",
+      "outputs": [
+        {
+          "internalType": "contract ISovrynSwapNetwork",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}
