@@ -2,6 +2,7 @@ import {inject, injectable} from 'inversify';
 import CryptoCompareWSClient from './ws/CryptoCompareWSClient.js';
 import loadFeeds from '../services/loadFeeds.js';
 import {Pair} from '../types/Feed.js';
+import {FetcherName} from '../types/fetchers.js';
 import Settings from '../types/Settings.js';
 import {Logger} from 'winston';
 
@@ -49,7 +50,7 @@ class CryptoCompareWSInitializer {
         .flat(1)
         .map((value) => value.inputs)
         .flat()
-        .filter(({fetcher}) => fetcher.name === 'CryptoComparePriceWS')
+        .filter(({fetcher}) => fetcher.name === FetcherName.CRYPTO_COMPARE_PRICE_WS)
         .map(({fetcher}) => fetcher.params)
         // eslint-disable-next-line
         .map(({fsym, tsym}: any) => ({fsym, tsym}))

@@ -6,6 +6,30 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+
+## Changed
+
+## [7.27.0] - 2024-07-27
+### Added
+- new `uniswapV3LiquidityWorker`
+- new `SovrynPriceFetcher`
+- new `UniswapV3MultiFetcher`
+
+## Changed
+- Added all fetcher in FetcherName
+
+## [7.26.3] - 2024-06-17
+### Updated
+- display `verifyKey` in info
+
+## [7.26.2] - 2024-06-14
+### Fixed
+- filter out signatures that are unknown to staking bank
+
+## [7.26.2] - 2024-06-14
+### Fixed
+- filter out signatures that are unknown to staking bank
 
 ## [7.26.3] - 2024-06-17
 ### Updated

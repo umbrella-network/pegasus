@@ -1,5 +1,6 @@
 import {ChainsIds} from './ChainsIds.js';
 import {SubmitMonitor} from './SubmitMonitor.js';
+import {DexProtocolName, DexAPISettings} from './Dexes.js';
 
 export enum BlockchainType {
   LAYER2 = 'LAYER2',
@@ -25,6 +26,18 @@ export type BlockchainSettings = {
       errorLimit: string;
     };
   };
+};
+
+export type LiquidityWorker = {
+  interval: number;
+  lock: {
+    name: string;
+    ttl: number;
+  };
+};
+
+export type DexPoolAPISettings = {
+  helperContractAddress: string;
 };
 
 interface SubmitMonitorExt extends SubmitMonitor {
@@ -73,6 +86,7 @@ type Settings = {
         ttl: number;
       };
     };
+    liquidities: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, LiquidityWorker>>>>;
     blockchainMetrics: {
       interval: number;
       lock: {
@@ -201,8 +215,10 @@ type Settings = {
       apiKey: string;
       timeout: number;
     };
+    pools: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, DexPoolAPISettings>>>>;
     priceFreshness: number;
   };
+  dexes: Partial<Record<ChainsIds, Partial<Record<DexProtocolName, DexAPISettings>>>>;
   rpcSelectionStrategy: string;
   feedsCacheRefreshCronRule: string;
   statusCheckTimeout: number;

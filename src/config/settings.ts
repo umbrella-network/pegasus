@@ -14,6 +14,7 @@ import {TimeoutCodes} from '../types/TimeoutCodes.js';
 import {timeoutWithCode} from '../utils/request.js';
 import './setupDotenv.js';
 import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
+import {DexProtocolName} from '../types/Dexes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -289,6 +290,17 @@ const settings: Settings = {
         ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),
       },
     },
+    liquidities: {
+      [ChainsIds.ETH]: {
+        [DexProtocolName.UNISWAP_V3]: {
+          interval: parseInt(process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_JOB_INTERVAL || String(getDayInMillisecond(3))),
+          lock: {
+            name: process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_LOCK_NAME || 'lock::EthereumUniswapV3Liquidity',
+            ttl: parseInt(process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_LOCK_TTL || '60'),
+          },
+        },
+      },
+    },
     blockchainMetrics: {
       interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '600000'),
       lock: {
@@ -425,7 +437,26 @@ const settings: Settings = {
       apiKey: process.env.METALS_DEV_API_KEY as string,
       timeout: timeoutWithCode(process.env.METALS_DEV_API_TIMEOUT || '5000', TimeoutCodes.METALS_DEV_API),
     },
+    pools: {
+      [ChainsIds.ETH]: {
+        [DexProtocolName.UNISWAP_V3]: {
+          helperContractAddress: <string>process.env.ETHEREUM_UNISWAPV3_HELPER_CONTRACT_ADDRESS,
+        },
+      },
+    },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
+  },
+  dexes: {
+    [ChainsIds.ROOTSTOCK]: {
+      [DexProtocolName.SOVRYN]: {
+        subgraphUrl: <string>process.env['SOVRYN_SUBGRAPH_API'],
+      },
+    },
+    [ChainsIds.ETH]: {
+      [DexProtocolName.UNISWAP_V3]: {
+        subgraphUrl: <string>process.env['ETHEREUM_UNISWAPV3_SUBGRAPH_API'],
+      },
+    },
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
   feedsFile:
@@ -462,6 +493,10 @@ const settings: Settings = {
 
 function getTimeSetting(value: number, min: number): number {
   return value > min ? value : min;
+}
+
+function getDayInMillisecond(days: number): number {
+  return days * 1000 * 60 * 60 * 24;
 }
 
 function resolveBlockchainProviders() {

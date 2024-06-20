@@ -3,6 +3,7 @@ import {PriceDataFactory} from '../../src/factories/PriceDataFactory.js';
 import Leaf from '../../src/types/Leaf.js';
 import {DeviationFeed, DeviationFeeds, PriceData, PriceDataByKey} from '../../src/types/DeviationFeeds.js';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
+import {FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -23,7 +24,7 @@ describe('PriceDataFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: 'CoingeckoPrice',
+              name: FetcherName.COINGECKO_PRICE,
             },
           },
         ],
@@ -56,7 +57,7 @@ describe('PriceDataFactory', () => {
           inputs: [
             {
               fetcher: {
-                name: 'TEST1Fetcher',
+                name: 'TEST1Fetcher' as FetcherName,
               },
             },
           ],
@@ -71,7 +72,7 @@ describe('PriceDataFactory', () => {
           inputs: [
             {
               fetcher: {
-                name: 'TEST2Fetcher',
+                name: 'TEST2Fetcher' as FetcherName,
               },
             },
           ],
