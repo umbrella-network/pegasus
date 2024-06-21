@@ -52,12 +52,12 @@ export class UniswapV3PoolRepository {
       .exec();
   }
 
-  async find(props: {protocol: string; fromChain: string[]; token0: string; token1: string}): Promise<UniswapV3Pool[]> {
+  async find(props: {protocol: string; fromChain: string; token0: string; token1: string}): Promise<UniswapV3Pool[]> {
     const {protocol, fromChain, token0, token1} = props;
 
     const filter = {
       protocol,
-      chainId: {$in: fromChain},
+      chainId: fromChain,
       token0: {$in: [token0, token1]},
       token1: {$in: [token0, token1]},
     };
@@ -67,17 +67,17 @@ export class UniswapV3PoolRepository {
 
   async findBestPool(props: {
     protocol: string;
-    fromChain: string[];
+    fromChain: string;
     base: string;
     quote: string;
   }): Promise<UniswapV3Pool | undefined> {
     const {protocol, fromChain, base, quote} = props;
-    const liquidityFreshness = this.getLiquidityFreshness(fromChain[0] as ChainsIds, protocol as DexProtocolName);
+    const liquidityFreshness = this.getLiquidityFreshness(fromChain as ChainsIds, protocol as DexProtocolName);
     const liquidityUpdatedLimit = new Date(Date.now() - liquidityFreshness);
 
     const filterToken0 = {
       protocol,
-      chainId: {$in: fromChain},
+      chainId: fromChain,
       token0: quote,
       token1: base,
       liquidityUpdatedAt: {$gt: liquidityUpdatedLimit},
@@ -85,7 +85,7 @@ export class UniswapV3PoolRepository {
 
     const filterToken1 = {
       protocol,
-      chainId: {$in: fromChain},
+      chainId: fromChain,
       token0: base,
       token1: quote,
       liquidityUpdatedAt: {$gt: liquidityUpdatedLimit},

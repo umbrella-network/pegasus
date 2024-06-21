@@ -338,7 +338,7 @@ export default {
         params: {
           type: 'object',
           properties: {
-            fromChain: {type: 'array'},
+            fromChain: {type: 'string'},
             base: {type: 'string'},
             quote: {type: 'string'},
             amountInDecimals: {type: 'number'},

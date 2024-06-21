@@ -33,13 +33,13 @@ describe('UniswapV3MultiFetcher', () => {
 
   const params: UniswapV3MultiFetcherParams[] = [
     {
-      fromChain: ['ethereum'],
+      fromChain: 'ethereum',
       quote: tokenTest0,
       base: tokenTest1,
       amountInDecimals: 10,
     },
-    {fromChain: ['ethereum'], quote: tokenTest1, base: tokenTest2, amountInDecimals: 10},
-    {fromChain: ['ethereum'], quote: tokenTest1, base: tokenTest3, amountInDecimals: 10},
+    {fromChain: 'ethereum', quote: tokenTest1, base: tokenTest2, amountInDecimals: 10},
+    {fromChain: 'ethereum', quote: tokenTest1, base: tokenTest3, amountInDecimals: 10},
   ];
 
   const responseGetPrices: [{success: boolean; price: BigNumber}[], number] = [

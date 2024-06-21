@@ -128,7 +128,7 @@ describe('UniswapV3PoolRepository', () => {
         token0: tokenB,
         token1: tokenA,
         protocol: DexProtocolName.UNISWAP_V3,
-        fromChain: [ChainsIds.ETH],
+        fromChain: ChainsIds.ETH,
       });
 
       expect(result).to.be.an('array').with.lengthOf(2);
@@ -139,7 +139,7 @@ describe('UniswapV3PoolRepository', () => {
         token0: tokenA,
         token1: tokenB,
         protocol: DexProtocolName.UNISWAP_V3,
-        fromChain: [ChainsIds.ETH],
+        fromChain: ChainsIds.ETH,
       });
 
       expect(result).to.be.an('array').with.lengthOf(2);
@@ -172,7 +172,7 @@ describe('UniswapV3PoolRepository', () => {
         base: tokenA,
         quote: tokenB,
         protocol: DexProtocolName.UNISWAP_V3,
-        fromChain: [ChainsIds.ETH],
+        fromChain: ChainsIds.ETH,
       });
 
       expect(result).to.be.an('object');
