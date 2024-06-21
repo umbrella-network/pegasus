@@ -7,14 +7,14 @@ import {CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
 import {FetcherName} from '../../types/fetchers.js';
 import TimeService from '../TimeService.js';
-import FeedChecker from '../FeedChecker.js';
+import FeedSymbolChecker from '../FeedSymbolChecker.js';
 
 @injectable()
 export default class CoingeckoMultiProcessor {
   @inject(CoingeckoPriceMultiFetcher) coingeckoPriceMultiFetcher!: CoingeckoPriceMultiFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
-  @inject(FeedChecker) private feedChecker!: FeedChecker;
+  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
   @inject('Logger') private logger!: Logger;
 
   static fetcherSource = '';
@@ -26,7 +26,7 @@ export default class CoingeckoMultiProcessor {
     const payloads: PriceDataPayload[] = [];
 
     for (const [ix, output] of outputs.entries()) {
-      const result = this.feedChecker.getBaseAndQuote(feedFetchers[ix].symbol);
+      const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
 
       if (result.length === 2) {
         const [feedBase, feedQuote] = result;

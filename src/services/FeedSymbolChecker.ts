@@ -5,7 +5,7 @@ import {Logger} from 'winston';
 class FeedSymbolChecker {
   @inject('Logger') private logger!: Logger;
 
-  getBaseAndQuote(feedSymbol: string | undefined): string[] {
+  apply(feedSymbol: string | undefined): string[] {
     if (feedSymbol) {
       const symbolSplitted = feedSymbol.split('-');
       if (symbolSplitted.length == 2) {

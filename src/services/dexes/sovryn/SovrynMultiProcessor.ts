@@ -6,13 +6,13 @@ import {FeedFetcherInterface, FetcherName} from '../../../types/fetchers.js';
 import {FeedFetcher} from '../../../types/Feed.js';
 import {PriceDataRepository, PriceValueType} from '../../../repositories/PriceDataRepository.js';
 import {PriceDataPayload} from '../../../repositories/PriceDataRepository.js';
-import FeedChecker from '../../FeedChecker.js';
+import FeedSymbolChecker from '../../FeedSymbolChecker.js';
 
 @injectable()
 export default class SovrynMultiProcessor implements FeedFetcherInterface {
   @inject(SovrynPriceFetcher) sovrynFetcher!: SovrynPriceFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
-  @inject(FeedChecker) private feedChecker!: FeedChecker;
+  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
   @inject('Logger') private logger!: Logger;
 
   static fetcherSource = '';
@@ -25,7 +25,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
     const payloads: PriceDataPayload[] = [];
 
     for (const [ix, price] of prices.entries()) {
-      const result = this.feedChecker.getBaseAndQuote(feedFetchers[ix].symbol);
+      const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
 
       if (result.length === 2) {
         const [feedBase, feedQuote] = result;
