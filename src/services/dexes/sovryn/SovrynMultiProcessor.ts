@@ -25,22 +25,22 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
     const payloads: PriceDataPayload[] = [];
 
     for (const [ix, price] of prices.entries()) {
+      if (!price) continue;
+
       const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
 
       if (result.length === 2) {
         const [feedBase, feedQuote] = result;
 
-        if (price) {
-          payloads.push({
-            fetcher: FetcherName.SOVRYN_PRICE,
-            value: price.toString(),
-            valueType: PriceValueType.Price,
-            timestamp: priceResponse.timestamp,
-            feedBase,
-            feedQuote,
-            fetcherSource: SovrynMultiProcessor.fetcherSource,
-          });
-        }
+        payloads.push({
+          fetcher: FetcherName.SOVRYN_PRICE,
+          value: price.toString(),
+          valueType: PriceValueType.Price,
+          timestamp: priceResponse.timestamp,
+          feedBase,
+          feedQuote,
+          fetcherSource: SovrynMultiProcessor.fetcherSource,
+        });
       }
     }
 
