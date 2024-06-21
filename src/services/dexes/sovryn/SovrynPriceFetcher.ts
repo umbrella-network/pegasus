@@ -6,7 +6,7 @@ import {fileURLToPath} from 'url';
 import {BaseProvider} from '@ethersproject/providers';
 import {Logger} from 'winston';
 
-import {FeedFetcherInterface} from '../../../types/fetchers.js';
+import {FeedFetcherInterface, SovrynPriceFetcherResult} from '../../../types/fetchers.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {bigIntToFloatingPoint} from '../../../utils/math.js';
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
@@ -55,7 +55,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject('Logger') private logger!: Logger;
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
 
-  public async apply(pairs: PairRequest[]): Promise<(number | undefined)[]> {
+  public async apply(pairs: PairRequest[]): Promise<SovrynPriceFetcherResult> {
     let response;
     try {
       response = await this.getPrices(pairs);
@@ -66,10 +66,11 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
         this.logger.error(`[SovrynPriceFetcher] price is not successful for pair: ${pairRequestToString(pair)}.`);
       }
 
-      return [];
+      return {prices: [], timestamp: 0};
     }
 
     const pricesResponse: (number | undefined)[] = [];
+
     for (const [ix, price_] of response.prices.entries()) {
       const {price, success} = price_;
 
@@ -84,7 +85,8 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
 
       pricesResponse.push(bigIntToFloatingPoint(bigIntPrice, 18));
     }
-    return pricesResponse;
+
+    return {prices: pricesResponse, timestamp: Number(response.timestamp)};
   }
 
   private async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {

@@ -21,7 +21,8 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
 
   async apply(feedFetchers: FeedFetcher[]): Promise<(number | undefined)[]> {
     const request = this.createRequest(feedFetchers);
-    const prices = await this.sovrynFetcher.apply(request);
+    const priceResponse = await this.sovrynFetcher.apply(request);
+    const prices = priceResponse.prices;
 
     const payloads: PriceDataPayload[] = [];
 
@@ -36,7 +37,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
             fetcher: FetcherName.SOVRYN_PRICE,
             value: price.toString(),
             valueType: PriceValueType.Price,
-            timestamp: this.timeService.apply(), // prices coming from SovrynFetcher don't contain any timestamp
+            timestamp: priceResponse.timestamp,
             feedBase,
             feedQuote,
             fetcherSource: SovrynMultiProcessor.fetcherSource,
