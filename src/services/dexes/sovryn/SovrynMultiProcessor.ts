@@ -5,7 +5,6 @@ import {SovrynPriceFetcher, PairRequest} from './SovrynPriceFetcher.js';
 import {FeedFetcherInterface, FetcherName} from '../../../types/fetchers.js';
 import {FeedFetcher} from '../../../types/Feed.js';
 import {PriceDataRepository, PriceValueType} from '../../../repositories/PriceDataRepository.js';
-import TimeService from '../../../services/TimeService.js';
 import {PriceDataPayload} from '../../../repositories/PriceDataRepository.js';
 import FeedChecker from '../../FeedChecker.js';
 
@@ -13,7 +12,6 @@ import FeedChecker from '../../FeedChecker.js';
 export default class SovrynMultiProcessor implements FeedFetcherInterface {
   @inject(SovrynPriceFetcher) sovrynFetcher!: SovrynPriceFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
-  @inject(TimeService) private timeService!: TimeService;
   @inject(FeedChecker) private feedChecker!: FeedChecker;
   @inject('Logger') private logger!: Logger;
 
