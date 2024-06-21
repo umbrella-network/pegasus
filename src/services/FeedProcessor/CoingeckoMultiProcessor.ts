@@ -7,13 +7,14 @@ import {CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
 import {FetcherName} from '../../types/fetchers.js';
 import TimeService from '../TimeService.js';
-import {feedNameToBaseAndQuote} from '../../utils/hashFeedName.js';
+import FeedChecker from '../FeedChecker.js';
 
 @injectable()
 export default class CoingeckoMultiProcessor {
   @inject(CoingeckoPriceMultiFetcher) coingeckoPriceMultiFetcher!: CoingeckoPriceMultiFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
+  @inject(FeedChecker) private feedChecker!: FeedChecker;
   @inject('Logger') private logger!: Logger;
 
   static fetcherSource = '';
@@ -26,18 +27,22 @@ export default class CoingeckoMultiProcessor {
 
     for (const [ix, output] of outputs.entries()) {
       try {
-        const [feedBase, feedQuote] = feedNameToBaseAndQuote(feedFetchers[ix].symbol || '-');
+        const result = this.feedChecker.getBaseAndQuote(feedFetchers[ix].symbol);
 
-        if (output) {
-          payloads.push({
-            fetcher: FetcherName.COINGECKO_PRICE,
-            value: output.value.toString(),
-            valueType: PriceValueType.Price,
-            timestamp: this.timeService.apply(),
-            feedBase,
-            feedQuote,
-            fetcherSource: CoingeckoMultiProcessor.fetcherSource,
-          });
+        if (result.length === 2) {
+          const [feedBase, feedQuote] = result;
+
+          if (output) {
+            payloads.push({
+              fetcher: FetcherName.COINGECKO_PRICE,
+              value: output.value.toString(),
+              valueType: PriceValueType.Price,
+              timestamp: this.timeService.apply(),
+              feedBase,
+              feedQuote,
+              fetcherSource: CoingeckoMultiProcessor.fetcherSource,
+            });
+          }
         }
       } catch (error) {
         this.logger.error('[CoingeckoMultiProcessor] failed to get price for pairs.', error);

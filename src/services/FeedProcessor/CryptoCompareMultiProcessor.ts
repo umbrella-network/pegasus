@@ -10,7 +10,7 @@ import {CryptoCompareMultiProcessorResult, FeedFetcherInterface} from '../../typ
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {FetcherName} from '../../types/fetchers.js';
 import TimeService from '../TimeService.js';
-import {feedNameToBaseAndQuote} from '../../utils/hashFeedName.js';
+import FeedChecker from '../FeedChecker.js';
 
 interface FeedFetcherParams {
   fsym: string;
@@ -22,6 +22,7 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
   @inject(CryptoComparePriceMultiFetcher) cryptoComparePriceMultiFetcher!: CryptoComparePriceMultiFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
+  @inject(FeedChecker) private feedChecker!: FeedChecker;
   @inject('Logger') private logger!: Logger;
 
   static fetcherSource = '';
@@ -34,18 +35,22 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
 
     for (const [ix, output] of outputs.entries()) {
       try {
-        const [feedBase, feedQuote] = feedNameToBaseAndQuote(feedFetchers[ix].symbol || '-');
+        const result = this.feedChecker.getBaseAndQuote(feedFetchers[ix].symbol);
 
-        if (output) {
-          payloads.push({
-            fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
-            value: output.value.toString(),
-            valueType: PriceValueType.Price,
-            timestamp: this.timeService.apply(),
-            feedBase,
-            feedQuote,
-            fetcherSource: CryptoCompareMultiProcessor.fetcherSource,
-          });
+        if (result.length === 2) {
+          const [feedBase, feedQuote] = result;
+
+          if (output) {
+            payloads.push({
+              fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
+              value: output.value.toString(),
+              valueType: PriceValueType.Price,
+              timestamp: this.timeService.apply(),
+              feedBase,
+              feedQuote,
+              fetcherSource: CryptoCompareMultiProcessor.fetcherSource,
+            });
+          }
         }
       } catch (error) {
         this.logger.error('[CoingeckoMultiProcessor] failed to get price for pairs.', error);
