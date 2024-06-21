@@ -23,6 +23,7 @@ export default class CoingeckoMultiProcessor {
     const outputs = await this.coingeckoPriceMultiFetcher.apply(params);
 
     const payloads: PriceDataPayload[] = [];
+
     for (const [ix, output] of outputs.entries()) {
       try {
         const [feedBase, feedQuote] = feedNameToBaseAndQuote(feedFetchers[ix].symbol || '-');

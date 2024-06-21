@@ -23,6 +23,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
     const prices = await this.sovrynFetcher.apply(request);
 
     const payloads: PriceDataPayload[] = [];
+
     for (const [ix, price] of prices.entries()) {
       try {
         const [feedBase, feedQuote] = feedNameToBaseAndQuote(feedFetchers[ix].symbol || '-');
