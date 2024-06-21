@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {InputParams, OutputValues} from '../fetchers/CoingeckoPriceMultiFetcher.js';
-import {PriceDataRepository, PriceDataPayload} from '../../repositories/PriceDataRepository.js';
+import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
 import {FetcherName} from '../../types/fetchers.js';
@@ -32,7 +32,7 @@ export default class CoingeckoMultiProcessor {
           payloads.push({
             fetcher: FetcherName.COINGECKO_PRICE,
             value: output.value.toString(),
-            valueType: 'string',
+            valueType: PriceValueType.STRING,
             timestamp: this.timeService.apply(),
             feedBase,
             feedQuote,

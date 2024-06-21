@@ -2,7 +2,7 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {PriceDataRepository, PriceDataPayload} from '../../repositories/PriceDataRepository.js';
+import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
 import {FetcherName} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
@@ -56,7 +56,7 @@ export default class GoldApiPriceFetcher {
       const payload: PriceDataPayload = {
         fetcher: FetcherName.GOLD_API_PRICE,
         value: price_gram_24k.toString(),
-        valueType: 'string',
+        valueType: PriceValueType.STRING,
         timestamp: this.timeService.apply(),
         feedBase: input.currency,
         feedQuote: input.symbol,

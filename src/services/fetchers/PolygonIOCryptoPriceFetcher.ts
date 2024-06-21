@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
 import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
-import {PriceDataRepository, PriceDataPayload} from '../../repositories/PriceDataRepository.js';
+import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
 import {FetcherName} from '../../types/fetchers.js';
 
@@ -20,7 +20,7 @@ class PolygonIOCryptoPriceFetcher {
       const payload: PriceDataPayload = {
         fetcher: FetcherName.POLYGON_IO_CRYPTO_PRICE,
         value: price.toString(),
-        valueType: 'string',
+        valueType: PriceValueType.STRING,
         timestamp: this.timeService.apply(),
         feedBase: fsym,
         feedQuote: tsym,

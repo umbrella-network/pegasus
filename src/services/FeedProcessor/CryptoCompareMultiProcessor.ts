@@ -7,7 +7,7 @@ import {FeedFetcher} from '../../types/Feed.js';
 import {InputParams, OutputValue} from '../fetchers/CryptoComparePriceMultiFetcher.js';
 import {CryptoCompareMultiProcessorResult, FeedFetcherInterface} from '../../types/fetchers.js';
 
-import {PriceDataRepository, PriceDataPayload} from '../../repositories/PriceDataRepository.js';
+import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {FetcherName} from '../../types/fetchers.js';
 import TimeService from '../TimeService.js';
 import {feedNameToBaseAndQuote} from '../../utils/hashFeedName.js';
@@ -40,7 +40,7 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
           payloads.push({
             fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
             value: output.value.toString(),
-            valueType: 'string',
+            valueType: PriceValueType.STRING,
             timestamp: this.timeService.apply(),
             feedBase,
             feedQuote,

@@ -4,7 +4,7 @@ import {Logger} from 'winston';
 import {SovrynPriceFetcher, PairRequest} from './SovrynPriceFetcher.js';
 import {FeedFetcherInterface, FetcherName} from '../../../types/fetchers.js';
 import {FeedFetcher} from '../../../types/Feed.js';
-import {PriceDataRepository} from '../../../repositories/PriceDataRepository.js';
+import {PriceDataRepository, PriceValueType} from '../../../repositories/PriceDataRepository.js';
 import TimeService from '../../../services/TimeService.js';
 import {PriceDataPayload} from '../../../repositories/PriceDataRepository.js';
 import {feedNameToBaseAndQuote} from '../../../utils/hashFeedName.js';
@@ -32,7 +32,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
           payloads.push({
             fetcher: FetcherName.SOVRYN_PRICE,
             value: price.toString(),
-            valueType: 'string',
+            valueType: PriceValueType.STRING,
             timestamp: this.timeService.apply(), // prices coming from SovrynFetcher don't contain any timestamp
             feedBase,
             feedQuote,
