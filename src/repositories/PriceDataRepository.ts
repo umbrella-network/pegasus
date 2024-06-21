@@ -21,8 +21,12 @@ export class PriceDataRepository {
   @inject('Logger') private logger!: Logger;
 
   async savePrice(data: PriceDataPayload): Promise<void> {
-    const doc = await getModelForClass(PriceDataModel).create({...data});
-    await doc.save();
+    try {
+      const doc = await getModelForClass(PriceDataModel).create({...data});
+      await doc.save();
+    } catch (error) {
+      this.logger.error(`couldn't create document for PriceData: ${error}`);
+    }
   }
 
   async savePrices(data: PriceDataPayload[]): Promise<void> {
@@ -39,7 +43,7 @@ export class PriceDataRepository {
     try {
       await model.bulkWrite(bulkOps);
     } catch (error) {
-      this.logger.error(`couldn't perform bulkWrite of PriceData: ${error}`);
+      this.logger.error(`couldn't perform bulkWrite for PriceData: ${error}`);
     }
   }
 }

@@ -69,7 +69,7 @@ export default class MetalPriceApiFetcher {
           fetcherSource: MetalPriceApiFetcher.fetcherSource,
         };
 
-        await this.priceDataRepository.savePrices([payload]);
+        await this.priceDataRepository.savePrice(payload);
 
         return pricePerGram;
       } else {

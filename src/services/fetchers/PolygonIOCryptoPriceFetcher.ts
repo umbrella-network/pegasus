@@ -27,7 +27,7 @@ class PolygonIOCryptoPriceFetcher {
         fetcherSource: PolygonIOCryptoPriceFetcher.fetcherSource,
       };
 
-      await this.priceDataRepository.savePrices([payload]);
+      await this.priceDataRepository.savePrice(payload);
 
       return price;
     }

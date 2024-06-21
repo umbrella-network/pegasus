@@ -25,6 +25,6 @@ export class PriceDataModel {
   @prop({required: true})
   feedQuote!: string; // e.g: USDC
 
-  @prop({required: true})
+  @prop({required: false})
   fetcherSource!: string;
 }

@@ -63,7 +63,7 @@ export default class GoldApiPriceFetcher {
         fetcherSource: GoldApiPriceFetcher.fetcherSource,
       };
 
-      await this.priceDataRepository.savePrices([payload]);
+      await this.priceDataRepository.savePrice(payload);
 
       return price_gram_24k;
     } else {
