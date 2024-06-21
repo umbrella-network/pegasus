@@ -34,26 +34,22 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
     const payloads: PriceDataPayload[] = [];
 
     for (const [ix, output] of outputs.entries()) {
-      try {
-        const result = this.feedChecker.getBaseAndQuote(feedFetchers[ix].symbol);
+      const result = this.feedChecker.getBaseAndQuote(feedFetchers[ix].symbol);
 
-        if (result.length === 2) {
-          const [feedBase, feedQuote] = result;
+      if (result.length === 2) {
+        const [feedBase, feedQuote] = result;
 
-          if (output) {
-            payloads.push({
-              fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
-              value: output.value.toString(),
-              valueType: PriceValueType.Price,
-              timestamp: this.timeService.apply(),
-              feedBase,
-              feedQuote,
-              fetcherSource: CryptoCompareMultiProcessor.fetcherSource,
-            });
-          }
+        if (output) {
+          payloads.push({
+            fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
+            value: output.value.toString(),
+            valueType: PriceValueType.Price,
+            timestamp: this.timeService.apply(),
+            feedBase,
+            feedQuote,
+            fetcherSource: CryptoCompareMultiProcessor.fetcherSource,
+          });
         }
-      } catch (error) {
-        this.logger.error('[CoingeckoMultiProcessor] failed to get price for pairs.', error);
       }
     }
 
