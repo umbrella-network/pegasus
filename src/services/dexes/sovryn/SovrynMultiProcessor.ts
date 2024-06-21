@@ -32,7 +32,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
           payloads.push({
             fetcher: FetcherName.SOVRYN_PRICE,
             value: price.toString(),
-            valueType: PriceValueType.STRING,
+            valueType: PriceValueType.Price,
             timestamp: this.timeService.apply(), // prices coming from SovrynFetcher don't contain any timestamp
             feedBase,
             feedQuote,

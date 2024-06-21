@@ -6,7 +6,7 @@ import {PriceDataModel} from '../models/PriceDataModel.js';
 import Settings from '../types/Settings.js';
 
 export enum PriceValueType {
-  STRING = 'String',
+  Price = 'Price',
 }
 
 export type PriceDataPayload = {

@@ -40,7 +40,7 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
           payloads.push({
             fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
             value: output.value.toString(),
-            valueType: PriceValueType.STRING,
+            valueType: PriceValueType.Price,
             timestamp: this.timeService.apply(),
             feedBase,
             feedQuote,

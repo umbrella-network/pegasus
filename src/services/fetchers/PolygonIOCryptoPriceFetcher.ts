@@ -20,7 +20,7 @@ class PolygonIOCryptoPriceFetcher {
       const payload: PriceDataPayload = {
         fetcher: FetcherName.POLYGON_IO_CRYPTO_PRICE,
         value: price.toString(),
-        valueType: PriceValueType.STRING,
+        valueType: PriceValueType.Price,
         timestamp: this.timeService.apply(),
         feedBase: fsym,
         feedQuote: tsym,

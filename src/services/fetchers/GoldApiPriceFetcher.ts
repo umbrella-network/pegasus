@@ -56,7 +56,7 @@ export default class GoldApiPriceFetcher {
       const payload: PriceDataPayload = {
         fetcher: FetcherName.GOLD_API_PRICE,
         value: price_gram_24k.toString(),
-        valueType: PriceValueType.STRING,
+        valueType: PriceValueType.Price,
         timestamp: this.timeService.apply(),
         feedBase: input.currency,
         feedQuote: input.symbol,

@@ -32,7 +32,7 @@ export default class CoingeckoMultiProcessor {
           payloads.push({
             fetcher: FetcherName.COINGECKO_PRICE,
             value: output.value.toString(),
-            valueType: PriceValueType.STRING,
+            valueType: PriceValueType.Price,
             timestamp: this.timeService.apply(),
             feedBase,
             feedQuote,

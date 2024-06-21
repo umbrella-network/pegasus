@@ -57,7 +57,7 @@ export default class MetalsDevApiPriceFetcher {
         const payload: PriceDataPayload = {
           fetcher: FetcherName.METALS_DEV_API,
           value: pricePerGram.toString(),
-          valueType: PriceValueType.STRING,
+          valueType: PriceValueType.Price,
           timestamp: this.timeService.apply(),
           feedBase: input.currency,
           feedQuote: input.metal,
