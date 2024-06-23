@@ -84,7 +84,7 @@ export class UniswapV3LiquidityResolver {
           const pools = await this.uniswapV3PoolRepository.find({
             token0: param.base,
             token1: param.quote,
-            fromChain: [chainId],
+            fromChain: chainId,
             protocol: this.protocol,
           });
 

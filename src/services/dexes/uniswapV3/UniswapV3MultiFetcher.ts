@@ -15,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export type UniswapV3MultiFetcherParams = {
-  fromChain: string[];
+  fromChain: string;
   base: string;
   quote: string;
   amountInDecimals: number;
