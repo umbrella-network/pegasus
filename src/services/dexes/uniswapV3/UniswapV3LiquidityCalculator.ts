@@ -48,6 +48,10 @@ export class UniswapV3LiquidityCalculator {
     });
 
     const tickSpacing = TICK_SPACINGS[fee];
+
+    [token0, token1] =
+      token0.address.toLowerCase() < token1.address.toLowerCase() ? [token0, token1] : [token1, token0];
+
     const fullPool = new Pool(token0, token1, fee, slot0.sqrtPriceX96, liquidity, slot0.tick, sdkTicks);
     // reference: https://docs.uniswap.org/sdk/v3/guides/advanced/active-liquidity#calculating-active-liquidity
     const activeTickIdx = Math.floor(fullPool.tickCurrent / tickSpacing) * tickSpacing;
@@ -57,8 +61,8 @@ export class UniswapV3LiquidityCalculator {
       activeTickIdx,
       fullPool.liquidity,
       tickSpacing,
-      token1,
       token0,
+      token1,
       numSurroundingTicks,
       fee,
       graphTicks,

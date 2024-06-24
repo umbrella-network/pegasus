@@ -202,6 +202,10 @@ export class ActiveLiquititySDK {
         liquidityNet: tick.liquidityNet,
       },
     ];
+
+    [token0, token1] =
+      token0.address.toLowerCase() < token1.address.toLowerCase() ? [token0, token1] : [token1, token0];
+
     const pool =
       token0 && token1 && feeTier
         ? new Pool(token0, token1, feeTier, sqrtPriceX96, tick.liquidityActive, tick.tickIdx, mockTicks)
