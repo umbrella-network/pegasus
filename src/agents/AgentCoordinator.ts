@@ -14,13 +14,12 @@ export class AgentCoordinator {
   @inject('Logger') logger!: Logger;
   agents: {[key: string]: BasicAgent} = {};
 
-  constructor(
-    @inject('Settings') settings: Settings,
-    // @inject(UniswapPoolScannerAgent) UniswapPoolScannerAgent: UniswapPoolScannerAgent,
-    // @inject(UniswapPriceScannerAgent) UniswapPriceScannerAgent: UniswapPriceScannerAgent,
-    // @inject(UniswapVerificationAgent) UniswapVerificationAgent: UniswapVerificationAgent,
-    @inject(SovrynPoolScannerAgent) sovrynPoolScannerAgent: SovrynPoolScannerAgent,
-  ) {
+  constructor() // @inject('Settings') settings: Settings,
+  // @inject(UniswapPoolScannerAgent) UniswapPoolScannerAgent: UniswapPoolScannerAgent,
+  // @inject(UniswapPriceScannerAgent) UniswapPriceScannerAgent: UniswapPriceScannerAgent,
+  // @inject(UniswapVerificationAgent) UniswapVerificationAgent: UniswapVerificationAgent,
+  // @inject(SovrynPoolScannerAgent) sovrynPoolScannerAgent: SovrynPoolScannerAgent,
+  {
     //const blockchainKey = 'ethereum';
 
     // if (!settings.blockchains[blockchainKey].providerUrl.join('')) {
@@ -35,7 +34,7 @@ export class AgentCoordinator {
       // UniswapPoolScannerAgent,
       // UniswapPriceScannerAgent,
       // UniswapVerificationAgent,
-      sovrynPoolScannerAgent,
+      // sovrynPoolScannerAgent,
     };
   }
 
