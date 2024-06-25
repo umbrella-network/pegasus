@@ -10,6 +10,7 @@ import {UniswapV3TickQuery} from './UniswapV3TickQuery.js';
 import {BarChartTick, GraphTick} from './interfaces.js';
 import {BlockchainProviderRepository} from '../../../repositories/BlockchainProviderRepository.js';
 import {ActiveLiquititySDK} from './ActiveLiquiditySDK.js';
+import {sortTokensByAddress} from '../../../utils/token.js';
 
 @injectable()
 export class UniswapV3LiquidityCalculator {
@@ -49,8 +50,7 @@ export class UniswapV3LiquidityCalculator {
 
     const tickSpacing = TICK_SPACINGS[fee];
 
-    [token0, token1] =
-      token0.address.toLowerCase() < token1.address.toLowerCase() ? [token0, token1] : [token1, token0];
+    [token0, token1] = sortTokensByAddress(token0, token1);
 
     const fullPool = new Pool(token0, token1, fee, slot0.sqrtPriceX96, liquidity, slot0.tick, sdkTicks);
     // reference: https://docs.uniswap.org/sdk/v3/guides/advanced/active-liquidity#calculating-active-liquidity
