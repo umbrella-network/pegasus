@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Changed
 
+## [7.27.1] - 2024-06-26
+### Fixed
+- disable Sovryn Pool Scanner
+
 ## [7.27.0] - 2024-07-27
 ### Added
 - new `uniswapV3LiquidityWorker`
