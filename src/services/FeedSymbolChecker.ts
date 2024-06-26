@@ -8,6 +8,7 @@ class FeedSymbolChecker {
   apply(feedSymbol: string | undefined): [base: string, quote: string] | undefined {
     if (feedSymbol) {
       const symbolSplitted = feedSymbol.split('-');
+
       if (symbolSplitted.length == 2) {
         return [symbolSplitted[0], symbolSplitted[1]];
       }
