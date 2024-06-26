@@ -11,6 +11,7 @@ import {BarChartTick, GraphTick} from './interfaces.js';
 import {BlockchainProviderRepository} from '../../../repositories/BlockchainProviderRepository.js';
 import {ActiveLiquititySDK} from './ActiveLiquiditySDK.js';
 import {ContractAddressService} from '../../../services/ContractAddressService.js';
+import {sortTokensByAddress} from '../../../utils/token.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,6 +50,8 @@ export class UniswapV3LiquidityCalculator {
       });
     });
 
+    [token0, token1] = sortTokensByAddress(token0, token1);
+
     const {sqrtPriceX96, liquidity, tick} = liquidityData;
     const tickSpacing = TICK_SPACINGS[fee];
     const fullPool = new Pool(token0, token1, fee, sqrtPriceX96, liquidity, tick, sdkTicks);
@@ -61,8 +64,8 @@ export class UniswapV3LiquidityCalculator {
       activeTickIdx,
       fullPool.liquidity,
       tickSpacing,
-      token1,
       token0,
+      token1,
       numSurroundingTicks,
       fee,
       graphTicks,
