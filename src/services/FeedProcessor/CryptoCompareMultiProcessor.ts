@@ -37,20 +37,19 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
       if (!output) continue;
 
       const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
+      if (!result) continue;
 
-      if (result.length === 2) {
-        const [feedBase, feedQuote] = result;
+      const [feedBase, feedQuote] = result;
 
-        payloads.push({
-          fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
-          value: output.value.toString(),
-          valueType: PriceValueType.Price,
-          timestamp: this.timeService.apply(),
-          feedBase,
-          feedQuote,
-          fetcherSource: CryptoCompareMultiProcessor.fetcherSource,
-        });
-      }
+      payloads.push({
+        fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
+        value: output.value.toString(),
+        valueType: PriceValueType.Price,
+        timestamp: this.timeService.apply(),
+        feedBase,
+        feedQuote,
+        fetcherSource: CryptoCompareMultiProcessor.fetcherSource,
+      });
     }
 
     await this.priceDataRepository.savePrices(payloads);

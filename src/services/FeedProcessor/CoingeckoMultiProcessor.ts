@@ -29,20 +29,19 @@ export default class CoingeckoMultiProcessor {
       if (!output) continue;
 
       const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
+      if (!result) continue;
 
-      if (result.length === 2) {
-        const [feedBase, feedQuote] = result;
+      const [feedBase, feedQuote] = result;
 
-        payloads.push({
-          fetcher: FetcherName.COINGECKO_PRICE,
-          value: output.value.toString(),
-          valueType: PriceValueType.Price,
-          timestamp: this.timeService.apply(),
-          feedBase,
-          feedQuote,
-          fetcherSource: CoingeckoMultiProcessor.fetcherSource,
-        });
-      }
+      payloads.push({
+        fetcher: FetcherName.COINGECKO_PRICE,
+        value: output.value.toString(),
+        valueType: PriceValueType.Price,
+        timestamp: this.timeService.apply(),
+        feedBase,
+        feedQuote,
+        fetcherSource: CoingeckoMultiProcessor.fetcherSource,
+      });
     }
 
     await this.priceDataRepository.savePrices(payloads);

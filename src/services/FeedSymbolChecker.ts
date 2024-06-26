@@ -5,15 +5,15 @@ import {Logger} from 'winston';
 class FeedSymbolChecker {
   @inject('Logger') private logger!: Logger;
 
-  apply(feedSymbol: string | undefined): string[] {
+  apply(feedSymbol: string | undefined): [base: string, quote: string] | undefined {
     if (feedSymbol) {
       const symbolSplitted = feedSymbol.split('-');
       if (symbolSplitted.length == 2) {
-        return symbolSplitted;
+        return [symbolSplitted[0], symbolSplitted[1]];
       }
     }
     this.logger.error(`feed symbol ${feedSymbol} has wrong format`);
-    return [];
+    return undefined;
   }
 }
 
