@@ -12,6 +12,7 @@ class FeedSymbolChecker {
         return [symbolSplitted[0], symbolSplitted[1]];
       }
     }
+
     this.logger.error(`feed symbol ${feedSymbol} has wrong format`);
     return undefined;
   }
