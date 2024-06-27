@@ -34,6 +34,7 @@ export type FeedValue = number | HexStringWith0x;
 
 export interface FeedFetcher {
   name: FetcherName;
+  symbol?: string;
   params?: unknown;
 }
 
