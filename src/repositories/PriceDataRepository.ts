@@ -83,11 +83,8 @@ export class PriceDataRepository {
     });
   }
 
-  // TODO: the function name is a bit confusing if I see the symbol, it gets the
-  // lastest symbol but I have to pass a symbol as argument
-  // maybe latestPrice(symbol: string) ?
-  async latestSymbol(symbol: string, limit = 150): Promise<PriceDataModel[]> {
-    if (!symbol) throw new Error('[FetcherHistoryRepository] empty symbol');
-    return getModelForClass(PriceDataModel).find({symbol}).sort({timestamp: -1}).limit(limit).exec();
+  async latestPrice(feedBase: string, feedQuote: string, limit = 150): Promise<PriceDataModel[]> {
+    if (!feedBase || !feedQuote) throw new Error('[FetcherHistoryRepository] empty symbol');
+    return getModelForClass(PriceDataModel).find({feedBase, feedQuote}).sort({timestamp: -1}).limit(limit).exec();
   }
 }

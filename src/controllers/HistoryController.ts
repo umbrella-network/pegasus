@@ -7,6 +7,7 @@ import path from 'path';
 
 import Settings from '../types/Settings.js';
 import {PriceDataRepository} from '../repositories/PriceDataRepository.js';
+import FeedSymbolChecker from '../services/FeedSymbolChecker.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +17,7 @@ export class HistoryController {
   router: express.Router;
   @inject('Logger') private logger!: Logger;
   @inject(PriceDataRepository) protected priceDataRepository!: PriceDataRepository;
+  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
 
   constructor(@inject('Settings') private readonly settings: Settings) {
     this.router = express
@@ -51,7 +53,11 @@ export class HistoryController {
   };
 
   private symbolHistory = async (request: Request, response: Response): Promise<void> => {
-    const records = await this.priceDataRepository.latestSymbol(request.params.symbol);
+    const result = this.feedSymbolChecker.apply(request.params.symbol);
+    if (!result) return;
+
+    const [feedBase, feedQuote] = result;
+    const records = await this.priceDataRepository.latestPrice(feedBase, feedQuote);
 
     response.send(
       records.map((r) => {
@@ -67,19 +73,25 @@ export class HistoryController {
   };
 
   private symbolHistoryCsv = async (request: Request, response: Response): Promise<void> => {
-    const records = await this.priceDataRepository.latestSymbol(request.params.symbol);
+    const symbol = request.params.symbol;
+    const result = this.feedSymbolChecker.apply(symbol);
+    if (!result) return;
+
+    const [feedBase, feedQuote] = result;
+    const records = await this.priceDataRepository.latestPrice(feedBase, feedQuote);
 
     response.send(
-      records
-        .map((r) =>
-          [r.feedBase + '-' + r.feedQuote, r.fetcher, r.value, r.timestamp, this.toDate(r.timestamp)].join(';'),
-        )
-        .join('<br/>\n'),
+      records.map((r) => [symbol, r.fetcher, r.value, r.timestamp, this.toDate(r.timestamp)].join(';')).join('<br/>\n'),
     );
   };
 
   private symbolHistoryChart = async (request: Request, response: Response): Promise<void> => {
-    const {data, fetchers} = await this.makeHistoryChartData(request.params.symbol);
+    const symbol = request.params.symbol;
+    const result = this.feedSymbolChecker.apply(symbol);
+    if (!result) return;
+
+    const [feedBase, feedQuote] = result;
+    const {data, fetchers} = await this.makeHistoryChartData(feedBase, feedQuote);
 
     const columns: string[] = new Array(Object.keys(fetchers).length).fill('');
     Object.keys(fetchers).forEach((fetcher) => (columns[fetchers[fetcher]] = fetcher));
@@ -107,9 +119,10 @@ export class HistoryController {
   private toJsArray = (arr: (number | string)[][]): string => `[${arr.map((a) => a.toString()).join('],[')}]`;
 
   private makeHistoryChartData = async (
-    symbol: string,
+    feedBase: string,
+    feedQuote: string,
   ): Promise<{data: Record<number, Record<string, number>>; fetchers: Record<string, number>}> => {
-    const records = await this.priceDataRepository.latestSymbol(symbol);
+    const records = await this.priceDataRepository.latestPrice(feedBase, feedQuote);
     const data: Record<number, Record<string, number>> = {};
     const fetchers: Record<string, number> = {};
 
