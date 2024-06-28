@@ -10,7 +10,6 @@ import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
 import {FetcherHistoryInterface, FetcherName} from '../types/fetchers.js';
-import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
 
 interface Calculator {
   // eslint-disable-next-line
@@ -31,7 +30,6 @@ class FeedProcessor {
   @inject(MultiFeedProcessor) multiFeedProcessor!: MultiFeedProcessor;
   @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
-  @inject(FetcherHistoryRepository) fetcherHistoryRepository!: FetcherHistoryRepository;
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     // collect unique inputs
@@ -121,8 +119,6 @@ class FeedProcessor {
     });
 
     this.logger.debug(`[FeedProcessor] result: ${JSON.stringify(result)}`);
-
-    await this.fetcherHistoryRepository.saveMany(history);
 
     return result;
   }

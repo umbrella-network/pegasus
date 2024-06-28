@@ -6,7 +6,7 @@ import {fileURLToPath} from 'url';
 import path from 'path';
 
 import Settings from '../types/Settings.js';
-import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
+import {PriceDataRepository} from '../repositories/PriceDataRepository.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 export class HistoryController {
   router: express.Router;
   @inject('Logger') private logger!: Logger;
-  @inject(FetcherHistoryRepository) protected fetcherHistoryRepository!: FetcherHistoryRepository;
+  @inject(PriceDataRepository) protected priceDataRepository!: PriceDataRepository;
 
   constructor(@inject('Settings') private readonly settings: Settings) {
     this.router = express
@@ -28,7 +28,8 @@ export class HistoryController {
   }
 
   private index = async (request: Request, response: Response): Promise<void> => {
-    const symbols = await this.fetcherHistoryRepository.latestSymbols();
+    console.log('REQUEST TO INDEX');
+    const symbols = await this.priceDataRepository.latestSymbols();
 
     let html = fs.readFileSync(`${__dirname}/../assets/symbolHistoryIndex.html`).toString();
 
@@ -44,19 +45,19 @@ export class HistoryController {
     response.send(html);
   };
 
-  private latestHistory = async (request: Request, response: Response): Promise<void> => {
-    const records = await this.fetcherHistoryRepository.latest();
+  private latestHistory = async (_request: Request, response: Response): Promise<void> => {
+    const records = await this.priceDataRepository.latest();
     response.send(records);
   };
 
   private symbolHistory = async (request: Request, response: Response): Promise<void> => {
-    const records = await this.fetcherHistoryRepository.latestSymbol(request.params.symbol);
+    const records = await this.priceDataRepository.latestSymbol(request.params.symbol);
 
     response.send(
       records.map((r) => {
         return {
           fetcher: r.fetcher,
-          symbol: r.symbol,
+          symbol: r.feedBase + '-' + r.feedQuote,
           value: r.value,
           timestamp: r.timestamp,
           timestampDate: this.toDate(r.timestamp),
@@ -66,11 +67,13 @@ export class HistoryController {
   };
 
   private symbolHistoryCsv = async (request: Request, response: Response): Promise<void> => {
-    const records = await this.fetcherHistoryRepository.latestSymbol(request.params.symbol);
+    const records = await this.priceDataRepository.latestSymbol(request.params.symbol);
 
     response.send(
       records
-        .map((r) => [r.symbol, r.fetcher, r.value, r.timestamp, this.toDate(r.timestamp)].join(';'))
+        .map((r) =>
+          [r.feedBase + '-' + r.feedQuote, r.fetcher, r.value, r.timestamp, this.toDate(r.timestamp)].join(';'),
+        )
         .join('<br/>\n'),
     );
   };
@@ -106,7 +109,7 @@ export class HistoryController {
   private makeHistoryChartData = async (
     symbol: string,
   ): Promise<{data: Record<number, Record<string, number>>; fetchers: Record<string, number>}> => {
-    const records = await this.fetcherHistoryRepository.latestSymbol(symbol);
+    const records = await this.priceDataRepository.latestSymbol(symbol);
     const data: Record<number, Record<string, number>> = {};
     const fetchers: Record<string, number> = {};
 

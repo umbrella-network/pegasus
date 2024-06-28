@@ -18,6 +18,12 @@ export type PriceDataPayload = {
   feedQuote: string; // quote configurable on feeds.yaml e.g. WBTC-USDC -> quote is USDC
   fetcherSource: string;
 };
+//export type FetcherHistoryInterface = {
+//  fetcher: string;
+//  symbol: string;
+//  timestamp: number;
+//  value: string;
+//};
 
 @injectable()
 export class PriceDataRepository {
@@ -49,5 +55,39 @@ export class PriceDataRepository {
     } catch (error) {
       this.logger.error(`couldn't perform bulkWrite for PriceData: ${error}`);
     }
+  }
+
+  async latest(limit = 150): Promise<PriceDataModel[]> {
+    return getModelForClass(PriceDataModel).find().sort({timestamp: -1}).limit(limit).exec();
+  }
+
+  async latestSymbols(): Promise<string[]> {
+    const symbols = await getModelForClass(PriceDataModel).find({}, {feedBase: 1, feedQuote: 1}).limit(1000).exec();
+    const unique: Record<string, number> = {};
+
+    // TODO: this logic is for me a bit complicated to understand
+    // maybe a function can help to do thar more clear
+    //
+    // I can just understand that in case there are these feeds:
+    // SYMBOL1
+    // SYMBOL2
+    // SYMBOL1
+    // it orders them like SYMBOL1, SYMBOL2 because SYMBOL1 appears more often than SYMBOL2
+    symbols.forEach((s) => {
+      const symbol = s.feedBase + '-' + s.feedQuote;
+      unique[symbol] = unique[symbol] ? unique[symbol] + 1 : 1;
+    });
+
+    return Object.keys(unique).sort((a, b) => {
+      return unique[a] == unique[b] ? (a < b ? -1 : 1) : unique[b] - unique[a];
+    });
+  }
+
+  // TODO: the function name is a bit confusing if I see the symbol, it gets the
+  // lastest symbol but I have to pass a symbol as argument
+  // maybe latestPrice(symbol: string) ?
+  async latestSymbol(symbol: string, limit = 150): Promise<PriceDataModel[]> {
+    if (!symbol) throw new Error('[FetcherHistoryRepository] empty symbol');
+    return getModelForClass(PriceDataModel).find({symbol}).sort({timestamp: -1}).limit(limit).exec();
   }
 }

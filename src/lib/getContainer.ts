@@ -13,7 +13,6 @@ import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRe
 import {Redis} from 'ioredis';
 import {initRedis} from '../config/initRedis.js';
 import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository.js';
-import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
 import FeedProcessor from '../services/FeedProcessor.js';
 
 export function getContainer(): Container {
@@ -28,7 +27,6 @@ export function getContainer(): Container {
   container.bind(UniswapPoolService).toSelf().inSingletonScope();
   container.bind(BlockchainProviderRepository).toSelf().inSingletonScope();
   container.bind(MongoDBPriceRepository).toSelf().inSingletonScope();
-  container.bind(FetcherHistoryRepository).toSelf().inSingletonScope();
   container.bind(FeedProcessor).toSelf().inSingletonScope();
 
   container
