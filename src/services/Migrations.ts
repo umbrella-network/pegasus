@@ -1,4 +1,4 @@
-import {getModelForClass} from '@typegoose/typegoose';
+import {getModelForClass, mongoose} from '@typegoose/typegoose';
 import {ModelType} from '@typegoose/typegoose/lib/types.js';
 
 import Migration from '../models/Migration.js';
@@ -9,6 +9,7 @@ import {Token} from '../models/Token.js';
 class Migrations {
   static async apply(): Promise<void> {
     await Migrations.migrateTo7110();
+    await Migrations.migrateTo_7_27_1();
     await Migrations.migrateTo7280();
   }
 
@@ -67,6 +68,26 @@ class Migrations {
       console.log('Migration 7.28.0 finished');
     });
   };
+
+  private static migrateTo_7_27_1 = async () => {
+    await Migrations.wrapMigration('7.27.1', async () => {
+      await dropCollection('fetcherhistories');
+    });
+  };
+}
+
+async function dropCollection(collectionName: string) {
+  // Check if the collection exists
+  const collections = await mongoose.connection.db.listCollections().toArray();
+  const collectionExists = collections.some((collection) => collection.name === collectionName);
+
+  if (collectionExists) {
+    // Drop the collection if it exists
+    await mongoose.connection.db.dropCollection(collectionName);
+    console.log(`Collection '${collectionName}' dropped successfully.`);
+  } else {
+    console.log(`Collection '${collectionName}' does not exist.`);
+  }
 }
 
 async function getUniswapV3Migration(uniswapV3PoolModel: ModelType<UniswapV3Pool>) {

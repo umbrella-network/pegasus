@@ -1,12 +1,5 @@
 import {OptionsEntries} from '../services/fetchers/OptionsPriceFetcher.js';
 
-export type FetcherHistoryInterface = {
-  fetcher: string;
-  symbol: string;
-  timestamp: number;
-  value: string;
-};
-
 export type CryptoCompareHistoFetcherResult = [
   {high: number; low: number; open: number; close: number},
   volume: number,

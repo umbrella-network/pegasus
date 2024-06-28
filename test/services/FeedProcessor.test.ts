@@ -15,7 +15,6 @@ import Leaf from '../../src/types/Leaf.js';
 import CryptoCompareMultiProcessor from '../../src/services/FeedProcessor/CryptoCompareMultiProcessor.js';
 import CoingeckoMultiProcessor from '../../src/services/FeedProcessor/CoingeckoMultiProcessor.js';
 import {FeedFetcherInterface, FetcherName} from '../../src/types/fetchers.js';
-import {FetcherHistoryRepository} from '../../src/repositories/FetcherHistoryRepository.js';
 
 const {expect} = chai;
 
@@ -30,7 +29,6 @@ describe('FeedProcessor', () => {
 
   let coingeckoMultiProcessor: SinonStubbedInstance<CoingeckoMultiProcessor>;
   let cryptoCompareMultiProcessor: SinonStubbedInstance<CryptoCompareMultiProcessor>;
-  let fetcherHistoryRepository: SinonStubbedInstance<FetcherHistoryRepository>;
 
   before(() => {
     container = getTestContainer();
@@ -41,17 +39,14 @@ describe('FeedProcessor', () => {
     identityCalculator = createStubInstance(IdentityCalculator);
     coingeckoMultiProcessor = createStubInstance(CoingeckoMultiProcessor);
     cryptoCompareMultiProcessor = createStubInstance(CryptoCompareMultiProcessor);
-    fetcherHistoryRepository = createStubInstance(FetcherHistoryRepository);
 
     feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
     calculatorRepository.find.withArgs('Identity').returns(identityCalculator);
-    fetcherHistoryRepository.saveMany.called;
 
     container.bind(FeedFetcherRepository).toConstantValue(feedFetcherRepository);
     container.bind(CalculatorRepository).toConstantValue(calculatorRepository);
     container.bind(CoingeckoMultiProcessor).toConstantValue(coingeckoMultiProcessor);
     container.bind(CryptoCompareMultiProcessor).toConstantValue(cryptoCompareMultiProcessor);
-    container.bind(FetcherHistoryRepository).toConstantValue(fetcherHistoryRepository);
 
     instance = container.get(FeedProcessor);
   });
