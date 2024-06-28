@@ -59,14 +59,6 @@ export class PriceDataRepository {
     const symbols = await getModelForClass(PriceDataModel).find({}, {feedBase: 1, feedQuote: 1}).limit(1000).exec();
     const unique: Record<string, number> = {};
 
-    // TODO: this logic is for me a bit complicated to understand
-    // maybe a function can help to do thar more clear
-    //
-    // I can just understand that in case there are these feeds:
-    // SYMBOL1
-    // SYMBOL2
-    // SYMBOL1
-    // it orders them like SYMBOL1, SYMBOL2 because SYMBOL1 appears more often than SYMBOL2
     symbols.forEach((s) => {
       const symbol = s.feedBase + '-' + s.feedQuote;
       unique[symbol] = unique[symbol] ? unique[symbol] + 1 : 1;
