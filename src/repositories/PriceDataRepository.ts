@@ -18,12 +18,6 @@ export type PriceDataPayload = {
   feedQuote: string; // quote configurable on feeds.yaml e.g. WBTC-USDC -> quote is USDC
   fetcherSource: string;
 };
-//export type FetcherHistoryInterface = {
-//  fetcher: string;
-//  symbol: string;
-//  timestamp: number;
-//  value: string;
-//};
 
 @injectable()
 export class PriceDataRepository {

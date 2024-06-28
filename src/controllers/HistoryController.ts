@@ -30,7 +30,6 @@ export class HistoryController {
   }
 
   private index = async (request: Request, response: Response): Promise<void> => {
-    console.log('REQUEST TO INDEX');
     const symbols = await this.priceDataRepository.latestSymbols();
 
     let html = fs.readFileSync(`${__dirname}/../assets/symbolHistoryIndex.html`).toString();
