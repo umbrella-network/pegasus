@@ -8,6 +8,7 @@ import CryptoCompareMultiPriceFetcher, {
   OutputValue,
 } from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher.js';
 import {FetcherName} from '../../../src/types/fetchers.js';
+import {PriceDataRepository} from '../../../src/repositories/PriceDataRepository.js';
 
 const {expect} = chai;
 
@@ -42,7 +43,10 @@ describe('CryptoCompareMultiProcessor', () => {
     const container = getTestContainer();
 
     const fetcher = createStubInstance(CryptoCompareMultiPriceFetcher);
+    const priceDataRepository = createStubInstance(PriceDataRepository);
+
     container.bind(CryptoCompareMultiPriceFetcher).toConstantValue(fetcher);
+    container.bind(PriceDataRepository).toConstantValue(priceDataRepository);
 
     processor = container.get(CryptoCompareMultiProcessor);
 

@@ -26,9 +26,9 @@ export interface BarChartTick {
 }
 
 export interface UniswapV3Param {
-  fromChain: string[];
-  token0: string;
-  token1: string;
+  fromChain: string;
+  quote: string;
+  base: string;
 }
 
 export interface LiquidityTick {

@@ -6,6 +6,7 @@ import {getTestContainer} from '../../helpers/getTestContainer.js';
 import CoingeckoMultiProcessor from '../../../src/services/FeedProcessor/CoingeckoMultiProcessor.js';
 import CoingeckoMultiPriceFetcher, {OutputValues} from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher.js';
 import {FetcherName} from '../../../src/types/fetchers.js';
+import {PriceDataRepository} from '../../../src/repositories/PriceDataRepository.js';
 
 const {expect} = chai;
 
@@ -40,8 +41,10 @@ describe('CoingeckoMultiProcessor', () => {
     const container = getTestContainer();
 
     const fetcher = createStubInstance(CoingeckoMultiPriceFetcher);
+    const priceDataRepository = createStubInstance(PriceDataRepository);
 
     container.bind(CoingeckoMultiPriceFetcher).toConstantValue(fetcher);
+    container.bind(PriceDataRepository).toConstantValue(priceDataRepository);
 
     processor = container.get(CoingeckoMultiProcessor);
 

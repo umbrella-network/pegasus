@@ -20,22 +20,3 @@ export class SovrynPoolSchema {
   @prop()
   lastUpdatedAt?: Date;
 }
-export class Pools {
-  @prop({required: true})
-  pool!: string;
-
-  @prop({required: true})
-  token0!: string;
-
-  @prop({required: true})
-  protocol!: string;
-
-  @prop({required: true})
-  token1!: string;
-
-  @prop({required: true})
-  chainId!: string;
-
-  @prop()
-  lastUpdatedAt?: Date;
-}

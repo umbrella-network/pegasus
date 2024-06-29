@@ -338,11 +338,12 @@ export default {
         params: {
           type: 'object',
           properties: {
-            fromChain: {type: 'array'},
-            token0: {type: 'string'},
-            token1: {type: 'string'},
+            fromChain: {type: 'string'},
+            base: {type: 'string'},
+            quote: {type: 'string'},
+            amountInDecimals: {type: 'number'},
           },
-          required: ['fromChain', 'token0', 'token1'],
+          required: ['fromChain', 'base', 'quote', 'amountInDecimals'],
           additionalProperties: false,
         },
       },
