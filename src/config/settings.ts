@@ -300,6 +300,15 @@ const settings: Settings = {
           },
         },
       },
+      [ChainsIds.ROOTSTOCK]: {
+        [DexProtocolName.UNISWAP_V3]: {
+          interval: parseInt(process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_JOB_INTERVAL || String(getDayInMillisecond(3))),
+          lock: {
+            name: process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_LOCK_NAME || 'lock::RootstockUniswapV3Liquidity',
+            ttl: parseInt(process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_LOCK_TTL || '60'),
+          },
+        },
+      },
     },
     blockchainMetrics: {
       interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '600000'),
