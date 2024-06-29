@@ -31,10 +31,15 @@ export class UniswapV3LiquidityCalculator {
     chainId: ChainsIds,
   ): Promise<BarChartTick[]> {
     const abi = JSON.parse(readFileSync(__dirname + '/UniswapV3FetcherHelper.abi.json', 'utf-8')).abi as never;
-    const poolContract = await this.contractAddressService.getContract(chainId, 'UniswapV3FetcherHelper', abi);
+
+    const uniswapV3FetcherHelper = await this.contractAddressService.getContract(
+      chainId,
+      'UniswapV3FetcherHelper',
+      abi,
+    );
 
     const [liquidityData, graphTicks] = await Promise.all([
-      poolContract.liquidityData([poolAddress]),
+      uniswapV3FetcherHelper.liquidityData([poolAddress]),
       this.uniswapV3TickQuery.apply(poolAddress, chainId),
     ]);
 
