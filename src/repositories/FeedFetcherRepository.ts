@@ -11,8 +11,8 @@ export class FeedFetcherRepository {
     @inject(fetchers.CryptoCompareHistoDayFetcher) CryptoCompareHistoDay: fetchers.CryptoCompareHistoDayFetcher,
     @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPrice: fetchers.PolygonIOStockPriceFetcher,
     @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPrice: fetchers.PolygonIOCryptoPriceFetcher,
-    @inject(fetchers.PolygonIOCurrencySnapshotFetcher)
-    PolygonIOCurrencySnapshot: fetchers.PolygonIOCurrencySnapshotFetcher,
+    @inject(fetchers.PolygonIOCurrencySnapshotGramsFetcher)
+    PolygonIOCurrencySnapshotGrams: fetchers.PolygonIOCurrencySnapshotGramsFetcher,
     @inject(fetchers.CryptoComparePriceWSFetcher) CryptoComparePriceWS: fetchers.CryptoComparePriceWSFetcher,
     @inject(fetchers.OnChainDataFetcher) OnChainData: fetchers.OnChainDataFetcher,
     @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPrice: fetchers.YearnVaultTokenPriceFetcher,
@@ -29,7 +29,7 @@ export class FeedFetcherRepository {
       CryptoCompareHistoDay,
       PolygonIOStockPrice,
       PolygonIOCryptoPrice,
-      PolygonIOCurrencySnapshot,
+      PolygonIOCurrencySnapshotGrams,
       CryptoComparePriceWS,
       OnChainData,
       YearnVaultTokenPrice,

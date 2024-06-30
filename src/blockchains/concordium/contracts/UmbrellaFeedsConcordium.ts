@@ -172,6 +172,6 @@ export class UmbrellaFeedsConcordium implements UmbrellaFeedInterface {
   private resolveContract = async (): Promise<UmbrellaFeedsContract.Type> => {
     const feeds = await this.registry.getAddress(this.umbrellaFeedsName);
     const contractAddress = ConcordiumAddress.fromIndexedString(feeds);
-    return UmbrellaFeedsContract.create(this.blockchain.provider.getRawProviderSync(), contractAddress);
+    return UmbrellaFeedsContract.createUnchecked(this.blockchain.provider.getRawProviderSync(), contractAddress);
   };
 }

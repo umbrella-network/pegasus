@@ -1,9 +1,9 @@
 import * as SDK from "@concordium/web-sdk";
 
 /** The reference of the smart contract module supported by the provided client. */
-export const moduleReference: SDK.ModuleReference.Type = /*#__PURE__*/ SDK.ModuleReference.fromHexString('4b84fa711b2567af05b58a555ec7e52ecce043e8f8f8e98f9da6a4919fa304d2');
+export const moduleReference: SDK.ModuleReference.Type = /*#__PURE__*/ SDK.ModuleReference.fromHexString('efc4ea2b19330518131b67b0b66ac6f628438bfd740d694fcf64a13412bf327b');
 
-/** Client for an on-chain smart contract module with module reference '4b84fa711b2567af05b58a555ec7e52ecce043e8f8f8e98f9da6a4919fa304d2', can be used for instantiating new smart contract instances. */
+/** Client for an on-chain smart contract module with module reference 'efc4ea2b19330518131b67b0b66ac6f628438bfd740d694fcf64a13412bf327b', can be used for instantiating new smart contract instances. */
 class UmbrellaFeedsModule {
     /** Having a private field prevents similar structured objects to be considered the same type (similar to nominal typing). */
     private __nominal = true;
@@ -16,7 +16,7 @@ class UmbrellaFeedsModule {
     }
 }
 
-/** Client for an on-chain smart contract module with module reference '4b84fa711b2567af05b58a555ec7e52ecce043e8f8f8e98f9da6a4919fa304d2', can be used for instantiating new smart contract instances. */
+/** Client for an on-chain smart contract module with module reference 'efc4ea2b19330518131b67b0b66ac6f628438bfd740d694fcf64a13412bf327b', can be used for instantiating new smart contract instances. */
 export type Type = UmbrellaFeedsModule;
 
 /**
@@ -45,7 +45,7 @@ export function createUnchecked(grpcClient: SDK.ConcordiumGRPCClient): UmbrellaF
 /**
  * Construct a UmbrellaFeedsModule client for interacting with a smart contract module on chain.
  * This function ensures the smart contract module is deployed on chain.
- * @param {UmbrellaFeedsModule} moduleClient - The client of the on-chain smart contract module with referecence '4b84fa711b2567af05b58a555ec7e52ecce043e8f8f8e98f9da6a4919fa304d2'.
+ * @param {UmbrellaFeedsModule} moduleClient - The client of the on-chain smart contract module with referecence 'efc4ea2b19330518131b67b0b66ac6f628438bfd740d694fcf64a13412bf327b'.
  * @throws If failing to communicate with the concordium node or if the module reference is not present on chain.
  * @returns {UmbrellaFeedsModule} A module client ensured to be deployed on chain.
  */
@@ -55,7 +55,7 @@ export function checkOnChain(moduleClient: UmbrellaFeedsModule): Promise<void> {
 
 /**
  * Get the module source of the deployed smart contract module.
- * @param {UmbrellaFeedsModule} moduleClient - The client of the on-chain smart contract module with referecence '4b84fa711b2567af05b58a555ec7e52ecce043e8f8f8e98f9da6a4919fa304d2'.
+ * @param {UmbrellaFeedsModule} moduleClient - The client of the on-chain smart contract module with referecence 'efc4ea2b19330518131b67b0b66ac6f628438bfd740d694fcf64a13412bf327b'.
  * @throws {SDK.RpcError} If failing to communicate with the concordium node or module not found.
  * @returns {SDK.VersionedModuleSource} Module source of the deployed smart contract module.
  */
@@ -95,7 +95,7 @@ export function createUmbrellaFeedsParameter(parameter: UmbrellaFeedsParameter):
 
 /**
  * Send transaction for instantiating a new 'umbrella_feeds' smart contract instance.
- * @param {UmbrellaFeedsModule} moduleClient - The client of the on-chain smart contract module with referecence '4b84fa711b2567af05b58a555ec7e52ecce043e8f8f8e98f9da6a4919fa304d2'.
+ * @param {UmbrellaFeedsModule} moduleClient - The client of the on-chain smart contract module with referecence 'efc4ea2b19330518131b67b0b66ac6f628438bfd740d694fcf64a13412bf327b'.
  * @param {SDK.ContractTransactionMetadata} transactionMetadata - Metadata related to constructing a transaction for a smart contract module.
  * @param {UmbrellaFeedsParameter} parameter - Parameter to provide as part of the transaction for the instantiation of a new smart contract contract.
  * @param {SDK.AccountSigner} signer - The signer of the update contract transaction.

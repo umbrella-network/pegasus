@@ -16,3 +16,20 @@ export const calcDiscrepancy = (val1: FeedValue, val2: FeedValue, label: string)
     ? calcFixedDiscrepancy(val1 as string, val2 as string)
     : calcNumberDiscrepancy(val1 as number, val2 as number);
 };
+
+export function bigIntToFloatingPoint(integerValue: bigint, decimals: number): number {
+  const stringValue = integerValue.toString();
+
+  let intPart = '';
+  let decPart = '';
+  const lengthDiff = stringValue.length - decimals;
+  if (lengthDiff > 0) {
+    intPart = stringValue.substring(0, lengthDiff);
+    decPart = stringValue.substring(lengthDiff);
+  } else {
+    intPart = '0';
+    decPart = '0'.repeat(-lengthDiff) + stringValue;
+  }
+
+  return Number(intPart + '.' + decPart);
+}

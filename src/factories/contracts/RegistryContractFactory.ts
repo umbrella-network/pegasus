@@ -32,6 +32,7 @@ export class RegistryContractFactory {
       case ChainsIds.ARTHERA:
       case ChainsIds.ASTAR:
       case ChainsIds.ROOTSTOCK:
+      case ChainsIds.ZK_LINK_NOVA:
         return new ContractRegistry(blockchain.provider.getRawProviderSync(), blockchain.getContractRegistryAddress());
 
       default:

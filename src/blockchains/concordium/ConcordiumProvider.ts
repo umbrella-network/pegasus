@@ -36,9 +36,13 @@ export class ConcordiumProvider implements ProviderInterface {
     this.settings = settings;
     this.providerUrl = providerUrl;
 
-    const [address, port] = providerUrl.split(':');
+    const [address, port, insecure] = providerUrl.split(':');
 
-    this.provider = new ConcordiumGRPCNodeClient(address, parseInt(port, 10), credentials.createInsecure());
+    this.provider = new ConcordiumGRPCNodeClient(
+      address,
+      parseInt(port, 10),
+      insecure ? credentials.createInsecure() : credentials.createSsl(),
+    );
   }
 
   async getRawProvider<T>(): Promise<T> {

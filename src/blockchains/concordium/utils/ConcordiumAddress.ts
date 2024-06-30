@@ -2,6 +2,8 @@ import * as SDK from '@concordium/web-sdk';
 
 export class ConcordiumAddress {
   static fromIndexedString(str: string): SDK.ContractAddress.Type {
+    if (!str) return SDK.ContractAddress.create(0n, 0n);
+
     const [index, subindex] = str.split(',');
     return SDK.ContractAddress.create(BigInt(index), BigInt(subindex));
   }

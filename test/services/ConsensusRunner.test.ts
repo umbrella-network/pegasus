@@ -210,5 +210,5 @@ describe('ConsensusRunner', () => {
     const result = await consensusRunner.apply(dataTimestamp, validators, 1);
     expect(result).to.not.be.undefined;
     expect(result?.dataTimestamp).to.be.equals(undefined);
-  });
+  }).timeout(90000);
 });

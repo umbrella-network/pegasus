@@ -10,6 +10,8 @@ import {ValidatorStatusChecker} from '../ValidatorStatusChecker.js';
 import {DeviationChainMetadata} from './DeviationChainMetadata.js';
 import {DeviationHasher} from './DeviationHasher.js';
 import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository.js';
+import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
+import {DataCollection} from '../../types/custom';
 
 @injectable()
 export class DeviationSignatureCollector {
@@ -18,6 +20,7 @@ export class DeviationSignatureCollector {
   @inject(DeviationHasher) protected deviationHasher!: DeviationHasher;
   @inject(DeviationSignerRepository) protected deviationSignerRepository!: DeviationSignerRepository;
   @inject(ValidatorStatusChecker) protected validatorStatusChecker!: ValidatorStatusChecker;
+  @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
   @inject(DeviationChainMetadata) protected deviationChainMetadata!: DeviationChainMetadata;
 
   async apply(data: DeviationDataToSign, validators: Validator[]): Promise<DeviationSignerResponse[]> {
@@ -31,23 +34,35 @@ export class DeviationSignatureCollector {
     participants: Validator[],
   ): Promise<DeviationSignerResponse[]> {
     const selfAddress = new Wallet(this.settings.blockchain.wallets.evm.privateKey).address.toLowerCase();
+    const knownValidators = await this.validatorRepository.getAll();
 
     const signedData = await Promise.all(
       participants.map((p) =>
-        selfAddress == p.id.toLowerCase() ? this.getLocalSignature(data) : this.getParticipantSignature(data, p),
+        selfAddress == p.id.toLowerCase()
+          ? this.getLocalSignature(data, p, knownValidators)
+          : this.getParticipantSignature(data, p, knownValidators),
       ),
     );
 
     return signedData.filter((s: DeviationSignerResponse | undefined) => s !== undefined) as DeviationSignerResponse[];
   }
 
-  protected async getLocalSignature(data: DeviationDataToSign): Promise<DeviationSignerResponse> {
+  protected async getLocalSignature(
+    data: DeviationDataToSign,
+    validator: Validator,
+    knownValidators: DataCollection<Set<string>>,
+  ): Promise<DeviationSignerResponse> {
     const signatures: DeviationSignatures = {};
 
     const chainMetadata = await this.deviationChainMetadata.apply(data.feedsForChain);
 
     const signaturesPerChain = await Promise.all(
       chainMetadata.map(([chainId, networkId, target]) => {
+        if (!this.validatorExistInBank(validator, knownValidators[chainId])) {
+          this.logger.warn(`[DeviationSignatureCollector] not signing for ${chainId}, I'm not in Bank`);
+          return '';
+        }
+
         const keys = data.feedsForChain[chainId];
         const priceDatas = keys.map((key) => data.proposedPriceData[key]);
         const hashOfData = this.deviationHasher.apply(chainId, networkId, target, keys, priceDatas);
@@ -57,7 +72,9 @@ export class DeviationSignatureCollector {
     );
 
     chainMetadata.forEach(([chainId], i) => {
-      signatures[chainId] = signaturesPerChain[i];
+      if (signaturesPerChain[i].length > 0) {
+        signatures[chainId] = signaturesPerChain[i];
+      }
     });
 
     return {
@@ -70,6 +87,7 @@ export class DeviationSignatureCollector {
   protected async getParticipantSignature(
     data: DeviationDataToSign,
     validator: Validator,
+    knownValidators: DataCollection<Set<string>>,
   ): Promise<DeviationSignerResponse | undefined> {
     try {
       const [response] = await Promise.all([
@@ -78,6 +96,15 @@ export class DeviationSignatureCollector {
       ]);
 
       this.logResponse(validator, response);
+
+      if (response.signatures) {
+        Object.keys(response.signatures).forEach((chainId) => {
+          if (response.signatures && !this.validatorExistInBank(validator, knownValidators[chainId])) {
+            this.logger.warn(`[DeviationSignatureCollector] removing ${chainId} signature for ${validator.location}`);
+            delete response.signatures[chainId];
+          }
+        });
+      }
 
       return response;
     } catch (e) {
@@ -113,6 +140,12 @@ export class DeviationSignatureCollector {
 
       throw err;
     }
+  }
+
+  // we're only checking existance if `chainValidators` is not empty set, otherwise we return TRUE
+  protected validatorExistInBank(validator: Validator, chainValidators: Set<string>): boolean {
+    const location = validator.location.endsWith('/') ? validator.location.slice(0, -1) : validator.location;
+    return chainValidators.size == 0 || chainValidators.has(location);
   }
 
   protected logResponse(validator: Validator, response: DeviationSignerResponse | undefined): void {

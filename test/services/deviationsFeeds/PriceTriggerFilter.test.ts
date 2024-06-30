@@ -6,6 +6,7 @@ import {DeviationFeed, PriceData} from '../../../src/types/DeviationFeeds.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
 import Leaf from '../../../src/types/Leaf.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
+import {FetcherName} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -29,12 +30,12 @@ describe('PriceTriggerFilter', () => {
       inputs: [
         {
           fetcher: {
-            name: 'CoingeckoPrice',
+            name: FetcherName.COINGECKO_PRICE,
           },
         },
         {
           fetcher: {
-            name: 'CryptoComparePrice',
+            name: FetcherName.CRYPTO_COMPARE_PRICE,
           },
         },
       ],

@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import {loadFeeds} from '@umb-network/toolbox';
 import chai from 'chai';
+import {createStubInstance, SinonStubbedInstance} from 'sinon';
 
 import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {sleep} from '../../src/utils/sleep.js';
@@ -9,6 +10,8 @@ import {getContainer} from '../../src/lib/getContainer.js';
 import PriceRepository from '../../src/repositories/PriceRepository.js';
 import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
 import CryptoCompareWSClient from '../../src/services/ws/CryptoCompareWSClient.js';
+import {FetcherHistoryRepository} from '../../src/repositories/FetcherHistoryRepository.js';
+import {FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -53,34 +56,41 @@ const saveStockSymbols = async ({fetcher}: any, priceRepository: PriceRepository
 const feedsFetcher = [
   {
     apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: 'CryptoCompareHistoDay',
+    name: FetcherName.CRYPTO_COMPARE_HISTO_DAY,
   },
   {
     apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: 'CryptoCompareHistoHour',
+    name: FetcherName.CRYPTO_COMPARE_HISTO_HOUR,
   },
   {
     apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: 'CryptoComparePrice',
+    name: FetcherName.CRYPTO_COMPARE_PRICE,
   },
   {
     apiKey: null,
-    name: 'CoingeckoPrice',
+    name: FetcherName.COINGECKO_PRICE,
   },
 ];
 
-const fetcherWSNames = ['CryptoComparePriceWS', 'PolygonIOCryptoPrice', 'PolygonIOPrice'];
+const fetcherWSNames = [FetcherName.CRYPTO_COMPARE_PRICE_WS, FetcherName.POLYGON_IO_CRYPTO_PRICE];
 
 describe.skip('FeedProcessor integration tests', () => {
   let feedProcessor: FeedProcessor;
   let feeds: Feeds;
   let priceRepository: PriceRepository;
+  let fetcherHistoryRepository: SinonStubbedInstance<FetcherHistoryRepository>;
 
   before(async () => {
     const container = getContainer();
+
+    fetcherHistoryRepository = createStubInstance(FetcherHistoryRepository);
+    container.rebind(FetcherHistoryRepository).toConstantValue(fetcherHistoryRepository);
+    fetcherHistoryRepository.saveMany.called;
+
     priceRepository = container.get(PriceRepository);
     feedProcessor = container.get(FeedProcessor);
-    feeds = await loadFeeds('test/feeds/feeds.yaml');
+
+    feeds = (await loadFeeds('test/feeds/feeds.yaml')) as Feeds;
   });
 
   describe('when running feeds that uses HTTP', () => {
@@ -88,7 +98,7 @@ describe.skip('FeedProcessor integration tests', () => {
       describe(`when running feeds for ${name} fetcher`, () => {
         before(function () {
           if (apiKey && !process.env[apiKey]) {
-            console.log(`Skipping some FeedProcessor integration tests that require ${apiKey}`);
+            console.log(`[HTTP] Skipping some FeedProcessor integration tests that require ${apiKey}`);
             this.skip();
           }
         });
@@ -98,10 +108,10 @@ describe.skip('FeedProcessor integration tests', () => {
           const leaves = await feedProcessor.apply(10, feedsPriceFetcher);
 
           expect(leaves[0]).to.be.an('array').that.has.lengthOf(Object.keys(feedsPriceFetcher).length);
-        });
+        }).timeout(10000);
       });
     });
-  });
+  }).timeout(5000);
 
   describe('when running feeds that uses WS', () => {
     fetcherWSNames.forEach((name) => {
@@ -120,11 +130,14 @@ describe.skip('FeedProcessor integration tests', () => {
             }),
           );
 
+          console.log(`feedsPriceFetcher for ${name}: ${Object.keys(feedsPriceFetcher).length}`);
+          console.log(`feedsPriceFetcher for ${name}: ${JSON.stringify(feedsPriceFetcher)}`);
+
           await sleep(1000); // It doesn't get leaves with the same timestamp
 
           const leaves = await feedProcessor.apply(Math.floor(Date.now() / 1000), feedsPriceFetcher);
           expect(leaves[0]).to.be.an('array').that.has.lengthOf(Object.keys(feedsPriceFetcher).length);
-        });
+        }).timeout(10000);
       });
     });
   });

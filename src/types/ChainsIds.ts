@@ -15,6 +15,7 @@ export enum ChainsIds {
   ARTHERA = 'arthera',
   ASTAR = 'astar',
   ROOTSTOCK = 'rootstock',
+  ZK_LINK_NOVA = 'zk_link_nova',
 }
 
 export type ChainsIdsKeys = keyof typeof ChainsIds;

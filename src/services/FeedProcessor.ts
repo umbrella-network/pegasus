@@ -9,7 +9,7 @@ import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {FetcherHistoryInterface} from '../types/fetchers.js';
+import {FetcherHistoryInterface, FetcherName} from '../types/fetchers.js';
 import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
 
 interface Calculator {
@@ -43,7 +43,7 @@ class FeedProcessor {
 
       keys.forEach((leafLabel) =>
         feeds[leafLabel].inputs.forEach((input) => {
-          uniqueFeedFetcherMap[hash(input.fetcher)] = input.fetcher;
+          uniqueFeedFetcherMap[hash(input.fetcher)] = {...input.fetcher, symbol: leafLabel};
         }),
       );
     });
@@ -181,7 +181,13 @@ class FeedProcessor {
    * @return multiInputs will be aggregated by the respective processor to be fetched in one API call
    */
   private separateInputs(uniqueFeedFetcherMap: {[hash: string]: FeedFetcher}) {
-    const multiFetchingInputsNames = ['CryptoComparePrice', 'CoingeckoPrice', 'ByBit'];
+    const multiFetchingInputsNames = [
+      FetcherName.CRYPTO_COMPARE_PRICE,
+      FetcherName.COINGECKO_PRICE,
+      FetcherName.UNISWAP_V3,
+      FetcherName.SOVRYN_PRICE,
+      FetcherName.BY_BIT,
+    ];
 
     const fetcherMapArr = Object.values(uniqueFeedFetcherMap);
     const fetcherKeys = Object.keys(uniqueFeedFetcherMap);

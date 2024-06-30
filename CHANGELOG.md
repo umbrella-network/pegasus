@@ -9,6 +9,82 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - new `ByBitSpotFetcher`
 
+## Changed
+
+## [7.27.1] - 2024-06-26
+### Fixed
+- disable Sovryn Pool Scanner
+
+## [7.27.0] - 2024-07-27
+### Added
+- new `uniswapV3LiquidityWorker`
+- new `SovrynPriceFetcher`
+- new `UniswapV3MultiFetcher`
+
+## Changed
+- Added all fetcher in FetcherName
+
+## [7.26.3] - 2024-06-17
+### Updated
+- display `verifyKey` in info
+
+## [7.26.2] - 2024-06-14
+### Fixed
+- filter out signatures that are unknown to staking bank
+
+## [7.26.2] - 2024-06-14
+### Fixed
+- filter out signatures that are unknown to staking bank
+
+## [7.26.3] - 2024-06-17
+### Updated
+- display `verifyKey` in info
+
+## [7.26.2] - 2024-06-14
+### Fixed
+- filter out signatures that are unknown to staking bank
+
+## [7.26.1] - 2024-05-23
+### Fixed
+- fix schema for `PolygonIOCurrencySnapshotGramsFetcher`
+
+## [7.26.0] - 2024-05-22
+### Changed
+- Use SSL by default for concordium provider plus option to use insecure
+
+## [7.25.6] - 2024-05-20
+### Removed
+- Update Makefile and cicd actions due to Non Prod migration to Frankfurt
+
+## [7.25.5] - 2024-05-03
+### Removed
+- revert `throwError` option
+
+## [7.25.4] - 2024-05-03
+### Fixed
+- do throw error on empty yaml config
+
+## [7.25.3] - 2024-05-02
+### Fixed
+- use unchecked versions of concordium modules
+- added back fixed support for Massa
+
+## [7.25.2] - 2024-05-02
+### Fixed
+- update concordium auto-generated files
+
+## [7.25.1] - 2024-04-04
+### Fixed
+- add `PolygonIOCurrencySnapshotFetcher` to schema
+- fix `MetalsDevApi` name in schema
+
+### Updated
+- make `PolygonIOCurrencySnapshotFetcher` to return price in grams instead of troy oz
+
+## [7.25.0] - 2024-03-20
+### Added
+- support for zk-Link Nova
+
 ## [7.24.0] - 2024-03-15
 ### Added
 - price history index

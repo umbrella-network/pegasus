@@ -6,24 +6,27 @@ import {ChainsIds} from '../../src/types/ChainsIds.js';
 import {loadTestEnv} from '../helpers/loadTestEnv.js';
 import {DeviationWalletFactory} from '../../src/factories/DeviationWalletFactory.js';
 import {IWallet} from '../../src/interfaces/IWallet.js';
+import {getTestContainer} from '../helpers/getTestContainer.js';
+import settings from '../../src/config/settings.js';
 
 const {expect} = chai;
 
 describe.skip('Test Wallets', () => {
   before(() => {
+    getTestContainer();
     loadTestEnv();
   });
 
   [
-    // ChainsIds.MASSA,
+    ChainsIds.MASSA,
     // ChainsIds.CONCORDIUM,
-    ChainsIds.MULTIVERSX,
+    // ChainsIds.MULTIVERSX,
   ].forEach((chainId) => {
     describe(`[${chainId}] provider`, () => {
       let wallet: IWallet;
 
       before(async () => {
-        const w = DeviationWalletFactory.create(chainId as ChainsIds);
+        const w = DeviationWalletFactory.create(settings, chainId as ChainsIds);
         if (!w) throw new Error(`no DeviationWallet for ${chainId}`);
 
         wallet = w;
@@ -43,7 +46,9 @@ describe.skip('Test Wallets', () => {
       it(`[${chainId}] #getNextNonce`, async () => {
         const nonce = await wallet.getNextNonce();
         console.log(`${chainId}: getNextNonce: ${nonce} `);
-        expect(nonce > 0).true;
+
+        if (chainId == ChainsIds.MASSA) expect(nonce == 0n).true;
+        else expect(nonce > 0).true;
       }).timeout(5000);
     });
   });

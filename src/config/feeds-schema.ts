@@ -1,5 +1,5 @@
-import MetalPriceApiFetcher from '../services/fetchers/MetalPriceApiFetcher';
-import MetalsDevApiPriceFetcher from '../services/fetchers/MetalsDevApiFetcher';
+import {CalculatorName} from '../types/Calculator.js';
+import {FetcherName} from '../types/fetchers.js';
 
 export default {
   description: 'Feeds schema for the JSONSchema validator',
@@ -38,6 +38,7 @@ export default {
             {$ref: '#/definitions/PolygonIOPriceFetcher'},
             {$ref: '#/definitions/PolygonIOStockPriceFetcher'},
             {$ref: '#/definitions/PolygonIOCryptoPriceFetcher'},
+            {$ref: '#/definitions/PolygonIOCurrencySnapshotGramsFetcher'},
             {$ref: '#/definitions/IEXEnergyFetcher'},
             {$ref: '#/definitions/BEACPIAverageFetcher'},
             {$ref: '#/definitions/CoingeckoPriceFetcher'},
@@ -45,6 +46,7 @@ export default {
             {$ref: '#/definitions/CoinmarketcapHistoHourFetcher'},
             {$ref: '#/definitions/CoinmarketcapHistoDayFetcher'},
             {$ref: '#/definitions/OnChainDataFetcher'},
+            {$ref: '#/definitions/UniswapV3Fetcher'},
             {$ref: '#/definitions/OptionsPriceFetcher'},
             {$ref: '#/definitions/YearnVaultTokenPriceFetcher'},
             {$ref: '#/definitions/RandomNumberFetcher'},
@@ -52,6 +54,7 @@ export default {
             {$ref: '#/definitions/GoldApiPriceFetcher'},
             {$ref: '#/definitions/MetalPriceApiFetcher'},
             {$ref: '#/definitions/MetalsDevApiPriceFetcher'},
+            {$ref: '#/definitions/SovrynPriceFetcher'},
           ],
         },
         calculator: {
@@ -86,7 +89,7 @@ export default {
     },
     GVolImpliedVolatilityFetcher: {
       properties: {
-        name: {const: 'GVolImpliedVolatility'},
+        name: {const: FetcherName.G_VOL_IMPLIED_VOLATILITY},
         params: {
           type: 'object',
           properties: {
@@ -102,7 +105,7 @@ export default {
     },
     CryptoComparePriceFetcher: {
       properties: {
-        name: {const: 'CryptoComparePrice'},
+        name: {const: FetcherName.CRYPTO_COMPARE_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -118,7 +121,7 @@ export default {
     },
     CryptoComparePriceWSFetcher: {
       properties: {
-        name: {const: 'CryptoComparePriceWS'},
+        name: {const: FetcherName.CRYPTO_COMPARE_PRICE_WS},
         params: {
           type: 'object',
           properties: {
@@ -135,7 +138,7 @@ export default {
     },
     CryptoCompareHistoHourFetcher: {
       properties: {
-        name: {const: 'CryptoCompareHistoHour'},
+        name: {const: FetcherName.CRYPTO_COMPARE_HISTO_HOUR},
         params: {
           type: 'object',
           properties: {
@@ -152,7 +155,7 @@ export default {
     },
     CryptoCompareHistoDayFetcher: {
       properties: {
-        name: {const: 'CryptoCompareHistoDay'},
+        name: {const: FetcherName.CRYPTO_COMPARE_HISTO_DAY},
         params: {
           type: 'object',
           properties: {
@@ -169,7 +172,7 @@ export default {
     },
     CoinmarketcapPriceFetcher: {
       properties: {
-        name: {const: 'CoinmarketcapPrice'},
+        name: {const: FetcherName.COINMARKETCAP_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -185,7 +188,7 @@ export default {
     },
     CoinmarketcapHistoHourFetcher: {
       properties: {
-        name: {const: 'CoinmarketcapHistoHour'},
+        name: {const: FetcherName.COINMARKETCAP_HISTO_HOUR},
         params: {
           type: 'object',
           properties: {
@@ -202,7 +205,7 @@ export default {
     },
     CoinmarketcapHistoDayFetcher: {
       properties: {
-        name: {const: 'CoinmarketcapHistoDay'},
+        name: {const: FetcherName.COINMARKETCAP_HISTO_DAY},
         params: {
           type: 'object',
           properties: {
@@ -219,7 +222,7 @@ export default {
     },
     CoingeckoPriceFetcher: {
       properties: {
-        name: {const: 'CoingeckoPrice'},
+        name: {const: FetcherName.COINGECKO_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -235,7 +238,7 @@ export default {
     },
     PolygonIOPriceFetcher: {
       properties: {
-        name: {const: 'PolygonIOPrice'},
+        name: {const: FetcherName.POLYGON_IO_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -250,7 +253,7 @@ export default {
     },
     PolygonIOStockPriceFetcher: {
       properties: {
-        name: {const: 'PolygonIOStockPrice'},
+        name: {const: FetcherName.POLYGON_IO_STOCK_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -265,7 +268,7 @@ export default {
     },
     PolygonIOCryptoPriceFetcher: {
       properties: {
-        name: {const: 'PolygonIOCryptoPrice'},
+        name: {const: FetcherName.POLYGON_IO_CRYPTO_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -281,7 +284,7 @@ export default {
     },
     IEXEnergyFetcher: {
       properties: {
-        name: {const: 'IEXEnergy'},
+        name: {const: FetcherName.IEX_ENERGY},
         params: {
           type: 'object',
           properties: {
@@ -296,7 +299,7 @@ export default {
     },
     BEACPIAverageFetcher: {
       properties: {
-        name: {const: 'BEACPIAverage'},
+        name: {const: FetcherName.BEACPI_AVERAGE},
         params: {
           type: 'object',
           properties: {
@@ -311,7 +314,7 @@ export default {
     },
     TWAPGasPriceFetcher: {
       properties: {
-        name: {const: 'TWAPGasPrice'},
+        name: {const: FetcherName.TWAP_GAS_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -327,7 +330,7 @@ export default {
     },
     OnChainDataFetcher: {
       properties: {
-        name: {const: 'OnChainData'},
+        name: {const: FetcherName.ON_CHAIN_DATA},
         params: {
           type: 'object',
           properties: {
@@ -347,9 +350,27 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
+    UniswapV3Fetcher: {
+      properties: {
+        name: {const: FetcherName.UNISWAP_V3},
+        params: {
+          type: 'object',
+          properties: {
+            fromChain: {type: 'string'},
+            base: {type: 'string'},
+            quote: {type: 'string'},
+            amountInDecimals: {type: 'number'},
+          },
+          required: ['fromChain', 'base', 'quote', 'amountInDecimals'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
     GoldApiPriceFetcher: {
       properties: {
-        name: {const: 'GoldApiPrice'},
+        name: {const: FetcherName.GOLD_API_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -365,7 +386,7 @@ export default {
     },
     MetalPriceApiFetcher: {
       properties: {
-        name: {const: 'MetalPriceApi'},
+        name: {const: FetcherName.METAL_PRICE_API},
         params: {
           type: 'object',
           properties: {
@@ -381,7 +402,7 @@ export default {
     },
     MetalsDevApiPriceFetcher: {
       properties: {
-        name: {const: 'MetalsDevApiPrice'},
+        name: {const: FetcherName.METALS_DEV_API},
         params: {
           type: 'object',
           properties: {
@@ -395,14 +416,29 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
+    PolygonIOCurrencySnapshotGramsFetcher: {
+      properties: {
+        name: {const: FetcherName.POLYGON_IO_CURRENCY_SNAPSHOT_GRAMS},
+        params: {
+          type: 'object',
+          properties: {
+            ticker: {type: 'string'},
+          },
+          required: ['ticker'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
     OptionsPriceFetcher: {
       properties: {
-        name: {const: 'OptionsPrice'},
+        name: {const: FetcherName.OPTIONS_PRICE},
       },
     },
     YearnVaultTokenPriceFetcher: {
       properties: {
-        name: {const: 'YearnVaultTokenPrice'},
+        name: {const: FetcherName.YEARN_VAULT_TOKEN_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -418,7 +454,7 @@ export default {
     },
     RandomNumberFetcher: {
       properties: {
-        name: {const: 'RandomNumber'},
+        name: {const: FetcherName.RANDOM_NUMBER},
         params: {
           type: 'object',
           properties: {
@@ -428,9 +464,27 @@ export default {
       },
       additionalProperties: false,
     },
+    SovrynPriceFetcher: {
+      properties: {
+        name: {const: FetcherName.SOVRYN_PRICE},
+        params: {
+          type: 'object',
+          properties: {
+            base: {type: 'string'},
+            quote: {type: 'string'},
+            amountInDecimals: {type: 'number'},
+            quoteDecimals: {type: 'number'},
+          },
+          required: ['base', 'quote', 'amountInDecimals'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
     YearnTransformPriceCalculator: {
       properties: {
-        name: {const: 'YearnTransformPrice'},
+        name: {const: CalculatorName.YEARN_TRANSFORM_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -445,7 +499,7 @@ export default {
     },
     OptionsPriceCalculator: {
       properties: {
-        name: {const: 'OptionsPrice'},
+        name: {const: CalculatorName.OPTIONS_PRICE},
         params: {
           type: 'object',
           properties: {
@@ -460,19 +514,19 @@ export default {
     },
     IdentityCalculator: {
       properties: {
-        name: {const: 'Identity'},
+        name: {const: CalculatorName.IDENTITY},
       },
       additionalProperties: false,
     },
     TWAPCalculator: {
       properties: {
-        name: {const: 'TWAP'},
+        name: {const: CalculatorName.TWAP},
       },
       additionalProperties: false,
     },
     VWAPCalculator: {
       properties: {
-        name: {const: 'VWAP'},
+        name: {const: CalculatorName.VWAP},
       },
       additionalProperties: false,
     },

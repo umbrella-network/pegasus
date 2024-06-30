@@ -3,7 +3,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 import Settings from '../../../src/types/Settings.js';
-import PolygonIOCurrencySnapshotFetcher from '../../../src/services/fetchers/PolygonIOCurrencySnapshotFetcher.js';
+import PolygonIOCurrencySnapshotGramsFetcher from '../../../src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 chai.use(chaiAsPromised);
@@ -12,7 +12,7 @@ const {expect} = chai;
 
 describe.skip('PolygonIOCurrencySnapshotFetcher', () => {
   let settings: Settings;
-  let polygonIOCurrencySnapshotFetcher: PolygonIOCurrencySnapshotFetcher;
+  let polygonIOCurrencySnapshotFetcher: PolygonIOCurrencySnapshotGramsFetcher;
 
   beforeEach(async () => {
     const container = getTestContainer();
@@ -29,9 +29,9 @@ describe.skip('PolygonIOCurrencySnapshotFetcher', () => {
 
     container.rebind('Settings').toConstantValue(settings);
 
-    container.bind(PolygonIOCurrencySnapshotFetcher).toSelf();
+    container.bind(PolygonIOCurrencySnapshotGramsFetcher).toSelf();
 
-    polygonIOCurrencySnapshotFetcher = container.get(PolygonIOCurrencySnapshotFetcher);
+    polygonIOCurrencySnapshotFetcher = container.get(PolygonIOCurrencySnapshotGramsFetcher);
   });
 
   describe('#apply', () => {

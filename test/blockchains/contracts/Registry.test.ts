@@ -21,7 +21,7 @@ describe.skip('Registries debug integration tests', () => {
     blockchainRepo = container.get(BlockchainRepository);
   });
 
-  [ChainsIds.MULTIVERSX].forEach((chainId) => {
+  [ChainsIds.MASSA].forEach((chainId) => {
     describe(`[${chainId}] provider`, () => {
       let registry: RegistryInterface;
 
@@ -45,8 +45,8 @@ describe.skip('Registries debug integration tests', () => {
             break;
 
           case ChainsIds.MASSA:
-            expect(addr.length).eq(57);
-            expect(addr.slice(0, 3)).eq('5AS');
+            expect(addr.length).eq(52);
+            expect(addr.slice(0, 3)).eq('AS1');
             break;
 
           case ChainsIds.CONCORDIUM:

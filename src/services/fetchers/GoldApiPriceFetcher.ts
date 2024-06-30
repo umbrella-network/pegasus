@@ -2,6 +2,9 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
+import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import TimeService from '../TimeService.js';
+import {FetcherName} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 
 export interface GoldApiInputParams {
@@ -11,10 +14,14 @@ export interface GoldApiInputParams {
 
 @injectable()
 export default class GoldApiPriceFetcher {
+  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private token: string;
   private timeout: number;
+
+  static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
     this.token = settings.api.goldApi.apiKey;
@@ -45,6 +52,19 @@ export default class GoldApiPriceFetcher {
 
     if (price_gram_24k !== undefined) {
       this.logger.debug(`[GoldApiPriceFetcher] resolved price: ${input.symbol}/${input.currency}: ${price_gram_24k}`);
+
+      const payload: PriceDataPayload = {
+        fetcher: FetcherName.GOLD_API_PRICE,
+        value: price_gram_24k.toString(),
+        valueType: PriceValueType.Price,
+        timestamp: this.timeService.apply(),
+        feedBase: input.currency,
+        feedQuote: input.symbol,
+        fetcherSource: GoldApiPriceFetcher.fetcherSource,
+      };
+
+      await this.priceDataRepository.savePrice(payload);
+
       return price_gram_24k;
     } else {
       throw new Error(`[GoldApiPriceFetcher] Missing rate for ${input.symbol}/${input.currency}`);

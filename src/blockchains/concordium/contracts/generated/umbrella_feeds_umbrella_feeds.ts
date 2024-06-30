@@ -1,7 +1,7 @@
 import * as SDK from "@concordium/web-sdk";
 
 /** The reference of the smart contract module supported by the provided client. */
-export const moduleReference: SDK.ModuleReference.Type = /*#__PURE__*/ SDK.ModuleReference.fromHexString('4b84fa711b2567af05b58a555ec7e52ecce043e8f8f8e98f9da6a4919fa304d2');
+export const moduleReference: SDK.ModuleReference.Type = /*#__PURE__*/ SDK.ModuleReference.fromHexString('efc4ea2b19330518131b67b0b66ac6f628438bfd740d694fcf64a13412bf327b');
 /** Name of the smart contract supported by this client. */
 export const contractName: SDK.ContractName.Type = /*#__PURE__*/ SDK.ContractName.fromStringUnchecked('umbrella_feeds');
 

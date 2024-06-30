@@ -5,6 +5,7 @@ import {PriceMetadataComparator} from '../../../src/services/deviationsFeeds/Pri
 import {DeviationDataToSign, DeviationFeeds} from '../../../src/types/DeviationFeeds.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
 import Leaf from '../../../src/types/Leaf.js';
+import {FetcherName} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -61,12 +62,12 @@ describe('PriceMetadataComparator', () => {
           inputs: [
             {
               fetcher: {
-                name: 'CoingeckoPrice',
+                name: FetcherName.COINGECKO_PRICE,
               },
             },
             {
               fetcher: {
-                name: 'CryptoComparePrice',
+                name: FetcherName.CRYPTO_COMPARE_PRICE,
               },
             },
           ],
@@ -81,12 +82,12 @@ describe('PriceMetadataComparator', () => {
           inputs: [
             {
               fetcher: {
-                name: 'CoingeckoPrice',
+                name: FetcherName.COINGECKO_PRICE,
               },
             },
             {
               fetcher: {
-                name: 'CryptoComparePrice',
+                name: FetcherName.CRYPTO_COMPARE_PRICE,
               },
             },
           ],
@@ -130,7 +131,7 @@ describe('PriceMetadataComparator', () => {
           inputs: [
             {
               fetcher: {
-                name: 'CoingeckoPrice',
+                name: FetcherName.COINGECKO_PRICE,
               },
             },
           ],

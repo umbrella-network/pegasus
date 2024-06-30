@@ -31,6 +31,29 @@ export class FeedDataService {
     return {feeds: leavesAndFeeds};
   }
 
+  getParamsByFetcherName<T>(data: DeviationLeavesAndFeeds, fetcherName: string): T[] {
+    const {feeds} = data;
+
+    if (!feeds || Object.keys(feeds).length === 0) {
+      return [];
+    }
+
+    const fetcherParams = [];
+
+    for (const [i, feed] of Object.entries(feeds)) {
+      const feedInput = feed.inputs.find((entry) => {
+        return entry.fetcher.name === fetcherName;
+      });
+
+      if (feedInput) {
+        const params = feedInput.fetcher.params as T;
+        fetcherParams.push({...params});
+      }
+    }
+
+    return fetcherParams;
+  }
+
   protected async getLeavesAndFeeds(dataTimestamp: number, filter: string[]): Promise<LeavesAndFeeds> {
     const fcdFeeds = await this.feedRepository.getFcdFeeds(filter);
     const leafFeeds = await this.feedRepository.getLeafFeeds(filter);

@@ -1,7 +1,7 @@
 import * as SDK from "@concordium/web-sdk";
 
 /** The reference of the smart contract module supported by the provided client. */
-export const moduleReference: SDK.ModuleReference.Type = /*#__PURE__*/ SDK.ModuleReference.fromHexString('7aa4deb0b74e4c107ecbf8fc2addeb919a139926bc34e4833eebf729cdf4ecd7');
+export const moduleReference: SDK.ModuleReference.Type = /*#__PURE__*/ SDK.ModuleReference.fromHexString('5bd5b03d59b91ae3595289c84635fa6a6e3784c5874650785eda2a573a1a7a0b');
 /** Name of the smart contract supported by this client. */
 export const contractName: SDK.ContractName.Type = /*#__PURE__*/ SDK.ContractName.fromStringUnchecked('staking_bank');
 
@@ -194,7 +194,7 @@ export function dryRunGetPublicKeys(contractClient: StakingBankContract, paramet
 }
 
 /** Return value for dry-running update transaction for 'getPublicKeys' entrypoint of the 'staking_bank' contract. */
-export type ReturnValueGetPublicKeys = [SDK.HexString, SDK.HexString];
+export type ReturnValueGetPublicKeys = [SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString, SDK.HexString];
 
 /**
  * Get and parse the return value from dry-running update transaction for 'getPublicKeys' entrypoint of the 'staking_bank' contract.
@@ -209,7 +209,7 @@ export function parseReturnValueGetPublicKeys(invokeResult: SDK.InvokeContractRe
     if (invokeResult.returnValue === undefined) {
         throw new Error('Unexpected missing \'returnValue\' in result of invocation. Client expected a V1 smart contract.');
     }
-    const schemaJson = <[string, string]>SDK.ReturnValue.parseWithSchemaTypeBase64(invokeResult.returnValue, 'EwIAAAAeIAAAAA==');
+    const schemaJson = <[string, string, string, string, string, string, string, string, string, string, string, string, string, string, string]>SDK.ReturnValue.parseWithSchemaTypeBase64(invokeResult.returnValue, 'Ew8AAAAeIAAAAA==');
     return schemaJson;
 }
 

@@ -7,16 +7,18 @@ import CryptoCompareMultiProcessor from '../../../src/services/FeedProcessor/Cry
 import CryptoCompareMultiPriceFetcher, {
   OutputValue,
 } from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher.js';
+import {FetcherName} from '../../../src/types/fetchers.js';
+import {PriceDataRepository} from '../../../src/repositories/PriceDataRepository.js';
 
 const {expect} = chai;
 
 const feedFetchers: FeedFetcher[] = [
   {
-    name: 'CryptoComparePrice',
+    name: FetcherName.CRYPTO_COMPARE_PRICE,
     params: {fsym: 'UMB', tsyms: 'BTC'},
   },
   {
-    name: 'CryptoComparePrice',
+    name: FetcherName.CRYPTO_COMPARE_PRICE,
     params: {fsym: 'UMB', tsyms: 'USD'},
   },
 ];
@@ -41,7 +43,10 @@ describe('CryptoCompareMultiProcessor', () => {
     const container = getTestContainer();
 
     const fetcher = createStubInstance(CryptoCompareMultiPriceFetcher);
+    const priceDataRepository = createStubInstance(PriceDataRepository);
+
     container.bind(CryptoCompareMultiPriceFetcher).toConstantValue(fetcher);
+    container.bind(PriceDataRepository).toConstantValue(priceDataRepository);
 
     processor = container.get(CryptoCompareMultiProcessor);
 
@@ -66,7 +71,7 @@ describe('CryptoCompareMultiProcessor', () => {
         const fetchers = [
           ...feedFetchers,
           {
-            name: 'OtherFetcher',
+            name: 'OtherFetcher' as FetcherName,
             params: {from: 'crypto', to: 'fiat'},
           },
         ];

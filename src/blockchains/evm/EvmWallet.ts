@@ -21,7 +21,13 @@ export class EvmWallet implements IWallet {
 
   constructor(chainId: ChainsIds, privateKey: string) {
     this.provider = ProviderFactory.create(chainId).getRawProviderSync<BaseProvider>();
-    this.rawWallet = new Wallet(privateKey, this.provider);
+    try {
+      this.rawWallet = new Wallet(privateKey, this.provider);
+    } catch (error) {
+      throw new Error(
+        `[EvmWaller] Constructor: error creating wallet.\nCheck private key or blockchain provider url.\n${error}`,
+      );
+    }
     this.publicAddress = this.rawWallet.address;
     this.logger = logger;
     this.logPrefix = `[EvmWallet][${chainId}]`;

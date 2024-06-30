@@ -9,6 +9,7 @@ import Feeds from '../types/Feed.js';
 import FeedsSchema from '../config/feeds-schema.js';
 import settings from '../config/settings.js';
 import Application from '../lib/Application.js';
+import {isYamlEmpty} from '../utils/isYamlEmpty.js';
 
 const urlCache = createUrlCache(processYaml, settings.feedsCacheRefreshCronRule);
 
@@ -33,7 +34,7 @@ export function isUrl(path: string): boolean {
 }
 
 async function processYaml(feedData: string, ignoreInvalid = true): Promise<Feeds> {
-  if (!feedData) {
+  if (!feedData || isYamlEmpty(feedData)) {
     return {};
   }
 

@@ -14,6 +14,7 @@ import {TimeoutCodes} from '../types/TimeoutCodes.js';
 import {timeoutWithCode} from '../utils/request.js';
 import './setupDotenv.js';
 import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
+import {DexProtocolName} from '../types/Dexes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -250,6 +251,18 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
+  [ChainsIds.ZK_LINK_NOVA]: {
+    type: resolveBlockchainType(ChainsIds.ZK_LINK_NOVA) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ZK_LINK_NOVA),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100000000,
+      minBalance: {
+        warningLimit: '0.001',
+        errorLimit: '0.00005',
+      },
+    },
+  },
 };
 
 const settings: Settings = {
@@ -275,6 +288,26 @@ const settings: Settings = {
       lock: {
         name: process.env.METRICS_REPORTING_LOCK_NAME || 'lock::MetricsReporting',
         ttl: parseInt(process.env.METRICS_REPORTING_LOCK_TTL || '60'),
+      },
+    },
+    liquidities: {
+      [ChainsIds.ETH]: {
+        [DexProtocolName.UNISWAP_V3]: {
+          interval: parseInt(process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_JOB_INTERVAL || String(getDayInMillisecond(3))),
+          lock: {
+            name: process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_LOCK_NAME || 'lock::EthereumUniswapV3Liquidity',
+            ttl: parseInt(process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_LOCK_TTL || '60'),
+          },
+        },
+      },
+      [ChainsIds.ROOTSTOCK]: {
+        [DexProtocolName.UNISWAP_V3]: {
+          interval: parseInt(process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_JOB_INTERVAL || String(getDayInMillisecond(3))),
+          lock: {
+            name: process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_LOCK_NAME || 'lock::RootstockUniswapV3Liquidity',
+            ttl: parseInt(process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_LOCK_TTL || '60'),
+          },
+        },
       },
     },
     blockchainMetrics: {
@@ -409,14 +442,45 @@ const settings: Settings = {
       timeout: timeoutWithCode(process.env.GOLD_API_TIMEOUT || '5000', TimeoutCodes.GOLD_API),
     },
     metalPriceApi: {
-      apiKey: process.env.METAL_PRICE_API_KEY as string,
+      apiKey: process.env.METAL_PRICE_API_KEY || '',
       timeout: timeoutWithCode(process.env.METAL_PRICE_API_TIMEOUT || '5000', TimeoutCodes.METAL_PRICE_API),
     },
     metalsDevApi: {
       apiKey: process.env.METALS_DEV_API_KEY as string,
       timeout: timeoutWithCode(process.env.METALS_DEV_API_TIMEOUT || '5000', TimeoutCodes.METALS_DEV_API),
     },
+    pools: {
+      [ChainsIds.ETH]: {
+        [DexProtocolName.UNISWAP_V3]: {
+          helperContractAddress: <string>process.env.ETHEREUM_UNISWAPV3_HELPER_CONTRACT_ADDRESS,
+        },
+      },
+    },
     priceFreshness: parseInt(process.env.PRICE_FRESHNESS || process.env.KAIKO_FRESHNESS || '3600', 10),
+  },
+  dexes: {
+    [ChainsIds.ROOTSTOCK]: {
+      [DexProtocolName.SOVRYN]: {
+        subgraphUrl: <string>process.env['SOVRYN_SUBGRAPH_API'],
+        liquidityFreshness: parseInt(process.env.SOVRYN_LIQUIDITY_FRESHNESS || String(getDayInMillisecond(365)), 10),
+      },
+      [DexProtocolName.UNISWAP_V3]: {
+        subgraphUrl: <string>process.env['ROOTSTOCK_UNISWAPV3_SUBGRAPH_API'],
+        liquidityFreshness: parseInt(
+          process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_FRESHNESS || String(getDayInMillisecond(365)),
+          10,
+        ),
+      },
+    },
+    [ChainsIds.ETH]: {
+      [DexProtocolName.UNISWAP_V3]: {
+        subgraphUrl: <string>process.env['ETHEREUM_UNISWAPV3_SUBGRAPH_API'],
+        liquidityFreshness: parseInt(
+          process.env.ETHEREUM_UNISWAPV3_LIQUIDITY_FRESHNESS || String(getDayInMillisecond(365)),
+          10,
+        ),
+      },
+    },
   },
   rpcSelectionStrategy: process.env.RPC_SELECTION_STRATEGY || RPCSelectionStrategies.BY_BLOCK_NUMBER,
   feedsFile:
@@ -453,6 +517,10 @@ const settings: Settings = {
 
 function getTimeSetting(value: number, min: number): number {
   return value > min ? value : min;
+}
+
+function getDayInMillisecond(days: number): number {
+  return days * 1000 * 60 * 60 * 24;
 }
 
 function resolveBlockchainProviders() {
@@ -500,6 +568,7 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
       contractRegistryAddress:
         process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] || defaultByChain[ChainsIds[chain]]?.contractRegistryAddress,
       providerUrl: clearLastSlash(process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`]),
+      blockchainId: process.env[`${chain}_CHAIN_ID`],
       transactions: {
         waitForBlockTime:
           parseInt(process.env[`${chain}_WAIT_FOR_BLOCK_TIME`] as string, 10) ||
@@ -532,8 +601,6 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
 }
 
 function isEmptyBlockchainSettings(chain: ChainsIdsKeys): boolean {
-  if (chain == 'MASSA') return true;
-
   return (
     !process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`] ||
     (!process.env[`${chain}_REGISTRY_CONTRACT_ADDRESS`] && !defaultByChain[ChainsIds[chain]]?.contractRegistryAddress)

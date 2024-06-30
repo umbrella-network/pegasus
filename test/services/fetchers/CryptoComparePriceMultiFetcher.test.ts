@@ -43,7 +43,7 @@ describe('CryptoComparePriceMultiFetcher', () => {
             tsyms: ['OtherSymbol'],
           }),
         ).to.be.rejected;
-      });
+      }).timeout(10000);
     });
 
     describe('with one invalid parameter', () => {

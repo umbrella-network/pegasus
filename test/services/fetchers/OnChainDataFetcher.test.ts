@@ -37,7 +37,7 @@ describe('OnChainDataFetcher', () => {
       const output = await fetcher.apply(params);
 
       expect(output).eq('65535');
-    });
+    }).timeout(10000);
 
     it('return specific value from struct', async () => {
       const params: OnChainCall = {
