@@ -3,6 +3,8 @@ import {inject, injectable} from 'inversify';
 
 import BasicWorker from './BasicWorker.js';
 import {UniswapV3LiquidityResolver} from '../services/dexes/uniswapV3/UniswapV3LiquidityResolver.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {DexProtocolName} from '../types/Dexes.js';
 
 @injectable()
 class UniswapV3LiquidityWorker extends BasicWorker {
@@ -18,17 +20,25 @@ class UniswapV3LiquidityWorker extends BasicWorker {
 
   apply = async (job: Bull.Job): Promise<void> => {
     if (this.isStale(job)) return;
+    const loggerPrefix = `[UniswapV3LiquidityWorker][${job.data.chainId}][${job.data.protocol}]`;
 
     const {lock} = job.data.settings;
     const unlocked = await this.connection.set(lock.name, 'lock', 'EX', lock.ttl, 'NX');
 
     if (!unlocked) {
-      this.logger.error('[UniswapV3LiquidityWorker] apply for job but job !unlocked');
+      this.logger.error(`${loggerPrefix} apply for job but job !unlocked`);
+      return;
+    }
+
+    const isValidSettings = this.checkIsValidSettings(job.data);
+
+    if (!isValidSettings) {
+      this.logger.error(`${loggerPrefix} apply for job but job has invalid settings`);
       return;
     }
 
     try {
-      this.logger.debug(`[UniswapV3LiquidityWorker] job run at ${new Date().toISOString()}`);
+      this.logger.debug(`${loggerPrefix} job run at ${new Date().toISOString()}`);
       await this.uniswapV3LiquidityResolver.apply(job.data.chainId);
     } catch (e) {
       this.logger.error(e);
@@ -44,6 +54,10 @@ class UniswapV3LiquidityWorker extends BasicWorker {
 
   start = (): void => {
     super.start();
+  };
+
+  checkIsValidSettings = (jobData: {chainId: ChainsIds; protocol: DexProtocolName}) => {
+    return Boolean(this.settings.dexes[jobData?.chainId]?.[jobData?.protocol]?.subgraphUrl);
   };
 }
 
