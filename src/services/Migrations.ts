@@ -5,7 +5,7 @@ import CachedValidator from '../models/CachedValidator.js';
 class Migrations {
   static async apply(): Promise<void> {
     await Migrations.migrateTo7110();
-    await Migrations.migrateTo_7_28_0();
+    await Migrations.migrateTo_7_27_1();
   }
 
   private static hasMigration = async (v: string): Promise<boolean> => {
@@ -42,8 +42,8 @@ class Migrations {
     });
   };
 
-  private static migrateTo_7_28_0 = async () => {
-    await Migrations.wrapMigration('7.28.0', async () => {
+  private static migrateTo_7_27_1 = async () => {
+    await Migrations.wrapMigration('7.27.1', async () => {
       await dropCollection('fetcherhistories');
     });
   };
