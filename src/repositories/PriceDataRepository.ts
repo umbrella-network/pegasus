@@ -29,7 +29,7 @@ export class PriceDataRepository {
       const doc = await getModelForClass(PriceDataModel).create({...data});
       await doc.save();
     } catch (error) {
-      this.logger.error(`couldn't create document for PriceData: ${error}`);
+      this.logger.error(`[PriceDataRepository] couldn't create document for PriceData: ${error}`);
     }
   }
 
@@ -47,7 +47,7 @@ export class PriceDataRepository {
     try {
       await model.bulkWrite(bulkOps);
     } catch (error) {
-      this.logger.error(`couldn't perform bulkWrite for PriceData: ${error}`);
+      this.logger.error(`[PriceDataRepository] couldn't perform bulkWrite for PriceData: ${error}`);
     }
   }
 
@@ -70,7 +70,7 @@ export class PriceDataRepository {
   }
 
   async latestPrice(feedBase: string, feedQuote: string, limit = 150): Promise<PriceDataModel[]> {
-    if (!feedBase || !feedQuote) throw new Error('[FetcherHistoryRepository] empty symbol');
+    if (!feedBase || !feedQuote) throw new Error('[PriceDataRepository] empty symbol');
     return getModelForClass(PriceDataModel).find({feedBase, feedQuote}).sort({timestamp: -1}).limit(limit).exec();
   }
 }
