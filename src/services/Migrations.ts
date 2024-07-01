@@ -1,10 +1,11 @@
 import Migration from '../models/Migration.js';
-import {getModelForClass} from '@typegoose/typegoose';
+import {getModelForClass, mongoose} from '@typegoose/typegoose';
 import CachedValidator from '../models/CachedValidator.js';
 
 class Migrations {
   static async apply(): Promise<void> {
     await Migrations.migrateTo7110();
+    await Migrations.migrateTo_7_27_1();
   }
 
   private static hasMigration = async (v: string): Promise<boolean> => {
@@ -40,6 +41,26 @@ class Migrations {
       console.log(`collection ${CachedValidator} removed.`);
     });
   };
+
+  private static migrateTo_7_27_1 = async () => {
+    await Migrations.wrapMigration('7.27.1', async () => {
+      await dropCollection('fetcherhistories');
+    });
+  };
+}
+
+async function dropCollection(collectionName: string) {
+  // Check if the collection exists
+  const collections = await mongoose.connection.db.listCollections().toArray();
+  const collectionExists = collections.some((collection) => collection.name === collectionName);
+
+  if (collectionExists) {
+    // Drop the collection if it exists
+    await mongoose.connection.db.dropCollection(collectionName);
+    console.log(`Collection '${collectionName}' dropped successfully.`);
+  } else {
+    console.log(`Collection '${collectionName}' does not exist.`);
+  }
 }
 
 export default Migrations;
