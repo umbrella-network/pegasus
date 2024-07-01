@@ -9,7 +9,8 @@ import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {FetcherName} from '../types/fetchers.js';
+import {FetcherHistoryInterface, FetcherName} from '../types/fetchers.js';
+import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
 
 interface Calculator {
   // eslint-disable-next-line
@@ -30,10 +31,12 @@ class FeedProcessor {
   @inject(MultiFeedProcessor) multiFeedProcessor!: MultiFeedProcessor;
   @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
+  @inject(FetcherHistoryRepository) fetcherHistoryRepository!: FetcherHistoryRepository;
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     // collect unique inputs
     const uniqueFeedFetcherMap: {[hash: string]: FeedFetcher} = {};
+    const history: FetcherHistoryInterface[] = [];
 
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);
@@ -86,9 +89,25 @@ class FeedProcessor {
           ignoredMap[ticker] = true;
         } else if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
           leaves.push(this.buildLeaf(feedValues[0].key, feedValues[0].value));
+
+          history.push(<FetcherHistoryInterface>{
+            fetcher: feed.inputs[0].fetcher.name,
+            symbol: feedValues[0].key,
+            value: typeof feedValues[0].value == 'string' ? feedValues[0].value : feedValues[0].value.toString(),
+            timestamp,
+          });
         } else {
           // calculateFeed is allowed to return different keys
           const groups = FeedProcessor.groupInputs(feedValues);
+
+          feedValues.forEach((feedValue, feedIx) => {
+            history.push(<FetcherHistoryInterface>{
+              fetcher: feed.inputs[feedIx].fetcher.name,
+              symbol: feedValue.key,
+              value: typeof feedValue.value == 'string' ? feedValue.value : feedValue.value.toString(),
+              timestamp,
+            });
+          });
 
           for (const key in groups) {
             const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
@@ -102,6 +121,8 @@ class FeedProcessor {
     });
 
     this.logger.debug(`[FeedProcessor] result: ${JSON.stringify(result)}`);
+
+    await this.fetcherHistoryRepository.saveMany(history);
 
     return result;
   }

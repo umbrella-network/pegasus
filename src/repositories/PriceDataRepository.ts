@@ -29,7 +29,7 @@ export class PriceDataRepository {
       const doc = await getModelForClass(PriceDataModel).create({...data});
       await doc.save();
     } catch (error) {
-      this.logger.error(`[PriceDataRepository] couldn't create document for PriceData: ${error}`);
+      this.logger.error(`couldn't create document for PriceData: ${error}`);
     }
   }
 
@@ -47,30 +47,7 @@ export class PriceDataRepository {
     try {
       await model.bulkWrite(bulkOps);
     } catch (error) {
-      this.logger.error(`[PriceDataRepository] couldn't perform bulkWrite for PriceData: ${error}`);
+      this.logger.error(`couldn't perform bulkWrite for PriceData: ${error}`);
     }
-  }
-
-  async latest(limit = 150): Promise<PriceDataModel[]> {
-    return getModelForClass(PriceDataModel).find().sort({timestamp: -1}).limit(limit).exec();
-  }
-
-  async latestSymbols(): Promise<string[]> {
-    const symbols = await getModelForClass(PriceDataModel).find({}, {feedBase: 1, feedQuote: 1}).limit(1000).exec();
-    const unique: Record<string, number> = {};
-
-    symbols.forEach((s) => {
-      const symbol = s.feedBase + '-' + s.feedQuote;
-      unique[symbol] = unique[symbol] ? unique[symbol] + 1 : 1;
-    });
-
-    return Object.keys(unique).sort((a, b) => {
-      return unique[a] == unique[b] ? (a < b ? -1 : 1) : unique[b] - unique[a];
-    });
-  }
-
-  async latestPrice(feedBase: string, feedQuote: string, limit = 150): Promise<PriceDataModel[]> {
-    if (!feedBase || !feedQuote) throw new Error('[PriceDataRepository] empty symbol');
-    return getModelForClass(PriceDataModel).find({feedBase, feedQuote}).sort({timestamp: -1}).limit(limit).exec();
   }
 }

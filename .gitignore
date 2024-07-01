@@ -12,7 +12,6 @@ data
 *.pem
 !test/pem/*.pem
 keys
-feeds.yaml
 
 .DS_STORE
 .cache

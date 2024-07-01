@@ -10,6 +10,7 @@ import {getContainer} from '../../src/lib/getContainer.js';
 import PriceRepository from '../../src/repositories/PriceRepository.js';
 import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
 import CryptoCompareWSClient from '../../src/services/ws/CryptoCompareWSClient.js';
+import {FetcherHistoryRepository} from '../../src/repositories/FetcherHistoryRepository.js';
 import {FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;
@@ -77,9 +78,14 @@ describe('FeedProcessor integration tests', () => {
   let feedProcessor: FeedProcessor;
   let feeds: Feeds;
   let priceRepository: PriceRepository;
+  let fetcherHistoryRepository: SinonStubbedInstance<FetcherHistoryRepository>;
 
   before(async () => {
     const container = getContainer();
+
+    fetcherHistoryRepository = createStubInstance(FetcherHistoryRepository);
+    container.rebind(FetcherHistoryRepository).toConstantValue(fetcherHistoryRepository);
+    fetcherHistoryRepository.saveMany.called;
 
     priceRepository = container.get(PriceRepository);
     feedProcessor = container.get(FeedProcessor);
