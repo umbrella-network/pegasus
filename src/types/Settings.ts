@@ -115,6 +115,9 @@ type Settings = {
       providerUrl: string[];
     };
   };
+  fetcherHistory: {
+    ttl: number;
+  };
   blockchain: {
     wallets: {
       evm: {
