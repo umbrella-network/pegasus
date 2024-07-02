@@ -158,7 +158,7 @@ import {DexProtocolName} from './types/Dexes.js';
         logger.info(`initial run for ${workerName}`);
 
         await worker!.enqueue(
-          {name: workerName, chainId, settings: jobSettings},
+          {name: workerName, chainId, protocol, settings: jobSettings},
           {
             removeOnComplete: true,
             removeOnFail: true,
