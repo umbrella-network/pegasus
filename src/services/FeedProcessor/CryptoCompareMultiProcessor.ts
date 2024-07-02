@@ -18,7 +18,7 @@ interface FeedFetcherParams {
 }
 
 @injectable()
-export default class CryptoCompareMultiProcessor implements FeedFetcherInterface {
+export default class CryptoCompareMultiProcessor {
   @inject(CryptoComparePriceMultiFetcher) cryptoComparePriceMultiFetcher!: CryptoComparePriceMultiFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;

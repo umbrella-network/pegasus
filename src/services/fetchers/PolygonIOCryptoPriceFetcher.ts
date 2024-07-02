@@ -3,28 +3,20 @@ import {inject, injectable} from 'inversify';
 import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
-import {FetcherName} from '../../types/fetchers.js';
-import FeedSymbolChecker from '../FeedSymbolChecker.js';
+import {FeedBaseQuote, FetcherName} from '../../types/fetchers.js';
 
 @injectable()
 class PolygonIOCryptoPriceFetcher {
   @inject(PolygonIOCryptoPriceService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceService;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
-  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
   @inject(TimeService) private timeService!: TimeService;
 
   static fetcherSource = '';
 
-  async apply({fsym, tsym}: {fsym: string; tsym: string}, symbol: string, timestamp: number): Promise<number> {
+  async apply(params: {fsym: string; tsym: string} & FeedBaseQuote, timestamp: number): Promise<number> {
+    const {fsym, tsym, feedBase, feedQuote} = params;
+
     const price = await this.polygonIOCryptoPriceService.getLatestPrice({fsym, tsym}, timestamp);
-
-    const result = this.feedSymbolChecker.apply(symbol);
-
-    if (!result) {
-      throw new Error(`[PolygonIOCryptoPriceFetcher] Cannot extract base and quote from feed symbol: ${symbol}`);
-    }
-
-    const [feedBase, feedQuote] = result;
 
     if (price !== null) {
       const payload: PriceDataPayload = {

@@ -136,7 +136,10 @@ class FeedProcessor {
     }
 
     try {
-      return (await fetcher.apply(feedFetcher.params, feedFetcher.symbol || '', timestamp)) || undefined;
+      return (
+        (await fetcher.apply({params: feedFetcher.params, feedBase: 'feedbase', feedQuote: 'feedQuote'}, timestamp)) ||
+        undefined
+      );
     } catch (err) {
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);

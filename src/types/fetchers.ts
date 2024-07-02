@@ -21,9 +21,17 @@ export type StringMultiProcessorResult = string | undefined;
 
 export type OnChainDataFetcherResult = string | number;
 
+export interface FeedBaseQuote {
+  feedBase: string;
+  feedQuote: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Params = {[key: string]: any} & Required<FeedBaseQuote>;
+
 export interface FeedFetcherInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(params: any, symbol: string, timestamp?: number): Promise<any>;
+  apply(params: Params, timestamp?: number): Promise<any>;
 }
 
 export enum FetcherName {
