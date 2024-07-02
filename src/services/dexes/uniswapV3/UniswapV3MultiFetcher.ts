@@ -45,11 +45,15 @@ class UniswapV3MultiFetcher {
 
   async apply(inputs: UniswapV3MultiFetcherParams[]): Promise<OutputValues[]> {
     this.logger.debug(`[UniswapV3MultiFetcher]: start with inputs ${JSON.stringify(inputs)}`);
+    if (inputs.length === 0) {
+      this.logger.debug('[UniswapV3MultiFetcher] no inputs to fetch');
+      return [];
+    }
 
     const poolsToFetch = await this.getPoolsToFetch(inputs);
 
     if (poolsToFetch.size === 0) {
-      this.logger.error('[UniswapV3MultiFetcher] no data to fetch');
+      this.logger.error(`[UniswapV3MultiFetcher] no data to fetch ${JSON.stringify(inputs)}`);
       return [];
     }
 

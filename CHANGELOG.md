@@ -7,8 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Added
-
-## Changed
+- Migration 7.28.0 adding liquidities and tokens for rootstock
 
 ## [7.27.1] - 2024-06-26
 ### Fixed
