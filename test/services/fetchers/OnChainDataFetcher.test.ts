@@ -5,6 +5,7 @@ import OnChainDataFetcher from '../../../src/services/fetchers/OnChainDataFetche
 import {OnChainCall} from '../../../src/types/Feed.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import settings from '../../../src/config/settings.js';
+import {FeedBaseQuote} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -26,12 +27,14 @@ describe('OnChainDataFetcher', () => {
 
   describe('#apply', () => {
     it('returns default value', async () => {
-      const params: OnChainCall = {
+      const params: OnChainCall & FeedBaseQuote = {
         address: '0x01e7F40AdB183fa09849243a237A920C5ce509d4',
         method: 'padding',
         inputs: [],
         outputs: ['uint256'],
         args: [],
+        feedBase: 'TITANIUM',
+        feedQuote: 'ARS',
       };
 
       const output = await fetcher.apply(params);
@@ -40,13 +43,15 @@ describe('OnChainDataFetcher', () => {
     }).timeout(10000);
 
     it('return specific value from struct', async () => {
-      const params: OnChainCall = {
+      const params: OnChainCall & FeedBaseQuote = {
         address: '0x01e7F40AdB183fa09849243a237A920C5ce509d4',
         method: 'getStatus',
         inputs: [],
         outputs: ' uint256,uint16,uint32,uint32,uint32'.split(','),
         args: [],
         returnIndex: 1,
+        feedBase: 'TITANIUM',
+        feedQuote: 'ARS',
       };
 
       const output = await fetcher.apply(params);
