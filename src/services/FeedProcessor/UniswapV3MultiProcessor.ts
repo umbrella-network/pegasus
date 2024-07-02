@@ -13,7 +13,7 @@ interface FeedFetcherParams {
 }
 
 @injectable()
-export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
+export default class UniswapV3MultiProcessor {
   @inject(UniswapV3MultiFetcher) uniswapV3MultiFetcher!: UniswapV3MultiFetcher;
 
   async apply(feedFetchers: FeedFetcher[]): Promise<StringMultiProcessorResult[]> {
