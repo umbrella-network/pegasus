@@ -29,6 +29,7 @@ export default {
       properties: {
         fetcher: {
           oneOf: [
+            {$ref: '#/definitions/ByBitSpotFetcher'},
             {$ref: '#/definitions/GVolImpliedVolatilityFetcher'},
             {$ref: '#/definitions/CryptoCompareHistoDayFetcher'},
             {$ref: '#/definitions/CryptoCompareHistoHourFetcher'},
@@ -67,6 +68,23 @@ export default {
         },
       },
       required: ['fetcher'],
+      additionalProperties: false,
+    },
+    ByBitSpotFetcher: {
+      properties: {
+        name: {const: FetcherName.BY_BIT},
+        params: {
+          type: 'object',
+          properties: {
+            symbol: {type: 'string'},
+            fsym: {type: 'string'},
+            tsym: {type: 'string'},
+          },
+          required: ['symbol', 'fsym', 'tsym'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
       additionalProperties: false,
     },
     GVolImpliedVolatilityFetcher: {

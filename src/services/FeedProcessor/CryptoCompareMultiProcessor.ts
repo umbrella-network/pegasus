@@ -5,7 +5,7 @@ import {CryptoComparePriceMultiFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
 import {InputParams, OutputValue} from '../fetchers/CryptoComparePriceMultiFetcher.js';
-import {CryptoCompareMultiProcessorResult, FeedFetcherInterface} from '../../types/fetchers.js';
+import {NumberProcessorResult, FeedFetcherInterface} from '../../types/fetchers.js';
 
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {FetcherName} from '../../types/fetchers.js';
@@ -27,7 +27,7 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
 
   static fetcherSource = '';
 
-  async apply(feedFetchers: FeedFetcher[]): Promise<CryptoCompareMultiProcessorResult[]> {
+  async apply(feedFetchers: FeedFetcher[]): Promise<NumberProcessorResult[]> {
     const params = this.createParams(feedFetchers);
     const outputs = await this.cryptoComparePriceMultiFetcher.apply(params);
 

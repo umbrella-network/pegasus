@@ -164,6 +164,9 @@ type Settings = {
     resolveStatusTimeout: number;
   };
   api: {
+    byBit: {
+      timeout: number;
+    };
     cryptocompare: {
       apiKey: string;
       timeout: number;

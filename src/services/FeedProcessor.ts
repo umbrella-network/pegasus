@@ -72,7 +72,7 @@ class FeedProcessor {
     const ignoredMap: {[key: string]: boolean} = {};
     const keyValueMap: {[key: string]: number} = {};
 
-    feedsArray.forEach((feeds, ix) => {
+    feedsArray.forEach((feeds) => {
       const tickers = Object.keys(feeds);
       const leaves: Leaf[] = [];
 
@@ -186,6 +186,7 @@ class FeedProcessor {
       FetcherName.COINGECKO_PRICE,
       FetcherName.UNISWAP_V3,
       FetcherName.SOVRYN_PRICE,
+      FetcherName.BY_BIT,
     ];
 
     const fetcherMapArr = Object.values(uniqueFeedFetcherMap);

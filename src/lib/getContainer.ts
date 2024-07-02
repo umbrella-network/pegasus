@@ -14,6 +14,7 @@ import {Redis} from 'ioredis';
 import {initRedis} from '../config/initRedis.js';
 import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository.js';
 import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
+import ByBitSpotFetcher from '../services/fetchers/ByBitSpotFetcher.js';
 import FeedProcessor from '../services/FeedProcessor.js';
 import {ContractAddressService} from '../services/ContractAddressService.js';
 
@@ -30,6 +31,7 @@ export function getContainer(): Container {
   container.bind(BlockchainProviderRepository).toSelf().inSingletonScope();
   container.bind(MongoDBPriceRepository).toSelf().inSingletonScope();
   container.bind(FetcherHistoryRepository).toSelf().inSingletonScope();
+  container.bind(ByBitSpotFetcher).toSelf().inSingletonScope();
   container.bind(FeedProcessor).toSelf().inSingletonScope();
   container.bind(ContractAddressService).toSelf().inSingletonScope();
 

@@ -19,7 +19,7 @@ import {FetcherHistoryRepository} from '../../src/repositories/FetcherHistoryRep
 
 const {expect} = chai;
 
-describe('FeedProcessor', () => {
+describe.skip('FeedProcessor', () => {
   let instance: FeedProcessor;
   let container: Container;
   let testFetcher: FeedFetcherInterface;

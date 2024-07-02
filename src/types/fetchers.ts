@@ -12,6 +12,7 @@ export type CryptoCompareHistoFetcherResult = [
   volume: number,
 ];
 
+export type NumberProcessorResult = number | undefined;
 export type SovrynPriceFetcherResult = {
   prices: (number | undefined)[];
   timestamp: number;
@@ -25,6 +26,7 @@ export type OnChainDataFetcherResult = string | number;
 
 // TODO: refactor this type
 export type FeedFetcherInterfaceResult =
+  | Promise<NumberProcessorResult[]>
   | Promise<number | undefined>
   | Promise<StringMultiProcessorResult[]>
   | Promise<OnChainDataFetcherResult>
@@ -65,4 +67,5 @@ export enum FetcherName {
   YEARN_VAULT_TOKEN_PRICE = 'YearnVaultTokenPrice',
   RANDOM_NUMBER = 'RandomNumber',
   SOVRYN_PRICE = 'SovrynPriceFetcher',
+  BY_BIT = 'ByBit',
 }
