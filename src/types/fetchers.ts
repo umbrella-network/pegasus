@@ -1,5 +1,3 @@
-import {OptionsEntries} from '../services/fetchers/OptionsPriceFetcher.js';
-
 export type CryptoCompareHistoFetcherResult = [
   {high: number; low: number; open: number; close: number},
   volume: number,
@@ -16,19 +14,9 @@ export type StringMultiProcessorResult = string | undefined;
 
 export type OnChainDataFetcherResult = string | number;
 
-// TODO: refactor this type
-export type FeedFetcherInterfaceResult =
-  | Promise<number | undefined>
-  | Promise<StringMultiProcessorResult[]>
-  | Promise<OnChainDataFetcherResult>
-  | Promise<CryptoCompareHistoFetcherResult[] | undefined>
-  | Promise<CryptoCompareMultiProcessorResult[]>
-  | Promise<SovrynPriceFetcherResult>
-  | Promise<OptionsEntries>;
-
 export interface FeedFetcherInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(params: any, symbol: string, timestamp?: number): FeedFetcherInterfaceResult;
+  apply(params: any, symbol: string, timestamp?: number): Promise<any>;
 }
 
 export enum FetcherName {
