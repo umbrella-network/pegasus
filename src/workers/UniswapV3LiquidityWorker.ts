@@ -21,19 +21,18 @@ class UniswapV3LiquidityWorker extends BasicWorker {
   apply = async (job: Bull.Job): Promise<void> => {
     if (this.isStale(job)) return;
     const loggerPrefix = `[UniswapV3LiquidityWorker][${job.data.chainId}][${job.data.protocol}]`;
+    const isValidSettings = this.checkIsValidSettings(job.data);
+
+    if (!isValidSettings) {
+      this.logger.debug(`${loggerPrefix} apply for job but job has invalid settings`);
+      return;
+    }
 
     const {lock} = job.data.settings;
     const unlocked = await this.connection.set(lock.name, 'lock', 'EX', lock.ttl, 'NX');
 
     if (!unlocked) {
       this.logger.error(`${loggerPrefix} apply for job but job !unlocked`);
-      return;
-    }
-
-    const isValidSettings = this.checkIsValidSettings(job.data);
-
-    if (!isValidSettings) {
-      this.logger.error(`${loggerPrefix} apply for job but job has invalid settings`);
       return;
     }
 

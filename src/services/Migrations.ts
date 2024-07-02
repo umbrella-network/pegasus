@@ -48,7 +48,6 @@ class Migrations {
 
   private static migrateTo7280 = async () => {
     await Migrations.wrapMigration('7.28.0', async () => {
-      // we have different index and validator per network, so let's simply drop and rebuild
       const [uniswapV3PoolModel, tokenModel] = await Promise.all([
         getModelForClass(UniswapV3Pool),
         getModelForClass(Token),
