@@ -72,7 +72,7 @@ export default {
     },
     ByBitSpotFetcher: {
       properties: {
-        name: {const: 'ByBit'},
+        name: {const: FetcherName.BY_BIT},
         params: {
           type: 'object',
           properties: {
