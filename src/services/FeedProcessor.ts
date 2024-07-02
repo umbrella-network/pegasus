@@ -9,6 +9,7 @@ import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
+import FeedSymbolChecker from './FeedSymbolChecker.js';
 import {FetcherName} from '../types/fetchers.js';
 
 interface Calculator {
@@ -25,11 +26,11 @@ interface FetcherError {
 
 @injectable()
 class FeedProcessor {
-  @inject('Logger') private logger!: Logger;
-
   @inject(MultiFeedProcessor) multiFeedProcessor!: MultiFeedProcessor;
   @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
+  @inject(FeedSymbolChecker) feedSymbolChecker!: FeedSymbolChecker;
+  @inject('Logger') private logger!: Logger;
 
   private logPrefix = '[FeedProcessor]';
 
@@ -42,7 +43,12 @@ class FeedProcessor {
 
       keys.forEach((leafLabel) =>
         feeds[leafLabel].inputs.forEach((input) => {
-          uniqueFeedFetcherMap[hash(input.fetcher)] = {...input.fetcher, symbol: leafLabel};
+          uniqueFeedFetcherMap[hash(input.fetcher)] = {
+            ...input.fetcher,
+            symbol: leafLabel,
+            base: feeds[leafLabel].base,
+            quote: feeds[leafLabel].quote,
+          };
         }),
       );
     });
@@ -73,7 +79,7 @@ class FeedProcessor {
     const values = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
-    const ignoredMap: {[key: string]: boolean} = {};
+    const ignoredMap: {[key: string]: boolean} = {}; // TODO: this map is not used, remove?
     const keyValueMap: {[key: string]: number} = {};
 
     feedsArray.forEach((feeds) => {
@@ -123,9 +129,25 @@ class FeedProcessor {
       return;
     }
 
+    let feedBase = '';
+    let feedQuote = '';
+    if (feedFetcher.base && feedFetcher.quote) {
+      feedBase = feedFetcher.base;
+      feedQuote = feedFetcher.quote;
+    } else {
+      const result = this.feedSymbolChecker.apply(feedFetcher.symbol);
+      if (result) {
+        [feedBase, feedQuote] = result;
+      } else {
+        this.logger.warn(`Cannot parse base & quote from symbol:${feedFetcher.symbol}`);
+        return;
+      }
+    }
+
     try {
       this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
-      return (await fetcher.apply(feedFetcher.params, timestamp)) || undefined;
+      const params = Object.assign({...((feedFetcher.params ?? {}) as object)}, {feedBase, feedQuote});
+      return (await fetcher.apply(params, timestamp)) || undefined;
     } catch (err) {
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);

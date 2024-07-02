@@ -2,13 +2,19 @@ import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
 import MetalPriceApiFetcher, {MetalPriceApiInputParams} from '../../../src/services/fetchers/MetalPriceApiFetcher.js';
+import {FeedBaseQuote} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
 describe.skip('MetalPriceApiFetcher (this test needs API key)', () => {
   const fetcher = Application.get(MetalPriceApiFetcher);
 
-  const input: MetalPriceApiInputParams = {symbol: 'XAU', currency: 'USD'};
+  const input: MetalPriceApiInputParams & FeedBaseQuote = {
+    symbol: 'XAU',
+    currency: 'USD',
+    feedBase: 'SILVER',
+    feedQuote: 'EUR',
+  };
 
   describe('#apply', () => {
     describe('with valid parameters', () => {
@@ -29,6 +35,8 @@ describe.skip('MetalPriceApiFetcher (this test needs API key)', () => {
           fetcher.apply({
             symbol: 'StrangeSymbol',
             currency: 'StrangeCurrency',
+            feedBase: 'SILVER',
+            feedQuote: 'EUR',
           }),
         ).to.be.rejected;
       });
