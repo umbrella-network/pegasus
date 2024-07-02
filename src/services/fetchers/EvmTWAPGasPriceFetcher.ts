@@ -4,6 +4,7 @@ import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepositor
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {FetcherName} from '../../types/fetchers.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
+import FeedSymbolChecker from '../FeedSymbolChecker.js';
 
 /*
 PolygonGasPrice-TWAP20:
@@ -24,11 +25,13 @@ PolygonGasPrice-TWAP20:
 class EvmTWAPGasPriceFetcher {
   @inject(BlockchainGasRepository) protected gasRepository!: BlockchainGasRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
 
   static fetcherSource = '';
 
   async apply(
     {twap = 20, chainId}: {twap: number; chainId: ChainsIds},
+    symbol: string,
     timestamp: number,
   ): Promise<number | undefined> {
     const gas = await this.gasRepository.twap(chainId, twap, timestamp);
@@ -38,13 +41,21 @@ class EvmTWAPGasPriceFetcher {
     // but UmbrellaFeeds is 8 decimals, so in order to have gas in wei in smart contract, we have to /1e8 not by 1e9
     const gasPrice = Number(gas) / 1e8;
 
+    const result = this.feedSymbolChecker.apply(symbol);
+
+    if (!result) {
+      throw new Error(`[EvmTWAPGasPriceFetcher] Cannot extract base and quote from feed symbol: ${symbol}`);
+    }
+
+    const [feedBase, feedQuote] = result;
+
     const payload: PriceDataPayload = {
       fetcher: FetcherName.TWAP_GAS_PRICE,
       value: gasPrice.toString(),
       valueType: PriceValueType.Price,
       timestamp: timestamp,
-      feedBase: 'PolygonGasPrice',
-      feedQuote: 'TWAP20',
+      feedBase,
+      feedQuote,
       fetcherSource: EvmTWAPGasPriceFetcher.fetcherSource,
     };
 

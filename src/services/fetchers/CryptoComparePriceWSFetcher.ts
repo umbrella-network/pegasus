@@ -7,7 +7,7 @@ import {PairWithFreshness} from '../../types/Feed.js';
 class CryptoComparePriceWSFetcher {
   @inject(CryptoCompareWSClient) cryptoCompareWSClient!: CryptoCompareWSClient;
 
-  async apply(pair: PairWithFreshness, timestamp: number): Promise<number> {
+  async apply(pair: PairWithFreshness, _symbol: string, timestamp: number): Promise<number> {
     const price = await this.cryptoCompareWSClient.getLatestPrice(pair, timestamp);
 
     if (price !== null) {

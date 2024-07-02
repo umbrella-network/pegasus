@@ -35,7 +35,7 @@ export type FeedFetcherInterfaceResult =
 
 export interface FeedFetcherInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(params: any, timestamp?: number): FeedFetcherInterfaceResult;
+  apply(params: any, symbol: string, timestamp?: number): FeedFetcherInterfaceResult;
 }
 
 export enum FetcherName {

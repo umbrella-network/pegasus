@@ -13,7 +13,7 @@ export class UniswapPriceFetcher {
   @inject(UniswapPoolService) poolService!: UniswapPoolService;
   @inject(UniswapPriceService) priceService!: UniswapPriceService;
 
-  async apply(pair: PairWithFreshness, timestamp: number): Promise<number> {
+  async apply(pair: PairWithFreshness, _symbol: string, timestamp: number): Promise<number> {
     const {fsym, tsym} = pair;
     const freshness = pair.freshness || UniswapPriceFetcher.DEFAULT_FRESHNESS;
 
