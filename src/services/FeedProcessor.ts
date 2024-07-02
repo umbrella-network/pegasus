@@ -115,7 +115,7 @@ class FeedProcessor {
     }
 
     try {
-      return (await fetcher.apply(feedFetcher.params, timestamp)) || undefined;
+      return (await fetcher.apply(feedFetcher.params, feedFetcher.symbol || '', timestamp)) || undefined;
     } catch (err) {
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);

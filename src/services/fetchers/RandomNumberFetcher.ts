@@ -8,7 +8,7 @@ import {ProviderRepository} from '../../repositories/ProviderRepository.js';
 class RandomNumberFetcher {
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
-  async apply({numBlocks = 10} = {}, timestamp: number): Promise<string> {
+  async apply({numBlocks = 10} = {}, _symbol: string, timestamp: number): Promise<string> {
     const evmProvider = this.providerRepository.get(ChainsIds.POLYGON).getRawProviderSync<BaseProvider>();
     let latest = await evmProvider.getBlock('latest');
 
