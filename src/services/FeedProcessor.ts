@@ -9,7 +9,8 @@ import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {FetcherName} from '../types/fetchers.js';
+import FeedSymbolChecker from './FeedSymbolChecker.js';
+import {FetcherName} from 'src/types/fetchers.js';
 
 interface Calculator {
   // eslint-disable-next-line
@@ -25,11 +26,11 @@ interface FetcherError {
 
 @injectable()
 class FeedProcessor {
-  @inject('Logger') private logger!: Logger;
-
   @inject(MultiFeedProcessor) multiFeedProcessor!: MultiFeedProcessor;
   @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
+  @inject(FeedSymbolChecker) feedSymbolChecker!: FeedSymbolChecker;
+  @inject('Logger') private logger!: Logger;
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     // collect unique inputs
@@ -114,11 +115,16 @@ class FeedProcessor {
       return;
     }
 
+    const result = this.feedSymbolChecker.apply(feedFetcher.symbol);
+    if (!result) {
+      this.logger.warn(`Cannot parse base & quote from symbol:${feedFetcher.symbol}`);
+      return;
+    }
+
+    const [feedBase, feedQuote] = result;
+
     try {
-      return (
-        (await fetcher.apply({params: feedFetcher.params, feedBase: 'feedbase', feedQuote: 'feedQuote'}, timestamp)) ||
-        undefined
-      );
+      return (await fetcher.apply({params: feedFetcher.params, feedBase, feedQuote}, timestamp)) || undefined;
     } catch (err) {
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);
