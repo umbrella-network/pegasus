@@ -1,19 +1,22 @@
 import {inject, injectable} from 'inversify';
 
 import {FeedFetcher} from '../../types/Feed.js';
-import {FeedFetcherInterface} from '../../types/fetchers.js';
-import UniswapV3MultiFetcher, {OutputValues, UniswapV3MultiFetcherParams} from '../fetchers/UniswapV3MultiFetcher.js';
+import {FeedFetcherInterface, StringMultiProcessorResult} from '../../types/fetchers.js';
+import UniswapV3MultiFetcher, {
+  OutputValues,
+  UniswapV3MultiFetcherParams,
+} from '../dexes/uniswapV3/UniswapV3MultiFetcher.js';
 
 interface FeedFetcherParams {
-  token0: string;
-  token1: string;
+  base: string;
+  quote: string;
 }
 
 @injectable()
 export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
   @inject(UniswapV3MultiFetcher) uniswapV3MultiFetcher!: UniswapV3MultiFetcher;
 
-  async apply(feedFetchers: FeedFetcher[]): Promise<(number | undefined)[]> {
+  async apply(feedFetchers: FeedFetcher[]): Promise<StringMultiProcessorResult[]> {
     const params = this.createParams(feedFetchers);
     const outputs = await this.uniswapV3MultiFetcher.apply(params);
     return this.sortOutput(feedFetchers, outputs);
@@ -25,26 +28,26 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     feedInputs.forEach((fetcher) => {
       if (!fetcher.name.includes('UniswapV3')) return;
 
-      const {chainFrom, token0, token1} = fetcher.params as UniswapV3MultiFetcherParams;
-      params.push({chainFrom, token0, token1});
+      const {fromChain, base, quote, amountInDecimals} = fetcher.params as UniswapV3MultiFetcherParams;
+      params.push({fromChain, base, quote, amountInDecimals});
     });
 
     return params;
   }
 
-  private sortOutput(feedFetchers: FeedFetcher[], values: OutputValues[]): number[] {
+  private sortOutput(feedFetchers: FeedFetcher[], values: OutputValues[]): string[] {
     const inputsIndexMap: {[key: string]: number} = {};
 
     feedFetchers.forEach((fetcher, index) => {
-      const {token0, token1} = fetcher.params as FeedFetcherParams;
-      inputsIndexMap[this.getKey(token0, token1)] = index;
+      const {base, quote} = fetcher.params as FeedFetcherParams;
+      inputsIndexMap[this.getKey(base, quote)] = index;
     });
 
-    const result: number[] = [];
+    const result: string[] = [];
     result.length = feedFetchers.length;
 
-    values.forEach(({token0, token1, value}) => {
-      const index = inputsIndexMap[this.getKey(token0, token1)];
+    values.forEach(({base, quote, value}) => {
+      const index = inputsIndexMap[this.getKey(base, quote)];
 
       if (index !== undefined) {
         result[index] = value;
@@ -54,7 +57,7 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     return result;
   }
 
-  private getKey(token0: string, token1: string) {
-    return `${token0}:${token1}`;
+  private getKey(base: string, quote: string): string {
+    return `${base}:${quote}`;
   }
 }

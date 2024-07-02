@@ -68,9 +68,9 @@ describe('UniswapV3LiquidityResolver', () => {
     mockedFeedDataService = sinon.createStubInstance(FeedDataService);
     mockedFeedDataService.getParamsByFetcherName.returns([
       {
-        fromChain: [ChainsIds.ETH],
-        token0: uniswapV3Pool.token0,
-        token1: uniswapV3Pool.token1,
+        fromChain: ChainsIds.ETH,
+        base: uniswapV3Pool.token0,
+        quote: uniswapV3Pool.token1,
       },
     ]);
 
@@ -97,9 +97,9 @@ describe('UniswapV3LiquidityResolver', () => {
                 fetcher: {
                   name: FetcherName.UNISWAP_V3,
                   params: {
-                    fromChain: ['ethereum', 'bsc'],
-                    token0: uniswapV3Pool.token0,
-                    token1: uniswapV3Pool.token1,
+                    fromChain: 'ethereum',
+                    quote: uniswapV3Pool.token0,
+                    base: uniswapV3Pool.token1,
                   },
                 },
               },
@@ -115,9 +115,9 @@ describe('UniswapV3LiquidityResolver', () => {
                 fetcher: {
                   name: FetcherName.UNISWAP_V3,
                   params: {
-                    fromChain: ['ethereum', 'bsc'],
-                    token0: uniswapV3Pool.token0,
-                    token1: uniswapV3Pool.token1,
+                    fromChain: 'ethereum',
+                    quote: uniswapV3Pool.token0,
+                    base: uniswapV3Pool.token1,
                   },
                 },
               },
@@ -159,7 +159,7 @@ describe('UniswapV3LiquidityResolver', () => {
 
       const poolUpdate = await uniswapV3PoolRepository.find({
         protocol: uniswapV3Pool.protocol,
-        fromChain: [uniswapV3Pool.chainId],
+        fromChain: uniswapV3Pool.chainId,
         token0: uniswapV3Pool.token0,
         token1: uniswapV3Pool.token1,
       });

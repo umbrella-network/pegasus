@@ -4,6 +4,7 @@ import {FeeAmount, Pool, TickMath, tickToPrice} from '@uniswap/v3-sdk';
 import JSBI from 'jsbi';
 
 import {GraphTick, BarChartTick, TickProcessed} from './interfaces.js';
+import {sortTokensByAddress} from '../../../utils/token.js';
 
 enum Direction {
   ASC,
@@ -202,6 +203,9 @@ export class ActiveLiquititySDK {
         liquidityNet: tick.liquidityNet,
       },
     ];
+
+    [token0, token1] = sortTokensByAddress(token0, token1);
+
     const pool =
       token0 && token1 && feeTier
         ? new Pool(token0, token1, feeTier, sqrtPriceX96, tick.liquidityActive, tick.tickIdx, mockTicks)

@@ -82,18 +82,18 @@ export class UniswapV3LiquidityResolver {
         .filter((param) => param.fromChain.includes(chainId))
         .map(async (param) => {
           const pools = await this.uniswapV3PoolRepository.find({
-            token0: param.token0,
-            token1: param.token1,
-            fromChain: [chainId],
+            token0: param.base,
+            token1: param.quote,
+            fromChain: chainId,
             protocol: this.protocol,
           });
 
           if (pools.length === 0) {
-            this.logger.error(`${this.logPrefix}[${chainId}] pool not found for token ${param.token0}-${param.token1}`);
+            this.logger.error(`${this.logPrefix}[${chainId}] pool not found for token ${param.quote}-${param.base}`);
             return;
           }
 
-          const [token0, token1] = await this.getTokens(param.token0, param.token1, chainId);
+          const [token0, token1] = await this.getTokens(param.quote, param.base, chainId);
 
           await Promise.all(
             pools.map(async (pool) => {

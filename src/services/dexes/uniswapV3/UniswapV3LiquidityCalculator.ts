@@ -1,21 +1,27 @@
 import {inject, injectable} from 'inversify';
 import {Token} from '@uniswap/sdk-core';
 import {FeeAmount, Pool, Tick, TICK_SPACINGS} from '@uniswap/v3-sdk';
-// eslint-disable-next-line max-len
-import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json' assert {type: 'json'};
-import {ethers} from 'ethers';
+import {readFileSync} from 'fs';
+import {fileURLToPath} from 'url';
+import path from 'path';
 
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {UniswapV3TickQuery} from './UniswapV3TickQuery.js';
 import {BarChartTick, GraphTick} from './interfaces.js';
 import {BlockchainProviderRepository} from '../../../repositories/BlockchainProviderRepository.js';
 import {ActiveLiquititySDK} from './ActiveLiquiditySDK.js';
+import {ContractAddressService} from '../../../services/ContractAddressService.js';
+import {sortTokensByAddress} from '../../../utils/token.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 @injectable()
 export class UniswapV3LiquidityCalculator {
   @inject(BlockchainProviderRepository) blockchainProviderRepository!: BlockchainProviderRepository;
   @inject(UniswapV3TickQuery) uniswapV3TickQuery!: UniswapV3TickQuery;
   @inject(ActiveLiquititySDK) activeLiquititySDK!: ActiveLiquititySDK;
+  @inject(ContractAddressService) contractAddressService!: ContractAddressService;
 
   async apply(
     poolAddress: string,
@@ -24,14 +30,16 @@ export class UniswapV3LiquidityCalculator {
     fee: FeeAmount,
     chainId: ChainsIds,
   ): Promise<BarChartTick[]> {
-    // TODO get helper address from registry
-    const provider = this.blockchainProviderRepository.get(chainId);
-    const poolContract = new ethers.Contract(poolAddress, IUniswapV3PoolABI.abi, provider);
+    const abi = JSON.parse(readFileSync(__dirname + '/UniswapV3FetcherHelper.abi.json', 'utf-8')).abi as never;
 
-    // TODO replace with contract call
-    const [slot0, liquidity, graphTicks] = await Promise.all([
-      poolContract.slot0(),
-      poolContract.liquidity(),
+    const uniswapV3FetcherHelper = await this.contractAddressService.getContract(
+      chainId,
+      'UniswapV3FetcherHelper',
+      abi,
+    );
+
+    const [liquidityData, graphTicks] = await Promise.all([
+      uniswapV3FetcherHelper.liquidityData([poolAddress]),
       this.uniswapV3TickQuery.apply(poolAddress, chainId),
     ]);
 
@@ -47,8 +55,12 @@ export class UniswapV3LiquidityCalculator {
       });
     });
 
+    [token0, token1] = sortTokensByAddress(token0, token1);
+
+    const {sqrtPriceX96, liquidity, tick} = liquidityData;
     const tickSpacing = TICK_SPACINGS[fee];
-    const fullPool = new Pool(token0, token1, fee, slot0.sqrtPriceX96, liquidity, slot0.tick, sdkTicks);
+    const fullPool = new Pool(token0, token1, fee, sqrtPriceX96, liquidity, tick, sdkTicks);
+
     // reference: https://docs.uniswap.org/sdk/v3/guides/advanced/active-liquidity#calculating-active-liquidity
     const activeTickIdx = Math.floor(fullPool.tickCurrent / tickSpacing) * tickSpacing;
     const numSurroundingTicks = 100;
@@ -57,8 +69,8 @@ export class UniswapV3LiquidityCalculator {
       activeTickIdx,
       fullPool.liquidity,
       tickSpacing,
-      token1,
       token0,
+      token1,
       numSurroundingTicks,
       fee,
       graphTicks,
