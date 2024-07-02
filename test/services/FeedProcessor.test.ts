@@ -100,7 +100,7 @@ describe('FeedProcessor', () => {
           calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
           const feeds: Feeds = {
-            FIXED_TEST: feedFactory.build(),
+            FIXED_TEST: feedFactory.build({base: 'base', quote: 'quote'}),
           };
 
           testFetcher.apply = stub().resolves(100.0);
@@ -124,7 +124,7 @@ describe('FeedProcessor', () => {
           calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
           const feeds: Feeds = {
-            TEST: feedFactory.build(),
+            TEST: feedFactory.build({base: 'base', quote: 'quote'}),
           };
 
           testFetcher.apply = stub().resolves(100.0);
@@ -150,7 +150,7 @@ describe('FeedProcessor', () => {
           calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
           const feeds: Feeds = {
-            TEST: feedFactory.build({
+            'BASE-QUOTE': feedFactory.build({
               inputs: [
                 feedInputFactory.build({
                   fetcher: {
@@ -181,7 +181,7 @@ describe('FeedProcessor', () => {
 
         it('responds with a leaf with correct label', () => {
           expect(result[0]).to.be.an('array').with.lengthOf(1);
-          expect(result[0][0].label).to.equal('TEST');
+          expect(result[0][0].label).to.equal('BASE-QUOTE');
         });
 
         it('responds with a leaf with the mean value', () => {

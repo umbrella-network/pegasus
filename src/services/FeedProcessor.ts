@@ -10,6 +10,7 @@ import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
 import {allMultiFetchers} from '../types/fetchers.js';
+import FeedSymbolChecker from './FeedSymbolChecker.js';
 
 interface Calculator {
   // eslint-disable-next-line
@@ -25,11 +26,11 @@ interface FetcherError {
 
 @injectable()
 class FeedProcessor {
-  @inject('Logger') private logger!: Logger;
-
   @inject(MultiFeedProcessor) multiFeedProcessor!: MultiFeedProcessor;
   @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
+  @inject(FeedSymbolChecker) feedSymbolChecker!: FeedSymbolChecker;
+  @inject('Logger') private logger!: Logger;
 
   private logPrefix = '[FeedProcessor]';
 
@@ -42,7 +43,12 @@ class FeedProcessor {
 
       keys.forEach((leafLabel) =>
         feeds[leafLabel].inputs.forEach((input) => {
-          uniqueFeedFetcherMap[hash(input.fetcher)] = {...input.fetcher, symbol: leafLabel};
+          uniqueFeedFetcherMap[hash(input.fetcher)] = {
+            ...input.fetcher,
+            symbol: leafLabel,
+            base: feeds[leafLabel].base,
+            quote: feeds[leafLabel].quote,
+          };
         }),
       );
     });
@@ -73,7 +79,6 @@ class FeedProcessor {
     const values = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
-    const ignoredMap: {[key: string]: boolean} = {};
     const keyValueMap: {[key: string]: number} = {};
 
     feedsArray.forEach((feeds) => {
@@ -91,9 +96,7 @@ class FeedProcessor {
 
         this.logger.debug(`${this.logPrefix} feedValues: ${JSON.stringify(feedValues)}`);
 
-        if (!feedValues.length) {
-          ignoredMap[ticker] = true;
-        } else if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
+        if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
           leaves.push(this.buildLeaf(feedValues[0].key, feedValues[0].value));
         } else {
           // calculateFeed is allowed to return different keys
@@ -123,9 +126,18 @@ class FeedProcessor {
       return;
     }
 
+    const result = this.getBaseAndQuote(feedFetcher);
+
+    if (!result) {
+      this.logger.error(`Cannot parse base & quote from symbol:${feedFetcher.symbol}`);
+      return;
+    }
+
+    const [base, quote] = result;
+
     try {
       this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
-      return (await fetcher.apply(feedFetcher.params, timestamp)) || undefined;
+      return await fetcher.apply(feedFetcher.params, {base, quote, timestamp});
     } catch (err) {
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);
@@ -211,6 +223,14 @@ class FeedProcessor {
     }
 
     return result;
+  }
+
+  private getBaseAndQuote(feedFetcher: FeedFetcher): string[] | undefined {
+    if (feedFetcher.base && feedFetcher.quote) {
+      return [feedFetcher.base, feedFetcher.quote];
+    } else {
+      return this.feedSymbolChecker.apply(feedFetcher.symbol);
+    }
   }
 }
 

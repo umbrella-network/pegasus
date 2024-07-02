@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
-import {FetcherName} from '../../types/fetchers.js';
+import {FeedFetcherOptions, FetcherName} from '../../types/fetchers.js';
 
 @injectable()
 class PolygonIOCryptoPriceFetcher {
@@ -13,7 +13,12 @@ class PolygonIOCryptoPriceFetcher {
 
   static fetcherSource = '';
 
-  async apply({fsym, tsym}: {fsym: string; tsym: string}, timestamp: number): Promise<number> {
+  async apply(params: {fsym: string; tsym: string}, options: FeedFetcherOptions): Promise<number> {
+    const {fsym, tsym} = params;
+    const {base: feedBase, quote: feedQuote, timestamp} = options;
+
+    if (!timestamp || timestamp <= 0) throw new Error(`invalid timestamp value: ${timestamp}`);
+
     const price = await this.polygonIOCryptoPriceService.getLatestPrice({fsym, tsym}, timestamp);
 
     if (price !== null) {
@@ -21,9 +26,9 @@ class PolygonIOCryptoPriceFetcher {
         fetcher: FetcherName.POLYGON_IO_CRYPTO_PRICE,
         value: price.toString(),
         valueType: PriceValueType.Price,
-        timestamp: this.timeService.apply(),
-        feedBase: fsym,
-        feedQuote: tsym,
+        timestamp,
+        feedBase,
+        feedQuote,
         fetcherSource: PolygonIOCryptoPriceFetcher.fetcherSource,
       };
 
