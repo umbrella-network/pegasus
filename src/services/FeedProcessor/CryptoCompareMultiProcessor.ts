@@ -1,16 +1,13 @@
 import {inject, injectable} from 'inversify';
-import {Logger} from 'winston';
-
-import {CryptoComparePriceMultiFetcher} from '../fetchers/index.js';
-import {FeedFetcher} from '../../types/Feed.js';
-
-import {InputParams, OutputValue} from '../fetchers/CryptoComparePriceMultiFetcher.js';
-import {CryptoCompareMultiProcessorResult, FeedFetcherInterface} from '../../types/fetchers.js';
 
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
-import {FetcherName} from '../../types/fetchers.js';
-import TimeService from '../TimeService.js';
+import {InputParams, OutputValue} from '../fetchers/CryptoComparePriceMultiFetcher.js';
+import {CryptoCompareMultiProcessorResult} from '../../types/fetchers.js';
+import {CryptoComparePriceMultiFetcher} from '../fetchers/index.js';
 import FeedSymbolChecker from '../FeedSymbolChecker.js';
+import {FetcherName} from '../../types/fetchers.js';
+import {FeedFetcher} from '../../types/Feed.js';
+import TimeService from '../TimeService.js';
 
 interface FeedFetcherParams {
   fsym: string;
@@ -18,12 +15,11 @@ interface FeedFetcherParams {
 }
 
 @injectable()
-export default class CryptoCompareMultiProcessor implements FeedFetcherInterface {
+export default class CryptoCompareMultiProcessor {
   @inject(CryptoComparePriceMultiFetcher) cryptoComparePriceMultiFetcher!: CryptoComparePriceMultiFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
   @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
-  @inject('Logger') private logger!: Logger;
 
   static fetcherSource = '';
 

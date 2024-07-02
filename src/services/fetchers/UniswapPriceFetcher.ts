@@ -4,16 +4,17 @@ import {Logger} from 'winston';
 import {PairWithFreshness} from '../../types/Feed.js';
 import {UniswapPriceService} from '../uniswap/UniswapPriceService.js';
 import {UniswapPoolService} from '../uniswap/UniswapPoolService.js';
+import {FeedBaseQuote, FeedFetcherInterface} from 'src/types/fetchers.js';
 
 @injectable()
-export class UniswapPriceFetcher {
-  static readonly DEFAULT_FRESHNESS = 3600;
-
+export class UniswapPriceFetcher implements FeedFetcherInterface {
   @inject('Logger') logger!: Logger;
   @inject(UniswapPoolService) poolService!: UniswapPoolService;
   @inject(UniswapPriceService) priceService!: UniswapPriceService;
 
-  async apply(pair: PairWithFreshness, timestamp: number): Promise<number> {
+  static readonly DEFAULT_FRESHNESS = 3600;
+
+  async apply(pair: PairWithFreshness & FeedBaseQuote, timestamp: number): Promise<number> {
     const {fsym, tsym} = pair;
     const freshness = pair.freshness || UniswapPriceFetcher.DEFAULT_FRESHNESS;
 

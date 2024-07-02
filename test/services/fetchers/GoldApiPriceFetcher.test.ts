@@ -2,13 +2,19 @@ import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
 import GoldApiPriceMultiFetcher, {GoldApiInputParams} from '../../../src/services/fetchers/GoldApiPriceFetcher.js';
+import {FeedBaseQuote} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
 describe.skip('GoldApiPriceFetcher (to run them we need API keys)', () => {
   const fetcher = Application.get(GoldApiPriceMultiFetcher);
 
-  const input: GoldApiInputParams = {symbol: 'XAU', currency: 'USD'};
+  const input: GoldApiInputParams & FeedBaseQuote = {
+    symbol: 'XAU',
+    currency: 'USD',
+    feedBase: 'GOLD',
+    feedQuote: 'USDC',
+  };
 
   describe('#apply', () => {
     describe('with valid parameters', () => {
@@ -30,6 +36,8 @@ describe.skip('GoldApiPriceFetcher (to run them we need API keys)', () => {
           fetcher.apply({
             symbol: 'StrangeSymbol',
             currency: 'StrangeCurrency',
+            feedBase: 'GOLD',
+            feedQuote: 'USD',
           }),
         ).to.be.rejected;
       });

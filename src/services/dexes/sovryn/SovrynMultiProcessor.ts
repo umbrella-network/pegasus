@@ -9,7 +9,7 @@ import {PriceDataPayload} from '../../../repositories/PriceDataRepository.js';
 import FeedSymbolChecker from '../../FeedSymbolChecker.js';
 
 @injectable()
-export default class SovrynMultiProcessor implements FeedFetcherInterface {
+export default class SovrynMultiProcessor {
   @inject(SovrynPriceFetcher) sovrynFetcher!: SovrynPriceFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
