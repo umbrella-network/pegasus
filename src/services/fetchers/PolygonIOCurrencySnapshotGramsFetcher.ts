@@ -2,10 +2,7 @@ import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
 import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';
-
-type PolygonIOCurrencySnapshotGramsFetcherParams = {
-  ticker: string;
-};
+import {FeedBaseQuote} from 'src/types/fetchers.js';
 
 /*
     - fetcher:
@@ -22,7 +19,8 @@ class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher {
     this.valuePath = '$.ticker.lastQuote.a';
   }
 
-  async apply({ticker}: PolygonIOCurrencySnapshotGramsFetcherParams): Promise<number> {
+  async apply(params: {ticker: string} & FeedBaseQuote): Promise<number> {
+    const {ticker} = params;
     const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers/${ticker}?apiKey=${this.apiKey}`;
     const data = await this.fetch(sourceUrl);
     const oneOzInGrams = 31.1034; // grams

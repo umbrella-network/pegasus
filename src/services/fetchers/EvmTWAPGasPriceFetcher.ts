@@ -2,9 +2,8 @@ import {inject, injectable} from 'inversify';
 
 import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository.js';
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
-import {FetcherName} from '../../types/fetchers.js';
+import {FeedBaseQuote, FeedFetcherInterface, FetcherName} from '../../types/fetchers.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
-import FeedSymbolChecker from '../FeedSymbolChecker.js';
 
 /*
 PolygonGasPrice-TWAP20:
@@ -22,32 +21,24 @@ PolygonGasPrice-TWAP20:
           chainId: polygon
  */
 @injectable()
-class EvmTWAPGasPriceFetcher {
+class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
   @inject(BlockchainGasRepository) protected gasRepository!: BlockchainGasRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
-  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
 
   static fetcherSource = '';
 
   async apply(
-    {twap = 20, chainId}: {twap: number; chainId: ChainsIds},
-    symbol: string,
+    params: {twap: number; chainId: ChainsIds} & FeedBaseQuote,
     timestamp: number,
   ): Promise<number | undefined> {
+    const {twap = 20, chainId, feedBase, feedQuote} = params;
+
     const gas = await this.gasRepository.twap(chainId, twap, timestamp);
     if (!gas) return;
 
     // gas is uint, no decimals, however we're using Gwei as unit, and this give us 9 decimals
     // but UmbrellaFeeds is 8 decimals, so in order to have gas in wei in smart contract, we have to /1e8 not by 1e9
     const gasPrice = Number(gas) / 1e8;
-
-    const result = this.feedSymbolChecker.apply(symbol);
-
-    if (!result) {
-      throw new Error(`[EvmTWAPGasPriceFetcher] Cannot extract base and quote from feed symbol: ${symbol}`);
-    }
-
-    const [feedBase, feedQuote] = result;
 
     const payload: PriceDataPayload = {
       fetcher: FetcherName.TWAP_GAS_PRICE,

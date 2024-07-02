@@ -2,13 +2,19 @@ import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
 import MetalsDevApiFetcher, {MetalsDevApiInputParams} from '../../../src/services/fetchers/MetalsDevApiFetcher.js';
+import {FeedBaseQuote} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
 describe.skip('MetalsDevApiFetcher (this test needs API key)', () => {
   const fetcher = Application.get(MetalsDevApiFetcher);
 
-  const input: MetalsDevApiInputParams = {metal: 'gold', currency: 'USD'};
+  const input: MetalsDevApiInputParams & FeedBaseQuote = {
+    metal: 'gold',
+    currency: 'USD',
+    feedBase: 'TITANIUM',
+    feedQuote: 'ARS',
+  };
 
   describe('#apply', () => {
     describe('with valid parameters', () => {
@@ -29,6 +35,8 @@ describe.skip('MetalsDevApiFetcher (this test needs API key)', () => {
           fetcher.apply({
             metal: 'StrangeSymbol',
             currency: 'StrangeCurrency',
+            feedBase: 'TITANIUM',
+            feedQuote: 'ARS',
           }),
         ).to.be.rejected;
       });

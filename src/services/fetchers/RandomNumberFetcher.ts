@@ -3,12 +3,14 @@ import {inject, injectable} from 'inversify';
 import {BaseProvider} from '@ethersproject/providers';
 import {ChainsIds} from '../../types/ChainsIds.js';
 import {ProviderRepository} from '../../repositories/ProviderRepository.js';
+import {FeedBaseQuote, FeedFetcherInterface} from 'src/types/fetchers.js';
 
 @injectable()
-class RandomNumberFetcher {
+class RandomNumberFetcher implements FeedFetcherInterface {
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
-  async apply({numBlocks = 10} = {}, _symbol: string, timestamp: number): Promise<string> {
+  async apply(params: {numBlocks: number} & FeedBaseQuote, timestamp: number): Promise<string> {
+    const {numBlocks = 10} = params;
     const evmProvider = this.providerRepository.get(ChainsIds.POLYGON).getRawProviderSync<BaseProvider>();
     let latest = await evmProvider.getBlock('latest');
 
