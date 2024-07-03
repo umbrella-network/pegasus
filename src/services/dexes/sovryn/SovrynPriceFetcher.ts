@@ -58,11 +58,12 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   private logPrefix = '[SovrynPriceFetcher]';
 
   public async apply(pairs: PairRequest[]): Promise<SovrynPriceFetcherResult> {
-    this.logger.debug(`${this.logPrefix} fetcher started for ${pairs.map((p) => `${p.base}/${p.quote}`).join(',')}`);
+    this.logger.debug(`${this.logPrefix} fetcher started for ${pairs.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`);
     let response;
 
     try {
       response = await this.getPrices(pairs);
+      this.logger.debug(`${this.logPrefix} data fetched (${pairs.length})`);
     } catch (error) {
       this.logger.error(`${this.logPrefix} failed to get price for pairs.`);
 
@@ -82,6 +83,8 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
         this.logger.error(`${this.logPrefix} price is not successful for pair: ${pairRequestToString(pairs[ix])}.`);
         pricesResponse.push(undefined);
         continue;
+      } else {
+        this.logger.debug(`${this.logPrefix} ${pairRequestToString(pairs[ix])}: ${price.toString()}`);
       }
 
       const bigIntPrice = price.toBigInt();
