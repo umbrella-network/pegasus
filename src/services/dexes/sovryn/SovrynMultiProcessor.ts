@@ -19,6 +19,8 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
 
   async apply(feedFetchers: FeedFetcher[]): Promise<(number | undefined)[]> {
     const request = this.createRequest(feedFetchers);
+    this.logger.debug(`[SovrynMultiProcessor] started, ${request.length} feeds to request.`);
+
     const priceResponse = await this.sovrynFetcher.apply(request);
     const prices = priceResponse.prices;
 
