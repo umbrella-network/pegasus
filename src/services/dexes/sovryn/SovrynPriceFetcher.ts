@@ -83,13 +83,13 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
         this.logger.error(`${this.logPrefix} price is not successful for pair: ${pairRequestToString(pairs[ix])}.`);
         pricesResponse.push(undefined);
         continue;
-      } else {
-        this.logger.debug(`${this.logPrefix} ${pairRequestToString(pairs[ix])}: ${price.toString()}`);
       }
 
       const bigIntPrice = price.toBigInt();
+      const fetchedPrice = bigIntToFloatingPoint(bigIntPrice, 18);
+      pricesResponse.push(fetchedPrice);
 
-      pricesResponse.push(bigIntToFloatingPoint(bigIntPrice, 18));
+      this.logger.debug(`${this.logPrefix} ${pairRequestToString(pairs[ix])}: ${price.toString()} => ${fetchedPrice}`);
     }
 
     return {prices: pricesResponse, timestamp: Number(response.timestamp)};
