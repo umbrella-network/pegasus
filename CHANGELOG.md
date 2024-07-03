@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.28.1] - 2024-07-03
+### Added
+- add additional logs for debugging fetchers
+
 ## [7.28.0] - 2024-07-02
 ### Added
 - Support for `UniswapV3` dex fetcher
