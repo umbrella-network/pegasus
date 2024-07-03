@@ -55,15 +55,19 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject('Logger') private logger!: Logger;
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
 
+  private logPrefix = '[SovrynPriceFetcher]';
+
   public async apply(pairs: PairRequest[]): Promise<SovrynPriceFetcherResult> {
+    this.logger.debug(`${this.logPrefix} fetcher started for ${pairs.map((p) => `${p.base}/${p.quote}`).join(',')}`);
     let response;
+
     try {
       response = await this.getPrices(pairs);
     } catch (error) {
-      this.logger.error('[SovrynPriceFetcher] failed to get price for pairs.');
+      this.logger.error(`${this.logPrefix} failed to get price for pairs.`);
 
       for (const pair of pairs) {
-        this.logger.error(`[SovrynPriceFetcher] price is not successful for pair: ${pairRequestToString(pair)}.`);
+        this.logger.error(`${this.logPrefix} price is not successful for pair: ${pairRequestToString(pair)}.`);
       }
 
       return {prices: [], timestamp: 0};
@@ -74,9 +78,8 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
     for (const [ix, price_] of response.prices.entries()) {
       const {price, success} = price_;
 
-      const successfulPrice = success;
-      if (!successfulPrice) {
-        this.logger.error(`[SovrynPriceFetcher] price is not successful for pair: ${pairRequestToString(pairs[ix])}.`);
+      if (!success) {
+        this.logger.error(`${this.logPrefix} price is not successful for pair: ${pairRequestToString(pairs[ix])}.`);
         pricesResponse.push(undefined);
         continue;
       }

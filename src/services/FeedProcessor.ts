@@ -33,6 +33,8 @@ class FeedProcessor {
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
   @inject(FetcherHistoryRepository) fetcherHistoryRepository!: FetcherHistoryRepository;
 
+  private logPrefix = '[FeedProcessor]';
+
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     // collect unique inputs
     const uniqueFeedFetcherMap: {[hash: string]: FeedFetcher} = {};
@@ -72,7 +74,7 @@ class FeedProcessor {
     const ignoredMap: {[key: string]: boolean} = {};
     const keyValueMap: {[key: string]: number} = {};
 
-    feedsArray.forEach((feeds, ix) => {
+    feedsArray.forEach((feeds) => {
       const tickers = Object.keys(feeds);
       const leaves: Leaf[] = [];
 
@@ -120,7 +122,7 @@ class FeedProcessor {
       result.push(leaves);
     });
 
-    this.logger.debug(`[FeedProcessor] result: ${JSON.stringify(result)}`);
+    this.logger.debug(`${this.logPrefix} result: ${JSON.stringify(result)}`);
 
     await this.fetcherHistoryRepository.saveMany(history);
 
@@ -131,16 +133,21 @@ class FeedProcessor {
     const fetcher = this.feedFetcherRepository.find(feedFetcher.name);
 
     if (!fetcher) {
-      this.logger.warn(`No fetcher specified for ${feedFetcher.name}`);
+      this.logger.warn(`${this.logPrefix} No fetcher specified for ${feedFetcher.name}`);
       return;
     }
 
     try {
+      this.logger.debug(`${this.logPrefix} using ${feedFetcher.name}`);
       return (await fetcher.apply(feedFetcher.params, timestamp)) || undefined;
     } catch (err) {
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);
-      this.logger.error(`Ignored feed fetcher ${JSON.stringify(feedFetcher)} due to an error. ${error}`);
+
+      this.logger.error(
+        `${this.logPrefix} Ignored feed fetcher ${JSON.stringify(feedFetcher)} due to an error. ${error}`,
+      );
+
       return;
     }
   }
