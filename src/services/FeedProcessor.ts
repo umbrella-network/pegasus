@@ -10,7 +10,7 @@ import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
 import FeedSymbolChecker from './FeedSymbolChecker.js';
-import {FetcherName} from 'src/types/fetchers.js';
+import {FetcherName} from '../types/fetchers.js';
 
 interface Calculator {
   // eslint-disable-next-line
