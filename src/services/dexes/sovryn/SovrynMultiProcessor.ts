@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {SovrynPriceFetcher, PairRequest} from './SovrynPriceFetcher.js';
-import {FeedFetcherInterface, FetcherName} from '../../../types/fetchers.js';
+import {FetcherName} from '../../../types/fetchers.js';
 import {FeedFetcher} from '../../../types/Feed.js';
 import {PriceDataRepository, PriceValueType} from '../../../repositories/PriceDataRepository.js';
 import {PriceDataPayload} from '../../../repositories/PriceDataRepository.js';

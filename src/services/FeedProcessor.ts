@@ -127,7 +127,7 @@ class FeedProcessor {
 
     try {
       this.logger.debug(`${this.logPrefix} using ${feedFetcher.name}`);
-      const params = Object.assign(feedFetcher.params as object, {feedBase, feedQuote});
+      const params = Object.assign((feedFetcher.params ?? {}) as object, {feedBase, feedQuote});
       return (await fetcher.apply(params, timestamp)) || undefined;
     } catch (err) {
       const {message, response} = err as FetcherError;
