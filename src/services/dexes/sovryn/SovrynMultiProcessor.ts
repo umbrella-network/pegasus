@@ -80,7 +80,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
     let priceIx = 0;
 
     feedFetchers.forEach((fetcher, index) => {
-      if (!fetcher.name.includes('Soveryn')) return;
+      if (!fetcher.name.includes(FetcherName.SOVRYN_PRICE)) return;
 
       const price = prices[priceIx];
 
