@@ -22,6 +22,8 @@ export default class MultiFeedProcessor {
     let response: unknown[] = [];
     response.length = feedFetchers.length;
 
+    this.logger.debug(`[MultiFeedProcessor] feedFetchers ${JSON.stringify(feedFetchers)}`);
+
     const promiseMap = {
       CryptoCompareMultiProcessor: () => this.cryptoCompareMultiProcessor.apply(feedFetchers),
       CoingeckoMultiProcessor: () => this.coingeckoMultiProcessor.apply(feedFetchers),
