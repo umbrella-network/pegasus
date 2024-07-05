@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.28.5] - 2024-07-06
+### Fixed
+- fix `SovrynMultiProcessor` to return fixed array of results that matches `feedFetchers` input.
+
 ## [7.28.4] - 2024-07-05
 ### Added
 - add additional logs for debugging fetchers

@@ -56,7 +56,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
 
     await this.priceDataRepository.savePrices(payloads);
 
-    return prices;
+    return this.sortOutput(feedFetchers, prices);
   }
 
   private createRequest(feedInputs: FeedFetcher[]): PairRequest[] {
@@ -71,5 +71,25 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
     });
 
     return request;
+  }
+
+  private sortOutput(feedFetchers: FeedFetcher[], prices: (number | undefined)[]): number[] {
+    const result: number[] = [];
+    result.length = feedFetchers.length;
+
+    let priceIx = 0;
+
+    feedFetchers.forEach((fetcher, index) => {
+      if (!fetcher.name.includes('Soveryn')) return;
+
+      const price = prices[priceIx];
+
+      if (price !== undefined) {
+        result[index] = price;
+        priceIx++;
+      }
+    });
+
+    return result;
   }
 }
