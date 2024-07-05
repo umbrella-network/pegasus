@@ -69,7 +69,7 @@ class FeedProcessor {
     const values = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
-    const ignoredMap: {[key: string]: boolean} = {};
+    const ignoredMap: {[key: string]: boolean} = {}; // TODO: this map is not used, remove?
     const keyValueMap: {[key: string]: number} = {};
 
     feedsArray.forEach((feeds) => {
@@ -128,7 +128,7 @@ class FeedProcessor {
 
     try {
       this.logger.debug(`${this.logPrefix} using ${feedFetcher.name}`);
-      const params = Object.assign((feedFetcher.params ?? {}) as object, {feedBase, feedQuote});
+      const params = Object.assign({...((feedFetcher.params ?? {}) as object)}, {feedBase, feedQuote});
       return (await fetcher.apply(params, timestamp)) || undefined;
     } catch (err) {
       const {message, response} = err as FetcherError;
