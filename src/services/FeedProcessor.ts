@@ -118,12 +118,13 @@ class FeedProcessor {
     }
 
     const result = this.feedSymbolChecker.apply(feedFetcher.symbol);
-    if (!result) {
+    let feedBase = 'base';
+    let feedQuote = 'quote';
+    if (result) {
+      [feedBase, feedQuote] = result;
+    } else {
       this.logger.warn(`Cannot parse base & quote from symbol:${feedFetcher.symbol}`);
-      return;
     }
-
-    const [feedBase, feedQuote] = result;
 
     try {
       this.logger.debug(`${this.logPrefix} using ${feedFetcher.name}`);
