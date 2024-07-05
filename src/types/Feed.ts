@@ -14,6 +14,8 @@ export interface Feed {
 
   // standard feed attributes
   symbol?: string;
+  base?: string;
+  quote?: string;
   discrepancy: number;
   precision: number;
   inputs: FeedInput[];
@@ -35,6 +37,8 @@ export type FeedValue = number | HexStringWith0x;
 export interface FeedFetcher {
   name: FetcherName;
   symbol?: string;
+  base?: string;
+  quote?: string;
   params?: unknown;
 }
 

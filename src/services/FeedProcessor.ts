@@ -43,7 +43,12 @@ class FeedProcessor {
 
       keys.forEach((leafLabel) =>
         feeds[leafLabel].inputs.forEach((input) => {
-          uniqueFeedFetcherMap[hash(input.fetcher)] = {...input.fetcher, symbol: leafLabel};
+          uniqueFeedFetcherMap[hash(input.fetcher)] = {
+            ...input.fetcher,
+            symbol: leafLabel,
+            base: feeds[leafLabel].base,
+            quote: feeds[leafLabel].quote,
+          };
         }),
       );
     });
@@ -117,13 +122,19 @@ class FeedProcessor {
       return;
     }
 
-    const result = this.feedSymbolChecker.apply(feedFetcher.symbol);
-    let feedBase = 'base';
-    let feedQuote = 'quote';
-    if (result) {
-      [feedBase, feedQuote] = result;
+    let feedBase = '';
+    let feedQuote = '';
+    if (feedFetcher.base && feedFetcher.quote) {
+      feedBase = feedFetcher.base;
+      feedQuote = feedFetcher.quote;
     } else {
-      this.logger.warn(`Cannot parse base & quote from symbol:${feedFetcher.symbol}`);
+      const result = this.feedSymbolChecker.apply(feedFetcher.symbol);
+      if (result) {
+        [feedBase, feedQuote] = result;
+      } else {
+        this.logger.warn(`Cannot parse base & quote from symbol:${feedFetcher.symbol}`);
+        return;
+      }
     }
 
     try {
