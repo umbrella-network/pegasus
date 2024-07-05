@@ -37,6 +37,7 @@ export default class MultiFeedProcessor {
     promisesResults.forEach((result, i) => {
       if (result.status === 'fulfilled') {
         response = mergeArrays(response, result.value);
+        this.logger.debug(`[MultiFeedProcessor] fulfilled ${classNames[i]}: ${JSON.stringify(result.value)}`);
       } else {
         this.logger.warn(`[MultiFeedProcessor] Ignored ${classNames[i]}. Reason: ${result.reason}`);
       }

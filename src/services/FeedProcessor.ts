@@ -63,10 +63,15 @@ class FeedProcessor {
       inputIndexByHash[hash] = index + singleInputsLength;
     });
 
+    this.logger.debug(`${this.logPrefix} ${JSON.stringify(inputIndexByHash)}`);
+
     const [singleFeeds, multiFeeds] = await Promise.all([
       this.processFeeds(Object.values(singleInputs), timestamp),
       this.multiFeedProcessor.apply(Object.values(multiInputs)),
     ]);
+
+    this.logger.debug(`${this.logPrefix} singleFeeds: ${JSON.stringify(singleFeeds)}`);
+    this.logger.debug(`${this.logPrefix} multiFeeds: ${JSON.stringify(multiFeeds)}`);
 
     const values = [...singleFeeds, ...multiFeeds];
 
@@ -86,6 +91,8 @@ class FeedProcessor {
             this.calculateFeed(ticker, values[inputIndexByHash[hash(input.fetcher)]], keyValueMap, input.calculator),
           )
           .flat();
+
+        this.logger.debug(`${this.logPrefix} feedValues: ${JSON.stringify(feedValues)}`);
 
         if (!feedValues.length) {
           ignoredMap[ticker] = true;
@@ -138,7 +145,7 @@ class FeedProcessor {
     }
 
     try {
-      this.logger.debug(`${this.logPrefix} using ${feedFetcher.name}`);
+      this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
       return (await fetcher.apply(feedFetcher.params, timestamp)) || undefined;
     } catch (err) {
       const {message, response} = err as FetcherError;
