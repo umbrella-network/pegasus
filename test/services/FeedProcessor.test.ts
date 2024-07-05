@@ -76,7 +76,7 @@ describe('FeedProcessor', () => {
         calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
         const feeds: Feeds = {
-          'BASE-QUOTE': feedFactory.build(),
+          TEST: feedFactory.build(),
         };
 
         testFetcher.apply = stub().rejects();
@@ -100,7 +100,7 @@ describe('FeedProcessor', () => {
           calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
           const feeds: Feeds = {
-            'FIXED-TEST': feedFactory.build(),
+            FIXED_TEST: feedFactory.build(),
           };
 
           testFetcher.apply = stub().resolves(100.0);
@@ -110,7 +110,7 @@ describe('FeedProcessor', () => {
 
         it('responds with a leaf with the correct label', () => {
           expect(result[0]).to.be.an('array').with.lengthOf(1);
-          expect(result[0][0].label).to.equal('FIXED-TEST');
+          expect(result[0][0].label).to.equal('FIXED_TEST');
         });
 
         it('responds with a leaf with value decoded as string', () => {
@@ -124,7 +124,7 @@ describe('FeedProcessor', () => {
           calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
           const feeds: Feeds = {
-            'BASE-QUOTE': feedFactory.build(),
+            TEST: feedFactory.build(),
           };
 
           testFetcher.apply = stub().resolves(100.0);
@@ -134,7 +134,7 @@ describe('FeedProcessor', () => {
 
         it('responds with a leaf with correct label', () => {
           expect(result[0]).to.be.an('array').with.lengthOf(1);
-          expect(result[0][0].label).to.equal('BASE-QUOTE');
+          expect(result[0][0].label).to.equal('TEST');
         });
 
         it('responds with a leaf with value decoded as number', () => {
@@ -150,7 +150,7 @@ describe('FeedProcessor', () => {
           calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
           const feeds: Feeds = {
-            'BASE-QUOTE': feedFactory.build({
+            TEST: feedFactory.build({
               inputs: [
                 feedInputFactory.build({
                   fetcher: {
@@ -181,7 +181,7 @@ describe('FeedProcessor', () => {
 
         it('responds with a leaf with correct label', () => {
           expect(result[0]).to.be.an('array').with.lengthOf(1);
-          expect(result[0][0].label).to.equal('BASE-QUOTE');
+          expect(result[0][0].label).to.equal('TEST');
         });
 
         it('responds with a leaf with the mean value', () => {
