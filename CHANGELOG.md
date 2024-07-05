@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.28.4] - 2024-07-05
+### Added
+- add additional logs for debugging fetchers
+
 ## [7.28.3] - 2024-07-03
 ### Added
 - add additional logs for debugging fetchers
