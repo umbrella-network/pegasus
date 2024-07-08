@@ -200,6 +200,8 @@ BNB-USD:
 ETH-USD-TWAP-1day:
   discrepancy: 0.5
   precision: 2
+  base: ETH-TWAP
+  quote: USD
   inputs:
     - fetcher:
         name: CryptoCompareHistoHour
@@ -213,6 +215,8 @@ ETH-USD-TWAP-1day:
 ETH-USD-TWAP-30days:
   discrepancy: 0.5
   precision: 2
+  base: ETH-TWAP
+  quote: USD
   inputs:
     - fetcher:
         name: CryptoCompareHistoDay
@@ -226,6 +230,8 @@ ETH-USD-TWAP-30days:
 ETH-USD-VWAP-1day:
   discrepancy: 0.5
   precision: 2
+  base: ETH-VWAP
+  quote: USD
   inputs:
     - fetcher:
         name: CryptoCompareHistoHour
