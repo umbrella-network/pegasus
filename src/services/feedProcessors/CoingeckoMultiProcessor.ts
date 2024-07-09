@@ -66,6 +66,8 @@ export default class CoingeckoMultiProcessor {
     const inputsIndexMap: {[key: string]: number} = {};
 
     feedFetchers.forEach((fetcher, index) => {
+      if (fetcher.name != FetcherName.COINGECKO_PRICE) return;
+
       const {id, currency} = fetcher.params as InputParams;
       inputsIndexMap[`${id}:${currency}`] = index;
     });

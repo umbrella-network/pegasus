@@ -12,8 +12,8 @@ import {IdentityCalculator} from '../../src/services/calculators/index.js';
 import Feeds from '../../src/types/Feed.js';
 import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
 import Leaf from '../../src/types/Leaf.js';
-import CryptoCompareMultiProcessor from '../../src/services/FeedProcessor/CryptoCompareMultiProcessor.js';
-import CoingeckoMultiProcessor from '../../src/services/FeedProcessor/CoingeckoMultiProcessor.js';
+import CryptoCompareMultiProcessor from '../../src/services/feedProcessors/CryptoCompareMultiProcessor.js';
+import CoingeckoMultiProcessor from '../../src/services/feedProcessors/CoingeckoMultiProcessor.js';
 import {FeedFetcherInterface, FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;

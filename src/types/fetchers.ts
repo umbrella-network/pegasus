@@ -59,3 +59,10 @@ export enum FetcherName {
   RANDOM_NUMBER = 'RandomNumber',
   SOVRYN_PRICE = 'SovrynPriceFetcher',
 }
+
+export const allMultiFetchers: Set<string> = new Set([
+  FetcherName.CRYPTO_COMPARE_PRICE,
+  FetcherName.COINGECKO_PRICE,
+  FetcherName.UNISWAP_V3,
+  FetcherName.SOVRYN_PRICE,
+]);

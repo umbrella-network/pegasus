@@ -5,11 +5,11 @@ import {price} from '@umb-network/validator';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
 import Leaf from '../types/Leaf.js';
-import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
+import MultiFeedProcessor from './feedProcessors/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {FetcherName} from '../types/fetchers.js';
+import {allMultiFetchers} from '../types/fetchers.js';
 
 interface Calculator {
   // eslint-disable-next-line
@@ -174,13 +174,6 @@ class FeedProcessor {
    * @return multiInputs will be aggregated by the respective processor to be fetched in one API call
    */
   private separateInputs(uniqueFeedFetcherMap: {[hash: string]: FeedFetcher}) {
-    const multiFetchingInputsNames = [
-      FetcherName.CRYPTO_COMPARE_PRICE,
-      FetcherName.COINGECKO_PRICE,
-      FetcherName.UNISWAP_V3,
-      FetcherName.SOVRYN_PRICE,
-    ];
-
     const fetcherMapArr = Object.values(uniqueFeedFetcherMap);
     const fetcherKeys = Object.keys(uniqueFeedFetcherMap);
 
@@ -193,7 +186,7 @@ class FeedProcessor {
     };
 
     fetcherMapArr.forEach((fetcher: FeedFetcher, index) => {
-      if (multiFetchingInputsNames.includes(fetcher.name)) {
+      if (allMultiFetchers.has(fetcher.name)) {
         separatedInputs.multiInputs[fetcherKeys[index]] = fetcher;
       } else {
         separatedInputs.singleInputs[fetcherKeys[index]] = fetcher;

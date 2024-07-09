@@ -3,9 +3,9 @@ import sinon, {createStubInstance, SinonStubbedInstance} from 'sinon';
 
 import {FeedFetcher} from '../../../src/types/Feed.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
-import MultiFeedProcessor from '../../../src/services/FeedProcessor/MultiFeedProcessor.js';
-import CoingeckoMultiProcessor from '../../../src/services/FeedProcessor/CoingeckoMultiProcessor.js';
-import CryptoCompareMultiProcessor from '../../../src/services/FeedProcessor/CryptoCompareMultiProcessor.js';
+import MultiFeedProcessor from '../../../src/services/feedProcessors/MultiFeedProcessor.js';
+import CoingeckoMultiProcessor from '../../../src/services/feedProcessors/CoingeckoMultiProcessor.js';
+import CryptoCompareMultiProcessor from '../../../src/services/feedProcessors/CryptoCompareMultiProcessor.js';
 import {FetcherName} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
