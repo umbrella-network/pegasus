@@ -35,7 +35,7 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     return params;
   }
 
-  private sortOutput(feedFetchers: FeedFetcher[], values: OutputValues[]): string[] {
+  private sortOutput(feedFetchers: FeedFetcher[], values: (OutputValues | undefined)[]): string[] {
     const inputsIndexMap: {[key: string]: number} = {};
 
     feedFetchers.forEach((fetcher, index) => {
@@ -48,7 +48,10 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     const result: string[] = [];
     result.length = feedFetchers.length;
 
-    values.forEach(({base, quote, value}) => {
+    values.forEach((outputValues) => {
+      if (!outputValues) return;
+
+      const {base, quote, value} = outputValues;
       const index = inputsIndexMap[this.getKey(base, quote)];
 
       if (index !== undefined) {
