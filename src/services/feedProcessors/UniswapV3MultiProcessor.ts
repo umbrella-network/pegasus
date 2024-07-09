@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
 import {FeedFetcher} from '../../types/Feed.js';
-import {FeedFetcherInterface, StringMultiProcessorResult} from '../../types/fetchers.js';
+import {FeedFetcherInterface, FetcherName, StringMultiProcessorResult} from '../../types/fetchers.js';
 import UniswapV3MultiFetcher, {
   OutputValues,
   UniswapV3MultiFetcherParams,
@@ -26,7 +26,7 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     const params: UniswapV3MultiFetcherParams[] = [];
 
     feedInputs.forEach((fetcher) => {
-      if (!fetcher.name.includes('UniswapV3')) return;
+      if (!fetcher.name.includes(FetcherName.UNISWAP_V3)) return;
 
       const {fromChain, base, quote, amountInDecimals} = fetcher.params as UniswapV3MultiFetcherParams;
       params.push({fromChain, base, quote, amountInDecimals});
@@ -39,6 +39,8 @@ export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
     const inputsIndexMap: {[key: string]: number} = {};
 
     feedFetchers.forEach((fetcher, index) => {
+      if (fetcher.name != FetcherName.UNISWAP_V3) return;
+
       const {base, quote} = fetcher.params as FeedFetcherParams;
       inputsIndexMap[this.getKey(base, quote)] = index;
     });

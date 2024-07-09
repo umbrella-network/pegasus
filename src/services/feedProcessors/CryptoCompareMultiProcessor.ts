@@ -62,7 +62,7 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
       tsymSet = new Set<string>();
 
     feedInputs.forEach((fetcher) => {
-      if (!fetcher.name.includes('CryptoCompare')) return;
+      if (fetcher.name != FetcherName.CRYPTO_COMPARE_PRICE) return;
 
       const {fsym, tsyms} = fetcher.params as FeedFetcherParams;
 
@@ -80,8 +80,10 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
     const inputsIndexMap: {[key: string]: number} = {};
 
     feedFetchers.forEach((fetcher, index) => {
+      if (fetcher.name != FetcherName.CRY) return;
+
       const {fsym, tsyms} = fetcher.params as FeedFetcherParams;
-      // params might have different case but it will be accepted in API call and it will produce valid oputput
+      // params might have different case but it will be accepted in API call and it will produce valid output
       inputsIndexMap[`${fsym}:${tsyms}`.toUpperCase()] = index;
     });
 
