@@ -80,7 +80,7 @@ export default class CryptoCompareMultiProcessor implements FeedFetcherInterface
     const inputsIndexMap: {[key: string]: number} = {};
 
     feedFetchers.forEach((fetcher, index) => {
-      if (fetcher.name != FetcherName.CRY) return;
+      if (fetcher.name != FetcherName.CRYPTO_COMPARE_PRICE) return;
 
       const {fsym, tsyms} = fetcher.params as FeedFetcherParams;
       // params might have different case but it will be accepted in API call and it will produce valid output
