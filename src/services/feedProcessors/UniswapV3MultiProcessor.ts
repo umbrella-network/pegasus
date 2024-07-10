@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
 import {FeedFetcher} from '../../types/Feed.js';
-import {FeedFetcherInterface, FetcherName, StringMultiProcessorResult} from '../../types/fetchers.js';
+import {FeedMultiProcessorInterface, StringOrUndefined, FetcherName} from '../../types/fetchers.js';
 import UniswapV3MultiFetcher, {
   OutputValues,
   UniswapV3MultiFetcherParams,
@@ -13,10 +13,10 @@ interface FeedFetcherParams {
 }
 
 @injectable()
-export default class UniswapV3MultiProcessor implements FeedFetcherInterface {
+export default class UniswapV3MultiProcessor implements FeedMultiProcessorInterface {
   @inject(UniswapV3MultiFetcher) uniswapV3MultiFetcher!: UniswapV3MultiFetcher;
 
-  async apply(feedFetchers: FeedFetcher[]): Promise<StringMultiProcessorResult[]> {
+  async apply(feedFetchers: FeedFetcher[]): Promise<StringOrUndefined[]> {
     const params = this.createParams(feedFetchers);
     const outputs = await this.uniswapV3MultiFetcher.apply(params);
     return this.sortOutput(feedFetchers, outputs);

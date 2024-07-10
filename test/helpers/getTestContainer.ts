@@ -2,6 +2,7 @@ import {Container} from 'inversify';
 import winston from 'winston';
 import settings from '../../src/config/settings.js';
 import Settings from '../../src/types/Settings.js';
+import FeedSymbolChecker from '../../src/services/FeedSymbolChecker.js';
 const {createLogger, format, transports} = winston;
 
 export function getTestContainer(customSetting?: Settings): Container {
@@ -27,5 +28,6 @@ export function getTestContainer(customSetting?: Settings): Container {
 
   container.bind('Logger').toConstantValue(logger);
   container.bind('Settings').toConstantValue(customSetting || settings);
+  container.bind('FeedSymbolChecker').toConstantValue(new FeedSymbolChecker());
   return container;
 }

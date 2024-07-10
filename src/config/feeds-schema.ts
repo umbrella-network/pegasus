@@ -21,6 +21,8 @@ export default {
         interval: {type: 'number'},
         inputs: {type: 'array', minItems: 1, items: {$ref: '#/definitions/input'}},
         chains: {type: 'array', minItems: 1},
+        base: {type: 'string'},
+        quote: {type: 'string'},
       },
       required: ['discrepancy', 'precision', 'inputs'],
       additionalProperties: false,
