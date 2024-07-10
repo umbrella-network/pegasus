@@ -15,4 +15,5 @@ export enum TimeoutCodes {
   METALS_DEV_API,
   METALS_API,
   FUTURES_API,
+  BYBIT,
 }

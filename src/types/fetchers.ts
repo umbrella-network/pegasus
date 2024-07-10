@@ -29,6 +29,8 @@ export type FeedFetcherInterfaceResult =
   | Promise<CryptoCompareHistoFetcherResult[] | undefined>
   | Promise<CryptoCompareMultiProcessorResult[]>
   | Promise<SovrynPriceFetcherResult>
+  | Promise<NumberOrUndefined>
+  | Promise<NumberOrUndefined[]>
   | Promise<OptionsEntries>;
 
 export type FeedFetcherOptions = {
@@ -73,6 +75,7 @@ export enum FetcherName {
   YEARN_VAULT_TOKEN_PRICE = 'YearnVaultTokenPrice',
   RANDOM_NUMBER = 'RandomNumber',
   SOVRYN_PRICE = 'SovrynPriceFetcher',
+  BY_BIT = 'ByBit',
 }
 
 export const allMultiFetchers: Set<string> = new Set([
