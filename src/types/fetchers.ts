@@ -76,6 +76,7 @@ export enum FetcherName {
   RANDOM_NUMBER = 'RandomNumber',
   SOVRYN_PRICE = 'SovrynPriceFetcher',
   BY_BIT = 'ByBit',
+  BINANCE = 'Binance',
 }
 
 export const allMultiFetchers: Set<string> = new Set([

@@ -4,7 +4,7 @@ import {ByBitSpotFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
 import {ByBitSpotFetcherParams, OutputValue} from '../fetchers/ByBitSpotFetcher.js';
-import {NumberOrUndefined, FeedFetcherInterface} from '../../types/fetchers.js';
+import {NumberOrUndefined, FeedFetcherInterface, FetcherName} from '../../types/fetchers.js';
 
 interface FeedFetcherParams {
   symbol: string;
@@ -44,6 +44,8 @@ export default class ByBitMultiProcessor implements FeedFetcherInterface {
     const inputsIndexMap: {[key: string]: number} = {};
 
     feedFetchers.forEach((fetcher, index) => {
+      if (fetcher.name != FetcherName.BY_BIT) return;
+
       const {fsym, tsym} = fetcher.params as FeedFetcherParams;
       // params might have different case but it will be accepted in API call and it will produce valid oputput
       inputsIndexMap[`${fsym}:${tsym}`.toUpperCase()] = index;

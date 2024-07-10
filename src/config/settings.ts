@@ -395,6 +395,10 @@ const settings: Settings = {
     byBit: {
       timeout: timeoutWithCode(process.env.BYBIT_TIMEOUT || '5000', TimeoutCodes.BYBIT),
     },
+    binance: {
+      timeout: timeoutWithCode(process.env.BINANCE_TIMEOUT || '5000', TimeoutCodes.BINANCE),
+      maxBatchSize: parseInt(process.env.BINANCE_MAX_BATCH_SIZE || '500', 10),
+    },
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
       timeout: timeoutWithCode(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', TimeoutCodes.CRYPTOCOMPARE),
