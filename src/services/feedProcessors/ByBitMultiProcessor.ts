@@ -1,11 +1,10 @@
 import {inject, injectable} from 'inversify';
-import {Logger} from 'winston';
 
 import {ByBitSpotFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
 import {ByBitSpotFetcherParams, OutputValue} from '../fetchers/ByBitSpotFetcher.js';
-import {NumberProcessorResult, FeedFetcherInterface} from '../../types/fetchers.js';
+import {NumberOrUndefined, FeedFetcherInterface} from '../../types/fetchers.js';
 
 interface FeedFetcherParams {
   symbol: string;
@@ -17,7 +16,7 @@ interface FeedFetcherParams {
 export default class ByBitMultiProcessor implements FeedFetcherInterface {
   @inject(ByBitSpotFetcher) byBitSpotFetcher!: ByBitSpotFetcher;
 
-  async apply(feedFetchers: FeedFetcher[]): Promise<NumberProcessorResult[]> {
+  async apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]> {
     const params = this.createParams(feedFetchers);
     const outputs = await this.byBitSpotFetcher.apply(params);
 
