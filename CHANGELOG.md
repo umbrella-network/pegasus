@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Fixed
 - fix conditions for feeds in multi fetchers
+- fix conversion to number in Uniswap V3 fetcher and fix support for unsuccessful prices
 
 ## [7.28.6] - 2024-07-06
 ### Fixed

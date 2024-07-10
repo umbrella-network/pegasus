@@ -36,16 +36,16 @@ describe('UniswapV3MultiFetcher', () => {
       fromChain: 'ethereum',
       quote: tokenTest0,
       base: tokenTest1,
-      amountInDecimals: 10,
+      amountInDecimals: 18,
     },
-    {fromChain: 'ethereum', quote: tokenTest1, base: tokenTest2, amountInDecimals: 10},
-    {fromChain: 'ethereum', quote: tokenTest1, base: tokenTest3, amountInDecimals: 10},
+    {fromChain: 'ethereum', quote: tokenTest1, base: tokenTest2, amountInDecimals: 18},
+    {fromChain: 'ethereum', quote: tokenTest1, base: tokenTest3, amountInDecimals: 18},
   ];
 
   const responseGetPrices: [{success: boolean; price: BigNumber}[], number] = [
     [
-      {success: true, price: BigNumber.from(100)},
-      {success: true, price: BigNumber.from(200)},
+      {success: true, price: BigNumber.from(100n * 10n ** 18n)},
+      {success: true, price: BigNumber.from(200n * 10n ** 18n)},
       {success: false, price: BigNumber.from(0)},
     ],
     1710809300476,
@@ -136,11 +136,7 @@ describe('UniswapV3MultiFetcher', () => {
             quote: '0xfff9976782d46cc05630d1f6ebab18b2324d6b14',
             value: '200.0',
           },
-          {
-            base: '0x01f64f5dd704f7179c6a0733f625577677b48e3e',
-            quote: '0xfff9976782d46cc05630d1f6ebab18b2324d6b14',
-            value: '0',
-          },
+          undefined,
         ]);
       });
     });
