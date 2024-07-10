@@ -4,6 +4,7 @@ import {InputParams, OutputValues} from '../fetchers/BinancePriceMultiFetcher.js
 
 import {FeedFetcher} from '../../types/Feed.js';
 import {BinancePriceMultiFetcher} from '../fetchers/index.js';
+import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()
 export default class BinanceMultiProcessor {
@@ -20,7 +21,7 @@ export default class BinanceMultiProcessor {
     const inputs: InputParams[] = [];
 
     feedFetchers.forEach((fetcher) => {
-      if (!fetcher.name.includes('Binance')) return;
+      if (fetcher.name != FetcherName.BINANCE) return;
 
       const {id, currency} = fetcher.params as InputParams;
       inputs.push({id, currency});
