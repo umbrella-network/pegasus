@@ -13,8 +13,6 @@ export type SovrynPriceFetcherResult = {
 
 export type CryptoCompareMultiProcessorResult = number | undefined;
 
-export type StringMultiProcessorResult = string | undefined;
-
 export type OnChainDataFetcherResult = string | number;
 
 export type NumberOrUndefined = number | undefined;
@@ -24,7 +22,6 @@ export type StringOrUndefined = string | undefined;
 // TODO: refactor this type
 export type FeedFetcherInterfaceResult =
   | Promise<number | undefined>
-  | Promise<StringMultiProcessorResult[]>
   | Promise<OnChainDataFetcherResult>
   | Promise<CryptoCompareHistoFetcherResult[] | undefined>
   | Promise<CryptoCompareMultiProcessorResult[]>
@@ -45,7 +42,7 @@ export interface FeedFetcherInterface {
 }
 
 export interface FeedMultiProcessorInterface {
-  apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[] | StringOrUndefined[]>;
+  apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]>;
 }
 
 export enum FetcherName {
