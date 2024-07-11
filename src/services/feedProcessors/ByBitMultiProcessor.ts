@@ -5,6 +5,9 @@ import {FeedFetcher} from '../../types/Feed.js';
 
 import {ByBitSpotFetcherParams, OutputValue} from '../fetchers/ByBitSpotFetcher.js';
 import {NumberOrUndefined, FeedFetcherInterface, FetcherName} from '../../types/fetchers.js';
+import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import TimeService from '../TimeService.js';
+import FeedSymbolChecker from '../FeedSymbolChecker.js';
 
 interface FeedFetcherParams {
   symbol: string;
@@ -15,10 +18,38 @@ interface FeedFetcherParams {
 @injectable()
 export default class ByBitMultiProcessor implements FeedFetcherInterface {
   @inject(ByBitSpotFetcher) byBitSpotFetcher!: ByBitSpotFetcher;
+  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
+  @inject(TimeService) private timeService!: TimeService;
+
+  static fetcherSource = '';
 
   async apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]> {
     const params = this.createParams(feedFetchers);
     const outputs = await this.byBitSpotFetcher.apply(params);
+
+    const payloads: PriceDataPayload[] = [];
+
+    for (const [ix, output] of outputs.entries()) {
+      if (!output) continue;
+
+      const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
+      if (!result) continue;
+
+      const [feedBase, feedQuote] = result;
+
+      payloads.push({
+        fetcher: FetcherName.BY_BIT,
+        value: output.value.toString(),
+        valueType: PriceValueType.Price,
+        timestamp: this.timeService.apply(),
+        feedBase,
+        feedQuote,
+        fetcherSource: ByBitMultiProcessor.fetcherSource,
+      });
+    }
+
+    await this.priceDataRepository.savePrices(payloads);
 
     return this.sortOutput(feedFetchers, outputs.flat());
   }
