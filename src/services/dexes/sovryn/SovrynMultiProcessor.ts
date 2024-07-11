@@ -73,7 +73,7 @@ export default class SovrynMultiProcessor implements FeedMultiProcessorInterface
     return request;
   }
 
-  private sortOutput(feedFetchers: FeedFetcher[], prices: (number | undefined)[]): number[] {
+  private sortOutput(feedFetchers: FeedFetcher[], prices: NumberOrUndefined[]): number[] {
     const result: number[] = [];
     result.length = feedFetchers.length;
 

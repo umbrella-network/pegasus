@@ -96,11 +96,7 @@ export default class BinancePriceMultiFetcher {
       if (value) {
         this.logger.debug(`[BinancePriceMultiFetcher] resolved price: ${this.buildSymbol(input)}: ${value}`);
 
-        outputs.push({
-          id,
-          currency,
-          value,
-        });
+        outputs.push({id, currency, value});
       }
     });
 

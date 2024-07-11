@@ -2,19 +2,11 @@ import {inject, injectable} from 'inversify';
 
 import {FeedFetcher} from '../../types/Feed.js';
 import {FeedMultiProcessorInterface, FetcherName, NumberOrUndefined} from '../../types/fetchers.js';
-import UniswapV3MultiFetcher, {
-  OutputValues,
-  UniswapV3MultiFetcherParams,
-} from '../dexes/uniswapV3/UniswapV3MultiFetcher.js';
+import UniswapV3MultiFetcher, {UniswapV3MultiFetcherParams} from '../dexes/uniswapV3/UniswapV3MultiFetcher.js';
 
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
 import FeedSymbolChecker from '../FeedSymbolChecker.js';
-
-interface FeedFetcherParams {
-  base: string;
-  quote: string;
-}
 
 @injectable()
 export default class UniswapV3MultiProcessor implements FeedMultiProcessorInterface {
@@ -41,7 +33,7 @@ export default class UniswapV3MultiProcessor implements FeedMultiProcessorInterf
 
       payloads.push({
         fetcher: FetcherName.UNISWAP_V3,
-        value: output.value.toString(),
+        value: output.toString(),
         valueType: PriceValueType.Price,
         timestamp: this.timeService.apply(),
         feedBase,
@@ -68,27 +60,20 @@ export default class UniswapV3MultiProcessor implements FeedMultiProcessorInterf
     return params;
   }
 
-  private sortOutput(feedFetchers: FeedFetcher[], values: (OutputValues | undefined)[]): NumberOrUndefined[] {
-    const inputsIndexMap: {[key: string]: number} = {};
-
-    feedFetchers.forEach((fetcher, index) => {
-      if (fetcher.name != FetcherName.UNISWAP_V3) return;
-
-      const {base, quote} = fetcher.params as FeedFetcherParams;
-      inputsIndexMap[this.getKey(base, quote)] = index;
-    });
-
-    const result: (number | undefined)[] = [];
+  private sortOutput(feedFetchers: FeedFetcher[], prices: NumberOrUndefined[]): NumberOrUndefined[] {
+    const result: NumberOrUndefined[] = [];
     result.length = feedFetchers.length;
 
-    values.forEach((outputValues) => {
-      if (!outputValues) return;
+    let priceIx = 0;
 
-      const {base, quote, value} = outputValues;
-      const index = inputsIndexMap[this.getKey(base, quote)];
+    feedFetchers.forEach((fetcher, index) => {
+      if (!fetcher.name.includes(FetcherName.UNISWAP_V3)) return;
 
-      if (index !== undefined) {
-        result[index] = parseFloat(value);
+      const price = prices[priceIx];
+
+      if (price !== undefined) {
+        result[index] = price;
+        priceIx++;
       }
     });
 
