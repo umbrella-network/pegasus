@@ -18,7 +18,8 @@ export default class SovrynMultiProcessor implements FeedMultiProcessorInterface
   static fetcherSource = '';
 
   async apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]> {
-    const request = this.createRequest(feedFetchers);
+    const sovrynInputs = feedFetchers.filter((fetcher) => fetcher.name === FetcherName.SOVRYN_PRICE);
+    const request = sovrynInputs.map((input) => input.params as PairRequest);
     this.logger.debug(`[SovrynMultiProcessor] started, ${request.length} feeds to request.`);
 
     const priceResponse = await this.sovrynFetcher.apply(request);
@@ -32,7 +33,7 @@ export default class SovrynMultiProcessor implements FeedMultiProcessorInterface
         continue;
       }
 
-      const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
+      const result = this.feedSymbolChecker.apply(sovrynInputs[ix].symbol);
 
       if (!result) {
         this.logger.debug(`[SovrynMultiProcessor] !result, ${ix} ${price}`);
@@ -57,20 +58,6 @@ export default class SovrynMultiProcessor implements FeedMultiProcessorInterface
     await this.priceDataRepository.savePrices(payloads);
 
     return this.sortOutput(feedFetchers, prices);
-  }
-
-  private createRequest(feedInputs: FeedFetcher[]): PairRequest[] {
-    const request: PairRequest[] = [];
-
-    feedInputs.forEach((fetcher) => {
-      if (!fetcher.name.includes(FetcherName.SOVRYN_PRICE)) return;
-
-      const request_ = fetcher.params as PairRequest;
-
-      request.push(request_);
-    });
-
-    return request;
   }
 
   private sortOutput(feedFetchers: FeedFetcher[], prices: NumberOrUndefined[]): number[] {

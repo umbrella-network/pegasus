@@ -18,7 +18,8 @@ export default class UniswapV3MultiProcessor implements FeedMultiProcessorInterf
   static fetcherSource = '';
 
   async apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]> {
-    const params = this.createParams(feedFetchers);
+    const uniswapInputs = feedFetchers.filter((fetcher) => fetcher.name === FetcherName.UNISWAP_V3);
+    const params = uniswapInputs.map((input) => input.params as UniswapV3MultiFetcherParams);
     const outputs = await this.uniswapV3MultiFetcher.apply(params);
 
     const payloads: PriceDataPayload[] = [];
@@ -26,7 +27,7 @@ export default class UniswapV3MultiProcessor implements FeedMultiProcessorInterf
     for (const [ix, output] of outputs.entries()) {
       if (!output) continue;
 
-      const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
+      const result = this.feedSymbolChecker.apply(uniswapInputs[ix].symbol);
       if (!result) continue;
 
       const [feedBase, feedQuote] = result;
@@ -45,19 +46,6 @@ export default class UniswapV3MultiProcessor implements FeedMultiProcessorInterf
     await this.priceDataRepository.savePrices(payloads);
 
     return this.sortOutput(feedFetchers, outputs);
-  }
-
-  private createParams(feedInputs: FeedFetcher[]): UniswapV3MultiFetcherParams[] {
-    const params: UniswapV3MultiFetcherParams[] = [];
-
-    feedInputs.forEach((fetcher) => {
-      if (!fetcher.name.includes(FetcherName.UNISWAP_V3)) return;
-
-      const {fromChain, base, quote, amountInDecimals} = fetcher.params as UniswapV3MultiFetcherParams;
-      params.push({fromChain, base, quote, amountInDecimals});
-    });
-
-    return params;
   }
 
   private sortOutput(feedFetchers: FeedFetcher[], prices: NumberOrUndefined[]): NumberOrUndefined[] {
