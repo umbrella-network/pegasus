@@ -56,17 +56,29 @@ export class PriceDataRepository {
   }
 
   async latestSymbols(): Promise<string[]> {
-    const symbols = await getModelForClass(PriceDataModel).find({}, {feedBase: 1, feedQuote: 1}).limit(1000).exec();
-    const unique: Record<string, number> = {};
+    const documents = await getModelForClass(PriceDataModel)
+      .aggregate([
+        {$sort: {timestamp: -1}},
+        {
+          $group: {
+            _id: {feedQuote: '$feedQuote', feedBase: '$feedBase'},
+            latestDocument: {$first: '$$ROOT'},
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            symbol: {$concat: ['$latestDocument.feedBase', '-', '$latestDocument.feedQuote']},
+          },
+        },
+        {
+          // deterministic ordering
+          $sort: {symbol: 1},
+        },
+      ])
+      .exec();
 
-    symbols.forEach((s) => {
-      const symbol = s.feedBase + '-' + s.feedQuote;
-      unique[symbol] = unique[symbol] ? unique[symbol] + 1 : 1;
-    });
-
-    return Object.keys(unique).sort((a, b) => {
-      return unique[a] == unique[b] ? (a < b ? -1 : 1) : unique[b] - unique[a];
-    });
+    return documents.map((item: {symbol: string}) => item.symbol);
   }
 
   async latestPrice(feedBase: string, feedQuote: string, limit = 150): Promise<PriceDataModel[]> {
