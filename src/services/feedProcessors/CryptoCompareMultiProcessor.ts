@@ -1,0 +1,98 @@
+import {inject, injectable} from 'inversify';
+
+import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {InputParams, OutputValue} from '../fetchers/CryptoComparePriceMultiFetcher.js';
+import {FetcherName, NumberOrUndefined, FeedMultiProcessorInterface} from '../../types/fetchers.js';
+import {CryptoComparePriceMultiFetcher} from '../fetchers/index.js';
+import FeedSymbolChecker from '../FeedSymbolChecker.js';
+import {FeedFetcher} from '../../types/Feed.js';
+import TimeService from '../TimeService.js';
+
+interface FeedFetcherParams {
+  fsym: string;
+  tsyms: string;
+}
+
+@injectable()
+export default class CryptoCompareMultiProcessor implements FeedMultiProcessorInterface {
+  @inject(CryptoComparePriceMultiFetcher) cryptoComparePriceMultiFetcher!: CryptoComparePriceMultiFetcher;
+  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) private timeService!: TimeService;
+  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
+
+  static fetcherSource = '';
+
+  async apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]> {
+    const params = this.createParams(feedFetchers);
+    const outputs = await this.cryptoComparePriceMultiFetcher.apply(params);
+
+    const payloads: PriceDataPayload[] = [];
+
+    for (const [ix, output] of outputs.entries()) {
+      if (!output) continue;
+
+      const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
+      if (!result) continue;
+
+      const [feedBase, feedQuote] = result;
+
+      payloads.push({
+        fetcher: FetcherName.CRYPTO_COMPARE_PRICE,
+        value: output.value.toString(),
+        valueType: PriceValueType.Price,
+        timestamp: this.timeService.apply(),
+        feedBase,
+        feedQuote,
+        fetcherSource: CryptoCompareMultiProcessor.fetcherSource,
+      });
+    }
+
+    await this.priceDataRepository.savePrices(payloads);
+
+    return this.sortOutput(feedFetchers, outputs);
+  }
+
+  private createParams(feedInputs: FeedFetcher[]): InputParams {
+    const fsymSet = new Set<string>(),
+      tsymSet = new Set<string>();
+
+    feedInputs.forEach((fetcher) => {
+      if (fetcher.name != FetcherName.CRYPTO_COMPARE_PRICE) return;
+
+      const {fsym, tsyms} = fetcher.params as FeedFetcherParams;
+
+      fsymSet.add(fsym);
+      tsymSet.add(tsyms);
+    });
+
+    return {
+      fsyms: [...fsymSet],
+      tsyms: [...tsymSet],
+    };
+  }
+
+  protected sortOutput(feedFetchers: FeedFetcher[], values: OutputValue[]): number[] {
+    const inputsIndexMap: {[key: string]: number} = {};
+
+    feedFetchers.forEach((fetcher, index) => {
+      if (fetcher.name != FetcherName.CRYPTO_COMPARE_PRICE) return;
+
+      const {fsym, tsyms} = fetcher.params as FeedFetcherParams;
+      // params might have different case but it will be accepted in API call and it will produce valid output
+      inputsIndexMap[`${fsym}:${tsyms}`.toUpperCase()] = index;
+    });
+
+    const result: number[] = [];
+    result.length = feedFetchers.length;
+
+    values.forEach(({fsym, tsym, value}) => {
+      const index = inputsIndexMap[`${fsym}:${tsym}`.toUpperCase()];
+
+      if (index !== undefined) {
+        result[index] = value;
+      }
+    });
+
+    return result;
+  }
+}

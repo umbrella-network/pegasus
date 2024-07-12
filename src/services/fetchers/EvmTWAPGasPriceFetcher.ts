@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 
 import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository.js';
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
-import {FetcherName} from '../../types/fetchers.js';
+import {FeedFetcherInterface, FeedFetcherOptions, FetcherName} from '../../types/fetchers.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 
 /*
@@ -21,16 +21,18 @@ PolygonGasPrice-TWAP20:
           chainId: polygon
  */
 @injectable()
-class EvmTWAPGasPriceFetcher {
+class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
   @inject(BlockchainGasRepository) protected gasRepository!: BlockchainGasRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
 
   static fetcherSource = '';
 
-  async apply(
-    {twap = 20, chainId}: {twap: number; chainId: ChainsIds},
-    timestamp: number,
-  ): Promise<number | undefined> {
+  async apply(params: {twap: number; chainId: ChainsIds}, options: FeedFetcherOptions): Promise<number | undefined> {
+    const {twap = 20, chainId} = params;
+    const {timestamp, base: feedBase, quote: feedQuote} = options;
+
+    if (!timestamp || timestamp <= 0) throw new Error(`invalid timestamp value: ${timestamp}`);
+
     const gas = await this.gasRepository.twap(chainId, twap, timestamp);
     if (!gas) return;
 
@@ -42,9 +44,9 @@ class EvmTWAPGasPriceFetcher {
       fetcher: FetcherName.TWAP_GAS_PRICE,
       value: gasPrice.toString(),
       valueType: PriceValueType.Price,
-      timestamp: timestamp,
-      feedBase: 'PolygonGasPrice',
-      feedQuote: 'TWAP20',
+      timestamp,
+      feedBase,
+      feedQuote,
       fetcherSource: EvmTWAPGasPriceFetcher.fetcherSource,
     };
 

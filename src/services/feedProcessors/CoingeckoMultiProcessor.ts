@@ -5,12 +5,12 @@ import {InputParams, OutputValues} from '../fetchers/CoingeckoPriceMultiFetcher.
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
-import {FetcherName} from '../../types/fetchers.js';
+import {FetcherName, NumberOrUndefined, FeedMultiProcessorInterface} from '../../types/fetchers.js';
 import TimeService from '../TimeService.js';
 import FeedSymbolChecker from '../FeedSymbolChecker.js';
 
 @injectable()
-export default class CoingeckoMultiProcessor {
+export default class CoingeckoMultiProcessor implements FeedMultiProcessorInterface {
   @inject(CoingeckoPriceMultiFetcher) coingeckoPriceMultiFetcher!: CoingeckoPriceMultiFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
@@ -19,7 +19,7 @@ export default class CoingeckoMultiProcessor {
 
   static fetcherSource = '';
 
-  async apply(feedFetchers: FeedFetcher[]): Promise<(number | undefined)[]> {
+  async apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]> {
     const params = this.createParams(feedFetchers);
     const outputs = await this.coingeckoPriceMultiFetcher.apply(params);
 
@@ -66,6 +66,8 @@ export default class CoingeckoMultiProcessor {
     const inputsIndexMap: {[key: string]: number} = {};
 
     feedFetchers.forEach((fetcher, index) => {
+      if (fetcher.name != FetcherName.COINGECKO_PRICE) return;
+
       const {id, currency} = fetcher.params as InputParams;
       inputsIndexMap[`${id}:${currency}`] = index;
     });

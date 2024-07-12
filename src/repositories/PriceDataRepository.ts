@@ -29,7 +29,7 @@ export class PriceDataRepository {
       const doc = await getModelForClass(PriceDataModel).create({...data});
       await doc.save();
     } catch (error) {
-      this.logger.error(`couldn't create document for PriceData: ${error}`);
+      this.logger.error(`[PriceDataRepository] couldn't create document for PriceData: ${error}`);
     }
   }
 
@@ -47,7 +47,42 @@ export class PriceDataRepository {
     try {
       await model.bulkWrite(bulkOps);
     } catch (error) {
-      this.logger.error(`couldn't perform bulkWrite for PriceData: ${error}`);
+      this.logger.error(`[PriceDataRepository] couldn't perform bulkWrite for PriceData: ${error}`);
     }
+  }
+
+  async latest(limit = 150): Promise<PriceDataModel[]> {
+    return getModelForClass(PriceDataModel).find().sort({timestamp: -1}).limit(limit).exec();
+  }
+
+  async latestSymbols(): Promise<string[]> {
+    const documents = await getModelForClass(PriceDataModel)
+      .aggregate([
+        {$sort: {timestamp: -1}},
+        {
+          $group: {
+            _id: {feedQuote: '$feedQuote', feedBase: '$feedBase'},
+            latestDocument: {$first: '$$ROOT'},
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            symbol: {$concat: ['$latestDocument.feedBase', '-', '$latestDocument.feedQuote']},
+          },
+        },
+        {
+          // deterministic ordering
+          $sort: {symbol: 1},
+        },
+      ])
+      .exec();
+
+    return documents.map((item: {symbol: string}) => item.symbol);
+  }
+
+  async latestPrice(feedBase: string, feedQuote: string, limit = 150): Promise<PriceDataModel[]> {
+    if (!feedBase || !feedQuote) throw new Error('[PriceDataRepository] empty symbol');
+    return getModelForClass(PriceDataModel).find({feedBase, feedQuote}).sort({timestamp: -1}).limit(limit).exec();
   }
 }

@@ -1,4 +1,3 @@
-import {StaticJsonRpcProvider} from '@ethersproject/providers';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import {BigNumber, ethers} from 'ethers';
@@ -10,6 +9,7 @@ import {DexProtocolName} from '../../../types/Dexes.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
 import {ContractAddressService} from '../../../services/ContractAddressService.js';
+import {NumberOrUndefined} from 'src/types/fetchers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,23 +28,17 @@ type UniswapV3ContractHelperInput = {
   amountInDecimals: number;
 };
 
-export interface OutputValues {
-  base: string;
-  quote: string;
-  value: string;
-}
-
 @injectable()
 class UniswapV3MultiFetcher {
-  provider: StaticJsonRpcProvider | undefined;
-  readonly dexProtocol = DexProtocolName.UNISWAP_V3;
-
   @inject('Logger') protected logger!: Logger;
   @inject(UniswapV3PoolRepository) protected uniswapV3PoolRepository!: UniswapV3PoolRepository;
   @inject(ContractAddressService) contractAddressService!: ContractAddressService;
 
-  async apply(inputs: UniswapV3MultiFetcherParams[]): Promise<OutputValues[]> {
+  readonly dexProtocol = DexProtocolName.UNISWAP_V3;
+
+  async apply(inputs: UniswapV3MultiFetcherParams[]): Promise<NumberOrUndefined[]> {
     this.logger.debug(`[UniswapV3MultiFetcher]: start with inputs ${JSON.stringify(inputs)}`);
+
     if (inputs.length === 0) {
       this.logger.debug('[UniswapV3MultiFetcher] no inputs to fetch');
       return [];
@@ -103,7 +97,7 @@ class UniswapV3MultiFetcher {
   private async fetchData(
     chainId: ChainsIds,
     poolsToFetch: {pool: string; base: string; quote: string; amountInDecimals: number}[],
-  ): Promise<OutputValues[]> {
+  ): Promise<NumberOrUndefined[]> {
     const abi = JSON.parse(readFileSync(__dirname + '/UniswapV3FetcherHelper.abi.json', 'utf-8')).abi as never;
     const contract = await this.contractAddressService.getContract(chainId, 'UniswapV3FetcherHelper', abi);
 
@@ -127,30 +121,21 @@ class UniswapV3MultiFetcher {
   private processResult(
     results: {success: boolean; price: BigNumber}[],
     poolsToFetch: {pool: string; base: string; quote: string; amountInDecimals: number}[],
-  ): OutputValues[] {
-    const outputs: OutputValues[] = [];
+  ): NumberOrUndefined[] {
+    const outputs: NumberOrUndefined[] = [];
 
     for (const [i, result] of results.entries()) {
-      if (!result.success) {
-        outputs.push({base: poolsToFetch[i].base, quote: poolsToFetch[i].quote, value: '0'});
+      const {base, quote} = poolsToFetch[i];
 
-        this.logger.debug(
-          `[UniswapV3MultiFetcher] failed to fetch: ${poolsToFetch[i].base}, ${poolsToFetch[i].quote}: 0`,
-        );
+      if (!result.success) {
+        outputs.push(undefined);
+        this.logger.error(`[UniswapV3MultiFetcher] failed to fetch: ${base}, ${quote}`);
         continue;
       }
 
-      const value = result.price.toString();
+      outputs.push(Number(ethers.utils.formatUnits(result.price.toString(), 18)));
 
-      outputs.push({
-        base: poolsToFetch[i].base,
-        quote: poolsToFetch[i].quote,
-        value: ethers.utils.formatUnits(ethers.utils.parseUnits(value, 18), 18).toString(),
-      });
-
-      this.logger.debug(
-        `[UniswapV3MultiFetcher] resolved price: ${poolsToFetch[i].base}, ${poolsToFetch[i].quote}: ${result.price}`,
-      );
+      this.logger.debug(`[UniswapV3MultiFetcher] resolved price: ${base}, ${quote}: ${result.price.toString()}`);
     }
 
     return outputs;

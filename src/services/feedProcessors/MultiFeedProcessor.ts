@@ -7,6 +7,8 @@ import CoingeckoMultiProcessor from './CoingeckoMultiProcessor.js';
 import CryptoCompareMultiProcessor from './CryptoCompareMultiProcessor.js';
 import UniswapV3MultiProcessor from './UniswapV3MultiProcessor.js';
 import SovrynMultiProcessor from '../dexes/sovryn/SovrynMultiProcessor.js';
+import ByBitMultiProcessor from './ByBitMultiProcessor.js';
+import BinanceMultiProcessor from './BinanceMultiProcessor.js';
 
 @injectable()
 export default class MultiFeedProcessor {
@@ -15,6 +17,8 @@ export default class MultiFeedProcessor {
   @inject(CryptoCompareMultiProcessor) cryptoCompareMultiProcessor!: CryptoCompareMultiProcessor;
   @inject(UniswapV3MultiProcessor) uniswapV3MultiProcessor!: UniswapV3MultiProcessor;
   @inject(SovrynMultiProcessor) sovrynMultiProcessor!: SovrynMultiProcessor;
+  @inject(ByBitMultiProcessor) byBitMultiProcessor!: ByBitMultiProcessor;
+  @inject(BinanceMultiProcessor) binanceMultiProcessor!: BinanceMultiProcessor;
 
   async apply(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
     if (!feedFetchers.length) return [];
@@ -29,6 +33,8 @@ export default class MultiFeedProcessor {
       CoingeckoMultiProcessor: () => this.coingeckoMultiProcessor.apply(feedFetchers),
       UniswapV3MultiProcessor: () => this.uniswapV3MultiProcessor.apply(feedFetchers),
       SovrynMultiProcessor: () => this.sovrynMultiProcessor.apply(feedFetchers),
+      ByBitMultiProcessor: () => this.byBitMultiProcessor.apply(feedFetchers),
+      BinanceMultiProcessor: () => this.binanceMultiProcessor.apply(feedFetchers),
     };
 
     const promises = Object.values(promiseMap).map((fn) => fn());

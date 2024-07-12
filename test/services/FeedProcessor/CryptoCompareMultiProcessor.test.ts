@@ -3,7 +3,7 @@ import sinon, {createStubInstance} from 'sinon';
 
 import {FeedFetcher} from '../../../src/types/Feed.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
-import CryptoCompareMultiProcessor from '../../../src/services/FeedProcessor/CryptoCompareMultiProcessor.js';
+import CryptoCompareMultiProcessor from '../../../src/services/feedProcessors/CryptoCompareMultiProcessor.js';
 import CryptoCompareMultiPriceFetcher, {
   OutputValue,
 } from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher.js';

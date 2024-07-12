@@ -2,14 +2,14 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {SovrynPriceFetcher, PairRequest} from './SovrynPriceFetcher.js';
-import {FeedFetcherInterface, FetcherName} from '../../../types/fetchers.js';
+import {FeedMultiProcessorInterface, FetcherName, NumberOrUndefined} from '../../../types/fetchers.js';
 import {FeedFetcher} from '../../../types/Feed.js';
 import {PriceDataRepository, PriceValueType} from '../../../repositories/PriceDataRepository.js';
 import {PriceDataPayload} from '../../../repositories/PriceDataRepository.js';
 import FeedSymbolChecker from '../../FeedSymbolChecker.js';
 
 @injectable()
-export default class SovrynMultiProcessor implements FeedFetcherInterface {
+export default class SovrynMultiProcessor implements FeedMultiProcessorInterface {
   @inject(SovrynPriceFetcher) sovrynFetcher!: SovrynPriceFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
@@ -17,8 +17,9 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
 
   static fetcherSource = '';
 
-  async apply(feedFetchers: FeedFetcher[]): Promise<(number | undefined)[]> {
-    const request = this.createRequest(feedFetchers);
+  async apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]> {
+    const sovrynInputs = feedFetchers.filter((fetcher) => fetcher.name === FetcherName.SOVRYN_PRICE);
+    const request = sovrynInputs.map((input) => input.params as PairRequest);
     this.logger.debug(`[SovrynMultiProcessor] started, ${request.length} feeds to request.`);
 
     const priceResponse = await this.sovrynFetcher.apply(request);
@@ -32,7 +33,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
         continue;
       }
 
-      const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
+      const result = this.feedSymbolChecker.apply(sovrynInputs[ix].symbol);
 
       if (!result) {
         this.logger.debug(`[SovrynMultiProcessor] !result, ${ix} ${price}`);
@@ -59,21 +60,7 @@ export default class SovrynMultiProcessor implements FeedFetcherInterface {
     return this.sortOutput(feedFetchers, prices);
   }
 
-  private createRequest(feedInputs: FeedFetcher[]): PairRequest[] {
-    const request: PairRequest[] = [];
-
-    feedInputs.forEach((fetcher) => {
-      if (!fetcher.name.includes(FetcherName.SOVRYN_PRICE)) return;
-
-      const request_ = fetcher.params as PairRequest;
-
-      request.push(request_);
-    });
-
-    return request;
-  }
-
-  private sortOutput(feedFetchers: FeedFetcher[], prices: (number | undefined)[]): number[] {
+  private sortOutput(feedFetchers: FeedFetcher[], prices: NumberOrUndefined[]): number[] {
     const result: number[] = [];
     result.length = feedFetchers.length;
 

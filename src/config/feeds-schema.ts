@@ -21,6 +21,8 @@ export default {
         interval: {type: 'number'},
         inputs: {type: 'array', minItems: 1, items: {$ref: '#/definitions/input'}},
         chains: {type: 'array', minItems: 1},
+        base: {type: 'string'},
+        quote: {type: 'string'},
       },
       required: ['discrepancy', 'precision', 'inputs'],
       additionalProperties: false,
@@ -29,6 +31,8 @@ export default {
       properties: {
         fetcher: {
           oneOf: [
+            {$ref: '#/definitions/ByBitSpotFetcher'},
+            {$ref: '#/definitions/BinanceFetcher'},
             {$ref: '#/definitions/GVolImpliedVolatilityFetcher'},
             {$ref: '#/definitions/CryptoCompareHistoDayFetcher'},
             {$ref: '#/definitions/CryptoCompareHistoHourFetcher'},
@@ -67,6 +71,36 @@ export default {
         },
       },
       required: ['fetcher'],
+      additionalProperties: false,
+    },
+    ByBitSpotFetcher: {
+      properties: {
+        name: {const: 'ByBit'},
+        params: {
+          type: 'object',
+          properties: {
+            symbol: {type: 'string'},
+            fsym: {type: 'string'},
+            tsym: {type: 'string'},
+          },
+          required: ['symbol', 'fsym', 'tsym'],
+        },
+      },
+    },
+    BinanceFetcher: {
+      properties: {
+        name: {const: FetcherName.BINANCE},
+        params: {
+          type: 'object',
+          properties: {
+            id: {type: 'string'},
+            currency: {type: 'string'},
+          },
+          required: ['id', 'currency'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
       additionalProperties: false,
     },
     GVolImpliedVolatilityFetcher: {

@@ -15,8 +15,12 @@ import EvmTWAPGasPriceFetcher from './EvmTWAPGasPriceFetcher.js';
 import MetalPriceApiFetcher from './MetalPriceApiFetcher.js';
 import MetalsDevApiPriceFetcher from './MetalsDevApiFetcher.js';
 import GoldApiPriceFetcher from './GoldApiPriceFetcher.js';
+import ByBitSpotFetcher from './ByBitSpotFetcher.js';
+import BinancePriceMultiFetcher from './BinancePriceMultiFetcher.js';
 
 export {
+  ByBitSpotFetcher,
+  BinancePriceMultiFetcher,
   CryptoComparePriceMultiFetcher,
   CryptoCompareHistoDayFetcher,
   CryptoCompareHistoHourFetcher,

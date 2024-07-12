@@ -3,12 +3,18 @@ import {inject, injectable} from 'inversify';
 import {BaseProvider} from '@ethersproject/providers';
 import {ChainsIds} from '../../types/ChainsIds.js';
 import {ProviderRepository} from '../../repositories/ProviderRepository.js';
+import {FeedFetcherInterface, FeedFetcherOptions} from 'src/types/fetchers.js';
 
 @injectable()
-class RandomNumberFetcher {
+class RandomNumberFetcher implements FeedFetcherInterface {
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
-  async apply({numBlocks = 10} = {}, timestamp: number): Promise<string> {
+  async apply(params: {numBlocks: number}, options: FeedFetcherOptions): Promise<string> {
+    const {numBlocks = 10} = params;
+    const {timestamp} = options;
+
+    if (!timestamp || timestamp <= 0) throw new Error(`invalid timestamp value: ${timestamp}`);
+
     const evmProvider = this.providerRepository.get(ChainsIds.POLYGON).getRawProviderSync<BaseProvider>();
     let latest = await evmProvider.getBlock('latest');
 

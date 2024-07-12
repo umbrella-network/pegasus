@@ -1,11 +1,5 @@
 import {OptionsEntries} from '../services/fetchers/OptionsPriceFetcher.js';
-
-export type FetcherHistoryInterface = {
-  fetcher: string;
-  symbol: string;
-  timestamp: number;
-  value: string;
-};
+import {FeedFetcher} from './Feed.js';
 
 export type CryptoCompareHistoFetcherResult = [
   {high: number; low: number; open: number; close: number},
@@ -19,23 +13,36 @@ export type SovrynPriceFetcherResult = {
 
 export type CryptoCompareMultiProcessorResult = number | undefined;
 
-export type StringMultiProcessorResult = string | undefined;
-
 export type OnChainDataFetcherResult = string | number;
+
+export type NumberOrUndefined = number | undefined;
+
+export type StringOrUndefined = string | undefined;
 
 // TODO: refactor this type
 export type FeedFetcherInterfaceResult =
   | Promise<number | undefined>
-  | Promise<StringMultiProcessorResult[]>
   | Promise<OnChainDataFetcherResult>
   | Promise<CryptoCompareHistoFetcherResult[] | undefined>
   | Promise<CryptoCompareMultiProcessorResult[]>
   | Promise<SovrynPriceFetcherResult>
+  | Promise<NumberOrUndefined>
+  | Promise<NumberOrUndefined[]>
   | Promise<OptionsEntries>;
+
+export type FeedFetcherOptions = {
+  base: string;
+  quote: string;
+  timestamp?: number;
+};
 
 export interface FeedFetcherInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(params: any, timestamp?: number): FeedFetcherInterfaceResult;
+  apply(params: any, options: FeedFetcherOptions): FeedFetcherInterfaceResult;
+}
+
+export interface FeedMultiProcessorInterface {
+  apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]>;
 }
 
 export enum FetcherName {
@@ -65,4 +72,13 @@ export enum FetcherName {
   YEARN_VAULT_TOKEN_PRICE = 'YearnVaultTokenPrice',
   RANDOM_NUMBER = 'RandomNumber',
   SOVRYN_PRICE = 'SovrynPriceFetcher',
+  BY_BIT = 'ByBit',
+  BINANCE = 'Binance',
 }
+
+export const allMultiFetchers: Set<string> = new Set([
+  FetcherName.CRYPTO_COMPARE_PRICE,
+  FetcherName.COINGECKO_PRICE,
+  FetcherName.UNISWAP_V3,
+  FetcherName.SOVRYN_PRICE,
+]);

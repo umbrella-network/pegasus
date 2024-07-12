@@ -4,7 +4,7 @@ import {Logger} from 'winston';
 
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
-import {FetcherName} from '../../types/fetchers.js';
+import {FeedFetcherInterface, FeedFetcherOptions, FetcherName} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 
 export interface GoldApiInputParams {
@@ -13,7 +13,7 @@ export interface GoldApiInputParams {
 }
 
 @injectable()
-export default class GoldApiPriceFetcher {
+export default class GoldApiPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
@@ -28,10 +28,13 @@ export default class GoldApiPriceFetcher {
     this.timeout = settings.api.goldApi.timeout;
   }
 
-  async apply(input: GoldApiInputParams): Promise<number> {
-    this.logger.debug(`[GoldApiPriceFetcher] call for: ${input.symbol}/${input.currency}`);
+  async apply(params: GoldApiInputParams, options: FeedFetcherOptions): Promise<number> {
+    const {symbol, currency} = params;
+    const {base: feedBase, quote: feedQuote} = options;
 
-    const url = this.assembleUrl(input.symbol, input.currency);
+    this.logger.debug(`[GoldApiPriceFetcher] call for: ${symbol}/${currency}`);
+
+    const url = this.assembleUrl(symbol, currency);
 
     const response = await axios.get(url, {
       headers: {
@@ -42,24 +45,22 @@ export default class GoldApiPriceFetcher {
     });
 
     if (response.status !== 200) {
-      this.logger.error(
-        `[GoldApiPriceFetcher] Error fetching data for ${input.symbol}/${input.currency}: ${response.statusText}`,
-      );
+      this.logger.error(`[GoldApiPriceFetcher] Error fetching data for ${symbol}/${currency}: ${response.statusText}`);
       throw new Error(response.data);
     }
 
     const {price_gram_24k} = response.data;
 
     if (price_gram_24k !== undefined) {
-      this.logger.debug(`[GoldApiPriceFetcher] resolved price: ${input.symbol}/${input.currency}: ${price_gram_24k}`);
+      this.logger.debug(`[GoldApiPriceFetcher] resolved price: ${symbol}/${currency}: ${price_gram_24k}`);
 
       const payload: PriceDataPayload = {
         fetcher: FetcherName.GOLD_API_PRICE,
         value: price_gram_24k.toString(),
         valueType: PriceValueType.Price,
         timestamp: this.timeService.apply(),
-        feedBase: input.currency,
-        feedQuote: input.symbol,
+        feedBase,
+        feedQuote,
         fetcherSource: GoldApiPriceFetcher.fetcherSource,
       };
 
@@ -67,7 +68,7 @@ export default class GoldApiPriceFetcher {
 
       return price_gram_24k;
     } else {
-      throw new Error(`[GoldApiPriceFetcher] Missing rate for ${input.symbol}/${input.currency}`);
+      throw new Error(`[GoldApiPriceFetcher] Missing rate for ${symbol}/${currency}`);
     }
   }
 

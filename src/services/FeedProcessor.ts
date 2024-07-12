@@ -5,12 +5,12 @@ import {price} from '@umb-network/validator';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
 import Leaf from '../types/Leaf.js';
-import MultiFeedProcessor from './FeedProcessor/MultiFeedProcessor.js';
+import MultiFeedProcessor from './feedProcessors/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {FetcherHistoryInterface, FetcherName} from '../types/fetchers.js';
-import {FetcherHistoryRepository} from '../repositories/FetcherHistoryRepository.js';
+import {allMultiFetchers} from '../types/fetchers.js';
+import FeedSymbolChecker from './FeedSymbolChecker.js';
 
 interface Calculator {
   // eslint-disable-next-line
@@ -26,26 +26,29 @@ interface FetcherError {
 
 @injectable()
 class FeedProcessor {
-  @inject('Logger') private logger!: Logger;
-
   @inject(MultiFeedProcessor) multiFeedProcessor!: MultiFeedProcessor;
   @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
-  @inject(FetcherHistoryRepository) fetcherHistoryRepository!: FetcherHistoryRepository;
+  @inject(FeedSymbolChecker) feedSymbolChecker!: FeedSymbolChecker;
+  @inject('Logger') private logger!: Logger;
 
   private logPrefix = '[FeedProcessor]';
 
   async apply(timestamp: number, ...feedsArray: Feeds[]): Promise<Leaf[][]> {
     // collect unique inputs
     const uniqueFeedFetcherMap: {[hash: string]: FeedFetcher} = {};
-    const history: FetcherHistoryInterface[] = [];
 
     feedsArray.forEach((feeds) => {
       const keys = Object.keys(feeds);
 
       keys.forEach((leafLabel) =>
         feeds[leafLabel].inputs.forEach((input) => {
-          uniqueFeedFetcherMap[hash(input.fetcher)] = {...input.fetcher, symbol: leafLabel};
+          uniqueFeedFetcherMap[hash(input.fetcher)] = {
+            ...input.fetcher,
+            symbol: leafLabel,
+            base: feeds[leafLabel].base,
+            quote: feeds[leafLabel].quote,
+          };
         }),
       );
     });
@@ -76,7 +79,6 @@ class FeedProcessor {
     const values = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
-    const ignoredMap: {[key: string]: boolean} = {};
     const keyValueMap: {[key: string]: number} = {};
 
     feedsArray.forEach((feeds) => {
@@ -94,29 +96,11 @@ class FeedProcessor {
 
         this.logger.debug(`${this.logPrefix} feedValues: ${JSON.stringify(feedValues)}`);
 
-        if (!feedValues.length) {
-          ignoredMap[ticker] = true;
-        } else if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
+        if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
           leaves.push(this.buildLeaf(feedValues[0].key, feedValues[0].value));
-
-          history.push(<FetcherHistoryInterface>{
-            fetcher: feed.inputs[0].fetcher.name,
-            symbol: feedValues[0].key,
-            value: typeof feedValues[0].value == 'string' ? feedValues[0].value : feedValues[0].value.toString(),
-            timestamp,
-          });
         } else {
           // calculateFeed is allowed to return different keys
           const groups = FeedProcessor.groupInputs(feedValues);
-
-          feedValues.forEach((feedValue, feedIx) => {
-            history.push(<FetcherHistoryInterface>{
-              fetcher: feed.inputs[feedIx].fetcher.name,
-              symbol: feedValue.key,
-              value: typeof feedValue.value == 'string' ? feedValue.value : feedValue.value.toString(),
-              timestamp,
-            });
-          });
 
           for (const key in groups) {
             const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
@@ -131,8 +115,6 @@ class FeedProcessor {
 
     this.logger.debug(`${this.logPrefix} result: ${JSON.stringify(result)}`);
 
-    await this.fetcherHistoryRepository.saveMany(history);
-
     return result;
   }
 
@@ -144,9 +126,18 @@ class FeedProcessor {
       return;
     }
 
+    const result = this.getBaseAndQuote(feedFetcher);
+
+    if (!result) {
+      this.logger.error(`Cannot parse base & quote from symbol:${feedFetcher.symbol}`);
+      return;
+    }
+
+    const [base, quote] = result;
+
     try {
       this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
-      return (await fetcher.apply(feedFetcher.params, timestamp)) || undefined;
+      return await fetcher.apply(feedFetcher.params, {base, quote, timestamp});
     } catch (err) {
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);
@@ -195,13 +186,6 @@ class FeedProcessor {
    * @return multiInputs will be aggregated by the respective processor to be fetched in one API call
    */
   private separateInputs(uniqueFeedFetcherMap: {[hash: string]: FeedFetcher}) {
-    const multiFetchingInputsNames = [
-      FetcherName.CRYPTO_COMPARE_PRICE,
-      FetcherName.COINGECKO_PRICE,
-      FetcherName.UNISWAP_V3,
-      FetcherName.SOVRYN_PRICE,
-    ];
-
     const fetcherMapArr = Object.values(uniqueFeedFetcherMap);
     const fetcherKeys = Object.keys(uniqueFeedFetcherMap);
 
@@ -214,7 +198,7 @@ class FeedProcessor {
     };
 
     fetcherMapArr.forEach((fetcher: FeedFetcher, index) => {
-      if (multiFetchingInputsNames.includes(fetcher.name)) {
+      if (allMultiFetchers.has(fetcher.name)) {
         separatedInputs.multiInputs[fetcherKeys[index]] = fetcher;
       } else {
         separatedInputs.singleInputs[fetcherKeys[index]] = fetcher;
@@ -239,6 +223,14 @@ class FeedProcessor {
     }
 
     return result;
+  }
+
+  private getBaseAndQuote(feedFetcher: FeedFetcher): string[] | undefined {
+    if (feedFetcher.base && feedFetcher.quote) {
+      return [feedFetcher.base, feedFetcher.quote];
+    } else {
+      return this.feedSymbolChecker.apply(feedFetcher.symbol);
+    }
   }
 }
 

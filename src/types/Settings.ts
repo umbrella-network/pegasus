@@ -115,9 +115,6 @@ type Settings = {
       providerUrl: string[];
     };
   };
-  fetcherHistory: {
-    ttl: number;
-  };
   blockchain: {
     wallets: {
       evm: {
@@ -164,6 +161,13 @@ type Settings = {
     resolveStatusTimeout: number;
   };
   api: {
+    byBit: {
+      timeout: number;
+    };
+    binance: {
+      timeout: number;
+      maxBatchSize: number;
+    };
     cryptocompare: {
       apiKey: string;
       timeout: number;

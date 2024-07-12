@@ -333,9 +333,6 @@ const settings: Settings = {
     discrepancyCutoff: parseInt(process.env.CONSENSUS_DISCREPANCY_CUTOFF || '800'),
     roundInterval: parseInt(process.env.CONSENSUS_ROUND_INTERVAL || '1000'),
   },
-  fetcherHistory: {
-    ttl: parseInt(process.env.PRICE_HISTORY_TTL || (60 * 60 * 24 * 30 * 12).toString()),
-  },
   blockchains: {
     ethereum: {
       providerUrl: process.env.BLOCKCHAINS_ETHEREUM_PROVIDER_URL
@@ -395,6 +392,13 @@ const settings: Settings = {
     resolveStatusTimeout: parseInt(process.env.RESOLVE_STATUS_TIMEOUT || '5000'),
   },
   api: {
+    byBit: {
+      timeout: timeoutWithCode(process.env.BYBIT_TIMEOUT || '5000', TimeoutCodes.BYBIT),
+    },
+    binance: {
+      timeout: timeoutWithCode(process.env.BINANCE_TIMEOUT || '5000', TimeoutCodes.BINANCE),
+      maxBatchSize: parseInt(process.env.BINANCE_MAX_BATCH_SIZE || '500', 10),
+    },
     cryptocompare: {
       apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
       timeout: timeoutWithCode(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', TimeoutCodes.CRYPTOCOMPARE),
