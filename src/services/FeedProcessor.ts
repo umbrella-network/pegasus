@@ -129,7 +129,11 @@ class FeedProcessor {
     let result = this.getBaseAndQuote(feedFetcher);
 
     if (!result) {
-      if (feedFetcher.symbol == 'PolygonGas-TWAP10-wei') {
+      // TODO backwards compatibility code, it can be removed in future if feed config will be updated
+      if (feedFetcher.symbol == 'FIXED_RAND') {
+        this.logger.warn(`Apply hardcoded base & quote for symbol:${feedFetcher.symbol}`);
+        result = ['RAND', 'FIXED'];
+      } else if (feedFetcher.symbol == 'PolygonGas-TWAP10-wei') {
         this.logger.warn(`Apply hardcoded base & quote for symbol:${feedFetcher.symbol}`);
         result = ['PolygonGas_TWAP10', 'wei'];
       } else {
