@@ -21,8 +21,13 @@ export class ValidatorsResolver {
 
     try {
       const validators = await bank.resolveValidators();
-      this.logger.info(`[ValidatorsResolver] cached ${validators.length} validators for ${chainId}`);
-      await this.validatorRepository.cache(chainId, validators);
+
+      if (validators.length == 0) {
+        this.logger.warn(`[ValidatorsResolver] no validators found for ${chainId}`);
+      } else {
+        this.logger.info(`[ValidatorsResolver] ${validators.length} validators cached for ${chainId}`);
+        await this.validatorRepository.cache(chainId, validators);
+      }
     } catch (e: unknown) {
       this.logger.error(`[ValidatorsResolver] ${chainId}: ${(e as Error).message}`);
       const [address, networkId] = await Promise.all([bank.address(), bank.chainId()]);

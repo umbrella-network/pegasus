@@ -56,7 +56,7 @@ export class DeviationLeader {
       this.deviationConsensusRepository.existedChains(),
     ]);
 
-    if (validators.length === 0) throw new Error('validators list is empty');
+    if (validators.length === 0) throw new Error('[DeviationLeader] validators list is empty');
 
     if (
       !this.deviationLeaderSelector.apply(
