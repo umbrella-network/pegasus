@@ -60,6 +60,8 @@ export class ValidatorRepository {
   }
 
   async cache(chainId: ChainsIds, validators: Validator[]): Promise<void> {
+    if (validators.length == 0) throw new Error('[ValidatorRepository] empty validators list');
+
     await getModelForClass(CachedValidator).deleteMany({chainId});
     const CachedValidatorModel = getModelForClass(CachedValidator);
 

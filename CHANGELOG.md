@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.29.1] - 2024-07-15
+### Added
+- added better logs for caching validators
+
 ## [7.29.0] - 2024-07-12
 ### Added
 - new `ByBitSpotFetcher`
