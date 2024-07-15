@@ -1,12 +1,15 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
+import {ethers} from 'ethers';
 
 import {PriceDataModel} from '../models/PriceDataModel.js';
 import {FetcherResult, StringOrUndefined} from '../types/fetchers.js';
 import FeedSymbolChecker from '../services/FeedSymbolChecker.js';
 import TimeService from '../services/TimeService.js';
 import Settings from '../types/Settings.js';
+import {ChainsIds} from '../types/ChainsIds.js';
+import {DeviationSignerRepository} from './DeviationSignerRepository.js';
 
 export enum PriceValueType {
   Price = 'Price',
@@ -20,6 +23,7 @@ export type PriceDataPayload = {
   feedBase: string; // base configurable on feeds.yaml e.g. WBTC-USDC -> base is WBTC
   feedQuote: string; // quote configurable on feeds.yaml e.g. WBTC-USDC -> quote is USDC
   fetcherSource: string;
+  quoteLiquidity?: string;
 };
 
 @injectable()
@@ -28,6 +32,7 @@ export class PriceDataRepository {
   @inject(TimeService) private timeService!: TimeService;
   @inject('Settings') settings!: Settings;
   @inject('Logger') private logger!: Logger;
+  @inject(DeviationSignerRepository) protected deviationSignerRepository!: DeviationSignerRepository;
 
   async savePrice(data: PriceDataPayload): Promise<void> {
     try {
@@ -41,13 +46,24 @@ export class PriceDataRepository {
   async savePrices(data: PriceDataPayload[]): Promise<void> {
     const model = await getModelForClass(PriceDataModel);
 
-    const bulkOps = data.map((doc) => ({
-      updateOne: {
-        filter: {...doc},
-        update: doc,
-        upsert: true,
-      },
-    }));
+    const deviationSigner = this.deviationSignerRepository.get(ChainsIds.ROOTSTOCK);
+    const signer = await deviationSigner.address();
+    const hashVersion = 1;
+
+    const bulkOps = await Promise.all(
+      data.map(async (doc) => {
+        const newDoc = {...doc, hashVersion};
+        const priceHash = ethers.utils.id(String(newDoc));
+        const signature = await deviationSigner.apply(priceHash);
+        return {
+          updateOne: {
+            filter: {...doc},
+            update: {...newDoc, signer, priceHash, signature},
+            upsert: true,
+          },
+        };
+      }),
+    );
 
     try {
       await model.bulkWrite(bulkOps);
