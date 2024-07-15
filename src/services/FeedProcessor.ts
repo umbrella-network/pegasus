@@ -126,11 +126,16 @@ class FeedProcessor {
       return;
     }
 
-    const result = this.getBaseAndQuote(feedFetcher);
+    let result = this.getBaseAndQuote(feedFetcher);
 
     if (!result) {
-      this.logger.error(`Cannot parse base & quote from symbol:${feedFetcher.symbol}`);
-      return;
+      if (feedFetcher.symbol == 'PolygonGas-TWAP10-wei') {
+        this.logger.warn(`Apply hardcoded base & quote for symbol:${feedFetcher.symbol}`);
+        result = ['PolygonGas_TWAP10', 'wei'];
+      } else {
+        this.logger.error(`Cannot parse base & quote from symbol:${feedFetcher.symbol}`);
+        return;
+      }
     }
 
     const [base, quote] = result;
