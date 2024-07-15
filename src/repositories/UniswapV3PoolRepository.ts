@@ -32,6 +32,8 @@ export class UniswapV3PoolRepository {
 
     const uniswapV3PoolData = new UniswapV3PoolModel({
       ...props,
+      token0: props.token0.toLowerCase(),
+      token1: props.token1.toLowerCase(),
       createdDate: new Date(Date.now()),
     });
 
@@ -39,7 +41,8 @@ export class UniswapV3PoolRepository {
   }
 
   async saveLiquidity(filter: LiquidityFilterParams, liquidity: SaveLiquidityParams): Promise<UniswapV3Pool | null> {
-    const {token0, token1} = filter;
+    const token0 = filter.token0.toLowerCase();
+    const token1 = filter.token1.toLowerCase();
 
     return getModelForClass(UniswapV3Pool)
       .findOneAndUpdate(
@@ -53,7 +56,9 @@ export class UniswapV3PoolRepository {
   }
 
   async find(props: {protocol: string; fromChain: string; token0: string; token1: string}): Promise<UniswapV3Pool[]> {
-    const {protocol, fromChain, token0, token1} = props;
+    const {protocol, fromChain} = props;
+    const token0 = props.token0.toLowerCase();
+    const token1 = props.token1.toLowerCase();
 
     const filter = {
       protocol,
@@ -71,7 +76,10 @@ export class UniswapV3PoolRepository {
     base: string;
     quote: string;
   }): Promise<UniswapV3Pool | undefined> {
-    const {protocol, fromChain, base, quote} = props;
+    const {protocol, fromChain} = props;
+    const base = props.base.toLowerCase();
+    const quote = props.quote.toLowerCase();
+
     const liquidityFreshness = this.getLiquidityFreshness(fromChain as ChainsIds, protocol as DexProtocolName);
     const liquidityUpdatedLimit = new Date(Date.now() - liquidityFreshness);
 
