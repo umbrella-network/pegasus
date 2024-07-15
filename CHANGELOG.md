@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.29.3] - 2024-07-15
+### Fixed
+- backward compatible patch for `PolygonGas_TWAP10` base/quote
+
 ## [7.29.2] - 2024-07-15
 ### Fixed
 - use lower case for tokens in uniswapV3 repository
