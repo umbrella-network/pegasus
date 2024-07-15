@@ -99,7 +99,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
     const dataTimestamp = this.timeService.apply();
     const validators = await this.validatorRepository.list(undefined);
 
-    if (validators.length === 0) throw new Error('validators list is empty');
+    if (validators.length === 0) throw new Error(`${this.logPrefix} validators list is empty`);
 
     return this.deviationLeaderSelector.apply(
       dataTimestamp,
