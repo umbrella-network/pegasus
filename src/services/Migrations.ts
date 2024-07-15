@@ -95,8 +95,8 @@ async function getUniswapV3Migration(uniswapV3PoolModel: ModelType<UniswapV3Pool
     {
       chainId: 'rootstock',
       protocol: 'uniswapV3',
-      token0: '0x542fDA317318eBF1d3DEAf76E0b632741A7e677d',
-      token1: '0xef213441A85dF4d7ACbDaE0Cf78004e1E486bB96',
+      token0: '0x542fDA317318eBF1d3DEAf76E0b632741A7e677d'.toLowerCase(),
+      token1: '0xef213441A85dF4d7ACbDaE0Cf78004e1E486bB96'.toLowerCase(),
       fee: 500,
       address: '0xd2ffe51ab4e622a411abbe634832a19d919e9c55',
       liquidityActive: '17716643053084368348144',
@@ -107,8 +107,8 @@ async function getUniswapV3Migration(uniswapV3PoolModel: ModelType<UniswapV3Pool
     {
       chainId: 'rootstock',
       protocol: 'uniswapV3',
-      token0: '0x2AcC95758f8b5F583470ba265EB685a8F45fC9D5',
-      token1: '0xef213441A85dF4d7ACbDaE0Cf78004e1E486bB96',
+      token0: '0x2AcC95758f8b5F583470ba265EB685a8F45fC9D5'.toLowerCase(),
+      token1: '0xef213441A85dF4d7ACbDaE0Cf78004e1E486bB96'.toLowerCase(),
       fee: 500,
       address: '0x022650756421f2e636d4138054331cbfafb55d9e',
       liquidityActive: '17716643053084368348144',
@@ -119,8 +119,8 @@ async function getUniswapV3Migration(uniswapV3PoolModel: ModelType<UniswapV3Pool
     {
       chainId: 'rootstock',
       protocol: 'uniswapV3',
-      token0: '0x3A15461d8aE0F0Fb5Fa2629e9DA7D66A794a6e37',
-      token1: '0xef213441A85dF4d7ACbDaE0Cf78004e1E486bB96',
+      token0: '0x3A15461d8aE0F0Fb5Fa2629e9DA7D66A794a6e37'.toLowerCase(),
+      token1: '0xef213441A85dF4d7ACbDaE0Cf78004e1E486bB96'.toLowerCase(),
       fee: 500,
       address: '0x549a5d92412161a1a2828549a657a49dd9fa046c',
       liquidityActive: '17716643053084368348144',
@@ -131,8 +131,8 @@ async function getUniswapV3Migration(uniswapV3PoolModel: ModelType<UniswapV3Pool
     {
       chainId: 'rootstock',
       protocol: 'uniswapV3',
-      token0: '0xe700691dA7b9851F2F35f8b8182c69c53CcaD9Db',
-      token1: '0xef213441A85dF4d7ACbDaE0Cf78004e1E486bB96',
+      token0: '0xe700691dA7b9851F2F35f8b8182c69c53CcaD9Db'.toLowerCase(),
+      token1: '0xef213441A85dF4d7ACbDaE0Cf78004e1E486bB96'.toLowerCase(),
       fee: 500,
       address: '0x3151d3093797412642685ad16e74a83859f2011c',
       liquidityActive: '17716643053084368348144',
