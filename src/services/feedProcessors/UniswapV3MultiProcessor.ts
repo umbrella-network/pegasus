@@ -67,8 +67,4 @@ export default class UniswapV3MultiProcessor implements FeedMultiProcessorInterf
 
     return result;
   }
-
-  private getKey(base: string, quote: string): string {
-    return `${base}:${quote}`;
-  }
 }

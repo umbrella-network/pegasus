@@ -80,10 +80,8 @@ export default {
           type: 'object',
           properties: {
             symbol: {type: 'string'},
-            fsym: {type: 'string'},
-            tsym: {type: 'string'},
           },
-          required: ['symbol', 'fsym', 'tsym'],
+          required: ['symbol'],
         },
       },
     },
