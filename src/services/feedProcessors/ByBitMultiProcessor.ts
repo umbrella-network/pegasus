@@ -28,7 +28,7 @@ export default class ByBitMultiProcessor implements FeedMultiProcessorInterface 
     for (const [ix, output] of outputs.entries()) {
       if (!output) continue;
 
-      const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
+      const result = this.feedSymbolChecker.apply(byBitInputs[ix].symbol);
       if (!result) continue;
 
       const [feedBase, feedQuote] = result;
