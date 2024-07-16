@@ -20,6 +20,8 @@ class CryptoComparePriceMultiFetcher {
   async apply(params: InputParams): Promise<OutputValue[]> {
     const {fsyms, tsyms} = params;
 
+    if (fsyms.length == 0 && tsyms.length == 0) return [];
+
     if (fsyms.length == 0) {
       throw new Error('[CryptoComparePriceMultiFetcher] empty fsyms');
     }
