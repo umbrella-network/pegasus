@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
-import {NumberOrUndefined} from 'src/types/fetchers.js';
+import {FeedFetcherInterface, NumberOrUndefined} from 'src/types/fetchers.js';
 
 export interface InputParams {
   symbol: string;
@@ -11,7 +11,7 @@ export interface InputParams {
 }
 
 @injectable()
-class ByBitSpotFetcher {
+class ByBitSpotFetcher implements FeedFetcherInterface {
   @inject('Logger') protected logger!: Logger;
 
   private timeout: number;
