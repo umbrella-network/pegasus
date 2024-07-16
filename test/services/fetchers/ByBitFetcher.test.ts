@@ -1,6 +1,6 @@
 import chai from 'chai';
 
-import ByBitSpotFetcher, {ByBitSpotFetcherParams} from '../../../src/services/fetchers/ByBitSpotFetcher.js';
+import ByBitSpotFetcher, {InputParams} from '../../../src/services/fetchers/ByBitSpotFetcher.js';
 import Settings from '../../../src/types/Settings.js';
 import moxios from 'moxios';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
@@ -11,32 +11,7 @@ describe('ByBitSpotFetcher', () => {
   let settings: Settings;
   let byBitSpotFetcher: ByBitSpotFetcher;
 
-  const params: ByBitSpotFetcherParams = new Map([
-    [
-      'BTCUSD',
-      {
-        symbol: 'BTCUSD',
-        fsym: 'BTC',
-        tsym: 'USD',
-      },
-    ],
-    [
-      'XRPBTC',
-      {
-        symbol: 'XRPBTC',
-        fsym: 'XRP',
-        tsym: 'BTC',
-      },
-    ],
-    [
-      'ETHUSDT',
-      {
-        symbol: 'ETHUSDT',
-        fsym: 'ETH',
-        tsym: 'USDT',
-      },
-    ],
-  ]);
+  const params: InputParams[] = [{symbol: 'BTCUSD'}, {symbol: 'XRPBTC'}, {symbol: 'ETHUSDT'}];
 
   const responseSpotExample = {
     retCode: 0,
