@@ -11,11 +11,7 @@ describe('ByBitSpotFetcher', () => {
   let settings: Settings;
   let byBitSpotFetcher: ByBitSpotFetcher;
 
-  const params: InputParams[] = [
-    {symbol: 'BTCUSD', category: 'spot'},
-    {symbol: 'XRPBTC', category: 'spot'},
-    {symbol: 'ETHUSDT', category: 'spot'},
-  ];
+  const params: InputParams[] = [{symbol: 'BTCUSD'}, {symbol: 'XRPBTC'}, {symbol: 'ETHUSDT'}];
 
   const responseSpotExample = {
     retCode: 0,
