@@ -20,18 +20,15 @@ class ByBitSpotFetcher {
 
   private timeout: number;
   private environment: string | undefined;
-  private inputs: ByBitSpotFetcherParams;
   private usdtCurrencyRegex: RegExp;
 
   constructor(@inject('Settings') settings: Settings) {
     this.timeout = settings.api.byBit.timeout;
     this.environment = settings.environment;
-    this.inputs = new Map();
     this.usdtCurrencyRegex = /USDT$/;
   }
 
   async apply(inputs: ByBitSpotFetcherParams): Promise<OutputValue[]> {
-    this.inputs = inputs;
     const baseURL = this.environment !== 'testing' ? 'https://api.bybit.com' : 'https://api-testnet.bybit.com';
     const sourceUrl = `${baseURL}/v5/market/tickers?category=spot`;
 
@@ -57,14 +54,14 @@ class ByBitSpotFetcher {
 
   private resolveFeeds(inputs: ByBitSpotFetcherParams, priceList: Record<string, string>[]): OutputValue[] {
     const outputs: OutputValue[] = [];
-    const priceDatas = priceList.filter((entry: Record<string, string>) => this.filterFeeds(entry));
+    const priceDatas = priceList.filter((entry: Record<string, string>) => this.filterFeeds(inputs, entry));
 
     this.logger.debug(`[ByBitSpotFetcher] Prices found: ${JSON.stringify(priceDatas)}`);
 
     priceDatas.forEach((priceData: Record<string, string>) => {
-      const feed = this.getInputFeed(priceData)!;
+      const feed = this.getInputFeed(inputs, priceData)!;
 
-      if (this.usdtCurrencyRegex.test(priceData.symbol) && this.isdUSDTFeed(priceData.symbol)) {
+      if (this.usdtCurrencyRegex.test(priceData.symbol) && this.isdUSDTFeed(inputs, priceData.symbol)) {
         // Some pairs doesn't have usdIndexPrice. e.g.: TAMAUSDT
         if (!priceData.usdIndexPrice) {
           this.logger.error(`[ByBitSpotFetcher] ${priceData.symbol}: No usd price`);
@@ -96,21 +93,21 @@ class ByBitSpotFetcher {
     return outputs;
   }
 
-  private filterFeeds(entry: Record<string, string>) {
-    return Boolean(this.getInputFeed(entry));
+  private filterFeeds(inputs: ByBitSpotFetcherParams, entry: Record<string, string>) {
+    return Boolean(this.getInputFeed(inputs, entry));
   }
 
-  private getInputFeed(entry: Record<string, string>) {
+  private getInputFeed(inputs: ByBitSpotFetcherParams, entry: Record<string, string>) {
     if (this.usdtCurrencyRegex.test(entry.symbol)) {
       const [symbol] = entry.symbol.split('USDT');
-      return this.inputs.get(`${symbol}USD`) || this.inputs.get(entry.symbol);
+      return inputs.get(`${symbol}USD`) || inputs.get(entry.symbol);
     }
 
-    return this.inputs.get(entry.symbol);
+    return inputs.get(entry.symbol);
   }
 
-  private isdUSDTFeed(symbol: string) {
-    return this.inputs.has(`${symbol.split('USDT')?.[0]}USD`);
+  private isdUSDTFeed(inputs: ByBitSpotFetcherParams, symbol: string) {
+    return inputs.has(`${symbol.split('USDT')?.[0]}USD`);
   }
 }
 
