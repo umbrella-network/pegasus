@@ -15,16 +15,13 @@ class ByBitSpotFetcher implements FeedFetcherInterface {
   @inject('Logger') protected logger!: Logger;
 
   private timeout: number;
-  private environment: string | undefined;
 
   constructor(@inject('Settings') settings: Settings) {
     this.timeout = settings.api.byBit.timeout;
-    this.environment = settings.environment;
   }
 
   async apply(inputs: InputParams[]): Promise<NumberOrUndefined[]> {
-    const baseURL = this.environment !== 'testing' ? 'https://api.bybit.com' : 'https://api-testnet.bybit.com';
-    const sourceUrl = `${baseURL}/v5/market/tickers?category=spot`;
+    const sourceUrl = 'https://api.bybit.com/v5/market/tickers?category=spot';
 
     this.logger.debug(`[ByBitSpotFetcher] call for: ${sourceUrl}`);
 
