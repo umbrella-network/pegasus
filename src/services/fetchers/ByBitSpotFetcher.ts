@@ -48,19 +48,17 @@ class ByBitSpotFetcher implements FeedFetcherInterface {
     });
 
     for (const price of priceList) {
-      const symbolRead = price.symbol;
-
-      if (outputMap.has(symbolRead)) {
+      if (outputMap.has(price.symbol)) {
         const priceValue = Number(price.usdIndexPrice);
 
         if (!priceValue || isNaN(priceValue)) {
-          this.logger.error(`[ByBitSpotFetcher] Couldn't extract price for ${symbolRead}`);
+          this.logger.error(`[ByBitSpotFetcher] Couldn't extract price for ${price.symbol}`);
           continue;
         }
 
-        outputMap.set(symbolRead, priceValue);
+        outputMap.set(price.symbol, priceValue);
 
-        this.logger.debug(`[ByBitSpotFetcher] resolved price(usdIndexPrice): ${symbolRead}: ${priceValue}`);
+        this.logger.debug(`[ByBitSpotFetcher] resolved price(usdIndexPrice): ${price.symbol}: ${priceValue}`);
       }
     }
 
