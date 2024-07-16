@@ -7,7 +7,6 @@ import {FeedFetcherInterface, NumberOrUndefined} from 'src/types/fetchers.js';
 
 export interface InputParams {
   symbol: string;
-  category: string;
 }
 
 @injectable()
