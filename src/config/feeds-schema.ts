@@ -91,10 +91,9 @@ export default {
         params: {
           type: 'object',
           properties: {
-            id: {type: 'string'},
-            currency: {type: 'string'},
+            symbol: {type: 'string'},
           },
-          required: ['id', 'currency'],
+          required: ['symbol'],
           additionalProperties: false,
         },
       },
