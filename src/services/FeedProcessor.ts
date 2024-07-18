@@ -61,9 +61,10 @@ class FeedProcessor {
       inputIndexByHash[hash] = index;
     });
 
+    const offset = Object.values(singleInputs).length;
+
     Object.keys(multiInputs).forEach((hash, index) => {
-      const singleInputsLength = Object.values(singleInputs).length;
-      inputIndexByHash[hash] = index + singleInputsLength;
+      inputIndexByHash[hash] = index + offset;
     });
 
     this.logger.debug(`${this.logPrefix} ${JSON.stringify(inputIndexByHash)}`);

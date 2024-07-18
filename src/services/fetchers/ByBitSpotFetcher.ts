@@ -44,7 +44,7 @@ class ByBitSpotFetcher implements FeedFetcherInterface {
     const outputMap = new Map<string, NumberOrUndefined>();
 
     inputs.forEach((input) => {
-      outputMap.set(input.symbol, undefined); // Using the index as the value here for demonstration
+      outputMap.set(input.symbol, undefined);
     });
 
     for (const price of priceList) {

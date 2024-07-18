@@ -82,4 +82,5 @@ export const allMultiFetchers: Set<string> = new Set([
   FetcherName.UNISWAP_V3,
   FetcherName.SOVRYN_PRICE,
   FetcherName.BY_BIT,
+  FetcherName.BINANCE,
 ]);
