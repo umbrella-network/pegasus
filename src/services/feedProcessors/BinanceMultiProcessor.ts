@@ -19,11 +19,7 @@ export default class BinanceMultiProcessor {
 
   async apply(feedFetchers: FeedFetcher[]): Promise<(number | undefined)[]> {
     const binanceInputs = feedFetchers.filter((fetcher) => fetcher.name === FetcherName.BINANCE);
-    const params = binanceInputs.map((fetcher) => {
-      const inputParams = {...(fetcher.params as InputParams)};
-      inputParams.feedSymbol = fetcher.symbol as string;
-      return inputParams;
-    });
+    const params = binanceInputs.map((fetcher) => fetcher.params as InputParams);
     const outputs = await this.binancePriceMultiFetcher.apply(params);
 
     const payloads: PriceDataPayload[] = [];
