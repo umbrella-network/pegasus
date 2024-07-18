@@ -56,13 +56,13 @@ export default class ByBitMultiProcessor implements FeedMultiProcessorInterface 
     let priceIx = 0;
 
     feedFetchers.forEach((fetcher, index) => {
-      if (fetcher.name == FetcherName.BY_BIT) {
-        const price = prices[priceIx];
+      if (fetcher.name != FetcherName.BY_BIT) return;
 
-        if (price !== undefined) {
-          result[index] = price;
-          priceIx++;
-        }
+      const price = prices[priceIx];
+
+      if (price !== undefined) {
+        result[index] = price;
+        priceIx++;
       }
     });
 
