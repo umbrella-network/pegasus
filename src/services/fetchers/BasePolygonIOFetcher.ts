@@ -1,9 +1,12 @@
-import {injectable} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
 import axios from 'axios';
+import {Logger} from 'winston';
 
 @injectable()
 export abstract class BasePolygonIOFetcher {
+  @inject('Logger') protected logger!: Logger;
+
   protected apiKey!: string;
   protected timeout!: number;
   protected valuePath!: string;

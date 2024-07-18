@@ -22,6 +22,7 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
 
   private apiKey: string;
   private timeout: number;
+  private logPrefix = `[${FetcherName.METAL_PRICE_API}]`;
 
   static fetcherSource = '';
 
@@ -34,7 +35,7 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
     const {symbol, currency} = params;
     const {base: feedBase, quote: feedQuote} = options;
 
-    this.logger.debug(`[MetalPriceApiFetcher] call for: ${symbol}/${currency}`);
+    this.logger.debug(`${this.logPrefix} call for: ${symbol}/${currency}`);
     const apiUrl = 'https://api.metalpriceapi.com/v1/latest';
 
     const url = `${apiUrl}?api_key=${this.apiKey}&base=${currency}&currency=${currency}`;
@@ -42,13 +43,11 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
     try {
       const response = await axios.get(url, {
         timeout: this.timeout,
-        timeoutErrorMessage: `[MetalPriceApiFetcher] Timeout exceeded: ${url}`,
+        timeoutErrorMessage: `${this.logPrefix} Timeout exceeded: ${url}`,
       });
 
       if (response.status !== 200) {
-        this.logger.error(
-          `[MetalPriceApiFetcher] Error fetching data for ${symbol}/${currency}: ${response.statusText}`,
-        );
+        this.logger.error(`${this.logPrefix} Error fetching data for ${symbol}/${currency}: ${response.statusText}`);
         throw new Error(response.data);
       }
 
@@ -58,7 +57,7 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
         const pricePerTroyOunce = 1 / rate;
         const pricePerGram = pricePerTroyOunce / GRAMS_PER_TROY_OUNCE;
 
-        this.logger.debug(`[MetalPriceApiFetcher] resolved price per gram: ${symbol}/${currency}: ${pricePerGram}`);
+        this.logger.debug(`${this.logPrefix} resolved price per gram: ${symbol}/${currency}: ${pricePerGram}`);
 
         const payload: PriceDataPayload = {
           fetcher: FetcherName.METAL_PRICE_API,
@@ -74,10 +73,10 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
 
         return pricePerGram;
       } else {
-        throw new Error(`[MetalPriceApiFetcher] Missing rate for ${symbol}/${currency}`);
+        throw new Error(`${this.logPrefix} Missing rate for ${symbol}/${currency}`);
       }
     } catch (error) {
-      this.logger.error(`[MetalPriceApiFetcher] An error occurred while fetching metal prices: ${error}`);
+      this.logger.error(`${this.logPrefix} An error occurred while fetching metal prices: ${error}`);
       throw new Error('Failed to fetch metal prices');
     }
   }

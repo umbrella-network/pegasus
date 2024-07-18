@@ -20,6 +20,7 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
 
   private apiKey: string;
   private timeout: number;
+  private logPrefix = `[${FetcherName.METALS_DEV_API}]`;
 
   static fetcherSource = '';
 
@@ -32,18 +33,18 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
     const {metal, currency} = params;
     const {base: feedBase, quote: feedQuote} = options;
 
-    this.logger.debug(`[MetalsDevApiFetcherFetcher] call for: ${metal}/${currency}`);
+    this.logger.debug(`${this.logPrefix} call for: ${metal}/${currency}`);
 
     const url = `https://api.metals.dev/v1/latest?api_key=${this.apiKey}&currency=${currency}&unit=g`;
 
     try {
       const response = await axios.get(url, {
         timeout: this.timeout,
-        timeoutErrorMessage: `[MetalsDevApiFetcherFetcher] Timeout exceeded: ${url}`,
+        timeoutErrorMessage: `${this.logPrefix} Timeout exceeded: ${url}`,
       });
 
       if (response.status !== 200) {
-        this.logger.error(`[MetalsDevApiFetcherFetcher] Error for ${metal}/${currency}: ${response.statusText}`);
+        this.logger.error(`${this.logPrefix} Error for ${metal}/${currency}: ${response.statusText}`);
 
         throw new Error(response.data);
       }
@@ -51,9 +52,7 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
       const pricePerGram = response.data.metals[metal.toLowerCase()];
 
       if (pricePerGram !== undefined) {
-        this.logger.debug(
-          `[MetalsDevApiFetcherFetcher] resolved price per gram: ${metal}/${currency}: ${pricePerGram}`,
-        );
+        this.logger.debug(`${this.logPrefix} resolved price per gram: ${metal}/${currency}: ${pricePerGram}`);
 
         const payload: PriceDataPayload = {
           fetcher: FetcherName.METALS_DEV_API,
@@ -69,10 +68,10 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
 
         return pricePerGram;
       } else {
-        throw new Error(`[MetalsDevApiFetcherFetcher] Missing price for ${metal} in ${currency}`);
+        throw new Error(`${this.logPrefix} Missing price for ${metal} in ${currency}`);
       }
     } catch (error) {
-      this.logger.error(`[MetalsDevApiFetcherFetcher] An error occurred while fetching metal prices: ${error}`);
+      this.logger.error(`${this.logPrefix} An error occurred while fetching metal prices: ${error}`);
       throw new Error('Failed to fetch metal prices');
     }
   }
