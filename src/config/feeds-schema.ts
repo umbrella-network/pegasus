@@ -92,6 +92,7 @@ export default {
           type: 'object',
           properties: {
             symbol: {type: 'string'},
+            inverse: {type: 'boolean'},
           },
           required: ['symbol'],
           additionalProperties: false,

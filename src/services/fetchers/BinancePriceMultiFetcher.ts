@@ -3,53 +3,65 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
-import FetcherAPILimit from '../../types/FetcherAPILimit.js';
-import {splitIntoBatches} from '../../utils/collections.js';
 import {FeedFetcherInterface, NumberOrUndefined} from 'src/types/fetchers.js';
 
 export interface InputParams {
+  feedSymbol: string;
   symbol: string;
+  inverse: boolean;
 }
+
+export type BinanceResponse = {symbol: string; price: string}[];
 
 @injectable()
 export default class BinancePriceMultiFetcher implements FeedFetcherInterface {
-  @inject('FetcherAPILimit') private fetcherAPILimit!: FetcherAPILimit;
   @inject('Logger') private logger!: Logger;
 
   private timeout: number;
-  private maxBatchSize: number;
 
   constructor(@inject('Settings') settings: Settings) {
     this.timeout = settings.api.binance.timeout;
-    this.maxBatchSize = settings.api.binance.maxBatchSize;
   }
 
   async apply(inputs: InputParams[]): Promise<NumberOrUndefined[]> {
-    this.logger.debug(`fetcherAPILimit: ${JSON.stringify(this.fetcherAPILimit)}`);
-    if (Date.now() <= this.fetcherAPILimit.binance.nextTry) {
-      this.logger.warn(`[BinancePriceMultiFetcher] skip call, next try in ${this.fetcherAPILimit.binance.nextTry}`);
-      return [];
+    const sourceUrl = 'https://www.binance.com/api/v3/ticker/price';
+
+    this.logger.debug(`[BinanceFetcher] call for: ${sourceUrl}`);
+
+    const response = await axios.get(sourceUrl, {
+      timeout: this.timeout,
+      timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
+    });
+
+    if (response.status !== 200) {
+      throw new Error(response.data);
     }
 
-    const batchedInputs = <InputParams[][]>splitIntoBatches(inputs, this.maxBatchSize);
+    if (response.data.Response === 'Error') {
+      throw new Error(response.data.Message);
+    }
 
-    const responses = await Promise.all(
-      batchedInputs.map((inputs) => {
-        const symbols = inputs.map((input) => '"' + input.symbol + '"').join(',');
-        const url = `https://api.binance.com/api/v3/ticker/price?symbols=[${symbols}]`;
+    return this.resolveFeeds(inputs, response.data as BinanceResponse);
+  }
 
-        this.logger.debug(`[BinancePriceMultiFetcher] call url: ${url}`);
+  private resolveFeeds(inputs: InputParams[], binancePrices: BinanceResponse): NumberOrUndefined[] {
+    const outputs: NumberOrUndefined[] = [];
 
-        return axios.get(url, {
-          timeout: this.timeout,
-          timeoutErrorMessage: `Timeout exceeded: ${url}`,
-          validateStatus: () => true,
-        });
-      }),
-    );
+    for (const input of inputs) {
+      const price = binancePrices.find((elem) => elem.symbol == input.symbol)?.price;
 
-    const dataResponses = responses.map((response) => response.data).flat();
-    const prices = dataResponses.map((response) => response?.price);
-    return prices;
+      if (!price) {
+        this.logger.error(`[BinanceFetcher] Couldn't extract price for ${input.feedSymbol}`);
+        outputs.push(undefined);
+      } else {
+        const priceValue = input.inverse ? 1 / Number(price) : Number(price);
+
+        this.logger.debug(`[BinanceFetcher] resolved price: ${input.feedSymbol}: ${priceValue}`);
+
+        outputs.push(priceValue);
+      }
+    }
+
+    return outputs;
   }
 }
