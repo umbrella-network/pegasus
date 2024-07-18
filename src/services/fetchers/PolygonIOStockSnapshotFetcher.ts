@@ -5,13 +5,16 @@ import {JSONPath} from 'jsonpath-plus';
 
 import Settings from '../../types/Settings.js';
 import {SnapshotResponse, Ticker} from './BasePolygonIOSnapshotFetcher.js';
+import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()
 class PolygonIOStockSnapshotFetcher {
+  @inject('Logger') logger!: Logger;
+
   private apiKey: string;
   private timeout: number;
   private maxBatchSize: number;
-  @inject('Logger') logger!: Logger;
+  private logPrefix = `[${FetcherName.POLYGON_IO_STOCK_SNAPSHOT}]`;
 
   constructor(@inject('Settings') settings: Settings) {
     this.apiKey = settings.api.polygonIO.apiKey;
@@ -22,7 +25,7 @@ class PolygonIOStockSnapshotFetcher {
   async apply({symbols}: {symbols: string[]}, raw = false): Promise<SnapshotResponse | number[]> {
     const tickerBatches = this.splitIntoBatchesOfSize(symbols, this.maxBatchSize);
 
-    this.logger.debug('Calling polygon snapshot');
+    this.logger.debug(`${this.logPrefix} call for ${symbols.join(', ')}`);
 
     const snapshot = await this.getSnapshot(tickerBatches);
     const mergedSnapshot = {tickers: this.mergeData(snapshot)};

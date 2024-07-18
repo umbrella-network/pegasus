@@ -21,7 +21,7 @@ class PolygonIOCryptoPriceService {
   @inject(PriceAggregator) priceAggregator!: PriceAggregator;
 
   static readonly Prefix = 'pioc::';
-  loggerPrefix = '[PolygonIOCryptoPriceService]';
+  private loggerPrefix = '[PolygonIOCryptoPriceService]';
 
   priceUpdateJob?: Job;
   truncateJob?: Job;
@@ -52,7 +52,7 @@ class PolygonIOCryptoPriceService {
       return;
     }
 
-    this.logger.debug(`${symbol}: ${price} at ${timestamp}`);
+    this.logger.debug(`${this.loggerPrefix} ${symbol}: ${price} at ${timestamp}`);
 
     this.priceAggregator
       .add(`${PolygonIOCryptoPriceService.Prefix}${symbol}`, price, timestamp)

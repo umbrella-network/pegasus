@@ -20,6 +20,7 @@ export default class GoldApiPriceFetcher implements FeedFetcherInterface {
 
   private token: string;
   private timeout: number;
+  private logPrefix = `[${FetcherName.GOLD_API_PRICE}]`;
 
   static fetcherSource = '';
 
@@ -32,7 +33,7 @@ export default class GoldApiPriceFetcher implements FeedFetcherInterface {
     const {symbol, currency} = params;
     const {base: feedBase, quote: feedQuote} = options;
 
-    this.logger.debug(`[GoldApiPriceFetcher] call for: ${symbol}/${currency}`);
+    this.logger.debug(`${this.logPrefix} call for: ${symbol}/${currency}`);
 
     const url = this.assembleUrl(symbol, currency);
 
@@ -41,18 +42,18 @@ export default class GoldApiPriceFetcher implements FeedFetcherInterface {
         'x-access-token': this.token,
       },
       timeout: this.timeout,
-      timeoutErrorMessage: `[GoldApiPriceFetcher] Timeout exceeded: ${url}`,
+      timeoutErrorMessage: `${this.logPrefix} Timeout exceeded: ${url}`,
     });
 
     if (response.status !== 200) {
-      this.logger.error(`[GoldApiPriceFetcher] Error fetching data for ${symbol}/${currency}: ${response.statusText}`);
+      this.logger.error(`${this.logPrefix} Error fetching data for ${symbol}/${currency}: ${response.statusText}`);
       throw new Error(response.data);
     }
 
     const {price_gram_24k} = response.data;
 
     if (price_gram_24k !== undefined) {
-      this.logger.debug(`[GoldApiPriceFetcher] resolved price: ${symbol}/${currency}: ${price_gram_24k}`);
+      this.logger.debug(`${this.logPrefix} resolved price: ${symbol}/${currency}: ${price_gram_24k}`);
 
       const payload: PriceDataPayload = {
         fetcher: FetcherName.GOLD_API_PRICE,
@@ -68,7 +69,7 @@ export default class GoldApiPriceFetcher implements FeedFetcherInterface {
 
       return price_gram_24k;
     } else {
-      throw new Error(`[GoldApiPriceFetcher] Missing rate for ${symbol}/${currency}`);
+      throw new Error(`${this.logPrefix} Missing rate for ${symbol}/${currency}`);
     }
   }
 

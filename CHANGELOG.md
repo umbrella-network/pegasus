@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.29.6] - 2024-07-18
+### Added
+- add more logs for polygon IO fetchers
+
 ## [7.29.5] - 2024-07-16
 ### Fixed
 - fix invalid error about `[CryptoComparePriceMultiFetcher] empty fsyms`

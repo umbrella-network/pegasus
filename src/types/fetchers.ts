@@ -57,6 +57,8 @@ export enum FetcherName {
   COINGECKO_PRICE = 'CoingeckoPrice',
   POLYGON_IO_PRICE = 'PolygonIOPrice',
   POLYGON_IO_STOCK_PRICE = 'PolygonIOStockPrice',
+  POLYGON_IO_STOCK_SNAPSHOT = 'PolygonIOStockSnapshot',
+  POLYGON_IO_SINGLE_CRYPTO_PRICE = 'PolygonIOSingleCryptoPrice',
   POLYGON_IO_CRYPTO_PRICE = 'PolygonIOCryptoPrice',
   POLYGON_IO_CURRENCY_SNAPSHOT_GRAMS = 'PolygonIOCurrencySnapshotGrams',
   IEX_ENERGY = 'IEXEnergy',
