@@ -14,7 +14,10 @@ describe.only('BinancePriceMultiFetcher', () => {
   let settings: Settings;
   let binancePriceMultiFetcher: BinancePriceMultiFetcher;
 
-  const params: InputParams[] = [{symbol: 'BTCUSDT'}, {symbol: 'ETHUSDT'}];
+  const params: InputParams[] = [
+    {symbol: 'BTCUSDT', inverse: false, feedSymbol: 'BTC-USDT'},
+    {symbol: 'ETHUSDT', inverse: false, feedSymbol: 'ETH-USDT'},
+  ];
 
   const binanceResponse = [
     {
@@ -56,16 +59,16 @@ describe.only('BinancePriceMultiFetcher', () => {
   });
 
   it('sends valid request and correctly transforms response from binance', async () => {
-    const expectOutput = ['64847.22000000', '3389.96000000'];
+    const expectOutput = [64847.22, 3389.96];
 
-    moxios.stubRequest(/https:\/\/api.binance.com\/api\/v3\/ticker\/price\?.*/, {
+    moxios.stubRequest('https://www.binance.com/api/v3/ticker/price', {
       status: 200,
       response: binanceResponse,
     });
 
     const result = await binancePriceMultiFetcher.apply(params);
-    expect(result).to.be.an('array').with.lengthOf(2);
 
+    expect(result).to.be.an('array').with.lengthOf(2);
     expect(result).to.be.deep.eq(expectOutput);
   });
 });
