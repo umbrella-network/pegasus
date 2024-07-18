@@ -2,9 +2,12 @@ import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
 import {BasePolygonIOSnapshotFetcher, SnapshotResponse} from './BasePolygonIOSnapshotFetcher.js';
+import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()
 class PolygonIOCryptoSnapshotFetcher extends BasePolygonIOSnapshotFetcher {
+  private logPrefix = `[${FetcherName.POLYGON_IO_CRYPTO_PRICE}]`;
+
   constructor(@inject('Settings') settings: Settings) {
     super();
 
@@ -14,6 +17,8 @@ class PolygonIOCryptoSnapshotFetcher extends BasePolygonIOSnapshotFetcher {
   }
 
   async apply({symbols}: {symbols: string[]}, raw = false): Promise<SnapshotResponse | number[]> {
+    this.logger.debug(`${this.logPrefix} call for ${symbols.join(', ')}`);
+
     const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers?tickers=${symbols.join(
       ',',
     )}&apiKey=${this.apiKey}`;

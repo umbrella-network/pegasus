@@ -1,23 +1,26 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
 
 import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
-import TimeService from '../TimeService.js';
 import {FeedFetcherOptions, FetcherName} from '../../types/fetchers.js';
 
 @injectable()
 class PolygonIOCryptoPriceFetcher {
   @inject(PolygonIOCryptoPriceService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceService;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
-  @inject(TimeService) private timeService!: TimeService;
+  @inject('Logger') private logger!: Logger;
+
+  private logPrefix = `[${FetcherName.POLYGON_IO_CRYPTO_PRICE}]`;
 
   static fetcherSource = '';
 
   async apply(params: {fsym: string; tsym: string}, options: FeedFetcherOptions): Promise<number> {
     const {fsym, tsym} = params;
     const {base: feedBase, quote: feedQuote, timestamp} = options;
+    this.logger.debug(`${this.logPrefix} call for ${feedBase}-${feedQuote}: ${fsym}, ${tsym}`);
 
-    if (!timestamp || timestamp <= 0) throw new Error(`invalid timestamp value: ${timestamp}`);
+    if (!timestamp || timestamp <= 0) throw new Error(`${this.logPrefix} invalid timestamp value: ${timestamp}`);
 
     const price = await this.polygonIOCryptoPriceService.getLatestPrice({fsym, tsym}, timestamp);
 
@@ -37,7 +40,7 @@ class PolygonIOCryptoPriceFetcher {
       return price;
     }
 
-    throw new Error(`[PolygonIOCryptoPriceFetcher] NO price for ${fsym}-${tsym}`);
+    throw new Error(`${this.logPrefix} NO price for ${fsym}-${tsym}`);
   }
 }
 
