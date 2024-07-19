@@ -36,8 +36,8 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
     const {base: feedBase, quote: feedQuote} = options;
 
     this.logger.debug(`${this.logPrefix} call for: ${symbol}/${currency}`);
-    const apiUrl = 'https://api.metalpriceapi.com/v1/latest';
 
+    const apiUrl = 'https://api.metalpriceapi.com/v1/latest';
     const url = `${apiUrl}?api_key=${this.apiKey}&base=${currency}&currency=${currency}`;
 
     try {
@@ -51,7 +51,7 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
         throw new Error(response.data);
       }
 
-      const rate = response.data.rates[currency];
+      const rate = response.data?.rates[symbol];
 
       if (rate !== undefined) {
         const pricePerTroyOunce = 1 / rate;
