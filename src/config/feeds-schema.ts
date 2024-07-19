@@ -80,10 +80,8 @@ export default {
           type: 'object',
           properties: {
             symbol: {type: 'string'},
-            fsym: {type: 'string'},
-            tsym: {type: 'string'},
           },
-          required: ['symbol', 'fsym', 'tsym'],
+          required: ['symbol'],
         },
       },
     },
@@ -93,10 +91,10 @@ export default {
         params: {
           type: 'object',
           properties: {
-            id: {type: 'string'},
-            currency: {type: 'string'},
+            symbol: {type: 'string'},
+            inverse: {type: 'boolean'},
           },
-          required: ['id', 'currency'],
+          required: ['symbol'],
           additionalProperties: false,
         },
       },

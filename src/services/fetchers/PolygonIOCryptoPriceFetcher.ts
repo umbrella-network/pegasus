@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
 import {FeedFetcherOptions, FetcherName} from '../../types/fetchers.js';
 
 @injectable()
@@ -12,7 +12,6 @@ class PolygonIOCryptoPriceFetcher {
   @inject('Logger') private logger!: Logger;
 
   private logPrefix = `[${FetcherName.POLYGON_IO_CRYPTO_PRICE}]`;
-
   static fetcherSource = '';
 
   async apply(params: {fsym: string; tsym: string}, options: FeedFetcherOptions): Promise<number> {

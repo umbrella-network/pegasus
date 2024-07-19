@@ -35,7 +35,8 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
 
     this.logger.debug(`${this.logPrefix} call for: ${metal}/${currency}`);
 
-    const url = `https://api.metals.dev/v1/latest?api_key=${this.apiKey}&currency=${currency}&unit=g`;
+    const apiUrl = 'https://api.metals.dev/v1/latest';
+    const url = `${apiUrl}?api_key=${this.apiKey}&currency=${currency}&unit=g`;
 
     try {
       const response = await axios.get(url, {

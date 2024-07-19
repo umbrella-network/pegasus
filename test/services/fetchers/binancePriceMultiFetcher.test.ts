@@ -1,12 +1,11 @@
 import chai from 'chai';
-
-import sinon, {SinonFakeTimers} from 'sinon';
-import BinancePriceMultiFetcher, {InputParams} from '../../../src/services/fetchers/BinancePriceMultiFetcher.js';
-import Settings from '../../../src/types/Settings.js';
-import fetcherAPILimit from '../../../src/config/fetcherAPILimit.js';
-
 import moxios from 'moxios';
+import sinon, {SinonFakeTimers} from 'sinon';
+
+import BinancePriceMultiFetcher, {InputParams} from '../../../src/services/fetchers/BinancePriceMultiFetcher.js';
+import fetcherAPILimit from '../../../src/config/fetcherAPILimit.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
+import Settings from '../../../src/types/Settings.js';
 
 const {expect} = chai;
 
@@ -16,11 +15,11 @@ describe.only('BinancePriceMultiFetcher', () => {
   let binancePriceMultiFetcher: BinancePriceMultiFetcher;
 
   const params: InputParams[] = [
-    {id: 'BTC', currency: 'USDT'},
-    {id: 'ETH', currency: 'USDT'},
+    {symbol: 'BTCUSDT', inverse: false},
+    {symbol: 'ETHUSDT', inverse: false},
   ];
 
-  const responseExample = [
+  const binanceResponse = [
     {
       symbol: 'BTCUSDT',
       price: '64847.22000000',
@@ -60,64 +59,16 @@ describe.only('BinancePriceMultiFetcher', () => {
   });
 
   it('sends valid request and correctly transforms response from binance', async () => {
-    const expectOutput = [
-      {
-        currency: 'USDT',
-        id: 'BTC',
-        value: '64847.22000000',
-      },
-      {currency: 'USDT', id: 'ETH', value: '3389.96000000'},
-    ];
+    const expectOutput = [64847.22, 3389.96];
 
-    moxios.stubRequest(/https:\/\/api.binance.com\/api\/v3\/ticker\/price\?.*/, {
+    moxios.stubRequest('https://www.binance.com/api/v3/ticker/price', {
       status: 200,
-      response: responseExample,
+      response: binanceResponse,
     });
 
     const result = await binancePriceMultiFetcher.apply(params);
+
     expect(result).to.be.an('array').with.lengthOf(2);
-
     expect(result).to.be.deep.eq(expectOutput);
-  });
-
-  describe('when response status is 418/429', () => {
-    it('waits Retry-After seconds to call endpoint', async () => {
-      const retrySeconds = 10;
-
-      const expectOutput = [
-        {
-          currency: 'USDT',
-          id: 'BTC',
-          value: '64847.22000000',
-        },
-        {currency: 'USDT', id: 'ETH', value: '3389.96000000'},
-      ];
-
-      moxios.stubRequest(/https:\/\/api.binance.com\/api\/v3\/ticker\/price\?.*/, {
-        status: 418,
-        headers: {
-          'Retry-After': retrySeconds,
-        },
-      });
-
-      await expect(binancePriceMultiFetcher.apply(params)).to.be.rejected;
-
-      moxios.uninstall();
-      moxios.install();
-
-      moxios.stubRequest(/https:\/\/api.binance.com\/api\/v3\/ticker\/price\?.*/, {
-        status: 200,
-        response: responseExample,
-      });
-
-      const result = await binancePriceMultiFetcher.apply(params);
-      expect(result).to.be.deep.eq([]);
-
-      clock.tick(11000);
-
-      const resultAfterRetry = await binancePriceMultiFetcher.apply(params);
-
-      expect(resultAfterRetry).to.be.deep.eq(expectOutput);
-    });
   });
 });

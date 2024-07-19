@@ -3,20 +3,14 @@ import {inject, injectable} from 'inversify';
 import {ByBitSpotFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
-import {ByBitSpotFetcherParams, OutputValue} from '../fetchers/ByBitSpotFetcher.js';
-import {NumberOrUndefined, FeedFetcherInterface, FetcherName} from '../../types/fetchers.js';
+import {NumberOrUndefined, FetcherName, FeedMultiProcessorInterface} from '../../types/fetchers.js';
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
 import FeedSymbolChecker from '../FeedSymbolChecker.js';
-
-interface FeedFetcherParams {
-  symbol: string;
-  fsym: string;
-  tsym: string;
-}
+import {InputParams} from '../fetchers/ByBitSpotFetcher.js';
 
 @injectable()
-export default class ByBitMultiProcessor implements FeedFetcherInterface {
+export default class ByBitMultiProcessor implements FeedMultiProcessorInterface {
   @inject(ByBitSpotFetcher) byBitSpotFetcher!: ByBitSpotFetcher;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
@@ -25,7 +19,8 @@ export default class ByBitMultiProcessor implements FeedFetcherInterface {
   static fetcherSource = '';
 
   async apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]> {
-    const params = this.createParams(feedFetchers);
+    const byBitInputs = feedFetchers.filter((fetcher) => fetcher.name === FetcherName.BY_BIT);
+    const params = byBitInputs.map((fetcher) => fetcher.params as InputParams);
     const outputs = await this.byBitSpotFetcher.apply(params);
 
     const payloads: PriceDataPayload[] = [];
@@ -33,14 +28,14 @@ export default class ByBitMultiProcessor implements FeedFetcherInterface {
     for (const [ix, output] of outputs.entries()) {
       if (!output) continue;
 
-      const result = this.feedSymbolChecker.apply(feedFetchers[ix].symbol);
+      const result = this.feedSymbolChecker.apply(byBitInputs[ix].symbol);
       if (!result) continue;
 
       const [feedBase, feedQuote] = result;
 
       payloads.push({
         fetcher: FetcherName.BY_BIT,
-        value: output.value.toString(),
+        value: output.toString(),
         valueType: PriceValueType.Price,
         timestamp: this.timeService.apply(),
         feedBase,
@@ -54,42 +49,20 @@ export default class ByBitMultiProcessor implements FeedFetcherInterface {
     return this.sortOutput(feedFetchers, outputs.flat());
   }
 
-  private createParams(feedInputs: FeedFetcher[]): ByBitSpotFetcherParams {
-    const symbolMap = new Map<string, {fsym: string; tsym: string}>();
+  private sortOutput(feedFetchers: FeedFetcher[], prices: NumberOrUndefined[]): NumberOrUndefined[] {
+    const result: NumberOrUndefined[] = [];
+    result.length = feedFetchers.length;
 
-    feedInputs.forEach((fetcher) => {
-      if (!fetcher.name.includes('ByBit')) return;
-
-      const {symbol, fsym, tsym} = fetcher.params as FeedFetcherParams;
-
-      symbolMap.set(symbol, {
-        fsym,
-        tsym,
-      });
-    });
-
-    return symbolMap;
-  }
-
-  protected sortOutput(feedFetchers: FeedFetcher[], values: OutputValue[]): number[] {
-    const inputsIndexMap: {[key: string]: number} = {};
+    let priceIx = 0;
 
     feedFetchers.forEach((fetcher, index) => {
       if (fetcher.name != FetcherName.BY_BIT) return;
 
-      const {fsym, tsym} = fetcher.params as FeedFetcherParams;
-      // params might have different case but it will be accepted in API call and it will produce valid oputput
-      inputsIndexMap[`${fsym}:${tsym}`.toUpperCase()] = index;
-    });
+      const price = prices[priceIx];
 
-    const result: number[] = [];
-    result.length = feedFetchers.length;
-
-    values.forEach(({fsym, tsym, value}) => {
-      const index = inputsIndexMap[`${fsym}:${tsym}`.toUpperCase()];
-
-      if (index !== undefined) {
-        result[index] = value;
+      if (price !== undefined) {
+        result[index] = price;
+        priceIx++;
       }
     });
 
