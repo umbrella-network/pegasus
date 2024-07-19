@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';
-import {FetcherName, FeedFetcherOptions} from '../../types/fetchers.js';
+import {FetcherName, FeedFetcherOptions, FeedFetcherInterface} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 
 /*
@@ -12,7 +12,7 @@ import Settings from '../../types/Settings.js';
           ticker: C:XAUUSD
  */
 @injectable()
-class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher {
+class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
 
   private logPrefix = `[${FetcherName.POLYGON_IO_CURRENCY_SNAPSHOT_GRAMS}]`;
@@ -28,17 +28,19 @@ class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher {
   async apply(params: {ticker: string}, options: FeedFetcherOptions): Promise<number> {
     const {ticker} = params;
     const {base: feedBase, quote: feedQuote, timestamp} = options;
-    const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers/${ticker}?apiKey=${this.apiKey}`;
+
+    const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers';
+    const url = `${baseUrl}/${ticker}?apiKey=${this.apiKey}`;
 
     if (!timestamp || timestamp <= 0) throw new Error(`${this.logPrefix} invalid timestamp value: ${timestamp}`);
 
     this.logger.debug(`${this.logPrefix} call for ${ticker}`);
 
-    const data = await this.fetch(sourceUrl);
+    const data = await this.fetch(url);
     const oneOzInGrams = 31.1034; // grams
     const price = (data as number) / oneOzInGrams;
 
-    if (price !== null) {
+    if (!isNaN(price)) {
       const payload: PriceDataPayload = {
         fetcher: FetcherName.POLYGON_IO_CRYPTO_PRICE,
         value: price.toString(),

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [7.29.5] - 2024-07-16
 ### Fixed
 - fix invalid error about `[CryptoComparePriceMultiFetcher] empty fsyms`
+- fix PolygonIOCurrencySnapshotGramsFetcher and MetalPriceApiFetcher fetcher
 
 ## [7.29.4] - 2024-07-15
 ### Fixed
