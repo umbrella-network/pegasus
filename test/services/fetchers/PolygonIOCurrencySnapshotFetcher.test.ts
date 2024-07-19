@@ -40,9 +40,12 @@ describe.skip('PolygonIOCurrencySnapshotFetcher', () => {
         throw new Error('POLYGON_IO_API_KEY not set, test can run only with this key');
       }
 
-      const result = await polygonIOCurrencySnapshotFetcher.apply({
-        ticker: 'C:EURUSD',
-      });
+      const result = await polygonIOCurrencySnapshotFetcher.apply(
+        {
+          ticker: 'C:EURUSD',
+        },
+        {base: 'XAU', quote: 'USD'},
+      );
 
       console.log('PolygonIOCurrencySnapshotFetcher', result);
       expect(typeof result).to.eql('number');
