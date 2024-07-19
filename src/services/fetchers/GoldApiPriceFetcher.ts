@@ -3,9 +3,9 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
-import TimeService from '../TimeService.js';
 import {FeedFetcherInterface, FeedFetcherOptions, FetcherName} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
+import TimeService from '../TimeService.js';
 
 export interface GoldApiInputParams {
   symbol: string;

@@ -15,8 +15,8 @@ describe.only('BinancePriceMultiFetcher', () => {
   let binancePriceMultiFetcher: BinancePriceMultiFetcher;
 
   const params: InputParams[] = [
-    {symbol: 'BTCUSDT', inverse: false, feedSymbol: 'BTC-USDT'},
-    {symbol: 'ETHUSDT', inverse: false, feedSymbol: 'ETH-USDT'},
+    {symbol: 'BTCUSDT', inverse: false},
+    {symbol: 'ETHUSDT', inverse: false},
   ];
 
   const binanceResponse = [

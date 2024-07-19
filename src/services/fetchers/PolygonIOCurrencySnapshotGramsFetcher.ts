@@ -1,8 +1,9 @@
 import {inject, injectable} from 'inversify';
 
-import Settings from '../../types/Settings.js';
+import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';
-import {FetcherName} from '../../types/fetchers.js';
+import {FetcherName, FeedFetcherOptions, FeedFetcherInterface} from '../../types/fetchers.js';
+import Settings from '../../types/Settings.js';
 
 /*
     - fetcher:
@@ -11,8 +12,11 @@ import {FetcherName} from '../../types/fetchers.js';
           ticker: C:XAUUSD
  */
 @injectable()
-class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher {
+class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher implements FeedFetcherInterface {
+  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+
   private logPrefix = `[${FetcherName.POLYGON_IO_CURRENCY_SNAPSHOT_GRAMS}]`;
+  static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
     super();
@@ -21,15 +25,38 @@ class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher {
     this.valuePath = '$.ticker.lastQuote.a';
   }
 
-  async apply(params: {ticker: string}): Promise<number> {
+  async apply(params: {ticker: string}, options: FeedFetcherOptions): Promise<number> {
     const {ticker} = params;
-    const sourceUrl = `https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers/${ticker}?apiKey=${this.apiKey}`;
+    const {base: feedBase, quote: feedQuote, timestamp} = options;
+
+    const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers';
+    const url = `${baseUrl}/${ticker}?apiKey=${this.apiKey}`;
+
+    if (!timestamp || timestamp <= 0) throw new Error(`${this.logPrefix} invalid timestamp value: ${timestamp}`);
 
     this.logger.debug(`${this.logPrefix} call for ${ticker}`);
 
-    const data = await this.fetch(sourceUrl);
+    const data = await this.fetch(url);
     const oneOzInGrams = 31.1034; // grams
-    return (data as number) / oneOzInGrams;
+    const price = (data as number) / oneOzInGrams;
+
+    if (!isNaN(price)) {
+      const payload: PriceDataPayload = {
+        fetcher: FetcherName.POLYGON_IO_CRYPTO_PRICE,
+        value: price.toString(),
+        valueType: PriceValueType.Price,
+        timestamp,
+        feedBase,
+        feedQuote,
+        fetcherSource: PolygonIOCurrencySnapshotGramsFetcher.fetcherSource,
+      };
+
+      await this.priceDataRepository.savePrice(payload);
+
+      return price;
+    }
+
+    return price;
   }
 }
 

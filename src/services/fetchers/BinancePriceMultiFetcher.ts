@@ -6,7 +6,6 @@ import Settings from '../../types/Settings.js';
 import {FeedFetcherInterface, NumberOrUndefined} from 'src/types/fetchers.js';
 
 export interface InputParams {
-  feedSymbol: string;
   symbol: string;
   inverse: boolean;
 }
@@ -51,12 +50,12 @@ export default class BinancePriceMultiFetcher implements FeedFetcherInterface {
       const price = binancePrices.find((elem) => elem.symbol == input.symbol)?.price;
 
       if (!price) {
-        this.logger.error(`[BinanceFetcher] Couldn't extract price for ${input.feedSymbol}`);
+        this.logger.error(`[BinanceFetcher] Couldn't extract price for ${input.symbol}`);
         outputs.push(undefined);
       } else {
         const priceValue = input.inverse ? 1 / Number(price) : Number(price);
 
-        this.logger.debug(`[BinanceFetcher] resolved price: ${input.feedSymbol}: ${priceValue}`);
+        this.logger.debug(`[BinanceFetcher] resolved price: ${input.symbol}: ${priceValue}`);
 
         outputs.push(priceValue);
       }
