@@ -65,7 +65,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
       response = await this.getPrices(pairs);
       this.logger.debug(`${this.logPrefix} data fetched (${pairs.length})`);
     } catch (error) {
-      this.logger.error(`${this.logPrefix} failed to get price for pairs.`);
+      this.logger.error(`${this.logPrefix} failed to get price for pairs. ${error}`);
 
       for (const pair of pairs) {
         this.logger.error(`${this.logPrefix} price is not successful for pair: ${pairRequestToString(pair)}.`);
