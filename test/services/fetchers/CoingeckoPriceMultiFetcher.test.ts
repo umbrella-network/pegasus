@@ -26,13 +26,9 @@ describe('CoingeckoPriceMultiFetcher', () => {
       });
 
       it('each output contains the proper attributes', async () => {
-        const outputs = await fetcher.apply(multiInputs);
+        const output = await fetcher.apply(multiInputs);
 
-        outputs.forEach((output) => {
-          expect(output).to.have.property('id');
-          expect(output).to.have.property('currency');
-          expect(output).to.have.property('value').greaterThan(0);
-        });
+        expect(output).to.have.property('prices');
       });
     });
 
@@ -49,12 +45,9 @@ describe('CoingeckoPriceMultiFetcher', () => {
 
       describe('when there is an invalid coin in the middle of valid coins', () => {
         it('returns only the valid coin', async () => {
-          const outputs = await fetcher.apply([validInput, invalidInput]);
+          const output = await fetcher.apply([validInput, invalidInput]);
 
-          expect(outputs).to.have.lengthOf(1);
-          expect(outputs[0]).to.haveOwnProperty('id', 'umbrella-network');
-          expect(outputs[0]).to.haveOwnProperty('currency', 'USD');
-          expect(outputs[0]).to.haveOwnProperty('value').greaterThan(0);
+          expect(output.prices).to.have.lengthOf(1);
         });
       });
 

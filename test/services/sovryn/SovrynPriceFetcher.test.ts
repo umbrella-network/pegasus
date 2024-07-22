@@ -113,9 +113,9 @@ describe.skip('SovrynFetcher-IntegrationTests', () => {
     };
 
     const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceFetcher;
-    const priceResponse = await sovrynPriceFetcher.apply([requestPair1, requestPair1]);
+    const output = await sovrynPriceFetcher.apply([requestPair1, requestPair1]);
 
-    console.log('price weBTC/rUSDT:', priceResponse[0]);
-    console.log('price weBTC/rUSDT:', priceResponse[1]);
+    console.log('price weBTC/rUSDT:', output.prices[0]);
+    console.log('price weBTC/rUSDT:', output.prices[1]);
   });
 });
