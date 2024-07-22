@@ -23,7 +23,7 @@ export default class SovrynMultiProcessor implements FeedMultiProcessorInterface
     this.logger.debug(`[SovrynMultiProcessor] started, ${request.length} feeds to request.`);
 
     const priceResponse = await this.sovrynFetcher.apply(request);
-    const prices = priceResponse.prices;
+    const prices = priceResponse;
 
     const payloads: PriceDataPayload[] = [];
 
@@ -46,7 +46,7 @@ export default class SovrynMultiProcessor implements FeedMultiProcessorInterface
         fetcher: FetcherName.SOVRYN_PRICE,
         value: price.toString(),
         valueType: PriceValueType.Price,
-        timestamp: priceResponse.timestamp,
+        timestamp: 0,
         feedBase,
         feedQuote,
         fetcherSource: SovrynMultiProcessor.fetcherSource,

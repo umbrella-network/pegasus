@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {InputParams, OutputValues} from '../fetchers/CoingeckoPriceMultiFetcher.js';
+import {InputParams} from '../fetchers/CoingeckoPriceMultiFetcher.js';
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
 import {FeedFetcher} from '../../types/Feed.js';
@@ -35,7 +35,7 @@ export default class CoingeckoMultiProcessor implements FeedMultiProcessorInterf
 
       payloads.push({
         fetcher: FetcherName.COINGECKO_PRICE,
-        value: output.value.toString(),
+        value: output.toString(),
         valueType: PriceValueType.Price,
         timestamp: this.timeService.apply(),
         feedBase,
@@ -62,24 +62,20 @@ export default class CoingeckoMultiProcessor implements FeedMultiProcessorInterf
     return inputs;
   }
 
-  private sortOutput(feedFetchers: FeedFetcher[], values: OutputValues[]): number[] {
-    const inputsIndexMap: {[key: string]: number} = {};
+  private sortOutput(feedFetchers: FeedFetcher[], prices: NumberOrUndefined[]): NumberOrUndefined[] {
+    const result: NumberOrUndefined[] = [];
+    result.length = feedFetchers.length;
+
+    let priceIx = 0;
 
     feedFetchers.forEach((fetcher, index) => {
       if (fetcher.name != FetcherName.COINGECKO_PRICE) return;
 
-      const {id, currency} = fetcher.params as InputParams;
-      inputsIndexMap[`${id}:${currency}`] = index;
-    });
+      const price = prices[priceIx];
 
-    const result: number[] = [];
-    result.length = feedFetchers.length;
-
-    values.forEach(({id, currency, value}) => {
-      const index = inputsIndexMap[`${id}:${currency}`];
-
-      if (index !== undefined) {
-        result[index] = value;
+      if (price !== undefined) {
+        result[index] = price;
+        priceIx++;
       }
     });
 

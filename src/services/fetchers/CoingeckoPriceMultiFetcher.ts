@@ -4,16 +4,11 @@ import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 import {splitIntoBatches} from '../../utils/collections.js';
+import {FeedFetcherInterface, NumberOrUndefined} from 'src/types/fetchers.js';
 
 export interface InputParams {
   id: string;
   currency: string;
-}
-
-export interface OutputValues {
-  id: string;
-  currency: string;
-  value: number;
 }
 
 interface APIParams {
@@ -22,7 +17,7 @@ interface APIParams {
 }
 
 @injectable()
-export default class CoingeckoPriceMultiFetcher {
+export default class CoingeckoPriceMultiFetcher implements FeedFetcherInterface {
   @inject('Logger') private logger!: Logger;
 
   private timeout: number;
@@ -33,7 +28,7 @@ export default class CoingeckoPriceMultiFetcher {
     this.maxBatchSize = settings.api.coingecko.maxBatchSize;
   }
 
-  async apply(inputs: InputParams[]): Promise<OutputValues[]> {
+  async apply(inputs: InputParams[]): Promise<NumberOrUndefined[]> {
     const batchedInputs = <InputParams[][]>splitIntoBatches(inputs, this.maxBatchSize);
     this.logger.debug(`[CoingeckoPriceMultiFetcher] call for: ${inputs.map((i) => i.id).join(', ')}`);
 
@@ -80,7 +75,7 @@ export default class CoingeckoPriceMultiFetcher {
     return params;
   }
 
-  private processResponse(response: AxiosResponse, inputs: InputParams[]): OutputValues[] {
+  private processResponse(response: AxiosResponse, inputs: InputParams[]): NumberOrUndefined[] {
     if (response.status !== 200) {
       throw new Error(response.data);
     }
@@ -89,20 +84,16 @@ export default class CoingeckoPriceMultiFetcher {
       throw new Error(response.data.Message);
     }
 
-    const outputs: OutputValues[] = [];
+    const outputs: NumberOrUndefined[] = [];
 
     inputs.forEach((input) => {
       const {id, currency} = input;
-      const value: number | undefined = (response.data[id] || {})[currency.toLowerCase()];
+      const value: NumberOrUndefined = (response.data[id] || {})[currency.toLowerCase()];
 
       if (value) {
         this.logger.debug(`[CoingeckoPriceMultiFetcher] resolved price: ${id}-${currency}: ${value}`);
 
-        outputs.push({
-          id,
-          currency,
-          value: value,
-        });
+        outputs.push(value);
       }
     });
 
