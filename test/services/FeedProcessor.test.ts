@@ -13,7 +13,6 @@ import Feeds from '../../src/types/Feed.js';
 import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
 import Leaf from '../../src/types/Leaf.js';
 import CryptoCompareMultiProcessor from '../../src/services/feedProcessors/CryptoCompareMultiProcessor.js';
-import CoingeckoMultiProcessor from '../../src/services/feedProcessors/CoingeckoMultiProcessor.js';
 import {FeedFetcherInterface, FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;
@@ -27,7 +26,6 @@ describe.skip('FeedProcessor', () => {
   let calculatorRepository: SinonStubbedInstance<CalculatorRepository>;
   let identityCalculator: SinonStubbedInstance<IdentityCalculator>;
 
-  let coingeckoMultiProcessor: SinonStubbedInstance<CoingeckoMultiProcessor>;
   let cryptoCompareMultiProcessor: SinonStubbedInstance<CryptoCompareMultiProcessor>;
 
   before(() => {
@@ -37,7 +35,6 @@ describe.skip('FeedProcessor', () => {
     feedFetcherRepository = createStubInstance(FeedFetcherRepository);
     calculatorRepository = createStubInstance(CalculatorRepository);
     identityCalculator = createStubInstance(IdentityCalculator);
-    coingeckoMultiProcessor = createStubInstance(CoingeckoMultiProcessor);
     cryptoCompareMultiProcessor = createStubInstance(CryptoCompareMultiProcessor);
 
     feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
@@ -45,7 +42,6 @@ describe.skip('FeedProcessor', () => {
 
     container.bind(FeedFetcherRepository).toConstantValue(feedFetcherRepository);
     container.bind(CalculatorRepository).toConstantValue(calculatorRepository);
-    container.bind(CoingeckoMultiProcessor).toConstantValue(coingeckoMultiProcessor);
     container.bind(CryptoCompareMultiProcessor).toConstantValue(cryptoCompareMultiProcessor);
 
     instance = container.get(FeedProcessor);
@@ -243,7 +239,6 @@ describe.skip('FeedProcessor', () => {
 
         describe('and all processors resolve', () => {
           beforeEach(() => {
-            coingeckoMultiProcessor.apply.resolves([0, undefined, 2, undefined]);
             cryptoCompareMultiProcessor.apply.resolves([undefined, 1, undefined, 3]);
           });
 
@@ -267,7 +262,6 @@ describe.skip('FeedProcessor', () => {
 
         describe('and one of the processors rejects', () => {
           beforeEach(() => {
-            coingeckoMultiProcessor.apply.rejects();
             cryptoCompareMultiProcessor.apply.resolves([undefined, 1, undefined, 3]);
           });
 
@@ -291,7 +285,6 @@ describe.skip('FeedProcessor', () => {
 
         describe('and all processors rejects', () => {
           beforeEach(() => {
-            coingeckoMultiProcessor.apply.rejects();
             cryptoCompareMultiProcessor.apply.rejects();
           });
 
