@@ -6,7 +6,7 @@ import {fileURLToPath} from 'url';
 import {BaseProvider} from '@ethersproject/providers';
 import {Logger} from 'winston';
 
-import {FeedFetcherInterface, NumberOrUndefined, SovrynPriceFetcherResult} from '../../../types/fetchers.js';
+import {FeedFetcherInterface, FetcherResult} from '../../../types/fetchers.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {bigIntToFloatingPoint} from '../../../utils/math.js';
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
@@ -57,7 +57,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
 
   private logPrefix = '[SovrynPriceFetcher]';
 
-  public async apply(pairs: PairRequest[]): Promise<NumberOrUndefined[]> {
+  public async apply(pairs: PairRequest[]): Promise<FetcherResult> {
     this.logger.debug(`${this.logPrefix} fetcher started for ${pairs.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`);
     let response;
 
@@ -71,7 +71,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
         this.logger.error(`${this.logPrefix} price is not successful for pair: ${pairRequestToString(pair)}.`);
       }
 
-      return [];
+      return {prices: []};
     }
 
     const pricesResponse: (number | undefined)[] = [];
@@ -92,7 +92,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
       this.logger.debug(`${this.logPrefix} ${pairRequestToString(pairs[ix])}: ${price.toString()} => ${fetchedPrice}`);
     }
 
-    return pricesResponse;
+    return {prices: pricesResponse, timestamp: Number(response.timestamp)};
   }
 
   private async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {

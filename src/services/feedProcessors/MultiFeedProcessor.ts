@@ -64,7 +64,9 @@ export default class MultiFeedProcessorNew {
           .filter((fetcher) => fetcher.name == classNames[i])
           .map((fetcher) => fetcher.symbol);
 
-        for (const [ix, output] of result.value.entries()) {
+        const timestamp = result.value.timestamp || this.timeService.apply();
+
+        for (const [ix, output] of result.value.prices.entries()) {
           if (!output) continue;
 
           const result = this.feedSymbolChecker.apply(symbols[ix]);
@@ -76,14 +78,14 @@ export default class MultiFeedProcessorNew {
             fetcher: classNames[i],
             value: output.toString(),
             valueType: PriceValueType.Price,
-            timestamp: this.timeService.apply(),
+            timestamp,
             feedBase,
             feedQuote,
             fetcherSource: '',
           });
         }
 
-        response = response.concat(result.value);
+        response = response.concat(result.value.prices);
         this.logger.debug(`[MultiFeedProcessor] fulfilled ${classNames[i]}: ${JSON.stringify(result.value)}`);
       } else {
         this.logger.warn(`[MultiFeedProcessor] Ignored ${classNames[i]}. Reason: ${result.reason}`);

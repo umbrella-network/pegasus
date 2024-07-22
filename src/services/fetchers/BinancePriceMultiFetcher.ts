@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
-import {FeedFetcherInterface, NumberOrUndefined} from 'src/types/fetchers.js';
+import {FeedFetcherInterface, FetcherResult, NumberOrUndefined} from '../../types/fetchers.js';
 
 export interface InputParams {
   symbol: string;
@@ -22,7 +22,7 @@ export default class BinancePriceMultiFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.binance.timeout;
   }
 
-  async apply(inputs: InputParams[]): Promise<NumberOrUndefined[]> {
+  async apply(inputs: InputParams[]): Promise<FetcherResult> {
     const sourceUrl = 'https://www.binance.com/api/v3/ticker/price';
 
     this.logger.debug(`[BinanceFetcher] call for: ${sourceUrl}`);
@@ -40,7 +40,7 @@ export default class BinancePriceMultiFetcher implements FeedFetcherInterface {
       throw new Error(response.data.Message);
     }
 
-    return this.resolveFeeds(inputs, response.data as BinanceResponse);
+    return {prices: this.resolveFeeds(inputs, response.data as BinanceResponse)};
   }
 
   private resolveFeeds(inputs: InputParams[], binancePrices: BinanceResponse): NumberOrUndefined[] {

@@ -6,9 +6,9 @@ export type CryptoCompareHistoFetcherResult = [
   volume: number,
 ];
 
-export type SovrynPriceFetcherResult = {
+export type FetcherResult = {
   prices: (number | undefined)[];
-  timestamp: number;
+  timestamp?: number;
 };
 
 export type CryptoCompareMultiProcessorResult = number | undefined;
@@ -25,7 +25,7 @@ export type FeedFetcherInterfaceResult =
   | Promise<OnChainDataFetcherResult>
   | Promise<CryptoCompareHistoFetcherResult[] | undefined>
   | Promise<CryptoCompareMultiProcessorResult[]>
-  | Promise<SovrynPriceFetcherResult>
+  | Promise<FetcherResult>
   | Promise<NumberOrUndefined>
   | Promise<NumberOrUndefined[]>
   | Promise<OptionsEntries>;

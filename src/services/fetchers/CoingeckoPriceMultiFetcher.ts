@@ -4,7 +4,7 @@ import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 import {splitIntoBatches} from '../../utils/collections.js';
-import {FeedFetcherInterface, NumberOrUndefined} from 'src/types/fetchers.js';
+import {FeedFetcherInterface, FetcherResult, NumberOrUndefined} from 'src/types/fetchers.js';
 
 export interface InputParams {
   id: string;
@@ -28,7 +28,7 @@ export default class CoingeckoPriceMultiFetcher implements FeedFetcherInterface 
     this.maxBatchSize = settings.api.coingecko.maxBatchSize;
   }
 
-  async apply(inputs: InputParams[]): Promise<NumberOrUndefined[]> {
+  async apply(inputs: InputParams[]): Promise<FetcherResult> {
     const batchedInputs = <InputParams[][]>splitIntoBatches(inputs, this.maxBatchSize);
     this.logger.debug(`[CoingeckoPriceMultiFetcher] call for: ${inputs.map((i) => i.id).join(', ')}`);
 
@@ -46,7 +46,7 @@ export default class CoingeckoPriceMultiFetcher implements FeedFetcherInterface 
 
     const outputs = responses.map((response) => this.processResponse(response, inputs));
 
-    return outputs.flat();
+    return {prices: outputs.flat()};
   }
 
   private assembleUrl(vsCurrencies: string[], coinIds: string[]): string {

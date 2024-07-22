@@ -9,7 +9,7 @@ import {DexProtocolName} from '../../../types/Dexes.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
 import {ContractAddressService} from '../../../services/ContractAddressService.js';
-import {NumberOrUndefined} from 'src/types/fetchers.js';
+import {FetcherResult, NumberOrUndefined} from 'src/types/fetchers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,26 +36,26 @@ class UniswapV3MultiFetcher {
 
   readonly dexProtocol = DexProtocolName.UNISWAP_V3;
 
-  async apply(inputs: UniswapV3MultiFetcherParams[]): Promise<NumberOrUndefined[]> {
+  async apply(inputs: UniswapV3MultiFetcherParams[]): Promise<FetcherResult> {
     this.logger.debug(`[UniswapV3MultiFetcher]: start with inputs ${JSON.stringify(inputs)}`);
 
     if (inputs.length === 0) {
       this.logger.debug('[UniswapV3MultiFetcher] no inputs to fetch');
-      return [];
+      return {prices: []};
     }
 
     const poolsToFetch = await this.getPoolsToFetch(inputs);
 
     if (poolsToFetch.size === 0) {
       this.logger.error(`[UniswapV3MultiFetcher] no data to fetch ${JSON.stringify(inputs)}`);
-      return [];
+      return {prices: []};
     }
 
     const prices = await Promise.all(
       [...poolsToFetch.entries()].map(([chainId, pools]) => this.fetchData(chainId, pools)),
     );
 
-    return prices.flat();
+    return {prices: prices.flat()};
   }
 
   private async getPoolsToFetch(

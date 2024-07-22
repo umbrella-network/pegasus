@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
-import {FeedFetcherInterface, NumberOrUndefined} from 'src/types/fetchers.js';
+import {FeedFetcherInterface, FetcherResult, NumberOrUndefined} from 'src/types/fetchers.js';
 
 export interface InputParams {
   symbol: string;
@@ -19,7 +19,7 @@ class ByBitSpotFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.byBit.timeout;
   }
 
-  async apply(inputs: InputParams[]): Promise<NumberOrUndefined[]> {
+  async apply(inputs: InputParams[]): Promise<FetcherResult> {
     const sourceUrl = 'https://api.bybit.com/v5/market/tickers?category=spot';
 
     this.logger.debug(`[ByBitSpotFetcher] call for: ${sourceUrl}`);
@@ -37,7 +37,7 @@ class ByBitSpotFetcher implements FeedFetcherInterface {
       throw new Error(response.data.Message);
     }
 
-    return this.resolveFeeds(inputs, response.data.result.list);
+    return {prices: this.resolveFeeds(inputs, response.data.result.list)};
   }
 
   private resolveFeeds(inputs: InputParams[], priceList: Record<string, string>[]): NumberOrUndefined[] {
