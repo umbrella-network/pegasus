@@ -40,7 +40,9 @@ export default class MultiFeedProcessorNew {
           {symbols: this.getSymbols(feedFetchers, FetcherName.COINGECKO_PRICE)},
         ),
       [FetcherName.UNISWAP_V3]: () =>
-        this.uniswapV3PriceFetcher.apply(this.getInputs<InputParamsUniswapV3>(feedFetchers, FetcherName.UNISWAP_V3)),
+        this.uniswapV3PriceFetcher.apply(this.getInputs<InputParamsUniswapV3>(feedFetchers, FetcherName.UNISWAP_V3), {
+          symbols: this.getSymbols(feedFetchers, FetcherName.UNISWAP_V3),
+        }),
       [FetcherName.SOVRYN_PRICE]: () =>
         this.sovrynPriceFetcher.apply(this.getInputs<InputParamsSovryn>(feedFetchers, FetcherName.SOVRYN_PRICE), {
           symbols: this.getSymbols(feedFetchers, FetcherName.SOVRYN_PRICE),
