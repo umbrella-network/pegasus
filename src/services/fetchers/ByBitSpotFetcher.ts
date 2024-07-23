@@ -3,23 +3,35 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
-import {FeedFetcherInterface, FetcherResult, NumberOrUndefined} from 'src/types/fetchers.js';
+import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import TimeService from '../../services/TimeService.js';
+
+import {
+  FeedMultiFetcherInterface,
+  FeedMultiFetcherOptions,
+  FetcherResult,
+  NumberOrUndefined,
+  FetcherName,
+} from '../../types/fetchers.js';
 
 export interface InputParams {
   symbol: string;
 }
 
 @injectable()
-class ByBitSpotFetcher implements FeedFetcherInterface {
+class ByBitSpotFetcher implements FeedMultiFetcherInterface {
+  @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
 
   private timeout: number;
+  static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
     this.timeout = settings.api.byBit.timeout;
   }
 
-  async apply(inputs: InputParams[]): Promise<FetcherResult> {
+  async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
     const sourceUrl = 'https://api.bybit.com/v5/market/tickers?category=spot';
 
     this.logger.debug(`[ByBitSpotFetcher] call for: ${sourceUrl}`);
@@ -37,7 +49,20 @@ class ByBitSpotFetcher implements FeedFetcherInterface {
       throw new Error(response.data.Message);
     }
 
-    return {prices: this.resolveFeeds(inputs, response.data.result.list)};
+    const fetcherResult = {
+      prices: this.resolveFeeds(inputs, response.data.result.list),
+      timestamp: this.timeService.apply(),
+    };
+
+    this.priceDataRepository.saveFetcherResults(
+      fetcherResult,
+      options.symbols,
+      FetcherName.BY_BIT,
+      PriceValueType.Price,
+      ByBitSpotFetcher.fetcherSource,
+    );
+
+    return fetcherResult;
   }
 
   private resolveFeeds(inputs: InputParams[], priceList: Record<string, string>[]): NumberOrUndefined[] {

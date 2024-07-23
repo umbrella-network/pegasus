@@ -66,7 +66,7 @@ describe.only('BinancePriceMultiFetcher', () => {
       response: binanceResponse,
     });
 
-    const result = await binancePriceMultiFetcher.apply(params);
+    const result = await binancePriceMultiFetcher.apply(params, {symbols: []});
 
     expect(result.prices).to.be.an('array').with.lengthOf(2);
     expect(result.prices).to.be.deep.eq(expectOutput);

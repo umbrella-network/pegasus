@@ -31,9 +31,13 @@ export default class MultiFeedProcessorNew {
 
     const promiseMap = {
       [FetcherName.BY_BIT]: () =>
-        this.byBitSpotPriceFetcher.apply(this.getInputs<InputParamsByBit>(feedFetchers, FetcherName.BY_BIT)),
+        this.byBitSpotPriceFetcher.apply(this.getInputs<InputParamsByBit>(feedFetchers, FetcherName.BY_BIT), {
+          symbols: this.getSymbols(feedFetchers, FetcherName.BY_BIT),
+        }),
       [FetcherName.BINANCE]: () =>
-        this.binancePriceFetcher.apply(this.getInputs<InputParamsBinance>(feedFetchers, FetcherName.BINANCE)),
+        this.binancePriceFetcher.apply(this.getInputs<InputParamsBinance>(feedFetchers, FetcherName.BINANCE), {
+          symbols: this.getSymbols(feedFetchers, FetcherName.BINANCE),
+        }),
       [FetcherName.COINGECKO_PRICE]: () =>
         this.coingeckoPriceFetcher.apply(
           this.getInputs<InputParamsCoingecko>(feedFetchers, FetcherName.COINGECKO_PRICE),
