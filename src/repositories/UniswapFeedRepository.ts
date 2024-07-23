@@ -26,6 +26,7 @@ export class UniswapFeedRepository {
           inputs: [
             {
               fetcher: {
+                symbol: 'BTC-USD',
                 name: FetcherName.UNISWAP_PRICE,
                 params: {
                   fsym: tuple[0],

@@ -6,11 +6,19 @@ import {fileURLToPath} from 'url';
 import {BaseProvider} from '@ethersproject/providers';
 import {Logger} from 'winston';
 
-import {FeedFetcherInterface, FetcherResult} from '../../../types/fetchers.js';
+import {
+  FeedMultiFetcherInterface,
+  FetcherName,
+  FetcherResult,
+  FeedMultiFetcherOptions,
+  NumberOrUndefined,
+} from '../../../types/fetchers.js';
+
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {bigIntToFloatingPoint} from '../../../utils/math.js';
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
 import {BlockchainRepository} from '../../../repositories/BlockchainRepository.js';
+import {PriceDataRepository, PriceValueType} from '../../../repositories/PriceDataRepository.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,13 +59,15 @@ weBTC-rUSDT:
           amountIdDecimals: 18
 */
 @injectable()
-export class SovrynPriceFetcher implements FeedFetcherInterface {
-  @inject('Logger') private logger!: Logger;
+export class SovrynPriceFetcher implements FeedMultiFetcherInterface {
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
+  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject('Logger') private logger!: Logger;
 
   private logPrefix = '[SovrynPriceFetcher]';
+  static fetcherSource = '';
 
-  public async apply(pairs: PairRequest[]): Promise<FetcherResult> {
+  public async apply(pairs: PairRequest[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
     this.logger.debug(`${this.logPrefix} fetcher started for ${pairs.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`);
     let response;
 
@@ -74,7 +84,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
       return {prices: []};
     }
 
-    const pricesResponse: (number | undefined)[] = [];
+    const pricesResponse: NumberOrUndefined[] = [];
 
     for (const [ix, price_] of response.prices.entries()) {
       const {price, success} = price_;
@@ -92,7 +102,17 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
       this.logger.debug(`${this.logPrefix} ${pairRequestToString(pairs[ix])}: ${price.toString()} => ${fetchedPrice}`);
     }
 
-    return {prices: pricesResponse, timestamp: Number(response.timestamp)};
+    const fetcherResult = {prices: pricesResponse, timestamp: Number(response.timestamp)};
+
+    this.priceDataRepository.saveFetcherResults(
+      fetcherResult,
+      options.symbols,
+      FetcherName.SOVRYN_PRICE,
+      PriceValueType.Price,
+      SovrynPriceFetcher.fetcherSource,
+    );
+
+    return fetcherResult;
   }
 
   private async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {

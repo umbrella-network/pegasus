@@ -4,7 +4,17 @@ import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 import {splitIntoBatches} from '../../utils/collections.js';
-import {FeedFetcherInterface, FetcherResult, NumberOrUndefined} from 'src/types/fetchers.js';
+
+import {
+  FeedMultiFetcherInterface,
+  FeedMultiFetcherOptions,
+  FetcherResult,
+  FetcherName,
+  NumberOrUndefined,
+} from '../../types/fetchers.js';
+
+import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import TimeService from '../TimeService.js';
 
 export interface InputParams {
   id: string;
@@ -17,18 +27,21 @@ interface APIParams {
 }
 
 @injectable()
-export default class CoingeckoPriceMultiFetcher implements FeedFetcherInterface {
+export default class CoingeckoPriceMultiFetcher implements FeedMultiFetcherInterface {
+  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private timeout: number;
   private maxBatchSize: number;
+  static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
     this.timeout = settings.api.coingecko.timeout;
     this.maxBatchSize = settings.api.coingecko.maxBatchSize;
   }
 
-  async apply(inputs: InputParams[]): Promise<FetcherResult> {
+  async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
     const batchedInputs = <InputParams[][]>splitIntoBatches(inputs, this.maxBatchSize);
     this.logger.debug(`[CoingeckoPriceMultiFetcher] call for: ${inputs.map((i) => i.id).join(', ')}`);
 
@@ -46,7 +59,17 @@ export default class CoingeckoPriceMultiFetcher implements FeedFetcherInterface 
 
     const outputs = responses.map((response) => this.processResponse(response, inputs));
 
-    return {prices: outputs.flat()};
+    const fetcherResult = {prices: outputs.flat(), timestamp: this.timeService.apply()};
+
+    this.priceDataRepository.saveFetcherResults(
+      fetcherResult,
+      options.symbols,
+      FetcherName.COINGECKO_PRICE,
+      PriceValueType.Price,
+      CoingeckoPriceMultiFetcher.fetcherSource,
+    );
+
+    return fetcherResult;
   }
 
   private assembleUrl(vsCurrencies: string[], coinIds: string[]): string {

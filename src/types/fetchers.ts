@@ -41,6 +41,15 @@ export interface FeedFetcherInterface {
   apply(params: any, options: FeedFetcherOptions): FeedFetcherInterfaceResult;
 }
 
+export type FeedMultiFetcherOptions = {
+  symbols: StringOrUndefined[];
+};
+
+export interface FeedMultiFetcherInterface {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apply(params: any, options: FeedMultiFetcherOptions): FeedFetcherInterfaceResult;
+}
+
 export interface FeedMultiProcessorInterface {
   apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]>;
 }
