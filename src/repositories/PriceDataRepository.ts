@@ -69,10 +69,10 @@ export class PriceDataRepository {
     for (const [ix, price] of fetcherResult.prices.entries()) {
       if (!price) continue;
 
-      const result = this.feedSymbolChecker.apply(symbols[ix]);
-      if (!result) continue;
+      const baseQuote = this.feedSymbolChecker.apply(symbols[ix]);
+      if (!baseQuote) continue;
 
-      const [feedBase, feedQuote] = result;
+      const [feedBase, feedQuote] = baseQuote;
 
       payloads.push({
         fetcher: fetcherName,
