@@ -1,15 +1,10 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
-import {ethers} from 'ethers';
 
+import PriceSignerService from '../services/PriceSignerService.js';
 import {PriceDataModel} from '../models/PriceDataModel.js';
-import {FetcherResult, StringOrUndefined} from '../types/fetchers.js';
-import FeedSymbolChecker from '../services/FeedSymbolChecker.js';
-import TimeService from '../services/TimeService.js';
 import Settings from '../types/Settings.js';
-import {ChainsIds} from '../types/ChainsIds.js';
-import {DeviationSignerRepository} from './DeviationSignerRepository.js';
 
 export enum PriceValueType {
   Price = 'Price',
@@ -28,11 +23,9 @@ export type PriceDataPayload = {
 
 @injectable()
 export class PriceDataRepository {
-  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
-  @inject(TimeService) private timeService!: TimeService;
-  @inject('Settings') settings!: Settings;
+  @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
   @inject('Logger') private logger!: Logger;
-  @inject(DeviationSignerRepository) protected deviationSignerRepository!: DeviationSignerRepository;
+  @inject('Settings') settings!: Settings;
 
   async savePrice(data: PriceDataPayload): Promise<void> {
     try {
@@ -46,19 +39,15 @@ export class PriceDataRepository {
   async savePrices(data: PriceDataPayload[]): Promise<void> {
     const model = await getModelForClass(PriceDataModel);
 
-    const deviationSigner = this.deviationSignerRepository.get(ChainsIds.ROOTSTOCK);
-    const signer = await deviationSigner.address();
-    const hashVersion = 1;
-
     const bulkOps = await Promise.all(
       data.map(async (doc) => {
-        const newDoc = {...doc, hashVersion};
-        const priceHash = ethers.utils.id(String(newDoc));
-        const signature = await deviationSigner.apply(priceHash);
+        const hashVersion = 1;
+        const messageToSign = this.createMessageToSign(doc, hashVersion);
+        const {signerAddress, signature, hash} = await this.priceSignerService.sign(messageToSign);
         return {
           updateOne: {
             filter: {...doc},
-            update: {...newDoc, signer, priceHash, signature},
+            update: {...doc, signer: signerAddress, priceHash: hash, signature, hashVersion},
             upsert: true,
           },
         };
@@ -72,36 +61,12 @@ export class PriceDataRepository {
     }
   }
 
-  async saveFetcherResults(
-    fetcherResult: FetcherResult,
-    symbols: StringOrUndefined[],
-    fetcherName: string,
-    valueType: PriceValueType,
-    fetcherSource: string,
-  ): Promise<void> {
-    const timestamp = fetcherResult.timestamp || this.timeService.apply();
-    const payloads: PriceDataPayload[] = [];
-
-    for (const [ix, price] of fetcherResult.prices.entries()) {
-      if (!price) continue;
-
-      const baseQuote = this.feedSymbolChecker.apply(symbols[ix]);
-      if (!baseQuote) continue;
-
-      const [feedBase, feedQuote] = baseQuote;
-
-      payloads.push({
-        fetcher: fetcherName,
-        value: price.toString(),
-        valueType,
-        timestamp,
-        feedBase,
-        feedQuote,
-        fetcherSource,
-      });
-    }
-
-    await this.savePrices(payloads);
+  createMessageToSign(data: PriceDataPayload, hashVersion: number): string {
+    const {fetcher, value, valueType, timestamp, feedBase, feedQuote, fetcherSource, quoteLiquidity} = data;
+    return (
+      `${hashVersion};${fetcher};${value};${valueType};${timestamp};${feedBase};${feedQuote};` +
+      `${fetcherSource};${quoteLiquidity}`
+    );
   }
 
   async latest(limit = 150): Promise<PriceDataModel[]> {

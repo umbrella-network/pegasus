@@ -29,7 +29,7 @@ export class PriceDataModel {
   @prop({required: false})
   fetcherSource!: string;
 
-  @prop({required: true})
+  @prop({required: false})
   quoteLiquidity!: string;
 
   @prop({required: true})
