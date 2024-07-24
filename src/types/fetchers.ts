@@ -47,7 +47,7 @@ export type FeedMultiFetcherOptions = {
 
 export interface FeedMultiFetcherInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(params: any, options: FeedMultiFetcherOptions): FeedFetcherInterfaceResult;
+  apply(params: any, options: FeedMultiFetcherOptions): Promise<FetcherResult>;
 }
 
 export interface FeedMultiProcessorInterface {

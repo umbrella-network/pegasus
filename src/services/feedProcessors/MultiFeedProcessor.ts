@@ -2,10 +2,10 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {ByBitSpotFetcher, BinancePriceMultiFetcher, CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
+import {FeedMultiFetcherInterface, FetcherName, FetcherResult} from '../../types/fetchers.js';
 import UniswapV3MultiFetcher from '../dexes/uniswapV3/UniswapV3MultiFetcher.js';
 import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
 import {FeedFetcher} from '../../types/Feed.js';
-import {FetcherName, FetcherResult} from '../../types/fetchers.js';
 
 @injectable()
 export default class MultiFeedProcessorNew {
@@ -21,17 +21,15 @@ export default class MultiFeedProcessorNew {
 
     this.logger.debug(`[MultiFeedProcessorNew] feedFetchers ${JSON.stringify(feedFetchers)}`);
 
-    const inputMap = new Map<
-      FetcherName,
-      {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        params: any[];
-        symbols: (string | undefined)[];
-        indices: number[];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        fetcher: any;
-      }
-    >();
+    type ProcessingFeed = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      params: any[];
+      symbols: (string | undefined)[];
+      indices: number[];
+      fetcher: FeedMultiFetcherInterface;
+    };
+
+    const inputMap = new Map<FetcherName, ProcessingFeed>();
 
     for (const [ix, fetcher] of feedFetchers.entries()) {
       const input = inputMap.get(fetcher.name);
