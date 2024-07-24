@@ -1,9 +1,9 @@
 import axios, {AxiosResponse} from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
+import _ from 'lodash';
 
 import Settings from '../../types/Settings.js';
-import {splitIntoBatches} from '../../utils/collections.js';
 
 import {
   FeedMultiFetcherInterface,
@@ -42,7 +42,7 @@ export default class CoingeckoPriceMultiFetcher implements FeedMultiFetcherInter
   }
 
   async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
-    const batchedInputs = <InputParams[][]>splitIntoBatches(inputs, this.maxBatchSize);
+    const batchedInputs = _.chunk(inputs, this.maxBatchSize);
     this.logger.debug(`[CoingeckoPriceMultiFetcher] call for: ${inputs.map((i) => i.id).join(', ')}`);
 
     const responses = await Promise.all(
