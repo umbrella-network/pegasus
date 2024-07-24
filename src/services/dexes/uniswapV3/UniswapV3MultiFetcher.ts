@@ -9,7 +9,16 @@ import {DexProtocolName} from '../../../types/Dexes.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
 import {ContractAddressService} from '../../../services/ContractAddressService.js';
-import {NumberOrUndefined} from 'src/types/fetchers.js';
+import {PriceDataRepository, PriceValueType} from '../../../repositories/PriceDataRepository.js';
+import TimeService from '../../../services/TimeService.js';
+
+import {
+  FeedMultiFetcherInterface,
+  FeedMultiFetcherOptions,
+  FetcherResult,
+  NumberOrUndefined,
+  FetcherName,
+} from '../../../types/fetchers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,33 +38,46 @@ type UniswapV3ContractHelperInput = {
 };
 
 @injectable()
-class UniswapV3MultiFetcher {
-  @inject('Logger') protected logger!: Logger;
+class UniswapV3MultiFetcher implements FeedMultiFetcherInterface {
   @inject(UniswapV3PoolRepository) protected uniswapV3PoolRepository!: UniswapV3PoolRepository;
   @inject(ContractAddressService) contractAddressService!: ContractAddressService;
+  @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) timeService!: TimeService;
+  @inject('Logger') protected logger!: Logger;
 
   readonly dexProtocol = DexProtocolName.UNISWAP_V3;
+  static fetcherSource = '';
 
-  async apply(inputs: UniswapV3MultiFetcherParams[]): Promise<NumberOrUndefined[]> {
+  async apply(inputs: UniswapV3MultiFetcherParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
     this.logger.debug(`[UniswapV3MultiFetcher]: start with inputs ${JSON.stringify(inputs)}`);
 
     if (inputs.length === 0) {
       this.logger.debug('[UniswapV3MultiFetcher] no inputs to fetch');
-      return [];
+      return {prices: []};
     }
 
     const poolsToFetch = await this.getPoolsToFetch(inputs);
 
     if (poolsToFetch.size === 0) {
       this.logger.error(`[UniswapV3MultiFetcher] no data to fetch ${JSON.stringify(inputs)}`);
-      return [];
+      return {prices: []};
     }
 
     const prices = await Promise.all(
       [...poolsToFetch.entries()].map(([chainId, pools]) => this.fetchData(chainId, pools)),
     );
 
-    return prices.flat();
+    const fetcherResult = {prices: prices.flat(), timestamp: this.timeService.apply()};
+
+    this.priceDataRepository.saveFetcherResults(
+      fetcherResult,
+      options.symbols,
+      FetcherName.UNISWAP_V3,
+      PriceValueType.Price,
+      UniswapV3MultiFetcher.fetcherSource,
+    );
+
+    return fetcherResult;
   }
 
   private async getPoolsToFetch(

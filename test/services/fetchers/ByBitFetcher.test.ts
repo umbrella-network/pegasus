@@ -110,7 +110,7 @@ describe('ByBitSpotFetcher', () => {
       response: responseSpotExample,
     });
 
-    const result = await byBitSpotFetcher.apply(params);
+    const result = await byBitSpotFetcher.apply(params, {symbols: []});
     expect(result).to.be.an('array').with.lengthOf(3);
 
     expect(result).to.be.deep.eq(expectOutput);

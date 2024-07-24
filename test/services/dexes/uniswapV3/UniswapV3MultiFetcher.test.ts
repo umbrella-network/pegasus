@@ -122,7 +122,7 @@ describe('UniswapV3MultiFetcher', () => {
       });
 
       it('responds with values from uniswapV3Helper', async () => {
-        const result = await uniswapV3MultiFetcher.apply(params);
+        const result = await uniswapV3MultiFetcher.apply(params, {symbols: []});
 
         expect(result).to.be.an('array').with.lengthOf(3);
         expect(result).to.eql([
@@ -157,7 +157,7 @@ describe('UniswapV3MultiFetcher', () => {
       });
 
       it('responds without values', async () => {
-        const result = await uniswapV3MultiFetcher.apply(params);
+        const result = await uniswapV3MultiFetcher.apply(params, {symbols: []});
 
         expect(result).to.be.an('array').with.lengthOf(0);
         expect(result).to.eql([]);
@@ -181,7 +181,7 @@ describe('UniswapV3MultiFetcher', () => {
       });
 
       it('responds without values', async () => {
-        const result = await uniswapV3MultiFetcher.apply(params);
+        const result = await uniswapV3MultiFetcher.apply(params, {symbols: []});
 
         expect(result).to.be.an('array').with.lengthOf(0);
         expect(result).to.eql([]);

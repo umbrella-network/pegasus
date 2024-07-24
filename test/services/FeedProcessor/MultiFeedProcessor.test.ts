@@ -4,8 +4,6 @@ import sinon, {createStubInstance, SinonStubbedInstance} from 'sinon';
 import {FeedFetcher} from '../../../src/types/Feed.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import MultiFeedProcessor from '../../../src/services/feedProcessors/MultiFeedProcessor.js';
-import CoingeckoMultiProcessor from '../../../src/services/feedProcessors/CoingeckoMultiProcessor.js';
-import CryptoCompareMultiProcessor from '../../../src/services/feedProcessors/CryptoCompareMultiProcessor.js';
 import {FetcherName} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
@@ -31,16 +29,9 @@ const feedFetchers: FeedFetcher[] = [
 
 describe('MultiFeedProcessor', () => {
   let processor: MultiFeedProcessor;
-  let cryptoCompareProcessor: SinonStubbedInstance<CryptoCompareMultiProcessor>;
-  let coingeckoProcessor: SinonStubbedInstance<CoingeckoMultiProcessor>;
 
   before(() => {
     const container = getTestContainer();
-    coingeckoProcessor = createStubInstance(CoingeckoMultiProcessor);
-    cryptoCompareProcessor = createStubInstance(CryptoCompareMultiProcessor);
-
-    container.bind(CoingeckoMultiProcessor).toConstantValue(coingeckoProcessor);
-    container.bind(CryptoCompareMultiProcessor).toConstantValue(cryptoCompareProcessor);
 
     processor = container.get(MultiFeedProcessor);
   });
@@ -50,11 +41,6 @@ describe('MultiFeedProcessor', () => {
   });
 
   describe('when all processors resolve', () => {
-    beforeEach(() => {
-      coingeckoProcessor.apply.resolves([undefined, 1, undefined, 3]);
-      cryptoCompareProcessor.apply.resolves([0, undefined, 2, undefined]);
-    });
-
     it('returns array full of values', async () => {
       const result = await processor.apply(feedFetchers);
 
@@ -63,11 +49,6 @@ describe('MultiFeedProcessor', () => {
   });
 
   describe('when one processor rejects', () => {
-    beforeEach(() => {
-      coingeckoProcessor.apply.resolves([undefined, 1, undefined, 3]);
-      cryptoCompareProcessor.apply.rejects('failed to process');
-    });
-
     it('returns the resolved ones', async () => {
       const result = await processor.apply(feedFetchers);
 
@@ -76,11 +57,6 @@ describe('MultiFeedProcessor', () => {
   });
 
   describe('when all processors rejects', () => {
-    beforeEach(() => {
-      coingeckoProcessor.apply.rejects();
-      cryptoCompareProcessor.apply.rejects();
-    });
-
     it('returns array full of undefined', async () => {
       const result = await processor.apply(feedFetchers);
 

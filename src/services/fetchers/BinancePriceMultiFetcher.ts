@@ -2,8 +2,17 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
+import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import Settings from '../../types/Settings.js';
-import {FeedFetcherInterface, NumberOrUndefined} from 'src/types/fetchers.js';
+import TimeService from '../../services/TimeService.js';
+
+import {
+  FeedMultiFetcherInterface,
+  FeedMultiFetcherOptions,
+  FetcherResult,
+  NumberOrUndefined,
+  FetcherName,
+} from '../../types/fetchers.js';
 
 export interface InputParams {
   symbol: string;
@@ -13,16 +22,19 @@ export interface InputParams {
 export type BinanceResponse = {symbol: string; price: string}[];
 
 @injectable()
-export default class BinancePriceMultiFetcher implements FeedFetcherInterface {
+export default class BinancePriceMultiFetcher implements FeedMultiFetcherInterface {
+  @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private timeout: number;
+  static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
     this.timeout = settings.api.binance.timeout;
   }
 
-  async apply(inputs: InputParams[]): Promise<NumberOrUndefined[]> {
+  async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
     const sourceUrl = 'https://www.binance.com/api/v3/ticker/price';
 
     this.logger.debug(`[BinanceFetcher] call for: ${sourceUrl}`);
@@ -40,7 +52,20 @@ export default class BinancePriceMultiFetcher implements FeedFetcherInterface {
       throw new Error(response.data.Message);
     }
 
-    return this.resolveFeeds(inputs, response.data as BinanceResponse);
+    const fetcherResult = {
+      prices: this.resolveFeeds(inputs, response.data as BinanceResponse),
+      timestamp: this.timeService.apply(),
+    };
+
+    this.priceDataRepository.saveFetcherResults(
+      fetcherResult,
+      options.symbols,
+      FetcherName.BINANCE,
+      PriceValueType.Price,
+      BinancePriceMultiFetcher.fetcherSource,
+    );
+
+    return fetcherResult;
   }
 
   private resolveFeeds(inputs: InputParams[], binancePrices: BinanceResponse): NumberOrUndefined[] {

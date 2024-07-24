@@ -3,6 +3,9 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
 
 import {PriceDataModel} from '../models/PriceDataModel.js';
+import {FetcherResult, StringOrUndefined} from '../types/fetchers.js';
+import FeedSymbolChecker from '../services/FeedSymbolChecker.js';
+import TimeService from '../services/TimeService.js';
 import Settings from '../types/Settings.js';
 
 export enum PriceValueType {
@@ -21,6 +24,8 @@ export type PriceDataPayload = {
 
 @injectable()
 export class PriceDataRepository {
+  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
+  @inject(TimeService) private timeService!: TimeService;
   @inject('Settings') settings!: Settings;
   @inject('Logger') private logger!: Logger;
 
@@ -49,6 +54,38 @@ export class PriceDataRepository {
     } catch (error) {
       this.logger.error(`[PriceDataRepository] couldn't perform bulkWrite for PriceData: ${error}`);
     }
+  }
+
+  async saveFetcherResults(
+    fetcherResult: FetcherResult,
+    symbols: StringOrUndefined[],
+    fetcherName: string,
+    valueType: PriceValueType,
+    fetcherSource: string,
+  ): Promise<void> {
+    const timestamp = fetcherResult.timestamp || this.timeService.apply();
+    const payloads: PriceDataPayload[] = [];
+
+    for (const [ix, price] of fetcherResult.prices.entries()) {
+      if (!price) continue;
+
+      const baseQuote = this.feedSymbolChecker.apply(symbols[ix]);
+      if (!baseQuote) continue;
+
+      const [feedBase, feedQuote] = baseQuote;
+
+      payloads.push({
+        fetcher: fetcherName,
+        value: price.toString(),
+        valueType,
+        timestamp,
+        feedBase,
+        feedQuote,
+        fetcherSource,
+      });
+    }
+
+    await this.savePrices(payloads);
   }
 
   async latest(limit = 150): Promise<PriceDataModel[]> {

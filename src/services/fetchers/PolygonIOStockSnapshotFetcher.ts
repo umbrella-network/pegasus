@@ -2,6 +2,7 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import {JSONPath} from 'jsonpath-plus';
+import _ from 'lodash';
 
 import Settings from '../../types/Settings.js';
 import {SnapshotResponse, Ticker} from './BasePolygonIOSnapshotFetcher.js';
@@ -23,7 +24,7 @@ class PolygonIOStockSnapshotFetcher {
   }
 
   async apply({symbols}: {symbols: string[]}, raw = false): Promise<SnapshotResponse | number[]> {
-    const tickerBatches = this.splitIntoBatchesOfSize(symbols, this.maxBatchSize);
+    const tickerBatches = _.chunk(symbols, this.maxBatchSize).map((batch) => batch.join(','));
 
     this.logger.debug(`${this.logPrefix} call for ${symbols.join(', ')}`);
 
@@ -57,17 +58,6 @@ class PolygonIOStockSnapshotFetcher {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extractValues = (data: any, valuePath: string): number[] => {
     return JSONPath({json: data, path: valuePath});
-  };
-
-  private splitIntoBatchesOfSize = (symbols: string[], maxBatchSize: number): string[] => {
-    const batches = [];
-    const symbolsCopy = [...symbols];
-
-    while (symbolsCopy.length) {
-      batches.push(symbolsCopy.splice(0, maxBatchSize).join(','));
-    }
-
-    return batches;
   };
 
   private mergeData = (snapshot: SnapshotDataResponse[]): Ticker[] => {

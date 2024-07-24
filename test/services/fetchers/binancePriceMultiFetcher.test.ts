@@ -66,9 +66,9 @@ describe.only('BinancePriceMultiFetcher', () => {
       response: binanceResponse,
     });
 
-    const result = await binancePriceMultiFetcher.apply(params);
+    const result = await binancePriceMultiFetcher.apply(params, {symbols: []});
 
-    expect(result).to.be.an('array').with.lengthOf(2);
-    expect(result).to.be.deep.eq(expectOutput);
+    expect(result.prices).to.be.an('array').with.lengthOf(2);
+    expect(result.prices).to.be.deep.eq(expectOutput);
   });
 });

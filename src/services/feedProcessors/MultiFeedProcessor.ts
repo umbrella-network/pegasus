@@ -1,50 +1,96 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
+import {ByBitSpotFetcher, BinancePriceMultiFetcher, CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
+import {FeedMultiFetcherInterface, FetcherName, FetcherResult} from '../../types/fetchers.js';
+import UniswapV3MultiFetcher from '../dexes/uniswapV3/UniswapV3MultiFetcher.js';
+import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
 import {FeedFetcher} from '../../types/Feed.js';
-import {mergeArrays} from '../../utils/collections.js';
-import CoingeckoMultiProcessor from './CoingeckoMultiProcessor.js';
-import CryptoCompareMultiProcessor from './CryptoCompareMultiProcessor.js';
-import UniswapV3MultiProcessor from './UniswapV3MultiProcessor.js';
-import SovrynMultiProcessor from '../dexes/sovryn/SovrynMultiProcessor.js';
-import ByBitMultiProcessor from './ByBitMultiProcessor.js';
-import BinanceMultiProcessor from './BinanceMultiProcessor.js';
 
 @injectable()
-export default class MultiFeedProcessor {
+export default class MultiFeedProcessorNew {
+  @inject(CoingeckoPriceMultiFetcher) coingeckoPriceFetcher!: CoingeckoPriceMultiFetcher;
+  @inject(BinancePriceMultiFetcher) binancePriceFetcher!: BinancePriceMultiFetcher;
+  @inject(ByBitSpotFetcher) byBitSpotPriceFetcher!: ByBitSpotFetcher;
+  @inject(SovrynPriceFetcher) sovrynPriceFetcher!: SovrynPriceFetcher;
+  @inject(UniswapV3MultiFetcher) uniswapV3PriceFetcher!: UniswapV3MultiFetcher;
   @inject('Logger') logger!: Logger;
-  @inject(CoingeckoMultiProcessor) coingeckoMultiProcessor!: CoingeckoMultiProcessor;
-  @inject(CryptoCompareMultiProcessor) cryptoCompareMultiProcessor!: CryptoCompareMultiProcessor;
-  @inject(UniswapV3MultiProcessor) uniswapV3MultiProcessor!: UniswapV3MultiProcessor;
-  @inject(SovrynMultiProcessor) sovrynMultiProcessor!: SovrynMultiProcessor;
-  @inject(ByBitMultiProcessor) byBitMultiProcessor!: ByBitMultiProcessor;
-  @inject(BinanceMultiProcessor) binanceMultiProcessor!: BinanceMultiProcessor;
 
   async apply(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
     if (!feedFetchers.length) return [];
 
-    let response: unknown[] = [];
-    response.length = feedFetchers.length;
+    this.logger.debug(`[MultiFeedProcessorNew] feedFetchers ${JSON.stringify(feedFetchers)}`);
 
-    this.logger.debug(`[MultiFeedProcessor] feedFetchers ${JSON.stringify(feedFetchers)}`);
-
-    const promiseMap = {
-      CryptoCompareMultiProcessor: () => this.cryptoCompareMultiProcessor.apply(feedFetchers),
-      CoingeckoMultiProcessor: () => this.coingeckoMultiProcessor.apply(feedFetchers),
-      UniswapV3MultiProcessor: () => this.uniswapV3MultiProcessor.apply(feedFetchers),
-      SovrynMultiProcessor: () => this.sovrynMultiProcessor.apply(feedFetchers),
-      ByBitMultiProcessor: () => this.byBitMultiProcessor.apply(feedFetchers),
-      BinanceMultiProcessor: () => this.binanceMultiProcessor.apply(feedFetchers),
+    type ProcessingFeed = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      params: any[];
+      symbols: (string | undefined)[];
+      indices: number[];
+      fetcher: FeedMultiFetcherInterface;
     };
 
-    const promises = Object.values(promiseMap).map((fn) => fn());
+    const inputMap = new Map<FetcherName, ProcessingFeed>();
+
+    for (const [ix, fetcher] of feedFetchers.entries()) {
+      const input = inputMap.get(fetcher.name);
+      if (input) {
+        input.params.push(fetcher.params);
+        input.symbols.push(fetcher.symbol);
+        input.indices.push(ix);
+      } else {
+        let fetcherObject;
+        switch (fetcher.name) {
+          case FetcherName.BY_BIT:
+            fetcherObject = this.byBitSpotPriceFetcher;
+            break;
+          case FetcherName.BINANCE:
+            fetcherObject = this.binancePriceFetcher;
+            break;
+          case FetcherName.COINGECKO_PRICE:
+            fetcherObject = this.coingeckoPriceFetcher;
+            break;
+          case FetcherName.SOVRYN_PRICE:
+            fetcherObject = this.sovrynPriceFetcher;
+            break;
+          case FetcherName.UNISWAP_V3:
+            fetcherObject = this.uniswapV3PriceFetcher;
+            break;
+          default:
+            continue;
+        }
+
+        inputMap.set(fetcher.name, {
+          params: [fetcher.params],
+          symbols: [fetcher.symbol],
+          indices: [ix],
+          fetcher: fetcherObject,
+        });
+      }
+    }
+
+    const promiseMap = new Map<FetcherName, {promise: () => Promise<FetcherResult>; indices: number[]}>();
+    for (const [fetcherName, inputParams] of inputMap) {
+      promiseMap.set(fetcherName, {
+        promise: () => inputParams.fetcher.apply(inputParams.params, {symbols: inputParams.symbols}),
+        indices: inputParams.indices,
+      });
+    }
+
+    const promises = Array.from(promiseMap.values()).map((obj) => obj.promise());
+    const allIndices = Array.from(promiseMap.values()).map((obj) => obj.indices);
     const classNames = Object.keys(promiseMap);
 
     const promisesResults = await Promise.allSettled(promises);
 
+    const response: unknown[] = [];
+    response.length = feedFetchers.length;
+
     promisesResults.forEach((result, i) => {
+      const indices = allIndices[i];
       if (result.status === 'fulfilled') {
-        response = mergeArrays(response, result.value);
+        for (const [ix, index] of indices.entries()) {
+          response[index] = result.value.prices[ix];
+        }
         this.logger.debug(`[MultiFeedProcessor] fulfilled ${classNames[i]}: ${JSON.stringify(result.value)}`);
       } else {
         this.logger.warn(`[MultiFeedProcessor] Ignored ${classNames[i]}. Reason: ${result.reason}`);
