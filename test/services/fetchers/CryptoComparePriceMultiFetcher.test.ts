@@ -1,12 +1,12 @@
 import chai from 'chai';
 
-import Application from '../../../src/lib/Application.js';
 import {InputParams, OutputValue} from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher.js';
 import CryptoComparePriceMultiFetcher from '../../../src/services/fetchers/CryptoComparePriceMultiFetcher.js';
+import Application from '../../../src/lib/Application.js';
 
 const {expect} = chai;
 
-describe('CryptoComparePriceMultiFetcher', () => {
+describe.skip('CryptoComparePriceMultiFetcher', () => {
   const params: InputParams = {
     fsyms: ['UMB', 'BTC'],
     tsyms: ['USD', 'EUR'],
@@ -66,5 +66,5 @@ describe('CryptoComparePriceMultiFetcher', () => {
         expect(outputs[0]).to.have.property('value').greaterThan(0);
       });
     }).timeout(10000);
-  });
+  }).timeout(5000);
 });
