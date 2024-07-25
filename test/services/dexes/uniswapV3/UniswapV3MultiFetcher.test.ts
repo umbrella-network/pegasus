@@ -1,18 +1,19 @@
-import chai from 'chai';
+import {Container} from 'inversify';
 import {BigNumber} from 'ethers';
 import sinon from 'sinon';
+import chai from 'chai';
 
 import UniswapV3MultiFetcher, {
   UniswapV3MultiFetcherParams,
 } from '../../../../src/services/dexes/uniswapV3/UniswapV3MultiFetcher.js';
-import {getTestContainer} from '../../../helpers/getTestContainer.js';
+
 import {UniswapV3PoolRepository} from '../../../../src/repositories/UniswapV3PoolRepository.js';
-import {ChainsIds} from '../../../../src/types/ChainsIds.js';
-import {DexProtocolName} from '../../../../src/types/Dexes.js';
-import {Container} from 'inversify';
-import {UniswapV3Pool} from '../../../../src/models/UniswapV3Pool.js';
 import {BlockchainRepository} from '../../../../src/repositories/BlockchainRepository.js';
 import {ContractAddressService} from '../../../../src/services/ContractAddressService.js';
+import {getTestContainer} from '../../../helpers/getTestContainer.js';
+import {UniswapV3Pool} from '../../../../src/models/UniswapV3Pool.js';
+import {DexProtocolName} from '../../../../src/types/Dexes.js';
+import {ChainsIds} from '../../../../src/types/ChainsIds.js';
 import {loadTestEnv} from '../../../helpers/loadTestEnv.js';
 
 const {expect} = chai;
@@ -123,21 +124,7 @@ describe('UniswapV3MultiFetcher', () => {
 
       it('responds with values from uniswapV3Helper', async () => {
         const result = await uniswapV3MultiFetcher.apply(params, {symbols: []});
-
-        expect(result).to.be.an('array').with.lengthOf(3);
-        expect(result).to.eql([
-          {
-            base: '0xfff9976782d46cc05630d1f6ebab18b2324d6b14',
-            quote: '0x01ac9633f13aa16e0f8d4514c806a55f9e9abd01',
-            value: '100.0',
-          },
-          {
-            base: '0x01d69ed9cc3e7c1d04145c9a28e306fbc982be7a',
-            quote: '0xfff9976782d46cc05630d1f6ebab18b2324d6b14',
-            value: '200.0',
-          },
-          undefined,
-        ]);
+        expect(result.prices).to.eql([100, 200, undefined]);
       });
     });
 
@@ -158,9 +145,7 @@ describe('UniswapV3MultiFetcher', () => {
 
       it('responds without values', async () => {
         const result = await uniswapV3MultiFetcher.apply(params, {symbols: []});
-
-        expect(result).to.be.an('array').with.lengthOf(0);
-        expect(result).to.eql([]);
+        expect(result.prices).to.be.an('array').with.lengthOf(0);
       });
     });
 
@@ -182,9 +167,7 @@ describe('UniswapV3MultiFetcher', () => {
 
       it('responds without values', async () => {
         const result = await uniswapV3MultiFetcher.apply(params, {symbols: []});
-
-        expect(result).to.be.an('array').with.lengthOf(0);
-        expect(result).to.eql([]);
+        expect(result.prices).to.be.an('array').with.lengthOf(0);
       });
     });
   });
