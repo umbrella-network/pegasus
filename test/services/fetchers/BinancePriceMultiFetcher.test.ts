@@ -9,7 +9,7 @@ import Settings from '../../../src/types/Settings.js';
 
 const {expect} = chai;
 
-describe.skip('BinancePriceMultiFetcher', () => {
+describe('BinancePriceMultiFetcher', () => {
   let clock: SinonFakeTimers;
   let settings: Settings;
   let binancePriceMultiFetcher: BinancePriceMultiFetcher;
