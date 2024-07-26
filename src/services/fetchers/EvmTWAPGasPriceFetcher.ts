@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 
-import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository.js';
-import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {FeedFetcherInterface, FeedFetcherOptions, FetcherName} from '../../types/fetchers.js';
+import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 
 /*
@@ -40,17 +40,13 @@ class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
     // but UmbrellaFeeds is 8 decimals, so in order to have gas in wei in smart contract, we have to /1e8 not by 1e9
     const gasPrice = Number(gas) / 1e8;
 
-    const payload: PriceDataPayload = {
-      fetcher: FetcherName.TWAP_GAS_PRICE,
-      value: gasPrice.toString(),
-      valueType: PriceValueType.Price,
-      timestamp,
-      feedBase,
-      feedQuote,
-      fetcherSource: EvmTWAPGasPriceFetcher.fetcherSource,
-    };
-
-    await this.priceDataRepository.savePrice(payload);
+    await this.priceDataRepository.saveFetcherResults(
+      {prices: [gasPrice]},
+      [`${feedBase}-${feedQuote}`],
+      FetcherName.TWAP_GAS_PRICE,
+      PriceValueType.Price,
+      EvmTWAPGasPriceFetcher.fetcherSource,
+    );
 
     return gasPrice;
   }

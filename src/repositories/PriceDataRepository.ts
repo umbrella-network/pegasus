@@ -2,9 +2,12 @@ import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
 
+import {FetcherResult, StringOrUndefined} from '../types/fetchers.js';
 import PriceSignerService from '../services/PriceSignerService.js';
 import {PriceDataModel} from '../models/PriceDataModel.js';
 import Settings from '../types/Settings.js';
+import FeedSymbolChecker from '../services/FeedSymbolChecker.js';
+import TimeService from '../services/TimeService.js';
 
 export enum PriceValueType {
   Price = 'Price',
@@ -24,16 +27,41 @@ export type PriceDataPayload = {
 @injectable()
 export class PriceDataRepository {
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
+  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
+  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
   @inject('Settings') settings!: Settings;
 
-  async savePrice(data: PriceDataPayload): Promise<void> {
-    try {
-      const doc = await getModelForClass(PriceDataModel).create({...data});
-      await doc.save();
-    } catch (error) {
-      this.logger.error(`[PriceDataRepository] couldn't create document for PriceData: ${error}`);
+  async saveFetcherResults(
+    fetcherResult: FetcherResult,
+    symbols: StringOrUndefined[],
+    fetcherName: string,
+    valueType: PriceValueType,
+    fetcherSource: string,
+  ): Promise<void> {
+    const timestamp = fetcherResult.timestamp || this.timeService.apply();
+    const payloads: PriceDataPayload[] = [];
+
+    for (const [ix, price] of fetcherResult.prices.entries()) {
+      if (!price) continue;
+
+      const baseQuote = this.feedSymbolChecker.apply(symbols[ix]);
+      if (!baseQuote) continue;
+
+      const [feedBase, feedQuote] = baseQuote;
+
+      payloads.push({
+        fetcher: fetcherName,
+        value: price.toString(),
+        valueType,
+        timestamp,
+        feedBase,
+        feedQuote,
+        fetcherSource,
+      });
     }
+
+    await this.savePrices(payloads);
   }
 
   async savePrices(data: PriceDataPayload[]): Promise<void> {
