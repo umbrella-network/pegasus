@@ -1,20 +1,20 @@
 import fs from 'fs';
-
 import path from 'path';
 import {fileURLToPath} from 'url';
 
 import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies.js';
+import {TimeoutCodes} from '../types/TimeoutCodes.js';
+import {timeoutWithCode} from '../utils/request.js';
+import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
+import {DexProtocolName} from '../types/Dexes.js';
+import './setupDotenv.js';
+
 import Settings, {
   BlockchainSettings,
   BlockchainType,
   BlockchainTypeKeys,
   BlockDispatcherSettings,
 } from '../types/Settings.js';
-import {TimeoutCodes} from '../types/TimeoutCodes.js';
-import {timeoutWithCode} from '../utils/request.js';
-import './setupDotenv.js';
-import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
-import {DexProtocolName} from '../types/Dexes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,12 +30,6 @@ function clearLastSlash(s: string | undefined): string {
   if (!s) return '';
 
   return s.endsWith('/') ? s.slice(0, -1) : s;
-}
-
-function parseJsonString(s: string): string {
-  if (!s) return '{}';
-
-  return s.replace(/\\n/g, '\n').replace(/\\"/g, '"');
 }
 
 function resolveBlockchainType(chain: ChainsIds): BlockchainType[] | undefined {
