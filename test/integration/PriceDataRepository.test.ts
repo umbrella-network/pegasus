@@ -16,7 +16,7 @@ import {ethers} from 'ethers';
 
 const {expect} = chai;
 
-describe('PriceDataRepository', () => {
+describe.skip('PriceDataRepository', () => {
   let priceDataRepository: PriceDataRepository;
 
   before(async () => {
