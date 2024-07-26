@@ -1,8 +1,8 @@
 import chai from 'chai';
+import moxios from 'moxios';
 
 import ByBitSpotFetcher, {InputParams} from '../../../src/services/fetchers/ByBitSpotFetcher.js';
 import Settings from '../../../src/types/Settings.js';
-import moxios from 'moxios';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 const {expect} = chai;
@@ -20,7 +20,7 @@ describe('ByBitSpotFetcher', () => {
       category: 'spot',
       list: [
         {
-          symbol: 'BTCUSDT',
+          symbol: 'BTCUSD',
           bid1Price: '65795.42',
           bid1Size: '0.064474',
           ask1Price: '65795.43',
@@ -84,7 +84,6 @@ describe('ByBitSpotFetcher', () => {
     } as Settings;
 
     container.rebind('Settings').toConstantValue(settings);
-
     container.bind(ByBitSpotFetcher).toSelf();
 
     byBitSpotFetcher = container.get(ByBitSpotFetcher);
@@ -95,24 +94,12 @@ describe('ByBitSpotFetcher', () => {
   });
 
   it('sends valid request and correctly transforms response from byBit', async () => {
-    const expectOutput = [
-      {
-        fsym: 'BTC',
-        tsym: 'USD',
-        value: Number('65790.175466'),
-      },
-      {fsym: 'XRP', tsym: 'BTC', value: Number('0.00000966')},
-      {fsym: 'ETH', tsym: 'USDT', value: Number('3582.41')},
-    ];
-
-    moxios.stubRequest(/https:\/\/api-testnet.bybit.com\/v5\/market\/tickers\?category=spot/, {
+    moxios.stubRequest('https://api.bybit.com/v5/market/tickers?category=spot', {
       status: 200,
       response: responseSpotExample,
     });
 
     const result = await byBitSpotFetcher.apply(params, {symbols: []});
-    expect(result).to.be.an('array').with.lengthOf(3);
-
-    expect(result).to.be.deep.eq(expectOutput);
+    expect(result.prices).to.be.deep.eq([65790.175466, undefined, 3582.907868]);
   });
 });

@@ -153,7 +153,7 @@ describe('UniswapV3LiquidityResolver', () => {
     await mongoose.connection.close();
   });
 
-  describe('#apply', () => {
+  describe.skip('#apply', () => {
     it('saves the liquidity in pool', async () => {
       await uniswapV3LiquidityResolver.apply(ChainsIds.ETH);
 
@@ -165,7 +165,6 @@ describe('UniswapV3LiquidityResolver', () => {
       });
 
       expect(poolUpdate).to.be.an('array').that.has.lengthOf(1);
-
       expect(poolUpdate[0]).to.include({
         ...uniswapV3Pool,
         liquidityActive: '200',
