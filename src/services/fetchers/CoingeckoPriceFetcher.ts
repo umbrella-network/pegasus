@@ -21,13 +21,8 @@ export interface InputParams {
   currency: string;
 }
 
-interface APIParams {
-  ids: string[];
-  vsCurrencies: string[];
-}
-
 @injectable()
-export default class CoingeckoPriceMultiFetcher implements FeedMultiFetcherInterface {
+export default class CoingeckoPriceFetcher implements FeedMultiFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
@@ -47,8 +42,10 @@ export default class CoingeckoPriceMultiFetcher implements FeedMultiFetcherInter
 
     const responses = await Promise.all(
       batchedInputs.map((inputs) => {
-        const params = this.extractParams(inputs);
-        const url = this.assembleUrl(params.vsCurrencies, params.ids);
+        const baseUrl = 'https://api.coingecko.com/api/v3/simple/price';
+        const ids = inputs.map((o) => o.id);
+        const currencies = inputs.map((o) => o.currency);
+        const url = `${baseUrl}?ids=${ids}&vs_currencies=${currencies}`;
 
         return axios.get(url, {
           timeout: this.timeout,
@@ -58,7 +55,6 @@ export default class CoingeckoPriceMultiFetcher implements FeedMultiFetcherInter
     );
 
     const outputs = responses.map((response) => this.processResponse(response, inputs));
-
     const fetcherResult = {prices: outputs.flat(), timestamp: this.timeService.apply()};
 
     this.priceDataRepository.saveFetcherResults(
@@ -66,36 +62,10 @@ export default class CoingeckoPriceMultiFetcher implements FeedMultiFetcherInter
       options.symbols,
       FetcherName.COINGECKO_PRICE,
       PriceValueType.Price,
-      CoingeckoPriceMultiFetcher.fetcherSource,
+      CoingeckoPriceFetcher.fetcherSource,
     );
 
     return fetcherResult;
-  }
-
-  private assembleUrl(vsCurrencies: string[], coinIds: string[]): string {
-    if (vsCurrencies.length == 0) {
-      throw new Error('[CoingeckoPriceMultiFetcher] empty vsCurrencies');
-    }
-
-    if (coinIds.length == 0) {
-      throw new Error('[CoingeckoPriceMultiFetcher] empty coinIds');
-    }
-
-    return `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=${vsCurrencies}`;
-  }
-
-  private extractParams(inputs: InputParams[]): APIParams {
-    const params: APIParams = {
-      ids: [],
-      vsCurrencies: [],
-    };
-
-    inputs.forEach((input) => {
-      params.ids.push(input.id);
-      params.vsCurrencies.push(input.currency);
-    });
-
-    return params;
   }
 
   private processResponse(response: AxiosResponse, inputs: InputParams[]): NumberOrUndefined[] {

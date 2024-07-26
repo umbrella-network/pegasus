@@ -15,7 +15,7 @@ import {initRedis} from '../config/initRedis.js';
 import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository.js';
 import FeedProcessor from '../services/FeedProcessor.js';
 import {ContractAddressService} from '../services/ContractAddressService.js';
-import ByBitSpotFetcher from '../services/fetchers/ByBitSpotFetcher.js';
+import ByBitFetcher from '../services/fetchers/ByBitPriceFetcher.js';
 import FetcherAPILimit from '../types/FetcherAPILimit.js';
 import fetcherAPILimit from '../config/fetcherAPILimit.js';
 
@@ -34,7 +34,7 @@ export function getContainer(): Container {
   container.bind(MongoDBPriceRepository).toSelf().inSingletonScope();
   container.bind(FeedProcessor).toSelf().inSingletonScope();
   container.bind(ContractAddressService).toSelf().inSingletonScope();
-  container.bind(ByBitSpotFetcher).toSelf().inSingletonScope();
+  container.bind(ByBitFetcher).toSelf().inSingletonScope();
 
   container
     .bind<Redis>('Redis')

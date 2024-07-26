@@ -22,7 +22,7 @@ export interface InputParams {
 export type BinanceResponse = {symbol: string; price: string}[];
 
 @injectable()
-export default class BinancePriceMultiFetcher implements FeedMultiFetcherInterface {
+export default class BinancePriceFetcher implements FeedMultiFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
@@ -62,7 +62,7 @@ export default class BinancePriceMultiFetcher implements FeedMultiFetcherInterfa
       options.symbols,
       FetcherName.BINANCE,
       PriceValueType.Price,
-      BinancePriceMultiFetcher.fetcherSource,
+      BinancePriceFetcher.fetcherSource,
     );
 
     return fetcherResult;

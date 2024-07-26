@@ -1,12 +1,8 @@
-import CryptoComparePriceMultiFetcher from './CryptoComparePriceMultiFetcher.js';
-import CryptoCompareHistoHourFetcher from './CryptoCompareHistoHourFetcher.js';
-import CryptoCompareHistoDayFetcher from './CryptoCompareHistoDayFetcher.js';
-import CryptoComparePriceWSFetcher from './CryptoComparePriceWSFetcher.js';
 import PolygonIOCryptoPriceFetcher from './PolygonIOCryptoPriceFetcher.js';
 import PolygonIOStockPriceFetcher from './PolygonIOStockPriceFetcher.js';
 import PolygonIOCurrencySnapshotGramsFetcher from './PolygonIOCurrencySnapshotGramsFetcher.js';
 import YearnVaultTokenPriceFetcher from './YearnVaultTokenPriceFetcher.js';
-import CoingeckoPriceMultiFetcher from './CoingeckoPriceMultiFetcher.js';
+import CoingeckoPriceFetcher from './CoingeckoPriceFetcher.js';
 import {UniswapPriceFetcher} from './UniswapPriceFetcher.js';
 import OptionsPriceFetcher from './OptionsPriceFetcher.js';
 import RandomNumberFetcher from './RandomNumberFetcher.js';
@@ -15,21 +11,17 @@ import EvmTWAPGasPriceFetcher from './EvmTWAPGasPriceFetcher.js';
 import MetalPriceApiFetcher from './MetalPriceApiFetcher.js';
 import MetalsDevApiPriceFetcher from './MetalsDevApiFetcher.js';
 import GoldApiPriceFetcher from './GoldApiPriceFetcher.js';
-import ByBitSpotFetcher from './ByBitSpotFetcher.js';
-import BinancePriceMultiFetcher from './BinancePriceMultiFetcher.js';
+import ByBitFetcher from './ByBitPriceFetcher.js';
+import BinanceFetcher from './BinancePriceFetcher.js';
 
 export {
-  ByBitSpotFetcher,
-  BinancePriceMultiFetcher,
-  CryptoComparePriceMultiFetcher,
-  CryptoCompareHistoDayFetcher,
-  CryptoCompareHistoHourFetcher,
-  CryptoComparePriceWSFetcher,
+  ByBitFetcher as ByBitSpotFetcher,
+  BinanceFetcher as BinancePriceMultiFetcher,
   PolygonIOStockPriceFetcher,
   PolygonIOCryptoPriceFetcher,
   PolygonIOCurrencySnapshotGramsFetcher,
   YearnVaultTokenPriceFetcher,
-  CoingeckoPriceMultiFetcher,
+  CoingeckoPriceFetcher as CoingeckoPriceMultiFetcher,
   OptionsPriceFetcher,
   UniswapPriceFetcher,
   RandomNumberFetcher,

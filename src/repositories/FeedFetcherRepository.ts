@@ -1,4 +1,5 @@
 import {inject, injectable} from 'inversify';
+
 import * as fetchers from '../services/fetchers/index.js';
 import {FeedFetcherInterface} from '../types/fetchers.js';
 
@@ -7,13 +8,10 @@ export class FeedFetcherRepository {
   readonly collection: {[key: string]: FeedFetcherInterface};
 
   constructor(
-    @inject(fetchers.CryptoCompareHistoHourFetcher) CryptoCompareHistoHour: fetchers.CryptoCompareHistoHourFetcher,
-    @inject(fetchers.CryptoCompareHistoDayFetcher) CryptoCompareHistoDay: fetchers.CryptoCompareHistoDayFetcher,
     @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPrice: fetchers.PolygonIOStockPriceFetcher,
     @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPrice: fetchers.PolygonIOCryptoPriceFetcher,
     @inject(fetchers.PolygonIOCurrencySnapshotGramsFetcher)
     PolygonIOCurrencySnapshotGrams: fetchers.PolygonIOCurrencySnapshotGramsFetcher,
-    @inject(fetchers.CryptoComparePriceWSFetcher) CryptoComparePriceWS: fetchers.CryptoComparePriceWSFetcher,
     @inject(fetchers.OnChainDataFetcher) OnChainData: fetchers.OnChainDataFetcher,
     @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPrice: fetchers.YearnVaultTokenPriceFetcher,
     @inject(fetchers.OptionsPriceFetcher) OptionsPrice: fetchers.OptionsPriceFetcher,
@@ -25,12 +23,9 @@ export class FeedFetcherRepository {
     @inject(fetchers.MetalsDevApiPriceFetcher) MetalsDevApi: fetchers.MetalsDevApiPriceFetcher,
   ) {
     this.collection = {
-      CryptoCompareHistoHour,
-      CryptoCompareHistoDay,
       PolygonIOStockPrice,
       PolygonIOCryptoPrice,
       PolygonIOCurrencySnapshotGrams,
-      CryptoComparePriceWS,
       OnChainData,
       YearnVaultTokenPrice,
       OptionsPrice,

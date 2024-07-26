@@ -82,7 +82,7 @@ export enum FetcherName {
   OPTIONS_PRICE = 'OptionsPrice',
   YEARN_VAULT_TOKEN_PRICE = 'YearnVaultTokenPrice',
   RANDOM_NUMBER = 'RandomNumber',
-  SOVRYN_PRICE = 'SovrynPriceFetcher',
+  SOVRYN_PRICE = 'SovrynPrice',
   BY_BIT = 'ByBit',
   BINANCE = 'Binance',
 }

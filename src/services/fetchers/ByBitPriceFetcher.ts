@@ -19,7 +19,7 @@ export interface InputParams {
 }
 
 @injectable()
-class ByBitSpotFetcher implements FeedMultiFetcherInterface {
+class ByBitPriceFetcher implements FeedMultiFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
@@ -59,7 +59,7 @@ class ByBitSpotFetcher implements FeedMultiFetcherInterface {
       options.symbols,
       FetcherName.BY_BIT,
       PriceValueType.Price,
-      ByBitSpotFetcher.fetcherSource,
+      ByBitPriceFetcher.fetcherSource,
     );
 
     return fetcherResult;
@@ -91,4 +91,4 @@ class ByBitSpotFetcher implements FeedMultiFetcherInterface {
   }
 }
 
-export default ByBitSpotFetcher;
+export default ByBitPriceFetcher;
