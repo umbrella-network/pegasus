@@ -83,8 +83,8 @@ export enum FetcherName {
   YEARN_VAULT_TOKEN_PRICE = 'YearnVaultTokenPrice',
   RANDOM_NUMBER = 'RandomNumber',
   SOVRYN_PRICE = 'SovrynPrice',
-  BY_BIT = 'ByBit',
-  BINANCE = 'Binance',
+  BY_BIT = 'ByBitPrice',
+  BINANCE = 'BinancePrice',
 }
 
 export const allMultiFetchers: Set<string> = new Set([
