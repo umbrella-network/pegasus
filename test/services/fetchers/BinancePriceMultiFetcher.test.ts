@@ -2,54 +2,37 @@ import chai from 'chai';
 import moxios from 'moxios';
 import sinon, {SinonFakeTimers} from 'sinon';
 
-import BinancePriceMultiFetcher, {InputParams} from '../../../src/services/fetchers/BinancePriceMultiFetcher.js';
-import fetcherAPILimit from '../../../src/config/fetcherAPILimit.js';
+import BinancePriceMultiFetcher from '../../../src/services/fetchers/BinancePriceMultiFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import Settings from '../../../src/types/Settings.js';
 
 const {expect} = chai;
 
 describe('BinancePriceMultiFetcher', () => {
-  let clock: SinonFakeTimers;
-  let settings: Settings;
   let binancePriceMultiFetcher: BinancePriceMultiFetcher;
-
-  const params: InputParams[] = [
-    {symbol: 'BTCUSDT', inverse: false},
-    {symbol: 'ETHUSDT', inverse: false},
-  ];
-
-  const binanceResponse = [
-    {
-      symbol: 'BTCUSDT',
-      price: '64847.22000000',
-    },
-    {
-      symbol: 'ETHUSDT',
-      price: '3389.96000000',
-    },
-  ];
+  let clock: SinonFakeTimers;
 
   beforeEach(async () => {
     moxios.install();
     clock = sinon.useFakeTimers(new Date('2023-05-11'));
 
-    const container = getTestContainer();
-
-    settings = {
+    const settings = {
       api: {
         binance: {
           timeout: 5000,
           maxBatchSize: 500,
         },
       },
+      blockchain: {
+        multiChains: {
+          rootstock: {},
+        },
+      },
     } as Settings;
 
-    container.rebind('Settings').toConstantValue(settings);
-    container.bind('FetcherAPILimit').toConstantValue(fetcherAPILimit);
-
+    const container = getTestContainer();
     container.bind(BinancePriceMultiFetcher).toSelf();
-
+    container.rebind('Settings').toConstantValue(settings);
     binancePriceMultiFetcher = container.get(BinancePriceMultiFetcher);
   });
 
@@ -63,10 +46,19 @@ describe('BinancePriceMultiFetcher', () => {
 
     moxios.stubRequest('https://www.binance.com/api/v3/ticker/price', {
       status: 200,
-      response: binanceResponse,
+      response: [
+        {symbol: 'BTCUSDT', price: '64847.22000000'},
+        {symbol: 'ETHUSDT', price: '3389.96000000'},
+      ],
     });
 
-    const result = await binancePriceMultiFetcher.apply(params, {symbols: []});
+    const result = await binancePriceMultiFetcher.apply(
+      [
+        {symbol: 'BTCUSDT', inverse: false},
+        {symbol: 'ETHUSDT', inverse: false},
+      ],
+      {symbols: []},
+    );
 
     expect(result.prices).to.be.an('array').with.lengthOf(2);
     expect(result.prices).to.be.deep.eq(expectOutput);

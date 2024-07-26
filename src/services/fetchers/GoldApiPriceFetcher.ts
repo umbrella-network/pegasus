@@ -37,9 +37,7 @@ export default class GoldApiPriceFetcher implements FeedFetcherInterface {
     const url = `https://www.goldapi.io/api/${symbol}/${currency}`;
 
     const response = await axios.get(url, {
-      headers: {
-        'x-access-token': this.token,
-      },
+      headers: {'x-access-token': this.token},
       timeout: this.timeout,
       timeoutErrorMessage: `${this.logPrefix} Timeout exceeded: ${url}`,
     });

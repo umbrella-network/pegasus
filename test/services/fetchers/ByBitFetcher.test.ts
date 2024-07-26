@@ -72,17 +72,21 @@ describe('ByBitSpotFetcher', () => {
   beforeEach(async () => {
     moxios.install();
 
-    const container = getTestContainer();
-
     settings = {
       api: {
         byBit: {
           timeout: 5000,
         },
       },
+      blockchain: {
+        multiChains: {
+          rootstock: {},
+        },
+      },
       environment: 'testing',
     } as Settings;
 
+    const container = getTestContainer();
     container.rebind('Settings').toConstantValue(settings);
     container.bind(ByBitSpotFetcher).toSelf();
 
