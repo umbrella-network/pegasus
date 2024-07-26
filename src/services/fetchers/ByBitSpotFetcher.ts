@@ -54,7 +54,7 @@ class ByBitSpotFetcher implements FeedMultiFetcherInterface {
       timestamp: this.timeService.apply(),
     };
 
-    this.priceDataRepository.saveFetcherResults(
+    await this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
       FetcherName.BY_BIT,

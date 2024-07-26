@@ -3,7 +3,7 @@ import {Logger} from 'winston';
 
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
-import {FeedFetcherOptions, FetcherName} from '../../types/fetchers.js';
+import {FeedFetcherOptions, FetcherName, NumberOrUndefined} from '../../types/fetchers.js';
 
 @injectable()
 class PolygonIOCryptoPriceFetcher {
@@ -14,7 +14,7 @@ class PolygonIOCryptoPriceFetcher {
   private logPrefix = `[${FetcherName.POLYGON_IO_CRYPTO_PRICE}]`;
   static fetcherSource = '';
 
-  async apply(params: {fsym: string; tsym: string}, options: FeedFetcherOptions): Promise<number> {
+  async apply(params: {fsym: string; tsym: string}, options: FeedFetcherOptions): Promise<NumberOrUndefined> {
     const {fsym, tsym} = params;
     const {base: feedBase, quote: feedQuote, timestamp} = options;
     this.logger.debug(`${this.logPrefix} call for ${feedBase}-${feedQuote}: ${fsym}, ${tsym}`);
@@ -23,23 +23,20 @@ class PolygonIOCryptoPriceFetcher {
 
     const price = await this.polygonIOCryptoPriceService.getLatestPrice({fsym, tsym}, timestamp);
 
-    if (price !== null) {
-      const payload: PriceDataPayload = {
-        fetcher: FetcherName.POLYGON_IO_CRYPTO_PRICE,
-        value: price.toString(),
-        valueType: PriceValueType.Price,
-        timestamp,
-        feedBase,
-        feedQuote,
-        fetcherSource: PolygonIOCryptoPriceFetcher.fetcherSource,
-      };
-
-      await this.priceDataRepository.savePrice(payload);
-
-      return price;
+    if (!price) {
+      this.logger.error(`${this.logPrefix} NO price for ${fsym}-${tsym}`);
+      return;
     }
 
-    throw new Error(`${this.logPrefix} NO price for ${fsym}-${tsym}`);
+    await this.priceDataRepository.saveFetcherResults(
+      {prices: [price]},
+      [`${feedBase}-${feedQuote}`],
+      FetcherName.POLYGON_IO_CRYPTO_PRICE,
+      PriceValueType.Price,
+      PolygonIOCryptoPriceFetcher.fetcherSource,
+    );
+
+    return price;
   }
 }
 

@@ -2,11 +2,12 @@ import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
 
-import {PriceDataModel} from '../models/PriceDataModel.js';
 import {FetcherResult, StringOrUndefined} from '../types/fetchers.js';
+import PriceSignerService from '../services/PriceSignerService.js';
+import {PriceDataModel} from '../models/PriceDataModel.js';
+import Settings from '../types/Settings.js';
 import FeedSymbolChecker from '../services/FeedSymbolChecker.js';
 import TimeService from '../services/TimeService.js';
-import Settings from '../types/Settings.js';
 
 export enum PriceValueType {
   Price = 'Price',
@@ -20,41 +21,16 @@ export type PriceDataPayload = {
   feedBase: string; // base configurable on feeds.yaml e.g. WBTC-USDC -> base is WBTC
   feedQuote: string; // quote configurable on feeds.yaml e.g. WBTC-USDC -> quote is USDC
   fetcherSource: string;
+  quoteLiquidity?: string;
 };
 
 @injectable()
 export class PriceDataRepository {
+  @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
   @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
   @inject(TimeService) private timeService!: TimeService;
-  @inject('Settings') settings!: Settings;
   @inject('Logger') private logger!: Logger;
-
-  async savePrice(data: PriceDataPayload): Promise<void> {
-    try {
-      const doc = await getModelForClass(PriceDataModel).create({...data});
-      await doc.save();
-    } catch (error) {
-      this.logger.error(`[PriceDataRepository] couldn't create document for PriceData: ${error}`);
-    }
-  }
-
-  async savePrices(data: PriceDataPayload[]): Promise<void> {
-    const model = await getModelForClass(PriceDataModel);
-
-    const bulkOps = data.map((doc) => ({
-      updateOne: {
-        filter: {...doc},
-        update: doc,
-        upsert: true,
-      },
-    }));
-
-    try {
-      await model.bulkWrite(bulkOps);
-    } catch (error) {
-      this.logger.error(`[PriceDataRepository] couldn't perform bulkWrite for PriceData: ${error}`);
-    }
-  }
+  @inject('Settings') settings!: Settings;
 
   async saveFetcherResults(
     fetcherResult: FetcherResult,
@@ -86,6 +62,39 @@ export class PriceDataRepository {
     }
 
     await this.savePrices(payloads);
+  }
+
+  async savePrices(data: PriceDataPayload[]): Promise<void> {
+    const model = await getModelForClass(PriceDataModel);
+
+    const bulkOps = await Promise.all(
+      data.map(async (doc) => {
+        const hashVersion = 1;
+        const messageToSign = this.createMessageToSign(doc, hashVersion);
+        const {signerAddress, signature, hash} = await this.priceSignerService.sign(messageToSign);
+        return {
+          updateOne: {
+            filter: {...doc},
+            update: {...doc, signer: signerAddress, priceHash: hash, signature, hashVersion},
+            upsert: true,
+          },
+        };
+      }),
+    );
+
+    try {
+      await model.bulkWrite(bulkOps);
+    } catch (error) {
+      this.logger.error(`[PriceDataRepository] couldn't perform bulkWrite for PriceData: ${error}`);
+    }
+  }
+
+  createMessageToSign(data: PriceDataPayload, hashVersion: number): string {
+    const {fetcher, value, valueType, timestamp, feedBase, feedQuote, fetcherSource, quoteLiquidity} = data;
+    return (
+      `${hashVersion};${fetcher};${value};${valueType};${timestamp};${feedBase};${feedQuote};` +
+      `${fetcherSource};${quoteLiquidity}`
+    );
   }
 
   async latest(limit = 150): Promise<PriceDataModel[]> {

@@ -23,7 +23,6 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
     loadTestEnv();
 
     const container = getTestContainer();
-
     container.bind(BlockchainRepository).toSelf();
     container.bind(DeviationSignerRepository).toSelf();
 

@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 
 import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';
-import {FetcherName, FeedFetcherOptions, FeedFetcherInterface} from '../../types/fetchers.js';
+import {FetcherName, FeedFetcherOptions, FeedFetcherInterface, NumberOrUndefined} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 
 /*
@@ -25,7 +25,7 @@ class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher i
     this.valuePath = '$.ticker.lastQuote.a';
   }
 
-  async apply(params: {ticker: string}, options: FeedFetcherOptions): Promise<number> {
+  async apply(params: {ticker: string}, options: FeedFetcherOptions): Promise<NumberOrUndefined> {
     const {ticker} = params;
     const {base: feedBase, quote: feedQuote, timestamp} = options;
 
@@ -40,21 +40,18 @@ class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher i
     const oneOzInGrams = 31.1034; // grams
     const price = (data as number) / oneOzInGrams;
 
-    if (!isNaN(price)) {
-      const payload: PriceDataPayload = {
-        fetcher: FetcherName.POLYGON_IO_CRYPTO_PRICE,
-        value: price.toString(),
-        valueType: PriceValueType.Price,
-        timestamp,
-        feedBase,
-        feedQuote,
-        fetcherSource: PolygonIOCurrencySnapshotGramsFetcher.fetcherSource,
-      };
-
-      await this.priceDataRepository.savePrice(payload);
-
-      return price;
+    if (isNaN(price)) {
+      this.logger.error(`${this.logPrefix} couldn't compute price for ${baseUrl}/${ticker}. Computed value gave NaN.`);
+      return;
     }
+
+    await this.priceDataRepository.saveFetcherResults(
+      {prices: [price]},
+      [`${feedBase}-${feedQuote}`],
+      FetcherName.POLYGON_IO_CURRENCY_SNAPSHOT_GRAMS,
+      PriceValueType.Price,
+      PolygonIOCurrencySnapshotGramsFetcher.fetcherSource,
+    );
 
     return price;
   }
