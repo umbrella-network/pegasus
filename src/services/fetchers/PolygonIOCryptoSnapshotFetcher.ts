@@ -6,7 +6,7 @@ import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()
 class PolygonIOCryptoSnapshotFetcher extends BasePolygonIOSnapshotFetcher {
-  private logPrefix = `[${FetcherName.POLYGON_IO_CRYPTO_PRICE}]`;
+  private logPrefix = `[${FetcherName.PolygonIOCryptoPrice}]`;
 
   constructor(@inject('Settings') settings: Settings) {
     super();

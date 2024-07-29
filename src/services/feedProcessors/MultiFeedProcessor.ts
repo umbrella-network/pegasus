@@ -40,19 +40,19 @@ export default class MultiFeedProcessorNew {
       } else {
         let fetcherObject;
         switch (fetcher.name) {
-          case FetcherName.BY_BIT:
+          case FetcherName.ByBitPrice:
             fetcherObject = this.byBitSpotPriceFetcher;
             break;
-          case FetcherName.BINANCE:
+          case FetcherName.BinancePrice:
             fetcherObject = this.binancePriceFetcher;
             break;
-          case FetcherName.COINGECKO_PRICE:
+          case FetcherName.CoingeckoPrice:
             fetcherObject = this.coingeckoPriceFetcher;
             break;
-          case FetcherName.SOVRYN_PRICE:
+          case FetcherName.SovrynPrice:
             fetcherObject = this.sovrynPriceFetcher;
             break;
-          case FetcherName.UNISWAP_V3:
+          case FetcherName.UniswapV3Fetcher:
             fetcherObject = this.uniswapV3PriceFetcher;
             break;
           default:

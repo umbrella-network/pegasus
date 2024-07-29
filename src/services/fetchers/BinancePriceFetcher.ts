@@ -60,7 +60,7 @@ export default class BinancePriceFetcher implements FeedMultiFetcherInterface {
     this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
-      FetcherName.BINANCE,
+      FetcherName.BinancePrice,
       PriceValueType.Price,
       BinancePriceFetcher.fetcherSource,
     );

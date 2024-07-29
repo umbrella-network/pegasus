@@ -60,7 +60,7 @@ export default class CoingeckoPriceFetcher implements FeedMultiFetcherInterface 
     this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
-      FetcherName.COINGECKO_PRICE,
+      FetcherName.CoingeckoPrice,
       PriceValueType.Price,
       CoingeckoPriceFetcher.fetcherSource,
     );

@@ -57,7 +57,7 @@ class ByBitPriceFetcher implements FeedMultiFetcherInterface {
     await this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
-      FetcherName.BY_BIT,
+      FetcherName.ByBitPrice,
       PriceValueType.Price,
       ByBitPriceFetcher.fetcherSource,
     );

@@ -10,7 +10,6 @@ import loadFeeds from './services/loadFeeds.js';
 import Settings from './types/Settings.js';
 import Block from './models/Block.js';
 import PolygonIOPriceInitializer from './services/PolygonIOPriceInitializer.js';
-import CryptoCompareWSInitializer from './services/CryptoCompareWSInitializer.js';
 import TimeService from './services/TimeService.js';
 import Blockchain from './lib/Blockchain.js';
 
@@ -20,7 +19,6 @@ const argv = yargs(process.argv.slice(2)).options({
 
 async function testFeeds(settings: Settings): Promise<void> {
   await Application.get(PolygonIOPriceInitializer).apply();
-  await Application.get(CryptoCompareWSInitializer).apply();
 
   const feeds = await loadFeeds(settings.feedsFile);
 

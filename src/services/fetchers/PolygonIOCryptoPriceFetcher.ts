@@ -11,7 +11,7 @@ class PolygonIOCryptoPriceFetcher {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject('Logger') private logger!: Logger;
 
-  private logPrefix = `[${FetcherName.POLYGON_IO_CRYPTO_PRICE}]`;
+  private logPrefix = `[${FetcherName.PolygonIOCryptoPrice}]`;
   static fetcherSource = '';
 
   async apply(params: {fsym: string; tsym: string}, options: FeedFetcherOptions): Promise<NumberOrUndefined> {
@@ -31,7 +31,7 @@ class PolygonIOCryptoPriceFetcher {
     await this.priceDataRepository.saveFetcherResults(
       {prices: [price]},
       [`${feedBase}-${feedQuote}`],
-      FetcherName.POLYGON_IO_CRYPTO_PRICE,
+      FetcherName.PolygonIOCryptoPrice,
       PriceValueType.Price,
       PolygonIOCryptoPriceFetcher.fetcherSource,
     );

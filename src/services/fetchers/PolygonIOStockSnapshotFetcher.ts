@@ -15,7 +15,7 @@ class PolygonIOStockSnapshotFetcher {
   private apiKey: string;
   private timeout: number;
   private maxBatchSize: number;
-  private logPrefix = `[${FetcherName.POLYGON_IO_STOCK_SNAPSHOT}]`;
+  private logPrefix = `[${FetcherName.PolygonIOStockSnapshot}]`;
 
   constructor(@inject('Settings') settings: Settings) {
     this.apiKey = settings.api.polygonIO.apiKey;

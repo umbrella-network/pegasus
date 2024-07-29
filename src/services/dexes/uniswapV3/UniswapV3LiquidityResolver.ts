@@ -29,7 +29,10 @@ export class UniswapV3LiquidityResolver {
 
   async apply(chainId: ChainsIds): Promise<void> {
     const feeds = await this.getFeeds(chainId);
-    const uniswapV3Params = this.feedDataService.getParamsByFetcherName<UniswapV3Param>(feeds, FetcherName.UNISWAP_V3);
+    const uniswapV3Params = this.feedDataService.getParamsByFetcherName<UniswapV3Param>(
+      feeds,
+      FetcherName.UniswapV3Fetcher,
+    );
 
     if (uniswapV3Params.length === 0) {
       this.logger.info(`${this.logPrefix}[${chainId}] No params for fetcher`);

@@ -20,7 +20,7 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
 
   private apiKey: string;
   private timeout: number;
-  private logPrefix = `[${FetcherName.METALS_DEV_API}]`;
+  private logPrefix = `[${FetcherName.MetalsDevApi}]`;
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
@@ -62,7 +62,7 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
       await this.priceDataRepository.saveFetcherResults(
         {prices: [pricePerGram]},
         [`${feedBase}-${feedQuote}`],
-        FetcherName.METALS_DEV_API,
+        FetcherName.MetalsDevApi,
         PriceValueType.Price,
         MetalsDevApiPriceFetcher.fetcherSource,
       );

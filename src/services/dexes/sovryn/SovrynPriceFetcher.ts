@@ -107,7 +107,7 @@ export class SovrynPriceFetcher implements FeedMultiFetcherInterface {
     this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
-      FetcherName.SOVRYN_PRICE,
+      FetcherName.SovrynPrice,
       PriceValueType.Price,
       SovrynPriceFetcher.fetcherSource,
     );
