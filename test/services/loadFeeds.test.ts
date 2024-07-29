@@ -16,6 +16,7 @@ describe('LoadFeeds', () => {
       const feeds = await loadFeeds('test/fixtures/feeds-example.yaml');
 
       const keys = Object.keys(feeds);
+      console.log({keys});
       expect(keys).to.have.length(5);
       expect(feeds).to.have.keys('BTC-USDT', 'BTC-USD', 'ETH-USDT', 'ETH-USD', 'YEARN-FI:*-ETH');
       expect(feeds[keys[0]]).to.have.property('discrepancy');

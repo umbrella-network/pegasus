@@ -1,42 +1,44 @@
+---
+
 BTC-USDT:
   discrepancy: 1.0
   precision: 2
   inputs:
     - fetcher:
-        name: CryptoComparePriceWS
+        name: CoingeckoPrice
         params:
-          fsym: BTC
-          tsym: USDT
+          id: ETH
+          currency: USDT
 
 BTC-USD:
   discrepancy: 1.0
   precision: 2
   inputs:
     - fetcher:
-        name: CryptoComparePriceWS
+        name: CoingeckoPrice
         params:
-          fsym: BTC
-          tsym: USD
+          id: ETH
+          currency: USDT
 
 ETH-USDT:
   discrepancy: 1.0
   precision: 2
   inputs:
     - fetcher:
-        name: CryptoComparePriceWS
+        name: CoingeckoPrice
         params:
-          fsym: ETH
-          tsym: USDT
+          id: ETH
+          currency: USDT
 
 ETH-USD:
   discrepancy: 1.0
   precision: 2
   inputs:
     - fetcher:
-        name: CryptoComparePriceWS
+        name: CoingeckoPrice
         params:
-          fsym: ETH
-          tsym: USD
+          id: ETH
+          currency: USDT
 
 YEARN-FI:*-ETH:
   discrepancy: 1
