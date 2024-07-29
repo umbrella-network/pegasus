@@ -28,6 +28,7 @@ export default class BinancePriceFetcher implements FeedMultiFetcherInterface {
   @inject('Logger') private logger!: Logger;
 
   private timeout: number;
+  private logPrefix = `[${FetcherName.BinancePrice}]`;
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
@@ -37,7 +38,7 @@ export default class BinancePriceFetcher implements FeedMultiFetcherInterface {
   async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
     const sourceUrl = 'https://www.binance.com/api/v3/ticker/price';
 
-    this.logger.debug(`[BinanceFetcher] call for: ${sourceUrl}`);
+    this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
@@ -75,12 +76,12 @@ export default class BinancePriceFetcher implements FeedMultiFetcherInterface {
       const price = binancePrices.find((elem) => elem.symbol == input.symbol)?.price;
 
       if (!price) {
-        this.logger.error(`[BinanceFetcher] Couldn't extract price for ${input.symbol}`);
+        this.logger.error(`${this.logPrefix} Couldn't extract price for ${input.symbol}`);
         outputs.push(undefined);
       } else {
         const priceValue = input.inverse ? 1 / Number(price) : Number(price);
 
-        this.logger.debug(`[BinanceFetcher] resolved price: ${input.symbol}: ${priceValue}`);
+        this.logger.debug(`${this.logPrefix} resolved price: ${input.symbol}: ${priceValue}`);
 
         outputs.push(priceValue);
       }

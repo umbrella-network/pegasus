@@ -25,6 +25,7 @@ class ByBitPriceFetcher implements FeedMultiFetcherInterface {
   @inject('Logger') protected logger!: Logger;
 
   private timeout: number;
+  private logPrefix = `[${FetcherName.BinancePrice}]`;
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
@@ -34,7 +35,7 @@ class ByBitPriceFetcher implements FeedMultiFetcherInterface {
   async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
     const sourceUrl = 'https://api.bybit.com/v5/market/tickers?category=spot';
 
-    this.logger.debug(`[ByBitSpotFetcher] call for: ${sourceUrl}`);
+    this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
@@ -77,13 +78,13 @@ class ByBitPriceFetcher implements FeedMultiFetcherInterface {
         const priceValue = Number(price.usdIndexPrice);
 
         if (!priceValue || isNaN(priceValue)) {
-          this.logger.error(`[ByBitSpotFetcher] Couldn't extract price for ${price.symbol}`);
+          this.logger.error(`${this.logPrefix} couldn't extract price for ${price.symbol}`);
           continue;
         }
 
         outputMap.set(price.symbol, priceValue);
 
-        this.logger.debug(`[ByBitSpotFetcher] resolved price(usdIndexPrice): ${price.symbol}: ${priceValue}`);
+        this.logger.debug(`${this.logPrefix} resolved price(usdIndexPrice): ${price.symbol}: ${priceValue}`);
       }
     }
 
