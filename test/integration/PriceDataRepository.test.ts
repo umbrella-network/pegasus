@@ -57,7 +57,7 @@ describe.skip('PriceDataRepository', () => {
   it('saves a price in the database', async () => {
     const payload: PriceDataPayload[] = [
       {
-        fetcher: FetcherName.SOVRYN_PRICE,
+        fetcher: FetcherName.SovrynPrice,
         value: '2912',
         valueType: PriceValueType.Price,
         timestamp: 0,

@@ -10,19 +10,19 @@ const {expect} = chai;
 
 const feedFetchers: FeedFetcher[] = [
   {
-    name: FetcherName.CRYPTO_COMPARE_PRICE,
+    name: FetcherName.SovrynPrice,
     params: {fsym: 'UMB', tsyms: 'BTC'},
   },
   {
-    name: FetcherName.COINGECKO_PRICE,
+    name: FetcherName.CoingeckoPrice,
     params: {id: 'umbrella-network', currency: 'BTC'},
   },
   {
-    name: FetcherName.CRYPTO_COMPARE_PRICE,
+    name: FetcherName.SovrynPrice,
     params: {fsym: 'UMB', tsyms: 'USD'},
   },
   {
-    name: FetcherName.COINGECKO_PRICE,
+    name: FetcherName.CoingeckoPrice,
     params: {id: 'umbrella-network', currency: 'USD'},
   },
 ];

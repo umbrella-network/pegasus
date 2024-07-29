@@ -1,7 +1,6 @@
 import 'reflect-metadata';
-import {loadFeeds} from '@umb-network/toolbox';
 import chai from 'chai';
-import {createStubInstance, SinonStubbedInstance} from 'sinon';
+import {loadFeeds} from '@umb-network/toolbox';
 
 import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {sleep} from '../../src/utils/sleep.js';
@@ -54,24 +53,12 @@ const saveStockSymbols = async ({fetcher}: any, priceRepository: PriceRepository
 
 const feedsFetcher = [
   {
-    apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: FetcherName.CRYPTO_COMPARE_HISTO_DAY,
-  },
-  {
-    apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: FetcherName.CRYPTO_COMPARE_HISTO_HOUR,
-  },
-  {
-    apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: FetcherName.CRYPTO_COMPARE_PRICE,
-  },
-  {
     apiKey: null,
-    name: FetcherName.COINGECKO_PRICE,
+    name: FetcherName.CoingeckoPrice,
   },
 ];
 
-const fetcherWSNames = [FetcherName.CRYPTO_COMPARE_PRICE_WS, FetcherName.POLYGON_IO_CRYPTO_PRICE];
+const fetcherWSNames = [FetcherName.PolygonIOCryptoPrice];
 
 describe.skip('FeedProcessor integration tests', () => {
   let feedProcessor: FeedProcessor;

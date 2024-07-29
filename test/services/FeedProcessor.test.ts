@@ -1,7 +1,7 @@
 import 'reflect-metadata';
+import chai from 'chai';
 import {Container} from 'inversify';
 import sinon, {createStubInstance, SinonStubbedInstance, stub} from 'sinon';
-import chai from 'chai';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
 import {getTestContainer} from '../helpers/getTestContainer.js';
@@ -9,10 +9,10 @@ import {FeedFetcherRepository} from '../../src/repositories/FeedFetcherRepositor
 import {CalculatorRepository} from '../../src/repositories/CalculatorRepository.js';
 import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {IdentityCalculator} from '../../src/services/calculators/index.js';
-import Feeds from '../../src/types/Feed.js';
 import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
-import Leaf from '../../src/types/Leaf.js';
 import {FeedFetcherInterface, FetcherName} from '../../src/types/fetchers.js';
+import Feeds from '../../src/types/Feed.js';
+import Leaf from '../../src/types/Leaf.js';
 
 const {expect} = chai;
 
@@ -154,7 +154,7 @@ describe.skip('FeedProcessor', () => {
                 }),
                 feedInputFactory.build({
                   fetcher: {
-                    name: FetcherName.CRYPTO_COMPARE_PRICE,
+                    name: FetcherName.SovrynPrice,
                     params: {
                       fsym: 'ETH',
                       tsyms: 'USD',
@@ -189,7 +189,7 @@ describe.skip('FeedProcessor', () => {
             inputs: [
               feedInputFactory.build({
                 fetcher: {
-                  name: FetcherName.COINGECKO_PRICE,
+                  name: FetcherName.CoingeckoPrice,
                   params: {
                     id: 'umbrella-network',
                     currency: 'USD',
@@ -198,7 +198,7 @@ describe.skip('FeedProcessor', () => {
               }),
               feedInputFactory.build({
                 fetcher: {
-                  name: FetcherName.CRYPTO_COMPARE_PRICE,
+                  name: FetcherName.SovrynPrice,
                   params: {
                     fsym: 'UMB',
                     tsyms: 'USD',
@@ -211,7 +211,7 @@ describe.skip('FeedProcessor', () => {
             inputs: [
               feedInputFactory.build({
                 fetcher: {
-                  name: FetcherName.COINGECKO_PRICE,
+                  name: FetcherName.CoingeckoPrice,
                   params: {
                     id: 'umbrella-network',
                     currency: 'BTC',
@@ -220,7 +220,7 @@ describe.skip('FeedProcessor', () => {
               }),
               feedInputFactory.build({
                 fetcher: {
-                  name: FetcherName.CRYPTO_COMPARE_PRICE,
+                  name: FetcherName.SovrynPrice,
                   params: {
                     fsym: 'UMB',
                     tsyms: 'BTC',
@@ -275,42 +275,6 @@ describe.skip('FeedProcessor', () => {
 
             expect(result).to.deep.equal([[]]);
           });
-        });
-      });
-
-      describe('when fetcher is CryptoComparePrice', () => {
-        before(async () => {
-          calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
-
-          const feeds: Feeds = {
-            TEST: feedFactory.build({
-              inputs: [
-                feedInputFactory.build({
-                  fetcher: {
-                    name: FetcherName.CRYPTO_COMPARE_PRICE,
-                    params: {
-                      fsym: 'ETH',
-                      tsyms: 'USD',
-                      limit: 24,
-                    },
-                  },
-                }),
-              ],
-            }),
-          };
-
-          testFetcher.apply = stub().resolves(100.0);
-
-          result = await instance.apply(10, feeds);
-        });
-
-        it('responds with a leaf with correct label', () => {
-          expect(result[0]).to.be.an('array').with.lengthOf(1);
-          expect(result[0][0].label).to.equal('TEST');
-        });
-
-        it('responds with a leaf with value decoded as number', () => {
-          expect(LeafValueCoder.decode(result[0][0].valueBytes, result[0][0].label)).is.a('number').that.equal(100.0);
         });
       });
     });

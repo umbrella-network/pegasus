@@ -24,7 +24,7 @@ describe('PriceDataFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: FetcherName.COINGECKO_PRICE,
+              name: FetcherName.CoingeckoPrice,
             },
           },
         ],
