@@ -47,9 +47,6 @@ export interface FeedMultiProcessorInterface {
 
 export enum FetcherName {
   GVolImpliedVolatility = 'GVolImpliedVolatility',
-  CoinmarketcapPrice = 'CoinmarketcapPrice',
-  CoinmarketcapHistoHour = 'CoinmarketcapHistoHour',
-  CoinmarketcapHistoDay = 'CoinmarketcapHistoDay',
   CoingeckoPrice = 'CoingeckoPrice',
   PolygonIOPrice = 'PolygonIOPrice',
   PolygonIOStockPrice = 'PolygonIOStockPrice',

@@ -39,9 +39,6 @@ export default {
             {$ref: '#/definitions/PolygonIOCryptoPrice'},
             {$ref: '#/definitions/PolygonIOCurrencySnapshotGrams'},
             {$ref: '#/definitions/CoingeckoPrice'},
-            {$ref: '#/definitions/CoinmarketcapPrice'},
-            {$ref: '#/definitions/CoinmarketcapHistoHour'},
-            {$ref: '#/definitions/CoinmarketcapHistoDay'},
             {$ref: '#/definitions/OnChainData'},
             {$ref: '#/definitions/UniswapV3'},
             {$ref: '#/definitions/OptionsPrice'},
@@ -105,56 +102,6 @@ export default {
             sym: {type: 'string'},
           },
           required: ['query', 'sym'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    CoinmarketcapPrice: {
-      properties: {
-        name: {const: FetcherName.CoinmarketcapPrice},
-        params: {
-          type: 'object',
-          properties: {
-            symbol: {type: 'string'},
-            convert: {type: 'string'},
-          },
-          required: ['symbol', 'convert'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    CoinmarketcapHistoHour: {
-      properties: {
-        name: {const: FetcherName.CoinmarketcapHistoHour},
-        params: {
-          type: 'object',
-          properties: {
-            symbol: {type: 'string'},
-            convert: {type: 'string'},
-            count: {type: 'number'},
-          },
-          required: ['symbol', 'convert', 'count'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    CoinmarketcapHistoDay: {
-      properties: {
-        name: {const: FetcherName.CoinmarketcapHistoDay},
-        params: {
-          type: 'object',
-          properties: {
-            symbol: {type: 'string'},
-            convert: {type: 'string'},
-            count: {type: 'number'},
-          },
-          required: ['symbol', 'convert', 'count'],
           additionalProperties: false,
         },
       },

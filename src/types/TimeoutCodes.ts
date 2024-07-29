@@ -1,7 +1,6 @@
 export enum TimeoutCodes {
   CRYPTOCOMPARE = 1,
   COINGECKO,
-  COINMARKETCAP,
   GENESISVOLATILITY,
   POLYGON_IO,
   IEX,
