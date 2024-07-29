@@ -72,7 +72,7 @@ class UniswapV3MultiFetcher implements FeedMultiFetcherInterface {
     this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
-      FetcherName.UNISWAP_V3,
+      FetcherName.UniswapV3,
       PriceValueType.Price,
       UniswapV3MultiFetcher.fetcherSource,
     );

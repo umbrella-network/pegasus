@@ -95,7 +95,7 @@ describe('UniswapV3LiquidityResolver', () => {
             inputs: [
               {
                 fetcher: {
-                  name: FetcherName.UNISWAP_V3,
+                  name: FetcherName.UniswapV3,
                   params: {
                     fromChain: 'ethereum',
                     quote: uniswapV3Pool.token0,
@@ -113,7 +113,7 @@ describe('UniswapV3LiquidityResolver', () => {
             inputs: [
               {
                 fetcher: {
-                  name: FetcherName.UNISWAP_V3,
+                  name: FetcherName.UniswapV3,
                   params: {
                     fromChain: 'ethereum',
                     quote: uniswapV3Pool.token0,

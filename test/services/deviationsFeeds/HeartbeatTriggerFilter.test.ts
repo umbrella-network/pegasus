@@ -1,4 +1,5 @@
 import chai from 'chai';
+
 import {HeartbeatTriggerFilter} from '../../../src/services/deviationsFeeds/HeartbeatTriggerFilter.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
 import {DeviationFeed, PriceData} from '../../../src/types/DeviationFeeds.js';
@@ -20,12 +21,12 @@ describe('HeartbeatTriggerFilter', () => {
       inputs: [
         {
           fetcher: {
-            name: FetcherName.COINGECKO_PRICE,
+            name: FetcherName.CoingeckoPrice,
           },
         },
         {
           fetcher: {
-            name: FetcherName.CRYPTO_COMPARE_PRICE,
+            name: FetcherName.SovrynPrice,
           },
         },
       ],
@@ -47,11 +48,7 @@ describe('HeartbeatTriggerFilter', () => {
     });
 
     it('TRUE when heartbeat differs', () => {
-      const data = {
-        ...priceData,
-        heartbeat: 1,
-      };
-
+      const data = {...priceData, heartbeat: 1};
       expect(HeartbeatTriggerFilter.apply(dataTimestamp, feed, data)).to.be.true;
     });
 
@@ -61,11 +58,7 @@ describe('HeartbeatTriggerFilter', () => {
     });
 
     it('TRUE when price is very old', () => {
-      const data = {
-        ...priceData,
-        timestamp: 1,
-      };
-
+      const data = {...priceData, timestamp: 1};
       expect(HeartbeatTriggerFilter.apply(dataTimestamp, feed, data)).to.be.true;
     });
   });

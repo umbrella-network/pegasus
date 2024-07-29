@@ -19,12 +19,13 @@ export interface InputParams {
 }
 
 @injectable()
-class ByBitSpotFetcher implements FeedMultiFetcherInterface {
+class ByBitPriceFetcher implements FeedMultiFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
 
   private timeout: number;
+  private logPrefix = `[${FetcherName.BinancePrice}]`;
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
@@ -34,7 +35,7 @@ class ByBitSpotFetcher implements FeedMultiFetcherInterface {
   async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
     const sourceUrl = 'https://api.bybit.com/v5/market/tickers?category=spot';
 
-    this.logger.debug(`[ByBitSpotFetcher] call for: ${sourceUrl}`);
+    this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);
 
     const response = await axios.get(sourceUrl, {
       timeout: this.timeout,
@@ -57,9 +58,9 @@ class ByBitSpotFetcher implements FeedMultiFetcherInterface {
     await this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
-      FetcherName.BY_BIT,
+      FetcherName.ByBitPrice,
       PriceValueType.Price,
-      ByBitSpotFetcher.fetcherSource,
+      ByBitPriceFetcher.fetcherSource,
     );
 
     return fetcherResult;
@@ -77,13 +78,13 @@ class ByBitSpotFetcher implements FeedMultiFetcherInterface {
         const priceValue = Number(price.usdIndexPrice);
 
         if (!priceValue || isNaN(priceValue)) {
-          this.logger.error(`[ByBitSpotFetcher] Couldn't extract price for ${price.symbol}`);
+          this.logger.error(`${this.logPrefix} couldn't extract price for ${price.symbol}`);
           continue;
         }
 
         outputMap.set(price.symbol, priceValue);
 
-        this.logger.debug(`[ByBitSpotFetcher] resolved price(usdIndexPrice): ${price.symbol}: ${priceValue}`);
+        this.logger.debug(`${this.logPrefix} resolved price(usdIndexPrice): ${price.symbol}: ${priceValue}`);
       }
     }
 
@@ -91,4 +92,4 @@ class ByBitSpotFetcher implements FeedMultiFetcherInterface {
   }
 }
 
-export default ByBitSpotFetcher;
+export default ByBitPriceFetcher;

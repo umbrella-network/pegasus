@@ -1,8 +1,8 @@
 import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
-import {InputParams} from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher.js';
-import CoingeckoPriceMultiFetcher from '../../../src/services/fetchers/CoingeckoPriceMultiFetcher.js';
+import {InputParams} from '../../../src/services/fetchers/CoingeckoPriceFetcher.js';
+import CoingeckoPriceMultiFetcher from '../../../src/services/fetchers/CoingeckoPriceFetcher.js';
 
 const {expect} = chai;
 
@@ -21,13 +21,11 @@ describe('CoingeckoPriceMultiFetcher', () => {
     describe('when fetching valid keys', () => {
       it('returns the same length of inputs', async () => {
         const outputs = await fetcher.apply(multiInputs, {symbols: []});
-
         expect(outputs).to.have.lengthOf(multiInputs.length);
       });
 
       it('each output contains the proper attributes', async () => {
         const output = await fetcher.apply(multiInputs, {symbols: []});
-
         expect(output).to.have.property('prices');
       });
     });
@@ -46,7 +44,6 @@ describe('CoingeckoPriceMultiFetcher', () => {
       describe('when there is an invalid coin in the middle of valid coins', () => {
         it('returns only the valid coin', async () => {
           const output = await fetcher.apply([validInput, invalidInput], {symbols: []});
-
           expect(output.prices).to.have.lengthOf(1);
         });
       });
@@ -54,7 +51,6 @@ describe('CoingeckoPriceMultiFetcher', () => {
       describe('when there are all invalid coins', () => {
         it('returns empty array', async () => {
           const outputs = await fetcher.apply([invalidInput], {symbols: []});
-
           expect(outputs).to.eql([]);
         });
       });

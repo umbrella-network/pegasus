@@ -22,7 +22,7 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
 
   private apiKey: string;
   private timeout: number;
-  private logPrefix = `[${FetcherName.METAL_PRICE_API}]`;
+  private logPrefix = `[${FetcherName.MetalPriceApi}]`;
 
   static fetcherSource = '';
 
@@ -69,7 +69,7 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
       await this.priceDataRepository.saveFetcherResults(
         {prices: [pricePerGram]},
         [`${feedBase}-${feedQuote}`],
-        FetcherName.METALS_DEV_API,
+        FetcherName.MetalsDevApi,
         PriceValueType.Price,
         MetalPriceApiFetcher.fetcherSource,
       );

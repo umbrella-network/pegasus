@@ -3,13 +3,11 @@ import {inject, injectable} from 'inversify';
 
 import BlockMinter from '../services/BlockMinter.js';
 import BasicWorker from './BasicWorker.js';
-import CryptoCompareWSInitializer from '../services/CryptoCompareWSInitializer.js';
 import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer.js';
 
 @injectable()
 class BlockMintingWorker extends BasicWorker {
   @inject(BlockMinter) blockMinter!: BlockMinter;
-  @inject(CryptoCompareWSInitializer) cryptoCompareWSInitializer!: CryptoCompareWSInitializer;
   @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
@@ -51,11 +49,6 @@ class BlockMintingWorker extends BasicWorker {
     super.start();
 
     this.polygonIOPriceInitializer.apply().catch((err: Error) => {
-      this.logger.error(err);
-      process.exit(1);
-    });
-
-    this.cryptoCompareWSInitializer.apply().catch((err: Error) => {
       this.logger.error(err);
       process.exit(1);
     });

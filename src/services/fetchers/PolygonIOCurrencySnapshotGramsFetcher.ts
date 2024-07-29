@@ -15,7 +15,7 @@ import Settings from '../../types/Settings.js';
 class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
 
-  private logPrefix = `[${FetcherName.POLYGON_IO_CURRENCY_SNAPSHOT_GRAMS}]`;
+  private logPrefix = `[${FetcherName.PolygonIOCurrencySnapshotGrams}]`;
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
@@ -48,7 +48,7 @@ class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher i
     await this.priceDataRepository.saveFetcherResults(
       {prices: [price]},
       [`${feedBase}-${feedQuote}`],
-      FetcherName.POLYGON_IO_CURRENCY_SNAPSHOT_GRAMS,
+      FetcherName.PolygonIOCurrencySnapshotGrams,
       PriceValueType.Price,
       PolygonIOCurrencySnapshotGramsFetcher.fetcherSource,
     );

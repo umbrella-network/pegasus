@@ -1,14 +1,14 @@
 import chai from 'chai';
 import moxios from 'moxios';
 
-import ByBitSpotFetcher from '../../../src/services/fetchers/ByBitSpotFetcher.js';
-import Settings from '../../../src/types/Settings.js';
+import ByBitPriceFetcher from '../../../src/services/fetchers/ByBitPriceFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
+import Settings from '../../../src/types/Settings.js';
 
 const {expect} = chai;
 
 describe('ByBitSpotFetcher', () => {
-  let byBitSpotFetcher: ByBitSpotFetcher;
+  let byBitSpotFetcher: ByBitPriceFetcher;
 
   beforeEach(async () => {
     moxios.install();
@@ -29,9 +29,9 @@ describe('ByBitSpotFetcher', () => {
 
     const container = getTestContainer();
     container.rebind('Settings').toConstantValue(settings);
-    container.bind(ByBitSpotFetcher).toSelf();
+    container.bind(ByBitPriceFetcher).toSelf();
 
-    byBitSpotFetcher = container.get(ByBitSpotFetcher);
+    byBitSpotFetcher = container.get(ByBitPriceFetcher);
   });
 
   afterEach(() => {

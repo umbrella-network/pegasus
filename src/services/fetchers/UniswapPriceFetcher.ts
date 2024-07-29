@@ -8,9 +8,9 @@ import {FeedFetcherInterface, FeedFetcherOptions} from 'src/types/fetchers.js';
 
 @injectable()
 export class UniswapPriceFetcher implements FeedFetcherInterface {
-  @inject('Logger') logger!: Logger;
   @inject(UniswapPoolService) poolService!: UniswapPoolService;
   @inject(UniswapPriceService) priceService!: UniswapPriceService;
+  @inject('Logger') logger!: Logger;
 
   static readonly DEFAULT_FRESHNESS = 3600;
 

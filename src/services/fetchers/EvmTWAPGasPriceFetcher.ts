@@ -43,7 +43,7 @@ class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
     await this.priceDataRepository.saveFetcherResults(
       {prices: [gasPrice]},
       [`${feedBase}-${feedQuote}`],
-      FetcherName.TWAP_GAS_PRICE,
+      FetcherName.TWAPGasPrice,
       PriceValueType.Price,
       EvmTWAPGasPriceFetcher.fetcherSource,
     );

@@ -1,11 +1,12 @@
 import 'reflect-metadata';
 import chai from 'chai';
 import {Container} from 'inversify';
+
 import {PriceMetadataComparator} from '../../../src/services/deviationsFeeds/PriceMetadataComparator.js';
 import {DeviationDataToSign, DeviationFeeds} from '../../../src/types/DeviationFeeds.js';
+import {FetcherName} from '../../../src/types/fetchers.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
 import Leaf from '../../../src/types/Leaf.js';
-import {FetcherName} from '../../../src/types/fetchers.js';
 
 const {expect} = chai;
 
@@ -62,12 +63,12 @@ describe('PriceMetadataComparator', () => {
           inputs: [
             {
               fetcher: {
-                name: FetcherName.COINGECKO_PRICE,
+                name: FetcherName.CoingeckoPrice,
               },
             },
             {
               fetcher: {
-                name: FetcherName.CRYPTO_COMPARE_PRICE,
+                name: FetcherName.SovrynPrice,
               },
             },
           ],
@@ -82,12 +83,12 @@ describe('PriceMetadataComparator', () => {
           inputs: [
             {
               fetcher: {
-                name: FetcherName.COINGECKO_PRICE,
+                name: FetcherName.CoingeckoPrice,
               },
             },
             {
               fetcher: {
-                name: FetcherName.CRYPTO_COMPARE_PRICE,
+                name: FetcherName.SovrynPrice,
               },
             },
           ],
@@ -95,7 +96,6 @@ describe('PriceMetadataComparator', () => {
       };
 
       const result = priceMetadataComparator.apply(dataToSign, localLeaves, localFeeds);
-
       expect(result).to.be.true;
     });
 
@@ -131,7 +131,7 @@ describe('PriceMetadataComparator', () => {
           inputs: [
             {
               fetcher: {
-                name: FetcherName.COINGECKO_PRICE,
+                name: FetcherName.CoingeckoPrice,
               },
             },
           ],

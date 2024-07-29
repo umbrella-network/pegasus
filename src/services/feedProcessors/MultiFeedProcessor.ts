@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ByBitSpotFetcher, BinancePriceMultiFetcher, CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
+import {ByBitPriceFetcher, BinancePriceFetcher, CoingeckoPriceFetcher} from '../fetchers/index.js';
 import {FeedMultiFetcherInterface, FetcherName, FetcherResult} from '../../types/fetchers.js';
 import UniswapV3MultiFetcher from '../dexes/uniswapV3/UniswapV3MultiFetcher.js';
 import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
@@ -9,9 +9,9 @@ import {FeedFetcher} from '../../types/Feed.js';
 
 @injectable()
 export default class MultiFeedProcessorNew {
-  @inject(CoingeckoPriceMultiFetcher) coingeckoPriceFetcher!: CoingeckoPriceMultiFetcher;
-  @inject(BinancePriceMultiFetcher) binancePriceFetcher!: BinancePriceMultiFetcher;
-  @inject(ByBitSpotFetcher) byBitSpotPriceFetcher!: ByBitSpotFetcher;
+  @inject(CoingeckoPriceFetcher) coingeckoPriceFetcher!: CoingeckoPriceFetcher;
+  @inject(BinancePriceFetcher) binancePriceFetcher!: BinancePriceFetcher;
+  @inject(ByBitPriceFetcher) byBitSpotPriceFetcher!: ByBitPriceFetcher;
   @inject(SovrynPriceFetcher) sovrynPriceFetcher!: SovrynPriceFetcher;
   @inject(UniswapV3MultiFetcher) uniswapV3PriceFetcher!: UniswapV3MultiFetcher;
   @inject('Logger') logger!: Logger;
@@ -40,19 +40,19 @@ export default class MultiFeedProcessorNew {
       } else {
         let fetcherObject;
         switch (fetcher.name) {
-          case FetcherName.BY_BIT:
+          case FetcherName.ByBitPrice:
             fetcherObject = this.byBitSpotPriceFetcher;
             break;
-          case FetcherName.BINANCE:
+          case FetcherName.BinancePrice:
             fetcherObject = this.binancePriceFetcher;
             break;
-          case FetcherName.COINGECKO_PRICE:
+          case FetcherName.CoingeckoPrice:
             fetcherObject = this.coingeckoPriceFetcher;
             break;
-          case FetcherName.SOVRYN_PRICE:
+          case FetcherName.SovrynPrice:
             fetcherObject = this.sovrynPriceFetcher;
             break;
-          case FetcherName.UNISWAP_V3:
+          case FetcherName.UniswapV3:
             fetcherObject = this.uniswapV3PriceFetcher;
             break;
           default:
