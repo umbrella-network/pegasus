@@ -57,7 +57,7 @@ export default class CoingeckoPriceFetcher implements FeedMultiFetcherInterface 
     const outputs = responses.map((response) => this.processResponse(response, inputs));
     const fetcherResult = {prices: outputs.flat(), timestamp: this.timeService.apply()};
 
-    this.priceDataRepository.saveFetcherResults(
+    await this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
       FetcherName.CoingeckoPrice,

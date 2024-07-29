@@ -69,7 +69,7 @@ class UniswapV3MultiFetcher implements FeedMultiFetcherInterface {
 
     const fetcherResult = {prices: prices.flat(), timestamp: this.timeService.apply()};
 
-    this.priceDataRepository.saveFetcherResults(
+    await this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
       FetcherName.UniswapV3,
