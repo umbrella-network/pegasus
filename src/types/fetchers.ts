@@ -59,8 +59,8 @@ export enum FetcherName {
   PolygonIOCurrencySnapshotGrams = 'PolygonIOCurrencySnapshotGrams',
   TWAPGasPrice = 'TWAPGasPrice',
   OnChainData = 'OnChainData',
-  UniswapV3Fetcher = 'UniswapV3Fetcher',
-  UniswapPriceFetcher = 'UniswapPriceFetcher',
+  UniswapV3 = 'UniswapV3',
+  UniswapPrice = 'UniswapPrice',
   GoldApiPrice = 'GoldApiPrice',
   MetalPriceApi = 'MetalPriceApi',
   MetalsDevApi = 'MetalsDevApi',
@@ -74,7 +74,7 @@ export enum FetcherName {
 
 export const allMultiFetchers: Set<string> = new Set([
   FetcherName.CoingeckoPrice,
-  FetcherName.UniswapV3Fetcher,
+  FetcherName.UniswapV3,
   FetcherName.SovrynPrice,
   FetcherName.ByBitPrice,
   FetcherName.BinancePrice,

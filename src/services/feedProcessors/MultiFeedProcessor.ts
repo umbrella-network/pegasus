@@ -52,7 +52,7 @@ export default class MultiFeedProcessorNew {
           case FetcherName.SovrynPrice:
             fetcherObject = this.sovrynPriceFetcher;
             break;
-          case FetcherName.UniswapV3Fetcher:
+          case FetcherName.UniswapV3:
             fetcherObject = this.uniswapV3PriceFetcher;
             break;
           default:

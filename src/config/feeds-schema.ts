@@ -263,7 +263,7 @@ export default {
     },
     UniswapV3Fetcher: {
       properties: {
-        name: {const: FetcherName.UniswapV3Fetcher},
+        name: {const: FetcherName.UniswapV3},
         params: {
           type: 'object',
           properties: {

@@ -26,7 +26,7 @@ export class UniswapFeedRepository {
           inputs: [
             {
               fetcher: {
-                name: FetcherName.UniswapPriceFetcher,
+                name: FetcherName.UniswapPrice,
                 params: {
                   fsym: tuple[0],
                   tsym: tuple[1],
