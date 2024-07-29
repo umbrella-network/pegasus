@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ByBitSpotFetcher, BinancePriceMultiFetcher, CoingeckoPriceMultiFetcher} from '../fetchers/index.js';
+import {ByBitPriceFetcher, BinancePriceFetcher, CoingeckoPriceFetcher} from '../fetchers/index.js';
 import {FeedMultiFetcherInterface, FetcherName, FetcherResult} from '../../types/fetchers.js';
 import UniswapV3MultiFetcher from '../dexes/uniswapV3/UniswapV3MultiFetcher.js';
 import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
@@ -9,9 +9,9 @@ import {FeedFetcher} from '../../types/Feed.js';
 
 @injectable()
 export default class MultiFeedProcessorNew {
-  @inject(CoingeckoPriceMultiFetcher) coingeckoPriceFetcher!: CoingeckoPriceMultiFetcher;
-  @inject(BinancePriceMultiFetcher) binancePriceFetcher!: BinancePriceMultiFetcher;
-  @inject(ByBitSpotFetcher) byBitSpotPriceFetcher!: ByBitSpotFetcher;
+  @inject(CoingeckoPriceFetcher) coingeckoPriceFetcher!: CoingeckoPriceFetcher;
+  @inject(BinancePriceFetcher) binancePriceFetcher!: BinancePriceFetcher;
+  @inject(ByBitPriceFetcher) byBitSpotPriceFetcher!: ByBitPriceFetcher;
   @inject(SovrynPriceFetcher) sovrynPriceFetcher!: SovrynPriceFetcher;
   @inject(UniswapV3MultiFetcher) uniswapV3PriceFetcher!: UniswapV3MultiFetcher;
   @inject('Logger') logger!: Logger;

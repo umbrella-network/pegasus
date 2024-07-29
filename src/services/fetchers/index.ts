@@ -11,17 +11,17 @@ import EvmTWAPGasPriceFetcher from './EvmTWAPGasPriceFetcher.js';
 import MetalPriceApiFetcher from './MetalPriceApiFetcher.js';
 import MetalsDevApiPriceFetcher from './MetalsDevApiFetcher.js';
 import GoldApiPriceFetcher from './GoldApiPriceFetcher.js';
-import ByBitFetcher from './ByBitPriceFetcher.js';
-import BinanceFetcher from './BinancePriceFetcher.js';
+import ByBitPriceFetcher from './ByBitPriceFetcher.js';
+import BinancePriceFetcher from './BinancePriceFetcher.js';
 
 export {
-  ByBitFetcher as ByBitSpotFetcher,
-  BinanceFetcher as BinancePriceMultiFetcher,
+  ByBitPriceFetcher,
+  BinancePriceFetcher,
   PolygonIOStockPriceFetcher,
   PolygonIOCryptoPriceFetcher,
   PolygonIOCurrencySnapshotGramsFetcher,
   YearnVaultTokenPriceFetcher,
-  CoingeckoPriceFetcher as CoingeckoPriceMultiFetcher,
+  CoingeckoPriceFetcher,
   OptionsPriceFetcher,
   UniswapPriceFetcher,
   RandomNumberFetcher,
