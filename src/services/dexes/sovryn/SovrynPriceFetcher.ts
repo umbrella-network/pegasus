@@ -104,7 +104,7 @@ export class SovrynPriceFetcher implements FeedMultiFetcherInterface {
 
     const fetcherResult = {prices: pricesResponse, timestamp: Number(response.timestamp)};
 
-    this.priceDataRepository.saveFetcherResults(
+    await this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
       FetcherName.SovrynPrice,
