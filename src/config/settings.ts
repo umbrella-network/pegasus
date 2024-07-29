@@ -393,15 +393,6 @@ const settings: Settings = {
       timeout: timeoutWithCode(process.env.BINANCE_TIMEOUT || '5000', TimeoutCodes.BINANCE),
       maxBatchSize: parseInt(process.env.BINANCE_MAX_BATCH_SIZE || '500', 10),
     },
-    cryptocompare: {
-      apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
-      timeout: timeoutWithCode(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', TimeoutCodes.CRYPTOCOMPARE),
-      reconnectTimeoutHours: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_TIMEOUT_HOURS || '4', 10),
-      resubscribeTimeoutMinutes: parseInt(process.env.CRYPTOCOMPARE_RESUBSCRIBE_INTERVAL_MINUTES || '5', 10),
-      truncateCronRule: process.env.CRYPTOCOMPARE_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
-      truncateIntervalMinutes: parseInt(process.env.CRYPTOCOMPARE_TRUNCATE_INTERVAL_MINUTES || '60', 10),
-      reconnectTimeout: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_TIMEOUT || '30000', 10),
-    },
     coingecko: {
       timeout: timeoutWithCode(process.env.COINGECKO_TIMEOUT || '5000', TimeoutCodes.COINGECKO),
       maxBatchSize: parseInt(process.env.POLYGON_MAX_BATCH_SIZE || '500', 10),

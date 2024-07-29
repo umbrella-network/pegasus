@@ -8,7 +8,6 @@ import Feeds, {FeedInput} from '../../src/types/Feed.js';
 import {getContainer} from '../../src/lib/getContainer.js';
 import PriceRepository from '../../src/repositories/PriceRepository.js';
 import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
-import CryptoCompareWSClient from '../../src/services/ws/CryptoCompareWSClient.js';
 import {FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;
@@ -28,19 +27,6 @@ const getFetcherParams = (feeds: Feeds, fetcherName: string) => {
   });
 
   return params;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const saveCryptoPairs = async ({fetcher}: any, priceRepository: PriceRepository) => {
-  const timestamp = Math.floor(Date.now() / 1000);
-  const price = 10;
-
-  await priceRepository.savePrice(
-    CryptoCompareWSClient.Prefix,
-    `${fetcher.params.fsym}-${fetcher.params.tsym}`,
-    price,
-    timestamp,
-  );
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -105,8 +91,6 @@ describe.skip('FeedProcessor integration tests', () => {
             fetcherParams.map(async (fetcher) => {
               if (fetcher.fetcher.name === 'PolygonIOPrice') {
                 await saveStockSymbols(fetcher, priceRepository);
-              } else {
-                await saveCryptoPairs(fetcher, priceRepository);
               }
             }),
           );

@@ -168,15 +168,6 @@ type Settings = {
       timeout: number;
       maxBatchSize: number;
     };
-    cryptocompare: {
-      apiKey: string;
-      timeout: number;
-      reconnectTimeoutHours: number;
-      resubscribeTimeoutMinutes: number;
-      truncateCronRule: string;
-      truncateIntervalMinutes: number;
-      reconnectTimeout: number;
-    };
     coingecko: {
       timeout: number;
       maxBatchSize: number;

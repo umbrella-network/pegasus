@@ -7,7 +7,6 @@ import Settings from '../types/Settings.js';
 import TimeService from '../services/TimeService.js';
 import PolygonIOCryptoPriceService from '../services/PolygonIOCryptoPriceService.js';
 import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService.js';
-import CryptoCompareWSClient from '../services/ws/CryptoCompareWSClient.js';
 import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer.js';
 import PriceRepository from '../repositories/PriceRepository.js';
 import Feeds from '../types/Feed.js';

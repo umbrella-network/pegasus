@@ -60,7 +60,6 @@ class InfoController {
       version: this.settings.version,
       environment: this.settings.environment,
       keys: {
-        cryptocompare: InfoController.obfuscate(this.settings.api.cryptocompare.apiKey),
         polygonIO: InfoController.obfuscate(this.settings.api.polygonIO.apiKey),
         options: InfoController.obfuscate(this.settings.api.optionsPrice.apiKey),
       },
