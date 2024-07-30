@@ -11,28 +11,15 @@ describe.skip('MetalsDevApiFetcher (this test needs API key)', () => {
   describe('#apply', () => {
     describe('with valid parameters', () => {
       it('returns the proper response format', async () => {
-        const output = await fetcher.apply(
-          {
-            metal: 'gold',
-            currency: 'USD',
-          },
-          {base: 'TITANIUM', quote: 'ARS'},
-        );
+        const output = await fetcher.apply({metal: 'gold', currency: 'USD'}, {symbols: ['TITANIUM-ARS']});
         expect(output).greaterThan(0);
       });
     });
 
     describe('with invalid parameters', () => {
       it('rejects', async () => {
-        await expect(
-          fetcher.apply(
-            {
-              metal: 'StrangeSymbol',
-              currency: 'StrangeCurrency',
-            },
-            {base: 'TITANIUM', quote: 'ARS'},
-          ),
-        ).to.be.rejected;
+        await expect(fetcher.apply({metal: 'StrangeSymbol', currency: 'StrangeCurrency'}, {symbols: ['TITANIUM-ARS']}))
+          .to.be.rejected;
       });
     });
   });
