@@ -7,8 +7,8 @@ import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataR
 import TimeService from '../../services/TimeService.js';
 
 import {
-  FeedMultiFetcherInterface,
-  FeedMultiFetcherOptions,
+  FeedFetcherInterface,
+  FeedFetcherOptions,
   FetcherResult,
   NumberOrUndefined,
   FetcherName,
@@ -19,7 +19,7 @@ export interface InputParams {
 }
 
 @injectable()
-class ByBitPriceFetcher implements FeedMultiFetcherInterface {
+class ByBitPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
@@ -32,7 +32,7 @@ class ByBitPriceFetcher implements FeedMultiFetcherInterface {
     this.timeout = settings.api.byBit.timeout;
   }
 
-  async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
+  async apply(inputs: InputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     const sourceUrl = 'https://api.bybit.com/v5/market/tickers?category=spot';
 
     this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);

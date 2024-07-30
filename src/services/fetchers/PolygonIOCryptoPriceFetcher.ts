@@ -1,12 +1,13 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
-import {FeedFetcherOptions, FetcherName, NumberOrUndefined} from '../../types/fetchers.js';
+
+import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, FetcherResult} from '../../types/fetchers.js';
 
 @injectable()
-class PolygonIOCryptoPriceFetcher {
+export default class PolygonIOCryptoPriceFetcher implements FeedFetcherInterface {
   @inject(PolygonIOCryptoPriceService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceService;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject('Logger') private logger!: Logger;
@@ -14,10 +15,11 @@ class PolygonIOCryptoPriceFetcher {
   private logPrefix = `[${FetcherName.PolygonIOCryptoPrice}]`;
   static fetcherSource = '';
 
-  async apply(params: {fsym: string; tsym: string}, options: FeedFetcherOptions): Promise<NumberOrUndefined> {
+  async apply(params: {fsym: string; tsym: string}, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {fsym, tsym} = params;
-    const {base: feedBase, quote: feedQuote, timestamp} = options;
-    this.logger.debug(`${this.logPrefix} call for ${feedBase}-${feedQuote}: ${fsym}, ${tsym}`);
+    const {symbols, timestamp} = options;
+
+    this.logger.debug(`${this.logPrefix} call for ${symbols}: ${fsym}, ${tsym}`);
 
     if (!timestamp || timestamp <= 0) throw new Error(`${this.logPrefix} invalid timestamp value: ${timestamp}`);
 
@@ -25,19 +27,17 @@ class PolygonIOCryptoPriceFetcher {
 
     if (!price) {
       this.logger.error(`${this.logPrefix} NO price for ${fsym}-${tsym}`);
-      return;
+      return {prices: []};
     }
 
     await this.priceDataRepository.saveFetcherResults(
       {prices: [price]},
-      [`${feedBase}-${feedQuote}`],
+      symbols,
       FetcherName.PolygonIOCryptoPrice,
       PriceValueType.Price,
       PolygonIOCryptoPriceFetcher.fetcherSource,
     );
 
-    return price;
+    return {prices: [price]};
   }
 }
-
-export default PolygonIOCryptoPriceFetcher;

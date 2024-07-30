@@ -7,10 +7,10 @@ import {BaseProvider} from '@ethersproject/providers';
 import {Logger} from 'winston';
 
 import {
-  FeedMultiFetcherInterface,
+  FeedFetcherInterface,
   FetcherName,
   FetcherResult,
-  FeedMultiFetcherOptions,
+  FeedFetcherOptions,
   NumberOrUndefined,
 } from '../../../types/fetchers.js';
 
@@ -59,7 +59,7 @@ weBTC-rUSDT:
           amountIdDecimals: 18
 */
 @injectable()
-export class SovrynPriceFetcher implements FeedMultiFetcherInterface {
+export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject('Logger') private logger!: Logger;
@@ -67,7 +67,7 @@ export class SovrynPriceFetcher implements FeedMultiFetcherInterface {
   private logPrefix = '[SovrynPriceFetcher]';
   static fetcherSource = '';
 
-  public async apply(pairs: PairRequest[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
+  public async apply(pairs: PairRequest[], options: FeedFetcherOptions): Promise<FetcherResult> {
     this.logger.debug(`${this.logPrefix} fetcher started for ${pairs.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`);
     let response;
 

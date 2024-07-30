@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
 import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
-import {FeedFetcherInterface, FeedFetcherOptions, FetcherName} from '../../types/fetchers.js';
+import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, FetcherResult} from '../../types/fetchers.js';
 import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 
@@ -27,14 +27,14 @@ class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
 
   static fetcherSource = '';
 
-  async apply(params: {twap: number; chainId: ChainsIds}, options: FeedFetcherOptions): Promise<number | undefined> {
+  async apply(params: {twap: number; chainId: ChainsIds}, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {twap = 20, chainId} = params;
-    const {timestamp, base: feedBase, quote: feedQuote} = options;
+    const {timestamp, symbols} = options;
 
     if (!timestamp || timestamp <= 0) throw new Error(`invalid timestamp value: ${timestamp}`);
 
     const gas = await this.gasRepository.twap(chainId, twap, timestamp);
-    if (!gas) return;
+    if (!gas) return {prices: []};
 
     // gas is uint, no decimals, however we're using Gwei as unit, and this give us 9 decimals
     // but UmbrellaFeeds is 8 decimals, so in order to have gas in wei in smart contract, we have to /1e8 not by 1e9
@@ -42,13 +42,13 @@ class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
 
     await this.priceDataRepository.saveFetcherResults(
       {prices: [gasPrice]},
-      [`${feedBase}-${feedQuote}`],
+      symbols,
       FetcherName.TWAPGasPrice,
       PriceValueType.Price,
       EvmTWAPGasPriceFetcher.fetcherSource,
     );
 
-    return gasPrice;
+    return {prices: [gasPrice]};
   }
 }
 

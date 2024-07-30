@@ -13,8 +13,8 @@ import {PriceDataRepository, PriceValueType} from '../../../repositories/PriceDa
 import TimeService from '../../../services/TimeService.js';
 
 import {
-  FeedMultiFetcherInterface,
-  FeedMultiFetcherOptions,
+  FeedFetcherInterface,
+  FeedFetcherOptions,
   FetcherResult,
   NumberOrUndefined,
   FetcherName,
@@ -38,7 +38,7 @@ type UniswapV3ContractHelperInput = {
 };
 
 @injectable()
-class UniswapV3MultiFetcher implements FeedMultiFetcherInterface {
+class UniswapV3MultiFetcher implements FeedFetcherInterface {
   @inject(UniswapV3PoolRepository) protected uniswapV3PoolRepository!: UniswapV3PoolRepository;
   @inject(ContractAddressService) contractAddressService!: ContractAddressService;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
@@ -48,7 +48,7 @@ class UniswapV3MultiFetcher implements FeedMultiFetcherInterface {
   readonly dexProtocol = DexProtocolName.UNISWAP_V3;
   static fetcherSource = '';
 
-  async apply(inputs: UniswapV3MultiFetcherParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
+  async apply(inputs: UniswapV3MultiFetcherParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     this.logger.debug(`[UniswapV3MultiFetcher]: start with inputs ${JSON.stringify(inputs)}`);
 
     if (inputs.length === 0) {

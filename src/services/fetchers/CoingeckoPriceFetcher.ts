@@ -6,8 +6,8 @@ import _ from 'lodash';
 import Settings from '../../types/Settings.js';
 
 import {
-  FeedMultiFetcherInterface,
-  FeedMultiFetcherOptions,
+  FeedFetcherInterface,
+  FeedFetcherOptions,
   FetcherResult,
   FetcherName,
   NumberOrUndefined,
@@ -22,7 +22,7 @@ export interface InputParams {
 }
 
 @injectable()
-export default class CoingeckoPriceFetcher implements FeedMultiFetcherInterface {
+export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
@@ -36,7 +36,7 @@ export default class CoingeckoPriceFetcher implements FeedMultiFetcherInterface 
     this.maxBatchSize = settings.api.coingecko.maxBatchSize;
   }
 
-  async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
+  async apply(inputs: InputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     const batchedInputs = _.chunk(inputs, this.maxBatchSize);
     this.logger.debug(`[CoingeckoPriceMultiFetcher] call for: ${inputs.map((i) => i.id).join(', ')}`);
 

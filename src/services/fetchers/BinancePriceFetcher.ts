@@ -7,8 +7,8 @@ import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
 
 import {
-  FeedMultiFetcherInterface,
-  FeedMultiFetcherOptions,
+  FeedFetcherInterface,
+  FeedFetcherOptions,
   FetcherResult,
   NumberOrUndefined,
   FetcherName,
@@ -22,7 +22,7 @@ export interface InputParams {
 export type BinanceResponse = {symbol: string; price: string}[];
 
 @injectable()
-export default class BinancePriceFetcher implements FeedMultiFetcherInterface {
+export default class BinancePriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
@@ -35,7 +35,7 @@ export default class BinancePriceFetcher implements FeedMultiFetcherInterface {
     this.timeout = settings.api.binance.timeout;
   }
 
-  async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
+  async apply(inputs: InputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     const sourceUrl = 'https://www.binance.com/api/v3/ticker/price';
 
     this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);

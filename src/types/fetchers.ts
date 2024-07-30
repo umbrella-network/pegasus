@@ -1,48 +1,20 @@
-import {OptionsEntries} from '../services/fetchers/OptionsPriceFetcher.js';
-import {FeedFetcher} from './Feed.js';
+export type NumberOrUndefined = number | undefined;
+
+export type StringOrUndefined = string | undefined;
+
+export type FeedFetcherOptions = {
+  symbols: StringOrUndefined[];
+  timestamp?: number;
+};
 
 export type FetcherResult = {
   prices: (number | undefined)[];
   timestamp?: number;
 };
 
-export type OnChainDataFetcherResult = string | number;
-
-export type NumberOrUndefined = number | undefined;
-
-export type StringOrUndefined = string | undefined;
-
-// TODO: refactor this type
-export type FeedFetcherInterfaceResult =
-  | Promise<number | undefined>
-  | Promise<OnChainDataFetcherResult>
-  | Promise<FetcherResult>
-  | Promise<NumberOrUndefined>
-  | Promise<NumberOrUndefined[]>
-  | Promise<OptionsEntries>;
-
-export type FeedFetcherOptions = {
-  base: string;
-  quote: string;
-  timestamp?: number;
-};
-
 export interface FeedFetcherInterface {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(params: any, options: FeedFetcherOptions): FeedFetcherInterfaceResult;
-}
-
-export type FeedMultiFetcherOptions = {
-  symbols: StringOrUndefined[];
-};
-
-export interface FeedMultiFetcherInterface {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(params: any, options: FeedMultiFetcherOptions): Promise<FetcherResult>;
-}
-
-export interface FeedMultiProcessorInterface {
-  apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]>;
+  apply(params: any, options: FeedFetcherOptions): Promise<FetcherResult>;
 }
 
 export enum FetcherName {
