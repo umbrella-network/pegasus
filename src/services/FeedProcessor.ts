@@ -145,7 +145,8 @@ class FeedProcessor {
 
     try {
       this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
-      return await fetcher.apply(feedFetcher.params, {symbols: [feedFetcher.symbol], timestamp});
+      const result = await fetcher.apply(feedFetcher.params, {symbols: [feedFetcher.symbol], timestamp});
+      return result.prices.length === 1 ? result.prices[0] : undefined;
     } catch (err) {
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);
