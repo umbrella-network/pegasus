@@ -10,7 +10,9 @@ import {
   FetcherName,
   FetcherResult,
   NumberOrUndefined,
-  PriceValueType, FeedFetcherInterface, FeedFetcherOptions,
+  PriceValueType,
+  FeedFetcherInterface,
+  FeedFetcherOptions,
 } from '../../../types/fetchers.js';
 
 import {ChainsIds} from '../../../types/ChainsIds.js';

@@ -5,7 +5,7 @@ import {
   FeedFetcherOptions,
   FeedFetcherInterface,
   FetcherResult,
-  PriceValueType
+  PriceValueType,
 } from '../../types/fetchers.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';

@@ -8,7 +8,7 @@ import {
   FeedFetcherOptions,
   FetcherName,
   FetcherResult,
-  PriceValueType
+  PriceValueType,
 } from '../../types/fetchers.js';
 
 export interface PolygonIOCryptoPriceInputParams {

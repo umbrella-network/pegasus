@@ -6,7 +6,7 @@ import {
   FeedFetcherOptions,
   FetcherName,
   FetcherResult,
-  PriceValueType
+  PriceValueType,
 } from '../../types/fetchers.js';
 import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository.js';
 import {ChainsIds} from '../../types/ChainsIds.js';

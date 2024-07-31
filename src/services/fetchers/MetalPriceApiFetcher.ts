@@ -8,7 +8,7 @@ import {
   FeedFetcherOptions,
   FetcherName,
   FetcherResult,
-  PriceValueType
+  PriceValueType,
 } from '../../types/fetchers.js';
 
 import Settings from '../../types/Settings.js';
