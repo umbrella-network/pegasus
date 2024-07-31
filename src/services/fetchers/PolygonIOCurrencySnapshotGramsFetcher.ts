@@ -11,6 +11,11 @@ import Settings from '../../types/Settings.js';
         params:
           ticker: C:XAUUSD
  */
+
+export interface InputParams {
+  ticker: string;
+}
+
 @injectable()
 export default class PolygonIOCurrencySnapshotGramsFetcher
   extends BasePolygonIOSingleFetcher
@@ -28,7 +33,7 @@ export default class PolygonIOCurrencySnapshotGramsFetcher
     this.valuePath = '$.ticker.lastQuote.a';
   }
 
-  async apply(params: {ticker: string}, options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(params: InputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {ticker} = params;
     const {symbols, timestamp} = options;
 

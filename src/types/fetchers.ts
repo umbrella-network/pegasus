@@ -1,3 +1,15 @@
+import {InputParams as InputParamsSovrynPrice} from 'src/services/dexes/sovryn/SovrynPriceFetcher';
+import {InputParams as InputParamsBinancePrice} from 'src/services/fetchers/BinancePriceFetcher';
+import {InputParams as InputParamsByBitPrice} from 'src/services/fetchers/ByBitPriceFetcher';
+import {InputParams as InputParamsCoingeckoPrice} from 'src/services/fetchers/CoingeckoPriceFetcher';
+import {InputParams as InputParamsEvmTWAPGasPrice} from 'src/services/fetchers/EvmTWAPGasPriceFetcher';
+import {InputParams as InputParamsGoldApiPrice} from 'src/services/fetchers/GoldApiPriceFetcher';
+import {InputParams as InputParamsMetalPriceApi} from 'src/services/fetchers/MetalPriceApiFetcher';
+import {InputParams as InputParamsMetalsDevApi} from 'src/services/fetchers/MetalsDevApiFetcher';
+import {InputParams as InputParamsPolygonIOCryptoPrice} from 'src/services/fetchers/PolygonIOCryptoPriceFetcher';
+import {InputParams as InputParamsPolygonIOCurrencySnapshotGrams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
+import {InputParams as InputParamsPolygonIOStockPrice} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
+
 export type NumberOrUndefined = number | undefined;
 
 export type StringOrUndefined = string | undefined;
@@ -12,9 +24,21 @@ export type FetcherResult = {
   timestamp?: number;
 };
 
+export type FeedFetcherInputParams =
+  | InputParamsByBitPrice[]
+  | InputParamsBinancePrice[]
+  | InputParamsGoldApiPrice
+  | InputParamsPolygonIOCryptoPrice
+  | InputParamsPolygonIOStockPrice
+  | InputParamsPolygonIOCurrencySnapshotGrams
+  | InputParamsEvmTWAPGasPrice
+  | InputParamsMetalPriceApi
+  | InputParamsMetalsDevApi
+  | InputParamsSovrynPrice[]
+  | InputParamsCoingeckoPrice[];
+
 export interface FeedFetcherInterface {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(params: any, options: FeedFetcherOptions): Promise<FetcherResult>;
+  apply(params: FeedFetcherInputParams, options: FeedFetcherOptions): Promise<FetcherResult>;
 }
 
 export enum FetcherName {

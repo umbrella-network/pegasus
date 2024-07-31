@@ -33,13 +33,13 @@ export type PricesResponse = {
   timestamp: BigNumber;
 };
 
-export type PairRequest = {
+export type InputParams = {
   base: string;
   quote: string;
   amountInDecimals: number;
 };
 
-const pairRequestToString = (pair: PairRequest) => {
+const pairRequestToString = (pair: InputParams) => {
   return '{' + pair.base + ' -> ' + pair.quote + ' amount:' + pair.amountInDecimals + '}';
 };
 
@@ -48,8 +48,6 @@ For getting the prices of different of a Sovryn pool the `base` (input token)
 and `quote` (output token), and the `amount` of the input token should be provided.
 
 weBTC-rUSDT:
-  discrepancy: 1
-  precision: 2
   inputs:
     - fetcher:
         name: SovrynPriceFetcher
@@ -67,7 +65,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   private logPrefix = '[SovrynPriceFetcher]';
   static fetcherSource = '';
 
-  public async apply(pairs: PairRequest[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  public async apply(pairs: InputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     this.logger.debug(`${this.logPrefix} fetcher started for ${pairs.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`);
     let response;
 
@@ -115,7 +113,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
     return fetcherResult;
   }
 
-  private async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {
+  private async getPrices(pairs: InputParams[]): Promise<PricesResponse> {
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
     const blockchain = this.blockchainRepository.get(ChainsIds.ROOTSTOCK);

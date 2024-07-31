@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 
-import {PairRequest, SovrynPriceFetcher} from '../../../src/services/dexes/sovryn/SovrynPriceFetcher.js';
+import {InputParams, SovrynPriceFetcher} from '../../../src/services/dexes/sovryn/SovrynPriceFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import {bigIntToFloatingPoint} from '../../../src/utils/math.js';
 import Settings from '../../../src/types/Settings.js';
@@ -105,7 +105,7 @@ describe.skip('SovrynFetcher-IntegrationTests', () => {
     const rUSDT = '0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0';
     const weBTC = '0x69fe5cec81d5ef92600c1a0db1f11986ab3758ab';
     const amountInDecimals = 8;
-    const requestPair1: PairRequest = {base: weBTC, quote: rUSDT, amountInDecimals};
+    const requestPair1 = {base: weBTC, quote: rUSDT, amountInDecimals};
 
     const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceFetcher;
     const output = await sovrynPriceFetcher.apply([requestPair1, requestPair1], {symbols: []});

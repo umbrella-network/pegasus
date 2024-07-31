@@ -9,7 +9,7 @@ import MultiFeedProcessor from './feedProcessors/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {allMultiFetchers} from '../types/fetchers.js';
+import {allMultiFetchers, FeedFetcherInputParams} from '../types/fetchers.js';
 import FeedSymbolChecker from './FeedSymbolChecker.js';
 
 interface Calculator {
@@ -145,7 +145,10 @@ class FeedProcessor {
 
     try {
       this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
-      const result = await fetcher.apply(feedFetcher.params, {symbols: [feedFetcher.symbol], timestamp});
+      const result = await fetcher.apply(feedFetcher.params as FeedFetcherInputParams, {
+        symbols: [feedFetcher.symbol],
+        timestamp,
+      });
       return result.prices.length === 1 ? result.prices[0] : undefined;
     } catch (err) {
       const {message, response} = err as FetcherError;
