@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 import PolygonIOStockPriceService from '../PolygonIOStockPriceService.js';
 import {FeedFetcherInterface, FeedFetcherOptions, FetcherResult} from '../../types/fetchers.js';
 
-export interface InputParams {
+export interface PolygonIOPriceInputParams {
   sym: string;
 }
 
@@ -11,7 +11,7 @@ export interface InputParams {
 export default class PolygonIOPriceFetcher implements FeedFetcherInterface {
   @inject(PolygonIOStockPriceService) polygonIOStockPriceService!: PolygonIOStockPriceService;
 
-  async apply(params: InputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(params: PolygonIOPriceInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {timestamp} = options;
 
     if (!timestamp || timestamp <= 0) throw new Error(`invalid timestamp value: ${timestamp}`);

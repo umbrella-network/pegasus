@@ -149,6 +149,14 @@ class FeedProcessor {
         symbols: [feedFetcher.symbol],
         timestamp,
       });
+
+      if (result.prices.length > 1) {
+        this.logger.error(
+          `${this.logPrefix} result.prices has length bigger than 1.` +
+            `fetcher: ${feedFetcher.name} length: ${result.prices.length}`,
+        );
+      }
+
       return result.prices.length === 1 ? result.prices[0] : undefined;
     } catch (err) {
       const {message, response} = err as FetcherError;

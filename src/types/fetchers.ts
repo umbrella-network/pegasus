@@ -1,4 +1,4 @@
-import {SovrynPriceInputParams as InputParamsSovrynPrice} from 'src/services/dexes/sovryn/SovrynPriceFetcher';
+import {SovrynPriceInputParams} from 'src/services/dexes/sovryn/SovrynPriceFetcher';
 import {BinancePriceInputParams} from 'src/services/fetchers/BinancePriceFetcher';
 import {ByBitPriceInputParams} from 'src/services/fetchers/ByBitPriceFetcher';
 import {CoingeckoPriceInputParams} from 'src/services/fetchers/CoingeckoPriceFetcher';
@@ -6,9 +6,9 @@ import {EvmTWAPGasPriceInputParams} from 'src/services/fetchers/EvmTWAPGasPriceF
 import {GoldApiPriceInputParams} from 'src/services/fetchers/GoldApiPriceFetcher';
 import {MetalPriceApiInputParams} from 'src/services/fetchers/MetalPriceApiFetcher';
 import {MetalsDevApiPriceInputParams} from 'src/services/fetchers/MetalsDevApiFetcher';
-import {InputParams as InputParamsPolygonIOCryptoPrice} from 'src/services/fetchers/PolygonIOCryptoPriceFetcher';
-import {InputParams as InputParamsPolygonIOCurrencySnapshotGrams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
-import {InputParams as InputParamsPolygonIOStockPrice} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
+import {PolygonIOCryptoPriceInputParams} from 'src/services/fetchers/PolygonIOCryptoPriceFetcher';
+import {PolygonIOCurrencySnapshotGramsInputParams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
+import {PolygonIOPriceInputParams} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
 
 export type NumberOrUndefined = number | undefined;
 
@@ -28,13 +28,13 @@ export type FeedFetcherInputParams =
   | ByBitPriceInputParams[]
   | BinancePriceInputParams[]
   | GoldApiPriceInputParams
-  | InputParamsPolygonIOCryptoPrice
-  | InputParamsPolygonIOStockPrice
-  | InputParamsPolygonIOCurrencySnapshotGrams
+  | PolygonIOCryptoPriceInputParams
+  | PolygonIOCurrencySnapshotGramsInputParams
+  | PolygonIOPriceInputParams
   | EvmTWAPGasPriceInputParams
   | MetalPriceApiInputParams
   | MetalsDevApiPriceInputParams
-  | InputParamsSovrynPrice[]
+  | SovrynPriceInputParams[]
   | CoingeckoPriceInputParams[];
 
 export interface FeedFetcherInterface {

@@ -5,7 +5,7 @@ import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
 import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds.js';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
 
-export interface InputParams {
+export interface OnChainDataInputParams {
   chainId?: ChainsIds; // default ETH
   address: string;
   method: string;
@@ -21,7 +21,7 @@ class OnChainDataFetcher {
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(BlockchainProviderRepository) blockchainProviderRepository!: BlockchainProviderRepository;
 
-  async apply(params: InputParams): Promise<string | number> {
+  async apply(params: OnChainDataInputParams): Promise<string | number> {
     const data = await this.fetchData(params);
 
     if (params.decimals === undefined) {
@@ -32,7 +32,7 @@ class OnChainDataFetcher {
     return ethers.BigNumber.from(data).toNumber() / one;
   }
 
-  private async fetchData(params: InputParams): Promise<string> {
+  private async fetchData(params: OnChainDataInputParams): Promise<string> {
     const provider = this.resolveBlockchainProvider(params.chainId);
 
     const data = await provider.call({
@@ -64,7 +64,7 @@ class OnChainDataFetcher {
     return ethProvider;
   }
 
-  private static callData(params: InputParams): string {
+  private static callData(params: OnChainDataInputParams): string {
     const abi = [
       {
         name: params.method,

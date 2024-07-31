@@ -1,7 +1,7 @@
 import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
-import OnChainDataFetcher, {InputParams} from '../../../src/services/fetchers/OnChainDataFetcher.js';
+import OnChainDataFetcher from '../../../src/services/fetchers/OnChainDataFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import settings from '../../../src/config/settings.js';
 
@@ -25,7 +25,7 @@ describe('OnChainDataFetcher', () => {
 
   describe('#apply', () => {
     it('returns default value', async () => {
-      const params: InputParams = {
+      const params = {
         address: '0x01e7F40AdB183fa09849243a237A920C5ce509d4',
         method: 'padding',
         inputs: [],
@@ -39,7 +39,7 @@ describe('OnChainDataFetcher', () => {
     }).timeout(10000);
 
     it('return specific value from struct', async () => {
-      const params: InputParams = {
+      const params = {
         address: '0x01e7F40AdB183fa09849243a237A920C5ce509d4',
         method: 'getStatus',
         inputs: [],
