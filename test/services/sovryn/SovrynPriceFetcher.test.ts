@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 
-import {InputParams, SovrynPriceFetcher} from '../../../src/services/dexes/sovryn/SovrynPriceFetcher.js';
+import {SovrynPriceFetcher} from '../../../src/services/dexes/sovryn/SovrynPriceFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import {bigIntToFloatingPoint} from '../../../src/utils/math.js';
 import Settings from '../../../src/types/Settings.js';

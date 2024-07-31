@@ -33,13 +33,13 @@ export type PricesResponse = {
   timestamp: BigNumber;
 };
 
-export type InputParams = {
+export type SovrynPriceInputParams = {
   base: string;
   quote: string;
   amountInDecimals: number;
 };
 
-const pairRequestToString = (pair: InputParams) => {
+const pairRequestToString = (pair: SovrynPriceInputParams) => {
   return '{' + pair.base + ' -> ' + pair.quote + ' amount:' + pair.amountInDecimals + '}';
 };
 
@@ -65,7 +65,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
   private logPrefix = '[SovrynPriceFetcher]';
   static fetcherSource = '';
 
-  public async apply(pairs: InputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  public async apply(pairs: SovrynPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     this.logger.debug(`${this.logPrefix} fetcher started for ${pairs.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`);
     let response;
 
@@ -113,7 +113,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
     return fetcherResult;
   }
 
-  private async getPrices(pairs: InputParams[]): Promise<PricesResponse> {
+  private async getPrices(pairs: SovrynPriceInputParams[]): Promise<PricesResponse> {
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
     const blockchain = this.blockchainRepository.get(ChainsIds.ROOTSTOCK);

@@ -6,7 +6,7 @@ import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, FetcherResult} fr
 import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import Settings from '../../types/Settings.js';
 
-export interface InputParams {
+export interface MetalsDevApiPriceInputParams {
   metal: string;
   currency: string;
 }
@@ -26,7 +26,7 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.metalsDevApi.timeout;
   }
 
-  async apply(params: InputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(params: MetalsDevApiPriceInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {metal, currency} = params;
     const {symbols} = options;
 

@@ -16,7 +16,7 @@ import {
 import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
 
-export interface InputParams {
+export interface CoingeckoPriceInputParams {
   id: string;
   currency: string;
 }
@@ -36,7 +36,7 @@ export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
     this.maxBatchSize = settings.api.coingecko.maxBatchSize;
   }
 
-  async apply(inputs: InputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(inputs: CoingeckoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     const batchedInputs = _.chunk(inputs, this.maxBatchSize);
     this.logger.debug(`[CoingeckoPriceMultiFetcher] call for: ${inputs.map((i) => i.id).join(', ')}`);
 
@@ -68,7 +68,7 @@ export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
     return fetcherResult;
   }
 
-  private processResponse(response: AxiosResponse, inputs: InputParams[]): NumberOrUndefined[] {
+  private processResponse(response: AxiosResponse, inputs: CoingeckoPriceInputParams[]): NumberOrUndefined[] {
     if (response.status !== 200) {
       throw new Error(response.data);
     }

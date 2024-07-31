@@ -14,7 +14,7 @@ import {
   FetcherName,
 } from '../../types/fetchers.js';
 
-export interface InputParams {
+export interface ByBitPriceInputParams {
   symbol: string;
 }
 
@@ -32,7 +32,7 @@ class ByBitPriceFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.byBit.timeout;
   }
 
-  async apply(inputs: InputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(inputs: ByBitPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     const sourceUrl = 'https://api.bybit.com/v5/market/tickers?category=spot';
 
     this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);
@@ -66,7 +66,7 @@ class ByBitPriceFetcher implements FeedFetcherInterface {
     return fetcherResult;
   }
 
-  private resolveFeeds(inputs: InputParams[], priceList: Record<string, string>[]): NumberOrUndefined[] {
+  private resolveFeeds(inputs: ByBitPriceInputParams[], priceList: Record<string, string>[]): NumberOrUndefined[] {
     const outputMap = new Map<string, NumberOrUndefined>();
 
     inputs.forEach((input) => {

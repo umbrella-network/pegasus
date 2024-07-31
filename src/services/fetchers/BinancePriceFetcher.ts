@@ -14,7 +14,7 @@ import {
   FetcherName,
 } from '../../types/fetchers.js';
 
-export interface InputParams {
+export interface BinancePriceInputParams {
   symbol: string;
   inverse: boolean;
 }
@@ -35,7 +35,7 @@ export default class BinancePriceFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.binance.timeout;
   }
 
-  async apply(inputs: InputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(inputs: BinancePriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     const sourceUrl = 'https://www.binance.com/api/v3/ticker/price';
 
     this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);
@@ -69,7 +69,7 @@ export default class BinancePriceFetcher implements FeedFetcherInterface {
     return fetcherResult;
   }
 
-  private resolveFeeds(inputs: InputParams[], binancePrices: BinanceResponse): NumberOrUndefined[] {
+  private resolveFeeds(inputs: BinancePriceInputParams[], binancePrices: BinanceResponse): NumberOrUndefined[] {
     const outputs: NumberOrUndefined[] = [];
 
     for (const input of inputs) {

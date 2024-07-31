@@ -1,11 +1,11 @@
-import {InputParams as InputParamsSovrynPrice} from 'src/services/dexes/sovryn/SovrynPriceFetcher';
-import {InputParams as InputParamsBinancePrice} from 'src/services/fetchers/BinancePriceFetcher';
-import {InputParams as InputParamsByBitPrice} from 'src/services/fetchers/ByBitPriceFetcher';
-import {InputParams as InputParamsCoingeckoPrice} from 'src/services/fetchers/CoingeckoPriceFetcher';
-import {InputParams as InputParamsEvmTWAPGasPrice} from 'src/services/fetchers/EvmTWAPGasPriceFetcher';
-import {InputParams as InputParamsGoldApiPrice} from 'src/services/fetchers/GoldApiPriceFetcher';
-import {InputParams as InputParamsMetalPriceApi} from 'src/services/fetchers/MetalPriceApiFetcher';
-import {InputParams as InputParamsMetalsDevApi} from 'src/services/fetchers/MetalsDevApiFetcher';
+import {SovrynPriceInputParams as InputParamsSovrynPrice} from 'src/services/dexes/sovryn/SovrynPriceFetcher';
+import {BinancePriceInputParams} from 'src/services/fetchers/BinancePriceFetcher';
+import {ByBitPriceInputParams} from 'src/services/fetchers/ByBitPriceFetcher';
+import {CoingeckoPriceInputParams} from 'src/services/fetchers/CoingeckoPriceFetcher';
+import {EvmTWAPGasPriceInputParams} from 'src/services/fetchers/EvmTWAPGasPriceFetcher';
+import {GoldApiPriceInputParams} from 'src/services/fetchers/GoldApiPriceFetcher';
+import {MetalPriceApiInputParams} from 'src/services/fetchers/MetalPriceApiFetcher';
+import {MetalsDevApiPriceInputParams} from 'src/services/fetchers/MetalsDevApiFetcher';
 import {InputParams as InputParamsPolygonIOCryptoPrice} from 'src/services/fetchers/PolygonIOCryptoPriceFetcher';
 import {InputParams as InputParamsPolygonIOCurrencySnapshotGrams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
 import {InputParams as InputParamsPolygonIOStockPrice} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
@@ -25,17 +25,17 @@ export type FetcherResult = {
 };
 
 export type FeedFetcherInputParams =
-  | InputParamsByBitPrice[]
-  | InputParamsBinancePrice[]
-  | InputParamsGoldApiPrice
+  | ByBitPriceInputParams[]
+  | BinancePriceInputParams[]
+  | GoldApiPriceInputParams
   | InputParamsPolygonIOCryptoPrice
   | InputParamsPolygonIOStockPrice
   | InputParamsPolygonIOCurrencySnapshotGrams
-  | InputParamsEvmTWAPGasPrice
-  | InputParamsMetalPriceApi
-  | InputParamsMetalsDevApi
+  | EvmTWAPGasPriceInputParams
+  | MetalPriceApiInputParams
+  | MetalsDevApiPriceInputParams
   | InputParamsSovrynPrice[]
-  | InputParamsCoingeckoPrice[];
+  | CoingeckoPriceInputParams[];
 
 export interface FeedFetcherInterface {
   apply(params: FeedFetcherInputParams, options: FeedFetcherOptions): Promise<FetcherResult>;

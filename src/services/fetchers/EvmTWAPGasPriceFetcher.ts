@@ -15,7 +15,7 @@ PolygonGasPrice-TWAP20:
           chainId: polygon
  */
 
-export interface InputParams {
+export interface EvmTWAPGasPriceInputParams {
   twap: number;
   chainId: ChainsIds;
 }
@@ -27,7 +27,7 @@ class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
 
   static fetcherSource = '';
 
-  async apply(params: InputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(params: EvmTWAPGasPriceInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {twap = 20, chainId} = params;
     const {timestamp, symbols} = options;
 
