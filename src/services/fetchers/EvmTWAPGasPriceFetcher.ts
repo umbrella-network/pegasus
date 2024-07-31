@@ -7,12 +7,6 @@ import {ChainsIds} from '../../types/ChainsIds.js';
 
 /*
 PolygonGasPrice-TWAP20:
-  discrepancy: 1.0
-  precision: 0 # we store original gwei number (uint)
-  heartbeat: 3600
-  trigger: 1.0
-  interval: 60
-  chains: [ polygon ]
   inputs:
     - fetcher:
         name: TWAPGasPrice
@@ -20,6 +14,12 @@ PolygonGasPrice-TWAP20:
           twap: 20
           chainId: polygon
  */
+
+export interface InputParams {
+  twap: number;
+  chainId: ChainsIds;
+}
+
 @injectable()
 class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
   @inject(BlockchainGasRepository) protected gasRepository!: BlockchainGasRepository;
@@ -27,7 +27,7 @@ class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
 
   static fetcherSource = '';
 
-  async apply(params: {twap: number; chainId: ChainsIds}, options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(params: InputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {twap = 20, chainId} = params;
     const {timestamp, symbols} = options;
 

@@ -3,8 +3,12 @@ import {Logger} from 'winston';
 
 import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
-
 import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, FetcherResult} from '../../types/fetchers.js';
+
+export interface InputParams {
+  fsym: string;
+  tsym: string;
+}
 
 @injectable()
 export default class PolygonIOCryptoPriceFetcher implements FeedFetcherInterface {
@@ -15,7 +19,7 @@ export default class PolygonIOCryptoPriceFetcher implements FeedFetcherInterface
   private logPrefix = `[${FetcherName.PolygonIOCryptoPrice}]`;
   static fetcherSource = '';
 
-  async apply(params: {fsym: string; tsym: string}, options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(params: InputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {fsym, tsym} = params;
     const {symbols, timestamp} = options;
 

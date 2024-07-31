@@ -2,18 +2,11 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {
-  FeedFetcherInterface,
-  FeedFetcherOptions,
-  FetcherName,
-  FetcherResult,
-  NumberOrUndefined,
-} from '../../types/fetchers.js';
+import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, FetcherResult} from '../../types/fetchers.js';
 import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import Settings from '../../types/Settings.js';
-import TimeService from '../TimeService.js';
 
-export interface MetalsDevApiInputParams {
+export interface InputParams {
   metal: string;
   currency: string;
 }
@@ -33,7 +26,7 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.metalsDevApi.timeout;
   }
 
-  async apply(params: MetalsDevApiInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(params: InputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {metal, currency} = params;
     const {symbols} = options;
 

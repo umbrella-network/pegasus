@@ -9,7 +9,7 @@ import Settings from '../../types/Settings.js';
 
 const GRAMS_PER_TROY_OUNCE = 31.1035;
 
-export interface MetalPriceApiInputParams {
+export interface InputParams {
   symbol: string;
   currency: string;
 }
@@ -30,7 +30,7 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.metalPriceApi.timeout;
   }
 
-  async apply(params: MetalPriceApiInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(params: InputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {symbol, currency} = params;
     const {symbols} = options;
 
