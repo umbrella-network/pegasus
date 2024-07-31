@@ -2,7 +2,7 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
 
@@ -12,6 +12,7 @@ import {
   FetcherResult,
   NumberOrUndefined,
   FetcherName,
+  PriceValueType,
 } from '../../types/fetchers.js';
 
 export interface BinancePriceInputParams {

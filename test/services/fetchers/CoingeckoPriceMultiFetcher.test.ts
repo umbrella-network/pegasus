@@ -1,6 +1,7 @@
 import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
+import {CoingeckoPriceInputParams} from '../../../src/services/fetchers/CoingeckoPriceFetcher.js';
 import CoingeckoPriceMultiFetcher from '../../../src/services/fetchers/CoingeckoPriceFetcher.js';
 
 const {expect} = chai;
@@ -8,7 +9,7 @@ const {expect} = chai;
 describe('CoingeckoPriceMultiFetcher', () => {
   const fetcher = Application.get(CoingeckoPriceMultiFetcher);
 
-  const multiInputs = [
+  const multiInputs: CoingeckoPriceInputParams[] = [
     {currency: 'USD', id: 'fortress'},
     {currency: 'USD', id: 'uno-re'},
     {currency: 'USD', id: 'umbrella-network'},
@@ -30,12 +31,12 @@ describe('CoingeckoPriceMultiFetcher', () => {
     });
 
     describe('when fetching invalid coins', () => {
-      const invalidInput = {
+      const invalidInput: CoingeckoPriceInputParams = {
         currency: 'USD',
         id: 'invalid-coin',
       };
 
-      const validInput = {
+      const validInput: CoingeckoPriceInputParams = {
         currency: 'USD',
         id: 'umbrella-network',
       };

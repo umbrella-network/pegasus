@@ -2,16 +2,12 @@ import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
 
-import {FetcherResult, StringOrUndefined} from '../types/fetchers.js';
+import {FetcherResult, PriceValueType, StringOrUndefined} from '../types/fetchers.js';
 import PriceSignerService from '../services/PriceSignerService.js';
 import {PriceDataModel} from '../models/PriceDataModel.js';
 import Settings from '../types/Settings.js';
 import FeedSymbolChecker from '../services/FeedSymbolChecker.js';
 import TimeService from '../services/TimeService.js';
-
-export enum PriceValueType {
-  Price = 'Price',
-}
 
 export type PriceDataPayload = {
   fetcher: string;

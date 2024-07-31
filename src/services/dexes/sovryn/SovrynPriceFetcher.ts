@@ -7,18 +7,19 @@ import {BaseProvider} from '@ethersproject/providers';
 import {Logger} from 'winston';
 
 import {
-  FeedFetcherInterface,
+  FeedMultiFetcherInterface,
   FetcherName,
   FetcherResult,
-  FeedFetcherOptions,
+  FeedMultiFetcherOptions,
   NumberOrUndefined,
+  PriceValueType,
 } from '../../../types/fetchers.js';
 
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {bigIntToFloatingPoint} from '../../../utils/math.js';
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
 import {BlockchainRepository} from '../../../repositories/BlockchainRepository.js';
-import {PriceDataRepository, PriceValueType} from '../../../repositories/PriceDataRepository.js';
+import {PriceDataRepository} from '../../../repositories/PriceDataRepository.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

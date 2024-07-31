@@ -4,10 +4,10 @@ import mongoose from 'mongoose';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {loadTestEnv} from '../helpers/loadTestEnv.js';
-import {PriceDataPayload, PriceDataRepository, PriceValueType} from '../../src/repositories/PriceDataRepository.js';
+import {PriceDataPayload, PriceDataRepository} from '../../src/repositories/PriceDataRepository.js';
 import {DeviationSignerRepository} from '../../src/repositories/DeviationSignerRepository.js';
 import {PriceDataModel} from '../../src/models/PriceDataModel.js';
-import {FetcherName} from '../../src/types/fetchers.js';
+import {FetcherName, PriceValueType} from '../../src/types/fetchers.js';
 import PriceSignerService from '../../src/services/PriceSignerService.js';
 import {getTestContainer} from '../helpers/getTestContainer.js';
 import Settings from '../../src/types/Settings.js';

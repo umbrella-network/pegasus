@@ -10,23 +10,32 @@ import {
   FeedFetcherOptions,
   FetcherResult,
   FetcherName,
-  NumberOrUndefined,
+  PriceValueType,
 } from '../../types/fetchers.js';
 
-import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
+import {
+  CoingeckoDataRepository,
+  CoingeckoDataRepositoryInput,
+} from '../../repositories/fetchers/CoingeckoDataRepository.js';
+import {uniqueElements} from '../../utils/arrays.js';
 
 export interface CoingeckoPriceInputParams {
   id: string;
   currency: string;
 }
 
+type ParsedResponse = {id: string; currency: string; value: number};
+
 @injectable()
 export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(CoingeckoDataRepository) private coingeckoDataRepository!: CoingeckoDataRepository;
   @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
+  private logPrefix = '[CoingeckoPriceFetcher]';
   private timeout: number;
   private maxBatchSize: number;
   static fetcherSource = '';
@@ -36,16 +45,17 @@ export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
     this.maxBatchSize = settings.api.coingecko.maxBatchSize;
   }
 
-  async apply(inputs: CoingeckoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
-    const batchedInputs = _.chunk(inputs, this.maxBatchSize);
-    this.logger.debug(`[CoingeckoPriceMultiFetcher] call for: ${inputs.map((i) => i.id).join(', ')}`);
+  async apply(inputsParams: CoingeckoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    const batchedInputs = _.chunk(inputsParams, this.maxBatchSize);
 
     const responses = await Promise.all(
       batchedInputs.map((inputs) => {
         const baseUrl = 'https://api.coingecko.com/api/v3/simple/price';
-        const ids = inputs.map((o) => o.id);
-        const currencies = inputs.map((o) => o.currency);
+        const ids = uniqueElements(inputs.map((o) => o.id));
+        const currencies = uniqueElements(inputs.map((o) => o.currency));
         const url = `${baseUrl}?ids=${ids}&vs_currencies=${currencies}`;
+
+        this.logger.debug(`${this.logPrefix} batched call ${url}`);
 
         return axios.get(url, {
           timeout: this.timeout,
@@ -54,9 +64,14 @@ export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
       }),
     );
 
-    const outputs = responses.map((response) => this.processResponse(response, inputs));
-    const fetcherResult = {prices: outputs.flat(), timestamp: this.timeService.apply()};
+    const timestamp = this.timeService.apply();
+    const parsed = this.parseResponse(responses);
+    await this.savePrices(timestamp, parsed);
 
+    const prices = await this.coingeckoDataRepository.getPrices(inputsParams, timestamp);
+    const fetcherResult = {prices, timestamp};
+
+    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
@@ -68,28 +83,59 @@ export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
     return fetcherResult;
   }
 
-  private processResponse(response: AxiosResponse, inputs: CoingeckoPriceInputParams[]): NumberOrUndefined[] {
-    if (response.status !== 200) {
-      throw new Error(response.data);
-    }
+  private parseResponse(axiosResponse: AxiosResponse[]): ParsedResponse[] {
+    const outputs: ParsedResponse[] = [];
 
-    if (response.data.Response === 'Error') {
-      throw new Error(response.data.Message);
-    }
-
-    const outputs: NumberOrUndefined[] = [];
-
-    inputs.forEach((input) => {
-      const {id, currency} = input;
-      const value: NumberOrUndefined = (response.data[id] || {})[currency.toLowerCase()];
-
-      if (value) {
-        this.logger.debug(`[CoingeckoPriceMultiFetcher] resolved price: ${id}-${currency}: ${value}`);
-
-        outputs.push(value);
+    axiosResponse.forEach((response) => {
+      if (response.status !== 200) {
+        this.logger.error(`${this.logPrefix} status ${response.status}`);
+        return;
       }
+
+      if (response.data.Response === 'Error') {
+        this.logger.error(`${this.logPrefix} error: ${response.data.Message}`);
+        return;
+      }
+
+      Object.keys(response.data).forEach((id) => {
+        if (!response.data[id]) return;
+
+        Object.keys(response.data[id]).forEach((currency) => {
+          let value = response.data[id][currency];
+
+          if (!value) {
+            this.logger.warn(`${this.logPrefix} error: ${response.data.Message}`);
+            return;
+          }
+
+          value = parseFloat(value);
+
+          if (isNaN(value)) {
+            this.logger.error(`${this.logPrefix} resolved price: ${id}-${currency}: ${value}`);
+            return;
+          }
+
+          outputs.push({id, currency, value});
+          this.logger.debug(`${this.logPrefix} resolved price: ${id}-${currency}: ${value}`);
+        });
+      });
     });
 
     return outputs;
+  }
+
+  private async savePrices(timestamp: number, parsed: ParsedResponse[]): Promise<void> {
+    const allData: CoingeckoDataRepositoryInput[] = parsed.map((data) => {
+      return {
+        timestamp,
+        value: data.value,
+        params: {
+          id: data.id,
+          currency: data.currency,
+        },
+      };
+    });
+
+    await this.coingeckoDataRepository.save(allData);
   }
 }
