@@ -7,10 +7,10 @@ import {BaseProvider} from '@ethersproject/providers';
 import {Logger} from 'winston';
 
 import {
-  FeedMultiFetcherInterface,
+  FeedFetcherInterface,
   FetcherName,
   FetcherResult,
-  FeedMultiFetcherOptions,
+  FeedFetcherOptions,
   NumberOrUndefined,
 } from '../../../types/fetchers.js';
 
@@ -33,13 +33,13 @@ export type PricesResponse = {
   timestamp: BigNumber;
 };
 
-export type PairRequest = {
+export type SovrynPriceInputParams = {
   base: string;
   quote: string;
   amountInDecimals: number;
 };
 
-const pairRequestToString = (pair: PairRequest) => {
+const pairRequestToString = (pair: SovrynPriceInputParams) => {
   return '{' + pair.base + ' -> ' + pair.quote + ' amount:' + pair.amountInDecimals + '}';
 };
 
@@ -48,8 +48,6 @@ For getting the prices of different of a Sovryn pool the `base` (input token)
 and `quote` (output token), and the `amount` of the input token should be provided.
 
 weBTC-rUSDT:
-  discrepancy: 1
-  precision: 2
   inputs:
     - fetcher:
         name: SovrynPriceFetcher
@@ -59,7 +57,7 @@ weBTC-rUSDT:
           amountIdDecimals: 18
 */
 @injectable()
-export class SovrynPriceFetcher implements FeedMultiFetcherInterface {
+export class SovrynPriceFetcher implements FeedFetcherInterface {
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject('Logger') private logger!: Logger;
@@ -67,7 +65,7 @@ export class SovrynPriceFetcher implements FeedMultiFetcherInterface {
   private logPrefix = '[SovrynPriceFetcher]';
   static fetcherSource = '';
 
-  public async apply(pairs: PairRequest[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
+  public async apply(pairs: SovrynPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     this.logger.debug(`${this.logPrefix} fetcher started for ${pairs.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`);
     let response;
 
@@ -115,7 +113,7 @@ export class SovrynPriceFetcher implements FeedMultiFetcherInterface {
     return fetcherResult;
   }
 
-  private async getPrices(pairs: PairRequest[]): Promise<PricesResponse> {
+  private async getPrices(pairs: SovrynPriceInputParams[]): Promise<PricesResponse> {
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
     const blockchain = this.blockchainRepository.get(ChainsIds.ROOTSTOCK);

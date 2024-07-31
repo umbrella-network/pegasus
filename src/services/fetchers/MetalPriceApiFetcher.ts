@@ -2,10 +2,10 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
-import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, NumberOrUndefined} from '../../types/fetchers.js';
+import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, FetcherResult} from '../../types/fetchers.js';
+
 import Settings from '../../types/Settings.js';
-import TimeService from '../TimeService.js';
 
 const GRAMS_PER_TROY_OUNCE = 31.1035;
 
@@ -17,7 +17,6 @@ export interface MetalPriceApiInputParams {
 @injectable()
 export default class MetalPriceApiFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
-  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private apiKey: string;
@@ -31,9 +30,9 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.metalPriceApi.timeout;
   }
 
-  async apply(params: MetalPriceApiInputParams, options: FeedFetcherOptions): Promise<NumberOrUndefined> {
+  async apply(params: MetalPriceApiInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {symbol, currency} = params;
-    const {base: feedBase, quote: feedQuote} = options;
+    const {symbols} = options;
 
     this.logger.debug(`${this.logPrefix} call for: ${symbol}/${currency}`);
 
@@ -51,33 +50,34 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
           `${this.logPrefix} Error fetching data for ${symbol}/${currency}: ${response.statusText}.` +
             `Error: ${response.data}`,
         );
-        return;
+        return {prices: []};
       }
 
       const rate = response.data?.rates[symbol];
 
       if (!rate) {
         this.logger.error(`${this.logPrefix} Missing rate for ${symbol}/${currency}`);
-        return;
+        return {prices: []};
       }
 
       const pricePerTroyOunce = 1 / rate;
       const pricePerGram = pricePerTroyOunce / GRAMS_PER_TROY_OUNCE;
 
+      const result = {prices: [pricePerGram]};
       this.logger.debug(`${this.logPrefix} resolved price per gram: ${symbol}/${currency}: ${pricePerGram}`);
 
       await this.priceDataRepository.saveFetcherResults(
-        {prices: [pricePerGram]},
-        [`${feedBase}-${feedQuote}`],
+        result,
+        symbols,
         FetcherName.MetalsDevApi,
         PriceValueType.Price,
         MetalPriceApiFetcher.fetcherSource,
       );
 
-      return pricePerGram;
+      return result;
     } catch (error) {
       this.logger.error(`${this.logPrefix} An error occurred while fetching metal prices: ${error}`);
-      return;
+      return {prices: []};
     }
   }
 }

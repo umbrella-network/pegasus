@@ -55,8 +55,7 @@ class PolygonIOStockSnapshotFetcher {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractValues = (data: any, valuePath: string): number[] => {
+  private extractValues = (data: {tickers: Ticker[]}, valuePath: string): number[] => {
     return JSONPath({json: data, path: valuePath});
   };
 

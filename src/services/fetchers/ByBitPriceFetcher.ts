@@ -7,19 +7,19 @@ import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataR
 import TimeService from '../../services/TimeService.js';
 
 import {
-  FeedMultiFetcherInterface,
-  FeedMultiFetcherOptions,
+  FeedFetcherInterface,
+  FeedFetcherOptions,
   FetcherResult,
   NumberOrUndefined,
   FetcherName,
 } from '../../types/fetchers.js';
 
-export interface InputParams {
+export interface ByBitPriceInputParams {
   symbol: string;
 }
 
 @injectable()
-class ByBitPriceFetcher implements FeedMultiFetcherInterface {
+class ByBitPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
@@ -32,7 +32,7 @@ class ByBitPriceFetcher implements FeedMultiFetcherInterface {
     this.timeout = settings.api.byBit.timeout;
   }
 
-  async apply(inputs: InputParams[], options: FeedMultiFetcherOptions): Promise<FetcherResult> {
+  async apply(inputs: ByBitPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     const sourceUrl = 'https://api.bybit.com/v5/market/tickers?category=spot';
 
     this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);
@@ -66,7 +66,7 @@ class ByBitPriceFetcher implements FeedMultiFetcherInterface {
     return fetcherResult;
   }
 
-  private resolveFeeds(inputs: InputParams[], priceList: Record<string, string>[]): NumberOrUndefined[] {
+  private resolveFeeds(inputs: ByBitPriceInputParams[], priceList: Record<string, string>[]): NumberOrUndefined[] {
     const outputMap = new Map<string, NumberOrUndefined>();
 
     inputs.forEach((input) => {

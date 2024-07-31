@@ -1,8 +1,8 @@
 import {inject, injectable} from 'inversify';
 
-import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {FetcherName, FeedFetcherOptions, FeedFetcherInterface, FetcherResult} from '../../types/fetchers.js';
+import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';
-import {FetcherName, FeedFetcherOptions, FeedFetcherInterface, NumberOrUndefined} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 
 /*
@@ -11,8 +11,16 @@ import Settings from '../../types/Settings.js';
         params:
           ticker: C:XAUUSD
  */
+
+export interface PolygonIOCurrencySnapshotGramsInputParams {
+  ticker: string;
+}
+
 @injectable()
-class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher implements FeedFetcherInterface {
+export default class PolygonIOCurrencySnapshotGramsFetcher
+  extends BasePolygonIOSingleFetcher
+  implements FeedFetcherInterface
+{
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
 
   private logPrefix = `[${FetcherName.PolygonIOCurrencySnapshotGrams}]`;
@@ -25,9 +33,9 @@ class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher i
     this.valuePath = '$.ticker.lastQuote.a';
   }
 
-  async apply(params: {ticker: string}, options: FeedFetcherOptions): Promise<NumberOrUndefined> {
+  async apply(params: PolygonIOCurrencySnapshotGramsInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {ticker} = params;
-    const {base: feedBase, quote: feedQuote, timestamp} = options;
+    const {symbols, timestamp} = options;
 
     const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers';
     const url = `${baseUrl}/${ticker}?apiKey=${this.apiKey}`;
@@ -42,19 +50,17 @@ class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher i
 
     if (isNaN(price)) {
       this.logger.error(`${this.logPrefix} couldn't compute price for ${baseUrl}/${ticker}. Computed value gave NaN.`);
-      return;
+      return {prices: []};
     }
 
     await this.priceDataRepository.saveFetcherResults(
       {prices: [price]},
-      [`${feedBase}-${feedQuote}`],
+      symbols,
       FetcherName.PolygonIOCurrencySnapshotGrams,
       PriceValueType.Price,
       PolygonIOCurrencySnapshotGramsFetcher.fetcherSource,
     );
 
-    return price;
+    return {prices: [price]};
   }
 }
-
-export default PolygonIOCurrencySnapshotGramsFetcher;

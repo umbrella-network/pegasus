@@ -1,9 +1,10 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import Settings from '../types/Settings.js';
-import loadFeeds from './loadFeeds.js';
+
 import PolygonIOCryptoPriceService from './PolygonIOCryptoPriceService.js';
 import PolygonIOStockPriceService from './PolygonIOStockPriceService.js';
+import Settings from '../types/Settings.js';
+import loadFeeds from './loadFeeds.js';
 import {Pair} from '../types/Feed.js';
 
 @injectable()

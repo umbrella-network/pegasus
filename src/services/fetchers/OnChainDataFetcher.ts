@@ -1,18 +1,27 @@
 import {ethers} from 'ethers';
 import {inject, injectable} from 'inversify';
 
-import {OnChainCall} from '../../types/Feed.js';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
 import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds.js';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
-import {FeedFetcherInterface, OnChainDataFetcherResult} from '../../types/fetchers.js';
+
+export interface OnChainDataInputParams {
+  chainId?: ChainsIds; // default ETH
+  address: string;
+  method: string;
+  inputs: string[]; // array of types
+  outputs: string[]; // array of types
+  args: string[];
+  returnIndex?: number; // id/index of on-chain returned data that should be used as returned value
+  decimals?: number; // decimals of returned number, if undefined will be returned as string
+}
 
 @injectable()
-class OnChainDataFetcher implements FeedFetcherInterface {
+class OnChainDataFetcher {
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(BlockchainProviderRepository) blockchainProviderRepository!: BlockchainProviderRepository;
 
-  async apply(params: OnChainCall): Promise<OnChainDataFetcherResult> {
+  async apply(params: OnChainDataInputParams): Promise<string | number> {
     const data = await this.fetchData(params);
 
     if (params.decimals === undefined) {
@@ -23,7 +32,7 @@ class OnChainDataFetcher implements FeedFetcherInterface {
     return ethers.BigNumber.from(data).toNumber() / one;
   }
 
-  private async fetchData(params: OnChainCall): Promise<string> {
+  private async fetchData(params: OnChainDataInputParams): Promise<string> {
     const provider = this.resolveBlockchainProvider(params.chainId);
 
     const data = await provider.call({
@@ -55,7 +64,7 @@ class OnChainDataFetcher implements FeedFetcherInterface {
     return ethProvider;
   }
 
-  private static callData(params: OnChainCall): string {
+  private static callData(params: OnChainDataInputParams): string {
     const abi = [
       {
         name: params.method,

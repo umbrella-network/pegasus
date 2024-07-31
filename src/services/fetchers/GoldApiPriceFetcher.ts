@@ -2,12 +2,11 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import axios from 'axios';
 
-import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, NumberOrUndefined} from '../../types/fetchers.js';
+import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, FetcherResult} from '../../types/fetchers.js';
 import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
 import Settings from '../../types/Settings.js';
-import TimeService from '../TimeService.js';
 
-export interface GoldApiInputParams {
+export interface GoldApiPriceInputParams {
   symbol: string;
   currency: string;
 }
@@ -15,7 +14,6 @@ export interface GoldApiInputParams {
 @injectable()
 export default class GoldApiPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
-  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private token: string;
@@ -28,9 +26,9 @@ export default class GoldApiPriceFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.goldApi.timeout;
   }
 
-  async apply(params: GoldApiInputParams, options: FeedFetcherOptions): Promise<NumberOrUndefined> {
+  async apply(params: GoldApiPriceInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {symbol, currency} = params;
-    const {base: feedBase, quote: feedQuote} = options;
+    const {symbols} = options;
 
     this.logger.debug(`${this.logPrefix} call for: ${symbol}/${currency}`);
 
@@ -47,26 +45,27 @@ export default class GoldApiPriceFetcher implements FeedFetcherInterface {
         `${this.logPrefix} Error fetching data for ${symbol}/${currency}: ${response.statusText}.` +
           `Error: ${response.data}`,
       );
-      return;
+      return {prices: []};
     }
 
     const {price_gram_24k} = response.data;
 
     if (!price_gram_24k) {
       this.logger.error(`${this.logPrefix} Missing rate for ${symbol}/${currency}`);
-      return;
+      return {prices: []};
     }
 
+    const result = {prices: [price_gram_24k]};
     this.logger.debug(`${this.logPrefix} resolved price: ${symbol}/${currency}: ${price_gram_24k}`);
 
     await this.priceDataRepository.saveFetcherResults(
-      {prices: [price_gram_24k]},
-      [`${feedBase}-${feedQuote}`],
+      result,
+      symbols,
       FetcherName.MetalsDevApi,
       PriceValueType.Price,
       GoldApiPriceFetcher.fetcherSource,
     );
 
-    return price_gram_24k;
+    return result;
   }
 }

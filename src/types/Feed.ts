@@ -65,14 +65,3 @@ export interface Pair {
 export interface PairWithFreshness extends Pair {
   freshness: number;
 }
-
-export interface OnChainCall {
-  chainId?: ChainsIds; // default ETH
-  address: string;
-  method: string;
-  inputs: string[]; // array of types
-  outputs: string[]; // array of types
-  args: string[];
-  returnIndex?: number; // id/index of on-chain returned data that should be used as returned value
-  decimals?: number; // decimals of returned number, if undefined will be returned as string
-}

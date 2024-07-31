@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {ByBitPriceFetcher, BinancePriceFetcher, CoingeckoPriceFetcher} from '../fetchers/index.js';
-import {FeedMultiFetcherInterface, FetcherName, FetcherResult} from '../../types/fetchers.js';
+import {FeedFetcherInterface, FetcherName, FetcherResult} from '../../types/fetchers.js';
 import UniswapV3MultiFetcher from '../dexes/uniswapV3/UniswapV3MultiFetcher.js';
 import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
 import {FeedFetcher} from '../../types/Feed.js';
@@ -26,7 +26,7 @@ export default class MultiFeedProcessorNew {
       params: any[];
       symbols: (string | undefined)[];
       indices: number[];
-      fetcher: FeedMultiFetcherInterface;
+      fetcher: FeedFetcherInterface;
     };
 
     const inputMap = new Map<FetcherName, ProcessingFeed>();

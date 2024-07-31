@@ -4,7 +4,7 @@ import {Logger} from 'winston';
 import {PairWithFreshness} from '../../types/Feed.js';
 import {UniswapPriceService} from '../uniswap/UniswapPriceService.js';
 import {UniswapPoolService} from '../uniswap/UniswapPoolService.js';
-import {FeedFetcherInterface, FeedFetcherOptions} from 'src/types/fetchers.js';
+import {FeedFetcherInterface, FeedFetcherOptions, FetcherResult} from 'src/types/fetchers.js';
 
 @injectable()
 export class UniswapPriceFetcher implements FeedFetcherInterface {
@@ -14,7 +14,7 @@ export class UniswapPriceFetcher implements FeedFetcherInterface {
 
   static readonly DEFAULT_FRESHNESS = 3600;
 
-  async apply(pair: PairWithFreshness, options: FeedFetcherOptions): Promise<number> {
+  async apply(pair: PairWithFreshness, options: FeedFetcherOptions): Promise<FetcherResult> {
     const {fsym, tsym} = pair;
     const {timestamp} = options;
 
@@ -27,13 +27,13 @@ export class UniswapPriceFetcher implements FeedFetcherInterface {
       this.logger.debug(`[UniswapPriceFetcher] Retrieving prices for ${poolSymbol} (direct)`);
       const price = await this.priceService.getLatestPrice(poolSymbol, timestamp - freshness, timestamp);
       this.logger.debug(`[UniswapPriceFetcher] Price for ${poolSymbol}: ${price}`);
-      if (price) return price;
+      if (price) return {prices: [price]};
 
       const reversePoolSymbol = this.poolService.getPoolSymbol(tsym, fsym);
       this.logger.debug(`[UniswapPriceFetcher] Retrieving prices for ${reversePoolSymbol} (reverse)`);
       const reversePrice = await this.priceService.getLatestPrice(reversePoolSymbol, timestamp - freshness, timestamp);
       this.logger.debug(`[UniswapPriceFetcher] Price for ${reversePoolSymbol}: ${reversePrice}`);
-      if (reversePrice) return reversePrice == 0 ? reversePrice : 1 / reversePrice;
+      if (reversePrice) return {prices: [reversePrice == 0 ? reversePrice : 1 / reversePrice]};
     } catch (e) {
       this.logger.error(
         [

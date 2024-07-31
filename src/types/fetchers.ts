@@ -1,48 +1,44 @@
-import {OptionsEntries} from '../services/fetchers/OptionsPriceFetcher.js';
-import {FeedFetcher} from './Feed.js';
+import {SovrynPriceInputParams} from 'src/services/dexes/sovryn/SovrynPriceFetcher';
+import {BinancePriceInputParams} from 'src/services/fetchers/BinancePriceFetcher';
+import {ByBitPriceInputParams} from 'src/services/fetchers/ByBitPriceFetcher';
+import {CoingeckoPriceInputParams} from 'src/services/fetchers/CoingeckoPriceFetcher';
+import {EvmTWAPGasPriceInputParams} from 'src/services/fetchers/EvmTWAPGasPriceFetcher';
+import {GoldApiPriceInputParams} from 'src/services/fetchers/GoldApiPriceFetcher';
+import {MetalPriceApiInputParams} from 'src/services/fetchers/MetalPriceApiFetcher';
+import {MetalsDevApiPriceInputParams} from 'src/services/fetchers/MetalsDevApiFetcher';
+import {PolygonIOCryptoPriceInputParams} from 'src/services/fetchers/PolygonIOCryptoPriceFetcher';
+import {PolygonIOCurrencySnapshotGramsInputParams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
+import {PolygonIOPriceInputParams} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
+
+export type NumberOrUndefined = number | undefined;
+
+export type StringOrUndefined = string | undefined;
+
+export type FeedFetcherOptions = {
+  symbols: StringOrUndefined[];
+  timestamp?: number;
+};
 
 export type FetcherResult = {
   prices: (number | undefined)[];
   timestamp?: number;
 };
 
-export type OnChainDataFetcherResult = string | number;
-
-export type NumberOrUndefined = number | undefined;
-
-export type StringOrUndefined = string | undefined;
-
-// TODO: refactor this type
-export type FeedFetcherInterfaceResult =
-  | Promise<number | undefined>
-  | Promise<OnChainDataFetcherResult>
-  | Promise<FetcherResult>
-  | Promise<NumberOrUndefined>
-  | Promise<NumberOrUndefined[]>
-  | Promise<OptionsEntries>;
-
-export type FeedFetcherOptions = {
-  base: string;
-  quote: string;
-  timestamp?: number;
-};
+export type FeedFetcherInputParams =
+  | ByBitPriceInputParams[]
+  | BinancePriceInputParams[]
+  | GoldApiPriceInputParams
+  | PolygonIOCryptoPriceInputParams
+  | PolygonIOCurrencySnapshotGramsInputParams
+  | PolygonIOPriceInputParams
+  | EvmTWAPGasPriceInputParams
+  | MetalPriceApiInputParams
+  | MetalsDevApiPriceInputParams
+  | SovrynPriceInputParams[]
+  | CoingeckoPriceInputParams[];
 
 export interface FeedFetcherInterface {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(params: any, options: FeedFetcherOptions): FeedFetcherInterfaceResult;
-}
-
-export type FeedMultiFetcherOptions = {
-  symbols: StringOrUndefined[];
-};
-
-export interface FeedMultiFetcherInterface {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(params: any, options: FeedMultiFetcherOptions): Promise<FetcherResult>;
-}
-
-export interface FeedMultiProcessorInterface {
-  apply(feedFetchers: FeedFetcher[]): Promise<NumberOrUndefined[]>;
+  apply(params: FeedFetcherInputParams, options: FeedFetcherOptions): Promise<FetcherResult>;
 }
 
 export enum FetcherName {
