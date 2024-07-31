@@ -2,8 +2,14 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import axios from 'axios';
 
-import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, FetcherResult} from '../../types/fetchers.js';
-import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {
+  FeedFetcherInterface,
+  FeedFetcherOptions,
+  FetcherName,
+  FetcherResult,
+  PriceValueType
+} from '../../types/fetchers.js';
+import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import Settings from '../../types/Settings.js';
 
 export interface GoldApiPriceInputParams {

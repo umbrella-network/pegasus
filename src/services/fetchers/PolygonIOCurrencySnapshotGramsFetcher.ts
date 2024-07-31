@@ -1,7 +1,13 @@
 import {inject, injectable} from 'inversify';
 
-import {FetcherName, FeedFetcherOptions, FeedFetcherInterface, FetcherResult} from '../../types/fetchers.js';
-import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {
+  FetcherName,
+  FeedFetcherOptions,
+  FeedFetcherInterface,
+  FetcherResult,
+  PriceValueType
+} from '../../types/fetchers.js';
+import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';
 import Settings from '../../types/Settings.js';
 

@@ -7,12 +7,10 @@ import {BaseProvider} from '@ethersproject/providers';
 import {Logger} from 'winston';
 
 import {
-  FeedMultiFetcherInterface,
   FetcherName,
   FetcherResult,
-  FeedMultiFetcherOptions,
   NumberOrUndefined,
-  PriceValueType,
+  PriceValueType, FeedFetcherInterface, FeedFetcherOptions,
 } from '../../../types/fetchers.js';
 
 import {ChainsIds} from '../../../types/ChainsIds.js';

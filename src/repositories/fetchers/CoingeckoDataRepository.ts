@@ -7,11 +7,11 @@ import PriceSignerService from '../../services/PriceSignerService.js';
 import Settings from '../../types/Settings.js';
 import FeedSymbolChecker from '../../services/FeedSymbolChecker.js';
 import TimeService from '../../services/TimeService.js';
-import {CoingeckoPriceFetcherParams} from '../../services/fetchers/CoingeckoPriceFetcher.js';
+import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceFetcher.js';
 import {CoingeckoPriceModel} from '../../models/fetchers/CoingeckoPriceModel.js';
 
 export type CoingeckoDataRepositoryInput = {
-  params: CoingeckoPriceFetcherParams;
+  params: CoingeckoPriceInputParams;
   value: number;
   timestamp: number;
 };
@@ -71,7 +71,7 @@ export class CoingeckoDataRepository {
   }
 
   private createMessageToSign(
-    data: CoingeckoPriceFetcherParams,
+    data: CoingeckoPriceInputParams,
     value: number,
     timestamp: number,
     hashVersion: number,
@@ -88,7 +88,7 @@ export class CoingeckoDataRepository {
     return dataToSign.join(';');
   }
 
-  async getPrices(params: CoingeckoPriceFetcherParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: CoingeckoPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
     const or = params.map(({id, currency}) => {
       return {id, currency};
     });
@@ -101,7 +101,7 @@ export class CoingeckoDataRepository {
     return this.generateResults(results, params);
   }
 
-  private generateResults(results: CoingeckoPriceModel[], inputs: CoingeckoPriceFetcherParams[]): NumberOrUndefined[] {
+  private generateResults(results: CoingeckoPriceModel[], inputs: CoingeckoPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
     results.forEach(({id, currency, value}) => {

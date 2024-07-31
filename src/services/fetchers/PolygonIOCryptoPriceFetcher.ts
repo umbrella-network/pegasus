@@ -1,9 +1,15 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
-import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, FetcherResult} from '../../types/fetchers.js';
+import {
+  FeedFetcherInterface,
+  FeedFetcherOptions,
+  FetcherName,
+  FetcherResult,
+  PriceValueType
+} from '../../types/fetchers.js';
 
 export interface PolygonIOCryptoPriceInputParams {
   fsym: string;
