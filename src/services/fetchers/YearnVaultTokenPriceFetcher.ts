@@ -23,8 +23,7 @@ class YearnVaultTokenPriceFetcher {
     this.yearnAbi = readFileSync(__dirname + '/YearnVaultExplorer.json', 'utf-8');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async apply(params: any): Promise<any> {
+  async apply(params: {network: string; address: string}): Promise<Vault[]> {
     const {network, address} = params;
 
     const provider = network
