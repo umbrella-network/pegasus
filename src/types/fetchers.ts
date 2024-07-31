@@ -19,6 +19,10 @@ export type FeedFetcherOptions = {
   timestamp?: number;
 };
 
+export enum PriceValueType {
+  Price = 'Price',
+}
+
 export type FetcherResult = {
   prices: (number | undefined)[];
   timestamp?: number;

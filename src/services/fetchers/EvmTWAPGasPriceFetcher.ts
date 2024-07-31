@@ -1,7 +1,13 @@
 import {inject, injectable} from 'inversify';
 
-import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
-import {FeedFetcherInterface, FeedFetcherOptions, FetcherName, FetcherResult} from '../../types/fetchers.js';
+import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
+import {
+  FeedFetcherInterface,
+  FeedFetcherOptions,
+  FetcherName,
+  FetcherResult,
+  PriceValueType,
+} from '../../types/fetchers.js';
 import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 

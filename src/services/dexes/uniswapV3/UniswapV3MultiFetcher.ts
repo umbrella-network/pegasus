@@ -8,8 +8,8 @@ import path from 'path';
 import {DexProtocolName} from '../../../types/Dexes.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
-import {ContractAddressService} from '../../../services/ContractAddressService.js';
-import {PriceDataRepository, PriceValueType} from '../../../repositories/PriceDataRepository.js';
+import {ContractAddressService} from '../../ContractAddressService.js';
+import {PriceDataRepository} from '../../../repositories/PriceDataRepository.js';
 import TimeService from '../../../services/TimeService.js';
 
 import {
@@ -18,6 +18,7 @@ import {
   FetcherResult,
   NumberOrUndefined,
   FetcherName,
+  PriceValueType,
 } from '../../../types/fetchers.js';
 
 const __filename = fileURLToPath(import.meta.url);

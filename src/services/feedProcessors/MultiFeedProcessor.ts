@@ -69,6 +69,7 @@ export default class MultiFeedProcessorNew {
     }
 
     const promiseMap = new Map<FetcherName, {promise: () => Promise<FetcherResult>; indices: number[]}>();
+
     for (const [fetcherName, inputParams] of inputMap) {
       promiseMap.set(fetcherName, {
         promise: () => inputParams.fetcher.apply(inputParams.params, {symbols: inputParams.symbols}),

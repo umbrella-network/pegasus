@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
-import {PriceDataRepository, PriceValueType} from '../../repositories/PriceDataRepository.js';
+import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../../services/TimeService.js';
 
 import {
@@ -12,6 +12,7 @@ import {
   FetcherResult,
   NumberOrUndefined,
   FetcherName,
+  PriceValueType,
 } from '../../types/fetchers.js';
 
 export interface ByBitPriceInputParams {
