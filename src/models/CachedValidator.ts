@@ -10,13 +10,13 @@ class CachedValidator {
   @prop()
   chainId!: string;
 
-  @prop()
+  @prop({lowercase: true})
   address!: string;
 
   @prop()
   contractIndex!: number;
 
-  @prop()
+  @prop({lowercase: true})
   location!: string;
 
   @prop()
