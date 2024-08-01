@@ -30,6 +30,25 @@ export class ValidatorRepository {
       });
   }
 
+  // all not evm
+  async listForLeaderSelection(): Promise<Validator[]> {
+    const validators = await getModelForClass(CachedValidator).find({chainId: {$nin: NonEvmChainsIds}}).exec();
+
+    const map: Record<string, Validator> = {};
+
+    validators.forEach(data => {
+      map[data.id] = {
+        id: data.address,
+        power: BigNumber.from(data.power),
+        location: data.location,
+      };
+    });
+    
+    return Object.keys(map)
+      .sort((a, b) => (a < b ? -1 : 1))
+      .map((v): Validator => map[v]);
+  }
+
   async getAll(): Promise<DataCollection<Set<string>>> {
     const result: DataCollection<Set<string>> = {};
     const validators = await getModelForClass(CachedValidator).find().exec();
