@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [7.29.8] - 2024-08-01
+### Fixed
+- ensure we filter out extreme gas prices in `GasMonitor`
+
 ## [7.29.7] - 2024-07-19
 ### Fixed
 - fix PolygonIOCurrencySnapshotGramsFetcher and MetalPriceApiFetcher fetcher

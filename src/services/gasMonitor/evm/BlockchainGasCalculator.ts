@@ -35,12 +35,12 @@ export class BlockchainGasCalculator {
   }
 
   protected gasFromReceipts(receipts: TransactionReceipt[]): bigint[] {
-    return receipts.map((r) => r.effectiveGasPrice.toBigInt());
+    return receipts.filter((r) => r.status && r.status === 1).map((r) => r.effectiveGasPrice.toBigInt());
   }
 
   protected calculateGas(gas: bigint[]): bigint {
     const pop = Math.trunc(gas.length / 10);
-    const data = pop > 0 && gas.length - 2 * pop > 0 ? gas.sort().slice(pop, -pop) : gas;
+    const data = pop > 0 && gas.length - 2 * pop > 0 ? gas.sort((a, b) => (a > b ? -1 : 1)).slice(pop, -pop) : gas;
     const sum = data.reduce((sum, g) => sum + g, 0n);
     return sum / BigInt(data.length);
   }
