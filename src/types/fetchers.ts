@@ -58,8 +58,6 @@ export enum FetcherName {
   OnChainData = 'OnChainData',
   UniswapV3 = 'UniswapV3',
   UniswapV3OLD = 'UniswapV3Fetcher',
-  UniswapPrice = 'UniswapPrice',
-  UniswapPriceOLD = 'UniswapPriceFetcher',
   GoldApiPrice = 'GoldApiPrice',
   MetalPriceApi = 'MetalPriceApi',
   MetalsDevApi = 'MetalsDevApi',
