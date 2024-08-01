@@ -52,7 +52,13 @@ export default class MultiFeedProcessorNew {
           case FetcherName.SovrynPrice:
             fetcherObject = this.sovrynPriceFetcher;
             break;
+          case FetcherName.SovrynPriceOLD: // TODO: remove this backward compatible code
+            fetcherObject = this.sovrynPriceFetcher;
+            break;
           case FetcherName.UniswapV3:
+            fetcherObject = this.uniswapV3PriceFetcher;
+            break;
+          case FetcherName.UniswapV3OLD: // TODO: remove this backward compatible code
             fetcherObject = this.uniswapV3PriceFetcher;
             break;
           default:
