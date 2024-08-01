@@ -57,7 +57,9 @@ export enum FetcherName {
   TWAPGasPrice = 'TWAPGasPrice',
   OnChainData = 'OnChainData',
   UniswapV3 = 'UniswapV3',
+  UniswapV3OLD = 'UniswapV3Fetcher',
   UniswapPrice = 'UniswapPrice',
+  UniswapPriceOLD = 'UniswapPriceFetcher',
   GoldApiPrice = 'GoldApiPrice',
   MetalPriceApi = 'MetalPriceApi',
   MetalsDevApi = 'MetalsDevApi',
@@ -65,6 +67,7 @@ export enum FetcherName {
   YearnVaultTokenPrice = 'YearnVaultTokenPrice',
   RandomNumber = 'RandomNumber',
   SovrynPrice = 'SovrynPrice',
+  SovrynPriceOLD = 'SovrynPriceFetcher',
   ByBitPrice = 'ByBitPrice',
   BinancePrice = 'BinancePrice',
 }
