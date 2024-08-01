@@ -6,7 +6,6 @@ import {Logger} from 'winston';
 import {FeedFactory} from '../factories/FeedFactory.js';
 import NodeCache from 'node-cache';
 import axios from 'axios';
-import {UniswapFeedRepository} from './UniswapFeedRepository.js';
 import {DataFilter} from '../services/tools/DataFilter.js';
 
 function isValidURL(string: string): boolean {
@@ -26,7 +25,6 @@ export class FeedRepository {
   @inject('Settings') settings!: Settings;
   @inject('Logger') logger!: Logger;
   @inject(FeedFactory) feedFactory!: FeedFactory;
-  @inject(UniswapFeedRepository) uniswapFeedRepository!: UniswapFeedRepository;
 
   sourceCache: NodeCache;
 
@@ -47,7 +45,6 @@ export class FeedRepository {
     let feeds: Feeds = {};
     feeds = this.mergeFeedsIntoCollection(await this.getLocalFeeds(sources), feeds);
     feeds = this.mergeFeedsIntoCollection(await this.getRemoteFeeds(sources), feeds);
-    feeds = this.mergeFeedsIntoCollection(await this.getVerifiedUniswapFeeds(), feeds);
     return this.applyFilter(feeds, filter);
   }
 
@@ -120,22 +117,6 @@ export class FeedRepository {
     const feeds = this.feedFactory.createCollectionFromYaml(response.data);
     this.sourceCache.set<Feeds>(url, feeds);
     return feeds;
-  }
-
-  // TODO: Consider splitting into a UniswapFeedRepository
-  async getVerifiedUniswapFeeds(): Promise<Feeds> {
-    if (!this.settings.api.uniswap.active) {
-      return {};
-    }
-
-    const cachedFeeds = this.sourceCache.get<Feeds>('uniswap');
-    if (cachedFeeds) return cachedFeeds;
-
-    let collection: Feeds = {};
-    const feeds = await this.uniswapFeedRepository.getVerifiedFeeds();
-    feeds.forEach((f) => (collection = this.mergeFeedsIntoCollection({[<string>f.symbol]: f}, collection)));
-    this.sourceCache.set<Feeds>('uniswap', collection);
-    return collection;
   }
 
   protected mergeFeedsIntoCollection(feeds: Feeds, collection: Feeds): Feeds {
