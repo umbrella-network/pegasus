@@ -5,7 +5,7 @@ import Settings from '../../types/Settings.js';
 import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus.js';
 import {CanMint} from '../CanMint.js';
 import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
-import LeaderSelector from './LeaderSelector.js';
+import {LeaderSelector} from './LeaderSelector.js';
 
 @injectable()
 export class MultiChainStatusProcessor {

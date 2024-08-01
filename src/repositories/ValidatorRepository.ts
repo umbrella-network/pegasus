@@ -30,23 +30,21 @@ export class ValidatorRepository {
       });
   }
 
-  // all not evm
   async listForLeaderSelection(): Promise<Validator[]> {
-    const validators = await getModelForClass(CachedValidator).find({chainId: {$nin: NonEvmChainsIds}}).exec();
-
-    const map: Record<string, Validator> = {};
+    const locationMap: Record<string, Validator> = {};
+    const validators = await getModelForClass(CachedValidator).find().exec();
 
     validators.forEach(data => {
-      map[data.id] = {
+      locationMap[this.removeLastSlash(data.location).toLowerCase()] = {
         id: data.address,
         power: BigNumber.from(data.power),
         location: data.location,
       };
     });
-    
-    return Object.keys(map)
+
+    return Object.keys(locationMap)
       .sort((a, b) => (a < b ? -1 : 1))
-      .map((v): Validator => map[v]);
+      .map((v): Validator => locationMap[v]);
   }
 
   async getAll(): Promise<DataCollection<Set<string>>> {
@@ -103,5 +101,9 @@ export class ValidatorRepository {
         ).exec();
       }),
     );
+  }
+
+  private removeLastSlash(url: string): string {
+    return (url.endsWith('/')) ? url.slice(0, -1) : url;
   }
 }
