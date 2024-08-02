@@ -5,8 +5,6 @@ import {Logger} from 'winston';
 import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
 import PriceSignerService from '../../services/PriceSignerService.js';
 import Settings from '../../types/Settings.js';
-import FeedSymbolChecker from '../../services/FeedSymbolChecker.js';
-import TimeService from '../../services/TimeService.js';
 import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceFetcher.js';
 import {CoingeckoPriceModel} from '../../models/fetchers/CoingeckoPriceModel.js';
 
@@ -19,8 +17,6 @@ export type CoingeckoDataRepositoryInput = {
 @injectable()
 export class CoingeckoDataRepository {
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
-  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
-  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
   @inject('Settings') settings!: Settings;
 
@@ -104,12 +100,16 @@ export class CoingeckoDataRepository {
   private generateResults(results: CoingeckoPriceModel[], inputs: CoingeckoPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
-    results.forEach(({id, currency, value}) => {
-      if (map[`${id}-${currency}`]) return; // already set newest price
+    const getSymbol = (id: string, currency: string) => `${id}-${currency}`;
 
-      map[`${id}-${currency}`] = parseFloat(value);
+    results.forEach(({id, currency, value}) => {
+      const symbol = getSymbol(id, currency);
+
+      if (map[symbol]) return; // already set newest price
+
+      map[symbol] = parseFloat(value);
     });
 
-    return inputs.map(({id, currency}) => map[`${id}-${currency}`.toLowerCase()]);
+    return inputs.map(({id, currency}) => map[getSymbol(id, currency).toLowerCase()]);
   }
 }

@@ -15,10 +15,12 @@ import {
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
+
 import {
   CoingeckoDataRepository,
   CoingeckoDataRepositoryInput,
 } from '../../repositories/fetchers/CoingeckoDataRepository.js';
+
 import {uniqueElements} from '../../utils/arrays.js';
 
 export interface CoingeckoPriceInputParams {
