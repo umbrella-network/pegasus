@@ -6,7 +6,7 @@ import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetche
 import PriceSignerService from '../../services/PriceSignerService.js';
 import Settings from '../../types/Settings.js';
 import {ByBitPriceInputParams} from '../../services/fetchers/ByBitPriceFetcher.js';
-import {ByBitPriceModel} from 'src/models/fetchers/ByBitPriceModel.js';
+import {ByBitPriceModel} from '../../models/fetchers/ByBitPriceModel.js';
 
 export type ByBitDataRepositoryInput = {
   params: ByBitPriceInputParams;
@@ -73,7 +73,7 @@ export class ByBitDataRepository {
   ): string {
     const dataToSign = [
       hashVersion.toString(),
-      FetcherName.CoingeckoPrice,
+      FetcherName.ByBitPrice,
       data.symbol,
       value.toString(10),
       timestamp.toString(),
@@ -104,6 +104,6 @@ export class ByBitDataRepository {
       map[symbol] = parseFloat(value);
     });
 
-    return inputs.map(({symbol}) => map[symbol.toLowerCase()]);
+    return inputs.map(({symbol}) => map[symbol]);
   }
 }
