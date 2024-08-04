@@ -66,7 +66,7 @@ export default {
     },
     ByBitPrice: {
       properties: {
-        name: {const: 'ByBit'},
+        name: {const: 'ByBitPrice'},
         params: {
           type: 'object',
           properties: {

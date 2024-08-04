@@ -20,7 +20,7 @@ export interface ByBitPriceInputParams {
 }
 
 @injectable()
-class ByBitPriceFetcher implements FeedFetcherInterface {
+export default class ByBitPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
@@ -92,5 +92,3 @@ class ByBitPriceFetcher implements FeedFetcherInterface {
     return inputs.map((input) => outputMap.get(input.symbol));
   }
 }
-
-export default ByBitPriceFetcher;
