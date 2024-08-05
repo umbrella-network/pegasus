@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, {AxiosResponse} from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
@@ -10,20 +10,23 @@ import {
   FeedFetcherInterface,
   FeedFetcherOptions,
   FetcherResult,
-  NumberOrUndefined,
   FetcherName,
   PriceValueType,
 } from '../../types/fetchers.js';
+
+import {BinanceDataRepository} from '../../repositories/fetchers/BinanceDataRepository.js';
 
 export interface BinancePriceInputParams {
   symbol: string;
   inverse: boolean;
 }
 
-export type BinanceResponse = {symbol: string; price: string}[];
+type BinanceResponse = {symbol: string; price: string};
+type ParsedResponse = {symbol: string; price: number};
 
 @injectable()
 export default class BinancePriceFetcher implements FeedFetcherInterface {
+  @inject(BinanceDataRepository) binanceDataRepository!: BinanceDataRepository;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
@@ -46,48 +49,62 @@ export default class BinancePriceFetcher implements FeedFetcherInterface {
       timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
     });
 
-    if (response.status !== 200) {
-      throw new Error(response.data);
-    }
+    const timestamp = this.timeService.apply();
+    const parsed = this.parseResponse(response);
+    await this.savePrices(timestamp, parsed);
 
-    if (response.data.Response === 'Error') {
-      throw new Error(response.data.Message);
-    }
+    const prices = await this.binanceDataRepository.getPrices(inputs, timestamp);
 
-    const fetcherResult = {
-      prices: this.resolveFeeds(inputs, response.data as BinanceResponse),
-      timestamp: this.timeService.apply(),
+    const fetcherResults: FetcherResult = {
+      prices: prices.map((price, ix) =>
+        price !== undefined && price != 0 && inputs[ix].inverse ? 1.0 / price : price,
+      ),
+      timestamp,
     };
 
     await this.priceDataRepository.saveFetcherResults(
-      fetcherResult,
+      fetcherResults,
       options.symbols,
       FetcherName.BinancePrice,
       PriceValueType.Price,
       BinancePriceFetcher.fetcherSource,
     );
 
-    return fetcherResult;
+    return fetcherResults;
   }
 
-  private resolveFeeds(inputs: BinancePriceInputParams[], binancePrices: BinanceResponse): NumberOrUndefined[] {
-    const outputs: NumberOrUndefined[] = [];
-
-    for (const input of inputs) {
-      const price = binancePrices.find((elem) => elem.symbol == input.symbol)?.price;
-
-      if (!price) {
-        this.logger.error(`${this.logPrefix} Couldn't extract price for ${input.symbol}`);
-        outputs.push(undefined);
-      } else {
-        const priceValue = input.inverse ? 1 / Number(price) : Number(price);
-
-        this.logger.debug(`${this.logPrefix} resolved price: ${input.symbol}: ${priceValue}`);
-
-        outputs.push(priceValue);
-      }
+  private parseResponse(axiosResponse: AxiosResponse): ParsedResponse[] {
+    if (axiosResponse.status !== 200) {
+      this.logger.error(`${this.logPrefix} status ${axiosResponse.status}`);
+      return [];
     }
 
-    return outputs;
+    return (axiosResponse.data as BinanceResponse[])
+      .map(({symbol, price}) => {
+        const value = parseFloat(price);
+
+        if (isNaN(value)) {
+          this.logger.warn(`${this.logPrefix} NaN: ${symbol}: ${price}`);
+          return;
+        }
+
+        return {symbol, price: value};
+      })
+      .filter((e) => !!e) as ParsedResponse[];
+  }
+
+  private async savePrices(timestamp: number, parsed: ParsedResponse[]): Promise<void> {
+    const allData = parsed.map((data) => {
+      return {
+        timestamp,
+        value: data.price,
+        params: {
+          symbol: data.symbol,
+          inverse: false,
+        },
+      };
+    });
+
+    await this.binanceDataRepository.save(allData);
   }
 }

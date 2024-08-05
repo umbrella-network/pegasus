@@ -30,7 +30,7 @@ export default class ByBitPriceFetcher implements FeedFetcherInterface {
   @inject('Logger') protected logger!: Logger;
 
   private timeout: number;
-  private logPrefix = `[${FetcherName.BinancePrice}]`;
+  private logPrefix = `[${FetcherName.ByBitPrice}]`;
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
@@ -116,8 +116,8 @@ export default class ByBitPriceFetcher implements FeedFetcherInterface {
       this.logger.debug(`${this.logPrefix} resolved price: ${asset.symbol}: ${lastPrice} / ${usdIndexPrice}`);
     });
 
-    this.logger.debug(`${this.logPrefix} time: ${response.data.result.time}`);
-
-    return {data: output, timestamp: parseInt(response.data.result.time) / 1000};
+    const timestamp = parseInt(response.data.time) / 1000;
+    this.logger.debug(`${this.logPrefix} time: ${timestamp} (raw: ${response.data.time})`);
+    return {data: output, timestamp};
   }
 }

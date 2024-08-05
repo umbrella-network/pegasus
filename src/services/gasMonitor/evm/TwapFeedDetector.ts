@@ -3,7 +3,7 @@ import {Logger} from 'winston';
 
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {FeedRepository} from '../../../repositories/FeedRepository.js';
-import {FetcherName} from 'src/types/fetchers.js';
+import {FetcherName} from '../../../types/fetchers.js';
 
 @injectable()
 export class TwapFeedDetector {

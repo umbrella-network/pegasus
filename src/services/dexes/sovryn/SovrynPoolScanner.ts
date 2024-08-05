@@ -4,7 +4,7 @@ import {GraphClientBase} from '../../graph/GraphClient';
 import {PoolRepositoryBase} from './SovrynPoolRepository.js';
 import {SovrynGraphPoolsResponseJSONSchema} from './SovrynGraphResponseSchema.js';
 import {liquidityPoolsQuery} from './SovrynGraphQueries.js';
-import {ChainsIds} from 'src/types/ChainsIds';
+import {ChainsIds} from '../../../types/ChainsIds.js';
 
 interface SovrynPoolsQueryResponse {
   data: {

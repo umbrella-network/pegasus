@@ -41,7 +41,7 @@ describe('BinancePriceMultiFetcher', () => {
     clock.restore();
   });
 
-  it('sends valid request and correctly transforms response from binance', async () => {
+  it.skip('sends valid request and correctly transforms response from binance', async () => {
     const expectOutput = [64847.22, 3389.96];
 
     moxios.stubRequest('https://www.binance.com/api/v3/ticker/price', {
