@@ -81,10 +81,11 @@ export class BinanceDataRepository extends CommonPriceDataRepository {
     return this.generateResults(results, params);
   }
 
-  private generateResults(results: BinancePriceModel[], inputs: BinancePriceInputParams[]): NumberOrUndefined[] {
+  // sortedResults must be sorted by timestamp in DESC way
+  private generateResults(sortedResults: BinancePriceModel[], inputs: BinancePriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
-    results.forEach(({symbol, value}) => {
+    sortedResults.forEach(({symbol, value}) => {
       if (map[symbol]) return; // already set newest price
 
       map[symbol] = parseFloat(value);

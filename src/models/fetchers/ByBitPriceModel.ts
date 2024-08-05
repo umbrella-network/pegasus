@@ -7,6 +7,6 @@ export class ByBitPriceModel extends CommonPriceModel {
   @prop({required: true, lowercase: true})
   symbol!: string;
 
-  @prop({default: undefined})
-  usdIndexPrice: number | undefined;
+  @prop({default: null})
+  usdIndexPrice!: number | null;
 }

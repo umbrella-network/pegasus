@@ -83,12 +83,10 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
 
   private generateResults(results: CoingeckoPriceModel[], inputs: CoingeckoPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
-
     const getSymbol = (id: string, currency: string) => `${id}-${currency}`;
 
     results.forEach(({id, currency, value}) => {
       const symbol = getSymbol(id, currency);
-
       if (map[symbol]) return; // already set newest price
 
       map[symbol] = parseFloat(value);
