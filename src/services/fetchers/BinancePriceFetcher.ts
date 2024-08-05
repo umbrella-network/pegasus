@@ -13,6 +13,7 @@ import {
   FetcherName,
   PriceValueType,
 } from '../../types/fetchers.js';
+
 import {BinanceDataRepository} from '../../repositories/fetchers/BinanceDataRepository.js';
 
 export interface BinancePriceInputParams {
@@ -55,7 +56,7 @@ export default class BinancePriceFetcher implements FeedFetcherInterface {
     const prices = await this.binanceDataRepository.getPrices(inputs, timestamp);
 
     const fetcherResults: FetcherResult = {
-      prices: prices.map((price, ix) => (price && inputs[ix].inverse ? 1.0 / price : price)),
+      prices: prices.map((price, ix) => (price !== undefined && inputs[ix].inverse ? 1.0 / price : price)),
       timestamp,
     };
 
@@ -85,10 +86,7 @@ export default class BinancePriceFetcher implements FeedFetcherInterface {
           return;
         }
 
-        return {
-          symbol,
-          price: value,
-        };
+        return {symbol, price: value};
       })
       .filter((e) => !!e) as ParsedResponse[];
   }
