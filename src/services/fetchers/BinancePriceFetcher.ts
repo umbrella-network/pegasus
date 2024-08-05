@@ -56,7 +56,9 @@ export default class BinancePriceFetcher implements FeedFetcherInterface {
     const prices = await this.binanceDataRepository.getPrices(inputs, timestamp);
 
     const fetcherResults: FetcherResult = {
-      prices: prices.map((price, ix) => (price !== undefined && inputs[ix].inverse ? 1.0 / price : price)),
+      prices: prices.map((price, ix) =>
+        price !== undefined && price != 0 && inputs[ix].inverse ? 1.0 / price : price,
+      ),
       timestamp,
     };
 
