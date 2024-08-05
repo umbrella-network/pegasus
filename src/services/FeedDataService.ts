@@ -5,7 +5,7 @@ import Settings from '../types/Settings.js';
 import {LeavesAndFeeds} from '../types/Consensus.js';
 import Leaf from '../types/Leaf.js';
 import {Logger} from 'winston';
-import {FeedsType} from '../types/Feed.js';
+import {ChainsId, FeedsType} from '../types/Feed.js';
 import {DeviationLeavesAndFeeds} from '../types/DeviationFeeds.js';
 import {IntervalTriggerFilter} from './deviationsFeeds/IntervalTriggerFilter.js';
 
@@ -31,7 +31,30 @@ export class FeedDataService {
     return {feeds: leavesAndFeeds};
   }
 
-  getParamsByFetcherName<T>(data: DeviationLeavesAndFeeds, fetcherName: string): T[] {
+  public getParamsByFetcherName<T>(data: DeviationLeavesAndFeeds, fetcherName: string): T[] {
+    const {feeds} = data;
+
+    if (!feeds || Object.keys(feeds).length === 0) {
+      return [];
+    }
+
+    const fetcherParams = [];
+
+    for (const [i, feed] of Object.entries(feeds)) {
+      const feedInput = feed.inputs.find((entry) => {
+        return entry.fetcher.name === fetcherName;
+      });
+
+      if (feedInput) {
+        const params = feedInput.fetcher.params as T;
+        fetcherParams.push({...params});
+      }
+    }
+
+    return fetcherParams;
+  }
+
+  public getOnchainChains(feedsType: FeedsType): ChainsId[] {
     const {feeds} = data;
 
     if (!feeds || Object.keys(feeds).length === 0) {

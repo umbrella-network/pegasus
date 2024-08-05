@@ -1,6 +1,4 @@
-import {inject, injectable} from "inversify";
-import {ValidatorRepository} from "../../repositories/ValidatorRepository";
-import {ChainsIds} from "../../types/ChainsIds";
+import {injectable} from "inversify";
 
 /*
   leader is selected in predictable, circular way,
@@ -11,11 +9,7 @@ import {ChainsIds} from "../../types/ChainsIds";
 */
 @injectable()
 export class LeaderSelector {
-  @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
-
-  apply(consensusTimestamp: number, roundLength: number, chainId: ChainsIds): string {
-    const validators = [];
-
+  apply(consensusTimestamp: number, validators: string[], roundLength: number): string {
     if (validators.length == 0) {
       return '';
     }

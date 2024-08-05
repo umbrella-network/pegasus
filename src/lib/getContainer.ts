@@ -1,15 +1,16 @@
 import {Container} from 'inversify';
-import Settings from '../types/Settings.js';
-import settings from '../config/settings.js';
 import {Logger} from 'winston';
 import logger from './logger.js';
+import {Redis} from 'ioredis';
+
+import Settings from '../types/Settings.js';
+import settings from '../config/settings.js';
 import PriceRepository from '../repositories/PriceRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedRepository} from '../repositories/FeedRepository.js';
 import {UniswapPoolService} from '../services/uniswap/UniswapPoolService.js';
 import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository.js';
-import {Redis} from 'ioredis';
 import {initRedis} from '../config/initRedis.js';
 import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository.js';
 import FeedProcessor from '../services/FeedProcessor.js';
@@ -17,6 +18,9 @@ import {ContractAddressService} from '../services/ContractAddressService.js';
 import ByBitFetcher from '../services/fetchers/ByBitPriceFetcher.js';
 import FetcherAPILimit from '../types/FetcherAPILimit.js';
 import fetcherAPILimit from '../config/fetcherAPILimit.js';
+import {LeaderSelector} from '../services/multiChain/LeaderSelector.js';
+import {LeaderSelectorV2} from '../services/multiChain/LeaderSelectorV2.js';
+import {DeviationLeaderSelector} from '../services/deviationsFeeds/DeviationLeaderSelector.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -33,6 +37,9 @@ export function getContainer(): Container {
   container.bind(FeedProcessor).toSelf().inSingletonScope();
   container.bind(ContractAddressService).toSelf().inSingletonScope();
   container.bind(ByBitFetcher).toSelf().inSingletonScope();
+  container.bind(LeaderSelector).toSelf().inSingletonScope();
+  container.bind(LeaderSelectorV2).toSelf().inSingletonScope();
+  container.bind(DeviationLeaderSelector).toSelf().inSingletonScope();
 
   container
     .bind<Redis>('Redis')
