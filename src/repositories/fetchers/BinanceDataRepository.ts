@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
 import PriceSignerService from '../../services/PriceSignerService.js';
 import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceFetcher.js';
-import {BinancePriceModel} from '../../models/fetchers/BinancePriceModel';
+import {BinancePriceModel} from '../../models/fetchers/BinancePriceModel.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 
 export type BinanceDataRepositoryInput = {

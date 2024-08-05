@@ -1,5 +1,5 @@
 import {index, prop} from '@typegoose/typegoose';
-import {CommonPriceModel} from './CommonPriceModel.js';
+import {CommonPriceModel} from './common/CommonPriceModel.js';
 
 @index({id: 1})
 @index({currency: 1})
