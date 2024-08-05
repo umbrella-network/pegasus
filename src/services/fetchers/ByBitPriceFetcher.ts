@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, {AxiosResponse} from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
@@ -10,18 +10,22 @@ import {
   FeedFetcherInterface,
   FeedFetcherOptions,
   FetcherResult,
-  NumberOrUndefined,
   FetcherName,
   PriceValueType,
 } from '../../types/fetchers.js';
+
+import {ByBitDataRepository, ByBitDataRepositoryInput} from '../../repositories/fetchers/ByBitDataRepository.js';
 
 export interface ByBitPriceInputParams {
   symbol: string;
 }
 
+type ParsedResponse = {symbol: string; usdIndexPrice: number | undefined; lastPrice: number};
+
 @injectable()
-class ByBitPriceFetcher implements FeedFetcherInterface {
+export default class ByBitPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
+  @inject(ByBitDataRepository) byBitDataRepository!: ByBitDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
 
@@ -43,19 +47,13 @@ class ByBitPriceFetcher implements FeedFetcherInterface {
       timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
     });
 
-    if (response.status !== 200) {
-      throw new Error(response.data);
-    }
+    const {data, timestamp} = this.parseResponse(response);
+    await this.savePrices(timestamp, data);
 
-    if (response.data.Response === 'Error') {
-      throw new Error(response.data.Message);
-    }
+    const prices = await this.byBitDataRepository.getPrices(inputs, timestamp);
+    const fetcherResult = {prices, timestamp};
 
-    const fetcherResult = {
-      prices: this.resolveFeeds(inputs, response.data.result.list),
-      timestamp: this.timeService.apply(),
-    };
-
+    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
@@ -67,30 +65,59 @@ class ByBitPriceFetcher implements FeedFetcherInterface {
     return fetcherResult;
   }
 
-  private resolveFeeds(inputs: ByBitPriceInputParams[], priceList: Record<string, string>[]): NumberOrUndefined[] {
-    const outputMap = new Map<string, NumberOrUndefined>();
-
-    inputs.forEach((input) => {
-      outputMap.set(input.symbol, undefined);
+  private async savePrices(timestamp: number, parsed: ParsedResponse[]): Promise<void> {
+    const allData: ByBitDataRepositoryInput[] = parsed.map((data) => {
+      return {
+        timestamp,
+        value: data.lastPrice,
+        usdIndexPrice: data.usdIndexPrice,
+        params: {
+          symbol: data.symbol,
+        },
+      };
     });
 
-    for (const price of priceList) {
-      if (outputMap.has(price.symbol)) {
-        const priceValue = Number(price.usdIndexPrice);
+    await this.byBitDataRepository.save(allData);
+  }
 
-        if (!priceValue || isNaN(priceValue)) {
-          this.logger.error(`${this.logPrefix} couldn't extract price for ${price.symbol}`);
-          continue;
-        }
+  private parseResponse(response: AxiosResponse): {data: ParsedResponse[]; timestamp: number} {
+    const output: ParsedResponse[] = [];
 
-        outputMap.set(price.symbol, priceValue);
-
-        this.logger.debug(`${this.logPrefix} resolved price(usdIndexPrice): ${price.symbol}: ${priceValue}`);
-      }
+    if (response.status !== 200) {
+      this.logger.error(`${this.logPrefix} status ${response.status}`);
+      return {data: [], timestamp: 0};
     }
 
-    return inputs.map((input) => outputMap.get(input.symbol));
+    if (response.data.retMsg !== 'OK') {
+      this.logger.error(`${this.logPrefix} error: ${response.data.retMsg}`);
+      return {data: [], timestamp: 0};
+    }
+
+    if (response.data.Response === 'Error') {
+      this.logger.error(`${this.logPrefix} error: ${response.data.Message}`);
+      return {data: [], timestamp: 0};
+    }
+
+    response.data.result.list.forEach((asset: {symbol: string; usdIndexPrice?: string; lastPrice: string}) => {
+      if (!asset.lastPrice) {
+        this.logger.warn(`${this.logPrefix} lastPrice missing for ${asset.symbol}`);
+        return;
+      }
+
+      const lastPrice = parseFloat(asset.lastPrice);
+      const usdIndexPrice = asset.usdIndexPrice ? parseFloat(asset.usdIndexPrice) : undefined;
+
+      if (isNaN(lastPrice)) {
+        this.logger.error(`${this.logPrefix} lastPrice NaN: ${asset.symbol}: ${asset.lastPrice}`);
+        return;
+      }
+
+      output.push({symbol: asset.symbol, usdIndexPrice, lastPrice});
+      this.logger.debug(`${this.logPrefix} resolved price: ${asset.symbol}: ${lastPrice} / ${usdIndexPrice}`);
+    });
+
+    this.logger.debug(`${this.logPrefix} time: ${response.data.result.time}`);
+
+    return {data: output, timestamp: parseInt(response.data.result.time) / 1000};
   }
 }
-
-export default ByBitPriceFetcher;

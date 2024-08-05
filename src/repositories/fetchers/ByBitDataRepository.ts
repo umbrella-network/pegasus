@@ -5,41 +5,42 @@ import {Logger} from 'winston';
 import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
 import PriceSignerService from '../../services/PriceSignerService.js';
 import Settings from '../../types/Settings.js';
-import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceFetcher.js';
-import {CoingeckoPriceModel} from '../../models/fetchers/CoingeckoPriceModel.js';
+import {ByBitPriceInputParams} from '../../services/fetchers/ByBitPriceFetcher.js';
+import {ByBitPriceModel} from '../../models/fetchers/ByBitPriceModel.js';
 
-export type CoingeckoDataRepositoryInput = {
-  params: CoingeckoPriceInputParams;
+export type ByBitDataRepositoryInput = {
+  params: ByBitPriceInputParams;
   value: number;
+  usdIndexPrice?: number;
   timestamp: number;
 };
 
 @injectable()
-export class CoingeckoDataRepository {
+export class ByBitDataRepository {
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
   @inject('Logger') private logger!: Logger;
   @inject('Settings') settings!: Settings;
 
-  private logPrefix = '[CoingeckoDataRepository]';
+  private logPrefix = '[ByBitDataRepository]';
 
-  async save(dataArr: CoingeckoDataRepositoryInput[]): Promise<void> {
-    const payloads: CoingeckoPriceModel[] = [];
+  async save(dataArr: ByBitDataRepositoryInput[]): Promise<void> {
+    const payloads: ByBitPriceModel[] = [];
     const hashVersion = 1;
 
     const signatures = await Promise.all(
-      dataArr.map(({value, params, timestamp}) => {
-        const messageToSign = this.createMessageToSign(params, value, timestamp, hashVersion);
+      dataArr.map(({value, usdIndexPrice, params, timestamp}) => {
+        const messageToSign = this.createMessageToSign(params, value, usdIndexPrice, timestamp, hashVersion);
         return this.priceSignerService.sign(messageToSign);
       }),
     );
 
-    dataArr.forEach(({value, params, timestamp}, ix) => {
+    dataArr.forEach(({value, usdIndexPrice, params, timestamp}, ix) => {
       const {signerAddress, signature, hash} = signatures[ix];
 
       payloads.push({
-        id: params.id,
-        currency: params.currency,
+        symbol: params.symbol,
         value: value.toString(),
+        usdIndexPrice,
         valueType: PriceValueType.Price,
         timestamp,
         hashVersion,
@@ -52,8 +53,8 @@ export class CoingeckoDataRepository {
     await this.savePrices(payloads);
   }
 
-  private async savePrices(data: CoingeckoPriceModel[]): Promise<void> {
-    const model = getModelForClass(CoingeckoPriceModel);
+  private async savePrices(data: ByBitPriceModel[]): Promise<void> {
+    const model = getModelForClass(ByBitPriceModel);
 
     try {
       await model.bulkWrite(
@@ -67,49 +68,46 @@ export class CoingeckoDataRepository {
   }
 
   private createMessageToSign(
-    data: CoingeckoPriceInputParams,
+    data: ByBitPriceInputParams,
     value: number,
+    usdIndexPrice: number | undefined,
     timestamp: number,
     hashVersion: number,
   ): string {
     const dataToSign = [
       hashVersion.toString(),
-      FetcherName.CoingeckoPrice,
-      data.id.toLowerCase(),
-      data.currency.toLowerCase(),
+      FetcherName.ByBitPrice,
+      data.symbol,
       value.toString(10),
+      usdIndexPrice === undefined ? '' : usdIndexPrice.toString(10),
       timestamp.toString(),
     ];
 
     return dataToSign.join(';');
   }
 
-  async getPrices(params: CoingeckoPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
-    const or = params.map(({id, currency}) => {
-      return {id, currency};
+  async getPrices(params: ByBitPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    const or = params.map(({symbol}) => {
+      return {symbol};
     });
 
-    const results = await getModelForClass(CoingeckoPriceModel)
-      .find({$or: or, timestamp: {$gte: timestamp - 60}}, {value: 1, id: 1, currency: 1}) // TODO time limit
+    const results = await getModelForClass(ByBitPriceModel)
+      .find({$or: or, timestamp: {$gte: timestamp - 60}}, {value: 1, symbol: 1}) // TODO time limit
       .sort({timestamp: -1})
       .exec();
 
     return this.generateResults(results, params);
   }
 
-  private generateResults(results: CoingeckoPriceModel[], inputs: CoingeckoPriceInputParams[]): NumberOrUndefined[] {
+  private generateResults(results: ByBitPriceModel[], inputs: ByBitPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
-    const getSymbol = (id: string, currency: string) => `${id}-${currency}`;
-
-    results.forEach(({id, currency, value}) => {
-      const symbol = getSymbol(id, currency);
-
+    results.forEach(({symbol, value}) => {
       if (map[symbol]) return; // already set newest price
 
       map[symbol] = parseFloat(value);
     });
 
-    return inputs.map(({id, currency}) => map[getSymbol(id, currency).toLowerCase()]);
+    return inputs.map(({symbol}) => map[symbol]);
   }
 }

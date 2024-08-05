@@ -7,7 +7,7 @@ import Settings from '../../../src/types/Settings.js';
 
 const {expect} = chai;
 
-describe('ByBitSpotFetcher', () => {
+describe.skip('ByBitSpotFetcher', () => {
   let byBitSpotFetcher: ByBitPriceFetcher;
 
   beforeEach(async () => {

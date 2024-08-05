@@ -8,7 +8,7 @@ import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
 @injectable()
-export default class MultiFeedProcessorNew {
+export default class MultiFeedProcessor {
   @inject(CoingeckoPriceFetcher) coingeckoPriceFetcher!: CoingeckoPriceFetcher;
   @inject(BinancePriceFetcher) binancePriceFetcher!: BinancePriceFetcher;
   @inject(ByBitPriceFetcher) byBitSpotPriceFetcher!: ByBitPriceFetcher;

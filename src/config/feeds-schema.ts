@@ -41,6 +41,7 @@ export default {
             {$ref: '#/definitions/CoingeckoPrice'},
             {$ref: '#/definitions/OnChainData'},
             {$ref: '#/definitions/UniswapV3'},
+            {$ref: '#/definitions/UniswapV3Fetcher'}, // TODO: remove in newer versions
             {$ref: '#/definitions/OptionsPrice'},
             {$ref: '#/definitions/YearnVaultTokenPrice'},
             {$ref: '#/definitions/RandomNumber'},
@@ -49,6 +50,7 @@ export default {
             {$ref: '#/definitions/MetalPriceApi'},
             {$ref: '#/definitions/MetalsDevApiPrice'},
             {$ref: '#/definitions/SovrynPrice'},
+            {$ref: '#/definitions/SovrynPriceFetcher'}, // TODO: remove in newer versions
           ],
         },
         calculator: {
@@ -66,7 +68,7 @@ export default {
     },
     ByBitPrice: {
       properties: {
-        name: {const: 'ByBit'},
+        name: {const: 'ByBitPrice'},
         params: {
           type: 'object',
           properties: {
@@ -226,6 +228,25 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
+    UniswapV3Fetcher: {
+      // TODO: remove in newer versions
+      properties: {
+        name: {const: FetcherName.UniswapV3OLD},
+        params: {
+          type: 'object',
+          properties: {
+            fromChain: {type: 'string'},
+            base: {type: 'string'},
+            quote: {type: 'string'},
+            amountInDecimals: {type: 'number'},
+          },
+          required: ['fromChain', 'base', 'quote', 'amountInDecimals'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
     GoldApiPrice: {
       properties: {
         name: {const: FetcherName.GoldApiPrice},
@@ -325,6 +346,25 @@ export default {
     SovrynPrice: {
       properties: {
         name: {const: FetcherName.SovrynPrice},
+        params: {
+          type: 'object',
+          properties: {
+            base: {type: 'string'},
+            quote: {type: 'string'},
+            amountInDecimals: {type: 'number'},
+            quoteDecimals: {type: 'number'},
+          },
+          required: ['base', 'quote', 'amountInDecimals'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    SovrynPriceFetcher: {
+      // TODO: remove in newer versions
+      properties: {
+        name: {const: FetcherName.SovrynPriceOLD},
         params: {
           type: 'object',
           properties: {

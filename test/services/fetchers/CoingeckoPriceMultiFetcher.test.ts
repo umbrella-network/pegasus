@@ -2,12 +2,12 @@ import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
 import {CoingeckoPriceInputParams} from '../../../src/services/fetchers/CoingeckoPriceFetcher.js';
-import CoingeckoPriceMultiFetcher from '../../../src/services/fetchers/CoingeckoPriceFetcher.js';
+import CoingeckoPriceFetcher from '../../../src/services/fetchers/CoingeckoPriceFetcher.js';
 
 const {expect} = chai;
 
-describe('CoingeckoPriceMultiFetcher', () => {
-  const fetcher = Application.get(CoingeckoPriceMultiFetcher);
+describe('CoingeckoPriceFetcher', () => {
+  const fetcher = Application.get(CoingeckoPriceFetcher);
 
   const multiInputs: CoingeckoPriceInputParams[] = [
     {currency: 'USD', id: 'fortress'},
