@@ -1,12 +1,11 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
-import {Logger} from 'winston';
 
 import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
 import PriceSignerService from '../../services/PriceSignerService.js';
-import Settings from '../../types/Settings.js';
 import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceFetcher.js';
 import {CoingeckoPriceModel} from '../../models/fetchers/CoingeckoPriceModel.js';
+import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 
 export type CoingeckoDataRepositoryInput = {
   params: CoingeckoPriceInputParams;
@@ -15,10 +14,8 @@ export type CoingeckoDataRepositoryInput = {
 };
 
 @injectable()
-export class CoingeckoDataRepository {
+export class CoingeckoDataRepository extends CommonPriceDataRepository {
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
-  @inject('Logger') private logger!: Logger;
-  @inject('Settings') settings!: Settings;
 
   private logPrefix = '[CoingeckoDataRepository]';
 
@@ -28,7 +25,15 @@ export class CoingeckoDataRepository {
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
-        const messageToSign = this.createMessageToSign(params, value, timestamp, hashVersion);
+        const messageToSign = this.createMessageToSign(
+          value,
+          timestamp,
+          hashVersion,
+          FetcherName.CoingeckoPrice,
+          params.id.toLowerCase(),
+          params.currency.toLowerCase(),
+        );
+
         return this.priceSignerService.sign(messageToSign);
       }),
     );
@@ -66,31 +71,13 @@ export class CoingeckoDataRepository {
     }
   }
 
-  private createMessageToSign(
-    data: CoingeckoPriceInputParams,
-    value: number,
-    timestamp: number,
-    hashVersion: number,
-  ): string {
-    const dataToSign = [
-      hashVersion.toString(),
-      FetcherName.CoingeckoPrice,
-      data.id.toLowerCase(),
-      data.currency.toLowerCase(),
-      value.toString(10),
-      timestamp.toString(),
-    ];
-
-    return dataToSign.join(';');
-  }
-
   async getPrices(params: CoingeckoPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
     const or = params.map(({id, currency}) => {
       return {id, currency};
     });
 
     const results = await getModelForClass(CoingeckoPriceModel)
-      .find({$or: or, timestamp: {$gte: timestamp - 60}}, {value: 1, id: 1, currency: 1}) // TODO time limit
+      .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1, id: 1, currency: 1})
       .sort({timestamp: -1})
       .exec();
 

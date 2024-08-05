@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {UniswapV3Pool} from '../models/UniswapV3Pool.js';
 import {ChainsIds} from '../types/ChainsIds.js';
 import Settings from '../types/Settings.js';
-import {DexProtocolName} from 'src/types/Dexes.js';
+import {DexProtocolName} from '../types/Dexes.js';
 
 type SavePoolParams = {
   chainId: string;

@@ -3,48 +3,46 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
 import PriceSignerService from '../../services/PriceSignerService.js';
-import {ByBitPriceInputParams} from '../../services/fetchers/ByBitPriceFetcher.js';
-import {ByBitPriceModel} from '../../models/fetchers/ByBitPriceModel.js';
+import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceFetcher.js';
+import {BinancePriceModel} from '../../models/fetchers/BinancePriceModel';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 
-export type ByBitDataRepositoryInput = {
-  params: ByBitPriceInputParams;
+export type BinanceDataRepositoryInput = {
   value: number;
-  usdIndexPrice?: number;
   timestamp: number;
+  params: BinancePriceInputParams;
 };
 
 @injectable()
-export class ByBitDataRepository extends CommonPriceDataRepository {
+export class BinanceDataRepository extends CommonPriceDataRepository {
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
 
-  private logPrefix = '[ByBitDataRepository]';
+  private logPrefix = '[BinanceDataRepository]';
 
-  async save(dataArr: ByBitDataRepositoryInput[]): Promise<void> {
-    const payloads: ByBitPriceModel[] = [];
+  async save(dataArr: BinanceDataRepositoryInput[]): Promise<void> {
+    const payloads: BinancePriceModel[] = [];
     const hashVersion = 1;
 
     const signatures = await Promise.all(
-      dataArr.map(({value, usdIndexPrice, params, timestamp}) => {
+      dataArr.map(({value, params, timestamp}) => {
         const messageToSign = this.createMessageToSign(
           value,
           timestamp,
           hashVersion,
-          FetcherName.ByBitPrice,
+          FetcherName.BinancePrice,
           params.symbol,
-          usdIndexPrice === undefined ? '' : usdIndexPrice.toString(10),
         );
+
         return this.priceSignerService.sign(messageToSign);
       }),
     );
 
-    dataArr.forEach(({value, usdIndexPrice, params, timestamp}, ix) => {
+    dataArr.forEach(({value, params, timestamp}, ix) => {
       const {signerAddress, signature, hash} = signatures[ix];
 
       payloads.push({
         symbol: params.symbol,
         value: value.toString(),
-        usdIndexPrice,
         valueType: PriceValueType.Price,
         timestamp,
         hashVersion,
@@ -57,8 +55,8 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  private async savePrices(data: ByBitPriceModel[]): Promise<void> {
-    const model = getModelForClass(ByBitPriceModel);
+  private async savePrices(data: BinancePriceModel[]): Promise<void> {
+    const model = getModelForClass(BinancePriceModel);
 
     try {
       await model.bulkWrite(
@@ -71,20 +69,22 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
     }
   }
 
-  async getPrices(params: ByBitPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
-    const or = params.map(({symbol}) => {
-      return {symbol};
-    });
-
-    const results = await getModelForClass(ByBitPriceModel)
-      .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1, symbol: 1})
+  async getPrices(params: BinancePriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    const results = await getModelForClass(BinancePriceModel)
+      .find(
+        {
+          symbol: {$in: params.map((p) => p.symbol)},
+          timestamp: {$gte: timestamp - this.priceTimeWindow},
+        },
+        {value: 1, symbol: 1},
+      )
       .sort({timestamp: -1})
       .exec();
 
     return this.generateResults(results, params);
   }
 
-  private generateResults(results: ByBitPriceModel[], inputs: ByBitPriceInputParams[]): NumberOrUndefined[] {
+  private generateResults(results: BinancePriceModel[], inputs: BinancePriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
     results.forEach(({symbol, value}) => {

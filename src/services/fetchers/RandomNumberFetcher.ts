@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 import {BaseProvider} from '@ethersproject/providers';
 import {ChainsIds} from '../../types/ChainsIds.js';
 import {ProviderRepository} from '../../repositories/ProviderRepository.js';
-import {FeedFetcherOptions} from 'src/types/fetchers.js';
+import {FeedFetcherOptions} from '../../types/fetchers.js';
 
 @injectable()
 class RandomNumberFetcher {
