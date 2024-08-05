@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- dign data fetched by any fetcher
+- option to enable new features globally at once in all nodes
+
+### Changed
+- save all fetchers data into DB
+- adjust leader selection to allow for different list of validators per blockchain
 
 ## [7.29.8] - 2024-08-01
 ### Fixed
