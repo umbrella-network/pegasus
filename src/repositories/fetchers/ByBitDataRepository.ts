@@ -11,6 +11,7 @@ import {ByBitPriceModel} from '../../models/fetchers/ByBitPriceModel.js';
 export type ByBitDataRepositoryInput = {
   params: ByBitPriceInputParams;
   value: number;
+  usdIndexPrice?: number;
   timestamp: number;
 };
 
@@ -27,18 +28,19 @@ export class ByBitDataRepository {
     const hashVersion = 1;
 
     const signatures = await Promise.all(
-      dataArr.map(({value, params, timestamp}) => {
-        const messageToSign = this.createMessageToSign(params, value, timestamp, hashVersion);
+      dataArr.map(({value, usdIndexPrice, params, timestamp}) => {
+        const messageToSign = this.createMessageToSign(params, value, usdIndexPrice, timestamp, hashVersion);
         return this.priceSignerService.sign(messageToSign);
       }),
     );
 
-    dataArr.forEach(({value, params, timestamp}, ix) => {
+    dataArr.forEach(({value, usdIndexPrice, params, timestamp}, ix) => {
       const {signerAddress, signature, hash} = signatures[ix];
 
       payloads.push({
         symbol: params.symbol,
         value: value.toString(),
+        usdIndexPrice,
         valueType: PriceValueType.Price,
         timestamp,
         hashVersion,
@@ -68,6 +70,7 @@ export class ByBitDataRepository {
   private createMessageToSign(
     data: ByBitPriceInputParams,
     value: number,
+    usdIndexPrice: number | undefined,
     timestamp: number,
     hashVersion: number,
   ): string {
@@ -76,6 +79,7 @@ export class ByBitDataRepository {
       FetcherName.ByBitPrice,
       data.symbol,
       value.toString(10),
+      usdIndexPrice === undefined ? '' : usdIndexPrice.toString(10),
       timestamp.toString(),
     ];
 

@@ -20,7 +20,7 @@ export interface ByBitPriceInputParams {
   symbol: string;
 }
 
-type ParsedResponse = {symbol: string; value: number};
+type ParsedResponse = {symbol: string; usdIndexPrice: number | undefined; lastPrice: number};
 
 @injectable()
 export default class ByBitPriceFetcher implements FeedFetcherInterface {
@@ -47,9 +47,8 @@ export default class ByBitPriceFetcher implements FeedFetcherInterface {
       timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
     });
 
-    const timestamp = this.timeService.apply();
-    const parsed = this.parseResponse(response);
-    await this.savePrices(timestamp, parsed);
+    const {data, timestamp} = this.parseResponse(response);
+    await this.savePrices(timestamp, data);
 
     const prices = await this.byBitDataRepository.getPrices(inputs, timestamp);
     const fetcherResult = {prices, timestamp};
@@ -70,7 +69,8 @@ export default class ByBitPriceFetcher implements FeedFetcherInterface {
     const allData: ByBitDataRepositoryInput[] = parsed.map((data) => {
       return {
         timestamp,
-        value: data.value,
+        value: data.lastPrice,
+        usdIndexPrice: data.usdIndexPrice,
         params: {
           symbol: data.symbol,
         },
@@ -80,36 +80,44 @@ export default class ByBitPriceFetcher implements FeedFetcherInterface {
     await this.byBitDataRepository.save(allData);
   }
 
-  private parseResponse(response: AxiosResponse): ParsedResponse[] {
+  private parseResponse(response: AxiosResponse): {data: ParsedResponse[]; timestamp: number} {
     const output: ParsedResponse[] = [];
 
     if (response.status !== 200) {
       this.logger.error(`${this.logPrefix} status ${response.status}`);
-      return [];
+      return {data: [], timestamp: 0};
+    }
+
+    if (response.data.retMsg !== 'OK') {
+      this.logger.error(`${this.logPrefix} error: ${response.data.retMsg}`);
+      return {data: [], timestamp: 0};
     }
 
     if (response.data.Response === 'Error') {
       this.logger.error(`${this.logPrefix} error: ${response.data.Message}`);
-      return [];
+      return {data: [], timestamp: 0};
     }
 
-    response.data.result.list.forEach((asset: {symbol: string; usdIndexPrice: string}) => {
-      if (!asset.usdIndexPrice) {
-        this.logger.warn(`${this.logPrefix} error: ${response.data.Message}`);
+    response.data.result.list.forEach((asset: {symbol: string; usdIndexPrice?: string; lastPrice: string}) => {
+      if (!asset.lastPrice) {
+        this.logger.warn(`${this.logPrefix} lastPrice missing for ${asset.symbol}`);
         return;
       }
 
-      const value = parseFloat(asset.usdIndexPrice);
+      const lastPrice = parseFloat(asset.lastPrice);
+      const usdIndexPrice = asset.usdIndexPrice ? parseFloat(asset.usdIndexPrice) : undefined;
 
-      if (isNaN(value)) {
-        this.logger.error(`${this.logPrefix} resolved price: ${asset.symbol}: ${value}`);
+      if (isNaN(lastPrice)) {
+        this.logger.error(`${this.logPrefix} lastPrice NaN: ${asset.symbol}: ${asset.lastPrice}`);
         return;
       }
 
-      output.push({symbol: asset.symbol, value});
-      this.logger.debug(`${this.logPrefix} resolved price: ${asset.symbol}: ${value}`);
+      output.push({symbol: asset.symbol, usdIndexPrice, lastPrice});
+      this.logger.debug(`${this.logPrefix} resolved price: ${asset.symbol}: ${lastPrice} / ${usdIndexPrice}`);
     });
 
-    return output;
+    this.logger.debug(`${this.logPrefix} time: ${response.data.result.time}`);
+
+    return {data: output, timestamp: parseInt(response.data.result.time) / 1000};
   }
 }
