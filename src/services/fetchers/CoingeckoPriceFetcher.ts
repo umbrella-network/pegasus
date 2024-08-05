@@ -95,7 +95,7 @@ export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
       }
 
       if (response.data.Response === 'Error') {
-        this.logger.error(`${this.logPrefix} error: ${response.data.Message}`);
+        this.logger.error(`${this.logPrefix} error: ${response.data.Message || response.data.error}`);
         return;
       }
 
@@ -106,7 +106,7 @@ export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
           let value = response.data[id][currency];
 
           if (!value) {
-            this.logger.warn(`${this.logPrefix} error: ${response.data.Message}`);
+            this.logger.warn(`${this.logPrefix} error: ${response.data.Message || response.data.error}`);
             return;
           }
 
