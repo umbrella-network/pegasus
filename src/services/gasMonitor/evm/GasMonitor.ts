@@ -3,7 +3,7 @@ import {Logger} from 'winston';
 import {StaticJsonRpcProvider} from '@ethersproject/providers';
 
 import {ProviderRepository} from '../../../repositories/ProviderRepository.js';
-import {BlockchainGasRepository} from '../../../repositories/BlockchainGasRepository.js';
+import {TWAPGasRepository} from '../../../repositories/fetchers/TWAPGasRepository.js';
 import {BlockchainGasCalculator} from './BlockchainGasCalculator.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import Settings from '../../../types/Settings.js';
@@ -14,7 +14,7 @@ export class GasMonitor {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
-  @inject(BlockchainGasRepository) protected gasRepository!: BlockchainGasRepository;
+  @inject(TWAPGasRepository) protected gasRepository!: TWAPGasRepository;
   @inject(BlockchainGasCalculator) protected gasCalculator!: BlockchainGasCalculator;
   @inject(TwapFeedDetector) twapFeedDetector!: TwapFeedDetector;
 

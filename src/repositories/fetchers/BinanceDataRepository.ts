@@ -1,8 +1,7 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
-import PriceSignerService from '../../services/PriceSignerService.js';
 import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceFetcher.js';
 import {BinancePriceModel} from '../../models/fetchers/BinancePriceModel.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
@@ -15,8 +14,6 @@ export type BinanceDataRepositoryInput = {
 
 @injectable()
 export class BinanceDataRepository extends CommonPriceDataRepository {
-  @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
-
   private logPrefix = '[BinanceDataRepository]';
 
   async save(dataArr: BinanceDataRepositoryInput[]): Promise<void> {

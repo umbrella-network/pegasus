@@ -1,8 +1,7 @@
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
-import PriceSignerService from '../../services/PriceSignerService.js';
 import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceFetcher.js';
 import {CoingeckoPriceModel} from '../../models/fetchers/CoingeckoPriceModel.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
@@ -15,8 +14,6 @@ export type CoingeckoDataRepositoryInput = {
 
 @injectable()
 export class CoingeckoDataRepository extends CommonPriceDataRepository {
-  @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
-
   private logPrefix = '[CoingeckoDataRepository]';
 
   async save(dataArr: CoingeckoDataRepositoryInput[]): Promise<void> {
