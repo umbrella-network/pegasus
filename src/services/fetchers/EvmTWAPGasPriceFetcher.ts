@@ -1,6 +1,9 @@
 import {inject, injectable} from 'inversify';
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
+import {TWAPGasRepository} from '../../repositories/fetchers/TWAPGasRepository.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
+
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
@@ -8,8 +11,6 @@ import {
   FetcherResult,
   PriceValueType,
 } from '../../types/fetchers.js';
-import {BlockchainGasRepository} from '../../repositories/BlockchainGasRepository.js';
-import {ChainsIds} from '../../types/ChainsIds.js';
 
 /*
 PolygonGasPrice-TWAP20:
@@ -28,8 +29,10 @@ export interface EvmTWAPGasPriceInputParams {
 
 @injectable()
 class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
-  @inject(BlockchainGasRepository) protected gasRepository!: BlockchainGasRepository;
+  @inject(TWAPGasRepository) protected gasRepository!: TWAPGasRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+
+  private logPrefix = `[${FetcherName.TWAPGasPrice}]`;
 
   static fetcherSource = '';
 
@@ -37,7 +40,7 @@ class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
     const {twap = 20, chainId} = params;
     const {timestamp, symbols} = options;
 
-    if (!timestamp || timestamp <= 0) throw new Error(`invalid timestamp value: ${timestamp}`);
+    if (!timestamp || timestamp <= 0) throw new Error(`${this.logPrefix} invalid timestamp value: ${timestamp}`);
 
     const gas = await this.gasRepository.twap(chainId, twap, timestamp);
     if (!gas) return {prices: []};
@@ -46,6 +49,7 @@ class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
     // but UmbrellaFeeds is 8 decimals, so in order to have gas in wei in smart contract, we have to /1e8 not by 1e9
     const gasPrice = Number(gas) / 1e8;
 
+    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
       {prices: [gasPrice]},
       symbols,

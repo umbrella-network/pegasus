@@ -1,21 +1,12 @@
 import {index, prop} from '@typegoose/typegoose';
+import {CommonPriceModel} from './common/CommonPriceModel.js';
 
 @index({chainId: -1, blockNumber: -1}, {unique: true, name: 'BlockchainGasPerBlock'})
-class GasPrice {
-  @prop()
-  _id!: string;
-
+@index({chainId: 1, timestamp: 1})
+export class GasPriceModel extends CommonPriceModel {
   @prop()
   chainId!: string;
 
   @prop()
   blockNumber!: number;
-
-  @prop()
-  blockTimestamp!: number;
-
-  @prop()
-  gas!: string;
 }
-
-export default GasPrice;

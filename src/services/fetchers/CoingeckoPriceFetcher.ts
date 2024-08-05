@@ -37,7 +37,7 @@ export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
   @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
-  private logPrefix = '[CoingeckoPriceFetcher]';
+  private logPrefix = `[${FetcherName.CoingeckoPrice}]`;
   private timeout: number;
   private maxBatchSize: number;
   static fetcherSource = '';

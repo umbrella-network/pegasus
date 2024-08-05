@@ -3,12 +3,12 @@ import {inject, injectable} from 'inversify';
 
 import BasicWorker from './BasicWorker.js';
 import {ChainsIds} from '../types/ChainsIds.js';
-import {BlockchainGasRepository} from '../repositories/BlockchainGasRepository.js';
+import {TWAPGasRepository} from '../repositories/fetchers/TWAPGasRepository.js';
 import {GasMonitor} from '../services/gasMonitor/evm/GasMonitor.js';
 
 @injectable()
 class MetricsWorker extends BasicWorker {
-  @inject(BlockchainGasRepository) blockchainGasRepository!: BlockchainGasRepository;
+  @inject(TWAPGasRepository) blockchainGasRepository!: TWAPGasRepository;
   @inject(GasMonitor) gasMonitor!: GasMonitor;
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
