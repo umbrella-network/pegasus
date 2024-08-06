@@ -4,6 +4,8 @@ import {inject, injectable} from 'inversify';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
 import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds.js';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
+import {OnChainDataRepository} from "../../repositories/fetchers/OnChainDataRepository";
+import {Promise} from "mongoose";
 
 export interface OnChainDataInputParams {
   chainId?: ChainsIds; // default ETH
@@ -17,12 +19,14 @@ export interface OnChainDataInputParams {
 }
 
 @injectable()
-class OnChainDataFetcher {
+export class OnChainDataFetcher {
+  @inject(OnChainDataRepository) onChainDataRepository!: OnChainDataRepository;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(BlockchainProviderRepository) blockchainProviderRepository!: BlockchainProviderRepository;
 
   async apply(params: OnChainDataInputParams): Promise<string | number> {
-    const data = await this.fetchData(params);
+    const timestamp = await this.fetchData(params);
+    const data = await this.onChainDataRepository.getData([params], timestamp);
 
     if (params.decimals === undefined) {
       return ethers.BigNumber.from(data).toString();
@@ -32,16 +36,23 @@ class OnChainDataFetcher {
     return ethers.BigNumber.from(data).toNumber() / one;
   }
 
-  private async fetchData(params: OnChainDataInputParams): Promise<string> {
+  private async fetchData(params: OnChainDataInputParams): Promise<number> {
     const provider = this.resolveBlockchainProvider(params.chainId);
 
-    const data = await provider.call({
-      to: params.address,
-      data: OnChainDataFetcher.callData(params),
-    });
+    const [data, block] = await Promise.all([
+      provider.call({to: params.address, data: OnChainDataFetcher.callData(params)}),
+      provider.getBlock('latest')
+    ]);
 
     const returnedValues = ethers.utils.defaultAbiCoder.decode(params.outputs, data);
-    return returnedValues[params?.returnIndex || 0];
+
+    await this.onChainDataRepository.save([{
+      params,
+      value: returnedValues[params?.returnIndex || 0],
+      timestamp: block.timestamp
+    }]);
+
+    return block.timestamp;
   }
 
   private resolveBlockchainProvider(chainId: ChainsIds | undefined): ethers.providers.StaticJsonRpcProvider {
