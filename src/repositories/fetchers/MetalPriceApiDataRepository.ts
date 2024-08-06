@@ -14,7 +14,7 @@ export type MetalPriceApiDataRepositoryInput = {
 
 @injectable()
 export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[GoldApiDataRepository]';
+  private logPrefix = '[MetalPriceApiDataRepository]';
 
   async save(dataArr: MetalPriceApiDataRepositoryInput[]): Promise<void> {
     const payloads: MetalPriceApiModel[] = [];

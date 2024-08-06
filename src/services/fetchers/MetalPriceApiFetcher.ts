@@ -75,6 +75,8 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
       const pricePerGram = pricePerTroyOunce / GRAMS_PER_TROY_OUNCE;
       const timestamp = this.timeService.apply();
 
+      this.logger.debug(`${this.logPrefix} resolved price per gram: ${symbol}/${currency}: ${pricePerGram}`);
+
       await this.metalPriceApiDataRepository.save([
         {
           value: pricePerGram,
@@ -83,8 +85,8 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
         },
       ]);
 
-      const result = {prices: [pricePerGram], timestamp};
-      this.logger.debug(`${this.logPrefix} resolved price per gram: ${symbol}/${currency}: ${pricePerGram}`);
+      const [price] = await this.metalPriceApiDataRepository.getPrices([params], timestamp);
+      const result = {prices: [price], timestamp};
 
       // TODO this will be deprecated once we fully switch to DB and have dedicated charts
       await this.priceDataRepository.saveFetcherResults(
