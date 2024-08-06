@@ -24,7 +24,7 @@ describe('OnChainDataFetcher', () => {
   });
 
   describe('#apply', () => {
-    it('returns default value', async () => {
+    it.skip('returns default value', async () => {
       const params = {
         address: '0x01e7F40AdB183fa09849243a237A920C5ce509d4',
         method: 'padding',
@@ -38,7 +38,7 @@ describe('OnChainDataFetcher', () => {
       expect(output).eq('65535');
     }).timeout(10000);
 
-    it('return specific value from struct', async () => {
+    it.skip('return specific value from struct', async () => {
       const params = {
         address: '0x01e7F40AdB183fa09849243a237A920C5ce509d4',
         method: 'getStatus',

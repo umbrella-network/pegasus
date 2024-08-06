@@ -12,6 +12,8 @@ export type MetalPriceApiDataRepositoryInput = {
   timestamp: number;
 };
 
+// TODO 2024-08-06T13:43:11.854Z error: [MetalPriceApi] An error occurred while fetching metal prices: TypeError:
+//  Cannot read properties of undefined (reading 'XAU')
 @injectable()
 export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
   private logPrefix = '[MetalPriceApiDataRepository]';
