@@ -54,18 +54,17 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
   }
 
   async save(gas: BlockchainGas): Promise<void> {
-    const hashVersion = 1;
     const id = `${gas.chainId}@${gas.blockNumber}`;
 
     const messageToSign = this.createMessageToSign(
       gas.gas,
       gas.blockTimestamp,
-      hashVersion,
+      this.hashVersion,
       FetcherName.TWAPGasPrice,
       gas.blockNumber.toString(10),
     );
 
-    const {hash, signature, signerAddress} = await this.priceSignerService.sign(messageToSign);
+    const {hash, signature, signerAddress, hashVersion} = await this.priceSignerService.sign(messageToSign);
 
     const doc = await getModelForClass(GasPriceModel).create({
       _id: id,

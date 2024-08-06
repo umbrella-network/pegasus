@@ -123,7 +123,7 @@ describe('UniswapV3MultiFetcher', () => {
       });
 
       it('responds with values from uniswapV3Helper', async () => {
-        const result = await uniswapV3MultiFetcher.apply(params, {symbols: []});
+        const result = await uniswapV3MultiFetcher.apply(params, {symbols: ['a', 'b', 'c']});
         expect(result.prices).to.eql([100, 200, undefined]);
       });
     });

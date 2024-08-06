@@ -3,21 +3,21 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {GoldApiPriceModel} from '../../models/fetchers/GoldApiPriceModel.js';
-import {GoldApiPriceInputParams} from '../../services/fetchers/GoldApiPriceFetcher.js';
+import {MetalPriceApiModel} from '../../models/fetchers/MetalPriceApiModel.js';
+import {MetalPriceApiInputParams} from '../../services/fetchers/MetalPriceApiFetcher.js';
 
-export type GoldApiDataRepositoryInput = {
-  params: GoldApiPriceInputParams;
+export type MetalPriceApiDataRepositoryInput = {
+  params: MetalPriceApiInputParams;
   value: number;
   timestamp: number;
 };
 
 @injectable()
-export class GoldApiDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[GoldApiDataRepository]';
+export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
+  private logPrefix = '[MetalPriceApiDataRepository]';
 
-  async save(dataArr: GoldApiDataRepositoryInput[]): Promise<void> {
-    const payloads: GoldApiPriceModel[] = [];
+  async save(dataArr: MetalPriceApiDataRepositoryInput[]): Promise<void> {
+    const payloads: MetalPriceApiModel[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
@@ -25,7 +25,7 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
           value,
           timestamp,
           this.hashVersion,
-          FetcherName.GoldApiPrice,
+          FetcherName.MetalPriceApi,
           params.symbol,
           params.currency,
         );
@@ -53,8 +53,8 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  private async savePrices(data: GoldApiPriceModel[]): Promise<void> {
-    const model = getModelForClass(GoldApiPriceModel);
+  private async savePrices(data: MetalPriceApiModel[]): Promise<void> {
+    const model = getModelForClass(MetalPriceApiModel);
 
     try {
       await model.bulkWrite(
@@ -67,12 +67,12 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
     }
   }
 
-  async getPrices(params: GoldApiPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: MetalPriceApiInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
     const or = params.map(({symbol, currency}) => {
       return {symbol, currency};
     });
 
-    const results = await getModelForClass(GoldApiPriceModel)
+    const results = await getModelForClass(MetalPriceApiModel)
       .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1, symbol: 1, currency: 1})
       .sort({timestamp: -1})
       .exec();
@@ -81,7 +81,10 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestPrices(sortedResults: GoldApiPriceModel[], inputs: GoldApiPriceInputParams[]): NumberOrUndefined[] {
+  private getNewestPrices(
+    sortedResults: MetalPriceApiModel[],
+    inputs: MetalPriceApiInputParams[],
+  ): NumberOrUndefined[] {
     const map: Record<string, number> = {};
     const getSymbol = (symbol: string, currency: string) => `${symbol}-${currency}`;
 

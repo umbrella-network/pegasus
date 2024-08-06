@@ -12,6 +12,7 @@ export abstract class CommonPriceDataRepository {
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
 
   protected priceTimeWindow = 20; // TODO time limit
+  protected hashVersion = 1;
 
   protected createMessageToSign(
     value: number | bigint,
