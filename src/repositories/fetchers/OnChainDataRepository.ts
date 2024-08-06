@@ -104,14 +104,8 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
       map[key] = data.value;
     });
 
-
     return inputs.map((data) => {
-      const key = getSymbol(
-        (data.chainId as string).toLowerCase(),
-        data.address.toLowerCase(),
-        data.method,
-        data.args
-      );
+      const key = getSymbol((data.chainId as string).toLowerCase(), data.address.toLowerCase(), data.method, data.args);
 
       return map[key];
     });
