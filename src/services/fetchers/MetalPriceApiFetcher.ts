@@ -12,8 +12,8 @@ import {
 } from '../../types/fetchers.js';
 
 import Settings from '../../types/Settings.js';
-import {MetalPriceApiDataRepository} from "../../repositories/fetchers/MetalPriceApiDataRepository";
-import TimeService from "../TimeService";
+import {MetalPriceApiDataRepository} from '../../repositories/fetchers/MetalPriceApiDataRepository.js';
+import TimeService from '../TimeService.js';
 
 const GRAMS_PER_TROY_OUNCE = 31.1035;
 
@@ -75,11 +75,13 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
       const pricePerGram = pricePerTroyOunce / GRAMS_PER_TROY_OUNCE;
       const timestamp = this.timeService.apply();
 
-      await this.metalPriceApiDataRepository.save([{
-        value: pricePerGram,
-        timestamp,
-        params
-      }]);
+      await this.metalPriceApiDataRepository.save([
+        {
+          value: pricePerGram,
+          timestamp,
+          params,
+        },
+      ]);
 
       const result = {prices: [pricePerGram], timestamp};
       this.logger.debug(`${this.logPrefix} resolved price per gram: ${symbol}/${currency}: ${pricePerGram}`);

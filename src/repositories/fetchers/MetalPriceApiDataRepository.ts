@@ -3,8 +3,8 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {MetalPriceApiModel} from "../../models/fetchers/MetalPriceApiModel.js";
-import {MetalPriceApiInputParams} from "../../services/fetchers/MetalPriceApiFetcher.js";
+import {MetalPriceApiModel} from '../../models/fetchers/MetalPriceApiModel.js';
+import {MetalPriceApiInputParams} from '../../services/fetchers/MetalPriceApiFetcher.js';
 
 export type MetalPriceApiDataRepositoryInput = {
   params: MetalPriceApiInputParams;
@@ -81,7 +81,10 @@ export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestPrices(sortedResults: MetalPriceApiModel[], inputs: MetalPriceApiInputParams[]): NumberOrUndefined[] {
+  private getNewestPrices(
+    sortedResults: MetalPriceApiModel[],
+    inputs: MetalPriceApiInputParams[],
+  ): NumberOrUndefined[] {
     const map: Record<string, number> = {};
     const getSymbol = (symbol: string, currency: string) => `${symbol}-${currency}`;
 
