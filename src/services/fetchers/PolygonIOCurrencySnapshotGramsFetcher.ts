@@ -5,7 +5,7 @@ import {
   FeedFetcherOptions,
   FeedFetcherInterface,
   FetcherResult,
-  PriceValueType,
+  FetchedValueType,
 } from '../../types/fetchers.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';
@@ -63,7 +63,7 @@ export default class PolygonIOCurrencySnapshotGramsFetcher
       {prices: [price]},
       symbols,
       FetcherName.PolygonIOCurrencySnapshotGrams,
-      PriceValueType.Price,
+      FetchedValueType.Price,
       PolygonIOCurrencySnapshotGramsFetcher.fetcherSource,
     );
 

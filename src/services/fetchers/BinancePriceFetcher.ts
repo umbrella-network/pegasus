@@ -11,7 +11,7 @@ import {
   FeedFetcherOptions,
   FetcherResult,
   FetcherName,
-  PriceValueType,
+  FetchedValueType,
 } from '../../types/fetchers.js';
 
 import {BinanceDataRepository} from '../../repositories/fetchers/BinanceDataRepository.js';
@@ -66,7 +66,7 @@ export default class BinancePriceFetcher implements FeedFetcherInterface {
       fetcherResults,
       options.symbols,
       FetcherName.BinancePrice,
-      PriceValueType.Price,
+      FetchedValueType.Price,
       BinancePriceFetcher.fetcherSource,
     );
 

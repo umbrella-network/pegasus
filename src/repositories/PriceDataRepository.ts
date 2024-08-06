@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
 
-import {FetcherResult, PriceValueType, StringOrUndefined} from '../types/fetchers.js';
+import {FetcherResult, FetchedValueType, StringOrUndefined} from '../types/fetchers.js';
 import PriceSignerService from '../services/PriceSignerService.js';
 import {PriceDataModel} from '../models/PriceDataModel.js';
 import Settings from '../types/Settings.js';
@@ -12,7 +12,7 @@ import TimeService from '../services/TimeService.js';
 export type PriceDataPayload = {
   fetcher: string;
   value: string;
-  valueType: PriceValueType;
+  valueType: FetchedValueType;
   timestamp: number; // timestamp stamp associated with the value (not the timestamp to when it is stored)
   feedBase: string; // base configurable on feeds.yaml e.g. WBTC-USDC -> base is WBTC
   feedQuote: string; // quote configurable on feeds.yaml e.g. WBTC-USDC -> quote is USDC
@@ -34,7 +34,7 @@ export class PriceDataRepository {
     fetcherResult: FetcherResult,
     symbols: StringOrUndefined[],
     fetcherName: string,
-    valueType: PriceValueType,
+    valueType: FetchedValueType,
     fetcherSource: string,
   ): Promise<void> {
     if (fetcherResult.prices.length != symbols.length) {

@@ -19,7 +19,7 @@ export type FeedFetcherOptions = {
   timestamp?: number;
 };
 
-export enum PriceValueType {
+export enum FetchedValueType {
   Price = 'Price',
 }
 

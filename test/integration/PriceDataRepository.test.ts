@@ -7,7 +7,7 @@ import {loadTestEnv} from '../helpers/loadTestEnv.js';
 import {PriceDataPayload, PriceDataRepository} from '../../src/repositories/PriceDataRepository.js';
 import {DeviationSignerRepository} from '../../src/repositories/DeviationSignerRepository.js';
 import {PriceDataModel} from '../../src/models/PriceDataModel.js';
-import {FetcherName, PriceValueType} from '../../src/types/fetchers.js';
+import {FetcherName, FetchedValueType} from '../../src/types/fetchers.js';
 import PriceSignerService from '../../src/services/PriceSignerService.js';
 import {getTestContainer} from '../helpers/getTestContainer.js';
 import Settings from '../../src/types/Settings.js';
@@ -59,7 +59,7 @@ describe.skip('PriceDataRepository', () => {
       {
         fetcher: FetcherName.SovrynPrice,
         value: '2912',
-        valueType: PriceValueType.Price,
+        valueType: FetchedValueType.Price,
         timestamp: 0,
         feedBase: 'BTC',
         feedQuote: 'USD',

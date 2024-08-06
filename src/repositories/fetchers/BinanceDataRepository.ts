@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
+import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceFetcher.js';
 import {BinancePriceModel} from '../../models/fetchers/BinancePriceModel.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
@@ -39,7 +39,7 @@ export class BinanceDataRepository extends CommonPriceDataRepository {
       payloads.push({
         symbol: params.symbol,
         value: value.toString(),
-        valueType: PriceValueType.Price,
+        valueType: FetchedValueType.Price,
         timestamp,
         hashVersion,
         signature,

@@ -10,7 +10,7 @@ import {
   FeedFetcherOptions,
   FetcherResult,
   FetcherName,
-  PriceValueType,
+  FetchedValueType,
 } from '../../types/fetchers.js';
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
@@ -78,7 +78,7 @@ export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
       fetcherResult,
       options.symbols,
       FetcherName.CoingeckoPrice,
-      PriceValueType.Price,
+      FetchedValueType.Price,
       CoingeckoPriceFetcher.fetcherSource,
     );
 

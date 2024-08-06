@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
+import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {GoldApiPriceModel} from '../../models/fetchers/GoldApiPriceModel.js';
 import {GoldApiPriceInputParams} from '../../services/fetchers/GoldApiPriceFetcher.js';
@@ -41,7 +41,7 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
         symbol: params.symbol,
         currency: params.currency,
         value: value.toString(),
-        valueType: PriceValueType.Price,
+        valueType: FetchedValueType.Price,
         timestamp,
         hashVersion,
         signature,
