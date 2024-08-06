@@ -10,5 +10,5 @@ export class OnChainDataModel extends CommonPriceModel {
   targetAddress!: string;
 
   @prop({lowercase: true})
-  inputDataHash!: string; // hash(method,inputsTypes,args)
+  inputDataHash!: string; // hash(method,inputsTypes,args,returnIndex)
 }

@@ -5,6 +5,7 @@ import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
 import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds.js';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
 import {OnChainDataRepository} from '../../repositories/fetchers/OnChainDataRepository.js';
+import {FetcherName} from '../../types/fetchers.js';
 
 export interface OnChainDataInputParams {
   chainId?: ChainsIds; // default ETH
@@ -22,6 +23,8 @@ export class OnChainDataFetcher {
   @inject(OnChainDataRepository) onChainDataRepository!: OnChainDataRepository;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(BlockchainProviderRepository) blockchainProviderRepository!: BlockchainProviderRepository;
+
+  private logPrefix = `[${FetcherName.OnChainData}]`;
 
   async apply(params: OnChainDataInputParams): Promise<string | number> {
     const timestamp = await this.fetchData(params);
@@ -58,7 +61,7 @@ export class OnChainDataFetcher {
 
   private resolveBlockchainProvider(chainId: ChainsIds | undefined): ethers.providers.StaticJsonRpcProvider {
     if (chainId) {
-      if (NonEvmChainsIds.includes(chainId)) throw new Error(`[OnChainDataFetcher] ${chainId} not supported`);
+      if (NonEvmChainsIds.includes(chainId)) throw new Error(`${this.logPrefix} ${chainId} not supported`);
 
       const blockchain = this.blockchainRepository.get(chainId);
 
@@ -66,12 +69,12 @@ export class OnChainDataFetcher {
         return blockchain.provider.getRawProviderSync();
       }
 
-      if (chainId !== ChainsIds.ETH) throw new Error(`[OnChainDataFetcher] chainId:${chainId} is not supported`);
+      if (chainId !== ChainsIds.ETH) throw new Error(`${this.logPrefix} chainId:${chainId} is not supported`);
     }
 
     const ethProvider = this.blockchainProviderRepository.get(ChainsIds.ETH);
 
-    if (!ethProvider) throw new Error(`[OnChainDataFetcher] chainId:${chainId} is not found`);
+    if (!ethProvider) throw new Error(`${this.logPrefix} chainId:${chainId} is not found`);
 
     return ethProvider;
   }
