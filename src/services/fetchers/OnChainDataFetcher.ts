@@ -4,8 +4,7 @@ import {inject, injectable} from 'inversify';
 import {BlockchainRepository} from '../../repositories/BlockchainRepository.js';
 import {ChainsIds, NonEvmChainsIds} from '../../types/ChainsIds.js';
 import {BlockchainProviderRepository} from '../../repositories/BlockchainProviderRepository.js';
-import {OnChainDataRepository} from "../../repositories/fetchers/OnChainDataRepository";
-import {Promise} from "mongoose";
+import {OnChainDataRepository} from '../../repositories/fetchers/OnChainDataRepository.js';
 
 export interface OnChainDataInputParams {
   chainId?: ChainsIds; // default ETH
@@ -41,16 +40,18 @@ export class OnChainDataFetcher {
 
     const [data, block] = await Promise.all([
       provider.call({to: params.address, data: OnChainDataFetcher.callData(params)}),
-      provider.getBlock('latest')
+      provider.getBlock('latest'),
     ]);
 
     const returnedValues = ethers.utils.defaultAbiCoder.decode(params.outputs, data);
 
-    await this.onChainDataRepository.save([{
-      params,
-      value: returnedValues[params?.returnIndex || 0],
-      timestamp: block.timestamp
-    }]);
+    await this.onChainDataRepository.save([
+      {
+        params,
+        value: returnedValues[params?.returnIndex || 0],
+        timestamp: block.timestamp,
+      },
+    ]);
 
     return block.timestamp;
   }
