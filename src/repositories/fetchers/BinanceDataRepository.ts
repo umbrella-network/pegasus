@@ -78,11 +78,11 @@ export class BinanceDataRepository extends CommonPriceDataRepository {
       .sort({timestamp: -1})
       .exec();
 
-    return this.generateResults(results, params);
+    return this.getNewestPrices(results, params);
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private generateResults(sortedResults: BinancePriceModel[], inputs: BinancePriceInputParams[]): NumberOrUndefined[] {
+  private getNewestPrices(sortedResults: BinancePriceModel[], inputs: BinancePriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
     sortedResults.forEach(({symbol, value}) => {

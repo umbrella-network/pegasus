@@ -79,14 +79,15 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
       .sort({timestamp: -1})
       .exec();
 
-    return this.generateResults(results, params);
+    return this.getNewestPrices(results, params);
   }
 
-  private generateResults(results: GoldApiPriceModel[], inputs: GoldApiPriceInputParams[]): NumberOrUndefined[] {
+  // sortedResults must be sorted by timestamp in DESC way
+  private getNewestPrices(sortedResults: GoldApiPriceModel[], inputs: GoldApiPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
     const getSymbol = (symbol: string, currency: string) => `${symbol}-${currency}`;
 
-    results.forEach(({symbol, currency, value}) => {
+    sortedResults.forEach(({symbol, currency, value}) => {
       const key = getSymbol(symbol, currency);
       if (map[key]) return; // already set newest price
 

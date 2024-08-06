@@ -81,11 +81,11 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
       .sort({timestamp: -1})
       .exec();
 
-    return this.generateResults(results, params);
+    return this.getNewestPrices(results, params);
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private generateResults(sortedResults: ByBitPriceModel[], inputs: ByBitPriceInputParams[]): NumberOrUndefined[] {
+  private getNewestPrices(sortedResults: ByBitPriceModel[], inputs: ByBitPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
     sortedResults.forEach(({symbol, usdIndexPrice}) => {
