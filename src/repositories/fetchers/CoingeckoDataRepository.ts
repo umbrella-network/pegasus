@@ -82,7 +82,10 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestPrices(sortedResults: CoingeckoPriceModel[], inputs: CoingeckoPriceInputParams[]): NumberOrUndefined[] {
+  private getNewestPrices(
+    sortedResults: CoingeckoPriceModel[],
+    inputs: CoingeckoPriceInputParams[],
+  ): NumberOrUndefined[] {
     const map: Record<string, number> = {};
     const getSymbol = (id: string, currency: string) => `${id}-${currency}`;
 
