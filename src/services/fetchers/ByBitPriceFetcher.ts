@@ -116,7 +116,7 @@ export default class ByBitPriceFetcher implements FeedFetcherInterface {
       this.logger.debug(`${this.logPrefix} resolved price: ${asset.symbol}: ${lastPrice} / ${usdIndexPrice}`);
     });
 
-    const timestamp = parseInt(response.data.time) / 1000;
+    const timestamp = Math.trunc(parseInt(response.data.time) / 1000);
     this.logger.debug(`${this.logPrefix} time: ${timestamp} (raw: ${response.data.time})`);
     return {data: output, timestamp};
   }

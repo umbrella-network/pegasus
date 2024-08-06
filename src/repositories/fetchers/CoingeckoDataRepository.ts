@@ -78,17 +78,19 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
       .sort({timestamp: -1})
       .exec();
 
-    return this.generateResults(results, params);
+    return this.getNewestPrices(results, params);
   }
 
-  private generateResults(results: CoingeckoPriceModel[], inputs: CoingeckoPriceInputParams[]): NumberOrUndefined[] {
+  // sortedResults must be sorted by timestamp in DESC way
+  private getNewestPrices(
+    sortedResults: CoingeckoPriceModel[],
+    inputs: CoingeckoPriceInputParams[],
+  ): NumberOrUndefined[] {
     const map: Record<string, number> = {};
-
     const getSymbol = (id: string, currency: string) => `${id}-${currency}`;
 
-    results.forEach(({id, currency, value}) => {
+    sortedResults.forEach(({id, currency, value}) => {
       const symbol = getSymbol(id, currency);
-
       if (map[symbol]) return; // already set newest price
 
       map[symbol] = parseFloat(value);

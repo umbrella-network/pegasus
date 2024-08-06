@@ -41,7 +41,7 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
       payloads.push({
         symbol: params.symbol,
         value: value.toString(),
-        usdIndexPrice,
+        usdIndexPrice: usdIndexPrice ?? null,
         valueType: PriceValueType.Price,
         timestamp,
         hashVersion,
@@ -69,25 +69,29 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
   }
 
   async getPrices(params: ByBitPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
-    const or = params.map(({symbol}) => {
-      return {symbol};
-    });
-
     const results = await getModelForClass(ByBitPriceModel)
-      .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1, symbol: 1})
+      .find(
+        {
+          symbol: {$in: params.map((p) => p.symbol)},
+          timestamp: {$gte: timestamp - this.priceTimeWindow},
+          usdIndexPrice: {$ne: null},
+        },
+        {value: 1, usdIndexPrice: 1, symbol: 1},
+      )
       .sort({timestamp: -1})
       .exec();
 
-    return this.generateResults(results, params);
+    return this.getNewestPrices(results, params);
   }
 
-  private generateResults(results: ByBitPriceModel[], inputs: ByBitPriceInputParams[]): NumberOrUndefined[] {
+  // sortedResults must be sorted by timestamp in DESC way
+  private getNewestPrices(sortedResults: ByBitPriceModel[], inputs: ByBitPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
-    results.forEach(({symbol, value}) => {
-      if (map[symbol]) return; // already set newest price
+    sortedResults.forEach(({symbol, usdIndexPrice}) => {
+      if (map[symbol] || !usdIndexPrice) return; // already set newest price
 
-      map[symbol] = parseFloat(value);
+      map[symbol] = usdIndexPrice;
     });
 
     return inputs.map(({symbol}) => map[symbol]);

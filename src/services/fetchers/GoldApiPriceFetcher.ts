@@ -9,8 +9,11 @@ import {
   FetcherResult,
   PriceValueType,
 } from '../../types/fetchers.js';
+
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import Settings from '../../types/Settings.js';
+import TimeService from '../TimeService.js';
+import {GoldApiDataRepository} from '../../repositories/fetchers/GoldApiDataRepository.js';
 
 export interface GoldApiPriceInputParams {
   symbol: string;
@@ -20,6 +23,8 @@ export interface GoldApiPriceInputParams {
 @injectable()
 export default class GoldApiPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(GoldApiDataRepository) private goldApiDataRepository!: GoldApiDataRepository;
+  @inject(TimeService) timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private token: string;
@@ -51,6 +56,7 @@ export default class GoldApiPriceFetcher implements FeedFetcherInterface {
         `${this.logPrefix} Error fetching data for ${symbol}/${currency}: ${response.statusText}.` +
           `Error: ${response.data}`,
       );
+
       return {prices: []};
     }
 
@@ -61,17 +67,29 @@ export default class GoldApiPriceFetcher implements FeedFetcherInterface {
       return {prices: []};
     }
 
-    const result = {prices: [price_gram_24k]};
+    const timestamp = this.timeService.apply();
+
+    await this.goldApiDataRepository.save([
+      {
+        value: price_gram_24k,
+        timestamp,
+        params,
+      },
+    ]);
+
+    const prices = await this.goldApiDataRepository.getPrices([params], timestamp);
+
     this.logger.debug(`${this.logPrefix} resolved price: ${symbol}/${currency}: ${price_gram_24k}`);
 
+    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
-      result,
+      {prices, timestamp},
       symbols,
       FetcherName.MetalsDevApi,
       PriceValueType.Price,
       GoldApiPriceFetcher.fetcherSource,
     );
 
-    return result;
+    return {prices};
   }
 }
