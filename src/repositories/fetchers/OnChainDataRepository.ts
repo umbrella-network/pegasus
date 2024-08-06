@@ -29,7 +29,8 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
           FetcherName.OnChainData,
           params.chainId as string,
           params.address,
-          this.createInputDataHash(params),
+          params.method,
+          ...params.args,
         );
 
         return this.priceSignerService.sign(messageToSign);
@@ -42,7 +43,8 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
       payloads.push({
         chainId: params.chainId as string,
         targetAddress: params.address,
-        inputDataHash: this.createInputDataHash(params),
+        method: params.method,
+        inputArgs: params.args,
         value,
         valueType: FetchedValueType.Hex,
         timestamp,
@@ -54,17 +56,6 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
     });
 
     await this.savePrices(payloads);
-  }
-
-  private createInputDataHash(data: OnChainDataInputParams): string {
-    const msg = [
-      data.method,
-      ...data.inputs,
-      ...data.args,
-      data.returnIndex === undefined ? '' : data.returnIndex.toString(),
-    ];
-
-    return ethers.utils.id(msg.join(';'));
   }
 
   private async savePrices(data: OnChainDataModel[]): Promise<void> {
@@ -86,7 +77,8 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
       return {
         chainId: param.chainId,
         targetAddress: param.address,
-        inputDataHash: this.createInputDataHash(param),
+        method: param.method,
+        inputArgs: param.args,
       };
     });
 
@@ -101,18 +93,27 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestData(sortedResults: OnChainDataModel[], inputs: OnChainDataInputParams[]): StringOrUndefined[] {
     const map: Record<string, string> = {};
-    const getSymbol = (chainId: string, targetAddress: string, inputDataHash: string) =>
-      `${chainId}-${targetAddress}-${inputDataHash}`;
+
+    const getSymbol = (chainId: string, targetAddress: string, method: string, args: string[]) =>
+      ethers.utils.id([chainId, targetAddress, method, ...args].join(';'));
 
     sortedResults.forEach((data) => {
-      const key = getSymbol(data.chainId, data.targetAddress, data.inputDataHash);
+      const key = getSymbol(data.chainId, data.targetAddress, data.method, data.inputArgs);
       if (map[key]) return; // already set newest price
 
       map[key] = data.value;
     });
 
-    return inputs.map(
-      (data) => map[getSymbol(data.chainId as string, data.address, this.createInputDataHash(data)).toLowerCase()],
-    );
+
+    return inputs.map((data) => {
+      const key = getSymbol(
+        (data.chainId as string).toLowerCase(),
+        data.address.toLowerCase(),
+        data.method,
+        data.args
+      );
+
+      return map[key];
+    });
   }
 }

@@ -1,7 +1,8 @@
 import {index, prop} from '@typegoose/typegoose';
 import {CommonPriceModel} from './common/CommonPriceModel.js';
 
-@index({timestamp: -1, methodDataHash: 1, chainId: 1, targetAddress: 1}, {unique: true})
+@index({methodDataHash: 1, chainId: 1, targetAddress: 1, inputArgs: 1})
+@index({timestamp: -1, methodDataHash: 1, chainId: 1, targetAddress: 1, inputArgs: 1}, {unique: true})
 export class OnChainDataModel extends CommonPriceModel {
   @prop({required: true, lowercase: true})
   chainId!: string;
@@ -9,6 +10,9 @@ export class OnChainDataModel extends CommonPriceModel {
   @prop({lowercase: true})
   targetAddress!: string;
 
-  @prop({lowercase: true})
-  inputDataHash!: string; // hash(method,inputsTypes,args,returnIndex)
+  @prop()
+  method!: string;
+
+  @prop()
+  inputArgs!: string[];
 }
