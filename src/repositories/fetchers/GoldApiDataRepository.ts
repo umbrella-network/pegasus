@@ -2,7 +2,6 @@ import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
-import {ByBitPriceModel} from '../../models/fetchers/ByBitPriceModel.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {GoldApiPriceModel} from '../../models/fetchers/GoldApiPriceModel.js';
 import {GoldApiPriceInputParams} from '../../services/fetchers/GoldApiPriceFetcher.js';
@@ -56,7 +55,7 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
   }
 
   private async savePrices(data: GoldApiPriceModel[]): Promise<void> {
-    const model = getModelForClass(ByBitPriceModel);
+    const model = getModelForClass(GoldApiPriceModel);
 
     try {
       await model.bulkWrite(
