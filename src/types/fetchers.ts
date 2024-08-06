@@ -21,6 +21,7 @@ export type FeedFetcherOptions = {
 
 export enum FetchedValueType {
   Price = 'Price',
+  Hex = 'Hex',
 }
 
 export type FetcherResult = {

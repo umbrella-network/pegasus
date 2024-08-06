@@ -15,13 +15,14 @@ export abstract class CommonPriceDataRepository {
   protected hashVersion = 1;
 
   protected createMessageToSign(
-    value: number | bigint,
+    value: number | bigint | string,
     timestamp: number,
     hashVersion: number,
     fetcherName: FetcherName,
     ...data: string[]
   ): string {
-    const dataToSign = [value.toString(10), hashVersion.toString(), fetcherName, timestamp.toString(), ...data];
+    const strValue = typeof value === 'string' ? value : value.toString(10);
+    const dataToSign = [strValue, hashVersion.toString(), fetcherName, timestamp.toString(), ...data];
     return dataToSign.join(';');
   }
 }
