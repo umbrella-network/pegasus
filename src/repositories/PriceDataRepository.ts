@@ -28,6 +28,8 @@ export class PriceDataRepository {
   @inject('Logger') private logger!: Logger;
   @inject('Settings') settings!: Settings;
 
+  private logPrefix = '[PriceDataRepository]';
+
   async saveFetcherResults(
     fetcherResult: FetcherResult,
     symbols: StringOrUndefined[],
@@ -35,6 +37,10 @@ export class PriceDataRepository {
     valueType: PriceValueType,
     fetcherSource: string,
   ): Promise<void> {
+    if (fetcherResult.prices.length != symbols.length) {
+      throw new Error(`${this.logPrefix} fetcherResult not match symbols`);
+    }
+
     const timestamp = fetcherResult.timestamp || this.timeService.apply();
     const payloads: PriceDataPayload[] = [];
 
@@ -124,7 +130,7 @@ export class PriceDataRepository {
   }
 
   async latestPrice(feedBase: string, feedQuote: string, limit = 150): Promise<PriceDataModel[]> {
-    if (!feedBase || !feedQuote) throw new Error('[PriceDataRepository] empty symbol');
+    if (!feedBase || !feedQuote) throw new Error(`${this.logPrefix} empty symbol`);
     return getModelForClass(PriceDataModel).find({feedBase, feedQuote}).sort({timestamp: -1}).limit(limit).exec();
   }
 }

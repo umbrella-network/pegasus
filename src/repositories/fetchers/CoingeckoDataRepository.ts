@@ -18,14 +18,13 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
 
   async save(dataArr: CoingeckoDataRepositoryInput[]): Promise<void> {
     const payloads: CoingeckoPriceModel[] = [];
-    const hashVersion = 1;
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
         const messageToSign = this.createMessageToSign(
           value,
           timestamp,
-          hashVersion,
+          this.hashVersion,
           FetcherName.CoingeckoPrice,
           params.id.toLowerCase(),
           params.currency.toLowerCase(),
@@ -36,7 +35,7 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
     );
 
     dataArr.forEach(({value, params, timestamp}, ix) => {
-      const {signerAddress, signature, hash} = signatures[ix];
+      const {signerAddress, signature, hash, hashVersion} = signatures[ix];
 
       payloads.push({
         id: params.id,

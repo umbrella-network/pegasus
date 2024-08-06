@@ -12,6 +12,8 @@ import {
 } from '../../types/fetchers.js';
 
 import Settings from '../../types/Settings.js';
+import {MetalPriceApiDataRepository} from "../../repositories/fetchers/MetalPriceApiDataRepository";
+import TimeService from "../TimeService";
 
 const GRAMS_PER_TROY_OUNCE = 31.1035;
 
@@ -22,7 +24,9 @@ export interface MetalPriceApiInputParams {
 
 @injectable()
 export default class MetalPriceApiFetcher implements FeedFetcherInterface {
+  @inject(MetalPriceApiDataRepository) private metalPriceApiDataRepository!: MetalPriceApiDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private apiKey: string;
@@ -56,6 +60,7 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
           `${this.logPrefix} Error fetching data for ${symbol}/${currency}: ${response.statusText}.` +
             `Error: ${response.data}`,
         );
+
         return {prices: []};
       }
 
@@ -68,10 +73,18 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
 
       const pricePerTroyOunce = 1 / rate;
       const pricePerGram = pricePerTroyOunce / GRAMS_PER_TROY_OUNCE;
+      const timestamp = this.timeService.apply();
 
-      const result = {prices: [pricePerGram]};
+      await this.metalPriceApiDataRepository.save([{
+        value: pricePerGram,
+        timestamp,
+        params
+      }]);
+
+      const result = {prices: [pricePerGram], timestamp};
       this.logger.debug(`${this.logPrefix} resolved price per gram: ${symbol}/${currency}: ${pricePerGram}`);
 
+      // TODO this will be deprecated once we fully switch to DB and have dedicated charts
       await this.priceDataRepository.saveFetcherResults(
         result,
         symbols,

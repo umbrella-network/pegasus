@@ -18,14 +18,13 @@ export class BinanceDataRepository extends CommonPriceDataRepository {
 
   async save(dataArr: BinanceDataRepositoryInput[]): Promise<void> {
     const payloads: BinancePriceModel[] = [];
-    const hashVersion = 1;
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
         const messageToSign = this.createMessageToSign(
           value,
           timestamp,
-          hashVersion,
+          this.hashVersion,
           FetcherName.BinancePrice,
           params.symbol,
         );
@@ -35,7 +34,7 @@ export class BinanceDataRepository extends CommonPriceDataRepository {
     );
 
     dataArr.forEach(({value, params, timestamp}, ix) => {
-      const {signerAddress, signature, hash} = signatures[ix];
+      const {signerAddress, signature, hash, hashVersion} = signatures[ix];
 
       payloads.push({
         symbol: params.symbol,

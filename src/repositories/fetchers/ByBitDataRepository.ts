@@ -19,14 +19,13 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
 
   async save(dataArr: ByBitDataRepositoryInput[]): Promise<void> {
     const payloads: ByBitPriceModel[] = [];
-    const hashVersion = 1;
 
     const signatures = await Promise.all(
       dataArr.map(({value, usdIndexPrice, params, timestamp}) => {
         const messageToSign = this.createMessageToSign(
           value,
           timestamp,
-          hashVersion,
+          this.hashVersion,
           FetcherName.ByBitPrice,
           params.symbol,
           usdIndexPrice === undefined ? '' : usdIndexPrice.toString(10),
@@ -36,7 +35,7 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
     );
 
     dataArr.forEach(({value, usdIndexPrice, params, timestamp}, ix) => {
-      const {signerAddress, signature, hash} = signatures[ix];
+      const {signerAddress, signature, hash, hashVersion} = signatures[ix];
 
       payloads.push({
         symbol: params.symbol,
