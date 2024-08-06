@@ -11,6 +11,8 @@ import {
 } from '../../types/fetchers.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import Settings from '../../types/Settings.js';
+import TimeService from '../TimeService.js';
+import {MetalsDevApiDataRepository} from '../../repositories/fetchers/MetalsDevApiDataRepository.js';
 
 export interface MetalsDevApiPriceInputParams {
   metal: string;
@@ -19,7 +21,9 @@ export interface MetalsDevApiPriceInputParams {
 
 @injectable()
 export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
+  @inject(MetalsDevApiDataRepository) private metalsDevApiDataRepository!: MetalsDevApiDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private apiKey: string;
@@ -63,15 +67,29 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
 
       this.logger.debug(`${this.logPrefix} resolved price per gram: ${metal}/${currency}: ${pricePerGram}`);
 
+      const timestamp = this.timeService.apply();
+
+      await this.metalsDevApiDataRepository.save([
+        {
+          value: pricePerGram,
+          timestamp,
+          params,
+        },
+      ]);
+
+      const [price] = await this.metalsDevApiDataRepository.getPrices([params], timestamp);
+      const result = {prices: [price], timestamp};
+
+      // TODO this will be deprecated once we fully switch to DB and have dedicated charts
       await this.priceDataRepository.saveFetcherResults(
-        {prices: [pricePerGram]},
+        result,
         symbols,
         FetcherName.MetalsDevApi,
         PriceValueType.Price,
         MetalsDevApiPriceFetcher.fetcherSource,
       );
 
-      return pricePerGram;
+      return result;
     } catch (error) {
       this.logger.error(`${this.logPrefix} An error occurred while fetching metal prices: ${error}`);
       return {prices: []};
