@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
+import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceFetcher.js';
 import {CoingeckoPriceModel} from '../../models/fetchers/CoingeckoPriceModel.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
@@ -41,7 +41,7 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
         id: params.id,
         currency: params.currency,
         value: value.toString(),
-        valueType: PriceValueType.Price,
+        valueType: FetchedValueType.Price,
         timestamp,
         hashVersion,
         signature,

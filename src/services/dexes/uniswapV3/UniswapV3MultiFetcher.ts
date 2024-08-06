@@ -18,7 +18,7 @@ import {
   FetcherResult,
   NumberOrUndefined,
   FetcherName,
-  PriceValueType,
+  FetchedValueType,
 } from '../../../types/fetchers.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -74,7 +74,7 @@ class UniswapV3MultiFetcher implements FeedFetcherInterface {
       fetcherResult,
       options.symbols,
       FetcherName.UniswapV3,
-      PriceValueType.Price,
+      FetchedValueType.Price,
       UniswapV3MultiFetcher.fetcherSource,
     );
 

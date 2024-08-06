@@ -8,7 +8,7 @@ import {
   FeedFetcherOptions,
   FetcherName,
   FetcherResult,
-  PriceValueType,
+  FetchedValueType,
 } from '../../types/fetchers.js';
 
 export interface PolygonIOCryptoPriceInputParams {
@@ -44,7 +44,7 @@ export default class PolygonIOCryptoPriceFetcher implements FeedFetcherInterface
       {prices: [price]},
       symbols,
       FetcherName.PolygonIOCryptoPrice,
-      PriceValueType.Price,
+      FetchedValueType.Price,
       PolygonIOCryptoPriceFetcher.fetcherSource,
     );
 

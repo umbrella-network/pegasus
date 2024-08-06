@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, PriceValueType} from '../../types/fetchers.js';
+import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {ByBitPriceInputParams} from '../../services/fetchers/ByBitPriceFetcher.js';
 import {ByBitPriceModel} from '../../models/fetchers/ByBitPriceModel.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
@@ -41,7 +41,7 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
         symbol: params.symbol,
         value: value.toString(),
         usdIndexPrice: usdIndexPrice ?? null,
-        valueType: PriceValueType.Price,
+        valueType: FetchedValueType.Price,
         timestamp,
         hashVersion,
         signature,

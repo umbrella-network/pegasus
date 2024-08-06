@@ -11,7 +11,7 @@ import {
   FeedFetcherOptions,
   FetcherResult,
   FetcherName,
-  PriceValueType,
+  FetchedValueType,
 } from '../../types/fetchers.js';
 
 import {ByBitDataRepository, ByBitDataRepositoryInput} from '../../repositories/fetchers/ByBitDataRepository.js';
@@ -58,7 +58,7 @@ export default class ByBitPriceFetcher implements FeedFetcherInterface {
       fetcherResult,
       options.symbols,
       FetcherName.ByBitPrice,
-      PriceValueType.Price,
+      FetchedValueType.Price,
       ByBitPriceFetcher.fetcherSource,
     );
 

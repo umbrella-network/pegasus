@@ -8,7 +8,7 @@ import {
   FeedFetcherOptions,
   FetcherName,
   FetcherResult,
-  PriceValueType,
+  FetchedValueType,
 } from '../../types/fetchers.js';
 
 import Settings from '../../types/Settings.js';
@@ -93,7 +93,7 @@ export default class MetalPriceApiFetcher implements FeedFetcherInterface {
         result,
         symbols,
         FetcherName.MetalsDevApi,
-        PriceValueType.Price,
+        FetchedValueType.Price,
         MetalPriceApiFetcher.fetcherSource,
       );
 

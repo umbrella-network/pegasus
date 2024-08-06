@@ -10,7 +10,7 @@ import {
   FetcherName,
   FetcherResult,
   NumberOrUndefined,
-  PriceValueType,
+  FetchedValueType,
   FeedFetcherInterface,
   FeedFetcherOptions,
 } from '../../../types/fetchers.js';
@@ -107,7 +107,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
       fetcherResult,
       options.symbols,
       FetcherName.SovrynPrice,
-      PriceValueType.Price,
+      FetchedValueType.Price,
       SovrynPriceFetcher.fetcherSource,
     );
 

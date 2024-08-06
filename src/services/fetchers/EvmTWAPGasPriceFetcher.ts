@@ -9,7 +9,7 @@ import {
   FeedFetcherOptions,
   FetcherName,
   FetcherResult,
-  PriceValueType,
+  FetchedValueType,
 } from '../../types/fetchers.js';
 
 /*
@@ -54,7 +54,7 @@ class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
       {prices: [gasPrice]},
       symbols,
       FetcherName.TWAPGasPrice,
-      PriceValueType.Price,
+      FetchedValueType.Price,
       EvmTWAPGasPriceFetcher.fetcherSource,
     );
 
