@@ -28,6 +28,7 @@ export class UniswapV3DataRepository extends CommonPriceDataRepository {
           FetcherName.OnChainData,
           params.base,
           params.quote,
+          params.amountInDecimals.toString(10),
         );
 
         return this.priceSignerService.sign(messageToSign);
