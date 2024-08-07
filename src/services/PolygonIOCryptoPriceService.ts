@@ -5,7 +5,7 @@ import {Logger} from 'winston';
 import PriceAggregator from './PriceAggregator.js';
 import Settings from '../types/Settings.js';
 import TimeService from './TimeService.js';
-import PolygonIOCryptoSnapshotFetcher from './fetchers/PolygonIOCryptoSnapshotFetcher.js';
+import {PolygonIOCryptoSnapshotFetcher} from './fetchers/PolygonIOCryptoSnapshotFetcher.js';
 import PolygonIOSingleCryptoPriceFetcher from './fetchers/PolygonIOSingleCryptoPriceFetcher.js';
 import {Pair} from '../types/Feed.js';
 import {SinglePriceResponse} from './fetchers/BasePolygonIOSingleFetcher.js';

@@ -5,8 +5,8 @@ import {BasePolygonIOSnapshotFetcher, SnapshotResponse} from './BasePolygonIOSna
 import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()
-class PolygonIOCryptoSnapshotFetcher extends BasePolygonIOSnapshotFetcher {
-  private logPrefix = `[${FetcherName.PolygonIOCryptoPrice}]`;
+export class PolygonIOCryptoSnapshotFetcher extends BasePolygonIOSnapshotFetcher {
+  private logPrefix = `[${FetcherName.PolygonIOCryptoSnapshot}]`;
 
   constructor(@inject('Settings') settings: Settings) {
     super();
@@ -26,5 +26,3 @@ class PolygonIOCryptoSnapshotFetcher extends BasePolygonIOSnapshotFetcher {
     return this.fetch(sourceUrl, raw);
   }
 }
-
-export default PolygonIOCryptoSnapshotFetcher;
