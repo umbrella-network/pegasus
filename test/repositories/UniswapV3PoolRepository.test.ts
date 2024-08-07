@@ -3,10 +3,10 @@ import chai from 'chai';
 import {getModelForClass} from '@typegoose/typegoose';
 import mongoose from 'mongoose';
 
-import {UniswapV3PoolRepository} from '../../src/repositories/UniswapV3PoolRepository.js';
+import {UniswapV3PoolRepository} from '../../src/repositories/fetchers/UniswapV3PoolRepository.js';
 import {loadTestEnv} from '../helpers/loadTestEnv.js';
 import {getTestContainer} from '../helpers/getTestContainer.js';
-import {UniswapV3Pool} from '../../src/models/UniswapV3Pool.js';
+import {UniswapV3Pool} from '../../src/models/fetchers/UniswapV3Pool.js';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
 import {DexProtocolName} from '../../src/types/Dexes.js';
 import lodash from 'lodash';

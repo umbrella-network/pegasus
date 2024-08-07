@@ -3,7 +3,7 @@ import {ModelType} from '@typegoose/typegoose/lib/types.js';
 
 import Migration from '../models/Migration.js';
 import CachedValidator from '../models/CachedValidator.js';
-import {UniswapV3Pool} from '../models/UniswapV3Pool.js';
+import {UniswapV3Pool} from '../models/fetchers/UniswapV3Pool.js';
 import {Token} from '../models/Token.js';
 
 class Migrations {

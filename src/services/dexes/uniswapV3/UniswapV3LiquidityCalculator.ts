@@ -10,7 +10,7 @@ import {UniswapV3TickQuery} from './UniswapV3TickQuery.js';
 import {BarChartTick, GraphTick} from './interfaces.js';
 import {BlockchainProviderRepository} from '../../../repositories/BlockchainProviderRepository.js';
 import {ActiveLiquititySDK} from './ActiveLiquiditySDK.js';
-import {ContractAddressService} from '../../../services/ContractAddressService.js';
+import {ContractAddressService} from '../../ContractAddressService.js';
 import {sortTokensByAddress} from '../../../utils/token.js';
 
 const __filename = fileURLToPath(import.meta.url);

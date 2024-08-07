@@ -7,11 +7,11 @@ import UniswapV3Fetcher, {
   UniswapV3FetcherInputParams,
 } from '../../../../src/services/dexes/uniswapV3/UniswapV3Fetcher.js';
 
-import {UniswapV3PoolRepository} from '../../../../src/repositories/UniswapV3PoolRepository.js';
+import {UniswapV3PoolRepository} from '../../../../src/repositories/fetchers/UniswapV3PoolRepository.js';
 import {BlockchainRepository} from '../../../../src/repositories/BlockchainRepository.js';
 import {ContractAddressService} from '../../../../src/services/ContractAddressService.js';
 import {getTestContainer} from '../../../helpers/getTestContainer.js';
-import {UniswapV3Pool} from '../../../../src/models/UniswapV3Pool.js';
+import {UniswapV3Pool} from '../../../../src/models/fetchers/UniswapV3Pool.js';
 import {DexProtocolName} from '../../../../src/types/Dexes.js';
 import {ChainsIds} from '../../../../src/types/ChainsIds.js';
 import {loadTestEnv} from '../../../helpers/loadTestEnv.js';

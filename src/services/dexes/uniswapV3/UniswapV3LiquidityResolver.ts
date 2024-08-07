@@ -6,12 +6,12 @@ import TimeService from '../../TimeService.js';
 import {FeedsType} from '../../../types/Feed.js';
 import {FeedDataService} from '../../FeedDataService.js';
 import {LiquiditySummingService} from './LiquiditySummingService.js';
-import {SaveLiquidityParams, UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
+import {SaveLiquidityParams, UniswapV3PoolRepository} from '../../../repositories/fetchers/UniswapV3PoolRepository.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {TokenRepository} from '../../../repositories/TokenRepository.js';
 import {UniswapV3Param} from './interfaces.js';
 import {DexProtocolName} from '../../../types/Dexes.js';
-import {UniswapV3Pool} from '../../../models/UniswapV3Pool.js';
+import {UniswapV3Pool} from '../../../models/fetchers/UniswapV3Pool.js';
 import {FetcherName} from '../../../types/fetchers.js';
 import {DeviationLeavesAndFeeds} from '../../../types/DeviationFeeds.js';
 

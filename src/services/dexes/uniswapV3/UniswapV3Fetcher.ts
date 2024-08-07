@@ -7,7 +7,7 @@ import path from 'path';
 
 import {DexProtocolName} from '../../../types/Dexes.js';
 import {ChainsIds} from '../../../types/ChainsIds.js';
-import {UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
+import {UniswapV3PoolRepository} from '../../../repositories/fetchers/UniswapV3PoolRepository.js';
 import {ContractAddressService} from '../../ContractAddressService.js';
 import {PriceDataRepository} from '../../../repositories/PriceDataRepository.js';
 import TimeService from '../../../services/TimeService.js';
