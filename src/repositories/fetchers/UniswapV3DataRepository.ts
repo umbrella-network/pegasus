@@ -3,22 +3,21 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, FetchedValueType, NumberOrUndefined} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {SovrynDataModel} from '../../models/fetchers/SovrynDataModel.js';
-import {SovrynPriceInputParams} from '../../services/dexes/sovryn/SovrynPriceFetcher.js';
-import {ChainsIds} from '../../types/ChainsIds.js';
+import {UniswapV3DataModel} from '../../models/fetchers/UniswapV3DataModel.js';
+import {UniswapV3FetcherInputParams} from '../../services/dexes/uniswapV3/UniswapV3Fetcher.js';
 
-export type SovrynDataRepositoryInput = {
-  params: SovrynPriceInputParams;
+export type UniswapV3DataRepositoryInput = {
+  params: UniswapV3FetcherInputParams;
   value: number;
   timestamp: number;
 };
 
 @injectable()
-export class SovrynDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[SovrynDataRepository]';
+export class UniswapV3DataRepository extends CommonPriceDataRepository {
+  private logPrefix = '[UniswapV3DataRepository]';
 
-  async save(dataArr: SovrynDataRepositoryInput[]): Promise<void> {
-    const payloads: SovrynDataModel[] = [];
+  async save(dataArr: UniswapV3DataRepositoryInput[]): Promise<void> {
+    const payloads: UniswapV3DataModel[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({params, value, timestamp}) => {
@@ -40,7 +39,7 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
       const {signerAddress, signature, hash, hashVersion} = signatures[ix];
 
       payloads.push({
-        chainId: ChainsIds.ROOTSTOCK,
+        chainId: params.fromChain,
         base: params.base,
         quote: params.quote,
         amountInDecimals: params.amountInDecimals,
@@ -57,8 +56,8 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  private async savePrices(data: SovrynDataModel[]): Promise<void> {
-    const model = getModelForClass(SovrynDataModel);
+  private async savePrices(data: UniswapV3DataModel[]): Promise<void> {
+    const model = getModelForClass(UniswapV3DataModel);
 
     try {
       await model.bulkWrite(
@@ -71,16 +70,16 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
     }
   }
 
-  async getPrices(params: SovrynPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: UniswapV3FetcherInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
     const or = params.map((param) => {
       return {
-        chainId: ChainsIds.ROOTSTOCK,
+        chainId: param.fromChain,
         base: param.base,
         quote: param.quote,
       };
     });
 
-    const results = await getModelForClass(SovrynDataModel)
+    const results = await getModelForClass(UniswapV3DataModel)
       .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1})
       .sort({timestamp: -1})
       .exec();
@@ -89,7 +88,10 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestData(sortedResults: SovrynDataModel[], inputs: SovrynPriceInputParams[]): NumberOrUndefined[] {
+  private getNewestData(
+    sortedResults: UniswapV3DataModel[],
+    inputs: UniswapV3FetcherInputParams[],
+  ): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
     const getSymbol = (chainId: string, base: string, quote: string) => [chainId, base, quote].join(';');
@@ -102,11 +104,7 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
     });
 
     return inputs.map((data) => {
-      const key = getSymbol(
-        (ChainsIds.ROOTSTOCK as string).toLowerCase(),
-        data.base.toLowerCase(),
-        data.quote.toLowerCase(),
-      );
+      const key = getSymbol(data.fromChain.toLowerCase(), data.base.toLowerCase(), data.quote.toLowerCase());
 
       return map[key];
     });
