@@ -21,6 +21,7 @@ import {SubmitSaver} from '../SubmitMonitor/SubmitSaver.js';
 import {Dispatcher} from './Dispatcher.js';
 import {ExecutedTx, TxHash} from '../../types/Consensus.js';
 import {remove0x} from '../../utils/mining.js';
+import {Layer2SignatureFilter} from './Layer2SignatureFilter.js';
 
 @injectable()
 export abstract class BlockDispatcher extends Dispatcher implements IBlockChainDispatcher {
@@ -31,6 +32,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
   @inject(SubmitSaver) submitSaver!: SubmitSaver;
   @inject(ConsensusDataRepository) consensusDataRepository!: ConsensusDataRepository;
   @inject(MultichainArchitectureDetector) multichainArchitectureDetector!: MultichainArchitectureDetector;
+  @inject(Layer2SignatureFilter) layer2SignatureFilter!: Layer2SignatureFilter;
 
   protected chainContract!: ChainContract;
 
@@ -80,12 +82,14 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
         `${consensus.leaves.length} leaves, ${consensus.fcdKeys.length} FCDs`,
     );
 
+    const signaturesForChain = await this.layer2SignatureFilter.apply(consensus.signatures, this.chainId);
+
     const txHash = await this.mint(
       consensus.dataTimestamp,
       consensus.root,
       consensus.fcdKeys,
       consensus.fcdValues,
-      consensus.signatures,
+      signaturesForChain,
       chainStatus,
     );
 
@@ -101,7 +105,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
 
       const chainSubmitArgs = this.prepareChainSubmitArgs(
         consensus.dataTimestamp,
-        consensus.signatures,
+        signaturesForChain,
         consensus.root,
         consensus.fcdKeys,
         consensus.fcdValues,
