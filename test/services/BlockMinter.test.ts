@@ -91,11 +91,7 @@ describe('BlockMinter', () => {
       feedsFile: 'test/feeds/feeds.yaml',
       feedsOnChain: 'test/feeds/feedsOnChain.yaml',
       dataTimestampOffsetSeconds: 0,
-      api: {
-        uniswap: {
-          active: false,
-        },
-      },
+      api: {},
       consensus: {
         retries: 2,
       },

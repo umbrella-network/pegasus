@@ -188,16 +188,6 @@ type Settings = {
     debug: {
       apiKey: string;
     };
-    uniswap: {
-      active: boolean;
-      scannerContractId: string;
-      helperContractId: string;
-      startBlock: number;
-      agentStep: number;
-      defaultPrecision: number;
-      defaultDiscrepancy: number;
-      verificationInterval: number;
-    };
     goldApi: {
       apiKey: string;
       timeout: number;

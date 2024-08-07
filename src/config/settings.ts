@@ -413,16 +413,6 @@ const settings: Settings = {
     debug: {
       apiKey: process.env.DEBUG_API_KEY as string,
     },
-    uniswap: {
-      active: !!process.env.UNISWAP_SCANNER_CONTRACT_ID && !!process.env.UNISWAP_HELPER_CONTRACT_ID,
-      scannerContractId: <string>process.env.UNISWAP_SCANNER_CONTRACT_ID,
-      helperContractId: <string>process.env.UNISWAP_HELPER_CONTRACT_ID,
-      startBlock: parseInt(process.env.UNISWAP_START_BLOCK || '0'),
-      agentStep: parseInt(process.env.UNISWAP_STEP || '1000'),
-      defaultPrecision: Number(process.env.UNISWAP_DEFAULT_PRECISION || '6'),
-      defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '1.0'),
-      verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
-    },
     goldApi: {
       apiKey: process.env.GOLD_API_KEY as string,
       timeout: timeoutWithCode(process.env.GOLD_API_TIMEOUT || '5000', TimeoutCodes.GOLD_API),

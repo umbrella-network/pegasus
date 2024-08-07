@@ -50,12 +50,6 @@ class InfoController {
       feedsFile: this.settings.feedsFile,
       deviationFeedsFile: this.settings.deviationTrigger.feedsFile,
       contractRegistryAddress: this.settings.blockchain.contracts.registry.address,
-      uniswap: this.settings.api.uniswap.active
-        ? {
-            helperContractId: this.settings.api.uniswap.helperContractId,
-            scannerContractId: this.settings.api.uniswap.scannerContractId,
-          }
-        : 'not active',
       chains: await this.getMultichainsSettings(this.getChain(request)),
       version: this.settings.version,
       environment: this.settings.environment,
