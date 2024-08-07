@@ -5,7 +5,7 @@ import {JSONPath} from 'jsonpath-plus';
 import _ from 'lodash';
 
 import Settings from '../../types/Settings.js';
-import {SnapshotResponse, Ticker} from './BasePolygonIOSnapshotFetcher.js';
+import {SnapshotResponse, Ticker} from './common/BasePolygonIOSnapshotFetcher.js';
 import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()

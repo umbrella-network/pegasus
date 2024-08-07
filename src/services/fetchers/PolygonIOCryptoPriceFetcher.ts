@@ -17,7 +17,7 @@ export interface PolygonIOCryptoPriceInputParams {
 }
 
 @injectable()
-export default class PolygonIOCryptoPriceFetcher implements FeedFetcherInterface {
+export class PolygonIOCryptoPriceFetcher implements FeedFetcherInterface {
   @inject(PolygonIOCryptoPriceService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceService;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject('Logger') private logger!: Logger;

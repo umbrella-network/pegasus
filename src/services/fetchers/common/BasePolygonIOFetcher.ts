@@ -2,8 +2,8 @@ import {inject, injectable} from 'inversify';
 import {JSONPath} from 'jsonpath-plus';
 import axios from 'axios';
 import {Logger} from 'winston';
-import {SinglePriceResponse} from './BasePolygonIOSingleFetcher';
-import {SnapshotResponse} from './BasePolygonIOSnapshotFetcher';
+import {SinglePriceResponse} from './BasePolygonIOSingleFetcher.js';
+import {SnapshotResponse} from './BasePolygonIOSnapshotFetcher.js';
 
 @injectable()
 export abstract class BasePolygonIOFetcher {
