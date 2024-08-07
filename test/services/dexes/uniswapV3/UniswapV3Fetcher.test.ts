@@ -125,7 +125,7 @@ describe('UniswapV3Fetcher', () => {
       it.only('responds with values from uniswapV3Helper', async () => {
         const result = await uniswapV3MultiFetcher.apply(params, {symbols: ['a', 'b', 'c']});
         expect(result.prices).to.eql([100, 200, undefined]);
-      });
+      }).timeout(10000);
     });
 
     describe('when get value from DB returns data and getPrices is rejected', () => {

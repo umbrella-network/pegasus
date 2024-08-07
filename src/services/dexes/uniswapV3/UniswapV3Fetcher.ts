@@ -147,11 +147,19 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
     const abi = JSON.parse(readFileSync(__dirname + '/UniswapV3FetcherHelper.abi.json', 'utf-8')).abi as never;
     const contract = await this.contractAddressService.getContract(chainId, 'UniswapV3FetcherHelper', abi);
 
+    let parsed: UniswapV3DataRepositoryInput[] = [];
+
     try {
       const response = await contract.callStatic.getPrices(poolsToFetch);
-      await this.uniswapV3DataRepository.save(this.processResult(chainId, response, poolsToFetch));
+      parsed = this.processResult(chainId, response, poolsToFetch);
     } catch (error) {
       this.logger.error(`${this.logPrefix} [${chainId}] getPrices failed: ${error}`);
+    }
+
+    try {
+      await this.uniswapV3DataRepository.save(parsed);
+    } catch (error) {
+      this.logger.error(`${this.logPrefix} [${chainId}] save failed: ${error}`);
     }
   }
 
