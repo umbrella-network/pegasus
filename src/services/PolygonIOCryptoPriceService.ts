@@ -5,16 +5,13 @@ import {Logger} from 'winston';
 import PriceAggregator from './PriceAggregator.js';
 import Settings from '../types/Settings.js';
 import TimeService from './TimeService.js';
-import {PolygonIOCryptoSnapshotFetcher} from './fetchers/PolygonIOCryptoSnapshotFetcher.js';
 import PolygonIOSingleCryptoPriceFetcher from './fetchers/PolygonIOSingleCryptoPriceFetcher.js';
 import {Pair} from '../types/Feed.js';
-import {SinglePriceResponse} from './fetchers/BasePolygonIOSingleFetcher.js';
-import {SnapshotResponse} from './fetchers/BasePolygonIOSnapshotFetcher.js';
+import {SinglePriceResponse} from './fetchers/common/BasePolygonIOSingleFetcher.js';
 
 @injectable()
 class PolygonIOCryptoPriceService {
   @inject('Logger') logger!: Logger;
-  @inject(PolygonIOCryptoSnapshotFetcher) polygonIOCryptoSnapshotFetcher!: PolygonIOCryptoSnapshotFetcher;
   @inject(PolygonIOSingleCryptoPriceFetcher) polygonIOSingleCryptoPriceFetcher!: PolygonIOSingleCryptoPriceFetcher;
   @inject('Settings') settings!: Settings;
   @inject(TimeService) timeService!: TimeService;
@@ -23,7 +20,6 @@ class PolygonIOCryptoPriceService {
   static readonly Prefix = 'pioc::';
   private loggerPrefix = '[PolygonIOCryptoPriceService]';
 
-  priceUpdateJob?: Job;
   truncateJob?: Job;
 
   subscriptions: {[subscription: string]: [Pair, boolean]} = {};
@@ -36,15 +32,10 @@ class PolygonIOCryptoPriceService {
     this.truncateJob = schedule.scheduleJob(this.settings.api.polygonIO.truncateCronRule, () => {
       this.truncatePriceAggregator().catch(this.logger.warn);
     });
-
-    this.priceUpdateJob = schedule.scheduleJob(this.settings.api.polygonIO.priceUpdateCronRule, () => {
-      this.requestAllPrices(Object.values(this.subscriptions).map(([pair]) => pair)).catch(this.logger.warn);
-    });
   }
 
   stop(): void {
     this.truncateJob?.cancel();
-    this.priceUpdateJob?.cancel();
   }
 
   onUpdate(symbol: string, price: number, timestamp: number): void {
@@ -113,36 +104,6 @@ class PolygonIOCryptoPriceService {
     if (rejected.length) {
       this.updateInitialPrices().catch(console.warn);
     }
-  }
-
-  private async requestAllPrices(pairs: Pair[]): Promise<void> {
-    if (!pairs.length) {
-      this.logger.debug(`${this.loggerPrefix} no crypto prices to update`);
-      return;
-    }
-
-    this.logger.info(`${this.loggerPrefix} updating all ${pairs.length} crypto prices`);
-
-    const symbols: {[key: string]: string} = {};
-    pairs.forEach(({fsym, tsym}) => {
-      symbols[`X:${fsym}${tsym}`] = `${fsym}-${tsym}`;
-    });
-
-    const result = (await this.polygonIOCryptoSnapshotFetcher.apply(
-      {symbols: Object.keys(symbols)},
-      true,
-    )) as SnapshotResponse;
-
-    result.tickers.forEach(({lastTrade, ticker: symbol}) => {
-      symbol = symbols[symbol];
-      if (!lastTrade) {
-        this.logger.warn(`${this.loggerPrefix} no lastTrade for ${symbol}`);
-        return;
-      }
-
-      const {p: price, t: timestamp} = lastTrade;
-      this.onUpdate(symbol, price, Math.floor(timestamp / 1000));
-    });
   }
 
   private async truncatePriceAggregator(): Promise<void> {

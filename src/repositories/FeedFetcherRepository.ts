@@ -8,6 +8,8 @@ export class FeedFetcherRepository {
   readonly collection: {[key: string]: FeedFetcherInterface};
 
   constructor(
+    @inject(fetchers.PolygonIOCryptoSnapshotPriceFetcher)
+    PolygonIOCryptoSnapshotPrice: fetchers.PolygonIOCryptoSnapshotPriceFetcher,
     @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPrice: fetchers.PolygonIOStockPriceFetcher,
     @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPrice: fetchers.PolygonIOCryptoPriceFetcher,
     @inject(fetchers.PolygonIOCurrencySnapshotGramsFetcher)
@@ -18,6 +20,7 @@ export class FeedFetcherRepository {
     @inject(fetchers.MetalsDevApiPriceFetcher) MetalsDevApi: fetchers.MetalsDevApiPriceFetcher,
   ) {
     this.collection = {
+      PolygonIOCryptoSnapshotPrice,
       PolygonIOStockPrice,
       PolygonIOCryptoPrice,
       PolygonIOCurrencySnapshotGrams,
