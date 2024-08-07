@@ -80,10 +80,13 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
       return {prices: []};
     }
 
-    if (poolsToFetch.size != params.length) {
-      this.logger.warn(
-        `${this.logPrefix} ${params.length - poolsToFetch.size} pools are missing ${JSON.stringify(params)}`,
-      );
+    const totalPools = Object.keys(poolsToFetch).reduce(
+      (sum, k) => sum + (poolsToFetch.get(k as ChainsIds)?.length || 0),
+      0,
+    );
+
+    if (totalPools != params.length) {
+      this.logger.warn(`${this.logPrefix} ${params.length - totalPools} pools are missing ${JSON.stringify(params)}`);
     }
 
     await Promise.all([...poolsToFetch.entries()].map(([chainId, pools]) => this.fetchData(chainId, pools)));
@@ -140,22 +143,16 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
     return helperInputMap;
   }
 
-  private async fetchData(
-    chainId: ChainsIds,
-    poolsToFetch: UniswapV3ContractHelperInput[],
-  ): Promise<PricesResponse | undefined> {
+  private async fetchData(chainId: ChainsIds, poolsToFetch: UniswapV3ContractHelperInput[]): Promise<void> {
     const abi = JSON.parse(readFileSync(__dirname + '/UniswapV3FetcherHelper.abi.json', 'utf-8')).abi as never;
     const contract = await this.contractAddressService.getContract(chainId, 'UniswapV3FetcherHelper', abi);
 
     try {
-      const response: PricesResponse = await contract.callStatic.getPrices(poolsToFetch);
-      this.processResult(chainId, response, poolsToFetch);
+      const response = await contract.callStatic.getPrices(poolsToFetch);
       await this.uniswapV3DataRepository.save(this.processResult(chainId, response, poolsToFetch));
     } catch (error) {
       this.logger.error(`${this.logPrefix} [${chainId}] getPrices failed: ${error}`);
     }
-
-    return;
   }
 
   private processResult(
