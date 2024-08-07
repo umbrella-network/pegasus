@@ -1,19 +1,9 @@
 import {inject, injectable} from 'inversify';
 import MongoDBPriceAggregator from './MongoDBPriceAggregator.js';
-import {RedisPriceAggregator} from './RedisPriceAggregator.js';
-import Settings from '../types/Settings.js';
 
 @injectable()
 export default class PriceAggregator {
-  aggregator: MongoDBPriceAggregator | RedisPriceAggregator;
-
-  constructor(
-    @inject(RedisPriceAggregator) redisPriceAggregator: RedisPriceAggregator,
-    @inject(MongoDBPriceAggregator) mongoDBPriceAggregator: MongoDBPriceAggregator,
-    @inject('Settings') settings: Settings,
-  ) {
-    this.aggregator = settings.consensus.aggregator == 'new' ? mongoDBPriceAggregator : redisPriceAggregator;
-  }
+  @inject(MongoDBPriceAggregator) aggregator!: MongoDBPriceAggregator;
 
   async add(symbol: string, value: number, timestamp: number): Promise<void> {
     return this.aggregator.add(symbol, value, timestamp);

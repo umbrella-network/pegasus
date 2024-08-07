@@ -12,8 +12,7 @@ import {
 } from '../../types/fetchers.js';
 
 export interface PolygonIOCryptoPriceInputParams {
-  fsym: string;
-  tsym: string;
+  symbol: string
 }
 
 @injectable()
@@ -26,10 +25,9 @@ export class PolygonIOCryptoPriceFetcher implements FeedFetcherInterface {
   static fetcherSource = '';
 
   async apply(params: PolygonIOCryptoPriceInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
-    const {fsym, tsym} = params;
     const {symbols, timestamp} = options;
 
-    this.logger.debug(`${this.logPrefix} call for ${symbols}: ${fsym}, ${tsym}`);
+    this.logger.debug(`${this.logPrefix} call for ${symbols}: ${params.symbol}`);
 
     if (!timestamp || timestamp <= 0) throw new Error(`${this.logPrefix} invalid timestamp value: ${timestamp}`);
 

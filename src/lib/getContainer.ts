@@ -10,7 +10,7 @@ import {FeedRepository} from '../repositories/FeedRepository.js';
 import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository.js';
 import {Redis} from 'ioredis';
 import {initRedis} from '../config/initRedis.js';
-import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository.js';
+import {PolygonIOCryptoDataRepository} from '../repositories/fetchers/PolygonIOCryptoDataRepository.js';
 import FeedProcessor from '../services/FeedProcessor.js';
 import {ContractAddressService} from '../services/ContractAddressService.js';
 import ByBitFetcher from '../services/fetchers/ByBitPriceFetcher.js';
@@ -27,7 +27,7 @@ export function getContainer(): Container {
   container.bind(CalculatorRepository).toSelf().inSingletonScope();
   container.bind(FeedRepository).toSelf().inSingletonScope();
   container.bind(BlockchainProviderRepository).toSelf().inSingletonScope();
-  container.bind(MongoDBPriceRepository).toSelf().inSingletonScope();
+  container.bind(PolygonIOCryptoDataRepository).toSelf().inSingletonScope();
   container.bind(FeedProcessor).toSelf().inSingletonScope();
   container.bind(ContractAddressService).toSelf().inSingletonScope();
   container.bind(ByBitFetcher).toSelf().inSingletonScope();

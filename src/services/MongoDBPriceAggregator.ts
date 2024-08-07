@@ -1,21 +1,22 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {MongoDBPriceRepository} from '../repositories/MongoDBPriceRepository.js';
+import {PolygonIOCryptoDataRepository} from '../repositories/fetchers/PolygonIOCryptoDataRepository.js';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Price} from '../models/Price.js';
 
 @injectable()
 export default class MongoDBPriceAggregator {
   @inject('Logger') logger!: Logger;
-  @inject(MongoDBPriceRepository) priceRepository!: MongoDBPriceRepository;
+  @inject(PolygonIOCryptoDataRepository) priceRepository!: PolygonIOCryptoDataRepository;
 
   async add(symbol: string, value: number, timestamp: number): Promise<void> {
-    await this.priceRepository.save({
-      source: 'PriceAggregator',
-      symbol,
+    await this.priceRepository.save([{
       value,
-      timestamp: new Date(timestamp * 1000),
-    });
+      timestamp,
+      params: {
+        symbol
+      }
+    }]);
   }
 
   /**

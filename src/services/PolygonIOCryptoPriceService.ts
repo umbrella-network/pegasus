@@ -28,8 +28,8 @@ class PolygonIOCryptoPriceService {
 
   subscriptions: {[subscription: string]: [Pair, boolean]} = {};
 
-  async getLatestPrice({fsym, tsym}: Pair, timestamp: number): Promise<number | null> {
-    return await this.priceAggregator.value(`${PolygonIOCryptoPriceService.Prefix}${fsym}-${tsym}`, timestamp);
+  async getLatestPrice(symbol: string, timestamp: number): Promise<number | null> {
+    return await this.priceAggregator.value(symbol, timestamp);
   }
 
   start(): void {
