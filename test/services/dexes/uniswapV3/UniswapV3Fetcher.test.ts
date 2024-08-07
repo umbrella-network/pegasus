@@ -18,7 +18,7 @@ import {loadTestEnv} from '../../../helpers/loadTestEnv.js';
 
 const {expect} = chai;
 
-describe('UniswapV3MultiFetcher', () => {
+describe('UniswapV3Fetcher', () => {
   let uniswapV3MultiFetcher: UniswapV3Fetcher;
   let container: Container;
   let mockedUniswapV3PoolRepository: sinon.SinonStubbedInstance<UniswapV3PoolRepository>;

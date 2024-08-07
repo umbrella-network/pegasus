@@ -84,7 +84,6 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
       this.logger.warn(
         `${this.logPrefix} ${params.length - poolsToFetch.size} pools are missing ${JSON.stringify(params)}`,
       );
-      return {prices: []};
     }
 
     await Promise.all([...poolsToFetch.entries()].map(([chainId, pools]) => this.fetchData(chainId, pools)));
