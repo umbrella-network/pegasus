@@ -25,20 +25,20 @@ import {SovrynDataRepository, SovrynDataRepositoryInput} from '../../../reposito
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export interface Price {
-  price: BigNumber;
-  success: boolean;
-}
-
-export type PricesResponse = {
-  prices: Price[];
-  timestamp: BigNumber;
-};
-
 export type SovrynPriceInputParams = {
   base: string;
   quote: string;
   amountInDecimals: number;
+};
+
+interface Price {
+  price: BigNumber;
+  success: boolean;
+}
+
+type PricesResponse = {
+  prices: Price[];
+  timestamp: BigNumber;
 };
 
 const pairRequestToString = (pair: SovrynPriceInputParams) => {

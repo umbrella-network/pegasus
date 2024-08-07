@@ -3,7 +3,7 @@ import {Logger} from 'winston';
 
 import {ByBitPriceFetcher, BinancePriceFetcher, CoingeckoPriceFetcher} from '../fetchers/index.js';
 import {FeedFetcherInterface, FetcherName, FetcherResult} from '../../types/fetchers.js';
-import UniswapV3MultiFetcher from '../dexes/uniswapV3/UniswapV3MultiFetcher.js';
+import UniswapV3Fetcher from '../dexes/uniswapV3/UniswapV3Fetcher.js';
 import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
@@ -13,7 +13,7 @@ export default class MultiFeedProcessor {
   @inject(BinancePriceFetcher) binancePriceFetcher!: BinancePriceFetcher;
   @inject(ByBitPriceFetcher) byBitSpotPriceFetcher!: ByBitPriceFetcher;
   @inject(SovrynPriceFetcher) sovrynPriceFetcher!: SovrynPriceFetcher;
-  @inject(UniswapV3MultiFetcher) uniswapV3PriceFetcher!: UniswapV3MultiFetcher;
+  @inject(UniswapV3Fetcher) uniswapV3PriceFetcher!: UniswapV3Fetcher;
   @inject('Logger') logger!: Logger;
 
   async apply(feedFetchers: FeedFetcher[]): Promise<unknown[]> {

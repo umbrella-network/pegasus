@@ -3,9 +3,9 @@ import {BigNumber} from 'ethers';
 import sinon from 'sinon';
 import chai from 'chai';
 
-import UniswapV3MultiFetcher, {
-  UniswapV3MultiFetcherParams,
-} from '../../../../src/services/dexes/uniswapV3/UniswapV3MultiFetcher.js';
+import UniswapV3Fetcher, {
+  UniswapV3FetcherInputParams,
+} from '../../../../src/services/dexes/uniswapV3/UniswapV3Fetcher.js';
 
 import {UniswapV3PoolRepository} from '../../../../src/repositories/UniswapV3PoolRepository.js';
 import {BlockchainRepository} from '../../../../src/repositories/BlockchainRepository.js';
@@ -19,7 +19,7 @@ import {loadTestEnv} from '../../../helpers/loadTestEnv.js';
 const {expect} = chai;
 
 describe('UniswapV3MultiFetcher', () => {
-  let uniswapV3MultiFetcher: UniswapV3MultiFetcher;
+  let uniswapV3MultiFetcher: UniswapV3Fetcher;
   let container: Container;
   let mockedUniswapV3PoolRepository: sinon.SinonStubbedInstance<UniswapV3PoolRepository>;
   let mockedContractAddressService: sinon.SinonStubbedInstance<ContractAddressService>;
@@ -32,7 +32,7 @@ describe('UniswapV3MultiFetcher', () => {
 
   const pool1 = '0x01f64f5dd704f7179c6a0733f625577677b48e4e';
 
-  const params: UniswapV3MultiFetcherParams[] = [
+  const params: UniswapV3FetcherInputParams[] = [
     {
       fromChain: 'ethereum',
       quote: tokenTest0,
@@ -116,10 +116,10 @@ describe('UniswapV3MultiFetcher', () => {
 
         container.bind(ContractAddressService).toConstantValue(mockedContractAddressService);
         container.bind(UniswapV3PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
-        container.bind(UniswapV3MultiFetcher).toSelf();
+        container.bind(UniswapV3Fetcher).toSelf();
         container.bind(BlockchainRepository).toSelf();
 
-        uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
+        uniswapV3MultiFetcher = container.get(UniswapV3Fetcher);
       });
 
       it('responds with values from uniswapV3Helper', async () => {
@@ -137,10 +137,10 @@ describe('UniswapV3MultiFetcher', () => {
 
         container.bind(ContractAddressService).toConstantValue(mockedContractAddressService);
         container.bind(UniswapV3PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
-        container.bind(UniswapV3MultiFetcher).toSelf();
+        container.bind(UniswapV3Fetcher).toSelf();
         container.bind(BlockchainRepository).toSelf();
 
-        uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
+        uniswapV3MultiFetcher = container.get(UniswapV3Fetcher);
       });
 
       it('responds without values', async () => {
@@ -159,10 +159,10 @@ describe('UniswapV3MultiFetcher', () => {
 
         container.bind(ContractAddressService).toConstantValue(mockedContractAddressService);
         container.bind(UniswapV3PoolRepository).toConstantValue(mockedUniswapV3PoolRepository);
-        container.bind(UniswapV3MultiFetcher).toSelf();
+        container.bind(UniswapV3Fetcher).toSelf();
         container.bind(BlockchainRepository).toSelf();
 
-        uniswapV3MultiFetcher = container.get(UniswapV3MultiFetcher);
+        uniswapV3MultiFetcher = container.get(UniswapV3Fetcher);
       });
 
       it('responds without values', async () => {
