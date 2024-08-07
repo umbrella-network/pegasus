@@ -20,6 +20,7 @@ import {bigIntToFloatingPoint} from '../../../utils/math.js';
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
 import {BlockchainRepository} from '../../../repositories/BlockchainRepository.js';
 import {PriceDataRepository} from '../../../repositories/PriceDataRepository.js';
+import {SovrynDataRepository, SovrynDataRepositoryInput} from '../../../repositories/fetchers/SovrynDataRepository.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,50 +60,39 @@ weBTC-rUSDT:
 */
 @injectable()
 export class SovrynPriceFetcher implements FeedFetcherInterface {
+  @inject(SovrynDataRepository) private sovrynDataRepository!: SovrynDataRepository;
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject('Logger') private logger!: Logger;
 
-  private logPrefix = '[SovrynPriceFetcher]';
+  private logPrefix = `[${FetcherName.SovrynPrice}]`;
   static fetcherSource = '';
 
-  public async apply(pairs: SovrynPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
-    this.logger.debug(`${this.logPrefix} fetcher started for ${pairs.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`);
-    let response;
+  public async apply(params: SovrynPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    this.logger.debug(
+      `${this.logPrefix} fetcher started for ${params.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`,
+    );
+    let timestamp;
 
     try {
-      response = await this.getPrices(pairs);
-      this.logger.debug(`${this.logPrefix} data fetched (${pairs.length})`);
+      const response = await this.fetchPrices(params);
+      await this.sovrynDataRepository.save(this.processResponse(response, params));
+      timestamp = Number(response.timestamp);
     } catch (error) {
       this.logger.error(`${this.logPrefix} failed to get price for pairs. ${error}`);
 
-      for (const pair of pairs) {
+      for (const pair of params) {
         this.logger.error(`${this.logPrefix} price is not successful for pair: ${pairRequestToString(pair)}.`);
       }
 
       return {prices: []};
     }
 
-    const pricesResponse: NumberOrUndefined[] = [];
+    const pricesResponse: NumberOrUndefined[] = await this.sovrynDataRepository.getPrices(params, timestamp);
 
-    for (const [ix, price_] of response.prices.entries()) {
-      const {price, success} = price_;
+    const fetcherResult = {prices: pricesResponse, timestamp};
 
-      if (!success) {
-        this.logger.error(`${this.logPrefix} price is not successful for pair: ${pairRequestToString(pairs[ix])}.`);
-        pricesResponse.push(undefined);
-        continue;
-      }
-
-      const bigIntPrice = price.toBigInt();
-      const fetchedPrice = bigIntToFloatingPoint(bigIntPrice, 18);
-      pricesResponse.push(fetchedPrice);
-
-      this.logger.debug(`${this.logPrefix} ${pairRequestToString(pairs[ix])}: ${price.toString()} => ${fetchedPrice}`);
-    }
-
-    const fetcherResult = {prices: pricesResponse, timestamp: Number(response.timestamp)};
-
+    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
@@ -114,7 +104,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
     return fetcherResult;
   }
 
-  private async getPrices(pairs: SovrynPriceInputParams[]): Promise<PricesResponse> {
+  private async fetchPrices(pairs: SovrynPriceInputParams[]): Promise<PricesResponse> {
     const abi = JSON.parse(readFileSync(__dirname + '/SovrynFetcherHelper.abi.json', 'utf-8')).abi as never;
 
     const blockchain = this.blockchainRepository.get(ChainsIds.ROOTSTOCK);
@@ -124,6 +114,28 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
     const provider = blockchain.provider.getRawProviderSync<BaseProvider>();
     const contract = new Contract(contractAddress, abi, provider);
 
-    return await contract.callStatic.getPrices(pairs);
+    return contract.callStatic.getPrices(pairs);
+  }
+
+  private processResponse(data: PricesResponse, params: SovrynPriceInputParams[]): SovrynDataRepositoryInput[] {
+    const successfulPrices = data.prices.map(({price, success}, ix) => {
+      if (!success) {
+        this.logger.error(`${this.logPrefix} price is not successful for pair: ${pairRequestToString(params[ix])}.`);
+        return undefined;
+      }
+
+      const bigIntPrice = price.toBigInt();
+      const fetchedPrice = bigIntToFloatingPoint(bigIntPrice, 18);
+
+      this.logger.debug(`${this.logPrefix} ${pairRequestToString(params[ix])}: ${price.toString()} => ${fetchedPrice}`);
+
+      return <SovrynDataRepositoryInput>{
+        params: params[ix],
+        value: fetchedPrice,
+        timestamp: Number(data.timestamp),
+      };
+    });
+
+    return successfulPrices.filter((p) => p != undefined) as SovrynDataRepositoryInput[];
   }
 }
