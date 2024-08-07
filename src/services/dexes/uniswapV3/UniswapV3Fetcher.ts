@@ -180,11 +180,13 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
         const price = Number(ethers.utils.formatUnits(result.price.toString(), 18));
         this.logger.debug(`${this.logPrefix} resolved price: ${base}, ${quote}: ${result.price.toString()} / ${price}`);
 
-        return {
+        return <UniswapV3DataRepositoryInput>{
           value: price,
           timestamp: Number(results.timestamp),
           params: {
-            ...poolsToFetch[ix],
+            base: poolsToFetch[ix].base,
+            quote: poolsToFetch[ix].quote,
+            amountInDecimals: poolsToFetch[ix].amountInDecimals,
             fromChain: chainId,
           },
         };
