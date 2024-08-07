@@ -13,11 +13,13 @@ import GoldApiPriceFetcher from './GoldApiPriceFetcher.js';
 import ByBitPriceFetcher from './ByBitPriceFetcher.js';
 import BinancePriceFetcher from './BinancePriceFetcher.js';
 import {PolygonIOCryptoSnapshotPriceFetcher} from './PolygonIOCryptoSnapshotPriceFetcher.js';
+import {PolygonIOSingleCryptoPriceFetcher} from './PolygonIOSingleCryptoPriceFetcher.js';
 
 export {
   ByBitPriceFetcher,
   BinancePriceFetcher,
   PolygonIOCryptoSnapshotPriceFetcher,
+  PolygonIOSingleCryptoPriceFetcher,
   PolygonIOStockPriceFetcher,
   PolygonIOCryptoPriceFetcher,
   PolygonIOCurrencySnapshotGramsFetcher,

@@ -35,7 +35,7 @@ export class PriceDataRepository {
     symbols: StringOrUndefined[],
     fetcherName: string,
     valueType: FetchedValueType,
-    fetcherSource: string,
+    fetcherSource = '',
   ): Promise<void> {
     if (fetcherResult.prices.length != symbols.length) {
       throw new Error(`${this.logPrefix} fetcherResult not match symbols`);

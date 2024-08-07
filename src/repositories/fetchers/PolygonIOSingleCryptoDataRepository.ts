@@ -1,0 +1,100 @@
+import {injectable} from 'inversify';
+import {getModelForClass} from '@typegoose/typegoose';
+
+import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
+import {PolygonIOSingleCryptoModel} from '../../models/fetchers/PolygonIOSingleCryptoModel.js';
+import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
+import {PolygonIOSingleCryptoInputParams} from '../../services/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
+
+export type PolygonIOSingleCryptoDataRepositoryInput = {
+  value: number;
+  timestamp: number;
+  params: {
+    symbol: string
+  };
+};
+
+@injectable()
+export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataRepository {
+  private logPrefix = '[PolygonIOSingleCryptoDataRepository]';
+
+  async save(dataArr: PolygonIOSingleCryptoDataRepositoryInput[]): Promise<void> {
+    const payloads: PolygonIOSingleCryptoModel[] = [];
+
+    const signatures = await Promise.all(
+      dataArr.map(({value, params, timestamp}) => {
+        const messageToSign = this.createMessageToSign(
+          value,
+          timestamp,
+          this.hashVersion,
+          FetcherName.PolygonIOSingleCryptoPrice,
+          params.symbol,
+        );
+
+        return this.priceSignerService.sign(messageToSign);
+      }),
+    );
+
+    dataArr.forEach(({value, params, timestamp}, ix) => {
+      const {signerAddress, signature, hash, hashVersion} = signatures[ix];
+
+      payloads.push({
+        symbol: params.symbol,
+        value: value.toString(),
+        valueType: FetchedValueType.Price,
+        timestamp,
+        hashVersion,
+        signature,
+        priceHash: hash,
+        signer: signerAddress,
+      });
+    });
+
+    await this.savePrices(payloads);
+  }
+
+  private async savePrices(data: PolygonIOSingleCryptoModel[]): Promise<void> {
+    const model = getModelForClass(PolygonIOSingleCryptoModel);
+
+    try {
+      await model.bulkWrite(
+        data.map((doc) => {
+          return {insertOne: {document: doc}};
+        }),
+      );
+    } catch (error) {
+      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
+    }
+  }
+
+  async getPrices(params: PolygonIOSingleCryptoInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    const results = await getModelForClass(PolygonIOSingleCryptoModel)
+      .find(
+        {
+          symbol: {$in: params.map(({fsym, tsym}) => `${fsym}-${tsym}`)},
+          timestamp: {$gte: timestamp - this.priceTimeWindow},
+        },
+        {value: 1, symbol: 1},
+      )
+      .sort({timestamp: -1})
+      .exec();
+
+    return this.getNewestPrices(results, params);
+  }
+
+  // sortedResults must be sorted by timestamp in DESC way
+  private getNewestPrices(
+    sortedResults: PolygonIOSingleCryptoModel[],
+    inputs: PolygonIOSingleCryptoInputParams[],
+  ): NumberOrUndefined[] {
+    const map: Record<string, number> = {};
+
+    sortedResults.forEach(({symbol, value}) => {
+      if (map[symbol]) return; // already set newest price
+
+      map[symbol] = parseFloat(value);
+    });
+
+    return inputs.map(({fsym, tsym}) => map[`${fsym}-${tsym}`.toLowerCase()]);
+  }
+}

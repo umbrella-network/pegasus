@@ -10,6 +10,7 @@ import {PolygonIOCryptoPriceInputParams} from 'src/services/fetchers/PolygonIOCr
 import {PolygonIOCurrencySnapshotGramsInputParams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
 import {PolygonIOPriceInputParams} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
 import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceFetcher.js';
+import {PolygonIOSingleCryptoInputParams} from '../services/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
 
 export type NumberOrUndefined = number | undefined;
 
@@ -35,6 +36,7 @@ export type FeedFetcherInputParams =
   | BinancePriceInputParams[]
   | GoldApiPriceInputParams
   | PolygonIOCryptoSnapshotInputParams
+  | PolygonIOSingleCryptoInputParams[]
   | PolygonIOCryptoPriceInputParams
   | PolygonIOCurrencySnapshotGramsInputParams
   | PolygonIOPriceInputParams
