@@ -56,12 +56,3 @@ export interface FeedOutput {
   key: string;
   value: number | string;
 }
-
-export interface Pair {
-  fsym: string;
-  tsym: string;
-}
-
-export interface PairWithFreshness extends Pair {
-  freshness: number;
-}

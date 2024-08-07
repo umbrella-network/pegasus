@@ -1,13 +1,15 @@
 import {inject, injectable} from 'inversify';
 
-import Settings from '../../types/Settings.js';
-import {BasePolygonIOSingleFetcher, SinglePriceResponse} from './common/BasePolygonIOSingleFetcher.js';
-import {FetcherName} from '../../types/fetchers.js';
+import Settings from '../../../types/Settings.js';
+import {BasePolygonIOSingleFetcher, SinglePriceResponse} from './BasePolygonIOSingleFetcher.js';
+import {FetcherName} from '../../../types/fetchers.js';
 
 export interface PolygonIOSingleCryptoInputParams {
   fsym: string;
   tsym: string
 }
+
+// TODO we can make this separate fetcher, but for now it was only used to backup WS PolygonIOCryptoPriceService
 
 @injectable()
 export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetcher {

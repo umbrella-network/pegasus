@@ -46,7 +46,7 @@ describe('PriceRepository', () => {
   describe('getLatestPrice', () => {
     it('calls aggregator and returns a number', async () => {
       const pair: PairWithFreshness = {
-        fsym: 'FSYM1',
+        symbol: 'FSYM1',
         tsym: 'TSYM1',
         freshness: 1000,
       };
@@ -57,7 +57,7 @@ describe('PriceRepository', () => {
 
       const value = await priceRepository.getLatestPrice(prefix, pair, timestamp);
 
-      const expectedKey = `${prefix}${pair.fsym}~${pair.tsym}`;
+      const expectedKey = `${prefix}${pair.symbol}~${pair.tsym}`;
 
       expect(mockedPriceAggregator.valueAfter.getCall(0).args).to.eql([expectedKey, 20000, 19000]);
       expect(value).to.eq(1000);
@@ -67,13 +67,13 @@ describe('PriceRepository', () => {
   describe('getLatestPrices', () => {
     it('calls aggregator the exact number of times with the exact parameters', async () => {
       const pair1: PairWithFreshness = {
-        fsym: 'FSYM1',
+        symbol: 'FSYM1',
         tsym: 'TSYM1',
         freshness: 1000,
       };
 
       const pair2: PairWithFreshness = {
-        fsym: 'FSYM2',
+        symbol: 'FSYM2',
         tsym: 'TSYM2',
         freshness: 1000,
       };
@@ -98,14 +98,14 @@ describe('PriceRepository', () => {
   describe('getAllPrices', () => {
     it('calls aggregator with the proper parameters', async () => {
       const pair: PairWithFreshness = {
-        fsym: 'FSYM1',
+        symbol: 'FSYM1',
         tsym: 'TSYM1',
         freshness: 1000,
       };
 
       await priceRepository.getAllPrices(prefix, pair);
 
-      expect(mockedPriceAggregator.valueTimestamps.calledWith(`${prefix}${pair.fsym}~${pair.tsym}`)).to.be.true;
+      expect(mockedPriceAggregator.valueTimestamps.calledWith(`${prefix}${pair.symbol}~${pair.tsym}`)).to.be.true;
     });
   });
 });

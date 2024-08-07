@@ -1,9 +1,10 @@
 import {inject, injectable} from 'inversify';
 
-import Settings from '../../types/Settings.js';
-import {BasePolygonIOSnapshotFetcher, SnapshotResponse} from './common/BasePolygonIOSnapshotFetcher.js';
-import {FetcherName} from '../../types/fetchers.js';
+import Settings from '../../../types/Settings.js';
+import {BasePolygonIOSnapshotFetcher, SnapshotResponse} from './BasePolygonIOSnapshotFetcher.js';
+import {FetcherName} from '../../../types/fetchers.js';
 
+// TODO we can make this separate fetcher, but for now it was only used to backup WS PolygonIOCryptoPriceService
 @injectable()
 export class PolygonIOCryptoSnapshotFetcher extends BasePolygonIOSnapshotFetcher {
   private logPrefix = `[${FetcherName.PolygonIOCryptoSnapshot}]`;

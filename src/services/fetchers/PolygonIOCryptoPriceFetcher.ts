@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import PolygonIOCryptoPriceService from '../PolygonIOCryptoPriceService.js';
+import PolygonIOCryptoPriceSubscriptionService from './common/PolygonIOCryptoPriceSubscriptionService.js';
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
@@ -17,7 +17,7 @@ export interface PolygonIOCryptoPriceInputParams {
 
 @injectable()
 export class PolygonIOCryptoPriceFetcher implements FeedFetcherInterface {
-  @inject(PolygonIOCryptoPriceService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceService;
+  @inject(PolygonIOCryptoPriceSubscriptionService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceSubscriptionService;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject('Logger') private logger!: Logger;
 

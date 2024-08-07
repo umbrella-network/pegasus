@@ -21,10 +21,10 @@ class PriceRepository {
 
   async getLatestPrice(
     prefix: string,
-    {fsym, tsym, freshness = this.settings.api.priceFreshness}: PairWithFreshness,
+    {symbol, tsym, freshness = this.settings.api.priceFreshness}: PairWithFreshness,
     timestamp: number,
   ): Promise<number | null> {
-    return this.priceAggregator.valueAfter(`${prefix}${fsym}~${tsym}`, timestamp, timestamp - freshness);
+    return this.priceAggregator.valueAfter(`${prefix}${symbol}~${tsym}`, timestamp, timestamp - freshness);
   }
 
   async getLatestPrices(
@@ -33,11 +33,11 @@ class PriceRepository {
     maxTimestamp: number,
   ): Promise<{symbol: string; value: number; timestamp: number}[]> {
     return Promise.all(
-      pairs.map(async ({fsym, tsym}) => {
-        const valueTimestamp = await this.priceAggregator.valueTimestamp(`${prefix}${fsym}~${tsym}`, maxTimestamp);
+      pairs.map(async ({symbol, tsym}) => {
+        const valueTimestamp = await this.priceAggregator.valueTimestamp(`${prefix}${symbol}~${tsym}`, maxTimestamp);
         const {value, timestamp} = valueTimestamp || {value: 0, timestamp: 0};
         return {
-          symbol: `${fsym}-${tsym}`,
+          symbol: `${symbol}-${tsym}`,
           value,
           timestamp,
         };
@@ -46,7 +46,7 @@ class PriceRepository {
   }
 
   async getAllPrices(prefix: string, pair: Pair): Promise<{value: number; timestamp: number}[]> {
-    return this.priceAggregator.valueTimestamps(`${prefix}${pair.fsym}~${pair.tsym}`);
+    return this.priceAggregator.valueTimestamps(`${prefix}${pair.symbol}~${pair.tsym}`);
   }
 }
 

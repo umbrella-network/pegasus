@@ -5,7 +5,7 @@ import sort from 'fast-sort';
 
 import Settings from '../types/Settings.js';
 import TimeService from '../services/TimeService.js';
-import PolygonIOCryptoPriceService from '../services/PolygonIOCryptoPriceService.js';
+import PolygonIOCryptoPriceSubscriptionService from '../services/fetchers/common/PolygonIOCryptoPriceSubscriptionService.js';
 import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService.js';
 import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer.js';
 import PriceRepository from '../repositories/PriceRepository.js';
@@ -19,7 +19,7 @@ class DebugController {
   settings!: Settings;
 
   @inject(TimeService) timeService!: TimeService;
-  @inject(PolygonIOCryptoPriceService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceService;
+  @inject(PolygonIOCryptoPriceSubscriptionService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceSubscriptionService;
   @inject(PolygonIOStockPriceService) polygonIOStockPriceService!: PolygonIOStockPriceService;
   @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
   @inject(PriceRepository) priceRepository!: PriceRepository;
@@ -51,7 +51,7 @@ class DebugController {
     const {fsym, tsym} = request.params as {fsym: string; tsym: string};
 
     try {
-      response.send(await this.polygonIOCryptoPriceService.allPrices({fsym, tsym}));
+      response.send(await this.polygonIOCryptoPriceService.allPrices({symbol: fsym, tsym}));
     } catch (err) {
       next(err);
     }
