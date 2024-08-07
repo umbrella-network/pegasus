@@ -20,7 +20,7 @@ class PolygonIOStockPriceService {
   @inject(PriceAggregator) priceAggregator!: PriceAggregator;
 
   static readonly Prefix = 'pios::';
-  loggerPrefix = '[PolygonIOStockPriceService]';
+  protected loggerPrefix = '[PolygonIOStockPriceService]';
 
   priceUpdateJob?: Job;
   truncateJob?: Job;
@@ -51,7 +51,7 @@ class PolygonIOStockPriceService {
       return;
     }
 
-    this.logger.debug(`${symbol}: ${price} at ${timestamp}`);
+    this.logger.debug(`${this.loggerPrefix} ${symbol}: ${price} at ${timestamp}`);
 
     this.priceAggregator
       .add(`${PolygonIOStockPriceService.Prefix}${symbol}`, price, timestamp)
@@ -98,7 +98,7 @@ class PolygonIOStockPriceService {
       this.subscriptions[symbol] = true;
 
       if (!last) {
-        console.warn(`no last for ${symbol}`);
+        this.logger.warn(`${this.loggerPrefix} no last for ${symbol}`);
         return;
       }
 
@@ -137,7 +137,7 @@ class PolygonIOStockPriceService {
   private async truncatePriceAggregator(): Promise<void> {
     const beforeTimestamp = this.timeService.apply() - this.settings.api.polygonIO.truncateIntervalMinutes * 60;
 
-    this.logger.info(`Truncating PolygonIO stock prices before ${beforeTimestamp}...`);
+    this.logger.info(`${this.loggerPrefix} Truncating PolygonIO stock prices before ${beforeTimestamp}...`);
 
     await Promise.all(
       Object.keys(this.subscriptions).map(async (subscription) => {
