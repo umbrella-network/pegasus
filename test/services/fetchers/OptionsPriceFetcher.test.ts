@@ -6,7 +6,7 @@ import moxios from 'moxios';
 import chaiAsPromised from 'chai-as-promised';
 
 import Settings from '../../../src/types/Settings.js';
-import OptionsPriceFetcher from '../../../src/services/fetchers/OptionsPriceFetcher.js';
+import {OptionsPriceFetcher} from '../../../src/services/fetchers/OptionsPriceFetcher.js';
 import {mockedLogger} from '../../mocks/logger.js';
 
 chai.use(chaiAsPromised);

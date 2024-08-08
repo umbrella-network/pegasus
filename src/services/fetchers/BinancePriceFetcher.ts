@@ -25,7 +25,7 @@ type BinanceResponse = {symbol: string; price: string};
 type ParsedResponse = {symbol: string; price: number};
 
 @injectable()
-export default class BinancePriceFetcher implements FeedFetcherInterface {
+export class BinancePriceFetcher implements FeedFetcherInterface {
   @inject(BinanceDataRepository) binanceDataRepository!: BinanceDataRepository;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;

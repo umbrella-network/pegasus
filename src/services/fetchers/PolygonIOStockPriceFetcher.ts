@@ -8,7 +8,7 @@ export interface PolygonIOPriceInputParams {
 }
 
 @injectable()
-export default class PolygonIOPriceFetcher implements FeedFetcherInterface {
+export class PolygonIOStockPriceFetcher implements FeedFetcherInterface {
   @inject(PolygonIOStockPriceService) polygonIOStockPriceService!: PolygonIOStockPriceService;
 
   async apply(params: PolygonIOPriceInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {

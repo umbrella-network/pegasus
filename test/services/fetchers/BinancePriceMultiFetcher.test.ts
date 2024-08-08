@@ -2,7 +2,7 @@ import chai from 'chai';
 import moxios from 'moxios';
 import sinon, {SinonFakeTimers} from 'sinon';
 
-import BinancePriceFetcher from '../../../src/services/fetchers/BinancePriceFetcher.js';
+import {BinancePriceFetcher} from '../../../src/services/fetchers/index.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import Settings from '../../../src/types/Settings.js';
 

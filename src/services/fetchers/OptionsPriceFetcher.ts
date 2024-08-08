@@ -30,7 +30,7 @@ interface OptionsPriceResponse {
 }
 
 @injectable()
-class OptionsPriceFetcher {
+export class OptionsPriceFetcher {
   private apiKey: string;
   private timeout: number;
   @inject('Logger') logger!: Logger;
@@ -57,5 +57,3 @@ class OptionsPriceFetcher {
     }
   }
 }
-
-export default OptionsPriceFetcher;

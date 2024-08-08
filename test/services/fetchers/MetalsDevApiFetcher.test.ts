@@ -1,6 +1,6 @@
 import chai from 'chai';
 
-import MetalsDevApiFetcher from '../../../src/services/fetchers/MetalsDevApiFetcher.js';
+import {MetalsDevApiFetcher} from '../../../src/services/fetchers/MetalsDevApiFetcher.js';
 import Application from '../../../src/lib/Application.js';
 
 const {expect} = chai;

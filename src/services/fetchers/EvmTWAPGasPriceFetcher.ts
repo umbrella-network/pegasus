@@ -28,7 +28,7 @@ export interface EvmTWAPGasPriceInputParams {
 }
 
 @injectable()
-class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
+export class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
   @inject(TWAPGasRepository) protected gasRepository!: TWAPGasRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
 
@@ -61,5 +61,3 @@ class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
     return {prices: [gasPrice]};
   }
 }
-
-export default EvmTWAPGasPriceFetcher;

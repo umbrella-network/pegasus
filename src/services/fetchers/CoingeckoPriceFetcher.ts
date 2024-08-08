@@ -31,7 +31,7 @@ export interface CoingeckoPriceInputParams {
 type ParsedResponse = {id: string; currency: string; value: number};
 
 @injectable()
-export default class CoingeckoPriceFetcher implements FeedFetcherInterface {
+export class CoingeckoPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(CoingeckoDataRepository) private coingeckoDataRepository!: CoingeckoDataRepository;
   @inject(TimeService) private timeService!: TimeService;
