@@ -55,7 +55,7 @@ export enum FetcherName {
   PolygonIOStockPrice = 'PolygonIOStockPrice',
   PolygonIOStockSnapshot = 'PolygonIOStockSnapshot',
   PolygonIOSingleCryptoPrice = 'PolygonIOSingleCryptoPrice',
-  PolygonIOCryptoPrice = 'PolygonIOCryptoPrice',
+  PolygonIOCryptoPriceOLD = 'PolygonIOCryptoPrice',
   PolygonIOCurrencySnapshotGramsPrice = 'PolygonIOCurrencySnapshotGramsPrice',
   PolygonIOCryptoSnapshotPrice = 'PolygonIOCryptoSnapshotPrice',
   TWAPGasPrice = 'TWAPGasPrice',
