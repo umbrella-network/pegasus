@@ -7,7 +7,7 @@ import {sleep} from '../../src/utils/sleep.js';
 import Feeds, {FeedInput} from '../../src/types/Feed.js';
 import {getContainer} from '../../src/lib/getContainer.js';
 import PriceRepository from '../../src/repositories/PriceRepository.js';
-import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
+import PolygonIOStockPriceService from '../../src/services/fetchers/common/PolygonIOStockPriceService.js';
 import {FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;

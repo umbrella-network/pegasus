@@ -13,7 +13,8 @@ export class FeedFetcherRepository {
     @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPrice: fetchers.PolygonIOStockPriceFetcher,
     @inject(fetchers.PolygonIOSingleCryptoPriceFetcher)
     PolygonIOSingleCryptoPrice: fetchers.PolygonIOSingleCryptoPriceFetcher,
-    @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPrice: fetchers.PolygonIOCryptoPriceFetcher,
+    // TODO make backward compatible change
+    // @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPrice: fetchers.PolygonIOCryptoPriceFetcher,
     @inject(fetchers.PolygonIOCurrencySnapshotGramsFetcher)
     PolygonIOCurrencySnapshotGrams: fetchers.PolygonIOCurrencySnapshotGramsFetcher,
     @inject(fetchers.EvmTWAPGasPriceFetcher) evmTWAPGasPriceFetcher: fetchers.EvmTWAPGasPriceFetcher,
@@ -25,7 +26,7 @@ export class FeedFetcherRepository {
       PolygonIOCryptoSnapshotPrice,
       PolygonIOSingleCryptoPrice,
       PolygonIOStockPrice,
-      PolygonIOCryptoPrice,
+      // PolygonIOCryptoPrice,
       PolygonIOCurrencySnapshotGrams,
       TWAPGasPrice: evmTWAPGasPriceFetcher,
       GoldApiPrice,

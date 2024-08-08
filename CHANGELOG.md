@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 - remove deprecated uniswap code
+- remove polygon crypto service (2 separate fetchers extracted)
 
 ## [7.29.8] - 2024-08-01
 ### Fixed

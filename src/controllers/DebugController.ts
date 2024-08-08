@@ -5,9 +5,8 @@ import sort from 'fast-sort';
 
 import Settings from '../types/Settings.js';
 import TimeService from '../services/TimeService.js';
-import PolygonIOCryptoPriceService from '../services/PolygonIOCryptoPriceService.js';
-import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService.js';
-import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer.js';
+import PolygonIOStockPriceService from '../services/fetchers/common/PolygonIOStockPriceService.js';
+import PolygonIOPriceInitializer from '../services/fetchers/common/PolygonIOPriceInitializer.js';
 import PriceRepository from '../repositories/PriceRepository.js';
 import Feeds from '../types/Feed.js';
 import loadFeeds from '../services/loadFeeds.js';
@@ -19,7 +18,6 @@ class DebugController {
   settings!: Settings;
 
   @inject(TimeService) timeService!: TimeService;
-  @inject(PolygonIOCryptoPriceService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceService;
   @inject(PolygonIOStockPriceService) polygonIOStockPriceService!: PolygonIOStockPriceService;
   @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
   @inject(PriceRepository) priceRepository!: PriceRepository;
@@ -28,8 +26,6 @@ class DebugController {
   constructor(@inject('Settings') settings: Settings) {
     this.router = express
       .Router()
-      .get('/price-aggregator/polygon/crypto/prices/:fsym/:tsym', this.polygonCryptoPrices)
-      .get('/price-aggregator/polygon/crypto/latest', this.polygonIOCryptoLatest)
       .get('/price-aggregator/polygon/stock/prices/:sym', this.polygonStockPrices)
       .get('/price-aggregator/polygon/stock/latest', this.polygonIOStockLatest)
       .get('/feeds', this.extractAuthorizationToken, this.feeds);
@@ -47,39 +43,6 @@ class DebugController {
     }
   };
 
-  polygonCryptoPrices = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
-    const {fsym, tsym} = request.params as {fsym: string; tsym: string};
-
-    try {
-      response.send(await this.polygonIOCryptoPriceService.allPrices({fsym, tsym}));
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  polygonIOCryptoLatest = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
-    const {beforeTimestamp = '0', orderBy = 'timestamp'} = request.query as unknown as {
-      beforeTimestamp: string;
-      orderBy: string;
-    };
-
-    try {
-      const [, pairs] = await this.polygonIOPriceInitializer.allPairs();
-
-      response.send(
-        sort(
-          await this.polygonIOCryptoPriceService.latestPrices(
-            pairs,
-            parseInt(beforeTimestamp, 10) || this.timeService.apply(),
-          ),
-          // eslint-disable-next-line
-        ).asc((item: any) => item[orderBy]),
-      );
-    } catch (err) {
-      next(err);
-    }
-  };
-
   polygonIOStockLatest = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
     const {beforeTimestamp = '0', orderBy = 'timestamp'} = request.query as unknown as {
       beforeTimestamp: string;
@@ -87,7 +50,7 @@ class DebugController {
     };
 
     try {
-      const [symbols] = await this.polygonIOPriceInitializer.allPairs();
+      const symbols = await this.polygonIOPriceInitializer.allPairs();
 
       response.send(
         sort(
