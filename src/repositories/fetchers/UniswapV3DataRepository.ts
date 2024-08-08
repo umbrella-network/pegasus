@@ -70,7 +70,7 @@ export class UniswapV3DataRepository extends CommonPriceDataRepository {
     });
 
     const results = await this.model
-      .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1})
+      .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1})
       .sort({timestamp: -1})
       .exec();
 

@@ -62,7 +62,7 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
       .find(
         {
           symbol: {$in: params.map((p) => p.symbol)},
-          timestamp: {$gte: timestamp - this.priceTimeWindow},
+          timestamp: this.getTimestampWindowFilter(timestamp),
           usdIndexPrice: {$ne: null},
         },
         {value: 1, usdIndexPrice: 1, symbol: 1},

@@ -62,7 +62,7 @@ export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataReposito
       .find(
         {
           symbol: {$in: params.map(({fsym, tsym}) => `${fsym}-${tsym}`)},
-          timestamp: {$gte: timestamp - this.priceTimeWindow},
+          timestamp: this.getTimestampWindowFilter(timestamp),
         },
         {value: 1, symbol: 1},
       )
