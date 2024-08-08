@@ -1,7 +1,7 @@
 import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
-import OnChainDataFetcher from '../../../src/services/fetchers/OnChainDataFetcher.js';
+import {OnChainDataFetcher} from '../../../src/services/fetchers/OnChainDataFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import settings from '../../../src/config/settings.js';
 

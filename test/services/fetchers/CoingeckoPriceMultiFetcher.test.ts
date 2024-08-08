@@ -2,7 +2,7 @@ import chai from 'chai';
 
 import Application from '../../../src/lib/Application.js';
 import {CoingeckoPriceInputParams} from '../../../src/services/fetchers/CoingeckoPriceFetcher.js';
-import CoingeckoPriceFetcher from '../../../src/services/fetchers/CoingeckoPriceFetcher.js';
+import {CoingeckoPriceFetcher} from '../../../src/services/fetchers/CoingeckoPriceFetcher.js';
 
 const {expect} = chai;
 

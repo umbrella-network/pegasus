@@ -23,7 +23,7 @@ export interface MetalPriceApiInputParams {
 }
 
 @injectable()
-export default class MetalPriceApiFetcher implements FeedFetcherInterface {
+export class MetalPriceApiFetcher implements FeedFetcherInterface {
   @inject(MetalPriceApiDataRepository) private metalPriceApiDataRepository!: MetalPriceApiDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;

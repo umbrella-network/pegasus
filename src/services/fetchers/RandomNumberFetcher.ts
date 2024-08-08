@@ -6,7 +6,7 @@ import {ProviderRepository} from '../../repositories/ProviderRepository.js';
 import {FeedFetcherOptions} from '../../types/fetchers.js';
 
 @injectable()
-class RandomNumberFetcher {
+export class RandomNumberFetcher {
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
   async apply(params: {numBlocks: number}, options: FeedFetcherOptions): Promise<string> {
@@ -36,5 +36,3 @@ class RandomNumberFetcher {
     );
   }
 }
-
-export default RandomNumberFetcher;

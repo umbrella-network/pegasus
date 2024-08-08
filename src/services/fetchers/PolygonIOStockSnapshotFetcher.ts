@@ -9,7 +9,7 @@ import {SnapshotResponse, Ticker} from './common/BasePolygonIOSnapshotFetcher.js
 import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()
-class PolygonIOStockSnapshotFetcher {
+export class PolygonIOStockSnapshotFetcher {
   @inject('Logger') logger!: Logger;
 
   private apiKey: string;
@@ -73,5 +73,3 @@ class PolygonIOStockSnapshotFetcher {
 export interface SnapshotDataResponse {
   data: SnapshotResponse;
 }
-
-export default PolygonIOStockSnapshotFetcher;

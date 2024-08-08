@@ -98,5 +98,3 @@ export class OnChainDataFetcher {
     return iface.encodeFunctionData(params.method, params.args);
   }
 }
-
-export default OnChainDataFetcher;

@@ -21,7 +21,7 @@ export interface GoldApiPriceInputParams {
 }
 
 @injectable()
-export default class GoldApiPriceFetcher implements FeedFetcherInterface {
+export class GoldApiPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(GoldApiDataRepository) private goldApiDataRepository!: GoldApiDataRepository;
   @inject(TimeService) timeService!: TimeService;

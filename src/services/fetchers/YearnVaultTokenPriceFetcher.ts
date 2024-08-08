@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 @injectable()
-class YearnVaultTokenPriceFetcher {
+export class YearnVaultTokenPriceFetcher {
   @inject(BlockChainProviderFactory) blockChainProviderFactory!: BlockChainProviderFactory;
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
@@ -70,5 +70,3 @@ export interface Vault {
   totalAssets: BigNumber;
   pricePerShare: BigNumber;
 }
-
-export default YearnVaultTokenPriceFetcher;

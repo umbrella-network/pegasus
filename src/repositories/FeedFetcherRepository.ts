@@ -20,7 +20,7 @@ export class FeedFetcherRepository {
     @inject(fetchers.EvmTWAPGasPriceFetcher) evmTWAPGasPriceFetcher: fetchers.EvmTWAPGasPriceFetcher,
     @inject(fetchers.GoldApiPriceFetcher) GoldApiPrice: fetchers.GoldApiPriceFetcher,
     @inject(fetchers.MetalPriceApiFetcher) MetalPriceApi: fetchers.MetalPriceApiFetcher,
-    @inject(fetchers.MetalsDevApiPriceFetcher) MetalsDevApi: fetchers.MetalsDevApiPriceFetcher,
+    @inject(fetchers.MetalsDevApiFetcher) MetalsDevApi: fetchers.MetalsDevApiFetcher,
   ) {
     this.collection = {
       PolygonIOCryptoSnapshotPrice,

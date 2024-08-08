@@ -23,7 +23,7 @@ export interface ByBitPriceInputParams {
 type ParsedResponse = {symbol: string; usdIndexPrice: number | undefined; lastPrice: number};
 
 @injectable()
-export default class ByBitPriceFetcher implements FeedFetcherInterface {
+export class ByBitPriceFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(ByBitDataRepository) byBitDataRepository!: ByBitDataRepository;
   @inject(TimeService) timeService!: TimeService;

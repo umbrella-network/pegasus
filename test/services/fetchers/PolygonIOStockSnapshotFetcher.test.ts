@@ -4,7 +4,7 @@ import moxios from 'moxios';
 import chaiAsPromised from 'chai-as-promised';
 
 import Settings from '../../../src/types/Settings.js';
-import PolygonIOStockSnapshotFetcher from '../../../src/services/fetchers/PolygonIOStockSnapshotFetcher.js';
+import {PolygonIOStockSnapshotFetcher} from '../../../src/services/fetchers/PolygonIOStockSnapshotFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 chai.use(chaiAsPromised);

@@ -1,7 +1,7 @@
 import chai from 'chai';
 import moxios from 'moxios';
 
-import ByBitPriceFetcher from '../../../src/services/fetchers/ByBitPriceFetcher.js';
+import {ByBitPriceFetcher} from '../../../src/services/fetchers/ByBitPriceFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import Settings from '../../../src/types/Settings.js';
 

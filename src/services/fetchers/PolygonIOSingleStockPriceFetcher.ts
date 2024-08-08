@@ -5,7 +5,7 @@ import {BasePolygonIOSingleFetcher, SinglePriceResponse} from './common/BasePoly
 import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()
-class PolygonIOSingleStockPriceFetcher extends BasePolygonIOSingleFetcher {
+export class PolygonIOSingleStockPriceFetcher extends BasePolygonIOSingleFetcher {
   private logPrefix = `[${FetcherName.PolygonIOStockPrice}] (single)`;
 
   constructor(@inject('Settings') settings: Settings) {
@@ -22,5 +22,3 @@ class PolygonIOSingleStockPriceFetcher extends BasePolygonIOSingleFetcher {
     return this.fetch(sourceUrl, raw);
   }
 }
-
-export default PolygonIOSingleStockPriceFetcher;
