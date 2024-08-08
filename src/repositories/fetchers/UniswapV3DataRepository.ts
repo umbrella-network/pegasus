@@ -16,6 +16,11 @@ export type UniswapV3DataRepositoryInput = {
 export class UniswapV3DataRepository extends CommonPriceDataRepository {
   private logPrefix = '[UniswapV3DataRepository]';
 
+  constructor() {
+    super();
+    this.model = getModelForClass(UniswapV3DataModel);
+  }
+
   async save(dataArr: UniswapV3DataRepositoryInput[]): Promise<void> {
     const payloads: UniswapV3DataModel[] = [];
 
@@ -57,10 +62,8 @@ export class UniswapV3DataRepository extends CommonPriceDataRepository {
   }
 
   private async savePrices(data: UniswapV3DataModel[]): Promise<void> {
-    const model = getModelForClass(UniswapV3DataModel);
-
     try {
-      await model.bulkWrite(
+      await this.model.bulkWrite(
         data.map((doc) => {
           return {insertOne: {document: doc}};
         }),
@@ -79,7 +82,7 @@ export class UniswapV3DataRepository extends CommonPriceDataRepository {
       };
     });
 
-    const results = await getModelForClass(UniswapV3DataModel)
+    const results = await this.model
       .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1})
       .sort({timestamp: -1})
       .exec();

@@ -18,6 +18,11 @@ export type MetalPriceApiDataRepositoryInput = {
 export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
   private logPrefix = '[MetalPriceApiDataRepository]';
 
+  constructor() {
+    super();
+    this.model = getModelForClass(MetalPriceApiModel);
+  }
+
   async save(dataArr: MetalPriceApiDataRepositoryInput[]): Promise<void> {
     const payloads: MetalPriceApiModel[] = [];
 
@@ -56,10 +61,8 @@ export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
   }
 
   private async savePrices(data: MetalPriceApiModel[]): Promise<void> {
-    const model = getModelForClass(MetalPriceApiModel);
-
     try {
-      await model.bulkWrite(
+      await this.model.bulkWrite(
         data.map((doc) => {
           return {insertOne: {document: doc}};
         }),
@@ -74,7 +77,7 @@ export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
       return {symbol, currency};
     });
 
-    const results = await getModelForClass(MetalPriceApiModel)
+    const results = await this.model
       .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1, symbol: 1, currency: 1})
       .sort({timestamp: -1})
       .exec();

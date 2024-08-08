@@ -16,6 +16,11 @@ export type PolygonIOCryptoSnapshotDataRepositoryInput = {
 export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataRepository {
   private logPrefix = '[PolygonIOCryptoSnapshotDataRepository]';
 
+  constructor() {
+    super();
+    this.model = getModelForClass(PolygonIOCryptoSnapshotPriceModel);
+  }
+
   async save(dataArr: PolygonIOCryptoSnapshotDataRepositoryInput[]): Promise<void> {
     const payloads: PolygonIOCryptoSnapshotPriceModel[] = [];
 
@@ -52,10 +57,8 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
   }
 
   private async savePrices(data: PolygonIOCryptoSnapshotPriceModel[]): Promise<void> {
-    const model = getModelForClass(PolygonIOCryptoSnapshotPriceModel);
-
     try {
-      await model.bulkWrite(
+      await this.model.bulkWrite(
         data.map((doc) => {
           return {insertOne: {document: doc}};
         }),
@@ -66,7 +69,7 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
   }
 
   async getPrices(params: PolygonIOCryptoSnapshotInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
-    const results = await getModelForClass(PolygonIOCryptoSnapshotPriceModel)
+    const results = await this.model
       .find(
         {
           symbol: {$in: params.map((p) => p.symbol)},

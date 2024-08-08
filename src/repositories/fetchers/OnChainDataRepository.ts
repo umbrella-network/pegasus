@@ -17,6 +17,11 @@ export type OnChainDataRepositoryInput = {
 export class OnChainDataRepository extends CommonPriceDataRepository {
   private logPrefix = '[OnChainDataRepository]';
 
+  constructor() {
+    super();
+    this.model = getModelForClass(OnChainDataModel);
+  }
+
   async save(dataArr: OnChainDataRepositoryInput[]): Promise<void> {
     const payloads: OnChainDataModel[] = [];
 
@@ -59,10 +64,8 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
   }
 
   private async savePrices(data: OnChainDataModel[]): Promise<void> {
-    const model = getModelForClass(OnChainDataModel);
-
     try {
-      await model.bulkWrite(
+      await this.model.bulkWrite(
         data.map((doc) => {
           return {insertOne: {document: doc}};
         }),
@@ -82,7 +85,7 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
       };
     });
 
-    const results = await getModelForClass(OnChainDataModel)
+    const results = await this.model
       .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1})
       .sort({timestamp: -1})
       .exec();

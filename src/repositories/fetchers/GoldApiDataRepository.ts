@@ -16,6 +16,11 @@ export type GoldApiDataRepositoryInput = {
 export class GoldApiDataRepository extends CommonPriceDataRepository {
   private logPrefix = '[GoldApiDataRepository]';
 
+  constructor() {
+    super();
+    this.model = getModelForClass(GoldApiPriceModel);
+  }
+
   async save(dataArr: GoldApiDataRepositoryInput[]): Promise<void> {
     const payloads: GoldApiPriceModel[] = [];
 
@@ -54,10 +59,8 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
   }
 
   private async savePrices(data: GoldApiPriceModel[]): Promise<void> {
-    const model = getModelForClass(GoldApiPriceModel);
-
     try {
-      await model.bulkWrite(
+      await this.model.bulkWrite(
         data.map((doc) => {
           return {insertOne: {document: doc}};
         }),
@@ -72,7 +75,7 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
       return {symbol, currency};
     });
 
-    const results = await getModelForClass(GoldApiPriceModel)
+    const results = await this.model
       .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1, symbol: 1, currency: 1})
       .sort({timestamp: -1})
       .exec();

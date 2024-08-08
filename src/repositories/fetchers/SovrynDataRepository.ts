@@ -17,6 +17,11 @@ export type SovrynDataRepositoryInput = {
 export class SovrynDataRepository extends CommonPriceDataRepository {
   private logPrefix = '[SovrynDataRepository]';
 
+  constructor() {
+    super();
+    this.model = getModelForClass(SovrynDataModel);
+  }
+
   async save(dataArr: SovrynDataRepositoryInput[]): Promise<void> {
     const payloads: SovrynDataModel[] = [];
 
@@ -58,10 +63,8 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
   }
 
   private async savePrices(data: SovrynDataModel[]): Promise<void> {
-    const model = getModelForClass(SovrynDataModel);
-
     try {
-      await model.bulkWrite(
+      await this.model.bulkWrite(
         data.map((doc) => {
           return {insertOne: {document: doc}};
         }),
@@ -80,7 +83,7 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
       };
     });
 
-    const results = await getModelForClass(SovrynDataModel)
+    const results = await this.model
       .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1})
       .sort({timestamp: -1})
       .exec();

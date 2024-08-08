@@ -10,11 +10,16 @@ import {FetcherName} from '../../types/fetchers.js';
 export class TWAPGasRepository extends CommonPriceDataRepository {
   private logPrefix = '[TWAPGasRepository]';
 
+  constructor() {
+    super();
+    this.model = getModelForClass(GasPriceModel);
+  }
+
   async twap(chainId: ChainsIds, minutes: number, atTimestamp: number): Promise<number | undefined> {
     const minutesAgo = 60 * minutes;
     const oldTimestamp = atTimestamp - minutesAgo;
 
-    const datas = await getModelForClass(GasPriceModel)
+    const datas = await this.model
       .find({chainId, timestamp: {$gte: oldTimestamp, $lte: atTimestamp}}, {value: 1})
       .exec();
 
@@ -24,7 +29,7 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
       return;
     }
 
-    const sum = datas.reduce((sum, gas) => sum + BigInt(gas.value), 0n);
+    const sum = datas.reduce((sum: bigint, gas: GasPriceModel) => sum + BigInt(gas.value), 0n);
     const twapValue = Number(sum / BigInt(datas.length));
 
     this.logger.debug(`${this.logPrefix} TWAP${minutes}: ${oldTimestamp} - ${atTimestamp}sec = ${twapValue}`);
@@ -33,9 +38,7 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
   }
 
   async last(chainId: ChainsIds): Promise<BlockchainGas | undefined> {
-    const s = await getModelForClass(GasPriceModel)
-      .findOne({chainId}, null, {sort: {timestamp: -1}})
-      .exec();
+    const s = await this.model.findOne({chainId}, null, {sort: {timestamp: -1}}).exec();
 
     if (s) {
       return {
@@ -50,7 +53,7 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
   async purge(): Promise<void> {
     const oneDay = 60 * 60 * 24;
     const oldTimestamp = Math.trunc(Date.now() / 1000 - oneDay);
-    await getModelForClass(GasPriceModel).deleteMany({timestamp: {$lt: oldTimestamp}});
+    await this.model.deleteMany({timestamp: {$lt: oldTimestamp}});
   }
 
   async save(gas: BlockchainGas): Promise<void> {
@@ -66,7 +69,7 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
 
     const {hash, signature, signerAddress, hashVersion} = await this.priceSignerService.sign(messageToSign);
 
-    const doc = await getModelForClass(GasPriceModel).create({
+    const doc = await this.model.create({
       _id: id,
       hashVersion,
       signature,
