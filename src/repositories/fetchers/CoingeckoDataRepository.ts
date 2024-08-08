@@ -14,11 +14,10 @@ export type CoingeckoDataRepositoryInput = {
 
 @injectable()
 export class CoingeckoDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[CoingeckoDataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(CoingeckoPriceModel);
+    this.logPrefix = '[CoingeckoDataRepository]';
   }
 
   async save(dataArr: CoingeckoDataRepositoryInput[]): Promise<void> {
@@ -56,18 +55,6 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: CoingeckoPriceModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getPrices(params: CoingeckoPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {

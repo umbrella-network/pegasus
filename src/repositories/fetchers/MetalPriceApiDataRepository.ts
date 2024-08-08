@@ -16,11 +16,10 @@ export type MetalPriceApiDataRepositoryInput = {
 //  Cannot read properties of undefined (reading 'XAU')
 @injectable()
 export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[MetalPriceApiDataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(MetalPriceApiModel);
+    this.logPrefix = '[MetalPriceApiDataRepository]';
   }
 
   async save(dataArr: MetalPriceApiDataRepositoryInput[]): Promise<void> {
@@ -58,18 +57,6 @@ export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: MetalPriceApiModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getPrices(params: MetalPriceApiInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {

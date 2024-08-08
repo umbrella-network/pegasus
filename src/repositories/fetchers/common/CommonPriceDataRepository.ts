@@ -18,6 +18,12 @@ export abstract class CommonPriceDataRepository {
   protected hashVersion = 1;
 
   protected model!: ReturnModelType<any, BeAnObject>;
+  protected logPrefix = '';
+
+  constructor() {
+    this.logPrefix = '[CommonPriceDataRepository]';
+  }
+
 
   protected createMessageToSign(
     value: number | bigint | string,
@@ -29,5 +35,17 @@ export abstract class CommonPriceDataRepository {
     const strValue = typeof value === 'string' ? value : value.toString(10);
     const dataToSign = [strValue, hashVersion.toString(), fetcherName, timestamp.toString(), ...data];
     return dataToSign.join(';');
+  }
+
+  protected async savePrices<T>(data: T[]): Promise<void> {
+    try {
+      await this.model.bulkWrite(
+        data.map((doc) => {
+          return {insertOne: {document: doc}};
+        }),
+      );
+    } catch (error) {
+      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
+    }
   }
 }

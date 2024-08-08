@@ -8,11 +8,10 @@ import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()
 export class TWAPGasRepository extends CommonPriceDataRepository {
-  private logPrefix = '[TWAPGasRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(GasPriceModel);
+    this.logPrefix = '[TWAPGasRepository]';
   }
 
   async twap(chainId: ChainsIds, minutes: number, atTimestamp: number): Promise<number | undefined> {

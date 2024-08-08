@@ -16,11 +16,10 @@ export type PolygonIOSingleCryptoDataRepositoryInput = {
 
 @injectable()
 export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[PolygonIOSingleCryptoDataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(PolygonIOSingleCryptoPriceModel);
+    this.logPrefix = '[PolygonIOSingleCryptoDataRepository]';
   }
 
   async save(dataArr: PolygonIOSingleCryptoDataRepositoryInput[]): Promise<void> {
@@ -56,18 +55,6 @@ export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataReposito
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: PolygonIOSingleCryptoPriceModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getPrices(params: PolygonIOSingleCryptoPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {

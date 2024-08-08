@@ -15,11 +15,10 @@ export type ByBitDataRepositoryInput = {
 
 @injectable()
 export class ByBitDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[ByBitDataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(ByBitPriceModel);
+    this.logPrefix = '[ByBitDataRepository]';
   }
 
   async save(dataArr: ByBitDataRepositoryInput[]): Promise<void> {
@@ -56,18 +55,6 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: ByBitPriceModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getPrices(params: ByBitPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {

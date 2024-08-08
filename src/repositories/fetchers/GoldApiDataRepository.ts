@@ -14,11 +14,10 @@ export type GoldApiDataRepositoryInput = {
 
 @injectable()
 export class GoldApiDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[GoldApiDataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(GoldApiPriceModel);
+    this.logPrefix = '[GoldApiDataRepository]';
   }
 
   async save(dataArr: GoldApiDataRepositoryInput[]): Promise<void> {
@@ -56,18 +55,6 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: GoldApiPriceModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getPrices(params: GoldApiPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {

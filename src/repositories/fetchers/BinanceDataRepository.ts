@@ -14,11 +14,10 @@ export type BinanceDataRepositoryInput = {
 
 @injectable()
 export class BinanceDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[BinanceDataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(BinancePriceModel);
+    this.logPrefix = '[BinanceDataRepository]';
   }
 
   async save(dataArr: BinanceDataRepositoryInput[]): Promise<void> {
@@ -54,18 +53,6 @@ export class BinanceDataRepository extends CommonPriceDataRepository {
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: BinancePriceModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getPrices(params: BinancePriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
