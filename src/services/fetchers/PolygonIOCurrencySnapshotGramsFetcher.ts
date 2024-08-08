@@ -26,7 +26,7 @@ export interface PolygonIOCurrencySnapshotGramsInputParams {
 type ParsedResponse = {ticker: string; price: number; timestamp: number};
 
 @injectable()
-export default class PolygonIOCurrencySnapshotGramsPriceFetcher
+export default class PolygonIOCurrencySnapshotGramsFetcher
   extends BasePolygonIOSingleFetcher
   implements FeedFetcherInterface
 {
@@ -68,7 +68,7 @@ export default class PolygonIOCurrencySnapshotGramsPriceFetcher
       symbols,
       FetcherName.PolygonIOCurrencySnapshotGramsPrice,
       FetchedValueType.Price,
-      PolygonIOCurrencySnapshotGramsPriceFetcher.fetcherSource,
+      PolygonIOCurrencySnapshotGramsFetcher.fetcherSource,
     );
 
     return {prices};

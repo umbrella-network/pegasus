@@ -6,6 +6,7 @@ import PolygonIOStockPriceService from './PolygonIOStockPriceService.js';
 import Settings from '../types/Settings.js';
 import loadFeeds from './loadFeeds.js';
 import {Pair} from '../types/Feed.js';
+import {FetcherName} from '../types/fetchers.js';
 
 @injectable()
 class PolygonIOPriceInitializer {
@@ -56,13 +57,13 @@ class PolygonIOPriceInitializer {
       .flat();
 
     const stockSymbols = inputs
-      .filter(({fetcher}) => fetcher.name === 'PolygonIOPrice' || fetcher.name === 'PolygonIOStockPrice')
+      .filter(({fetcher}) => [FetcherName.PolygonIOPrice, FetcherName.PolygonIOStockPrice].includes(fetcher.name))
       .map(({fetcher}) => fetcher.params)
       // eslint-disable-next-line
       .map(({sym}: any) => sym);
 
     const cryptoPairs = inputs
-      .filter(({fetcher}) => fetcher.name === 'PolygonIOCryptoPrice')
+      .filter(({fetcher}) => fetcher.name === FetcherName.PolygonIOCryptoPrice)
       .map(({fetcher}) => fetcher.params)
       // eslint-disable-next-line
       .map(({fsym, tsym}: any) => ({fsym, tsym}));

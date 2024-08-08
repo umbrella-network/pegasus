@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PolygonIOCurrencySnapshotGramsPriceModel} from '../../models/fetchers/PolygonIOCurrencySnapshotGramsPriceModel.js';
-import {PolygonIOCurrencySnapshotGramsInputParams} from '../../services/fetchers/PolygonIOCurrencySnapshotGramsPriceFetcher.js';
+import {PolygonIOCurrencySnapshotGramsInputParams} from '../../services/fetchers/PolygonIOCurrencySnapshotGramsFetcher.js';
 
 export type PolygonIOCurrencySnapshotGramsDataRepositoryInput = {
   value: number;
