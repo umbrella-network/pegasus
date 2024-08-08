@@ -1,9 +1,12 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
+import {ReturnModelType} from '@typegoose/typegoose';
+import {BeAnObject} from '@typegoose/typegoose/lib/types';
 
 import Settings from '../../../types/Settings.js';
 import {FetcherName} from '../../../types/fetchers.js';
 import PriceSignerService from '../../../services/PriceSignerService.js';
+
 
 @injectable()
 export abstract class CommonPriceDataRepository {
@@ -11,8 +14,10 @@ export abstract class CommonPriceDataRepository {
   @inject('Settings') protected settings!: Settings;
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
 
-  protected priceTimeWindow = 20; // TODO time limit
+  protected priceTimeWindow = 20; // TODO time limit, also above limit
   protected hashVersion = 1;
+
+  protected model!: ReturnModelType<any, BeAnObject>;
 
   protected createMessageToSign(
     value: number | bigint | string,

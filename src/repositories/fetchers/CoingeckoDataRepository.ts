@@ -16,6 +16,11 @@ export type CoingeckoDataRepositoryInput = {
 export class CoingeckoDataRepository extends CommonPriceDataRepository {
   private logPrefix = '[CoingeckoDataRepository]';
 
+  constructor() {
+    super();
+    this.model = getModelForClass(CoingeckoPriceModel);
+  }
+
   async save(dataArr: CoingeckoDataRepositoryInput[]): Promise<void> {
     const payloads: CoingeckoPriceModel[] = [];
 
@@ -54,10 +59,8 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
   }
 
   private async savePrices(data: CoingeckoPriceModel[]): Promise<void> {
-    const model = getModelForClass(CoingeckoPriceModel);
-
     try {
-      await model.bulkWrite(
+      await this.model.bulkWrite(
         data.map((doc) => {
           return {insertOne: {document: doc}};
         }),
@@ -72,7 +75,7 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
       return {id, currency};
     });
 
-    const results = await getModelForClass(CoingeckoPriceModel)
+    const results = await this.model
       .find({$or: or, timestamp: {$gte: timestamp - this.priceTimeWindow}}, {value: 1, id: 1, currency: 1})
       .sort({timestamp: -1})
       .exec();

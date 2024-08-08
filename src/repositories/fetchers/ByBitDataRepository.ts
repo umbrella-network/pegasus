@@ -17,6 +17,11 @@ export type ByBitDataRepositoryInput = {
 export class ByBitDataRepository extends CommonPriceDataRepository {
   private logPrefix = '[ByBitDataRepository]';
 
+  constructor() {
+    super();
+    this.model = getModelForClass(ByBitPriceModel);
+  }
+
   async save(dataArr: ByBitDataRepositoryInput[]): Promise<void> {
     const payloads: ByBitPriceModel[] = [];
 
@@ -54,10 +59,8 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
   }
 
   private async savePrices(data: ByBitPriceModel[]): Promise<void> {
-    const model = getModelForClass(ByBitPriceModel);
-
     try {
-      await model.bulkWrite(
+      await this.model.bulkWrite(
         data.map((doc) => {
           return {insertOne: {document: doc}};
         }),
@@ -68,7 +71,7 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
   }
 
   async getPrices(params: ByBitPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
-    const results = await getModelForClass(ByBitPriceModel)
+    const results = await this.model
       .find(
         {
           symbol: {$in: params.map((p) => p.symbol)},

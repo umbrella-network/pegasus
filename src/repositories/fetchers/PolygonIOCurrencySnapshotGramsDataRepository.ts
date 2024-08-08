@@ -16,6 +16,11 @@ export type PolygonIOCurrencySnapshotGramsDataRepositoryInput = {
 export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDataRepository {
   private logPrefix = '[PolygonIOCurrencySnapshotGramsDataRepository]';
 
+  constructor() {
+    super();
+    this.model = getModelForClass(PolygonIOCurrencySnapshotGramsPriceModel);
+  }
+
   async save(dataArr: PolygonIOCurrencySnapshotGramsDataRepositoryInput[]): Promise<void> {
     const payloads: PolygonIOCurrencySnapshotGramsPriceModel[] = [];
 
@@ -52,10 +57,8 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
   }
 
   private async savePrices(data: PolygonIOCurrencySnapshotGramsPriceModel[]): Promise<void> {
-    const model = getModelForClass(PolygonIOCurrencySnapshotGramsPriceModel);
-
     try {
-      await model.bulkWrite(
+      await this.model.bulkWrite(
         data.map((doc) => {
           return {insertOne: {document: doc}};
         }),
@@ -69,7 +72,7 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
     params: PolygonIOCurrencySnapshotGramsInputParams[],
     timestamp: number,
   ): Promise<NumberOrUndefined[]> {
-    const results = await getModelForClass(PolygonIOCurrencySnapshotGramsPriceModel)
+    const results = await this.model
       .find(
         {
           ticker: {$in: params.map((p) => p.ticker)},
