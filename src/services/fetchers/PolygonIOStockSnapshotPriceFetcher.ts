@@ -8,14 +8,18 @@ import Settings from '../../types/Settings.js';
 import {SnapshotResponse, Ticker} from './common/BasePolygonIOSnapshotFetcher.js';
 import {FetcherName} from '../../types/fetchers.js';
 
+export type PolygonIOStockSnapshotPriceInputParams = {
+  symbol: string
+}
+
 @injectable()
-class PolygonIOStockSnapshotFetcher {
+class PolygonIOStockSnapshotPriceFetcher {
   @inject('Logger') logger!: Logger;
 
   private apiKey: string;
   private timeout: number;
   private maxBatchSize: number;
-  private logPrefix = `[${FetcherName.PolygonIOStockSnapshot}]`;
+  private logPrefix = `[${FetcherName.PolygonIOStockSnapshotPrice}]`;
 
   constructor(@inject('Settings') settings: Settings) {
     this.apiKey = settings.api.polygonIO.apiKey;
@@ -23,10 +27,10 @@ class PolygonIOStockSnapshotFetcher {
     this.timeout = settings.api.polygonIO.timeout;
   }
 
-  async apply({symbols}: {symbols: string[]}, raw = false): Promise<SnapshotResponse | number[]> {
-    const tickerBatches = _.chunk(symbols, this.maxBatchSize).map((batch) => batch.join(','));
+  async apply(params: PolygonIOStockSnapshotPriceInputParams[], raw = false): Promise<SnapshotResponse | number[]> {
+    const tickerBatches = _.chunk(params, this.maxBatchSize).map((batch) => batch.map(s => s.symbol).join(','));
 
-    this.logger.debug(`${this.logPrefix} call for ${symbols.join(', ')}`);
+    this.logger.debug(`${this.logPrefix} call for ${params.map(s => s.symbol).join(', ')}`);
 
     const snapshot = await this.getSnapshot(tickerBatches);
     const mergedSnapshot = {tickers: this.mergeData(snapshot)};
@@ -74,4 +78,4 @@ export interface SnapshotDataResponse {
   data: SnapshotResponse;
 }
 
-export default PolygonIOStockSnapshotFetcher;
+export default PolygonIOStockSnapshotPriceFetcher;

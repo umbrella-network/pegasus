@@ -3,21 +3,21 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {PolygonIOCurrencySnapshotGramsModel} from '../../models/fetchers/PolygonIOCurrencySnapshotGramsModel.js';
-import {PolygonIOCurrencySnapshotGramsInputParams} from '../../services/fetchers/PolygonIOCurrencySnapshotGramsFetcher.js';
+import {PolygonIOStockSnapshotPriceModel} from '../../models/fetchers/PolygonIOStockSnapshotPriceModel.js';
+import {PolygonIOStockSnapshotPriceInputParams} from '../../services/fetchers/PolygonIOStockSnapshotPriceFetcher.js';
 
-export type PolygonIOCurrencySnapshotGramsDataRepositoryInput = {
+export type PolygonIOStockSnapshotDataRepositoryInput = {
   value: number;
   timestamp: number;
-  params: PolygonIOCurrencySnapshotGramsInputParams;
+  params: PolygonIOStockSnapshotInputParams;
 };
 
 @injectable()
-export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[PolygonIOCurrencySnapshotGramsDataRepository]';
+export class PolygonIOStockSnapshotDataRepository extends CommonPriceDataRepository {
+  private logPrefix = '[PolygonIOStockSnapshotDataRepository]';
 
-  async save(dataArr: PolygonIOCurrencySnapshotGramsDataRepositoryInput[]): Promise<void> {
-    const payloads: PolygonIOCurrencySnapshotGramsModel[] = [];
+  async save(dataArr: PolygonIOStockSnapshotDataRepositoryInput[]): Promise<void> {
+    const payloads: PolygonIOStockSnapshotPriceModel[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
@@ -25,8 +25,8 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
           value,
           timestamp,
           this.hashVersion,
-          FetcherName.PolygonIOCryptoSnapshotPrice,
-          params.ticker,
+          FetcherName.PolygonIOStockSnapshotPrice,
+          params.symbol,
         );
 
         return this.priceSignerService.sign(messageToSign);
@@ -37,7 +37,7 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
       const {signerAddress, signature, hash, hashVersion} = signatures[ix];
 
       payloads.push({
-        ticker: params.ticker,
+        symbol: params.symbol,
         value: value.toString(),
         valueType: FetchedValueType.Price,
         timestamp,
@@ -51,8 +51,8 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
     await this.savePrices(payloads);
   }
 
-  private async savePrices(data: PolygonIOCurrencySnapshotGramsModel[]): Promise<void> {
-    const model = getModelForClass(PolygonIOCurrencySnapshotGramsModel);
+  private async savePrices(data: PolygonIOStockSnapshotPriceModel[]): Promise<void> {
+    const model = getModelForClass(PolygonIOStockSnapshotPriceModel);
 
     try {
       await model.bulkWrite(
@@ -65,14 +65,11 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
     }
   }
 
-  async getPrices(
-    params: PolygonIOCurrencySnapshotGramsInputParams[],
-    timestamp: number,
-  ): Promise<NumberOrUndefined[]> {
-    const results = await getModelForClass(PolygonIOCurrencySnapshotGramsModel)
+  async getPrices(params: PolygonIOStockSnapshotInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    const results = await getModelForClass(PolygonIOStockSnapshotPriceModel)
       .find(
         {
-          ticker: {$in: params.map((p) => p.ticker)},
+          symbol: {$in: params.map((p) => p.symbol)},
           timestamp: {$gte: timestamp - this.priceTimeWindow},
         },
         {value: 1, symbol: 1},
@@ -85,17 +82,17 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
 
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestPrices(
-    sortedResults: PolygonIOCurrencySnapshotGramsModel[],
-    inputs: PolygonIOCurrencySnapshotGramsInputParams[],
+    sortedResults: PolygonIOStockSnapshotPriceModel[],
+    inputs: PolygonIOStockSnapshotInputParams[],
   ): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
-    sortedResults.forEach(({ticker, value}) => {
-      if (map[ticker]) return; // already set newest price
+    sortedResults.forEach(({symbol, value}) => {
+      if (map[symbol]) return; // already set newest price
 
-      map[ticker] = parseFloat(value);
+      map[symbol] = parseFloat(value);
     });
 
-    return inputs.map(({ticker}) => map[ticker.toLowerCase()]);
+    return inputs.map(({symbol}) => map[symbol]);
   }
 }

@@ -4,7 +4,7 @@ import moxios from 'moxios';
 import chaiAsPromised from 'chai-as-promised';
 
 import Settings from '../../../src/types/Settings.js';
-import PolygonIOStockSnapshotFetcher from '../../../src/services/fetchers/PolygonIOStockSnapshotFetcher.js';
+import PolygonIOStockSnapshotPriceFetcher from '../../../src/services/fetchers/PolygonIOStockSnapshotPriceFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 chai.use(chaiAsPromised);
@@ -13,7 +13,7 @@ const {expect} = chai;
 
 describe('PolygonIOStockSnapshotFetcher', () => {
   let settings: Settings;
-  let polygonIOStockSnapshotFetcher: PolygonIOStockSnapshotFetcher;
+  let polygonIOStockSnapshotFetcher: PolygonIOStockSnapshotPriceFetcher;
 
   const ticker1 = {
     ticker: 'UVXY',
@@ -53,9 +53,9 @@ describe('PolygonIOStockSnapshotFetcher', () => {
 
     container.rebind('Settings').toConstantValue(settings);
 
-    container.bind(PolygonIOStockSnapshotFetcher).toSelf();
+    container.bind(PolygonIOStockSnapshotPriceFetcher).toSelf();
 
-    polygonIOStockSnapshotFetcher = container.get(PolygonIOStockSnapshotFetcher);
+    polygonIOStockSnapshotFetcher = container.get(PolygonIOStockSnapshotPriceFetcher);
   });
 
   afterEach(() => {
