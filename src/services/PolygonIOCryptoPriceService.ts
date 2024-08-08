@@ -5,14 +5,11 @@ import {Logger} from 'winston';
 import PriceAggregator from './PriceAggregator.js';
 import Settings from '../types/Settings.js';
 import TimeService from './TimeService.js';
-import PolygonIOSingleCryptoPriceFetcher from './fetchers/PolygonIOSingleCryptoPriceFetcher.js';
 import {Pair} from '../types/Feed.js';
-import {SinglePriceResponse} from './fetchers/common/BasePolygonIOSingleFetcher.js';
 
 @injectable()
 class PolygonIOCryptoPriceService {
   @inject('Logger') logger!: Logger;
-  @inject(PolygonIOSingleCryptoPriceFetcher) polygonIOSingleCryptoPriceFetcher!: PolygonIOSingleCryptoPriceFetcher;
   @inject('Settings') settings!: Settings;
   @inject(TimeService) timeService!: TimeService;
   @inject(PriceAggregator) priceAggregator!: PriceAggregator;
@@ -56,53 +53,11 @@ class PolygonIOCryptoPriceService {
     for (const pair of newPairs) {
       this.subscriptions[`${pair.fsym}-${pair.tsym}`] = [pair, false];
     }
-
-    this.updateInitialPrices().catch(console.warn);
   }
 
   unsubscribe(...pairs: Pair[]): void {
     for (const pair of pairs) {
       delete this.subscriptions[`${pair.fsym}-${pair.tsym}`];
-    }
-  }
-
-  private async updateInitialPrices(): Promise<void> {
-    const initialPairs = Object.entries(this.subscriptions)
-      .filter(([, [, initialized]]) => !initialized)
-      .map(([, [pair]]) => pair);
-
-    if (!initialPairs.length) {
-      this.logger.debug(`${this.loggerPrefix} no initial crypto prices to update`);
-      return;
-    }
-
-    this.logger.info(`${this.loggerPrefix} updating ${initialPairs.length} initial crypto prices`);
-
-    const results = await Promise.allSettled(
-      initialPairs.map((pair) => this.polygonIOSingleCryptoPriceFetcher.apply(pair, true)),
-    );
-
-    const fulfilled: SinglePriceResponse[] = results
-      .filter(({status}) => status === 'fulfilled')
-      // eslint-disable-next-line
-      .map(({value}: any) => value);
-
-    fulfilled.forEach(({last, symbol}) => {
-      this.subscriptions[symbol] = [this.subscriptions[symbol][0], true];
-
-      if (!last) {
-        console.warn(`no last for ${symbol}`);
-        return;
-      }
-
-      const {price, timestamp} = last;
-
-      this.onUpdate(symbol, price, Math.floor(timestamp / 1000));
-    });
-
-    const rejected = results.filter(({status}) => status === 'rejected');
-    if (rejected.length) {
-      this.updateInitialPrices().catch(console.warn);
     }
   }
 
