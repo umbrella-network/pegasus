@@ -7,16 +7,17 @@ import Settings from '../../../types/Settings.js';
 import {FetcherName} from '../../../types/fetchers.js';
 import PriceSignerService from '../../../services/PriceSignerService.js';
 
-
 @injectable()
 export abstract class CommonPriceDataRepository {
   @inject('Logger') protected logger!: Logger;
   @inject('Settings') protected settings!: Settings;
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
 
-  protected priceTimeWindow = 20; // TODO time limit, also above limit
+  private priceTimeWindow = 10; // TODO time window, configurable?
   protected hashVersion = 1;
 
+  // this is definition from @typegoose
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected model!: ReturnModelType<any, BeAnObject>;
   protected logPrefix = '';
 
@@ -24,6 +25,9 @@ export abstract class CommonPriceDataRepository {
     this.logPrefix = '[CommonPriceDataRepository]';
   }
 
+  protected getTimestampWindowFilter(timestamp: number) {
+    return {$gte: timestamp - this.priceTimeWindow, $lte: timestamp + this.priceTimeWindow};
+  }
 
   protected createMessageToSign(
     value: number | bigint | string,

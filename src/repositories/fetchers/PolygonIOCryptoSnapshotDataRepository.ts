@@ -60,7 +60,7 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
       .find(
         {
           symbol: {$in: params.map((p) => p.symbol)},
-          timestamp: {$gte: timestamp - this.priceTimeWindow},
+          timestamp: this.getTimestampWindowFilter(timestamp),
         },
         {value: 1, symbol: 1},
       )

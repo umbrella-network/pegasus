@@ -63,7 +63,7 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
       .find(
         {
           ticker: {$in: params.map((p) => p.ticker)},
-          timestamp: {$gte: timestamp - this.priceTimeWindow},
+          timestamp: this.getTimestampWindowFilter(timestamp),
         },
         {value: 1, symbol: 1},
       )
