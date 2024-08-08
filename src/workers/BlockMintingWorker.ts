@@ -3,7 +3,7 @@ import {inject, injectable} from 'inversify';
 
 import BlockMinter from '../services/BlockMinter.js';
 import BasicWorker from './BasicWorker.js';
-import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer.js';
+import PolygonIOPriceInitializer from '../services/fetchers/common/PolygonIOPriceInitializer.js';
 
 @injectable()
 class BlockMintingWorker extends BasicWorker {

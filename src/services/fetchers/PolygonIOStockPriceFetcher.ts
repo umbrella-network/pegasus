@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 
-import PolygonIOStockPriceService from '../PolygonIOStockPriceService.js';
+import PolygonIOStockPriceService from './common/PolygonIOStockPriceService.js';
 import {FeedFetcherInterface, FeedFetcherOptions, FetcherResult} from '../../types/fetchers.js';
 
 export interface PolygonIOPriceInputParams {
