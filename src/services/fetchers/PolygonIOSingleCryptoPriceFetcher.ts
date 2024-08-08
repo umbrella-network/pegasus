@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
-import {BasePolygonIOSingleFetcher, SinglePriceResponse} from './BasePolygonIOSingleFetcher.js';
+import {BasePolygonIOSingleFetcher, SinglePriceResponse} from './common/BasePolygonIOSingleFetcher.js';
 import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()

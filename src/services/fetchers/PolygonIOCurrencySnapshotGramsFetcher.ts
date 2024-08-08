@@ -8,7 +8,7 @@ import {
   FetchedValueType,
 } from '../../types/fetchers.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import {BasePolygonIOSingleFetcher} from './BasePolygonIOSingleFetcher.js';
+import {BasePolygonIOSingleFetcher} from './common/BasePolygonIOSingleFetcher.js';
 import Settings from '../../types/Settings.js';
 
 /*
