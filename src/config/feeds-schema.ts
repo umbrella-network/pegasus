@@ -158,7 +158,7 @@ export default {
     },
     PolygonIOCryptoPrice: {
       properties: {
-        name: {const: FetcherName.PolygonIOCryptoPrice},
+        name: {const: FetcherName.PolygonIOCryptoPriceOLD},
         params: {
           type: 'object',
           properties: {

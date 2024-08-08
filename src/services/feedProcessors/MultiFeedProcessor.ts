@@ -1,7 +1,12 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ByBitPriceFetcher, BinancePriceFetcher, CoingeckoPriceFetcher} from '../fetchers/index.js';
+import {
+  ByBitPriceFetcher,
+  BinancePriceFetcher,
+  CoingeckoPriceFetcher,
+  PolygonIOCryptoSnapshotPriceFetcher,
+} from '../fetchers/index.js';
 import {FeedFetcherInterface, FetcherName, FetcherResult} from '../../types/fetchers.js';
 import UniswapV3Fetcher from '../dexes/uniswapV3/UniswapV3Fetcher.js';
 import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
@@ -14,6 +19,8 @@ export default class MultiFeedProcessor {
   @inject(ByBitPriceFetcher) byBitSpotPriceFetcher!: ByBitPriceFetcher;
   @inject(SovrynPriceFetcher) sovrynPriceFetcher!: SovrynPriceFetcher;
   @inject(UniswapV3Fetcher) uniswapV3PriceFetcher!: UniswapV3Fetcher;
+  @inject(PolygonIOCryptoSnapshotPriceFetcher)
+  polygonIOCryptoSnapshotPriceFetcher!: PolygonIOCryptoSnapshotPriceFetcher;
   @inject('Logger') logger!: Logger;
 
   async apply(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
@@ -60,6 +67,9 @@ export default class MultiFeedProcessor {
             break;
           case FetcherName.UniswapV3OLD: // TODO: remove this backward compatible code
             fetcherObject = this.uniswapV3PriceFetcher;
+            break;
+          case FetcherName.PolygonIOCryptoPriceOLD: // TODO: remove this backward compatible code
+            fetcherObject = this.polygonIOCryptoSnapshotPriceFetcher;
             break;
           default:
             continue;
