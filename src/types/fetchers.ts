@@ -7,7 +7,7 @@ import {GoldApiPriceInputParams} from 'src/services/fetchers/GoldApiPriceFetcher
 import {MetalPriceApiInputParams} from 'src/services/fetchers/MetalPriceApiFetcher';
 import {MetalsDevApiPriceInputParams} from 'src/services/fetchers/MetalsDevApiFetcher';
 import {PolygonIOCryptoPriceInputParams} from 'src/services/fetchers/PolygonIOCryptoPriceFetcher';
-import {PolygonIOCurrencySnapshotGramsInputParams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
+import {PolygonIOCurrencySnapshotGramsInputParams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsPriceFetcher';
 import {PolygonIOPriceInputParams} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
 import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceFetcher.js';
 import {PolygonIOSingleCryptoPriceInputParams} from '../services/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
@@ -58,7 +58,7 @@ export enum FetcherName {
   PolygonIOStockSnapshot = 'PolygonIOStockSnapshot',
   PolygonIOSingleCryptoPrice = 'PolygonIOSingleCryptoPrice',
   PolygonIOCryptoPrice = 'PolygonIOCryptoPrice',
-  PolygonIOCurrencySnapshotGrams = 'PolygonIOCurrencySnapshotGrams',
+  PolygonIOCurrencySnapshotGramsPrice = 'PolygonIOCurrencySnapshotGramsPrice',
   PolygonIOCryptoSnapshotPrice = 'PolygonIOCryptoSnapshotPrice',
   TWAPGasPrice = 'TWAPGasPrice',
   OnChainData = 'OnChainData',

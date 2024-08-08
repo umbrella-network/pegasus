@@ -14,8 +14,8 @@ export class FeedFetcherRepository {
     @inject(fetchers.PolygonIOSingleCryptoPriceFetcher)
     PolygonIOSingleCryptoPrice: fetchers.PolygonIOSingleCryptoPriceFetcher,
     @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPrice: fetchers.PolygonIOCryptoPriceFetcher,
-    @inject(fetchers.PolygonIOCurrencySnapshotGramsFetcher)
-    PolygonIOCurrencySnapshotGrams: fetchers.PolygonIOCurrencySnapshotGramsFetcher,
+    @inject(fetchers.PolygonIOCurrencySnapshotGramsPriceFetcher)
+    PolygonIOCurrencySnapshotGrams: fetchers.PolygonIOCurrencySnapshotGramsPriceFetcher,
     @inject(fetchers.EvmTWAPGasPriceFetcher) evmTWAPGasPriceFetcher: fetchers.EvmTWAPGasPriceFetcher,
     @inject(fetchers.GoldApiPriceFetcher) GoldApiPrice: fetchers.GoldApiPriceFetcher,
     @inject(fetchers.MetalPriceApiFetcher) MetalPriceApi: fetchers.MetalPriceApiFetcher,

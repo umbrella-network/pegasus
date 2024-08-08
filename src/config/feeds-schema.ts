@@ -297,7 +297,7 @@ export default {
     },
     PolygonIOCurrencySnapshotGrams: {
       properties: {
-        name: {const: FetcherName.PolygonIOCurrencySnapshotGrams},
+        name: {const: FetcherName.PolygonIOCurrencySnapshotGramsPrice},
         params: {
           type: 'object',
           properties: {
