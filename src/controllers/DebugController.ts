@@ -5,7 +5,7 @@ import sort from 'fast-sort';
 
 import Settings from '../types/Settings.js';
 import TimeService from '../services/TimeService.js';
-import PolygonIOCryptoPriceSubscriptionService from '../services/fetchers/common/PolygonIOCryptoPriceSubscriptionService.js';
+import PolygonIOCryptoPriceWSService from '../services/fetchers/common/PolygonIOCryptoPriceWSService.js';
 import PolygonIOStockPriceService from '../services/PolygonIOStockPriceService.js';
 import PolygonIOPriceInitializer from '../services/PolygonIOPriceInitializer.js';
 import PriceRepository from '../repositories/PriceRepository.js';
@@ -19,7 +19,8 @@ class DebugController {
   settings!: Settings;
 
   @inject(TimeService) timeService!: TimeService;
-  @inject(PolygonIOCryptoPriceSubscriptionService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceSubscriptionService;
+  @inject(PolygonIOCryptoPriceWSService)
+  polygonIOCryptoPriceService!: PolygonIOCryptoPriceWSService;
   @inject(PolygonIOStockPriceService) polygonIOStockPriceService!: PolygonIOStockPriceService;
   @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
   @inject(PriceRepository) priceRepository!: PriceRepository;

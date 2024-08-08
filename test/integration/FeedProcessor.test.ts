@@ -6,7 +6,6 @@ import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {sleep} from '../../src/utils/sleep.js';
 import Feeds, {FeedInput} from '../../src/types/Feed.js';
 import {getContainer} from '../../src/lib/getContainer.js';
-import PriceRepository from '../../src/repositories/PriceRepository.js';
 import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
 import {FetcherName} from '../../src/types/fetchers.js';
 
@@ -44,7 +43,7 @@ const feedsFetcher = [
   },
 ];
 
-const fetcherWSNames = [FetcherName.PolygonIOCryptoPrice];
+const fetcherWSNames = [FetcherName.PolygonIOCryptoPriceOLD];
 
 describe.skip('FeedProcessor integration tests', () => {
   let feedProcessor: FeedProcessor;

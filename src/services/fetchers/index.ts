@@ -1,4 +1,4 @@
-import {PolygonIOCryptoPriceFetcher} from './PolygonIOCryptoPriceFetcher.js';
+import {PolygonIOCryptoPriceWSFetcher} from './PolygonIOCryptoPriceWSFetcher.js';
 import PolygonIOStockPriceFetcher from './PolygonIOStockPriceFetcher.js';
 import PolygonIOCurrencySnapshotGramsFetcher from './PolygonIOCurrencySnapshotGramsFetcher.js';
 import YearnVaultTokenPriceFetcher from './YearnVaultTokenPriceFetcher.js';
@@ -21,7 +21,7 @@ export {
   PolygonIOCryptoSnapshotPriceFetcher,
   PolygonIOSingleCryptoPriceFetcher,
   PolygonIOStockPriceFetcher,
-  PolygonIOCryptoPriceFetcher,
+  PolygonIOCryptoPriceWSFetcher,
   PolygonIOCurrencySnapshotGramsFetcher,
   YearnVaultTokenPriceFetcher,
   CoingeckoPriceFetcher,

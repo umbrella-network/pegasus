@@ -62,6 +62,7 @@ export default class BinancePriceFetcher implements FeedFetcherInterface {
       timestamp,
     };
 
+    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
       fetcherResults,
       options.symbols,

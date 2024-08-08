@@ -1,5 +1,6 @@
 import {index, prop} from '@typegoose/typegoose';
 
+// TODO deprecated, remove
 @index({timestamp: 1})
 @index({source: 1, symbol: 1, timestamp: 1})
 @index({expireAt: 1}, {expireAfterSeconds: 0})

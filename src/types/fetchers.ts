@@ -6,7 +6,7 @@ import {EvmTWAPGasPriceInputParams} from 'src/services/fetchers/EvmTWAPGasPriceF
 import {GoldApiPriceInputParams} from 'src/services/fetchers/GoldApiPriceFetcher';
 import {MetalPriceApiInputParams} from 'src/services/fetchers/MetalPriceApiFetcher';
 import {MetalsDevApiPriceInputParams} from 'src/services/fetchers/MetalsDevApiFetcher';
-import {PolygonIOCryptoPriceInputParams} from 'src/services/fetchers/PolygonIOCryptoPriceFetcher';
+import {PolygonIOCryptoPriceWSInputParams} from 'src/services/fetchers/PolygonIOCryptoPriceWSFetcher';
 import {PolygonIOCurrencySnapshotGramsInputParams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
 import {PolygonIOPriceInputParams} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
 import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceFetcher.js';
@@ -31,13 +31,14 @@ export type FetcherResult = {
   timestamp?: number;
 };
 
+// TODO make all fetchers to accept array
 export type FeedFetcherInputParams =
   | ByBitPriceInputParams[]
   | BinancePriceInputParams[]
   | GoldApiPriceInputParams
   | PolygonIOCryptoSnapshotInputParams
   | PolygonIOSingleCryptoInputParams[]
-  | PolygonIOCryptoPriceInputParams
+  | PolygonIOCryptoPriceWSInputParams
   | PolygonIOCurrencySnapshotGramsInputParams
   | PolygonIOPriceInputParams
   | EvmTWAPGasPriceInputParams
@@ -57,7 +58,8 @@ export enum FetcherName {
   PolygonIOStockPrice = 'PolygonIOStockPrice',
   PolygonIOStockSnapshot = 'PolygonIOStockSnapshot',
   PolygonIOSingleCryptoPrice = 'PolygonIOSingleCryptoPrice',
-  PolygonIOCryptoPrice = 'PolygonIOCryptoPrice',
+  PolygonIOCryptoPriceWS = 'PolygonIOCryptoPriceWS',
+  PolygonIOCryptoPriceOLD = 'PolygonIOCryptoPrice',
   PolygonIOCurrencySnapshotGrams = 'PolygonIOCurrencySnapshotGrams',
   PolygonIOCryptoSnapshotPrice = 'PolygonIOCryptoSnapshotPrice',
   TWAPGasPrice = 'TWAPGasPrice',

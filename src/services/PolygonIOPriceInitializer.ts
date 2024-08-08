@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import PolygonIOCryptoPriceSubscriptionService from './fetchers/common/PolygonIOCryptoPriceSubscriptionService.js';
+import PolygonIOCryptoPriceWSService from './fetchers/common/PolygonIOCryptoPriceWSService.js';
 import PolygonIOStockPriceService from './PolygonIOStockPriceService.js';
 import Settings from '../types/Settings.js';
 import loadFeeds from './loadFeeds.js';
@@ -10,7 +10,8 @@ import {FetcherName} from '../types/fetchers.js';
 
 @injectable()
 class PolygonIOPriceInitializer {
-  @inject(PolygonIOCryptoPriceSubscriptionService) polygonIOCryptoPriceService!: PolygonIOCryptoPriceSubscriptionService;
+  @inject(PolygonIOCryptoPriceWSService)
+  polygonIOCryptoPriceService!: PolygonIOCryptoPriceWSService;
   @inject(PolygonIOStockPriceService) polygonIOStockPriceService!: PolygonIOStockPriceService;
   @inject('Settings') settings!: Settings;
   @inject('Logger') logger!: Logger;

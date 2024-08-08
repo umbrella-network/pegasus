@@ -10,13 +10,15 @@ export default class MongoDBPriceAggregator {
   @inject(PolygonIOCryptoDataRepository) priceRepository!: PolygonIOCryptoDataRepository;
 
   async add(symbol: string, value: number, timestamp: number): Promise<void> {
-    await this.priceRepository.save([{
-      value,
-      timestamp,
-      params: {
-        symbol
-      }
-    }]);
+    await this.priceRepository.save([
+      {
+        value,
+        timestamp,
+        params: {
+          symbol,
+        },
+      },
+    ]);
   }
 
   /**

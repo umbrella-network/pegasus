@@ -1,13 +1,12 @@
 import {injectable} from 'inversify';
 import {Price} from '../../models/Price.js';
 import {getModelForClass} from '@typegoose/typegoose';
-import dayjs from 'dayjs';
 import NodeCache from 'node-cache';
 
-import {CommonPriceDataRepository} from "./common/CommonPriceDataRepository.js";
-import {PolygonIOCryptoPriceModel} from "../../models/fetchers/PolygonIOCryptoPriceModel.js";
-import {FetchedValueType, FetcherName} from "../../types/fetchers.js";
-import {PolygonIOCryptoPriceInputParams} from "../../services/fetchers/PolygonIOCryptoPriceFetcher.js";
+import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
+import {PolygonIOCryptoPriceModel} from '../../models/fetchers/PolygonIOCryptoPriceModel.js';
+import {FetchedValueType, FetcherName} from '../../types/fetchers.js';
+import {PolygonIOCryptoPriceWSInputParams} from '../../services/fetchers/PolygonIOCryptoPriceWSFetcher.js';
 
 export type SavePriceProps = {
   source: string;
@@ -27,7 +26,7 @@ export type LatestPriceProps = {
 };
 
 export type PolygonIOCryptoDataRepositoryInput = {
-  params: PolygonIOCryptoPriceInputParams;
+  params: PolygonIOCryptoPriceWSInputParams;
   value: number;
   timestamp: number;
 };
@@ -55,7 +54,7 @@ export class PolygonIOCryptoDataRepository extends CommonPriceDataRepository {
           timestamp,
           this.hashVersion,
           FetcherName.PolygonIOCryptoPrice,
-          `${params.fsym}-${params.tsym}`
+          `${params.fsym}-${params.tsym}`,
         );
 
         return this.priceSignerService.sign(messageToSign);
