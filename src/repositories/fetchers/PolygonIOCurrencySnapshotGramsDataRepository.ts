@@ -14,11 +14,10 @@ export type PolygonIOCurrencySnapshotGramsDataRepositoryInput = {
 
 @injectable()
 export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[PolygonIOCurrencySnapshotGramsDataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(PolygonIOCurrencySnapshotGramsPriceModel);
+    this.logPrefix = '[PolygonIOCurrencySnapshotGramsDataRepository]';
   }
 
   async save(dataArr: PolygonIOCurrencySnapshotGramsDataRepositoryInput[]): Promise<void> {
@@ -54,18 +53,6 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: PolygonIOCurrencySnapshotGramsPriceModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getPrices(

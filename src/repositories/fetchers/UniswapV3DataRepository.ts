@@ -14,11 +14,10 @@ export type UniswapV3DataRepositoryInput = {
 
 @injectable()
 export class UniswapV3DataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[UniswapV3DataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(UniswapV3DataModel);
+    this.logPrefix = '[UniswapV3DataRepository]';
   }
 
   async save(dataArr: UniswapV3DataRepositoryInput[]): Promise<void> {
@@ -59,18 +58,6 @@ export class UniswapV3DataRepository extends CommonPriceDataRepository {
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: UniswapV3DataModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getPrices(params: UniswapV3FetcherInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {

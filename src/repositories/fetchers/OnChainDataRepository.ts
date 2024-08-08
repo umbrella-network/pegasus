@@ -15,11 +15,10 @@ export type OnChainDataRepositoryInput = {
 
 @injectable()
 export class OnChainDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[OnChainDataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(OnChainDataModel);
+    this.logPrefix = '[OnChainDataRepository]';
   }
 
   async save(dataArr: OnChainDataRepositoryInput[]): Promise<void> {
@@ -61,18 +60,6 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: OnChainDataModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getData(params: OnChainDataInputParams[], timestamp: number): Promise<StringOrUndefined[]> {

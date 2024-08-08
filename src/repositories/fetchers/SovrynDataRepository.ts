@@ -15,11 +15,10 @@ export type SovrynDataRepositoryInput = {
 
 @injectable()
 export class SovrynDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[SovrynDataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(SovrynDataModel);
+    this.logPrefix = '[SovrynDataRepository]';
   }
 
   async save(dataArr: SovrynDataRepositoryInput[]): Promise<void> {
@@ -60,18 +59,6 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: SovrynDataModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getPrices(params: SovrynPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {

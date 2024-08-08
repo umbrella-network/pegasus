@@ -14,11 +14,10 @@ export type MetalsDevApiDataRepositoryInput = {
 
 @injectable()
 export class MetalsDevApiDataRepository extends CommonPriceDataRepository {
-  private logPrefix = '[MetalsDevApiDataRepository]';
-
   constructor() {
     super();
     this.model = getModelForClass(MetalsDevApiModel);
+    this.logPrefix = '[MetalsDevApiDataRepository]';
   }
 
   async save(dataArr: MetalsDevApiDataRepositoryInput[]): Promise<void> {
@@ -56,18 +55,6 @@ export class MetalsDevApiDataRepository extends CommonPriceDataRepository {
     });
 
     await this.savePrices(payloads);
-  }
-
-  private async savePrices(data: MetalsDevApiModel[]): Promise<void> {
-    try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
-        }),
-      );
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
-    }
   }
 
   async getPrices(params: MetalsDevApiPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
