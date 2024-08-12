@@ -7,7 +7,7 @@ import {
   CoingeckoPriceFetcher,
   PolygonIOCryptoSnapshotPriceFetcher,
 } from '../fetchers/index.js';
-import {FeedFetcherInterface, FetcherName, FetcherResult} from '../../types/fetchers.js';
+import {FeedFetcherInterface, FetcherName, FetcherResult, StringOrUndefined} from '../../types/fetchers.js';
 import UniswapV3Fetcher from '../dexes/uniswapV3/UniswapV3Fetcher.js';
 import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
 import {FeedFetcher} from '../../types/Feed.js';
@@ -31,7 +31,7 @@ export default class MultiFeedProcessor {
     type ProcessingFeed = {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       params: any[];
-      symbols: (string | undefined)[];
+      symbols: StringOrUndefined[];
       indices: number[];
       fetcher: FeedFetcherInterface;
     };
@@ -40,12 +40,14 @@ export default class MultiFeedProcessor {
 
     for (const [ix, fetcher] of feedFetchers.entries()) {
       const input = inputMap.get(fetcher.name);
+
       if (input) {
         input.params.push(fetcher.params);
         input.symbols.push(fetcher.symbol);
         input.indices.push(ix);
       } else {
         let fetcherObject;
+
         switch (fetcher.name) {
           case FetcherName.ByBitPrice:
             fetcherObject = this.byBitSpotPriceFetcher;
@@ -57,14 +59,10 @@ export default class MultiFeedProcessor {
             fetcherObject = this.coingeckoPriceFetcher;
             break;
           case FetcherName.SovrynPrice:
-            fetcherObject = this.sovrynPriceFetcher;
-            break;
           case FetcherName.SovrynPriceOLD: // TODO: remove this backward compatible code
             fetcherObject = this.sovrynPriceFetcher;
             break;
           case FetcherName.UniswapV3:
-            fetcherObject = this.uniswapV3PriceFetcher;
-            break;
           case FetcherName.UniswapV3OLD: // TODO: remove this backward compatible code
             fetcherObject = this.uniswapV3PriceFetcher;
             break;
