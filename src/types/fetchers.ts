@@ -75,11 +75,13 @@ export enum FetcherName {
 }
 
 export const allMultiFetchers: Set<string> = new Set([
+  FetcherName.BinancePrice,
+  FetcherName.ByBitPrice,
   FetcherName.CoingeckoPrice,
+  FetcherName.PolygonIOCryptoSnapshotPrice,
+  FetcherName.PolygonIOSingleCryptoPrice,
   FetcherName.UniswapV3,
   FetcherName.UniswapV3OLD,
   FetcherName.SovrynPrice,
   FetcherName.SovrynPriceOLD,
-  FetcherName.ByBitPrice,
-  FetcherName.BinancePrice,
 ]);
