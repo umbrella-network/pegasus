@@ -82,6 +82,7 @@ export const allMultiFetchers: Set<string> = new Set([
   FetcherName.CoingeckoPrice,
   FetcherName.PolygonIOCryptoSnapshotPrice,
   FetcherName.PolygonIOSingleCryptoPrice,
+  FetcherName.PolygonIOCryptoPriceOLD,
   FetcherName.UniswapV3,
   FetcherName.UniswapV3OLD,
   FetcherName.SovrynPrice,

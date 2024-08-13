@@ -3,7 +3,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {PolygonIOCurrencySnapshotGramsPriceModel} from '../../models/fetchers/PolygonIOCurrencySnapshotGramsPriceModel.js';
+import {PriceModel_PolygonIOCurrencySnapshotGrams} from '../../models/fetchers/PriceModel_PolygonIOCurrencySnapshotGrams.js';
 import {PolygonIOCurrencySnapshotGramsInputParams} from '../../services/fetchers/PolygonIOCurrencySnapshotGramsFetcher.js';
 
 export type PolygonIOCurrencySnapshotGramsDataRepositoryInput = {
@@ -16,12 +16,12 @@ export type PolygonIOCurrencySnapshotGramsDataRepositoryInput = {
 export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(PolygonIOCurrencySnapshotGramsPriceModel);
+    this.model = getModelForClass(PriceModel_PolygonIOCurrencySnapshotGrams);
     this.logPrefix = '[PolygonIOCurrencySnapshotGramsDataRepository]';
   }
 
   async save(dataArr: PolygonIOCurrencySnapshotGramsDataRepositoryInput[]): Promise<void> {
-    const payloads: PolygonIOCurrencySnapshotGramsPriceModel[] = [];
+    const payloads: PriceModel_PolygonIOCurrencySnapshotGrams[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
@@ -75,7 +75,7 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
 
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestPrices(
-    sortedResults: PolygonIOCurrencySnapshotGramsPriceModel[],
+    sortedResults: PriceModel_PolygonIOCurrencySnapshotGrams[],
     inputs: PolygonIOCurrencySnapshotGramsInputParams[],
   ): NumberOrUndefined[] {
     const map: Record<string, number> = {};

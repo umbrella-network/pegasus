@@ -2,7 +2,7 @@ import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
-import {PolygonIOSingleCryptoPriceModel} from '../../models/fetchers/PolygonIOSingleCryptoPriceModel.js';
+import {PriceModel_PolygonIOSingleCrypto} from '../../models/fetchers/PriceModel_PolygonIOSingleCrypto.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PolygonIOSingleCryptoPriceInputParams} from '../../services/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
 
@@ -18,12 +18,12 @@ export type PolygonIOSingleCryptoDataRepositoryInput = {
 export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(PolygonIOSingleCryptoPriceModel);
+    this.model = getModelForClass(PriceModel_PolygonIOSingleCrypto);
     this.logPrefix = '[PolygonIOSingleCryptoDataRepository]';
   }
 
   async save(dataArr: PolygonIOSingleCryptoDataRepositoryInput[]): Promise<void> {
-    const payloads: PolygonIOSingleCryptoPriceModel[] = [];
+    const payloads: PriceModel_PolygonIOSingleCrypto[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
@@ -74,7 +74,7 @@ export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataReposito
 
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestPrices(
-    sortedResults: PolygonIOSingleCryptoPriceModel[],
+    sortedResults: PriceModel_PolygonIOSingleCrypto[],
     inputs: PolygonIOSingleCryptoPriceInputParams[],
   ): NumberOrUndefined[] {
     const map: Record<string, number> = {};

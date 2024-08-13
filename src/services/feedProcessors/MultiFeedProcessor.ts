@@ -6,8 +6,10 @@ import {
   BinancePriceFetcher,
   CoingeckoPriceFetcher,
   PolygonIOCryptoSnapshotPriceFetcher,
+  PolygonIOSingleCryptoPriceFetcher,
 } from '../fetchers/index.js';
 import {
+  allMultiFetchers,
   FeedFetcherInputParams,
   FeedFetcherInterface,
   FetcherName,
@@ -20,13 +22,16 @@ import {FeedFetcher} from '../../types/Feed.js';
 
 @injectable()
 export default class MultiFeedProcessor {
-  @inject(CoingeckoPriceFetcher) coingeckoPriceFetcher!: CoingeckoPriceFetcher;
   @inject(BinancePriceFetcher) binancePriceFetcher!: BinancePriceFetcher;
   @inject(ByBitPriceFetcher) byBitSpotPriceFetcher!: ByBitPriceFetcher;
-  @inject(SovrynPriceFetcher) sovrynPriceFetcher!: SovrynPriceFetcher;
-  @inject(UniswapV3Fetcher) uniswapV3PriceFetcher!: UniswapV3Fetcher;
+  @inject(CoingeckoPriceFetcher) coingeckoPriceFetcher!: CoingeckoPriceFetcher;
   @inject(PolygonIOCryptoSnapshotPriceFetcher)
   polygonIOCryptoSnapshotPriceFetcher!: PolygonIOCryptoSnapshotPriceFetcher;
+  @inject(PolygonIOSingleCryptoPriceFetcher)
+  polygonIOSingleCryptoPriceFetcher!: PolygonIOSingleCryptoPriceFetcher;
+  @inject(UniswapV3Fetcher) uniswapV3PriceFetcher!: UniswapV3Fetcher;
+  @inject(SovrynPriceFetcher) sovrynPriceFetcher!: SovrynPriceFetcher;
+
   @inject('Logger') logger!: Logger;
 
   private logPrefix = '[MultiFeedProcessor]';
@@ -56,14 +61,21 @@ export default class MultiFeedProcessor {
         let fetcherObject;
 
         switch (fetcher.name) {
-          case FetcherName.ByBitPrice:
-            fetcherObject = this.byBitSpotPriceFetcher;
-            break;
           case FetcherName.BinancePrice:
             fetcherObject = this.binancePriceFetcher;
             break;
+          case FetcherName.ByBitPrice:
+            fetcherObject = this.byBitSpotPriceFetcher;
+            break;
           case FetcherName.CoingeckoPrice:
             fetcherObject = this.coingeckoPriceFetcher;
+            break;
+          case FetcherName.PolygonIOCryptoSnapshotPrice:
+          case FetcherName.PolygonIOCryptoPriceOLD: // TODO: remove this backward compatible code
+            fetcherObject = this.polygonIOCryptoSnapshotPriceFetcher;
+            break;
+          case FetcherName.PolygonIOSingleCryptoPrice:
+            fetcherObject = this.polygonIOSingleCryptoPriceFetcher;
             break;
           case FetcherName.SovrynPrice:
           case FetcherName.SovrynPriceOLD: // TODO: remove this backward compatible code
@@ -73,10 +85,10 @@ export default class MultiFeedProcessor {
           case FetcherName.UniswapV3OLD: // TODO: remove this backward compatible code
             fetcherObject = this.uniswapV3PriceFetcher;
             break;
-          case FetcherName.PolygonIOCryptoPriceOLD: // TODO: remove this backward compatible code
-            fetcherObject = this.polygonIOCryptoSnapshotPriceFetcher;
-            break;
           default:
+            if (allMultiFetchers.has(fetcher.name)) {
+              throw new Error(`allMultiFetchers missconfiguration for ${fetcher.name}`);
+            }
             continue;
         }
 

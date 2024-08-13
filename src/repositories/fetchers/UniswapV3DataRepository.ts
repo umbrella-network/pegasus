@@ -3,7 +3,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, FetchedValueType, NumberOrUndefined} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {UniswapV3DataModel} from '../../models/fetchers/UniswapV3DataModel.js';
+import {PriceModel_UniswapV3} from '../../models/fetchers/PriceModel_UniswapV3.js';
 import {UniswapV3FetcherInputParams} from '../../services/dexes/uniswapV3/UniswapV3Fetcher.js';
 
 export type UniswapV3DataRepositoryInput = {
@@ -16,12 +16,12 @@ export type UniswapV3DataRepositoryInput = {
 export class UniswapV3DataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(UniswapV3DataModel);
+    this.model = getModelForClass(PriceModel_UniswapV3);
     this.logPrefix = '[UniswapV3DataRepository]';
   }
 
   async save(dataArr: UniswapV3DataRepositoryInput[]): Promise<void> {
-    const payloads: UniswapV3DataModel[] = [];
+    const payloads: PriceModel_UniswapV3[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({params, value, timestamp}) => {
@@ -79,7 +79,7 @@ export class UniswapV3DataRepository extends CommonPriceDataRepository {
 
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestData(
-    sortedResults: UniswapV3DataModel[],
+    sortedResults: PriceModel_UniswapV3[],
     inputs: UniswapV3FetcherInputParams[],
   ): NumberOrUndefined[] {
     const map: Record<string, number> = {};

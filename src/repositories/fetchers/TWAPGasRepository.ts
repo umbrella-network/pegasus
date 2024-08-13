@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {ChainsIds} from '../../types/ChainsIds.js';
-import {GasPriceModel} from '../../models/fetchers/GasPriceModel.js';
+import {PriceModel_Gas} from '../../models/fetchers/PriceModel_Gas.js';
 import {BlockchainGas} from '../../types/BlockchainGas.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {FetcherName} from '../../types/fetchers.js';
@@ -10,7 +10,7 @@ import {FetcherName} from '../../types/fetchers.js';
 export class TWAPGasRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(GasPriceModel);
+    this.model = getModelForClass(PriceModel_Gas);
     this.logPrefix = '[TWAPGasRepository]';
   }
 
@@ -28,7 +28,7 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
       return;
     }
 
-    const sum = datas.reduce((sum: bigint, gas: GasPriceModel) => sum + BigInt(gas.value), 0n);
+    const sum = datas.reduce((sum: bigint, gas: PriceModel_Gas) => sum + BigInt(gas.value), 0n);
     const twapValue = Number(sum / BigInt(datas.length));
 
     this.logger.debug(`${this.logPrefix} TWAP${minutes}: ${oldTimestamp} - ${atTimestamp}sec = ${twapValue}`);

@@ -4,7 +4,7 @@ import {ethers} from 'ethers';
 
 import {FetcherName, FetchedValueType, StringOrUndefined} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {OnChainDataModel} from '../../models/fetchers/OnChainDataModel.js';
+import {DataModel_OnChain} from '../../models/fetchers/DataModel_OnChain.js';
 import {OnChainDataInputParams} from '../../services/fetchers/OnChainDataFetcher';
 
 export type OnChainDataRepositoryInput = {
@@ -17,12 +17,12 @@ export type OnChainDataRepositoryInput = {
 export class OnChainDataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(OnChainDataModel);
+    this.model = getModelForClass(DataModel_OnChain);
     this.logPrefix = '[OnChainDataRepository]';
   }
 
   async save(dataArr: OnChainDataRepositoryInput[]): Promise<void> {
-    const payloads: OnChainDataModel[] = [];
+    const payloads: DataModel_OnChain[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({params, value, timestamp}) => {
@@ -81,7 +81,7 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestData(sortedResults: OnChainDataModel[], inputs: OnChainDataInputParams[]): StringOrUndefined[] {
+  private getNewestData(sortedResults: DataModel_OnChain[], inputs: OnChainDataInputParams[]): StringOrUndefined[] {
     const map: Record<string, string> = {};
 
     const getSymbol = (chainId: string, targetAddress: string, method: string, args: string[]) =>

@@ -3,7 +3,7 @@ import {CommonPriceModel} from './common/CommonPriceModel.js';
 
 @index({chainId: 1, base: 1, quote: 1})
 @index({timestamp: -1, chainId: 1, base: 1, quote: 1}, {unique: true})
-export class SovrynDataModel extends CommonPriceModel {
+export class PriceModel_UniswapV3 extends CommonPriceModel {
   @prop({required: true, lowercase: true})
   chainId!: string;
 

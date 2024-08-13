@@ -3,7 +3,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {GoldApiPriceModel} from '../../models/fetchers/GoldApiPriceModel.js';
+import {PriceModel_GoldApi} from '../../models/fetchers/PriceModel_GoldApi.js';
 import {GoldApiPriceInputParams} from '../../services/fetchers/GoldApiPriceFetcher.js';
 
 export type GoldApiDataRepositoryInput = {
@@ -16,12 +16,12 @@ export type GoldApiDataRepositoryInput = {
 export class GoldApiDataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(GoldApiPriceModel);
+    this.model = getModelForClass(PriceModel_GoldApi);
     this.logPrefix = '[GoldApiDataRepository]';
   }
 
   async save(dataArr: GoldApiDataRepositoryInput[]): Promise<void> {
-    const payloads: GoldApiPriceModel[] = [];
+    const payloads: PriceModel_GoldApi[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
@@ -71,7 +71,7 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestPrices(sortedResults: GoldApiPriceModel[], inputs: GoldApiPriceInputParams[]): NumberOrUndefined[] {
+  private getNewestPrices(sortedResults: PriceModel_GoldApi[], inputs: GoldApiPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
     const getSymbol = (symbol: string, currency: string) => `${symbol}-${currency}`;
 

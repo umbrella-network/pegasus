@@ -3,7 +3,7 @@ import {CommonPriceModel} from './common/CommonPriceModel.js';
 
 @index({methodDataHash: 1, chainId: 1, targetAddress: 1, inputArgs: 1})
 @index({timestamp: -1, methodDataHash: 1, chainId: 1, targetAddress: 1, inputArgs: 1}, {unique: true})
-export class OnChainDataModel extends CommonPriceModel {
+export class DataModel_OnChain extends CommonPriceModel {
   @prop({required: true, lowercase: true})
   chainId!: string;
 

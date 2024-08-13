@@ -3,7 +3,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, FetchedValueType, NumberOrUndefined} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {SovrynDataModel} from '../../models/fetchers/SovrynDataModel.js';
+import {PriceModel_Sovryn} from '../../models/fetchers/PriceModel_Sovryn.js';
 import {SovrynPriceInputParams} from '../../services/dexes/sovryn/SovrynPriceFetcher.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 
@@ -17,12 +17,12 @@ export type SovrynDataRepositoryInput = {
 export class SovrynDataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(SovrynDataModel);
+    this.model = getModelForClass(PriceModel_Sovryn);
     this.logPrefix = '[SovrynDataRepository]';
   }
 
   async save(dataArr: SovrynDataRepositoryInput[]): Promise<void> {
-    const payloads: SovrynDataModel[] = [];
+    const payloads: PriceModel_Sovryn[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({params, value, timestamp}) => {
@@ -79,7 +79,7 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestData(sortedResults: SovrynDataModel[], inputs: SovrynPriceInputParams[]): NumberOrUndefined[] {
+  private getNewestData(sortedResults: PriceModel_Sovryn[], inputs: SovrynPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
     const getSymbol = (chainId: string, base: string, quote: string) => [chainId, base, quote].join(';');

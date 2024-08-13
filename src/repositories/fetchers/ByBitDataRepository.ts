@@ -3,7 +3,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {ByBitPriceInputParams} from '../../services/fetchers/ByBitPriceFetcher.js';
-import {ByBitPriceModel} from '../../models/fetchers/ByBitPriceModel.js';
+import {PriceModel_ByBit} from '../../models/fetchers/PriceModel_ByBit.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 
 export type ByBitDataRepositoryInput = {
@@ -17,12 +17,12 @@ export type ByBitDataRepositoryInput = {
 export class ByBitDataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(ByBitPriceModel);
+    this.model = getModelForClass(PriceModel_ByBit);
     this.logPrefix = '[ByBitDataRepository]';
   }
 
   async save(dataArr: ByBitDataRepositoryInput[]): Promise<void> {
-    const payloads: ByBitPriceModel[] = [];
+    const payloads: PriceModel_ByBit[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({value, usdIndexPrice, params, timestamp}) => {
@@ -74,7 +74,7 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestPrices(sortedResults: ByBitPriceModel[], inputs: ByBitPriceInputParams[]): NumberOrUndefined[] {
+  private getNewestPrices(sortedResults: PriceModel_ByBit[], inputs: ByBitPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
     sortedResults.forEach(({symbol, usdIndexPrice}) => {

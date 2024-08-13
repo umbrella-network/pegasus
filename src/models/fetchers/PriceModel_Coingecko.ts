@@ -3,7 +3,7 @@ import {CommonPriceModel} from './common/CommonPriceModel.js';
 
 @index({id: 1, currency: 1})
 @index({timestamp: -1, id: 1, currency: 1}, {unique: true})
-export class CoingeckoPriceModel extends CommonPriceModel {
+export class PriceModel_Coingecko extends CommonPriceModel {
   @prop({required: true, lowercase: true})
   id!: string;
 
