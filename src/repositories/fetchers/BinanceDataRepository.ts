@@ -3,7 +3,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceFetcher.js';
-import {BinancePriceModel} from '../../models/fetchers/BinancePriceModel.js';
+import {PriceModel_Binance} from '../../models/fetchers/PriceModel_Binance.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 
 export type BinanceDataRepositoryInput = {
@@ -16,12 +16,12 @@ export type BinanceDataRepositoryInput = {
 export class BinanceDataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(BinancePriceModel);
+    this.model = getModelForClass(PriceModel_Binance);
     this.logPrefix = '[BinanceDataRepository]';
   }
 
   async save(dataArr: BinanceDataRepositoryInput[]): Promise<void> {
-    const payloads: BinancePriceModel[] = [];
+    const payloads: PriceModel_Binance[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
@@ -71,7 +71,7 @@ export class BinanceDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestPrices(sortedResults: BinancePriceModel[], inputs: BinancePriceInputParams[]): NumberOrUndefined[] {
+  private getNewestPrices(sortedResults: PriceModel_Binance[], inputs: BinancePriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
     sortedResults.forEach(({symbol, value}) => {

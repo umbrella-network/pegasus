@@ -3,7 +3,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {PolygonIOCryptoSnapshotPriceModel} from '../../models/fetchers/PolygonIOCryptoSnapshotPriceModel.js';
+import {PriceModel_PolygonIOCryptoSnapshot} from '../../models/fetchers/PriceModel_PolygonIOCryptoSnapshot.js';
 import {PolygonIOCryptoSnapshotInputParams} from '../../services/fetchers/PolygonIOCryptoSnapshotPriceFetcher.js';
 
 export type PolygonIOCryptoSnapshotDataRepositoryInput = {
@@ -16,12 +16,12 @@ export type PolygonIOCryptoSnapshotDataRepositoryInput = {
 export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(PolygonIOCryptoSnapshotPriceModel);
+    this.model = getModelForClass(PriceModel_PolygonIOCryptoSnapshot);
     this.logPrefix = '[PolygonIOCryptoSnapshotDataRepository]';
   }
 
   async save(dataArr: PolygonIOCryptoSnapshotDataRepositoryInput[]): Promise<void> {
-    const payloads: PolygonIOCryptoSnapshotPriceModel[] = [];
+    const payloads: PriceModel_PolygonIOCryptoSnapshot[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
@@ -72,7 +72,7 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
 
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestPrices(
-    sortedResults: PolygonIOCryptoSnapshotPriceModel[],
+    sortedResults: PriceModel_PolygonIOCryptoSnapshot[],
     inputs: PolygonIOCryptoSnapshotInputParams[],
   ): NumberOrUndefined[] {
     const map: Record<string, number> = {};

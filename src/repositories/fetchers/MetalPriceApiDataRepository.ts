@@ -3,7 +3,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {MetalPriceApiModel} from '../../models/fetchers/MetalPriceApiModel.js';
+import {PriceModel_MetalPriceApi} from '../../models/fetchers/PriceModel_MetalPriceApi.js';
 import {MetalPriceApiInputParams} from '../../services/fetchers/MetalPriceApiFetcher.js';
 
 export type MetalPriceApiDataRepositoryInput = {
@@ -18,12 +18,12 @@ export type MetalPriceApiDataRepositoryInput = {
 export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(MetalPriceApiModel);
+    this.model = getModelForClass(PriceModel_MetalPriceApi);
     this.logPrefix = '[MetalPriceApiDataRepository]';
   }
 
   async save(dataArr: MetalPriceApiDataRepositoryInput[]): Promise<void> {
-    const payloads: MetalPriceApiModel[] = [];
+    const payloads: PriceModel_MetalPriceApi[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
@@ -74,7 +74,7 @@ export class MetalPriceApiDataRepository extends CommonPriceDataRepository {
 
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestPrices(
-    sortedResults: MetalPriceApiModel[],
+    sortedResults: PriceModel_MetalPriceApi[],
     inputs: MetalPriceApiInputParams[],
   ): NumberOrUndefined[] {
     const map: Record<string, number> = {};

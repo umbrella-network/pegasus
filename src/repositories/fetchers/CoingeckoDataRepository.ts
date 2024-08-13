@@ -3,7 +3,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceFetcher.js';
-import {CoingeckoPriceModel} from '../../models/fetchers/CoingeckoPriceModel.js';
+import {PriceModel_Coingecko} from '../../models/fetchers/PriceModel_Coingecko.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 
 export type CoingeckoDataRepositoryInput = {
@@ -16,12 +16,12 @@ export type CoingeckoDataRepositoryInput = {
 export class CoingeckoDataRepository extends CommonPriceDataRepository {
   constructor() {
     super();
-    this.model = getModelForClass(CoingeckoPriceModel);
+    this.model = getModelForClass(PriceModel_Coingecko);
     this.logPrefix = '[CoingeckoDataRepository]';
   }
 
   async save(dataArr: CoingeckoDataRepositoryInput[]): Promise<void> {
-    const payloads: CoingeckoPriceModel[] = [];
+    const payloads: PriceModel_Coingecko[] = [];
 
     const signatures = await Promise.all(
       dataArr.map(({value, params, timestamp}) => {
@@ -72,7 +72,7 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
 
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestPrices(
-    sortedResults: CoingeckoPriceModel[],
+    sortedResults: PriceModel_Coingecko[],
     inputs: CoingeckoPriceInputParams[],
   ): NumberOrUndefined[] {
     const map: Record<string, number> = {};

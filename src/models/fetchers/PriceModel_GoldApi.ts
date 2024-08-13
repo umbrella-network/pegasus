@@ -3,7 +3,7 @@ import {CommonPriceModel} from './common/CommonPriceModel.js';
 
 @index({symbol: 1, currency: 1})
 @index({timestamp: -1, symbol: 1, currency: 1}, {unique: true})
-export class MetalPriceApiModel extends CommonPriceModel {
+export class PriceModel_GoldApi extends CommonPriceModel {
   @prop({required: true, lowercase: true})
   symbol!: string;
 

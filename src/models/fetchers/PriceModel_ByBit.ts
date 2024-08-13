@@ -3,7 +3,7 @@ import {CommonPriceModel} from './common/CommonPriceModel.js';
 
 @index({symbol: 1})
 @index({timestamp: -1, symbol: 1}, {unique: true})
-export class ByBitPriceModel extends CommonPriceModel {
+export class PriceModel_ByBit extends CommonPriceModel {
   @prop({required: true, lowercase: true})
   symbol!: string;
 

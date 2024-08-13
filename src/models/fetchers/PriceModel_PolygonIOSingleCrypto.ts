@@ -2,7 +2,7 @@ import {index, prop} from '@typegoose/typegoose';
 import {CommonPriceModel} from './common/CommonPriceModel.js';
 
 @index({timestamp: -1, symbol: 1}, {unique: true})
-export class PolygonIOCryptoSnapshotPriceModel extends CommonPriceModel {
+export class PriceModel_PolygonIOSingleCrypto extends CommonPriceModel {
   @prop({required: true, lowercase: true})
   symbol!: string;
 }
