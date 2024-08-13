@@ -13,6 +13,7 @@ import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
 import {FeedFetcherInterface, FetcherName} from '../../src/types/fetchers.js';
 import Feeds from '../../src/types/Feed.js';
 import Leaf from '../../src/types/Leaf.js';
+import {PolygonIOSingleCryptoPriceInputParams} from '../../src/services/fetchers/PolygonIOSingleCryptoPriceFetcher';
 
 const {expect} = chai;
 
@@ -148,7 +149,6 @@ describe.skip('FeedProcessor', () => {
                     params: {
                       fsym: 'ETH',
                       tsym: 'USD',
-                      limit: 24,
                     },
                   },
                 }),
@@ -157,8 +157,7 @@ describe.skip('FeedProcessor', () => {
                     name: FetcherName.SovrynPrice,
                     params: {
                       fsym: 'ETH',
-                      tsyms: 'USD',
-                      limit: 24,
+                      tsym: 'USD',
                     },
                   },
                 }),
@@ -201,7 +200,7 @@ describe.skip('FeedProcessor', () => {
                   name: FetcherName.SovrynPrice,
                   params: {
                     fsym: 'UMB',
-                    tsyms: 'USD',
+                    tsym: 'USD',
                   },
                 },
               }),
@@ -223,7 +222,7 @@ describe.skip('FeedProcessor', () => {
                   name: FetcherName.SovrynPrice,
                   params: {
                     fsym: 'UMB',
-                    tsyms: 'BTC',
+                    tsym: 'BTC',
                   },
                 },
               }),

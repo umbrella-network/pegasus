@@ -21,11 +21,17 @@ describe('DeviationFeedsPerChainSplitter', () => {
           {
             fetcher: {
               name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
           {
             fetcher: {
               name: FetcherName.SovrynPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],

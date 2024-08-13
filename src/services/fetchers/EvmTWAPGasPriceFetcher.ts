@@ -36,8 +36,10 @@ export class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
 
   static fetcherSource = '';
 
-  async apply(params: EvmTWAPGasPriceInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
-    const {twap = 20, chainId} = params;
+  async apply(params: EvmTWAPGasPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
+
+    const {twap = 20, chainId} = params[0];
     const {timestamp, symbols} = options;
 
     if (!timestamp || timestamp <= 0) throw new Error(`${this.logPrefix} invalid timestamp value: ${timestamp}`);

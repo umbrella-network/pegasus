@@ -7,9 +7,10 @@ import {GoldApiPriceInputParams} from 'src/services/fetchers/GoldApiPriceFetcher
 import {MetalPriceApiInputParams} from 'src/services/fetchers/MetalPriceApiFetcher';
 import {MetalsDevApiPriceInputParams} from 'src/services/fetchers/MetalsDevApiFetcher';
 import {PolygonIOCurrencySnapshotGramsInputParams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
-import {PolygonIOPriceInputParams} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
+import {PolygonIOStockPriceInputParams} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
 import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceFetcher.js';
 import {PolygonIOSingleCryptoPriceInputParams} from '../services/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
+import {UniswapV3FetcherInputParams} from '../services/dexes/uniswapV3/UniswapV3Fetcher';
 
 export type NumberOrUndefined = number | undefined;
 
@@ -31,21 +32,22 @@ export type FetcherResult = {
 };
 
 export type FeedFetcherInputParams =
-  | ByBitPriceInputParams[]
-  | BinancePriceInputParams[]
+  | ByBitPriceInputParams
+  | BinancePriceInputParams
   | GoldApiPriceInputParams
-  | PolygonIOCryptoSnapshotInputParams[]
-  | PolygonIOSingleCryptoPriceInputParams[]
+  | PolygonIOCryptoSnapshotInputParams
+  | PolygonIOSingleCryptoPriceInputParams
   | PolygonIOCurrencySnapshotGramsInputParams
-  | PolygonIOPriceInputParams
+  | PolygonIOStockPriceInputParams
   | EvmTWAPGasPriceInputParams
   | MetalPriceApiInputParams
   | MetalsDevApiPriceInputParams
-  | SovrynPriceInputParams[]
-  | CoingeckoPriceInputParams[];
+  | SovrynPriceInputParams
+  | UniswapV3FetcherInputParams
+  | CoingeckoPriceInputParams;
 
 export interface FeedFetcherInterface {
-  apply(params: FeedFetcherInputParams, options: FeedFetcherOptions): Promise<FetcherResult>;
+  apply(params: FeedFetcherInputParams[], options: FeedFetcherOptions): Promise<FetcherResult>;
 }
 
 export enum FetcherName {

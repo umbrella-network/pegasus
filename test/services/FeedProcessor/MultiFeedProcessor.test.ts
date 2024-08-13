@@ -11,7 +11,7 @@ const {expect} = chai;
 const feedFetchers: FeedFetcher[] = [
   {
     name: FetcherName.SovrynPrice,
-    params: {fsym: 'UMB', tsyms: 'BTC'},
+    params: {fsym: 'UMB', tsym: 'BTC'},
   },
   {
     name: FetcherName.CoingeckoPrice,
@@ -19,7 +19,7 @@ const feedFetchers: FeedFetcher[] = [
   },
   {
     name: FetcherName.SovrynPrice,
-    params: {fsym: 'UMB', tsyms: 'USD'},
+    params: {fsym: 'UMB', tsym: 'USD'},
   },
   {
     name: FetcherName.CoingeckoPrice,

@@ -36,8 +36,10 @@ export class MetalsDevApiFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.metalsDevApi.timeout;
   }
 
-  async apply(params: MetalsDevApiPriceInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
-    const {metal, currency} = params;
+  async apply(params: MetalsDevApiPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
+
+    const {metal, currency} = params[0];
     const {symbols} = options;
 
     this.logger.debug(`${this.logPrefix} call for: ${metal}/${currency}`);
@@ -73,11 +75,11 @@ export class MetalsDevApiFetcher implements FeedFetcherInterface {
         {
           value: pricePerGram,
           timestamp,
-          params,
+          params: params[0],
         },
       ]);
 
-      const [price] = await this.metalsDevApiDataRepository.getPrices([params], timestamp);
+      const [price] = await this.metalsDevApiDataRepository.getPrices(params, timestamp);
       const result = {prices: [price], timestamp};
 
       // TODO this will be deprecated once we fully switch to DB and have dedicated charts

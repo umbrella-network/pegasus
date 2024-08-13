@@ -74,6 +74,11 @@ export class PriceDataRepository {
         const hashVersion = 1;
         const messageToSign = this.createMessageToSign(doc, hashVersion);
         const {signerAddress, signature, hash} = await this.priceSignerService.sign(messageToSign);
+
+        this.logger.debug(
+          `${this.logPrefix} history: ${doc.feedBase} - ${doc.feedQuote}: ${doc.value} (${doc.fetcherSource})`,
+        );
+
         return {
           updateOne: {
             filter: {...doc},
@@ -87,7 +92,7 @@ export class PriceDataRepository {
     try {
       await model.bulkWrite(bulkOps);
     } catch (error) {
-      this.logger.error(`[PriceDataRepository] couldn't perform bulkWrite for PriceData: ${error}`);
+      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite for PriceData: ${error}`);
     }
   }
 

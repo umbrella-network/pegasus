@@ -25,6 +25,9 @@ describe('PriceDataFactory', () => {
           {
             fetcher: {
               name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -58,6 +61,9 @@ describe('PriceDataFactory', () => {
             {
               fetcher: {
                 name: 'TEST1Fetcher' as FetcherName,
+                params: {
+                  ticker: '',
+                },
               },
             },
           ],
@@ -73,6 +79,9 @@ describe('PriceDataFactory', () => {
             {
               fetcher: {
                 name: 'TEST2Fetcher' as FetcherName,
+                params: {
+                  ticker: '',
+                },
               },
             },
           ],

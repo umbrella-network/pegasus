@@ -41,11 +41,17 @@ describe('IntervalTriggerFilter', () => {
               {
                 fetcher: {
                   name: FetcherName.CoingeckoPrice,
+                  params: {
+                    ticker: FetcherName.CoingeckoPrice,
+                  },
                 },
               },
               {
                 fetcher: {
                   name: FetcherName.SovrynPrice,
+                  params: {
+                    ticker: FetcherName.SovrynPrice,
+                  },
                 },
               },
             ],
@@ -63,11 +69,17 @@ describe('IntervalTriggerFilter', () => {
               {
                 fetcher: {
                   name: FetcherName.CoingeckoPrice,
+                  params: {
+                    ticker: FetcherName.CoingeckoPrice,
+                  },
                 },
               },
               {
                 fetcher: {
                   name: FetcherName.SovrynPrice,
+                  params: {
+                    ticker: FetcherName.SovrynPrice,
+                  },
                 },
               },
             ],
@@ -94,11 +106,17 @@ describe('IntervalTriggerFilter', () => {
             {
               fetcher: {
                 name: FetcherName.CoingeckoPrice,
+                params: {
+                  ticker: FetcherName.CoingeckoPrice,
+                },
               },
             },
             {
               fetcher: {
                 name: FetcherName.SovrynPrice,
+                params: {
+                  ticker: FetcherName.SovrynPrice,
+                },
               },
             },
           ],
@@ -116,11 +134,17 @@ describe('IntervalTriggerFilter', () => {
             {
               fetcher: {
                 name: FetcherName.CoingeckoPrice,
+                params: {
+                  ticker: FetcherName.CoingeckoPrice,
+                },
               },
             },
             {
               fetcher: {
                 name: FetcherName.SovrynPrice,
+                params: {
+                  ticker: FetcherName.SovrynPrice,
+                },
               },
             },
           ],
@@ -146,11 +170,17 @@ describe('IntervalTriggerFilter', () => {
             {
               fetcher: {
                 name: FetcherName.CoingeckoPrice,
+                params: {
+                  ticker: '',
+                },
               },
             },
             {
               fetcher: {
                 name: FetcherName.SovrynPrice,
+                params: {
+                  ticker: '',
+                },
               },
             },
           ],
@@ -168,11 +198,17 @@ describe('IntervalTriggerFilter', () => {
             {
               fetcher: {
                 name: FetcherName.CoingeckoPrice,
+                params: {
+                  ticker: '',
+                },
               },
             },
             {
               fetcher: {
                 name: FetcherName.SovrynPrice,
+                params: {
+                  ticker: '',
+                },
               },
             },
           ],
@@ -201,11 +237,17 @@ describe('IntervalTriggerFilter', () => {
               {
                 fetcher: {
                   name: FetcherName.CoingeckoPrice,
+                  params: {
+                    ticker: '',
+                  },
                 },
               },
               {
                 fetcher: {
                   name: FetcherName.SovrynPrice,
+                  params: {
+                    ticker: '',
+                  },
                 },
               },
             ],

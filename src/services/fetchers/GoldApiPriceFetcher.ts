@@ -37,8 +37,10 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.goldApi.timeout;
   }
 
-  async apply(params: GoldApiPriceInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
-    const {symbol, currency} = params;
+  async apply(params: GoldApiPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
+
+    const {symbol, currency} = params[0];
     const {symbols} = options;
 
     this.logger.debug(`${this.logPrefix} call for: ${symbol}/${currency}`);
@@ -73,11 +75,11 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
       {
         value: price_gram_24k,
         timestamp,
-        params,
+        params: params[0],
       },
     ]);
 
-    const prices = await this.goldApiDataRepository.getPrices([params], timestamp);
+    const prices = await this.goldApiDataRepository.getPrices(params, timestamp);
 
     this.logger.debug(`${this.logPrefix} resolved price: ${symbol}/${currency}: ${price_gram_24k}`);
 

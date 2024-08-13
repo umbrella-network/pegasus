@@ -1,5 +1,5 @@
 import {ChainsIds} from './ChainsIds.js';
-import {FetcherName} from './fetchers.js';
+import {FeedFetcherInputParams, FetcherName} from './fetchers.js';
 
 export type HashedKey = string;
 export type FeedName = string;
@@ -39,7 +39,7 @@ export interface FeedFetcher {
   symbol?: string;
   base?: string;
   quote?: string;
-  params?: unknown;
+  params: FeedFetcherInputParams;
 }
 
 export interface FeedCalculator {

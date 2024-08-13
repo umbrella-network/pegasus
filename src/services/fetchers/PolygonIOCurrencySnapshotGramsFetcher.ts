@@ -22,8 +22,9 @@ type RawResponse = {
     ticker: string;
     lastQuote: {
       a: number;
+      t: number;
     };
-  };
+  }[];
   status?: string;
   error?: string;
 };
@@ -52,24 +53,30 @@ export class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFe
     this.valuePath = '$.ticker.lastQuote.a';
   }
 
-  async apply(params: PolygonIOCurrencySnapshotGramsInputParams, options: FeedFetcherOptions): Promise<FetcherResult> {
-    const {ticker} = params;
+  async apply(
+    params: PolygonIOCurrencySnapshotGramsInputParams[],
+    options: FeedFetcherOptions,
+  ): Promise<FetcherResult> {
+    if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
+
+    const {ticker} = params[0];
     const {symbols, timestamp} = options;
 
     const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers';
-    const url = `${baseUrl}/${ticker}?apiKey=${this.apiKey}`;
+    // const url = `${baseUrl}/${ticker}?apiKey=${this.apiKey}`;
+    const url = `${baseUrl}?apiKey=${this.apiKey}`;
 
     if (!timestamp || timestamp <= 0) throw new Error(`${this.logPrefix} invalid timestamp value: ${timestamp}`);
 
     this.logger.debug(`${this.logPrefix} call for ${ticker}`);
 
     const response = (await this.fetch(url, true)) as unknown as RawResponse;
-    const parsed = this.parseResponse(response, params);
+    const parsed = this.parseResponse(response, params[0]);
 
     if (!parsed) return {prices: []};
-    await this.savePrices([parsed]);
+    await this.savePrices(parsed);
 
-    const prices = await this.pIOCurrencySnapshotGramsDataRepository.getPrices([params], timestamp);
+    const prices = await this.pIOCurrencySnapshotGramsDataRepository.getPrices(params, timestamp);
 
     await this.priceDataRepository.saveFetcherResults(
       {prices, timestamp},
@@ -82,25 +89,26 @@ export class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFe
     return {prices};
   }
 
-  private parseResponse(
-    response: RawResponse,
-    params: PolygonIOCurrencySnapshotGramsInputParams,
-  ): ParsedResponse | undefined {
+  private parseResponse(response: RawResponse, params: PolygonIOCurrencySnapshotGramsInputParams): ParsedResponse[] {
     if (response.error) {
       this.logger.error(`${this.logPrefix} [${response.status}]: ${response.error} for ${params.ticker}`);
-      return;
+      return [];
     }
 
-    const oneOzInGrams = 31.1034; // grams
-    const price = (response.ticker.lastQuote.a as number) / oneOzInGrams;
+    return response.ticker
+      .map((ticker, ix) => {
+        const oneOzInGrams = 31.1034; // grams
+        const price = (ticker.lastQuote.a as number) / oneOzInGrams;
 
-    if (isNaN(price)) {
-      this.logger.error(`${this.logPrefix} price fail for ${params.ticker}. Computed value gave NaN.`);
-      return;
-    }
+        if (isNaN(price)) {
+          this.logger.error(`${this.logPrefix}#${ix} price fail for ${params.ticker}. Computed value gave NaN.`);
+          return;
+        }
 
-    this.logger.debug(`${this.logPrefix} price for ${params.ticker} (${response.ticker.ticker}): ${price}`);
-    return {price, ticker: response.ticker.ticker, timestamp: response.ticker.updated / 1e9};
+        this.logger.debug(`${this.logPrefix}#${ix} price for ${params.ticker} (${ticker.ticker}): ${price}`);
+        return {price, ticker: ticker.ticker, timestamp: ticker.lastQuote.t};
+      })
+      .filter((d) => d !== undefined) as ParsedResponse[];
   }
 
   private async savePrices(parsed: ParsedResponse[]): Promise<void> {
