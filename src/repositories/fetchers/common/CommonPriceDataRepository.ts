@@ -1,11 +1,29 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import {ReturnModelType} from '@typegoose/typegoose';
+import {BulkWriteOpResultObject} from 'mongodb';
 import {BeAnObject} from '@typegoose/typegoose/lib/types';
 
 import Settings from '../../../types/Settings.js';
 import {FetcherName} from '../../../types/fetchers.js';
 import PriceSignerService from '../../../services/PriceSignerService.js';
+
+// based on {BulkWriteError} from 'mongodb'
+type BulkWriteError = {
+  message: string;
+  name?: string;
+  writeErrors: [
+    {
+      code: number;
+      index: number;
+      errmsg: string;
+    },
+  ];
+  result: {
+    ok: number;
+    nInserted: number;
+  };
+};
 
 @injectable()
 export abstract class CommonPriceDataRepository {
@@ -41,15 +59,42 @@ export abstract class CommonPriceDataRepository {
     return dataToSign.join(';');
   }
 
+  // TODO when move to external DB, use timeseries
   protected async savePrices<T>(data: T[]): Promise<void> {
     try {
-      await this.model.bulkWrite(
-        data.map((doc) => {
-          return {insertOne: {document: doc}};
+      this.logger.debug(`${this.logPrefix} ${data.length} data to save`);
+
+      const result: BulkWriteOpResultObject = await this.model.bulkWrite(
+        data.map((document) => {
+          return {insertOne: {document}};
         }),
+        {ordered: false},
       );
+
+      if (data.length != result.insertedCount) {
+        this.logger.warn(`${this.logPrefix} bulkWrite: got ${data.length} saved ${result.insertedCount}`);
+      }
     } catch (error) {
-      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite: ${error}`);
+      const bulkError = error as BulkWriteError;
+
+      if (bulkError.name == 'BulkWriteError') {
+        const duplicates = bulkError.writeErrors.filter((e) => e.code == 11000).length;
+        const errors = data.length - bulkError.result.nInserted;
+        const saved = bulkError.result.nInserted;
+
+        if (duplicates == errors) {
+          this.logger.info(`${this.logPrefix} bulkWrite: got ${data.length}, saved ${saved}, duplicates ${duplicates}`);
+        } else {
+          this.logger.error(
+            `${this.logPrefix} bulkWrite: got ${data.length}, duplicates ${duplicates}, errors ${errors}`,
+          );
+
+          const issues = bulkError.writeErrors.filter((e) => e.code != 11000);
+          this.logger.debug(`${this.logPrefix} ${issues.map((i) => i.errmsg).join(', ')}`);
+        }
+      } else {
+        this.logger.error(`${this.logPrefix} ${JSON.stringify(error)}`);
+      }
     }
   }
 }
