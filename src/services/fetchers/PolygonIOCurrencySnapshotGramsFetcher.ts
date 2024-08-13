@@ -8,26 +8,13 @@ import {
   FetchedValueType,
 } from '../../types/fetchers.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import {BasePolygonIOSingleFetcher} from './common/BasePolygonIOSingleFetcher.js';
 import Settings from '../../types/Settings.js';
 import {PolygonIOCurrencySnapshotGramsDataRepository} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
+import {BasePolygonIOSnapshotFetcher, SnapshotResponse} from './common/BasePolygonIOSnapshotFetcher.js';
 
 export interface PolygonIOCurrencySnapshotGramsInputParams {
   ticker: string;
 }
-
-type RawResponse = {
-  ticker: {
-    updated: number;
-    ticker: string;
-    lastQuote: {
-      a: number;
-      t: number;
-    };
-  }[];
-  status?: string;
-  error?: string;
-};
 
 type ParsedResponse = {ticker: string; price: number; timestamp: number};
 
@@ -38,7 +25,10 @@ type ParsedResponse = {ticker: string; price: number; timestamp: number};
           ticker: C:XAUUSD
  */
 @injectable()
-export class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFetcher implements FeedFetcherInterface {
+export class PolygonIOCurrencySnapshotGramsFetcher
+  extends BasePolygonIOSnapshotFetcher
+  implements FeedFetcherInterface
+{
   @inject(PolygonIOCurrencySnapshotGramsDataRepository)
   private pIOCurrencySnapshotGramsDataRepository!: PolygonIOCurrencySnapshotGramsDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
@@ -70,7 +60,7 @@ export class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFe
 
     this.logger.debug(`${this.logPrefix} call for ${ticker}`);
 
-    const response = (await this.fetch(url, true)) as unknown as RawResponse;
+    const response = <SnapshotResponse>await this.fetch(url, true);
     const parsed = this.parseResponse(response, params[0]);
 
     if (!parsed) return {prices: []};
@@ -89,13 +79,16 @@ export class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSingleFe
     return {prices};
   }
 
-  private parseResponse(response: RawResponse, params: PolygonIOCurrencySnapshotGramsInputParams): ParsedResponse[] {
+  private parseResponse(
+    response: SnapshotResponse,
+    params: PolygonIOCurrencySnapshotGramsInputParams,
+  ): ParsedResponse[] {
     if (response.error) {
       this.logger.error(`${this.logPrefix} [${response.status}]: ${response.error} for ${params.ticker}`);
       return [];
     }
 
-    return response.ticker
+    return response.tickers
       .map((ticker, ix) => {
         const oneOzInGrams = 31.1034; // grams
         const price = (ticker.lastQuote.a as number) / oneOzInGrams;

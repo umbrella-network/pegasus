@@ -7,10 +7,16 @@ export interface Ticker {
     p: number;
     t: number;
   };
+  lastQuote: {
+    a: number;
+    t: number;
+  };
 }
 
 export interface SnapshotResponse {
   tickers: Ticker[];
+  status?: string;
+  error?: string;
 }
 
 @injectable()
