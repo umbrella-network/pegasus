@@ -88,6 +88,8 @@ export class BinancePriceFetcher implements FeedFetcherInterface {
           return;
         }
 
+        this.logger.debug(`${this.logPrefix} fetched ${symbol}: ${value}`);
+
         return {symbol, price: value};
       })
       .filter((e) => !!e) as ParsedResponse[];

@@ -7,7 +7,13 @@ import {
   CoingeckoPriceFetcher,
   PolygonIOCryptoSnapshotPriceFetcher,
 } from '../fetchers/index.js';
-import {FeedFetcherInterface, FetcherName, FetcherResult, StringOrUndefined} from '../../types/fetchers.js';
+import {
+  FeedFetcherInputParams,
+  FeedFetcherInterface,
+  FetcherName,
+  FetcherResult,
+  StringOrUndefined,
+} from '../../types/fetchers.js';
 import UniswapV3Fetcher from '../dexes/uniswapV3/UniswapV3Fetcher.js';
 import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
 import {FeedFetcher} from '../../types/Feed.js';
@@ -23,14 +29,15 @@ export default class MultiFeedProcessor {
   polygonIOCryptoSnapshotPriceFetcher!: PolygonIOCryptoSnapshotPriceFetcher;
   @inject('Logger') logger!: Logger;
 
+  private logPrefix = '[MultiFeedProcessor]';
+
   async apply(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
     if (!feedFetchers.length) return [];
 
-    this.logger.debug(`[MultiFeedProcessorNew] feedFetchers ${JSON.stringify(feedFetchers)}`);
+    this.logger.debug(`${this.logPrefix} feedFetchers ${JSON.stringify(feedFetchers)}`);
 
     type ProcessingFeed = {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      params: any[];
+      params: FeedFetcherInputParams[];
       symbols: StringOrUndefined[];
       indices: number[];
       fetcher: FeedFetcherInterface;
@@ -84,6 +91,8 @@ export default class MultiFeedProcessor {
 
     const promiseMap = new Map<FetcherName, {promise: () => Promise<FetcherResult>; indices: number[]}>();
 
+    this.logger.debug(`${this.logPrefix} inputMap: ${JSON.stringify(inputMap)}`);
+
     for (const [fetcherName, inputParams] of inputMap) {
       promiseMap.set(fetcherName, {
         promise: () => inputParams.fetcher.apply(inputParams.params, {symbols: inputParams.symbols}),
@@ -106,9 +115,9 @@ export default class MultiFeedProcessor {
         for (const [ix, index] of indices.entries()) {
           response[index] = result.value.prices[ix];
         }
-        this.logger.debug(`[MultiFeedProcessor] fulfilled ${classNames[i]}: ${JSON.stringify(result.value)}`);
+        this.logger.debug(`${this.logPrefix} fulfilled ${classNames[i]}: ${JSON.stringify(result.value)}`);
       } else {
-        this.logger.warn(`[MultiFeedProcessor] Ignored ${classNames[i]}. Reason: ${result.reason}`);
+        this.logger.warn(`${this.logPrefix} Ignored ${classNames[i]}. Reason: ${result.reason}`);
       }
     });
 

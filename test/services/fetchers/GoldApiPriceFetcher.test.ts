@@ -11,15 +11,15 @@ describe.skip('GoldApiPriceFetcher (to run them we need API keys)', () => {
   describe('#apply', () => {
     describe('with valid parameters', () => {
       it('returns the proper response format', async () => {
-        const output = await fetcher.apply({symbol: 'XAU', currency: 'USD'}, {symbols: ['GOLD-USD']});
+        const output = await fetcher.apply([{symbol: 'XAU', currency: 'USD'}], {symbols: ['GOLD-USD']});
         expect(output).greaterThan(0);
       });
     });
 
     describe('with invalid parameters', () => {
       it('rejects', async () => {
-        await expect(fetcher.apply({symbol: 'StrangeSymbol', currency: 'StrangeCurrency'}, {symbols: ['GOLD-USD']})).to
-          .be.rejected;
+        await expect(fetcher.apply([{symbol: 'StrangeSymbol', currency: 'StrangeCurrency'}], {symbols: ['GOLD-USD']}))
+          .to.be.rejected;
       });
     });
   });

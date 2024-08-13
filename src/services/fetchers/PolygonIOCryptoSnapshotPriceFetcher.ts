@@ -16,9 +16,11 @@ import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 
 export interface PolygonIOCryptoSnapshotInputParams {
   symbol: string;
+  fsym?: string; // TODO backwards compatible, to remove
+  tsym?: string; // TODO backwards compatible, to remove
 }
 
-type ParsedResponse = {symbol: string; price: number};
+type ParsedResponse = {symbol: string; price: number; timestamp: number};
 
 @injectable()
 export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements FeedFetcherInterface {
@@ -38,19 +40,21 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
   }
 
   async apply(params: PolygonIOCryptoSnapshotInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
-    const symbols = params.map((p) => p.symbol).join(', ');
-    this.logger.debug(`${this.logPrefix} call for ${symbols}`);
+    this.logger.debug(`${this.logPrefix} call`);
 
-    const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/';
-    const sourceUrl = `${baseUrl}tickers?tickers=${symbols}&apiKey=${this.apiKey}`;
+    const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers';
+    const sourceUrl = `${baseUrl}?apiKey=${this.apiKey}`;
 
     const response = <SnapshotResponse>await this.fetch(sourceUrl, true);
     const parsed = this.parseResponse(response);
     const timestamp = options.timestamp ?? this.timeService.apply();
 
-    await this.savePrices(timestamp, parsed);
+    await this.savePrices(parsed);
 
-    const prices = await this.pIOCryptoSnapshotDataRepository.getPrices(params, timestamp);
+    const prices = await this.pIOCryptoSnapshotDataRepository.getPrices(
+      this.backwardsCompatibleParams(params),
+      timestamp,
+    );
 
     const fetcherResults: FetcherResult = {prices, timestamp};
 
@@ -65,6 +69,18 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
     return fetcherResults;
   }
 
+  private backwardsCompatibleParams(
+    params: PolygonIOCryptoSnapshotInputParams[],
+  ): PolygonIOCryptoSnapshotInputParams[] {
+    return params.map((p) => {
+      if (p.symbol) return p;
+
+      return {
+        symbol: `X:${p.fsym}${p.tsym}`,
+      };
+    });
+  }
+
   private parseResponse(response: SnapshotResponse): ParsedResponse[] {
     return response.tickers
       .map(({ticker, lastTrade}) => {
@@ -75,15 +91,16 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
           return;
         }
 
-        return {symbol: ticker, price: value};
+        this.logger.debug(`${this.logPrefix} fetched: ${ticker}: ${value}`);
+        return {symbol: ticker, price: value, timestamp: lastTrade.t};
       })
       .filter((e) => !!e) as ParsedResponse[];
   }
 
-  private async savePrices(timestamp: number, parsed: ParsedResponse[]): Promise<void> {
+  private async savePrices(parsed: ParsedResponse[]): Promise<void> {
     const allData = parsed.map((data) => {
       return {
-        timestamp,
+        timestamp: data.timestamp,
         value: data.price,
         params: {
           symbol: data.symbol,

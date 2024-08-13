@@ -21,6 +21,9 @@ describe('DeviationDataToSignFactory', () => {
           {
             fetcher: {
               name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -39,6 +42,9 @@ describe('DeviationDataToSignFactory', () => {
           {
             fetcher: {
               name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -58,6 +64,9 @@ describe('DeviationDataToSignFactory', () => {
           {
             fetcher: {
               name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -76,6 +85,9 @@ describe('DeviationDataToSignFactory', () => {
           {
             fetcher: {
               name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -95,6 +107,9 @@ describe('DeviationDataToSignFactory', () => {
           {
             fetcher: {
               name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -117,6 +132,9 @@ describe('DeviationDataToSignFactory', () => {
           {
             fetcher: {
               name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
