@@ -13,7 +13,6 @@ import {
   FeedFetcherInputParams,
   FeedFetcherInterface,
   FetcherName,
-  FetcherResult,
   StringOrUndefined,
 } from '../../types/fetchers.js';
 import UniswapV3Fetcher from '../dexes/uniswapV3/UniswapV3Fetcher.js';
@@ -39,7 +38,7 @@ export default class MultiFeedProcessor {
   async apply(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
     if (!feedFetchers.length) return [];
 
-    this.logger.debug(`${this.logPrefix} feedFetchers ${JSON.stringify(feedFetchers)}`);
+    this.logger.debug(`${this.logPrefix} feedFetchers ${feedFetchers.map((f) => `${f.name}: ${f.symbol}`)}`);
 
     type ProcessingFeed = {
       params: FeedFetcherInputParams[];
@@ -48,10 +47,10 @@ export default class MultiFeedProcessor {
       fetcher: FeedFetcherInterface;
     };
 
-    const inputMap = new Map<FetcherName, ProcessingFeed>();
+    const inputMap: Record<string, ProcessingFeed> = {};
 
     for (const [ix, fetcher] of feedFetchers.entries()) {
-      const input = inputMap.get(fetcher.name);
+      const input = inputMap[fetcher.name];
 
       if (input) {
         input.params.push(fetcher.params);
@@ -89,49 +88,47 @@ export default class MultiFeedProcessor {
             if (allMultiFetchers.has(fetcher.name)) {
               throw new Error(`allMultiFetchers missconfiguration for ${fetcher.name}`);
             }
+
             continue;
         }
 
-        inputMap.set(fetcher.name, {
+        inputMap[fetcher.name] = {
           params: [fetcher.params],
           symbols: [fetcher.symbol],
           indices: [ix],
           fetcher: fetcherObject,
-        });
+        };
       }
     }
 
-    const promiseMap = new Map<FetcherName, {promise: () => Promise<FetcherResult>; indices: number[]}>();
+    const response: unknown[] = new Array(feedFetchers.length).fill(undefined);
+    const mapInputs = Object.values(inputMap);
 
-    this.logger.debug(`${this.logPrefix} inputMap: ${JSON.stringify(inputMap)}`);
+    const fetchedFeeds = await Promise.allSettled(
+      mapInputs.map((data: ProcessingFeed) => data.fetcher.apply(data.params, {symbols: data.symbols})),
+    );
 
-    for (const [fetcherName, inputParams] of inputMap) {
-      promiseMap.set(fetcherName, {
-        promise: () => inputParams.fetcher.apply(inputParams.params, {symbols: inputParams.symbols}),
-        indices: inputParams.indices,
-      });
-    }
+    fetchedFeeds.forEach((results, ix) => {
+      if (results.status == 'rejected') {
+        this.logger.error(`${this.logPrefix} rejected: ${results.reason}`);
+        return;
+      }
 
-    const promises = Array.from(promiseMap.values()).map((obj) => obj.promise());
-    const allIndices = Array.from(promiseMap.values()).map((obj) => obj.indices);
-    const classNames = Object.keys(promiseMap);
+      const fetchedResults = results.value;
+      const indieces = mapInputs[ix].indices;
 
-    const promisesResults = await Promise.allSettled(promises);
+      this.logger.debug(`${this.logPrefix} fetchedResults.prices: ${fetchedResults.prices}`);
+      this.logger.debug(`${this.logPrefix} indieces: ${indieces}`);
 
-    const response: unknown[] = [];
-    response.length = feedFetchers.length;
-
-    promisesResults.forEach((result, i) => {
-      const indices = allIndices[i];
-      if (result.status === 'fulfilled') {
-        for (const [ix, index] of indices.entries()) {
-          response[index] = result.value.prices[ix];
+      fetchedResults.prices.forEach((price, i) => {
+        if (price) {
+          response[indieces[i]] = price;
+          this.logger.debug(`${this.logPrefix} response[${indieces[i]}] = ${price}`);
         }
-        this.logger.debug(`${this.logPrefix} fulfilled ${classNames[i]}: ${JSON.stringify(result.value)}`);
-      } else {
-        this.logger.warn(`${this.logPrefix} Ignored ${classNames[i]}. Reason: ${result.reason}`);
-      }
+      });
     });
+
+    this.logger.debug(`${this.logPrefix} response: ${response}`);
 
     return response;
   }
