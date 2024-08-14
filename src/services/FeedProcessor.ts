@@ -67,8 +67,6 @@ class FeedProcessor {
       inputIndexByHash[hash] = index + offset;
     });
 
-    this.logger.debug(`${this.logPrefix} ${JSON.stringify(inputIndexByHash)}`);
-
     const [singleFeeds, multiFeeds] = await Promise.all([
       this.processFeeds(Object.values(singleInputs), timestamp),
       this.multiFeedProcessor.apply(Object.values(multiInputs)),

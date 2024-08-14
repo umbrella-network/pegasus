@@ -75,6 +75,10 @@ export class MetalsDevApiDataRepository extends CommonPriceDataRepository {
     sortedResults: PriceModel_MetalsDevApi[],
     inputs: MetalsDevApiPriceInputParams[],
   ): NumberOrUndefined[] {
+    this.logger.debug(
+      `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
+    );
+
     const map: Record<string, number> = {};
     const getSymbol = (metal: string, currency: string) => `${metal}-${currency}`;
 
@@ -85,6 +89,8 @@ export class MetalsDevApiDataRepository extends CommonPriceDataRepository {
       map[key] = parseFloat(value);
     });
 
-    return inputs.map(({metal, currency}) => map[getSymbol(metal, currency).toLowerCase()]);
+    const newest = inputs.map(({metal, currency}) => map[getSymbol(metal, currency).toLowerCase()]);
+    this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
+    return newest;
   }
 }

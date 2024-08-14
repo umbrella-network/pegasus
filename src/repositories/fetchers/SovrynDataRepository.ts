@@ -84,6 +84,10 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
 
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestData(sortedResults: PriceModel_Sovryn[], inputs: SovrynPriceInputParams[]): NumberOrUndefined[] {
+    this.logger.debug(
+      `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
+    );
+
     const map: Record<string, number> = {};
 
     const getSymbol = (chainId: string, base: string, quote: string) => [chainId, base, quote].join(';').toLowerCase();
@@ -95,9 +99,12 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
       map[key] = parseFloat(data.value);
     });
 
-    return inputs.map((data) => {
+    const newest = inputs.map((data) => {
       const key = getSymbol(ChainsIds.ROOTSTOCK as string, data.base, data.quote);
       return map[key];
     });
+
+    this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
+    return newest;
   }
 }

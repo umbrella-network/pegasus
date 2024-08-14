@@ -76,6 +76,10 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
     inputs: CoingeckoPriceInputParams[],
   ): NumberOrUndefined[] {
     const map: Record<string, number> = {};
+    this.logger.debug(
+      `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
+    );
+
     const getSymbol = (id: string, currency: string) => `${id}-${currency}`;
 
     sortedResults.forEach(({id, currency, value}) => {
@@ -85,6 +89,8 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
       map[symbol] = parseFloat(value);
     });
 
-    return inputs.map(({id, currency}) => map[getSymbol(id, currency).toLowerCase()]);
+    const newest = inputs.map(({id, currency}) => map[getSymbol(id, currency).toLowerCase()]);
+    this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
+    return newest;
   }
 }

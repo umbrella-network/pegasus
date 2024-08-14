@@ -78,6 +78,10 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
     sortedResults: PriceModel_PolygonIOCurrencySnapshotGrams[],
     inputs: PolygonIOCurrencySnapshotGramsInputParams[],
   ): NumberOrUndefined[] {
+    this.logger.debug(
+      `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
+    );
+
     const map: Record<string, number> = {};
 
     sortedResults.forEach(({ticker, value}) => {
@@ -86,6 +90,8 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
       map[ticker] = parseFloat(value);
     });
 
-    return inputs.map(({ticker}) => map[ticker.toLowerCase()]);
+    const newest = inputs.map(({ticker}) => map[ticker.toLowerCase()]);
+    this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
+    return newest;
   }
 }

@@ -82,6 +82,10 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
 
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestData(sortedResults: DataModel_OnChain[], inputs: OnChainDataInputParams[]): StringOrUndefined[] {
+    this.logger.debug(
+      `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
+    );
+
     const map: Record<string, string> = {};
 
     const getSymbol = (chainId: string, targetAddress: string, method: string, args: string[]) =>
@@ -94,10 +98,13 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
       map[key] = data.value;
     });
 
-    return inputs.map((data) => {
+    const newest = inputs.map((data) => {
       const key = getSymbol((data.chainId as string).toLowerCase(), data.address.toLowerCase(), data.method, data.args);
 
       return map[key];
     });
+
+    this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
+    return newest;
   }
 }
