@@ -74,11 +74,9 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
     );
 
     const results: PriceModel_UniswapV3[] = await this.model
-      .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1})
+      .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)})
       .sort({timestamp: -1})
       .exec();
-
-    this.logger.debug(`${this.logPrefix} results: ${results.map((r) => r.value)}`);
 
     return this.getNewestData(results, params);
   }

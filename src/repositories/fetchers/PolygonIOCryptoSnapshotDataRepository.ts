@@ -56,14 +56,10 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
   }
 
   async getPrices(params: PolygonIOCryptoSnapshotInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    const $in = params.map((p) => p.symbol.toLowerCase());
+
     const results = await this.model
-      .find(
-        {
-          symbol: {$in: params.map((p) => p.symbol.toLowerCase())},
-          timestamp: this.getTimestampWindowFilter(timestamp),
-        },
-        {value: 1, symbol: 1},
-      )
+      .find({symbol: {$in}, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1, symbol: 1})
       .sort({timestamp: -1})
       .exec();
 

@@ -74,8 +74,8 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
       `${this.logPrefix} find: ${JSON.stringify(or)}, ${JSON.stringify(this.getTimestampWindowFilter(timestamp))}`,
     );
 
-    const results = await this.model
-      .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1})
+    const results: PriceModel_Sovryn[] = await this.model
+      .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)})
       .sort({timestamp: -1})
       .exec();
 
