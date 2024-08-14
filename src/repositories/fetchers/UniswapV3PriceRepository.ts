@@ -13,7 +13,7 @@ export type UniswapV3DataRepositoryInput = {
 };
 
 @injectable()
-export class UniswapV3DataRepository extends CommonPriceDataRepository {
+export class UniswapV3PriceRepository extends CommonPriceDataRepository {
   constructor() {
     super();
     this.model = getModelForClass(PriceModel_UniswapV3);
