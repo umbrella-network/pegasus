@@ -31,7 +31,8 @@ export abstract class CommonPriceDataRepository {
   @inject('Settings') protected settings!: Settings;
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
 
-  private priceTimeWindow = 10; // TODO time window, configurable?
+  private priceTimeWindowBefore = 30; // TODO time window, configurable?
+  private priceTimeWindowAfter = 10; // TODO time window, configurable?
   protected hashVersion = 1;
 
   // this is definition from @typegoose
@@ -44,7 +45,7 @@ export abstract class CommonPriceDataRepository {
   }
 
   protected getTimestampWindowFilter(timestamp: number) {
-    return {$gte: timestamp - this.priceTimeWindow, $lte: timestamp + this.priceTimeWindow};
+    return {$gte: timestamp - this.priceTimeWindowBefore, $lte: timestamp + this.priceTimeWindowAfter};
   }
 
   protected createMessageToSign(
