@@ -20,9 +20,9 @@ import {
   FetchedValueType,
 } from '../../../types/fetchers.js';
 import {
-  UniswapV3DataRepository,
+  UniswapV3PriceRepository,
   UniswapV3DataRepositoryInput,
-} from '../../../repositories/fetchers/UniswapV3DataRepository.js';
+} from '../../../repositories/fetchers/UniswapV3PriceRepository.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,7 +53,7 @@ type PricesResponse = {
 
 @injectable()
 class UniswapV3Fetcher implements FeedFetcherInterface {
-  @inject(UniswapV3DataRepository) protected uniswapV3DataRepository!: UniswapV3DataRepository;
+  @inject(UniswapV3PriceRepository) protected uniswapV3PriceRepository!: UniswapV3PriceRepository;
   @inject(UniswapV3PoolRepository) protected uniswapV3PoolRepository!: UniswapV3PoolRepository;
   @inject(ContractAddressService) contractAddressService!: ContractAddressService;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
@@ -80,22 +80,13 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
       return {prices: []};
     }
 
-    const totalPools = Object.keys(poolsToFetch).reduce(
-      (sum, k) => sum + (poolsToFetch.get(k as ChainsIds)?.length || 0),
-      0,
-    );
-
-    if (totalPools != params.length) {
-      this.logger.warn(`${this.logPrefix} ${params.length - totalPools} pools are missing ${JSON.stringify(params)}`);
-    }
-
-    await Promise.all([...poolsToFetch.entries()].map(([chainId, pools]) => this.fetchData(chainId, pools)));
+    await Promise.allSettled([...poolsToFetch.entries()].map(([chainId, pools]) => this.fetchData(chainId, pools)));
 
     const timestamp = options.timestamp ?? this.timeService.apply();
-    const prices = await this.uniswapV3DataRepository.getPrices(params, timestamp);
-
+    const prices = await this.uniswapV3PriceRepository.getPrices(params, timestamp);
     const fetcherResult = {prices, timestamp};
 
+    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
       fetcherResult,
       options.symbols,
@@ -131,13 +122,11 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
       const currentChainId = pool.chainId as ChainsIds;
       const chainPools = helperInputMap.get(currentChainId);
 
-      if (!chainPools) {
+      if (chainPools) {
+        chainPools.push(helperInput);
+      } else {
         helperInputMap.set(currentChainId, [helperInput]);
-        continue;
       }
-
-      chainPools.push(helperInput);
-      helperInputMap.set(currentChainId, chainPools);
     }
 
     return helperInputMap;
@@ -145,19 +134,21 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
 
   private async fetchData(chainId: ChainsIds, poolsToFetch: UniswapV3ContractHelperInput[]): Promise<void> {
     const abi = JSON.parse(readFileSync(__dirname + '/UniswapV3FetcherHelper.abi.json', 'utf-8')).abi as never;
-    const contract = await this.contractAddressService.getContract(chainId, 'UniswapV3FetcherHelper', abi);
-
     let parsed: UniswapV3DataRepositoryInput[] = [];
 
     try {
+      const contract = await this.contractAddressService.getContract(chainId, 'UniswapV3FetcherHelper', abi);
+      this.logger.error(`${this.logPrefix} [${chainId}] contract: ${contract.address}`);
       const response = await contract.callStatic.getPrices(poolsToFetch);
+      this.logger.error(`${this.logPrefix} [${chainId}] response: ${response}`);
       parsed = this.processResult(chainId, response, poolsToFetch);
     } catch (error) {
       this.logger.error(`${this.logPrefix} [${chainId}] getPrices failed: ${error}`);
+      return;
     }
 
     try {
-      await this.uniswapV3DataRepository.save(parsed);
+      await this.uniswapV3PriceRepository.save(parsed);
     } catch (error) {
       this.logger.error(`${this.logPrefix} [${chainId}] save failed: ${error}`);
     }
