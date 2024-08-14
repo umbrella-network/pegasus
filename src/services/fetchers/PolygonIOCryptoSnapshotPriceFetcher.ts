@@ -92,7 +92,7 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
         }
 
         this.logger.debug(`${this.logPrefix} fetched: ${ticker}: ${value}`);
-        return {symbol: ticker, price: value, timestamp: lastTrade.t};
+        return {symbol: ticker, price: value, timestamp: lastTrade.t / 1e3};
       })
       .filter((e) => !!e) as ParsedResponse[];
   }
