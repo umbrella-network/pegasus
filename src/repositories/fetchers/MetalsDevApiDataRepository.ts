@@ -59,7 +59,7 @@ export class MetalsDevApiDataRepository extends CommonPriceDataRepository {
 
   async getPrices(params: MetalsDevApiPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
     const or = params.map(({metal, currency}) => {
-      return {metal, currency};
+      return {metal: metal.toLowerCase(), currency: currency.toLowerCase()};
     });
 
     const results = await this.model

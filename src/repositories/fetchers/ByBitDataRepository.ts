@@ -61,7 +61,7 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
     const results = await this.model
       .find(
         {
-          symbol: {$in: params.map((p) => p.symbol)},
+          symbol: {$in: params.map((p) => p.symbol.toLowerCase())},
           timestamp: this.getTimestampWindowFilter(timestamp),
           usdIndexPrice: {$ne: null},
         },
@@ -83,6 +83,6 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
       map[symbol] = usdIndexPrice;
     });
 
-    return inputs.map(({symbol}) => map[symbol]);
+    return inputs.map(({symbol}) => map[symbol.toLowerCase()]);
   }
 }

@@ -45,6 +45,7 @@ export default class MultiFeedProcessor {
       symbols: StringOrUndefined[];
       indices: number[];
       fetcher: FeedFetcherInterface;
+      fetcherName: FetcherName;
     };
 
     const inputMap: Record<string, ProcessingFeed> = {};
@@ -97,6 +98,7 @@ export default class MultiFeedProcessor {
           symbols: [fetcher.symbol],
           indices: [ix],
           fetcher: fetcherObject,
+          fetcherName: fetcher.name,
         };
       }
     }
@@ -110,7 +112,7 @@ export default class MultiFeedProcessor {
 
     fetchedFeeds.forEach((results, ix) => {
       if (results.status == 'rejected') {
-        this.logger.error(`${this.logPrefix} rejected: ${results.reason}`);
+        this.logger.error(`${this.logPrefix} ${mapInputs[ix].fetcherName} rejected: ${results.reason}`);
         return;
       }
 

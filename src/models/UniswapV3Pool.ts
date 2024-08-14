@@ -11,16 +11,16 @@ export class UniswapV3Pool {
   @prop({required: true})
   protocol!: string;
 
-  @prop({required: true})
+  @prop({required: true, lowercase: true})
   token0!: string;
 
-  @prop({required: true})
+  @prop({required: true, lowercase: true})
   token1!: string;
 
   @prop({required: true})
   fee!: number;
 
-  @prop({required: true})
+  @prop({required: true, lowercase: true})
   address!: string;
 
   @prop()

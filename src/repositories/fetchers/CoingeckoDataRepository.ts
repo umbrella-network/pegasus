@@ -59,7 +59,7 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
 
   async getPrices(params: CoingeckoPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
     const or = params.map(({id, currency}) => {
-      return {id, currency};
+      return {id: id.toLowerCase(), currency: currency.toLowerCase()};
     });
 
     const results = await this.model

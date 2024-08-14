@@ -64,11 +64,15 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
   async getPrices(params: SovrynPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
     const or = params.map((param) => {
       return {
-        chainId: ChainsIds.ROOTSTOCK,
-        base: param.base,
-        quote: param.quote,
+        chainId: ChainsIds.ROOTSTOCK.toLowerCase(),
+        base: param.base.toLowerCase(),
+        quote: param.quote.toLowerCase(),
       };
     });
+
+    this.logger.debug(
+      `${this.logPrefix} find: ${JSON.stringify(or)}, ${JSON.stringify(this.getTimestampWindowFilter(timestamp))}`,
+    );
 
     const results = await this.model
       .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1})
@@ -82,7 +86,7 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
   private getNewestData(sortedResults: PriceModel_Sovryn[], inputs: SovrynPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
-    const getSymbol = (chainId: string, base: string, quote: string) => [chainId, base, quote].join(';');
+    const getSymbol = (chainId: string, base: string, quote: string) => [chainId, base, quote].join(';').toLowerCase();
 
     sortedResults.forEach((data) => {
       const key = getSymbol(data.chainId, data.base, data.quote);
@@ -92,12 +96,7 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
     });
 
     return inputs.map((data) => {
-      const key = getSymbol(
-        (ChainsIds.ROOTSTOCK as string).toLowerCase(),
-        data.base.toLowerCase(),
-        data.quote.toLowerCase(),
-      );
-
+      const key = getSymbol(ChainsIds.ROOTSTOCK as string, data.base, data.quote);
       return map[key];
     });
   }
