@@ -73,6 +73,9 @@ export class BinanceDataRepository extends CommonPriceDataRepository {
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestPrices(sortedResults: PriceModel_Binance[], inputs: BinancePriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
+    this.logger.debug(
+      `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
+    );
 
     sortedResults.forEach(({symbol, value}) => {
       if (map[symbol]) return; // already set newest price
@@ -80,6 +83,8 @@ export class BinanceDataRepository extends CommonPriceDataRepository {
       map[symbol] = parseFloat(value);
     });
 
-    return inputs.map(({symbol}) => map[symbol.toLowerCase()]);
+    const newest = inputs.map(({symbol}) => map[symbol.toLowerCase()]);
+    this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
+    return newest;
   }
 }

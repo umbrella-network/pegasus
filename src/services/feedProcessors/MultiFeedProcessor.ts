@@ -118,9 +118,10 @@ export default class MultiFeedProcessor {
 
       const fetchedResults = results.value;
       const indieces = mapInputs[ix].indices;
+      const fetcherName = mapInputs[ix].fetcherName;
 
-      this.logger.debug(`${this.logPrefix} fetchedResults.prices: ${fetchedResults.prices}`);
-      this.logger.debug(`${this.logPrefix} indieces: ${indieces}`);
+      this.logger.debug(`${this.logPrefix} [${fetcherName}] fetchedResults.prices: ${fetchedResults.prices}`);
+      this.logger.debug(`${this.logPrefix} [${fetcherName}] symbols: ${mapInputs[ix].symbols}`);
 
       fetchedResults.prices.forEach((price, i) => {
         if (price) {

@@ -58,6 +58,10 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
   async getPrices(params: PolygonIOCryptoSnapshotInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
     const $in = params.map((p) => p.symbol.toLowerCase());
 
+    this.logger.debug(
+      `${this.logPrefix} find: ${$in.join(',')}, ${JSON.stringify(this.getTimestampWindowFilter(timestamp))}`,
+    );
+
     const results = await this.model
       .find({symbol: {$in}, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1, symbol: 1})
       .sort({timestamp: -1})
@@ -71,6 +75,10 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
     sortedResults: PriceModel_PolygonIOCryptoSnapshot[],
     inputs: PolygonIOCryptoSnapshotInputParams[],
   ): NumberOrUndefined[] {
+    this.logger.debug(
+      `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
+    );
+
     const map: Record<string, number> = {};
 
     sortedResults.forEach(({symbol, value}) => {
@@ -79,6 +87,8 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
       map[symbol] = parseFloat(value);
     });
 
-    return inputs.map(({symbol}) => map[symbol.toLowerCase()]);
+    const newest = inputs.map(({symbol}) => map[symbol.toLowerCase()]);
+    this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
+    return newest;
   }
 }

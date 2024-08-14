@@ -73,6 +73,10 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
   // sortedResults must be sorted by timestamp in DESC way
   private getNewestPrices(sortedResults: PriceModel_GoldApi[], inputs: GoldApiPriceInputParams[]): NumberOrUndefined[] {
     const map: Record<string, number> = {};
+    this.logger.debug(
+      `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
+    );
+
     const getSymbol = (symbol: string, currency: string) => `${symbol}-${currency}`;
 
     sortedResults.forEach(({symbol, currency, value}) => {
@@ -82,6 +86,8 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
       map[key] = parseFloat(value);
     });
 
-    return inputs.map(({symbol, currency}) => map[getSymbol(symbol, currency).toLowerCase()]);
+    const newest = inputs.map(({symbol, currency}) => map[getSymbol(symbol, currency).toLowerCase()]);
+    this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
+    return newest;
   }
 }

@@ -86,6 +86,10 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
     sortedResults: PriceModel_UniswapV3[],
     inputs: UniswapV3FetcherInputParams[],
   ): NumberOrUndefined[] {
+    this.logger.debug(
+      `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
+    );
+
     const map: Record<string, number> = {};
 
     const getSymbol = (chainId: string, base: string, quote: string) => [chainId, base, quote].join(';').toLowerCase();
@@ -97,9 +101,12 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
       map[key] = parseFloat(data.value);
     });
 
-    return inputs.map((data) => {
+    const newest = inputs.map((data) => {
       const key = getSymbol(data.fromChain, data.base, data.quote);
       return map[key];
     });
+
+    this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
+    return newest;
   }
 }

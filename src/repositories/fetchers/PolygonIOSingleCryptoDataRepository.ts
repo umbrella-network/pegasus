@@ -77,6 +77,10 @@ export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataReposito
     sortedResults: PriceModel_PolygonIOSingleCrypto[],
     inputs: PolygonIOSingleCryptoPriceInputParams[],
   ): NumberOrUndefined[] {
+    this.logger.debug(
+      `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
+    );
+
     const map: Record<string, number> = {};
 
     sortedResults.forEach(({symbol, value}) => {
@@ -85,6 +89,8 @@ export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataReposito
       map[symbol] = parseFloat(value);
     });
 
-    return inputs.map(({fsym, tsym}) => map[`${fsym}-${tsym}`.toLowerCase()]);
+    const newest = inputs.map(({fsym, tsym}) => map[`${fsym}-${tsym}`.toLowerCase()]);
+    this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
+    return newest;
   }
 }
