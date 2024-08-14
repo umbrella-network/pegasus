@@ -6,7 +6,7 @@ export class Token {
   @prop({required: true})
   chainId!: string;
 
-  @prop({required: true})
+  @prop({required: true, lowercase: true})
   address!: string;
 
   @prop({required: true})

@@ -73,6 +73,8 @@ export abstract class CommonPriceDataRepository {
 
       if (data.length != result.insertedCount) {
         this.logger.warn(`${this.logPrefix} bulkWrite: got ${data.length} saved ${result.insertedCount}`);
+      } else {
+        this.logger.info(`${this.logPrefix} bulkWrite successful: ${result.insertedCount}`);
       }
     } catch (error) {
       const bulkError = error as BulkWriteError;

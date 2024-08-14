@@ -59,7 +59,7 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
 
   async getPrices(params: GoldApiPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
     const or = params.map(({symbol, currency}) => {
-      return {symbol, currency};
+      return {symbol: symbol.toLowerCase(), currency: currency.toLowerCase()};
     });
 
     const results = await this.model

@@ -62,7 +62,7 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
     const results = await this.model
       .find(
         {
-          ticker: {$in: params.map((p) => p.ticker)},
+          ticker: {$in: params.map((p) => p.ticker.toLowerCase())},
           timestamp: this.getTimestampWindowFilter(timestamp),
         },
         {value: 1, symbol: 1},

@@ -59,7 +59,7 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
     const results = await this.model
       .find(
         {
-          symbol: {$in: params.map((p) => p.symbol)},
+          symbol: {$in: params.map((p) => p.symbol.toLowerCase())},
           timestamp: this.getTimestampWindowFilter(timestamp),
         },
         {value: 1, symbol: 1},
@@ -83,6 +83,6 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
       map[symbol] = parseFloat(value);
     });
 
-    return inputs.map(({symbol}) => map[symbol]);
+    return inputs.map(({symbol}) => map[symbol.toLowerCase()]);
   }
 }

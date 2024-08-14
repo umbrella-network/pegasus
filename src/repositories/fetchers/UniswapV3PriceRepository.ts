@@ -63,16 +63,22 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
   async getPrices(params: UniswapV3FetcherInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
     const or = params.map((param) => {
       return {
-        chainId: param.fromChain,
-        base: param.base,
-        quote: param.quote,
+        chainId: param.fromChain.toLowerCase(),
+        base: param.base.toLowerCase(),
+        quote: param.quote.toLowerCase(),
       };
     });
 
-    const results = await this.model
+    this.logger.debug(
+      `${this.logPrefix} find: ${JSON.stringify(or)}, ${JSON.stringify(this.getTimestampWindowFilter(timestamp))}`,
+    );
+
+    const results: PriceModel_UniswapV3[] = await this.model
       .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1})
       .sort({timestamp: -1})
       .exec();
+
+    this.logger.debug(`${this.logPrefix} results: ${results.map((r) => r.value)}`);
 
     return this.getNewestData(results, params);
   }
@@ -84,7 +90,7 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
   ): NumberOrUndefined[] {
     const map: Record<string, number> = {};
 
-    const getSymbol = (chainId: string, base: string, quote: string) => [chainId, base, quote].join(';');
+    const getSymbol = (chainId: string, base: string, quote: string) => [chainId, base, quote].join(';').toLowerCase();
 
     sortedResults.forEach((data) => {
       const key = getSymbol(data.chainId, data.base, data.quote);
@@ -94,8 +100,7 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
     });
 
     return inputs.map((data) => {
-      const key = getSymbol(data.fromChain.toLowerCase(), data.base.toLowerCase(), data.quote.toLowerCase());
-
+      const key = getSymbol(data.fromChain, data.base, data.quote);
       return map[key];
     });
   }
