@@ -65,7 +65,7 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
           ticker: {$in: params.map((p) => p.ticker.toLowerCase())},
           timestamp: this.getTimestampWindowFilter(timestamp),
         },
-        {value: 1, symbol: 1},
+        {value: 1, ticker: 1},
       )
       .sort({timestamp: -1})
       .exec();

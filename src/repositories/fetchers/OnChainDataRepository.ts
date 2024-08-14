@@ -73,7 +73,7 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
     });
 
     const results = await this.model
-      .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1})
+      .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)})
       .sort({timestamp: -1})
       .exec();
 
