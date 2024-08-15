@@ -31,8 +31,11 @@ export abstract class CommonPriceDataRepository {
   @inject('Settings') protected settings!: Settings;
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
 
-  private priceTimeWindowBefore = 30; // TODO time window, configurable?
-  private priceTimeWindowAfter = 10; // TODO time window, configurable?
+  // even with N minutes window, only newest price will be considered anyway
+  // when we get old one again, it should not trigger any update
+  // however for L2 data we need to check if we want this to be more fresh?
+  private priceTimeWindowBefore = 5 * 60; // TODO time window, configurable?
+  private priceTimeWindowAfter = 5; // TODO time window, configurable?
   protected hashVersion = 1;
 
   // this is definition from @typegoose
