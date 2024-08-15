@@ -3,6 +3,7 @@ import {Logger} from 'winston';
 
 import {ChainsIds} from '../../../types/ChainsIds.js';
 import {FeedRepository} from '../../../repositories/FeedRepository.js';
+import {FetcherName} from '../../../types/fetchers.js';
 
 @injectable()
 export class TwapFeedDetector {
@@ -18,7 +19,7 @@ export class TwapFeedDetector {
           ? (keyInput.fetcher.params as unknown as {chainId?: string}).chainId
           : undefined;
 
-        return keyInput.fetcher.name == 'TWAPGasPrice' && forChain == chainId;
+        return keyInput.fetcher.name === FetcherName.TWAPGasPrice && forChain == chainId;
       });
     });
 

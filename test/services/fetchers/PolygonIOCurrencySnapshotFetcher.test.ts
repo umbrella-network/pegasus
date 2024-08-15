@@ -3,7 +3,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 import Settings from '../../../src/types/Settings.js';
-import PolygonIOCurrencySnapshotGramsFetcher from '../../../src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher.js';
+import {PolygonIOCurrencySnapshotGramsFetcher} from '../../../src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 chai.use(chaiAsPromised);
@@ -28,9 +28,7 @@ describe.skip('PolygonIOCurrencySnapshotFetcher', () => {
     } as Settings;
 
     container.rebind('Settings').toConstantValue(settings);
-
     container.bind(PolygonIOCurrencySnapshotGramsFetcher).toSelf();
-
     polygonIOCurrencySnapshotFetcher = container.get(PolygonIOCurrencySnapshotGramsFetcher);
   });
 
@@ -40,14 +38,11 @@ describe.skip('PolygonIOCurrencySnapshotFetcher', () => {
         throw new Error('POLYGON_IO_API_KEY not set, test can run only with this key');
       }
 
-      const result = await polygonIOCurrencySnapshotFetcher.apply(
-        {
-          ticker: 'C:EURUSD',
-        },
-        {base: 'XAU', quote: 'USD'},
-      );
+      const result = await polygonIOCurrencySnapshotFetcher.apply([{ticker: 'C:EURUSD'}], {
+        symbols: ['XAU-USD'],
+        timestamp: 1,
+      });
 
-      console.log('PolygonIOCurrencySnapshotFetcher', result);
       expect(typeof result).to.eql('number');
       expect(result).gt(0);
     });

@@ -1,12 +1,13 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
 import chai from 'chai';
+
 import {PriceTriggerFilter} from '../../../src/services/deviationsFeeds/PriceTriggerFilter.js';
 import {DeviationFeed, PriceData} from '../../../src/types/DeviationFeeds.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
-import Leaf from '../../../src/types/Leaf.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import {FetcherName} from '../../../src/types/fetchers.js';
+import Leaf from '../../../src/types/Leaf.js';
 
 const {expect} = chai;
 
@@ -30,12 +31,18 @@ describe('PriceTriggerFilter', () => {
       inputs: [
         {
           fetcher: {
-            name: FetcherName.COINGECKO_PRICE,
+            name: FetcherName.CoingeckoPrice,
+            params: {
+              ticker: '',
+            },
           },
         },
         {
           fetcher: {
-            name: FetcherName.CRYPTO_COMPARE_PRICE,
+            name: FetcherName.SovrynPrice,
+            params: {
+              ticker: '',
+            },
           },
         },
       ],

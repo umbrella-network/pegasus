@@ -1,7 +1,7 @@
 import 'reflect-metadata';
+import chai from 'chai';
 import {Container} from 'inversify';
 import sinon, {createStubInstance, SinonStubbedInstance, stub} from 'sinon';
-import chai from 'chai';
 import {LeafValueCoder} from '@umb-network/toolbox';
 
 import {getTestContainer} from '../helpers/getTestContainer.js';
@@ -9,12 +9,11 @@ import {FeedFetcherRepository} from '../../src/repositories/FeedFetcherRepositor
 import {CalculatorRepository} from '../../src/repositories/CalculatorRepository.js';
 import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {IdentityCalculator} from '../../src/services/calculators/index.js';
-import Feeds from '../../src/types/Feed.js';
 import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
-import Leaf from '../../src/types/Leaf.js';
-import CryptoCompareMultiProcessor from '../../src/services/feedProcessors/CryptoCompareMultiProcessor.js';
-import CoingeckoMultiProcessor from '../../src/services/feedProcessors/CoingeckoMultiProcessor.js';
 import {FeedFetcherInterface, FetcherName} from '../../src/types/fetchers.js';
+import Feeds from '../../src/types/Feed.js';
+import Leaf from '../../src/types/Leaf.js';
+import {PolygonIOSingleCryptoPriceInputParams} from '../../src/services/fetchers/PolygonIOSingleCryptoPriceFetcher';
 
 const {expect} = chai;
 
@@ -27,9 +26,6 @@ describe.skip('FeedProcessor', () => {
   let calculatorRepository: SinonStubbedInstance<CalculatorRepository>;
   let identityCalculator: SinonStubbedInstance<IdentityCalculator>;
 
-  let coingeckoMultiProcessor: SinonStubbedInstance<CoingeckoMultiProcessor>;
-  let cryptoCompareMultiProcessor: SinonStubbedInstance<CryptoCompareMultiProcessor>;
-
   before(() => {
     container = getTestContainer();
     testFetcher = <FeedFetcherInterface>{};
@@ -37,16 +33,12 @@ describe.skip('FeedProcessor', () => {
     feedFetcherRepository = createStubInstance(FeedFetcherRepository);
     calculatorRepository = createStubInstance(CalculatorRepository);
     identityCalculator = createStubInstance(IdentityCalculator);
-    coingeckoMultiProcessor = createStubInstance(CoingeckoMultiProcessor);
-    cryptoCompareMultiProcessor = createStubInstance(CryptoCompareMultiProcessor);
 
     feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
     calculatorRepository.find.withArgs('Identity').returns(identityCalculator);
 
     container.bind(FeedFetcherRepository).toConstantValue(feedFetcherRepository);
     container.bind(CalculatorRepository).toConstantValue(calculatorRepository);
-    container.bind(CoingeckoMultiProcessor).toConstantValue(coingeckoMultiProcessor);
-    container.bind(CryptoCompareMultiProcessor).toConstantValue(cryptoCompareMultiProcessor);
 
     instance = container.get(FeedProcessor);
   });
@@ -145,7 +137,6 @@ describe.skip('FeedProcessor', () => {
       describe('when feeds have more inputs for the same feed', () => {
         before(async () => {
           feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
-          cryptoCompareMultiProcessor.apply.resolves([100.7]);
           testFetcher.apply = stub().resolves(90.3);
           calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
@@ -158,17 +149,15 @@ describe.skip('FeedProcessor', () => {
                     params: {
                       fsym: 'ETH',
                       tsym: 'USD',
-                      limit: 24,
                     },
                   },
                 }),
                 feedInputFactory.build({
                   fetcher: {
-                    name: FetcherName.CRYPTO_COMPARE_PRICE,
+                    name: FetcherName.SovrynPrice,
                     params: {
                       fsym: 'ETH',
-                      tsyms: 'USD',
-                      limit: 24,
+                      tsym: 'USD',
                     },
                   },
                 }),
@@ -199,7 +188,7 @@ describe.skip('FeedProcessor', () => {
             inputs: [
               feedInputFactory.build({
                 fetcher: {
-                  name: FetcherName.COINGECKO_PRICE,
+                  name: FetcherName.CoingeckoPrice,
                   params: {
                     id: 'umbrella-network',
                     currency: 'USD',
@@ -208,10 +197,10 @@ describe.skip('FeedProcessor', () => {
               }),
               feedInputFactory.build({
                 fetcher: {
-                  name: FetcherName.CRYPTO_COMPARE_PRICE,
+                  name: FetcherName.SovrynPrice,
                   params: {
                     fsym: 'UMB',
-                    tsyms: 'USD',
+                    tsym: 'USD',
                   },
                 },
               }),
@@ -221,7 +210,7 @@ describe.skip('FeedProcessor', () => {
             inputs: [
               feedInputFactory.build({
                 fetcher: {
-                  name: FetcherName.COINGECKO_PRICE,
+                  name: FetcherName.CoingeckoPrice,
                   params: {
                     id: 'umbrella-network',
                     currency: 'BTC',
@@ -230,10 +219,10 @@ describe.skip('FeedProcessor', () => {
               }),
               feedInputFactory.build({
                 fetcher: {
-                  name: FetcherName.CRYPTO_COMPARE_PRICE,
+                  name: FetcherName.SovrynPrice,
                   params: {
                     fsym: 'UMB',
-                    tsyms: 'BTC',
+                    tsym: 'BTC',
                   },
                 },
               }),
@@ -242,11 +231,6 @@ describe.skip('FeedProcessor', () => {
         };
 
         describe('and all processors resolve', () => {
-          beforeEach(() => {
-            coingeckoMultiProcessor.apply.resolves([0, undefined, 2, undefined]);
-            cryptoCompareMultiProcessor.apply.resolves([undefined, 1, undefined, 3]);
-          });
-
           it('returns all leaves', async () => {
             const result = await instance.apply(10, feeds);
 
@@ -266,11 +250,6 @@ describe.skip('FeedProcessor', () => {
         });
 
         describe('and one of the processors rejects', () => {
-          beforeEach(() => {
-            coingeckoMultiProcessor.apply.rejects();
-            cryptoCompareMultiProcessor.apply.resolves([undefined, 1, undefined, 3]);
-          });
-
           it('returns only the resolved leaves', async () => {
             const result = await instance.apply(10, feeds);
 
@@ -290,53 +269,11 @@ describe.skip('FeedProcessor', () => {
         });
 
         describe('and all processors rejects', () => {
-          beforeEach(() => {
-            coingeckoMultiProcessor.apply.rejects();
-            cryptoCompareMultiProcessor.apply.rejects();
-          });
-
           it('returns what exactly', async () => {
             const result = await instance.apply(10, feeds);
 
             expect(result).to.deep.equal([[]]);
           });
-        });
-      });
-
-      describe('when fetcher is CryptoComparePrice', () => {
-        before(async () => {
-          calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
-          cryptoCompareMultiProcessor.apply.resolves([100]);
-
-          const feeds: Feeds = {
-            TEST: feedFactory.build({
-              inputs: [
-                feedInputFactory.build({
-                  fetcher: {
-                    name: FetcherName.CRYPTO_COMPARE_PRICE,
-                    params: {
-                      fsym: 'ETH',
-                      tsyms: 'USD',
-                      limit: 24,
-                    },
-                  },
-                }),
-              ],
-            }),
-          };
-
-          testFetcher.apply = stub().resolves(100.0);
-
-          result = await instance.apply(10, feeds);
-        });
-
-        it('responds with a leaf with correct label', () => {
-          expect(result[0]).to.be.an('array').with.lengthOf(1);
-          expect(result[0][0].label).to.equal('TEST');
-        });
-
-        it('responds with a leaf with value decoded as number', () => {
-          expect(LeafValueCoder.decode(result[0][0].valueBytes, result[0][0].label)).is.a('number').that.equal(100.0);
         });
       });
     });

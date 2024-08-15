@@ -3,10 +3,10 @@ import {inject, injectable} from 'inversify';
 import {BaseProvider} from '@ethersproject/providers';
 import {ChainsIds} from '../../types/ChainsIds.js';
 import {ProviderRepository} from '../../repositories/ProviderRepository.js';
-import {FeedFetcherInterface, FeedFetcherOptions} from 'src/types/fetchers.js';
+import {FeedFetcherOptions} from '../../types/fetchers.js';
 
 @injectable()
-class RandomNumberFetcher implements FeedFetcherInterface {
+export class RandomNumberFetcher {
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
   async apply(params: {numBlocks: number}, options: FeedFetcherOptions): Promise<string> {
@@ -36,5 +36,3 @@ class RandomNumberFetcher implements FeedFetcherInterface {
     );
   }
 }
-
-export default RandomNumberFetcher;

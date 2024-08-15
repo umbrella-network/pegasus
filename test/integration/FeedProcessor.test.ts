@@ -1,15 +1,13 @@
 import 'reflect-metadata';
-import {loadFeeds} from '@umb-network/toolbox';
 import chai from 'chai';
-import {createStubInstance, SinonStubbedInstance} from 'sinon';
+import {loadFeeds} from '@umb-network/toolbox';
 
 import FeedProcessor from '../../src/services/FeedProcessor.js';
 import {sleep} from '../../src/utils/sleep.js';
 import Feeds, {FeedInput} from '../../src/types/Feed.js';
 import {getContainer} from '../../src/lib/getContainer.js';
 import PriceRepository from '../../src/repositories/PriceRepository.js';
-import PolygonIOStockPriceService from '../../src/services/PolygonIOStockPriceService.js';
-import CryptoCompareWSClient from '../../src/services/ws/CryptoCompareWSClient.js';
+import PolygonIOStockPriceService from '../../src/services/fetchers/common/PolygonIOStockPriceService.js';
 import {FetcherName} from '../../src/types/fetchers.js';
 
 const {expect} = chai;
@@ -32,19 +30,6 @@ const getFetcherParams = (feeds: Feeds, fetcherName: string) => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const saveCryptoPairs = async ({fetcher}: any, priceRepository: PriceRepository) => {
-  const timestamp = Math.floor(Date.now() / 1000);
-  const price = 10;
-
-  await priceRepository.savePrice(
-    CryptoCompareWSClient.Prefix,
-    `${fetcher.params.fsym}-${fetcher.params.tsym}`,
-    price,
-    timestamp,
-  );
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const saveStockSymbols = async ({fetcher}: any, priceRepository: PriceRepository) => {
   const timestamp = Math.floor(Date.now() / 1000);
   const price = 10;
@@ -54,24 +39,12 @@ const saveStockSymbols = async ({fetcher}: any, priceRepository: PriceRepository
 
 const feedsFetcher = [
   {
-    apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: FetcherName.CRYPTO_COMPARE_HISTO_DAY,
-  },
-  {
-    apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: FetcherName.CRYPTO_COMPARE_HISTO_HOUR,
-  },
-  {
-    apiKey: 'CRYPTOCOMPARE_API_KEY',
-    name: FetcherName.CRYPTO_COMPARE_PRICE,
-  },
-  {
     apiKey: null,
-    name: FetcherName.COINGECKO_PRICE,
+    name: FetcherName.CoingeckoPrice,
   },
 ];
 
-const fetcherWSNames = [FetcherName.CRYPTO_COMPARE_PRICE_WS, FetcherName.POLYGON_IO_CRYPTO_PRICE];
+const fetcherWSNames = [FetcherName.PolygonIOCryptoPriceOLD];
 
 describe.skip('FeedProcessor integration tests', () => {
   let feedProcessor: FeedProcessor;
@@ -118,8 +91,6 @@ describe.skip('FeedProcessor integration tests', () => {
             fetcherParams.map(async (fetcher) => {
               if (fetcher.fetcher.name === 'PolygonIOPrice') {
                 await saveStockSymbols(fetcher, priceRepository);
-              } else {
-                await saveCryptoPairs(fetcher, priceRepository);
               }
             }),
           );

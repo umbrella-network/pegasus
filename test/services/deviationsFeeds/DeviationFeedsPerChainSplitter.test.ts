@@ -1,4 +1,5 @@
 import chai from 'chai';
+
 import {DeviationFeedsPerChainSplitter} from '../../../src/services/deviationsFeeds/DeviationFeedsPerChainSplitter.js';
 import {DeviationFeeds} from '../../../src/types/DeviationFeeds.js';
 import {ChainsIds} from '../../../src/types/ChainsIds.js';
@@ -19,12 +20,18 @@ describe('DeviationFeedsPerChainSplitter', () => {
         inputs: [
           {
             fetcher: {
-              name: FetcherName.COINGECKO_PRICE,
+              name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
           {
             fetcher: {
-              name: FetcherName.CRYPTO_COMPARE_PRICE,
+              name: FetcherName.SovrynPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -33,7 +40,6 @@ describe('DeviationFeedsPerChainSplitter', () => {
 
     it('should return only the data associated with the accepted keys', () => {
       const result = DeviationFeedsPerChainSplitter.apply(data);
-
       expect(result).to.be.eql({bsc: ['TEST'], arbitrum: ['TEST']});
     });
   });

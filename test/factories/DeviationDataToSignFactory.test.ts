@@ -1,4 +1,5 @@
 import chai from 'chai';
+
 import {DeviationDataToSignFactory} from '../../src/factories/DeviationDataToSignFactory.js';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
 import {FetcherName} from '../../src/types/fetchers.js';
@@ -26,12 +27,18 @@ describe('DeviationDataToSignFactory', () => {
           inputs: [
             {
               fetcher: {
-                name: FetcherName.COINGECKO_PRICE,
+                name: FetcherName.CoingeckoPrice,
+                params: {
+                  ticker: '',
+                },
               },
             },
             {
               fetcher: {
-                name: FetcherName.CRYPTO_COMPARE_PRICE,
+                name: FetcherName.SovrynPrice,
+                params: {
+                  ticker: '',
+                },
               },
             },
           ],
@@ -70,12 +77,18 @@ describe('DeviationDataToSignFactory', () => {
           inputs: [
             {
               fetcher: {
-                name: FetcherName.COINGECKO_PRICE,
+                name: FetcherName.CoingeckoPrice,
+                params: {
+                  ticker: '',
+                },
               },
             },
             {
               fetcher: {
-                name: FetcherName.CRYPTO_COMPARE_PRICE,
+                name: FetcherName.SovrynPrice,
+                params: {
+                  ticker: '',
+                },
               },
             },
           ],
@@ -114,12 +127,18 @@ describe('DeviationDataToSignFactory', () => {
           inputs: [
             {
               fetcher: {
-                name: FetcherName.COINGECKO_PRICE,
+                name: FetcherName.CoingeckoPrice,
+                params: {
+                  ticker: '',
+                },
               },
             },
             {
               fetcher: {
-                name: FetcherName.CRYPTO_COMPARE_PRICE,
+                name: FetcherName.SovrynPrice,
+                params: {
+                  ticker: '',
+                },
               },
             },
           ],

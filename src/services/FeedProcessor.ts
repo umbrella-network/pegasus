@@ -67,11 +67,9 @@ class FeedProcessor {
       inputIndexByHash[hash] = index + offset;
     });
 
-    this.logger.debug(`${this.logPrefix} ${JSON.stringify(inputIndexByHash)}`);
-
     const [singleFeeds, multiFeeds] = await Promise.all([
       this.processFeeds(Object.values(singleInputs), timestamp),
-      this.multiFeedProcessor.apply(Object.values(multiInputs)),
+      this.multiFeedProcessor.apply(Object.values(multiInputs), timestamp),
     ]);
 
     this.logger.debug(`${this.logPrefix} singleFeeds: ${JSON.stringify(singleFeeds)}`);
@@ -143,12 +141,23 @@ class FeedProcessor {
       }
     }
 
-    const [base, quote] = result;
-
     try {
       this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
-      return await fetcher.apply(feedFetcher.params, {base, quote, timestamp});
+      const result = await fetcher.apply([feedFetcher.params], {
+        symbols: [feedFetcher.symbol],
+        timestamp,
+      });
+
+      if (result.prices.length > 1) {
+        this.logger.error(
+          `${this.logPrefix} result.prices has length bigger than 1.` +
+            `fetcher: ${feedFetcher.name} length: ${result.prices.length}`,
+        );
+      }
+
+      return result.prices.length === 1 ? result.prices[0] : undefined;
     } catch (err) {
+      this.logger.debug(err);
       const {message, response} = err as FetcherError;
       const error = message || JSON.stringify(response?.data);
 

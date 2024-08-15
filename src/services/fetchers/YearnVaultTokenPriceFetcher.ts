@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 @injectable()
-class YearnVaultTokenPriceFetcher {
+export class YearnVaultTokenPriceFetcher {
   @inject(BlockChainProviderFactory) blockChainProviderFactory!: BlockChainProviderFactory;
   @inject(ProviderRepository) protected providerRepository!: ProviderRepository;
 
@@ -23,8 +23,7 @@ class YearnVaultTokenPriceFetcher {
     this.yearnAbi = readFileSync(__dirname + '/YearnVaultExplorer.json', 'utf-8');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async apply(params: any): Promise<any> {
+  async apply(params: {network: string; address: string}): Promise<Vault[]> {
     const {network, address} = params;
 
     const provider = network
@@ -71,5 +70,3 @@ export interface Vault {
   totalAssets: BigNumber;
   pricePerShare: BigNumber;
 }
-
-export default YearnVaultTokenPriceFetcher;

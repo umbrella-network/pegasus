@@ -2,26 +2,33 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {PriceDataRepository, PriceDataPayload, PriceValueType} from '../../repositories/PriceDataRepository.js';
-import TimeService from '../TimeService.js';
-import {FeedFetcherInterface, FeedFetcherOptions, FetcherName} from '../../types/fetchers.js';
+import {
+  FeedFetcherInterface,
+  FeedFetcherOptions,
+  FetcherName,
+  FetcherResult,
+  FetchedValueType,
+} from '../../types/fetchers.js';
+import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import Settings from '../../types/Settings.js';
+import TimeService from '../TimeService.js';
+import {MetalsDevApiDataRepository} from '../../repositories/fetchers/MetalsDevApiDataRepository.js';
 
-export interface MetalsDevApiInputParams {
+export interface MetalsDevApiPriceInputParams {
   metal: string;
   currency: string;
 }
 
 @injectable()
-export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
+export class MetalsDevApiFetcher implements FeedFetcherInterface {
+  @inject(MetalsDevApiDataRepository) private metalsDevApiDataRepository!: MetalsDevApiDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private apiKey: string;
   private timeout: number;
-  private logPrefix = `[${FetcherName.METALS_DEV_API}]`;
-
+  private logPrefix = `[${FetcherName.MetalsDevApi}]`;
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
@@ -29,9 +36,11 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.metalsDevApi.timeout;
   }
 
-  async apply(params: MetalsDevApiInputParams, options: FeedFetcherOptions): Promise<number> {
-    const {metal, currency} = params;
-    const {base: feedBase, quote: feedQuote} = options;
+  async apply(params: MetalsDevApiPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
+
+    const {metal, currency} = params[0];
+    const {symbols} = options;
 
     this.logger.debug(`${this.logPrefix} call for: ${metal}/${currency}`);
 
@@ -45,35 +54,45 @@ export default class MetalsDevApiPriceFetcher implements FeedFetcherInterface {
       });
 
       if (response.status !== 200) {
-        this.logger.error(`${this.logPrefix} Error for ${metal}/${currency}: ${response.statusText}`);
-
-        throw new Error(response.data);
+        this.logger.error(
+          `${this.logPrefix} Error for ${metal}/${currency}: ${response.statusText}. Error: ${response.data}`,
+        );
+        return {prices: []};
       }
 
       const pricePerGram = response.data.metals[metal.toLowerCase()];
 
-      if (pricePerGram !== undefined) {
-        this.logger.debug(`${this.logPrefix} resolved price per gram: ${metal}/${currency}: ${pricePerGram}`);
-
-        const payload: PriceDataPayload = {
-          fetcher: FetcherName.METALS_DEV_API,
-          value: pricePerGram.toString(),
-          valueType: PriceValueType.Price,
-          timestamp: this.timeService.apply(),
-          feedBase,
-          feedQuote,
-          fetcherSource: MetalsDevApiPriceFetcher.fetcherSource,
-        };
-
-        await this.priceDataRepository.savePrice(payload);
-
-        return pricePerGram;
-      } else {
-        throw new Error(`${this.logPrefix} Missing price for ${metal} in ${currency}`);
+      if (!pricePerGram) {
+        this.logger.error(`${this.logPrefix} Missing price for ${metal} in ${currency}`);
+        return {prices: []};
       }
+
+      this.logger.debug(`${this.logPrefix} resolved price per gram: ${metal}/${currency}: ${pricePerGram}`);
+
+      await this.metalsDevApiDataRepository.save([
+        {
+          value: pricePerGram,
+          timestamp: this.timeService.apply(),
+          params: params[0],
+        },
+      ]);
+
+      const [price] = await this.metalsDevApiDataRepository.getPrices(params, options.timestamp);
+      const result = {prices: [price], timestamp: options.timestamp};
+
+      // TODO this will be deprecated once we fully switch to DB and have dedicated charts
+      await this.priceDataRepository.saveFetcherResults(
+        result,
+        symbols,
+        FetcherName.MetalsDevApi,
+        FetchedValueType.Price,
+        MetalsDevApiFetcher.fetcherSource,
+      );
+
+      return result;
     } catch (error) {
       this.logger.error(`${this.logPrefix} An error occurred while fetching metal prices: ${error}`);
-      throw new Error('Failed to fetch metal prices');
+      return {prices: []};
     }
   }
 }

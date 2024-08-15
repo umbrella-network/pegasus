@@ -2,53 +2,106 @@ import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
 
+import {FetcherResult, FetchedValueType, StringOrUndefined} from '../types/fetchers.js';
+import PriceSignerService from '../services/PriceSignerService.js';
 import {PriceDataModel} from '../models/PriceDataModel.js';
 import Settings from '../types/Settings.js';
-
-export enum PriceValueType {
-  Price = 'Price',
-}
+import FeedSymbolChecker from '../services/FeedSymbolChecker.js';
+import TimeService from '../services/TimeService.js';
 
 export type PriceDataPayload = {
   fetcher: string;
   value: string;
-  valueType: PriceValueType;
+  valueType: FetchedValueType;
   timestamp: number; // timestamp stamp associated with the value (not the timestamp to when it is stored)
   feedBase: string; // base configurable on feeds.yaml e.g. WBTC-USDC -> base is WBTC
   feedQuote: string; // quote configurable on feeds.yaml e.g. WBTC-USDC -> quote is USDC
   fetcherSource: string;
+  quoteLiquidity?: string;
 };
 
 @injectable()
 export class PriceDataRepository {
-  @inject('Settings') settings!: Settings;
+  @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
+  @inject(FeedSymbolChecker) private feedSymbolChecker!: FeedSymbolChecker;
+  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
+  @inject('Settings') settings!: Settings;
 
-  async savePrice(data: PriceDataPayload): Promise<void> {
-    try {
-      const doc = await getModelForClass(PriceDataModel).create({...data});
-      await doc.save();
-    } catch (error) {
-      this.logger.error(`[PriceDataRepository] couldn't create document for PriceData: ${error}`);
+  private logPrefix = '[PriceDataRepository]';
+
+  async saveFetcherResults(
+    fetcherResult: FetcherResult,
+    symbols: StringOrUndefined[],
+    fetcherName: string,
+    valueType: FetchedValueType,
+    fetcherSource = '',
+  ): Promise<void> {
+    if (fetcherResult.prices.length != symbols.length) {
+      throw new Error(`${this.logPrefix} fetcherResult not match symbols`);
     }
+
+    const timestamp = fetcherResult.timestamp || this.timeService.apply();
+    const payloads: PriceDataPayload[] = [];
+
+    for (const [ix, price] of fetcherResult.prices.entries()) {
+      if (!price) continue;
+
+      const baseQuote = this.feedSymbolChecker.apply(symbols[ix]);
+      if (!baseQuote) continue;
+
+      const [feedBase, feedQuote] = baseQuote;
+
+      payloads.push({
+        fetcher: fetcherName,
+        value: price.toString(),
+        valueType,
+        timestamp,
+        feedBase,
+        feedQuote,
+        fetcherSource,
+      });
+    }
+
+    await this.savePrices(payloads);
   }
 
   async savePrices(data: PriceDataPayload[]): Promise<void> {
     const model = await getModelForClass(PriceDataModel);
 
-    const bulkOps = data.map((doc) => ({
-      updateOne: {
-        filter: {...doc},
-        update: doc,
-        upsert: true,
-      },
-    }));
+    const bulkOps = await Promise.all(
+      data.map(async (doc) => {
+        const hashVersion = 1;
+        const messageToSign = this.createMessageToSign(doc, hashVersion);
+        const {signerAddress, signature, hash} = await this.priceSignerService.sign(messageToSign);
+
+        this.logger.debug(
+          `${this.logPrefix} history: ${doc.feedBase} - ${doc.feedQuote}: ${doc.value} (${doc.fetcherSource})`,
+        );
+
+        return {
+          updateOne: {
+            filter: {...doc},
+            update: {...doc, signer: signerAddress, priceHash: hash, signature, hashVersion},
+            upsert: true,
+          },
+        };
+      }),
+    );
 
     try {
       await model.bulkWrite(bulkOps);
     } catch (error) {
-      this.logger.error(`[PriceDataRepository] couldn't perform bulkWrite for PriceData: ${error}`);
+      this.logger.error(`${this.logPrefix} couldn't perform bulkWrite for PriceData: ${error}`);
     }
+  }
+
+  createMessageToSign(data: PriceDataPayload, hashVersion: number): string {
+    const {fetcher, value, valueType, timestamp, feedBase, feedQuote, fetcherSource, quoteLiquidity} = data;
+    return (
+      `${hashVersion};${fetcher};${value};${valueType};${timestamp};${feedBase};${feedQuote};` +
+      `${fetcherSource};${quoteLiquidity}`
+    );
   }
 
   async latest(limit = 150): Promise<PriceDataModel[]> {
@@ -82,7 +135,7 @@ export class PriceDataRepository {
   }
 
   async latestPrice(feedBase: string, feedQuote: string, limit = 150): Promise<PriceDataModel[]> {
-    if (!feedBase || !feedQuote) throw new Error('[PriceDataRepository] empty symbol');
+    if (!feedBase || !feedQuote) throw new Error(`${this.logPrefix} empty symbol`);
     return getModelForClass(PriceDataModel).find({feedBase, feedQuote}).sort({timestamp: -1}).limit(limit).exec();
   }
 }

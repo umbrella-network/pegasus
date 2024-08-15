@@ -31,33 +31,26 @@ export default {
       properties: {
         fetcher: {
           oneOf: [
-            {$ref: '#/definitions/ByBitSpotFetcher'},
-            {$ref: '#/definitions/BinanceFetcher'},
-            {$ref: '#/definitions/GVolImpliedVolatilityFetcher'},
-            {$ref: '#/definitions/CryptoCompareHistoDayFetcher'},
-            {$ref: '#/definitions/CryptoCompareHistoHourFetcher'},
-            {$ref: '#/definitions/CryptoComparePriceFetcher'},
-            {$ref: '#/definitions/CryptoComparePriceWSFetcher'},
-            {$ref: '#/definitions/PolygonIOPriceFetcher'},
-            {$ref: '#/definitions/PolygonIOStockPriceFetcher'},
-            {$ref: '#/definitions/PolygonIOCryptoPriceFetcher'},
-            {$ref: '#/definitions/PolygonIOCurrencySnapshotGramsFetcher'},
-            {$ref: '#/definitions/IEXEnergyFetcher'},
-            {$ref: '#/definitions/BEACPIAverageFetcher'},
-            {$ref: '#/definitions/CoingeckoPriceFetcher'},
-            {$ref: '#/definitions/CoinmarketcapPriceFetcher'},
-            {$ref: '#/definitions/CoinmarketcapHistoHourFetcher'},
-            {$ref: '#/definitions/CoinmarketcapHistoDayFetcher'},
-            {$ref: '#/definitions/OnChainDataFetcher'},
-            {$ref: '#/definitions/UniswapV3Fetcher'},
-            {$ref: '#/definitions/OptionsPriceFetcher'},
-            {$ref: '#/definitions/YearnVaultTokenPriceFetcher'},
-            {$ref: '#/definitions/RandomNumberFetcher'},
-            {$ref: '#/definitions/TWAPGasPriceFetcher'},
-            {$ref: '#/definitions/GoldApiPriceFetcher'},
-            {$ref: '#/definitions/MetalPriceApiFetcher'},
-            {$ref: '#/definitions/MetalsDevApiPriceFetcher'},
-            {$ref: '#/definitions/SovrynPriceFetcher'},
+            {$ref: '#/definitions/ByBitPrice'},
+            {$ref: '#/definitions/BinancePrice'},
+            {$ref: '#/definitions/GVolImpliedVolatility'},
+            {$ref: '#/definitions/PolygonIOPrice'},
+            {$ref: '#/definitions/PolygonIOStockPrice'},
+            {$ref: '#/definitions/PolygonIOCryptoPrice'},
+            {$ref: '#/definitions/PolygonIOCurrencySnapshotGrams'},
+            {$ref: '#/definitions/CoingeckoPrice'},
+            {$ref: '#/definitions/OnChainData'},
+            {$ref: '#/definitions/UniswapV3'},
+            {$ref: '#/definitions/UniswapV3Fetcher'}, // TODO: remove in newer versions
+            {$ref: '#/definitions/OptionsPrice'},
+            {$ref: '#/definitions/YearnVaultTokenPrice'},
+            {$ref: '#/definitions/RandomNumber'},
+            {$ref: '#/definitions/TWAPGasPrice'},
+            {$ref: '#/definitions/GoldApiPrice'},
+            {$ref: '#/definitions/MetalPriceApi'},
+            {$ref: '#/definitions/MetalsDevApiPrice'},
+            {$ref: '#/definitions/SovrynPrice'},
+            {$ref: '#/definitions/SovrynPriceFetcher'}, // TODO: remove in newer versions
           ],
         },
         calculator: {
@@ -73,9 +66,9 @@ export default {
       required: ['fetcher'],
       additionalProperties: false,
     },
-    ByBitSpotFetcher: {
+    ByBitPrice: {
       properties: {
-        name: {const: 'ByBit'},
+        name: {const: 'ByBitPrice'},
         params: {
           type: 'object',
           properties: {
@@ -85,9 +78,9 @@ export default {
         },
       },
     },
-    BinanceFetcher: {
+    BinancePrice: {
       properties: {
-        name: {const: FetcherName.BINANCE},
+        name: {const: FetcherName.BinancePrice},
         params: {
           type: 'object',
           properties: {
@@ -101,9 +94,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    GVolImpliedVolatilityFetcher: {
+    GVolImpliedVolatility: {
       properties: {
-        name: {const: FetcherName.G_VOL_IMPLIED_VOLATILITY},
+        name: {const: FetcherName.GVolImpliedVolatility},
         params: {
           type: 'object',
           properties: {
@@ -117,126 +110,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    CryptoComparePriceFetcher: {
+    CoingeckoPrice: {
       properties: {
-        name: {const: FetcherName.CRYPTO_COMPARE_PRICE},
-        params: {
-          type: 'object',
-          properties: {
-            fsym: {type: 'string'},
-            tsyms: {type: 'string'},
-          },
-          required: ['fsym', 'tsyms'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    CryptoComparePriceWSFetcher: {
-      properties: {
-        name: {const: FetcherName.CRYPTO_COMPARE_PRICE_WS},
-        params: {
-          type: 'object',
-          properties: {
-            fsym: {type: 'string'},
-            tsym: {type: 'string'},
-            freshness: {type: 'number'},
-          },
-          required: ['fsym', 'tsym'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    CryptoCompareHistoHourFetcher: {
-      properties: {
-        name: {const: FetcherName.CRYPTO_COMPARE_HISTO_HOUR},
-        params: {
-          type: 'object',
-          properties: {
-            fsym: {type: 'string'},
-            tsym: {type: 'string'},
-            limit: {type: 'number'},
-          },
-          required: ['fsym', 'tsym', 'limit'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    CryptoCompareHistoDayFetcher: {
-      properties: {
-        name: {const: FetcherName.CRYPTO_COMPARE_HISTO_DAY},
-        params: {
-          type: 'object',
-          properties: {
-            fsym: {type: 'string'},
-            tsym: {type: 'string'},
-            limit: {type: 'number'},
-          },
-          required: ['fsym', 'tsym', 'limit'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    CoinmarketcapPriceFetcher: {
-      properties: {
-        name: {const: FetcherName.COINMARKETCAP_PRICE},
-        params: {
-          type: 'object',
-          properties: {
-            symbol: {type: 'string'},
-            convert: {type: 'string'},
-          },
-          required: ['symbol', 'convert'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    CoinmarketcapHistoHourFetcher: {
-      properties: {
-        name: {const: FetcherName.COINMARKETCAP_HISTO_HOUR},
-        params: {
-          type: 'object',
-          properties: {
-            symbol: {type: 'string'},
-            convert: {type: 'string'},
-            count: {type: 'number'},
-          },
-          required: ['symbol', 'convert', 'count'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    CoinmarketcapHistoDayFetcher: {
-      properties: {
-        name: {const: FetcherName.COINMARKETCAP_HISTO_DAY},
-        params: {
-          type: 'object',
-          properties: {
-            symbol: {type: 'string'},
-            convert: {type: 'string'},
-            count: {type: 'number'},
-          },
-          required: ['symbol', 'convert', 'count'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    CoingeckoPriceFetcher: {
-      properties: {
-        name: {const: FetcherName.COINGECKO_PRICE},
+        name: {const: FetcherName.CoingeckoPrice},
         params: {
           type: 'object',
           properties: {
@@ -250,9 +126,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    PolygonIOPriceFetcher: {
+    PolygonIOPrice: {
       properties: {
-        name: {const: FetcherName.POLYGON_IO_PRICE},
+        name: {const: FetcherName.PolygonIOPrice},
         params: {
           type: 'object',
           properties: {
@@ -265,9 +141,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    PolygonIOStockPriceFetcher: {
+    PolygonIOStockPrice: {
       properties: {
-        name: {const: FetcherName.POLYGON_IO_STOCK_PRICE},
+        name: {const: FetcherName.PolygonIOStockPrice},
         params: {
           type: 'object',
           properties: {
@@ -280,9 +156,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    PolygonIOCryptoPriceFetcher: {
+    PolygonIOCryptoPrice: {
       properties: {
-        name: {const: FetcherName.POLYGON_IO_CRYPTO_PRICE},
+        name: {const: FetcherName.PolygonIOCryptoPriceOLD},
         params: {
           type: 'object',
           properties: {
@@ -296,39 +172,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    IEXEnergyFetcher: {
+    TWAPGasPrice: {
       properties: {
-        name: {const: FetcherName.IEX_ENERGY},
-        params: {
-          type: 'object',
-          properties: {
-            sym: {type: 'string'},
-          },
-          required: ['sym'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    BEACPIAverageFetcher: {
-      properties: {
-        name: {const: FetcherName.BEACPI_AVERAGE},
-        params: {
-          type: 'object',
-          properties: {
-            months: {type: 'number'},
-          },
-          required: ['months'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    TWAPGasPriceFetcher: {
-      properties: {
-        name: {const: FetcherName.TWAP_GAS_PRICE},
+        name: {const: FetcherName.TWAPGasPrice},
         params: {
           type: 'object',
           properties: {
@@ -342,9 +188,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    OnChainDataFetcher: {
+    OnChainData: {
       properties: {
-        name: {const: FetcherName.ON_CHAIN_DATA},
+        name: {const: FetcherName.OnChainData},
         params: {
           type: 'object',
           properties: {
@@ -364,9 +210,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    UniswapV3Fetcher: {
+    UniswapV3: {
       properties: {
-        name: {const: FetcherName.UNISWAP_V3},
+        name: {const: FetcherName.UniswapV3},
         params: {
           type: 'object',
           properties: {
@@ -382,9 +228,28 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    GoldApiPriceFetcher: {
+    UniswapV3Fetcher: {
+      // TODO: remove in newer versions
       properties: {
-        name: {const: FetcherName.GOLD_API_PRICE},
+        name: {const: FetcherName.UniswapV3OLD},
+        params: {
+          type: 'object',
+          properties: {
+            fromChain: {type: 'string'},
+            base: {type: 'string'},
+            quote: {type: 'string'},
+            amountInDecimals: {type: 'number'},
+          },
+          required: ['fromChain', 'base', 'quote', 'amountInDecimals'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    GoldApiPrice: {
+      properties: {
+        name: {const: FetcherName.GoldApiPrice},
         params: {
           type: 'object',
           properties: {
@@ -398,9 +263,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    MetalPriceApiFetcher: {
+    MetalPriceApi: {
       properties: {
-        name: {const: FetcherName.METAL_PRICE_API},
+        name: {const: FetcherName.MetalPriceApi},
         params: {
           type: 'object',
           properties: {
@@ -414,9 +279,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    MetalsDevApiPriceFetcher: {
+    MetalsDevApiPrice: {
       properties: {
-        name: {const: FetcherName.METALS_DEV_API},
+        name: {const: FetcherName.MetalsDevApi},
         params: {
           type: 'object',
           properties: {
@@ -430,9 +295,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    PolygonIOCurrencySnapshotGramsFetcher: {
+    PolygonIOCurrencySnapshotGrams: {
       properties: {
-        name: {const: FetcherName.POLYGON_IO_CURRENCY_SNAPSHOT_GRAMS},
+        name: {const: FetcherName.PolygonIOCurrencySnapshotGramsPrice},
         params: {
           type: 'object',
           properties: {
@@ -445,14 +310,14 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    OptionsPriceFetcher: {
+    OptionsPrice: {
       properties: {
-        name: {const: FetcherName.OPTIONS_PRICE},
+        name: {const: FetcherName.OptionsPrice},
       },
     },
-    YearnVaultTokenPriceFetcher: {
+    YearnVaultTokenPrice: {
       properties: {
-        name: {const: FetcherName.YEARN_VAULT_TOKEN_PRICE},
+        name: {const: FetcherName.YearnVaultTokenPrice},
         params: {
           type: 'object',
           properties: {
@@ -466,9 +331,9 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    RandomNumberFetcher: {
+    RandomNumber: {
       properties: {
-        name: {const: FetcherName.RANDOM_NUMBER},
+        name: {const: FetcherName.RandomNumber},
         params: {
           type: 'object',
           properties: {
@@ -478,9 +343,28 @@ export default {
       },
       additionalProperties: false,
     },
-    SovrynPriceFetcher: {
+    SovrynPrice: {
       properties: {
-        name: {const: FetcherName.SOVRYN_PRICE},
+        name: {const: FetcherName.SovrynPrice},
+        params: {
+          type: 'object',
+          properties: {
+            base: {type: 'string'},
+            quote: {type: 'string'},
+            amountInDecimals: {type: 'number'},
+            quoteDecimals: {type: 'number'},
+          },
+          required: ['base', 'quote', 'amountInDecimals'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    SovrynPriceFetcher: {
+      // TODO: remove in newer versions
+      properties: {
+        name: {const: FetcherName.SovrynPriceOLD},
         params: {
           type: 'object',
           properties: {

@@ -20,7 +20,10 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: FetcherName.COINGECKO_PRICE,
+              name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -38,7 +41,10 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: FetcherName.COINGECKO_PRICE,
+              name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -57,7 +63,10 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: FetcherName.COINGECKO_PRICE,
+              name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -75,7 +84,10 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: FetcherName.COINGECKO_PRICE,
+              name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -94,7 +106,10 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: FetcherName.COINGECKO_PRICE,
+              name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],
@@ -116,7 +131,10 @@ describe('DeviationDataToSignFactory', () => {
         inputs: [
           {
             fetcher: {
-              name: FetcherName.COINGECKO_PRICE,
+              name: FetcherName.CoingeckoPrice,
+              params: {
+                ticker: '',
+              },
             },
           },
         ],

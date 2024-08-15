@@ -17,9 +17,9 @@ const {expect} = chai;
 const tokenA = '0x123';
 const tokenB = '0x234';
 const tokenC = '0x233';
-const poolAddressA = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8';
-const poolAddressB = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D1';
-const poolAddressC = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D2';
+const poolAddressA = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8'.toLowerCase();
+const poolAddressB = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D1'.toLowerCase();
+const poolAddressC = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D2'.toLowerCase();
 const oneDayInMs = 1 * 1000 * 60 * 60 * 24;
 
 const pool1 = {

@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
-import {BasePolygonIOSingleFetcher, SinglePriceResponse} from './BasePolygonIOSingleFetcher.js';
+import {BasePolygonIOSingleFetcher, SinglePriceResponse} from './common/BasePolygonIOSingleFetcher.js';
 import {FetcherName} from '../../types/fetchers.js';
 
 @injectable()
-class PolygonIOSingleStockPriceFetcher extends BasePolygonIOSingleFetcher {
-  private logPrefix = `[${FetcherName.POLYGON_IO_STOCK_PRICE}] (single)`;
+export class PolygonIOSingleStockPriceFetcher extends BasePolygonIOSingleFetcher {
+  private logPrefix = `[${FetcherName.PolygonIOStockPrice}] (single)`;
 
   constructor(@inject('Settings') settings: Settings) {
     super();
@@ -22,5 +22,3 @@ class PolygonIOSingleStockPriceFetcher extends BasePolygonIOSingleFetcher {
     return this.fetch(sourceUrl, raw);
   }
 }
-
-export default PolygonIOSingleStockPriceFetcher;

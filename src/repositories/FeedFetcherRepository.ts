@@ -1,4 +1,5 @@
 import {inject, injectable} from 'inversify';
+
 import * as fetchers from '../services/fetchers/index.js';
 import {FeedFetcherInterface} from '../types/fetchers.js';
 
@@ -7,35 +8,24 @@ export class FeedFetcherRepository {
   readonly collection: {[key: string]: FeedFetcherInterface};
 
   constructor(
-    @inject(fetchers.CryptoCompareHistoHourFetcher) CryptoCompareHistoHour: fetchers.CryptoCompareHistoHourFetcher,
-    @inject(fetchers.CryptoCompareHistoDayFetcher) CryptoCompareHistoDay: fetchers.CryptoCompareHistoDayFetcher,
+    @inject(fetchers.PolygonIOCryptoSnapshotPriceFetcher)
+    PolygonIOCryptoSnapshotPrice: fetchers.PolygonIOCryptoSnapshotPriceFetcher,
     @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPrice: fetchers.PolygonIOStockPriceFetcher,
-    @inject(fetchers.PolygonIOCryptoPriceFetcher) PolygonIOCryptoPrice: fetchers.PolygonIOCryptoPriceFetcher,
+    @inject(fetchers.PolygonIOSingleCryptoPriceFetcher)
+    PolygonIOSingleCryptoPrice: fetchers.PolygonIOSingleCryptoPriceFetcher,
     @inject(fetchers.PolygonIOCurrencySnapshotGramsFetcher)
     PolygonIOCurrencySnapshotGrams: fetchers.PolygonIOCurrencySnapshotGramsFetcher,
-    @inject(fetchers.CryptoComparePriceWSFetcher) CryptoComparePriceWS: fetchers.CryptoComparePriceWSFetcher,
-    @inject(fetchers.OnChainDataFetcher) OnChainData: fetchers.OnChainDataFetcher,
-    @inject(fetchers.YearnVaultTokenPriceFetcher) YearnVaultTokenPrice: fetchers.YearnVaultTokenPriceFetcher,
-    @inject(fetchers.OptionsPriceFetcher) OptionsPrice: fetchers.OptionsPriceFetcher,
-    @inject(fetchers.UniswapPriceFetcher) UniswapPriceFetcher: fetchers.UniswapPriceFetcher,
-    @inject(fetchers.RandomNumberFetcher) RandomNumber: fetchers.RandomNumberFetcher,
     @inject(fetchers.EvmTWAPGasPriceFetcher) evmTWAPGasPriceFetcher: fetchers.EvmTWAPGasPriceFetcher,
     @inject(fetchers.GoldApiPriceFetcher) GoldApiPrice: fetchers.GoldApiPriceFetcher,
     @inject(fetchers.MetalPriceApiFetcher) MetalPriceApi: fetchers.MetalPriceApiFetcher,
-    @inject(fetchers.MetalsDevApiPriceFetcher) MetalsDevApi: fetchers.MetalsDevApiPriceFetcher,
+    @inject(fetchers.MetalsDevApiFetcher) MetalsDevApi: fetchers.MetalsDevApiFetcher,
   ) {
     this.collection = {
-      CryptoCompareHistoHour,
-      CryptoCompareHistoDay,
+      PolygonIOCryptoSnapshotPrice,
+      PolygonIOSingleCryptoPrice,
       PolygonIOStockPrice,
-      PolygonIOCryptoPrice,
+      PolygonIOCryptoPrice: PolygonIOCryptoSnapshotPrice,
       PolygonIOCurrencySnapshotGrams,
-      CryptoComparePriceWS,
-      OnChainData,
-      YearnVaultTokenPrice,
-      OptionsPrice,
-      UniswapPriceFetcher,
-      RandomNumber,
       TWAPGasPrice: evmTWAPGasPriceFetcher,
       GoldApiPrice,
       MetalPriceApi,

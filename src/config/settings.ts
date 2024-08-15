@@ -1,20 +1,20 @@
 import fs from 'fs';
-
 import path from 'path';
 import {fileURLToPath} from 'url';
 
 import {RPCSelectionStrategies} from '../types/RPCSelectionStrategies.js';
+import {TimeoutCodes} from '../types/TimeoutCodes.js';
+import {timeoutWithCode} from '../utils/request.js';
+import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
+import {DexProtocolName} from '../types/Dexes.js';
+import './setupDotenv.js';
+
 import Settings, {
   BlockchainSettings,
   BlockchainType,
   BlockchainTypeKeys,
   BlockDispatcherSettings,
 } from '../types/Settings.js';
-import {TimeoutCodes} from '../types/TimeoutCodes.js';
-import {timeoutWithCode} from '../utils/request.js';
-import './setupDotenv.js';
-import {ChainsIds, ChainsIdsKeys} from '../types/ChainsIds.js';
-import {DexProtocolName} from '../types/Dexes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,12 +30,6 @@ function clearLastSlash(s: string | undefined): string {
   if (!s) return '';
 
   return s.endsWith('/') ? s.slice(0, -1) : s;
-}
-
-function parseJsonString(s: string): string {
-  if (!s) return '{}';
-
-  return s.replace(/\\n/g, '\n').replace(/\\"/g, '"');
 }
 
 function resolveBlockchainType(chain: ChainsIds): BlockchainType[] | undefined {
@@ -399,18 +393,9 @@ const settings: Settings = {
       timeout: timeoutWithCode(process.env.BINANCE_TIMEOUT || '5000', TimeoutCodes.BINANCE),
       maxBatchSize: parseInt(process.env.BINANCE_MAX_BATCH_SIZE || '500', 10),
     },
-    cryptocompare: {
-      apiKey: process.env.CRYPTOCOMPARE_API_KEY as string,
-      timeout: timeoutWithCode(process.env.CRYPTOCOMPARE_TIMEOUT || '5000', TimeoutCodes.CRYPTOCOMPARE),
-      reconnectTimeoutHours: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_TIMEOUT_HOURS || '4', 10),
-      resubscribeTimeoutMinutes: parseInt(process.env.CRYPTOCOMPARE_RESUBSCRIBE_INTERVAL_MINUTES || '5', 10),
-      truncateCronRule: process.env.CRYPTOCOMPARE_TRUNCATE_CRON_RULE || '0 * * * *', // every beginning of an hour
-      truncateIntervalMinutes: parseInt(process.env.CRYPTOCOMPARE_TRUNCATE_INTERVAL_MINUTES || '60', 10),
-      reconnectTimeout: parseInt(process.env.CRYPTOCOMPARE_RECONNECT_TIMEOUT || '30000', 10),
-    },
     coingecko: {
       timeout: timeoutWithCode(process.env.COINGECKO_TIMEOUT || '5000', TimeoutCodes.COINGECKO),
-      maxBatchSize: parseInt(process.env.POLYGON_MAX_BATCH_SIZE || '500', 10),
+      maxBatchSize: parseInt(process.env.COINGECKO_MAX_BATCH_SIZE || '500', 10),
     },
     polygonIO: {
       apiKey: process.env.POLYGON_IO_API_KEY as string,
@@ -427,16 +412,6 @@ const settings: Settings = {
     },
     debug: {
       apiKey: process.env.DEBUG_API_KEY as string,
-    },
-    uniswap: {
-      active: !!process.env.UNISWAP_SCANNER_CONTRACT_ID && !!process.env.UNISWAP_HELPER_CONTRACT_ID,
-      scannerContractId: <string>process.env.UNISWAP_SCANNER_CONTRACT_ID,
-      helperContractId: <string>process.env.UNISWAP_HELPER_CONTRACT_ID,
-      startBlock: parseInt(process.env.UNISWAP_START_BLOCK || '0'),
-      agentStep: parseInt(process.env.UNISWAP_STEP || '1000'),
-      defaultPrecision: Number(process.env.UNISWAP_DEFAULT_PRECISION || '6'),
-      defaultDiscrepancy: Number(process.env.UNISWAP_DEFAULT_DISCREPANCY || '1.0'),
-      verificationInterval: getTimeSetting(parseInt(process.env.UNISWAP_VERIFICATION_INTERVAL || '1800000'), 1000),
     },
     goldApi: {
       apiKey: process.env.GOLD_API_KEY as string,
