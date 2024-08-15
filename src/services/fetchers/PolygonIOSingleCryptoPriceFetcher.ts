@@ -47,9 +47,8 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
     const parsed = this.parseResponse(responses.filter((r) => r !== undefined) as SinglePriceResponse[]);
     await this.savePrices(parsed);
 
-    const timestamp = options.timestamp ?? this.timeService.apply();
-    const prices = await this.pIOSingleCryptoDataRepository.getPrices(params, timestamp);
-    const fetcherResults: FetcherResult = {prices, timestamp};
+    const prices = await this.pIOSingleCryptoDataRepository.getPrices(params, options.timestamp);
+    const fetcherResults: FetcherResult = {prices, timestamp: options.timestamp};
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(

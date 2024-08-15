@@ -18,7 +18,7 @@ export type StringOrUndefined = string | undefined;
 
 export type FeedFetcherOptions = {
   symbols: StringOrUndefined[];
-  timestamp?: number; // TODO make is required once we split fetchers
+  timestamp: number;
 };
 
 export enum FetchedValueType {

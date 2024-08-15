@@ -63,6 +63,7 @@ describe.skip('ByBitSpotFetcher', () => {
 
     const result = await byBitSpotFetcher.apply([{symbol: 'BTCUSD'}, {symbol: 'XRPBTC'}, {symbol: 'ETHUSDT'}], {
       symbols: [],
+      timestamp: 1,
     });
     expect(result.prices).to.be.deep.eq([65790.175466, undefined, 3582.907868]);
   });

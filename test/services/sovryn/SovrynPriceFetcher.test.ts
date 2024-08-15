@@ -108,7 +108,7 @@ describe.skip('SovrynFetcher-IntegrationTests', () => {
     const requestPair1 = {base: weBTC, quote: rUSDT, amountInDecimals};
 
     const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceFetcher;
-    const output = await sovrynPriceFetcher.apply([requestPair1, requestPair1], {symbols: []});
+    const output = await sovrynPriceFetcher.apply([requestPair1, requestPair1], {symbols: [], timestamp: 1});
 
     console.log('price weBTC/rUSDT:', output.prices[0]);
     console.log('price weBTC/rUSDT:', output.prices[1]);

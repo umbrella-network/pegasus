@@ -20,12 +20,12 @@ describe('CoingeckoPriceFetcher', () => {
   describe.skip('#apply', () => {
     describe('when fetching valid keys', () => {
       it('returns the same length of inputs', async () => {
-        const outputs = await fetcher.apply(multiInputs, {symbols: []});
+        const outputs = await fetcher.apply(multiInputs, {symbols: [], timestamp: 1});
         expect(outputs).to.have.lengthOf(multiInputs.length);
       });
 
       it('each output contains the proper attributes', async () => {
-        const output = await fetcher.apply(multiInputs, {symbols: []});
+        const output = await fetcher.apply(multiInputs, {symbols: [], timestamp: 1});
         expect(output).to.have.property('prices');
       });
     });
@@ -43,14 +43,14 @@ describe('CoingeckoPriceFetcher', () => {
 
       describe('when there is an invalid coin in the middle of valid coins', () => {
         it('returns only the valid coin', async () => {
-          const output = await fetcher.apply([validInput, invalidInput], {symbols: []});
+          const output = await fetcher.apply([validInput, invalidInput], {symbols: [], timestamp: 1});
           expect(output.prices).to.have.lengthOf(1);
         });
       });
 
       describe('when there are all invalid coins', () => {
         it('returns empty array', async () => {
-          const outputs = await fetcher.apply([invalidInput], {symbols: []});
+          const outputs = await fetcher.apply([invalidInput], {symbols: [], timestamp: 1});
           expect(outputs).to.eql([]);
         });
       });

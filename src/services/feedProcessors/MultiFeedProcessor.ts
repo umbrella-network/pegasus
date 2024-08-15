@@ -35,7 +35,7 @@ export default class MultiFeedProcessor {
 
   private logPrefix = '[MultiFeedProcessor]';
 
-  async apply(feedFetchers: FeedFetcher[]): Promise<unknown[]> {
+  async apply(feedFetchers: FeedFetcher[], timestamp: number): Promise<unknown[]> {
     if (!feedFetchers.length) return [];
 
     this.logger.debug(`${this.logPrefix} feedFetchers ${feedFetchers.map((f) => `${f.name}: ${f.symbol}`)}`);
@@ -107,7 +107,7 @@ export default class MultiFeedProcessor {
     const mapInputs = Object.values(inputMap);
 
     const fetchedFeeds = await Promise.allSettled(
-      mapInputs.map((data: ProcessingFeed) => data.fetcher.apply(data.params, {symbols: data.symbols})),
+      mapInputs.map((data: ProcessingFeed) => data.fetcher.apply(data.params, {symbols: data.symbols, timestamp})),
     );
 
     fetchedFeeds.forEach((results, ix) => {

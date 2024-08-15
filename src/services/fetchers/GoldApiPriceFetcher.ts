@@ -69,23 +69,21 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
       return {prices: []};
     }
 
-    const timestamp = this.timeService.apply();
-
     await this.goldApiDataRepository.save([
       {
         value: price_gram_24k,
-        timestamp,
+        timestamp: this.timeService.apply(),
         params: params[0],
       },
     ]);
 
-    const prices = await this.goldApiDataRepository.getPrices(params, timestamp);
+    const prices = await this.goldApiDataRepository.getPrices(params, options.timestamp);
 
     this.logger.debug(`${this.logPrefix} resolved price: ${symbol}/${currency}: ${price_gram_24k}`);
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
-      {prices, timestamp},
+      {prices, timestamp: options.timestamp},
       symbols,
       FetcherName.MetalsDevApi,
       FetchedValueType.Price,

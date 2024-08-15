@@ -50,8 +50,8 @@ export class ByBitPriceFetcher implements FeedFetcherInterface {
     const {data, timestamp} = this.parseResponse(response);
     await this.savePrices(timestamp, data);
 
-    const prices = await this.byBitDataRepository.getPrices(inputs, timestamp);
-    const fetcherResult = {prices, timestamp};
+    const prices = await this.byBitDataRepository.getPrices(inputs, options.timestamp);
+    const fetcherResult = {prices, timestamp: options.timestamp};
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(

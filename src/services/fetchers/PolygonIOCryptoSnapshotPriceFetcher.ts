@@ -47,16 +47,15 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
 
     const response = <SnapshotResponse>await this.fetch(sourceUrl, true);
     const parsed = this.parseResponse(response);
-    const timestamp = options.timestamp ?? this.timeService.apply();
 
     await this.savePrices(parsed);
 
     const prices = await this.pIOCryptoSnapshotDataRepository.getPrices(
       this.backwardsCompatibleParams(params),
-      timestamp,
+      options.timestamp,
     );
 
-    const fetcherResults: FetcherResult = {prices, timestamp};
+    const fetcherResults: FetcherResult = {prices, timestamp: options.timestamp};
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(

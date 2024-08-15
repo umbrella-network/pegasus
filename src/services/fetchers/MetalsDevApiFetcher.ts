@@ -69,18 +69,16 @@ export class MetalsDevApiFetcher implements FeedFetcherInterface {
 
       this.logger.debug(`${this.logPrefix} resolved price per gram: ${metal}/${currency}: ${pricePerGram}`);
 
-      const timestamp = this.timeService.apply();
-
       await this.metalsDevApiDataRepository.save([
         {
           value: pricePerGram,
-          timestamp,
+          timestamp: this.timeService.apply(),
           params: params[0],
         },
       ]);
 
-      const [price] = await this.metalsDevApiDataRepository.getPrices(params, timestamp);
-      const result = {prices: [price], timestamp};
+      const [price] = await this.metalsDevApiDataRepository.getPrices(params, options.timestamp);
+      const result = {prices: [price], timestamp: options.timestamp};
 
       // TODO this will be deprecated once we fully switch to DB and have dedicated charts
       await this.priceDataRepository.saveFetcherResults(
