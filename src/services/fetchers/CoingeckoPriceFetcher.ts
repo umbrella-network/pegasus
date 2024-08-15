@@ -66,12 +66,11 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
       }),
     );
 
-    const timestamp = this.timeService.apply();
     const parsed = this.parseResponse(responses);
-    await this.savePrices(timestamp, parsed);
+    await this.savePrices(this.timeService.apply(), parsed);
 
-    const prices = await this.coingeckoDataRepository.getPrices(inputsParams, timestamp);
-    const fetcherResult = {prices, timestamp};
+    const prices = await this.coingeckoDataRepository.getPrices(inputsParams, options.timestamp);
+    const fetcherResult = {prices, timestamp: options.timestamp};
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(

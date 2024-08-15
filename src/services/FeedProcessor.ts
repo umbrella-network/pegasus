@@ -69,7 +69,7 @@ class FeedProcessor {
 
     const [singleFeeds, multiFeeds] = await Promise.all([
       this.processFeeds(Object.values(singleInputs), timestamp),
-      this.multiFeedProcessor.apply(Object.values(multiInputs)),
+      this.multiFeedProcessor.apply(Object.values(multiInputs), timestamp),
     ]);
 
     this.logger.debug(`${this.logPrefix} singleFeeds: ${JSON.stringify(singleFeeds)}`);

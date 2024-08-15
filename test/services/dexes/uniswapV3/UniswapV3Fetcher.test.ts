@@ -123,7 +123,7 @@ describe('UniswapV3Fetcher', () => {
       });
 
       it.skip('responds with values from uniswapV3Helper', async () => {
-        const result = await uniswapV3MultiFetcher.apply(params, {symbols: ['a', 'b', 'c']});
+        const result = await uniswapV3MultiFetcher.apply(params, {symbols: ['a', 'b', 'c'], timestamp: 1});
         expect(result.prices).to.eql([100, 200, undefined]);
       });
     });
@@ -144,7 +144,7 @@ describe('UniswapV3Fetcher', () => {
       });
 
       it('responds without values', async () => {
-        const result = await uniswapV3MultiFetcher.apply(params, {symbols: []});
+        const result = await uniswapV3MultiFetcher.apply(params, {symbols: [], timestamp: 1});
         expect(result.prices).to.be.an('array').with.lengthOf(0);
       });
     });
@@ -166,7 +166,7 @@ describe('UniswapV3Fetcher', () => {
       });
 
       it('responds without values', async () => {
-        const result = await uniswapV3MultiFetcher.apply(params, {symbols: []});
+        const result = await uniswapV3MultiFetcher.apply(params, {symbols: [], timestamp: 1});
         expect(result.prices).to.be.an('array').with.lengthOf(0);
       });
     });

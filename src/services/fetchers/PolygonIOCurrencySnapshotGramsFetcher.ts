@@ -56,8 +56,6 @@ export class PolygonIOCurrencySnapshotGramsFetcher
     // const url = `${baseUrl}/${ticker}?apiKey=${this.apiKey}`;
     const url = `${baseUrl}?apiKey=${this.apiKey}`;
 
-    if (!timestamp || timestamp <= 0) throw new Error(`${this.logPrefix} invalid timestamp value: ${timestamp}`);
-
     this.logger.debug(`${this.logPrefix} call for ${ticker}`);
 
     const response = <SnapshotResponse>await this.fetch(url, true);

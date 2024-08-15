@@ -11,15 +11,19 @@ describe.skip('MetalPriceApiFetcher (this test needs API key)', () => {
   describe('#apply', () => {
     describe('with valid parameters', () => {
       it('returns the proper response format', async () => {
-        const output = await fetcher.apply([{symbol: 'XAU', currency: 'USD'}], {symbols: ['SILVER-USD']});
+        const output = await fetcher.apply([{symbol: 'XAU', currency: 'USD'}], {symbols: ['SILVER-USD'], timestamp: 1});
         expect(output).greaterThan(0);
       });
     });
 
     describe('with invalid parameters', () => {
       it('rejects', async () => {
-        await expect(fetcher.apply([{symbol: 'StrangeSymbol', currency: 'StrangeCurrency'}], {symbols: ['SILVER-USD']}))
-          .to.be.rejected;
+        await expect(
+          fetcher.apply([{symbol: 'StrangeSymbol', currency: 'StrangeCurrency'}], {
+            symbols: ['SILVER-USD'],
+            timestamp: 1,
+          }),
+        ).to.be.rejected;
       });
     });
   });

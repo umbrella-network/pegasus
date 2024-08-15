@@ -41,21 +41,21 @@ describe.skip('MultiFeedProcessor', () => {
 
   describe('when all processors resolve', () => {
     it('returns array full of values', async () => {
-      const result = await processor.apply(feedFetchers);
+      const result = await processor.apply(feedFetchers, 1);
       expect(result).to.deep.equal([0, 1, 2, 3]);
     });
   });
 
   describe('when one processor rejects', () => {
     it('returns the resolved ones', async () => {
-      const result = await processor.apply(feedFetchers);
+      const result = await processor.apply(feedFetchers, 1);
       expect(result).to.deep.equal([undefined, 1, undefined, 3]);
     });
   });
 
   describe('when all processors rejects', () => {
     it('returns array full of undefined', async () => {
-      const result = await processor.apply(feedFetchers);
+      const result = await processor.apply(feedFetchers, 1);
       expect(result).to.deep.equal([undefined, undefined, undefined, undefined]);
     });
   });

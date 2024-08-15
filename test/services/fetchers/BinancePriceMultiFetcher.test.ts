@@ -57,7 +57,7 @@ describe('BinancePriceMultiFetcher', () => {
         {symbol: 'BTCUSDT', inverse: false},
         {symbol: 'ETHUSDT', inverse: false},
       ],
-      {symbols: []},
+      {symbols: [], timestamp: 0},
     );
 
     expect(result.prices).to.be.an('array').with.lengthOf(2);

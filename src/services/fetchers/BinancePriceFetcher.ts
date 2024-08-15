@@ -49,17 +49,16 @@ export class BinancePriceFetcher implements FeedFetcherInterface {
       timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
     });
 
-    const timestamp = this.timeService.apply();
     const parsed = this.parseResponse(response);
-    await this.savePrices(timestamp, parsed);
+    await this.savePrices(this.timeService.apply(), parsed);
 
-    const prices = await this.binanceDataRepository.getPrices(inputs, timestamp);
+    const prices = await this.binanceDataRepository.getPrices(inputs, options.timestamp);
 
     const fetcherResults: FetcherResult = {
       prices: prices.map((price, ix) =>
         price !== undefined && price != 0 && inputs[ix].inverse ? 1.0 / price : price,
       ),
-      timestamp,
+      timestamp: options.timestamp,
     };
 
     await this.priceDataRepository.saveFetcherResults(
