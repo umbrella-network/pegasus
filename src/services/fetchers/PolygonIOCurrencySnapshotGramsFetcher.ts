@@ -33,7 +33,7 @@ export class PolygonIOCurrencySnapshotGramsFetcher
   private pIOCurrencySnapshotGramsDataRepository!: PolygonIOCurrencySnapshotGramsDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
 
-  private logPrefix = `[${FetcherName.PolygonIOCurrencySnapshotGramsPrice}]`;
+  private logPrefix = `[${FetcherName.PolygonIOCurrencySnapshotGrams}]`;
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
@@ -69,7 +69,7 @@ export class PolygonIOCurrencySnapshotGramsFetcher
     await this.priceDataRepository.saveFetcherResults(
       {prices, timestamp},
       symbols,
-      FetcherName.PolygonIOCurrencySnapshotGramsPrice,
+      FetcherName.PolygonIOCurrencySnapshotGrams,
       FetchedValueType.Price,
       PolygonIOCurrencySnapshotGramsFetcher.fetcherSource,
     );
