@@ -25,9 +25,9 @@ export class VersionChecker {
 
     if (myVersion[0] < v[0]) {
       this.logger.error(`version check: expected ${version} got ${this.settings.version}, please update!`);
-    } else if (myVersion[1] < v[1]) {
+    } else if (myVersion[0] == v[0] && myVersion[1] < v[1]) {
       this.logger.info(`new version detected: ${version}, got ${this.settings.version}, consider updating`);
-    } else if (myVersion[2] < v[2]) {
+    } else if (myVersion[0] == v[0] && myVersion[1] == v[1] && myVersion[2] < v[2]) {
       this.logger.debug(`new version detected: ${version}`);
     }
   }
