@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+## [8.0.3] - 2024-08-16
+### Fixed
+- set correct `valueType` for gas model
+
 ## [8.0.2] - 2024-08-16
 ### Fixed
 - fix `id` for gas model
