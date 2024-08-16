@@ -56,8 +56,6 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
   }
 
   async save(gas: BlockchainGas): Promise<void> {
-    const id = `${gas.chainId}@${gas.blockNumber}`;
-
     const messageToSign = this.createMessageToSign(
       gas.gas,
       gas.blockTimestamp,
@@ -69,7 +67,6 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
     const {hash, signature, signerAddress, hashVersion} = await this.priceSignerService.sign(messageToSign);
 
     const doc = await this.model.create({
-      _id: id,
       hashVersion,
       signature,
       priceHash: hash,
