@@ -53,8 +53,8 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
     const responses = await Promise.all(
       batchedInputs.map((inputs) => {
         const baseUrl = 'https://api.coingecko.com/api/v3/simple/price';
-        const ids = uniqueElements(inputs.map((o) => o.id));
-        const currencies = uniqueElements(inputs.map((o) => o.currency));
+        const ids = uniqueElements(inputs.map((o) => o.id.toLowerCase()));
+        const currencies = uniqueElements(inputs.map((o) => o.currency.toLowerCase()));
         const url = `${baseUrl}?ids=${ids}&vs_currencies=${currencies}`;
 
         this.logger.debug(`${this.logPrefix} batched call ${url}`);

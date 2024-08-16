@@ -62,6 +62,9 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
       return {id: id.toLowerCase(), currency: currency.toLowerCase()};
     });
 
+    this.logger.debug(`${this.logPrefix} find: or: ${or.map((o) => JSON.stringify(o)).join(',')}`);
+    this.logger.debug(`${this.logPrefix} find: timestamp: ${JSON.stringify(this.getTimestampWindowFilter(timestamp))}`);
+
     const results = await this.model
       .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1, id: 1, currency: 1})
       .sort({timestamp: -1})
