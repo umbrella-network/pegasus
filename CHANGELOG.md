@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [8.0.3] - 2024-08-16
 ### Fixed
 - set correct `valueType` for gas model
+- set correct fetcher name for `PolygonIOCurrencySnapshotGrams` in schema 
 
 ## [8.0.2] - 2024-08-16
 ### Fixed
