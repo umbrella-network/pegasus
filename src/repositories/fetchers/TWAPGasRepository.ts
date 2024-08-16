@@ -4,7 +4,7 @@ import {ChainsIds} from '../../types/ChainsIds.js';
 import {PriceModel_Gas} from '../../models/fetchers/PriceModel_Gas.js';
 import {BlockchainGas} from '../../types/BlockchainGas.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {FetcherName} from '../../types/fetchers.js';
+import {FetchedValueType, FetcherName} from '../../types/fetchers.js';
 
 @injectable()
 export class TWAPGasRepository extends CommonPriceDataRepository {
@@ -75,6 +75,7 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
       value: gas.gas.toString(10),
       timestamp: gas.blockTimestamp,
       blockNumber: gas.blockNumber,
+      valueType: FetchedValueType.Price,
     });
 
     await doc.save();
