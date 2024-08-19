@@ -47,22 +47,13 @@ export class PolygonIOCurrencySnapshotGramsFetcher
     params: PolygonIOCurrencySnapshotGramsInputParams[],
     options: FeedFetcherOptions,
   ): Promise<FetcherResult> {
-    if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
+    try {
+      await this.fetchPrices(params);
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+    }
 
-    const {ticker} = params[0];
     const {symbols, timestamp} = options;
-
-    const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers';
-    // const url = `${baseUrl}/${ticker}?apiKey=${this.apiKey}`;
-    const url = `${baseUrl}?apiKey=${this.apiKey}`;
-
-    this.logger.debug(`${this.logPrefix} call for ${ticker}`);
-
-    const response = <SnapshotResponse>await this.fetch(url, true);
-    const parsed = this.parseResponse(response, params[0]);
-
-    if (!parsed) return {prices: []};
-    await this.savePrices(parsed);
 
     const prices = await this.pIOCurrencySnapshotGramsDataRepository.getPrices(params, timestamp);
 
@@ -75,6 +66,25 @@ export class PolygonIOCurrencySnapshotGramsFetcher
     );
 
     return {prices};
+  }
+
+  private async fetchPrices(params: PolygonIOCurrencySnapshotGramsInputParams[]): Promise<void> {
+    if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
+
+    const {ticker} = params[0];
+
+    const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/forex/tickers';
+    // const url = `${baseUrl}/${ticker}?apiKey=${this.apiKey}`;
+    const url = `${baseUrl}?apiKey=${this.apiKey}`;
+
+    this.logger.debug(`${this.logPrefix} call for ${ticker}`);
+
+    const response = <SnapshotResponse>await this.fetch(url, true);
+    const parsed = this.parseResponse(response, params[0]);
+
+    if (!parsed) return;
+
+    await this.savePrices(parsed);
   }
 
   private parseResponse(

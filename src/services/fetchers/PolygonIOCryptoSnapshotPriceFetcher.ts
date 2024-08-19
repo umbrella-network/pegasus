@@ -40,15 +40,11 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
   }
 
   async apply(params: PolygonIOCryptoSnapshotInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
-    this.logger.debug(`${this.logPrefix} call`);
-
-    const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers';
-    const sourceUrl = `${baseUrl}?apiKey=${this.apiKey}`;
-
-    const response = <SnapshotResponse>await this.fetch(sourceUrl, true);
-    const parsed = this.parseResponse(response);
-
-    await this.savePrices(parsed);
+    try {
+      await this.fetchPrices();
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+    }
 
     const prices = await this.pIOCryptoSnapshotDataRepository.getPrices(
       this.backwardsCompatibleParams(params),
@@ -66,6 +62,18 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
     );
 
     return fetcherResults;
+  }
+
+  private async fetchPrices(): Promise<void> {
+    this.logger.debug(`${this.logPrefix} call`);
+
+    const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers';
+    const sourceUrl = `${baseUrl}?apiKey=${this.apiKey}`;
+
+    const response = <SnapshotResponse>await this.fetch(sourceUrl, true);
+    const parsed = this.parseResponse(response);
+
+    await this.savePrices(parsed);
   }
 
   private backwardsCompatibleParams(

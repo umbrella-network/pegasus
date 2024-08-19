@@ -38,17 +38,11 @@ export class ByBitPriceFetcher implements FeedFetcherInterface {
   }
 
   async apply(inputs: ByBitPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
-    const sourceUrl = 'https://api.bybit.com/v5/market/tickers?category=spot';
-
-    this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);
-
-    const response = await axios.get(sourceUrl, {
-      timeout: this.timeout,
-      timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-    });
-
-    const {data, timestamp} = this.parseResponse(response);
-    await this.savePrices(timestamp, data);
+    try {
+      await this.fetchPrices();
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+    }
 
     const prices = await this.byBitDataRepository.getPrices(inputs, options.timestamp);
     const fetcherResult = {prices, timestamp: options.timestamp};
@@ -63,6 +57,20 @@ export class ByBitPriceFetcher implements FeedFetcherInterface {
     );
 
     return fetcherResult;
+  }
+
+  private async fetchPrices(): Promise<void> {
+    const sourceUrl = 'https://api.bybit.com/v5/market/tickers?category=spot';
+
+    this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);
+
+    const response = await axios.get(sourceUrl, {
+      timeout: this.timeout,
+      timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
+    });
+
+    const {data, timestamp} = this.parseResponse(response);
+    await this.savePrices(timestamp, data);
   }
 
   private async savePrices(timestamp: number, parsed: ParsedResponse[]): Promise<void> {

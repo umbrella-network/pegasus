@@ -43,9 +43,11 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
   }
 
   async apply(params: PolygonIOSingleCryptoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
-    const responses = await Promise.all(params.map((p) => this.fetchPrice(p)));
-    const parsed = this.parseResponse(responses.filter((r) => r !== undefined) as SinglePriceResponse[]);
-    await this.savePrices(parsed);
+    try {
+      await this.fetchPrices(params);
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+    }
 
     const prices = await this.pIOSingleCryptoDataRepository.getPrices(params, options.timestamp);
     const fetcherResults: FetcherResult = {prices, timestamp: options.timestamp};
@@ -59,6 +61,12 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
     );
 
     return fetcherResults;
+  }
+
+  private async fetchPrices(params: PolygonIOSingleCryptoPriceInputParams[]): Promise<void> {
+    const responses = await Promise.all(params.map((p) => this.fetchPrice(p)));
+    const parsed = this.parseResponse(responses.filter((r) => r !== undefined) as SinglePriceResponse[]);
+    await this.savePrices(parsed);
   }
 
   private async fetchPrice({
