@@ -38,10 +38,32 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
   }
 
   async apply(params: GoldApiPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    try {
+      await this.fetchPrices(params);
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+    }
+
+    const {symbols} = options;
+
+    const prices = await this.goldApiDataRepository.getPrices(params, options.timestamp);
+
+    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
+    await this.priceDataRepository.saveFetcherResults(
+      {prices, timestamp: options.timestamp},
+      symbols,
+      FetcherName.MetalsDevApi,
+      FetchedValueType.Price,
+      GoldApiPriceFetcher.fetcherSource,
+    );
+
+    return {prices};
+  }
+
+  private async fetchPrices(params: GoldApiPriceInputParams[]): Promise<void> {
     if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
 
     const {symbol, currency} = params[0];
-    const {symbols} = options;
 
     this.logger.debug(`${this.logPrefix} call for: ${symbol}/${currency}`);
 
@@ -59,15 +81,17 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
           `Error: ${response.data}`,
       );
 
-      return {prices: []};
+      return;
     }
 
     const {price_gram_24k} = response.data;
 
     if (!price_gram_24k) {
       this.logger.error(`${this.logPrefix} Missing rate for ${symbol}/${currency}`);
-      return {prices: []};
+      return;
     }
+
+    this.logger.debug(`${this.logPrefix} resolved price: ${symbol}/${currency}: ${price_gram_24k}`);
 
     await this.goldApiDataRepository.save([
       {
@@ -76,20 +100,5 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
         params: params[0],
       },
     ]);
-
-    const prices = await this.goldApiDataRepository.getPrices(params, options.timestamp);
-
-    this.logger.debug(`${this.logPrefix} resolved price: ${symbol}/${currency}: ${price_gram_24k}`);
-
-    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
-    await this.priceDataRepository.saveFetcherResults(
-      {prices, timestamp: options.timestamp},
-      symbols,
-      FetcherName.MetalsDevApi,
-      FetchedValueType.Price,
-      GoldApiPriceFetcher.fetcherSource,
-    );
-
-    return {prices};
   }
 }

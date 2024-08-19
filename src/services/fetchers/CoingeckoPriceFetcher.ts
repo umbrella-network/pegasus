@@ -48,9 +48,31 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
   }
 
   async apply(inputsParams: CoingeckoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    try {
+      await this.fetchPrices(inputsParams);
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+    }
+
+    const prices = await this.coingeckoDataRepository.getPrices(inputsParams, options.timestamp);
+    const fetcherResult = {prices, timestamp: options.timestamp};
+
+    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
+    await this.priceDataRepository.saveFetcherResults(
+      fetcherResult,
+      options.symbols,
+      FetcherName.CoingeckoPrice,
+      FetchedValueType.Price,
+      CoingeckoPriceFetcher.fetcherSource,
+    );
+
+    return fetcherResult;
+  }
+
+  private async fetchPrices(inputsParams: CoingeckoPriceInputParams[]): Promise<void> {
     const batchedInputs = _.chunk(inputsParams, this.maxBatchSize);
 
-    const responses = await Promise.all(
+    const responses = await Promise.allSettled(
       batchedInputs.map((inputs) => {
         const baseUrl = 'https://api.coingecko.com/api/v3/simple/price';
         const ids = uniqueElements(inputs.map((o) => o.id.toLowerCase()));
@@ -68,44 +90,37 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
 
     const parsed = this.parseResponse(responses);
     await this.savePrices(this.timeService.apply(), parsed);
-
-    const prices = await this.coingeckoDataRepository.getPrices(inputsParams, options.timestamp);
-    const fetcherResult = {prices, timestamp: options.timestamp};
-
-    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
-    await this.priceDataRepository.saveFetcherResults(
-      fetcherResult,
-      options.symbols,
-      FetcherName.CoingeckoPrice,
-      FetchedValueType.Price,
-      CoingeckoPriceFetcher.fetcherSource,
-    );
-
-    return fetcherResult;
   }
 
-  private parseResponse(axiosResponse: AxiosResponse[]): ParsedResponse[] {
+  private parseResponse(axiosResponse: PromiseSettledResult<AxiosResponse>[]): ParsedResponse[] {
     const outputs: ParsedResponse[] = [];
 
     axiosResponse.forEach((response) => {
-      if (response.status !== 200) {
+      if (response.status == 'rejected') {
+        this.logger.error(`${this.logPrefix} rejected: ${response.reason}`);
+        return;
+      }
+
+      const axiosResponse = <AxiosResponse>response.value;
+
+      if (axiosResponse.status !== 200) {
         this.logger.error(`${this.logPrefix} status ${response.status}`);
         return;
       }
 
-      if (response.data.Response === 'Error') {
-        this.logger.error(`${this.logPrefix} error: ${response.data.Message || response.data.error}`);
+      if (axiosResponse.data.Response === 'Error') {
+        this.logger.error(`${this.logPrefix} error: ${axiosResponse.data.Message || axiosResponse.data.error}`);
         return;
       }
 
-      Object.keys(response.data).forEach((id) => {
-        if (!response.data[id]) return;
+      Object.keys(axiosResponse.data).forEach((id) => {
+        if (!axiosResponse.data[id]) return;
 
-        Object.keys(response.data[id]).forEach((currency) => {
-          let value = response.data[id][currency];
+        Object.keys(axiosResponse.data[id]).forEach((currency) => {
+          let value = axiosResponse.data[id][currency];
 
           if (!value) {
-            this.logger.warn(`${this.logPrefix} error: ${response.data.Message || response.data.error}`);
+            this.logger.warn(`${this.logPrefix} error: ${axiosResponse.data.Message || axiosResponse.data.error}`);
             return;
           }
 

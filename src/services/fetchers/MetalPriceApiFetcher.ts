@@ -41,10 +41,33 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
   }
 
   async apply(params: MetalPriceApiInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    try {
+      await this.fetchPrices(params);
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+    }
+
+    const {symbols} = options;
+
+    const [price] = await this.metalPriceApiDataRepository.getPrices(params, options.timestamp);
+    const result = {prices: [price], timestamp: options.timestamp};
+
+    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
+    await this.priceDataRepository.saveFetcherResults(
+      result,
+      symbols,
+      FetcherName.MetalsDevApi,
+      FetchedValueType.Price,
+      MetalPriceApiFetcher.fetcherSource,
+    );
+
+    return result;
+  }
+
+  private async fetchPrices(params: MetalPriceApiInputParams[]): Promise<void> {
     if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
 
     const {symbol, currency} = params[0];
-    const {symbols} = options;
 
     this.logger.debug(`${this.logPrefix} call for: ${symbol}/${currency}`);
 
@@ -63,14 +86,14 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
             `Error: ${response.data}`,
         );
 
-        return {prices: []};
+        return;
       }
 
       const rate = response.data?.rates[symbol];
 
       if (!rate) {
         this.logger.error(`${this.logPrefix} Missing rate for ${symbol}/${currency}`);
-        return {prices: []};
+        return;
       }
 
       const pricePerTroyOunce = 1 / rate;
@@ -85,23 +108,9 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
           params: params[0],
         },
       ]);
-
-      const [price] = await this.metalPriceApiDataRepository.getPrices(params, options.timestamp);
-      const result = {prices: [price], timestamp: options.timestamp};
-
-      // TODO this will be deprecated once we fully switch to DB and have dedicated charts
-      await this.priceDataRepository.saveFetcherResults(
-        result,
-        symbols,
-        FetcherName.MetalsDevApi,
-        FetchedValueType.Price,
-        MetalPriceApiFetcher.fetcherSource,
-      );
-
-      return result;
     } catch (error) {
       this.logger.error(`${this.logPrefix} An error occurred while fetching metal prices: ${error}`);
-      return {prices: []};
+      return;
     }
   }
 }

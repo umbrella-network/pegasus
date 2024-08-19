@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [8.0.4] - 2024-08-19
+### Fixed
+- ensure errors of fetching price does not prevent fetching prices from DB 
+
 ## [8.0.3] - 2024-08-16
 ### Fixed
 - set correct `valueType` for gas model

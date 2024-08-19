@@ -40,17 +40,11 @@ export class BinancePriceFetcher implements FeedFetcherInterface {
   }
 
   async apply(inputs: BinancePriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
-    const sourceUrl = 'https://www.binance.com/api/v3/ticker/price';
-
-    this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);
-
-    const response = await axios.get(sourceUrl, {
-      timeout: this.timeout,
-      timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
-    });
-
-    const parsed = this.parseResponse(response);
-    await this.savePrices(this.timeService.apply(), parsed);
+    try {
+      await this.fetchPrices();
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+    }
 
     const prices = await this.binanceDataRepository.getPrices(inputs, options.timestamp);
 
@@ -70,6 +64,20 @@ export class BinancePriceFetcher implements FeedFetcherInterface {
     );
 
     return fetcherResults;
+  }
+
+  private async fetchPrices(): Promise<void> {
+    const sourceUrl = 'https://www.binance.com/api/v3/ticker/price';
+
+    this.logger.debug(`${this.logPrefix} call for: ${sourceUrl}`);
+
+    const response = await axios.get(sourceUrl, {
+      timeout: this.timeout,
+      timeoutErrorMessage: `Timeout exceeded: ${sourceUrl}`,
+    });
+
+    const parsed = this.parseResponse(response);
+    await this.savePrices(this.timeService.apply(), parsed);
   }
 
   private parseResponse(axiosResponse: AxiosResponse): ParsedResponse[] {
