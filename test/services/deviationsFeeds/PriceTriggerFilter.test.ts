@@ -78,7 +78,7 @@ describe('PriceTriggerFilter', () => {
 
       const {result, msg} = priceTriggerFilter.apply(feed, leaf, priceData);
       expect(result).to.be.eql(false);
-      expect(msg).to.be.eql('ETH-USD: low priceDiff 124@99.2%:100%');
+      expect(msg).to.be.eql('ETH-USD: 249, low priceDiff 124@99.2%:100%');
     });
 
     it('should return true if priceDiff is triggered', () => {
