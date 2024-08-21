@@ -14,14 +14,14 @@ export class PriceTriggerFilter {
       return {result: false, msg: `${leaf.label}: flat price`};
     }
 
-    const trigger = this.triggerAmount(priceData.price, deviationFeed.trigger, deviationFeed.precision);
+    const trigger = this.triggerAmount(priceData.price, deviationFeed.trigger);
     const triggerFired = priceDiff >= trigger;
     let msg = '';
 
     if (triggerFired) {
       msg = `${leaf.label}: ${priceData.price} =(${percent}%)=> ${newPrice}`;
     } else {
-      msg = `${leaf.label}: low priceDiff ${priceDiff}@${percent}%:${deviationFeed.trigger}%`;
+      msg = `${leaf.label}: ${newPrice}, low priceDiff ${priceDiff}@${percent}%:${deviationFeed.trigger}%`;
     }
 
     return {result: triggerFired, msg};
@@ -32,12 +32,19 @@ export class PriceTriggerFilter {
     return BigInt(leaf.valueBytes) / 10n ** (18n - BigInt(precision));
   }
 
-  protected triggerAmount(price: bigint, trigger: number, precision: number): bigint {
+  // price is in 18 decimals
+  protected triggerAmount(price: bigint, trigger: number): bigint {
     // first we multiply by 1e8 to not overflow Number, 1e8 it is enough precision for trigger
     // then we normalize percent to desired precision
-    const percent = BigInt(Math.trunc(trigger * 1e8)) * 10n ** (18n - BigInt(precision));
+    // const decimalsDiff;
+
+    const one = 10n ** 18n;
+    const diff8 = 10n ** 10n;
+
+    const percent = BigInt(Math.trunc(trigger * 1e8)) * diff8;
+
     // price * % / 100
-    return (price * percent) / 100_00000000n;
+    return (price * percent) / (100n * one);
   }
 
   protected abs(a: bigint): bigint {
