@@ -14,7 +14,7 @@ describe('DeviationDataToSignFactory', () => {
 
       const chainsAndKeys = [{chainId: 'BSC', keys: ['TEST1']}];
 
-      const leaves = {TEST1: {label: 'TEST1', valueBytes: '0x12345678910'}};
+      const leaves = {TEST1: {label: 'TEST1', valueBytes: '0x12345678910'}}; // 125.0999896336
 
       const feeds: DeviationFeeds = {
         TEST1: {
@@ -23,7 +23,7 @@ describe('DeviationDataToSignFactory', () => {
           interval: 10,
           chains: [ChainsIds.BSC],
           discrepancy: 0.1,
-          precision: 2,
+          precision: 8,
           inputs: [
             {
               fetcher: {
@@ -73,7 +73,7 @@ describe('DeviationDataToSignFactory', () => {
           interval: 10,
           chains: [ChainsIds.BSC],
           discrepancy: 0.1,
-          precision: 2,
+          precision: 8,
           inputs: [
             {
               fetcher: {

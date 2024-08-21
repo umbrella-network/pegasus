@@ -27,7 +27,7 @@ describe('PriceTriggerFilter', () => {
       interval: 10,
       chains: [ChainsIds.BSC],
       discrepancy: 0.1,
-      precision: 2,
+      precision: 8,
       inputs: [
         {
           fetcher: {
