@@ -53,11 +53,13 @@ export class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
       return {prices: []};
     }
 
-    this.logger.debug(`${this.logPrefix} ${chainId} fetched TWAP${params[0].twap}: ${gas}`);
+    const gasPriceGwei = gas / 1e9;
+
+    this.logger.debug(`${this.logPrefix} ${chainId} fetched TWAP${params[0].twap}: ${gas} (${gasPriceGwei})`);
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
-      {prices: [gas]},
+      {prices: [gasPriceGwei]},
       symbols,
       FetcherName.TWAPGasPrice,
       FetchedValueType.Price,
