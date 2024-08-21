@@ -16,7 +16,7 @@ describe('PriceDataFactory', () => {
 
       const feed: DeviationFeed = {
         discrepancy: 0.1,
-        precision: 2,
+        precision: 8,
         heartbeat: 10,
         chains: [ChainsIds.BSC],
         trigger: 5,
@@ -52,7 +52,7 @@ describe('PriceDataFactory', () => {
       const feeds: DeviationFeeds = {
         TEST1: {
           discrepancy: 0.1,
-          precision: 2,
+          precision: 8,
           heartbeat: 10,
           chains: [ChainsIds.BSC],
           trigger: 5,
@@ -70,7 +70,7 @@ describe('PriceDataFactory', () => {
         },
         TEST2: {
           discrepancy: 0.2,
-          precision: 4,
+          precision: 8,
           heartbeat: 20,
           chains: [ChainsIds.BSC],
           trigger: 10,

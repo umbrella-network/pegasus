@@ -3,9 +3,19 @@ import {DeviationFeeds, DeviationFeed, PriceData, PriceDataByKey} from '../types
 
 export class PriceDataFactory {
   static create(dataTimestamp: number, leaf: Leaf, feed: DeviationFeed): PriceData {
+    if (feed.precision < 0 || feed.precision > 18) {
+      throw new Error(`[PriceDataFactory] invalid precision for ${leaf.label}: ${feed.precision}`);
+    }
+
+    const price = BigInt(leaf.valueBytes) / 10n ** BigInt(18 - feed.precision);
+
+    if (price >= 2n ** 128n) {
+      throw new Error(`[PriceDataFactory] invalid precision for ${leaf.label}: ${feed.precision}`);
+    }
+
     return <PriceData>{
       data: 0,
-      price: BigInt(leaf.valueBytes) / 10_000_000_000n,
+      price,
       timestamp: dataTimestamp,
       heartbeat: feed.heartbeat,
     };
