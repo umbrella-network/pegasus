@@ -138,9 +138,7 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
 
     try {
       const contract = await this.contractAddressService.getContract(chainId, 'UniswapV3FetcherHelper', abi);
-      this.logger.error(`${this.logPrefix} [${chainId}] contract: ${contract.address}`);
       const response = await contract.callStatic.getPrices(poolsToFetch);
-      this.logger.error(`${this.logPrefix} [${chainId}] response: ${response}`);
       parsed = this.processResult(chainId, response, poolsToFetch);
     } catch (error) {
       this.logger.error(`${this.logPrefix} [${chainId}] getPrices failed: ${error}`);

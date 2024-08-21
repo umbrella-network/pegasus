@@ -125,22 +125,6 @@ class FeedProcessor {
       return;
     }
 
-    let result = this.getBaseAndQuote(feedFetcher);
-
-    if (!result) {
-      // TODO backwards compatibility code, it can be removed in future if feed config will be updated
-      if (feedFetcher.symbol == 'FIXED_RAND') {
-        this.logger.warn(`Apply hardcoded base & quote for symbol:${feedFetcher.symbol}`);
-        result = ['RAND', 'FIXED'];
-      } else if (feedFetcher.symbol == 'PolygonGas-TWAP10-wei') {
-        this.logger.warn(`Apply hardcoded base & quote for symbol:${feedFetcher.symbol}`);
-        result = ['PolygonGas_TWAP10', 'wei'];
-      } else {
-        this.logger.error(`Cannot parse base & quote from symbol:${feedFetcher.symbol}`);
-        return;
-      }
-    }
-
     try {
       this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
       const result = await fetcher.apply([feedFetcher.params], {
