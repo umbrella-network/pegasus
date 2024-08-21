@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- allow to use custom precision for on-chain data feeds
+
 ## [8.0.4] - 2024-08-19
 ### Fixed
 - ensure errors of fetching price does not prevent fetching prices from DB 
