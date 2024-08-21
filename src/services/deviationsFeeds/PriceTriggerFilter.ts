@@ -28,12 +28,6 @@ export class PriceTriggerFilter {
   }
 
   protected currentPrice(leaf: Leaf, precision: number): bigint {
-    // TODO backwards compatible, remove later
-    if (leaf.label == 'PolygonGas-TWAP10-wei' && precision == 9) {
-      // this is old config
-      precision = 0;
-    }
-
     // price in leaf is 18 decimals, price for deviations is 8 decimals => we need to divide by 1e10
     return BigInt(leaf.valueBytes) / 10n ** (18n - BigInt(precision));
   }
