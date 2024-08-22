@@ -66,6 +66,6 @@ export class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
       EvmTWAPGasPriceFetcher.fetcherSource,
     );
 
-    return {prices: [gas], timestamp};
+    return {prices: [gasPriceGwei], timestamp};
   }
 }
