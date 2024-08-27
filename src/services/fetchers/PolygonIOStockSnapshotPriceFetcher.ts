@@ -68,8 +68,20 @@ export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFet
   }
 
   private parseResponse(response: SnapshotResponse): ParsedResponse[] {
+    if (response.message) {
+      this.logger.warn(`${this.logPrefix} ${response.message}`);
+    }
+
+    if (response.error) {
+      this.logger.error(`${this.logPrefix} ${response.error}`);
+    }
+
     return response.tickers
       .map(({ticker, lastTrade}) => {
+        if (!lastTrade) {
+          return;
+        }
+
         const value = lastTrade.p;
 
         if (isNaN(value)) {
