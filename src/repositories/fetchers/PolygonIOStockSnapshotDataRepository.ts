@@ -3,8 +3,8 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {PriceModel_PolygonIOStockSnapshot} from '../../models/fetchers/PriceModel_PolygonIOStockSnapshot';
-import {PolygonIOStockSnapshotFetcherInputParams} from '../../services/fetchers/PolygonIOStockSnapshotPriceFetcher';
+import {PriceModel_PolygonIOStockSnapshot} from '../../models/fetchers/PriceModel_PolygonIOStockSnapshot.js';
+import {PolygonIOStockSnapshotFetcherInputParams} from '../../services/fetchers/PolygonIOStockSnapshotPriceFetcher.js';
 
 export type PolygonIOCryptoSnapshotDataRepositoryInput = {
   value: number;
