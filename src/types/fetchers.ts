@@ -53,7 +53,6 @@ export interface FeedFetcherInterface {
 export enum FetcherName {
   GVolImpliedVolatility = 'GVolImpliedVolatility',
   CoingeckoPrice = 'CoingeckoPrice',
-  PolygonIOPrice = 'PolygonIOPrice',
   PolygonIOStockSnapshotPrice = 'PolygonIOStockSnapshotPrice',
   PolygonIOSingleCryptoPrice = 'PolygonIOSingleCryptoPrice',
   PolygonIOCryptoPriceOLD = 'PolygonIOCryptoPrice',

@@ -34,9 +34,11 @@ export default {
             {$ref: '#/definitions/ByBitPrice'},
             {$ref: '#/definitions/BinancePrice'},
             {$ref: '#/definitions/GVolImpliedVolatility'},
-            {$ref: '#/definitions/PolygonIOPrice'},
             {$ref: '#/definitions/PolygonIOCryptoPrice'},
+            {$ref: '#/definitions/PolygonIOCryptoSnapshotPrice'},
+            {$ref: '#/definitions/PolygonIOSingleCryptoPrice'},
             {$ref: '#/definitions/PolygonIOCurrencySnapshotGrams'},
+            {$ref: '#/definitions/PolygonIOStockSnapshotPrice'},
             {$ref: '#/definitions/CoingeckoPrice'},
             {$ref: '#/definitions/OnChainData'},
             {$ref: '#/definitions/UniswapV3'},
@@ -47,7 +49,7 @@ export default {
             {$ref: '#/definitions/TWAPGasPrice'},
             {$ref: '#/definitions/GoldApiPrice'},
             {$ref: '#/definitions/MetalPriceApi'},
-            {$ref: '#/definitions/MetalsDevApiPrice'},
+            {$ref: '#/definitions/MetalsDevApi'},
             {$ref: '#/definitions/SovrynPrice'},
             {$ref: '#/definitions/SovrynPriceFetcher'}, // TODO: remove in newer versions
           ],
@@ -125,15 +127,15 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    PolygonIOPrice: {
+    PolygonIOCryptoSnapshotPrice: {
       properties: {
-        name: {const: FetcherName.PolygonIOPrice},
+        name: {const: FetcherName.PolygonIOCryptoSnapshotPrice},
         params: {
           type: 'object',
           properties: {
-            sym: {type: 'string'},
+            symbol: {type: 'string'},
           },
-          required: ['sym'],
+          required: ['symbol'],
           additionalProperties: false,
         },
       },
@@ -150,6 +152,37 @@ export default {
             tsym: {type: 'string'},
           },
           required: ['fsym', 'tsym'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    PolygonIOSingleCryptoPrice: {
+      properties: {
+        name: {const: FetcherName.PolygonIOSingleCryptoPrice},
+        params: {
+          type: 'object',
+          properties: {
+            fsym: {type: 'string'},
+            tsym: {type: 'string'},
+          },
+          required: ['fsym', 'tsym'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    PolygonIOStockSnapshotPrice: {
+      properties: {
+        name: {const: FetcherName.PolygonIOStockSnapshotPrice},
+        params: {
+          type: 'object',
+          properties: {
+            ticker: {type: 'string'},
+          },
+          required: ['ticker'],
           additionalProperties: false,
         },
       },
@@ -263,7 +296,7 @@ export default {
       required: ['params'],
       additionalProperties: false,
     },
-    MetalsDevApiPrice: {
+    MetalsDevApi: {
       properties: {
         name: {const: FetcherName.MetalsDevApi},
         params: {
