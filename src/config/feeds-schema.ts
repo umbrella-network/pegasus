@@ -35,7 +35,6 @@ export default {
             {$ref: '#/definitions/BinancePrice'},
             {$ref: '#/definitions/GVolImpliedVolatility'},
             {$ref: '#/definitions/PolygonIOPrice'},
-            {$ref: '#/definitions/PolygonIOStockPrice'},
             {$ref: '#/definitions/PolygonIOCryptoPrice'},
             {$ref: '#/definitions/PolygonIOCurrencySnapshotGrams'},
             {$ref: '#/definitions/CoingeckoPrice'},
@@ -129,21 +128,6 @@ export default {
     PolygonIOPrice: {
       properties: {
         name: {const: FetcherName.PolygonIOPrice},
-        params: {
-          type: 'object',
-          properties: {
-            sym: {type: 'string'},
-          },
-          required: ['sym'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    PolygonIOStockPrice: {
-      properties: {
-        name: {const: FetcherName.PolygonIOStockPrice},
         params: {
           type: 'object',
           properties: {

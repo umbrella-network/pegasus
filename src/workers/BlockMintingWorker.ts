@@ -3,12 +3,10 @@ import {inject, injectable} from 'inversify';
 
 import BlockMinter from '../services/BlockMinter.js';
 import BasicWorker from './BasicWorker.js';
-import PolygonIOPriceInitializer from '../services/fetchers/common/PolygonIOPriceInitializer.js';
 
 @injectable()
 class BlockMintingWorker extends BasicWorker {
   @inject(BlockMinter) blockMinter!: BlockMinter;
-  @inject(PolygonIOPriceInitializer) polygonIOPriceInitializer!: PolygonIOPriceInitializer;
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
     const isLocked = await this.connection.get(this.settings.jobs.blockCreation.lock.name);
@@ -43,15 +41,6 @@ class BlockMintingWorker extends BasicWorker {
   isStale = (job: Bull.Job): boolean => {
     const age = new Date().getTime() - job.timestamp;
     return age > this.settings.jobs.blockCreation.interval;
-  };
-
-  start = (): void => {
-    super.start();
-
-    this.polygonIOPriceInitializer.apply().catch((err: Error) => {
-      this.logger.error(err);
-      process.exit(1);
-    });
   };
 }
 

@@ -7,6 +7,7 @@ import {
   CoingeckoPriceFetcher,
   PolygonIOCryptoSnapshotPriceFetcher,
   PolygonIOSingleCryptoPriceFetcher,
+  PolygonIOStockSnapshotPriceFetcher,
 } from '../fetchers/index.js';
 import {
   allMultiFetchers,
@@ -28,6 +29,7 @@ export default class MultiFeedProcessor {
   polygonIOCryptoSnapshotPriceFetcher!: PolygonIOCryptoSnapshotPriceFetcher;
   @inject(PolygonIOSingleCryptoPriceFetcher)
   polygonIOSingleCryptoPriceFetcher!: PolygonIOSingleCryptoPriceFetcher;
+  @inject(PolygonIOStockSnapshotPriceFetcher) polygonIOStockSnapshotPriceFetcher!: PolygonIOStockSnapshotPriceFetcher;
   @inject(UniswapV3Fetcher) uniswapV3PriceFetcher!: UniswapV3Fetcher;
   @inject(SovrynPriceFetcher) sovrynPriceFetcher!: SovrynPriceFetcher;
 
@@ -74,6 +76,9 @@ export default class MultiFeedProcessor {
           case FetcherName.PolygonIOCryptoPriceOLD: // TODO: remove this backward compatible code
             fetcherObject = this.polygonIOCryptoSnapshotPriceFetcher;
             break;
+          case FetcherName.PolygonIOStockSnapshotPrice:
+            fetcherObject = this.polygonIOStockSnapshotPriceFetcher;
+            break;
           case FetcherName.PolygonIOSingleCryptoPrice:
             fetcherObject = this.polygonIOSingleCryptoPriceFetcher;
             break;
@@ -87,7 +92,7 @@ export default class MultiFeedProcessor {
             break;
           default:
             if (allMultiFetchers.has(fetcher.name)) {
-              throw new Error(`allMultiFetchers missconfiguration for ${fetcher.name}`);
+              throw new Error(`allMultiFetchers misconfiguration for ${fetcher.name}`);
             }
 
             continue;

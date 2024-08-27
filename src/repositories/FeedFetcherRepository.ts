@@ -10,7 +10,6 @@ export class FeedFetcherRepository {
   constructor(
     @inject(fetchers.PolygonIOCryptoSnapshotPriceFetcher)
     PolygonIOCryptoSnapshotPrice: fetchers.PolygonIOCryptoSnapshotPriceFetcher,
-    @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPrice: fetchers.PolygonIOStockPriceFetcher,
     @inject(fetchers.PolygonIOSingleCryptoPriceFetcher)
     PolygonIOSingleCryptoPrice: fetchers.PolygonIOSingleCryptoPriceFetcher,
     @inject(fetchers.PolygonIOCurrencySnapshotGramsFetcher)
@@ -23,7 +22,6 @@ export class FeedFetcherRepository {
     this.collection = {
       PolygonIOCryptoSnapshotPrice,
       PolygonIOSingleCryptoPrice,
-      PolygonIOStockPrice,
       PolygonIOCryptoPrice: PolygonIOCryptoSnapshotPrice,
       PolygonIOCurrencySnapshotGrams,
       TWAPGasPrice: evmTWAPGasPriceFetcher,
