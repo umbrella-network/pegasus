@@ -92,7 +92,7 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
           return;
         }
 
-        return {symbol, price: value, timestamp: last.timestamp / 1e3};
+        return {symbol, price: value, timestamp: Math.trunc(last.timestamp / 1e3)};
       })
       .filter((e) => !!e) as ParsedResponse[];
   }
