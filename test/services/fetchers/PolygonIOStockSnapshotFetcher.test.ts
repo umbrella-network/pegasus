@@ -77,7 +77,7 @@ describe('PolygonIOStockSnapshotFetcher', () => {
           },
         );
 
-        const result = await polygonIOStockSnapshotFetcher.apply({symbols: ['UVXY']}, true);
+        const result = await polygonIOStockSnapshotFetcher.apply([{ticker: 'UVXY'}], {symbols: ['UVXY'], timestamp: 1});
 
         expect(result).to.eql({
           tickers: [ticker1],
@@ -104,7 +104,7 @@ describe('PolygonIOStockSnapshotFetcher', () => {
             },
           );
 
-          await expect(polygonIOStockSnapshotFetcher.apply({symbols: ['VIXY', 'UVXY']}, true)).to.rejectedWith(Error);
+          await expect(polygonIOStockSnapshotFetcher.apply([{ticker: 'UVXY'}, {ticker: 'VIXY'}], {symbols: ['UVXY', 'VIXY'], timestamp: 1})).to.rejectedWith(Error);
         });
       });
 
@@ -130,7 +130,7 @@ describe('PolygonIOStockSnapshotFetcher', () => {
 
         describe('when raw param is true', () => {
           it('responds with the requests tickers merged in one tickers array', async () => {
-            const result = await polygonIOStockSnapshotFetcher.apply({symbols: ['UVXY', 'VIXY']}, true);
+            const result = await polygonIOStockSnapshotFetcher.apply([{ticker: 'UVXY'}, {ticker: 'VIXY'}], {symbols: ['UVXY', 'VIXY'], timestamp: 1});
 
             expect(result).to.eql({
               tickers: [ticker1, ticker2],
@@ -140,7 +140,7 @@ describe('PolygonIOStockSnapshotFetcher', () => {
 
         describe('when raw param is false', () => {
           it('response the requests tickers lastPrice.p in an array', async () => {
-            const result = await polygonIOStockSnapshotFetcher.apply({symbols: ['UVXY', 'VIXY']}, false);
+            const result = await polygonIOStockSnapshotFetcher.apply([{ticker: 'UVXY'}, {ticker: 'VIXY'}], {symbols: ['UVXY', 'VIXY'], timestamp: 1});
 
             expect(result).to.eql([ticker1.lastTrade.p, ticker2.lastTrade.p]);
           });
