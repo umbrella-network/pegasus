@@ -24,13 +24,12 @@ export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFet
   @inject(PolygonIOStockSnapshotDataRepository)
   polygonIOStockSnapshotDataRepository!: PolygonIOStockSnapshotDataRepository;
 
-  private logPrefix = `[${FetcherName.PolygonIOStockSnapshotPrice}]`;
-
   constructor(@inject('Settings') settings: Settings) {
     super();
 
     this.apiKey = settings.api.polygonIO.apiKey;
     this.timeout = settings.api.polygonIO.timeout;
+    this.logPrefix = `[${FetcherName.PolygonIOStockSnapshotPrice}]`;
   }
 
   async apply(params: PolygonIOStockSnapshotFetcherInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {

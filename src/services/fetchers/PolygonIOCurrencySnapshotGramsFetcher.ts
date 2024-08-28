@@ -33,7 +33,6 @@ export class PolygonIOCurrencySnapshotGramsFetcher
   private pIOCurrencySnapshotGramsDataRepository!: PolygonIOCurrencySnapshotGramsDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
 
-  private logPrefix = `[${FetcherName.PolygonIOCurrencySnapshotGrams}]`;
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
@@ -41,6 +40,8 @@ export class PolygonIOCurrencySnapshotGramsFetcher
     this.apiKey = settings.api.polygonIO.apiKey;
     this.timeout = settings.api.polygonIO.timeout;
     this.valuePath = '$.ticker.lastQuote.a';
+
+    this.logPrefix = `[${FetcherName.PolygonIOCurrencySnapshotGrams}]`;
   }
 
   async apply(

@@ -33,13 +33,13 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
 
-  private logPrefix = `[${FetcherName.PolygonIOSingleCryptoPrice}]`;
-
   constructor(@inject('Settings') settings: Settings) {
     super();
     this.apiKey = settings.api.polygonIO.apiKey;
     this.timeout = settings.api.polygonIO.timeout;
     this.valuePath = '$.last.price';
+
+    this.logPrefix = `[${FetcherName.PolygonIOSingleCryptoPrice}]`;
   }
 
   async apply(params: PolygonIOSingleCryptoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {

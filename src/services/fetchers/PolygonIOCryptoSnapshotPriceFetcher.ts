@@ -29,14 +29,14 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
 
-  private logPrefix = `[${FetcherName.PolygonIOCryptoSnapshotPrice}]`;
-
   constructor(@inject('Settings') settings: Settings) {
     super();
 
     this.apiKey = settings.api.polygonIO.apiKey;
     this.timeout = settings.api.polygonIO.timeout;
     this.valuePath = '$.tickers[*].lastTrade.p';
+
+    this.logPrefix = `[${FetcherName.PolygonIOCryptoSnapshotPrice}]`;
   }
 
   async apply(params: PolygonIOCryptoSnapshotInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
