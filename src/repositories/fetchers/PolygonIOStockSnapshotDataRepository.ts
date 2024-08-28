@@ -6,7 +6,7 @@ import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_PolygonIOStockSnapshot} from '../../models/fetchers/PriceModel_PolygonIOStockSnapshot.js';
 import {PolygonIOStockSnapshotFetcherInputParams} from '../../services/fetchers/PolygonIOStockSnapshotPriceFetcher.js';
 
-export type PolygonIOCryptoSnapshotDataRepositoryInput = {
+export type PolygonIOStockSnapshotDataRepositoryInput = {
   value: number;
   timestamp: number;
   params: PolygonIOStockSnapshotFetcherInputParams;
@@ -20,7 +20,7 @@ export class PolygonIOStockSnapshotDataRepository extends CommonPriceDataReposit
     this.logPrefix = '[PolygonIOStockSnapshotDataRepository]';
   }
 
-  async save(dataArr: PolygonIOCryptoSnapshotDataRepositoryInput[]): Promise<void> {
+  async save(dataArr: PolygonIOStockSnapshotDataRepositoryInput[]): Promise<void> {
     const payloads: PriceModel_PolygonIOStockSnapshot[] = [];
 
     const signatures = await Promise.all(
@@ -29,7 +29,7 @@ export class PolygonIOStockSnapshotDataRepository extends CommonPriceDataReposit
           value,
           timestamp,
           this.hashVersion,
-          FetcherName.PolygonIOCryptoSnapshotPrice,
+          FetcherName.PolygonIOStockSnapshotPrice,
           params.ticker,
         );
 
