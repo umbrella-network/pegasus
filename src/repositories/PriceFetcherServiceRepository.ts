@@ -5,6 +5,8 @@ import Settings from '../types/Settings.js';
 import {FetcherName, ServiceInterface} from '../types/fetchers.js';
 import {BinancePriceService} from '../workers/fetchers/BinancePriceService.js';
 import {ByBitPriceService} from '../workers/fetchers/ByBitPriceService.js';
+import {PolygonIOCryptoSnapshotPriceService} from '../workers/fetchers/PolygonIOCryptoSnapshotPriceService.js';
+import {PolygonIOStockSnapshotPriceService} from '../workers/fetchers/PolygonIOStockSnapshotPriceService.js';
 
 export type PriceFetchersCollection = {
   [fetcherName: string]: ServiceInterface | undefined;
@@ -22,11 +24,11 @@ export class PriceFetcherServiceRepository {
     @inject(ByBitPriceService) byBitPriceService: ByBitPriceService,
     // @inject(CoingeckoPriceFetcher) coingeckoPriceFetcher: CoingeckoPriceFetcher,
     //
-    // @inject(PolygonIOCryptoSnapshotPriceFetcher)
-    // polygonIOCryptoSnapshotPriceFetcher: PolygonIOCryptoSnapshotPriceFetcher,
+    @inject(PolygonIOCryptoSnapshotPriceService)
+    polygonIOCryptoSnapshotPrice: PolygonIOCryptoSnapshotPriceService,
     // @inject(PolygonIOSingleCryptoPriceFetcher)
     // polygonIOSingleCryptoPriceFetcher: PolygonIOSingleCryptoPriceFetcher,
-    // @inject(PolygonIOStockSnapshotPriceFetcher) polygonIOStockSnapshotPriceFetcher: PolygonIOStockSnapshotPriceFetcher,
+    @inject(PolygonIOStockSnapshotPriceService) polygonIOStockSnapshotPrice: PolygonIOStockSnapshotPriceService,
     //
     // @inject(UniswapV3Fetcher) uniswapV3PriceFetcher: UniswapV3Fetcher,
     // @inject(SovrynPriceFetcher) sovrynPriceFetcher: SovrynPriceFetcher,
@@ -38,11 +40,11 @@ export class PriceFetcherServiceRepository {
     //
     // this.collection[FetcherName.CoingeckoPrice] = coingeckoPriceFetcher;
     //
-    // this.collection[FetcherName.PolygonIOCryptoSnapshotPrice] = polygonIOCryptoSnapshotPriceFetcher;
-    // // TODO: remove this backward compatible code
-    // this.collection[FetcherName.PolygonIOCryptoPriceOLD] = polygonIOCryptoSnapshotPriceFetcher;
-    //
-    // this.collection[FetcherName.PolygonIOStockSnapshotPrice] = polygonIOStockSnapshotPriceFetcher;
+    this.collection[FetcherName.PolygonIOCryptoSnapshotPrice] = polygonIOCryptoSnapshotPrice;
+    // TODO: remove this backward compatible code
+    this.collection[FetcherName.PolygonIOCryptoPriceOLD] = polygonIOCryptoSnapshotPrice;
+
+    this.collection[FetcherName.PolygonIOStockSnapshotPrice] = polygonIOStockSnapshotPrice;
     // this.collection[FetcherName.PolygonIOSingleCryptoPrice] = polygonIOSingleCryptoPriceFetcher;
     //
     // this.collection[FetcherName.SovrynPrice] = sovrynPriceFetcher;

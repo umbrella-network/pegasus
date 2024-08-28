@@ -12,7 +12,7 @@ type BinanceResponse = {symbol: string; price: string};
 type ParsedResponse = {symbol: string; price: number};
 
 @injectable()
-export class BinancePriceFetcherService implements ServiceInterface {
+export class BinancePriceService implements ServiceInterface {
   @inject(BinanceDataRepository) binanceDataRepository!: BinanceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
