@@ -3,13 +3,24 @@ import {inject, injectable} from 'inversify';
 
 import BasicWorker from './BasicWorker.js';
 import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository.js';
+import {SchedulerFetcherSettings} from '../types/Settings.js';
 
 @injectable()
 class PriceFetchingWorker extends BasicWorker {
   @inject(PriceFetcherServiceRepository) priceFetcherServiceRepository!: PriceFetcherServiceRepository;
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
-    const name = (params as {name: string}).name;
+    // example of params and opts:
+    // this.logger.debug(`[PriceFetchingWorker] enqueue params: ${JSON.stringify(params)}`);
+    // this.logger.debug(`[PriceFetchingWorker] enqueue opts: ${JSON.stringify(opts)}`);
+    // this.logger.debug(`[PriceFetchingWorker] enqueue this.constructor.name: ${this.constructor.name}`);
+
+    // info: [Scheduler] PriceFetcherWorker: ByBitPrice
+    // debug: [PriceFetchingWorker] enqueue params: {"fetcherName":"ByBitPrice"}
+    // debug: [PriceFetchingWorker] enqueue opts: {"removeOnComplete":true,"removeOnFail":true,"jobId":"ByBitPrice-987"}
+    // debug: [PriceFetchingWorker] enqueue this.constructor.name: PriceFetchingWorker
+
+    const name = (params as {fetcherName: string}).fetcherName;
     const isLocked = await this.connection.get(name);
     if (isLocked) return;
 
@@ -17,36 +28,40 @@ class PriceFetchingWorker extends BasicWorker {
   };
 
   apply = async (job: Bull.Job): Promise<void> => {
-    if (this.isStale(job)) return;
+    const {fetcherName} = job.data;
+    const loggerPrefix = `[PriceFetchingWorker.${fetcherName}]`;
 
-    if (!this.checkIsValidSettings(job.data.fetcherName)) {
-      this.logger.debug(`${job.data.fetcherName} apply for job but job has invalid settings`);
+    // this.logger.debug(`[${loggerPrefix}] job: ${JSON.stringify(job)}`);
+
+    if (this.isStale(job)) {
+      this.logger.debug(`${loggerPrefix} stale`);
       return;
     }
 
-    const {fetcherName} = job.data;
-    const loggerPrefix = `[PriceFetchingWorker][${fetcherName}]`;
-    const {lock} = job.data.settings;
+    this.logger.debug(`${loggerPrefix} NOT stale`);
+
+    if (!this.checkIsValidSettings(job.data.fetcherName)) {
+      this.logger.warn(`${loggerPrefix} apply for job but job has invalid settings`);
+      return;
+    }
+
+    const {lock} = this.workerSettings(fetcherName);
     const unlocked = await this.connection.set(lock.name, 'lock', 'EX', lock.ttl, 'NX');
 
     if (!unlocked) {
-      this.logger.error(`${loggerPrefix} apply for job but job !unlocked`);
+      this.logger.error(`${loggerPrefix} apply for job but job !unlocked: ${lock.name}`);
       return;
     }
 
     try {
-      this.logger.debug(`${loggerPrefix} job run at ${new Date().toISOString()}`);
+      this.logger.debug(`${loggerPrefix} job run for ${fetcherName} at ${new Date().toISOString()}`);
       await this.priceFetcherServiceRepository.get(fetcherName)?.apply();
     } catch (e) {
-      this.logger.error(e);
+      this.logger.error(`${loggerPrefix} ${(e as Error).message}`);
     } finally {
+      this.logger.debug(`${loggerPrefix} connection.del`);
       await this.connection.del(lock.name);
     }
-  };
-
-  isStale = (job: Bull.Job): boolean => {
-    const age = new Date().getTime() - job.timestamp;
-    return age > job.data.settings.interval;
   };
 
   start = (): void => {
@@ -54,9 +69,20 @@ class PriceFetchingWorker extends BasicWorker {
     this.logger.debug('[PriceFetchingWorker] started');
   };
 
+  isStale = (job: Bull.Job): boolean => {
+    const age = new Date().getTime() - job.timestamp;
+    return age > this.workerSettings(job.data.fetcherName).interval;
+  };
+
   checkIsValidSettings = (fetcherName: string) => {
-    const interval = this.settings.scheduler.fetchers[fetcherName]?.interval;
-    return interval !== undefined && interval > 0;
+    return this.workerSettings(fetcherName).interval > 0;
+  };
+
+  workerSettings = (fetcherName: string): SchedulerFetcherSettings => {
+    const cfg = this.settings.scheduler.fetchers[fetcherName];
+    if (!cfg) throw new Error(`this.settings.scheduler.fetchers[${fetcherName}]`);
+
+    return cfg;
   };
 }
 

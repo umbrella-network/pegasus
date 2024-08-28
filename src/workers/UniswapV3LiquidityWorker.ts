@@ -46,11 +46,6 @@ class UniswapV3LiquidityWorker extends BasicWorker {
     }
   };
 
-  isStale = (job: Bull.Job): boolean => {
-    const age = new Date().getTime() - job.timestamp;
-    return age > job.data.settings.interval;
-  };
-
   start = (): void => {
     super.start();
   };

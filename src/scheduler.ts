@@ -4,7 +4,7 @@ import {boot} from './boot.js';
 import Application from './lib/Application.js';
 import BlockMintingWorker from './workers/BlockMintingWorker.js';
 import MetricsWorker from './workers/MetricsWorker.js';
-import Settings, {BlockDispatcherSettings, SchedulerFetcherSettings} from './types/Settings.js';
+import Settings, {BlockDispatcherSettings} from './types/Settings.js';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker.js';
 import {DeviationLeaderWorker} from './workers/DeviationLeaderWorker.js';
 import DataPurger from './services/DataPurger.js';
@@ -105,13 +105,13 @@ import {FetcherName} from './types/fetchers';
     }
   };
 
-  const schedulePriceFetcherWorker = async (dispatcher: BasicWorker, fetcherName: FetcherName): Promise<void> => {
+  const schedulePriceWorker = async (priceWorker: BasicWorker, fetcherName: FetcherName): Promise<void> => {
     logger.info(`[Scheduler] PriceFetcherWorker: ${fetcherName}`);
 
     try {
-      await dispatcher.enqueue(
+      await priceWorker.enqueue(
         {
-          fetcherName
+          fetcherName,
         },
         {
           removeOnComplete: true,
@@ -120,7 +120,7 @@ import {FetcherName} from './types/fetchers';
         },
       );
     } catch (e) {
-      logger.error(`[Scheduling] ${fetcherName}: ${e}`);
+      logger.error(`[Scheduling] ${fetcherName}: ${(e as Error).message}`);
     }
   };
 
@@ -154,7 +154,7 @@ import {FetcherName} from './types/fetchers';
 
   for (const fetcherName of Object.keys(settings.scheduler.fetchers)) {
     const {interval} = settings.scheduler.fetchers[fetcherName];
-    setInterval(async () => schedulePriceFetcherWorker(priceFetchingWorker, fetcherName as FetcherName), interval);
+    setInterval(async () => schedulePriceWorker(priceFetchingWorker, fetcherName as FetcherName), interval);
   }
 
   for (const chainId of Object.keys(settings.blockchain.multiChains)) {

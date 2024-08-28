@@ -46,6 +46,7 @@ import {VerifyProposedData} from '../services/tools/VerifyProposedData.js';
 
 import PriceFetchingWorker from '../workers/PriceFetchingWorker.js';
 import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository.js';
+import BlockMintingWorker from '../workers/BlockMintingWorker.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -57,7 +58,7 @@ export function getContainer(): Container {
   container.bind(CalculatorRepository).toSelf().inSingletonScope();
   container.bind(FeedRepository).toSelf().inSingletonScope();
   container.bind(VerifyProposedData).toSelf().inSingletonScope();
-
+  container.bind(BlockMintingWorker).toSelf().inSingletonScope();
   container.bind(BlockchainProviderRepository).toSelf().inSingletonScope();
   container.bind(MongoDBPriceRepository).toSelf().inSingletonScope();
   container.bind(FeedProcessor).toSelf().inSingletonScope();

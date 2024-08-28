@@ -495,16 +495,19 @@ const settings: Settings = {
   scheduler: {
     fetchers: {
       [FetcherName.BinancePrice]: schedulerFetcherSettings(FetcherName.BinancePrice),
+      [FetcherName.ByBitPrice]: schedulerFetcherSettings(FetcherName.ByBitPrice),
+      [FetcherName.PolygonIOCryptoSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOCryptoSnapshotPrice),
+      [FetcherName.PolygonIOStockSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOStockSnapshotPrice),
     },
   },
 };
 
 function schedulerFetcherSettings(fetcherName: FetcherName): SchedulerFetcherSettings {
   return {
-    interval: getTimeSetting(parseInt(process.env[`${fetcherName}_JOB_INTERVAL`.toUpperCase()] || '10000'), 200),
+    interval: getTimeSetting(parseInt(process.env[`${fetcherName}_JOB_INTERVAL`.toUpperCase()] || '15000'), 200),
     lock: {
       name: `lock::${fetcherName}Worker`,
-      ttl: getTimeSetting(parseInt(process.env[`${fetcherName}_LOCK_TTL`.toUpperCase()] || '60'), 60),
+      ttl: getTimeSetting(parseInt(process.env[`${fetcherName}_LOCK_TTL`.toUpperCase()] || '15000'), 60),
     },
   };
 }
