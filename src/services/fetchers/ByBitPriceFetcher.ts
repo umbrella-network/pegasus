@@ -41,7 +41,7 @@ export class ByBitPriceFetcher implements FeedFetcherInterface {
     try {
       await this.fetchPrices();
     } catch (e) {
-      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+      this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
 
     const prices = await this.byBitDataRepository.getPrices(inputs, options.timestamp);

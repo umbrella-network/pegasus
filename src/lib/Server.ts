@@ -12,7 +12,6 @@ import HealthController from '../controllers/HealthController.js';
 import BlocksController from '../controllers/BlocksController.js';
 import SignatureController from '../controllers/SignatureController.js';
 import InfoController from '../controllers/InfoController.js';
-import DebugController from '../controllers/DebugController.js';
 import DocsController from '../controllers/DocsController.js';
 import {HistoryController} from '../controllers/HistoryController.js';
 
@@ -27,7 +26,6 @@ class Server {
     @inject('Logger') logger: Logger,
     @inject('Settings') settings: Settings,
     @inject(HealthController) healthController: HealthController,
-    @inject(DebugController) debugController: DebugController,
     @inject(BlocksController) blocksController: BlocksController,
     @inject(SignatureController) signatureController: SignatureController,
     @inject(InfoController) infoController: InfoController,
@@ -48,7 +46,6 @@ class Server {
       .use(express.urlencoded({extended: true}))
       .use(cors())
       .use('/blocks', blocksController.router)
-      .use('/debug', debugController.router)
       .use('/health', healthController.router)
       .use('/signature', signatureController.router)
       .use('/info', infoController.router)

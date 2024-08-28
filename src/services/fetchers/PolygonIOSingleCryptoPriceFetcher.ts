@@ -33,20 +33,20 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
 
-  private logPrefix = `[${FetcherName.PolygonIOSingleCryptoPrice}]`;
-
   constructor(@inject('Settings') settings: Settings) {
     super();
     this.apiKey = settings.api.polygonIO.apiKey;
     this.timeout = settings.api.polygonIO.timeout;
     this.valuePath = '$.last.price';
+
+    this.logPrefix = `[${FetcherName.PolygonIOSingleCryptoPrice}]`;
   }
 
   async apply(params: PolygonIOSingleCryptoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     try {
       await this.fetchPrices(params);
     } catch (e) {
-      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+      this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
 
     const prices = await this.pIOSingleCryptoDataRepository.getPrices(params, options.timestamp);
@@ -92,7 +92,7 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
           return;
         }
 
-        return {symbol, price: value, timestamp: last.timestamp / 1e3};
+        return {symbol, price: value, timestamp: Math.trunc(last.timestamp / 1e3)};
       })
       .filter((e) => !!e) as ParsedResponse[];
   }

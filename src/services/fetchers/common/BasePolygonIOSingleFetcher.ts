@@ -3,6 +3,7 @@ import {BasePolygonIOFetcher} from './BasePolygonIOFetcher.js';
 
 export interface SinglePriceResponse {
   symbol: string;
+  status: 'success' | 'error';
   last: {
     price: number;
     timestamp: number;

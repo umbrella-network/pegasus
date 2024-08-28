@@ -9,7 +9,6 @@ import FeedProcessor from './services/FeedProcessor.js';
 import loadFeeds from './services/loadFeeds.js';
 import Settings from './types/Settings.js';
 import Block from './models/Block.js';
-import PolygonIOPriceInitializer from './services/fetchers/common/PolygonIOPriceInitializer.js';
 import TimeService from './services/TimeService.js';
 import Blockchain from './lib/Blockchain.js';
 
@@ -18,8 +17,6 @@ const argv = yargs(process.argv.slice(2)).options({
 }).argv;
 
 async function testFeeds(settings: Settings): Promise<void> {
-  await Application.get(PolygonIOPriceInitializer).apply();
-
   const feeds = await loadFeeds(settings.feedsFile);
 
   await new Promise((resolve) => setTimeout(resolve, 2000));

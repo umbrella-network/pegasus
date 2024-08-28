@@ -7,7 +7,7 @@ import {GoldApiPriceInputParams} from 'src/services/fetchers/GoldApiPriceFetcher
 import {MetalPriceApiInputParams} from 'src/services/fetchers/MetalPriceApiFetcher';
 import {MetalsDevApiPriceInputParams} from 'src/services/fetchers/MetalsDevApiFetcher';
 import {PolygonIOCurrencySnapshotGramsInputParams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
-import {PolygonIOStockPriceInputParams} from 'src/services/fetchers/PolygonIOStockPriceFetcher';
+import {PolygonIOStockSnapshotFetcherInputParams} from 'src/services/fetchers/PolygonIOStockSnapshotPriceFetcher';
 import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceFetcher.js';
 import {PolygonIOSingleCryptoPriceInputParams} from '../services/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
 import {UniswapV3FetcherInputParams} from '../services/dexes/uniswapV3/UniswapV3Fetcher';
@@ -38,7 +38,7 @@ export type FeedFetcherInputParams =
   | PolygonIOCryptoSnapshotInputParams
   | PolygonIOSingleCryptoPriceInputParams
   | PolygonIOCurrencySnapshotGramsInputParams
-  | PolygonIOStockPriceInputParams
+  | PolygonIOStockSnapshotFetcherInputParams
   | EvmTWAPGasPriceInputParams
   | MetalPriceApiInputParams
   | MetalsDevApiPriceInputParams
@@ -53,9 +53,7 @@ export interface FeedFetcherInterface {
 export enum FetcherName {
   GVolImpliedVolatility = 'GVolImpliedVolatility',
   CoingeckoPrice = 'CoingeckoPrice',
-  PolygonIOPrice = 'PolygonIOPrice',
-  PolygonIOStockPrice = 'PolygonIOStockPrice',
-  PolygonIOStockSnapshot = 'PolygonIOStockSnapshot',
+  PolygonIOStockSnapshotPrice = 'PolygonIOStockSnapshotPrice',
   PolygonIOSingleCryptoPrice = 'PolygonIOSingleCryptoPrice',
   PolygonIOCryptoPriceOLD = 'PolygonIOCryptoPrice',
   PolygonIOCurrencySnapshotGrams = 'PolygonIOCurrencySnapshotGrams',
@@ -81,6 +79,7 @@ export const allMultiFetchers: Set<string> = new Set([
   FetcherName.ByBitPrice,
   FetcherName.CoingeckoPrice,
   FetcherName.PolygonIOCryptoSnapshotPrice,
+  FetcherName.PolygonIOStockSnapshotPrice,
   FetcherName.PolygonIOSingleCryptoPrice,
   FetcherName.PolygonIOCryptoPriceOLD,
   FetcherName.UniswapV3,

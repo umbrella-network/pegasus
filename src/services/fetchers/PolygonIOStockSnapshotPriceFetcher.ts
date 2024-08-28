@@ -9,47 +9,37 @@ import {
   FetcherName,
   FetcherResult,
 } from '../../types/fetchers.js';
-
-import {PolygonIOCryptoSnapshotDataRepository} from '../../repositories/fetchers/PolygonIOCryptoSnapshotDataRepository.js';
-import TimeService from '../TimeService.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
+import {PolygonIOStockSnapshotDataRepository} from '../../repositories/fetchers/PolygonIOStockSnapshotDataRepository.js';
 
-export interface PolygonIOCryptoSnapshotInputParams {
-  symbol: string;
-  fsym?: string; // TODO backwards compatible, to remove
-  tsym?: string; // TODO backwards compatible, to remove
+export interface PolygonIOStockSnapshotFetcherInputParams {
+  ticker: string;
 }
 
-type ParsedResponse = {symbol: string; price: number; timestamp: number};
+type ParsedResponse = {ticker: string; price: number; timestamp: number};
 
 @injectable()
-export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements FeedFetcherInterface {
-  @inject(PolygonIOCryptoSnapshotDataRepository)
-  pIOCryptoSnapshotDataRepository!: PolygonIOCryptoSnapshotDataRepository;
+export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements FeedFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
-  @inject(TimeService) timeService!: TimeService;
+  @inject(PolygonIOStockSnapshotDataRepository)
+  polygonIOStockSnapshotDataRepository!: PolygonIOStockSnapshotDataRepository;
 
   constructor(@inject('Settings') settings: Settings) {
     super();
 
     this.apiKey = settings.api.polygonIO.apiKey;
     this.timeout = settings.api.polygonIO.timeout;
-    this.valuePath = '$.tickers[*].lastTrade.p';
-
-    this.logPrefix = `[${FetcherName.PolygonIOCryptoSnapshotPrice}]`;
+    this.logPrefix = `[${FetcherName.PolygonIOStockSnapshotPrice}]`;
   }
 
-  async apply(params: PolygonIOCryptoSnapshotInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(params: PolygonIOStockSnapshotFetcherInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     try {
       await this.fetchPrices();
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
 
-    const prices = await this.pIOCryptoSnapshotDataRepository.getPrices(
-      this.backwardsCompatibleParams(params),
-      options.timestamp,
-    );
+    const prices = await this.polygonIOStockSnapshotDataRepository.getPrices(params, options.timestamp);
 
     const fetcherResults: FetcherResult = {prices, timestamp: options.timestamp};
 
@@ -57,7 +47,7 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
     await this.priceDataRepository.saveFetcherResults(
       fetcherResults,
       options.symbols,
-      FetcherName.PolygonIOCryptoSnapshotPrice,
+      FetcherName.PolygonIOStockSnapshotPrice,
       FetchedValueType.Price,
     );
 
@@ -67,7 +57,7 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
   private async fetchPrices(): Promise<void> {
     this.logger.debug(`${this.logPrefix} call`);
 
-    const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/global/markets/crypto/tickers';
+    const baseUrl = 'https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers';
     const sourceUrl = `${baseUrl}?apiKey=${this.apiKey}`;
 
     const response = <SnapshotResponse>await this.fetch(sourceUrl, true);
@@ -76,21 +66,21 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
     await this.savePrices(parsed);
   }
 
-  private backwardsCompatibleParams(
-    params: PolygonIOCryptoSnapshotInputParams[],
-  ): PolygonIOCryptoSnapshotInputParams[] {
-    return params.map((p) => {
-      if (p.symbol) return p;
-
-      return {
-        symbol: `X:${p.fsym}${p.tsym}`,
-      };
-    });
-  }
-
   private parseResponse(response: SnapshotResponse): ParsedResponse[] {
+    if (response.message) {
+      this.logger.warn(`${this.logPrefix} ${response.message}`);
+    }
+
+    if (response.error) {
+      this.logger.error(`${this.logPrefix} ${response.error}`);
+    }
+
     return response.tickers
       .map(({ticker, lastTrade}) => {
+        if (!lastTrade) {
+          return;
+        }
+
         const value = lastTrade.p;
 
         if (isNaN(value)) {
@@ -99,7 +89,7 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
         }
 
         this.logger.debug(`${this.logPrefix} fetched: ${ticker}: ${value}`);
-        return {symbol: ticker, price: value, timestamp: Math.trunc(lastTrade.t / 1e3)};
+        return {ticker: ticker, price: value, timestamp: Math.trunc(lastTrade.t / 1e6)};
       })
       .filter((e) => !!e) as ParsedResponse[];
   }
@@ -110,12 +100,12 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
         timestamp: data.timestamp,
         value: data.price,
         params: {
-          symbol: data.symbol,
+          ticker: data.ticker,
           inverse: false,
         },
       };
     });
 
-    await this.pIOCryptoSnapshotDataRepository.save(allData);
+    await this.polygonIOStockSnapshotDataRepository.save(allData);
   }
 }

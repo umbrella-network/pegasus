@@ -51,7 +51,7 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
     try {
       await this.fetchPrices(inputsParams);
     } catch (e) {
-      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+      this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
 
     const prices = await this.coingeckoDataRepository.getPrices(inputsParams, options.timestamp);

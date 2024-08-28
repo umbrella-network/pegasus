@@ -1,4 +1,3 @@
-import {PolygonIOStockPriceFetcher} from './PolygonIOStockPriceFetcher.js';
 import {PolygonIOCurrencySnapshotGramsFetcher} from './PolygonIOCurrencySnapshotGramsFetcher.js';
 import {YearnVaultTokenPriceFetcher} from './YearnVaultTokenPriceFetcher.js';
 import {CoingeckoPriceFetcher} from './CoingeckoPriceFetcher.js';
@@ -13,6 +12,7 @@ import {ByBitPriceFetcher} from './ByBitPriceFetcher.js';
 import {BinancePriceFetcher} from './BinancePriceFetcher.js';
 import {PolygonIOCryptoSnapshotPriceFetcher} from './PolygonIOCryptoSnapshotPriceFetcher.js';
 import {PolygonIOSingleCryptoPriceFetcher} from './PolygonIOSingleCryptoPriceFetcher.js';
+import {PolygonIOStockSnapshotPriceFetcher} from './PolygonIOStockSnapshotPriceFetcher.js';
 
 export {
   BinancePriceFetcher,
@@ -27,7 +27,7 @@ export {
   PolygonIOCryptoSnapshotPriceFetcher,
   PolygonIOCurrencySnapshotGramsFetcher,
   PolygonIOSingleCryptoPriceFetcher,
-  PolygonIOStockPriceFetcher,
+  PolygonIOStockSnapshotPriceFetcher,
   RandomNumberFetcher,
   YearnVaultTokenPriceFetcher,
 };

@@ -12,6 +12,7 @@ export abstract class BasePolygonIOFetcher {
   protected apiKey!: string;
   protected timeout!: number;
   protected valuePath!: string;
+  protected logPrefix = '[BasePolygonIOFetcher]';
 
   protected async fetchRaw(sourceUrl: string): Promise<SnapshotResponse | SinglePriceResponse> {
     const response = await axios.get(sourceUrl, {
@@ -20,7 +21,9 @@ export abstract class BasePolygonIOFetcher {
     });
 
     if (response.status !== 200) {
-      throw new Error(response.data);
+      const {data} = response;
+      this.logger.error(`${this.logPrefix} ${data.status}: ${data.error || data.message}`);
+      throw new Error(data);
     }
 
     return response.data;

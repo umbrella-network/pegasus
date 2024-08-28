@@ -17,6 +17,7 @@ export interface SnapshotResponse {
   tickers: Ticker[];
   status?: string;
   error?: string;
+  message?: string;
 }
 
 @injectable()
