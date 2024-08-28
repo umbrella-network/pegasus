@@ -108,7 +108,7 @@ export class PolygonIOCurrencySnapshotGramsFetcher
         }
 
         this.logger.debug(`${this.logPrefix}#${ix} price for ${params.ticker} (${ticker.ticker}): ${price}`);
-        return {price, ticker: ticker.ticker, timestamp: Math.trunc(ticker.lastQuote.t / 1e6)};
+        return {price, ticker: ticker.ticker, timestamp: Math.trunc(ticker.lastQuote.t / 1e3)};
       })
       .filter((d) => d !== undefined) as ParsedResponse[];
   }
