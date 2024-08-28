@@ -106,11 +106,13 @@ import {FetcherName} from './types/fetchers';
   };
 
   const schedulePriceFetcherWorker = async (dispatcher: BasicWorker, fetcherName: FetcherName): Promise<void> => {
-    logger.info(`Scheduling PriceFetcherWorker: ${fetcherName}`);
+    logger.info(`[Scheduler] PriceFetcherWorker: ${fetcherName}`);
 
     try {
       await dispatcher.enqueue(
-        {},
+        {
+          fetcherName
+        },
         {
           removeOnComplete: true,
           removeOnFail: true,

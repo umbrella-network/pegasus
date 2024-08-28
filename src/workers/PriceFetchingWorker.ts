@@ -51,6 +51,7 @@ class PriceFetchingWorker extends BasicWorker {
 
   start = (): void => {
     super.start();
+    this.logger.debug('[PriceFetchingWorker] started');
   };
 
   checkIsValidSettings = (fetcherName: string) => {
