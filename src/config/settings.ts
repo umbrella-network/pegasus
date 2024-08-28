@@ -500,7 +500,7 @@ const settings: Settings = {
 
 function schedulerFetcherSettings(fetcherName: FetcherName): SchedulerFetcherSettings {
   return {
-    interval: getTimeSetting(parseInt(process.env[`${fetcherName}_JOB_INTERVAL`.toUpperCase()] || '1000'), 200),
+    interval: getTimeSetting(parseInt(process.env[`${fetcherName}_JOB_INTERVAL`.toUpperCase()] || '10000'), 200),
     lock: {
       name: `lock::${fetcherName}Worker`,
       ttl: getTimeSetting(parseInt(process.env[`${fetcherName}_LOCK_TTL`.toUpperCase()] || '60'), 60),
