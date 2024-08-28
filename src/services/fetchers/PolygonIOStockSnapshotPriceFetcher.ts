@@ -10,7 +10,9 @@ import {
   FetcherResult,
 } from '../../types/fetchers.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import {PolygonIOStockSnapshotDataRepository} from '../../repositories/fetchers/PolygonIOStockSnapshotDataRepository.js';
+import {
+  PolygonIOStockSnapshotDataRepository
+} from '../../repositories/fetchers/PolygonIOStockSnapshotDataRepository.js';
 
 export interface PolygonIOStockSnapshotFetcherInputParams {
   ticker: string;
@@ -36,7 +38,7 @@ export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFet
     try {
       await this.fetchPrices();
     } catch (e) {
-      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+      this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
 
     const prices = await this.polygonIOStockSnapshotDataRepository.getPrices(params, options.timestamp);

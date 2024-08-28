@@ -44,7 +44,7 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
     try {
       await this.fetchPrices(params);
     } catch (e) {
-      this.logger.error(`${this.logPrefix} fetchPrices: ${(e as Error).message}`);
+      this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
 
     const {symbols} = options;
