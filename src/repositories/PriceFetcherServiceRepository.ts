@@ -2,17 +2,9 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import Settings from '../types/Settings.js';
-import {ServiceInterface} from '../types/fetchers.js';
-import {
-  BinancePriceFetcher,
-  ByBitPriceFetcher,
-  CoingeckoPriceFetcher,
-  PolygonIOCryptoSnapshotPriceFetcher,
-  PolygonIOSingleCryptoPriceFetcher,
-  PolygonIOStockSnapshotPriceFetcher,
-} from '../services/fetchers/index.js';
-import UniswapV3Fetcher from '../services/dexes/uniswapV3/UniswapV3Fetcher.js';
-import {SovrynPriceFetcher} from '../services/dexes/sovryn/SovrynPriceFetcher.js';
+import {FetcherName, ServiceInterface} from '../types/fetchers.js';
+import {BinancePriceService} from '../workers/fetchers/BinancePriceService.js';
+import {ByBitPriceService} from '../workers/fetchers/ByBitPriceService.js';
 
 export type PriceFetchersCollection = {
   [fetcherName: string]: ServiceInterface | undefined;
@@ -20,29 +12,29 @@ export type PriceFetchersCollection = {
 
 @injectable()
 export class PriceFetcherServiceRepository {
-  logger!: Logger;
+  private logger!: Logger;
   private collection: PriceFetchersCollection = {};
 
   constructor(
     @inject('Settings') settings: Settings,
     @inject('Logger') logger: Logger,
-    @inject(BinancePriceFetcher) binancePriceFetcher: BinancePriceFetcher,
-    @inject(ByBitPriceFetcher) byBitSpotPriceFetcher: ByBitPriceFetcher,
-    @inject(CoingeckoPriceFetcher) coingeckoPriceFetcher: CoingeckoPriceFetcher,
-
-    @inject(PolygonIOCryptoSnapshotPriceFetcher)
-    polygonIOCryptoSnapshotPriceFetcher: PolygonIOCryptoSnapshotPriceFetcher,
-    @inject(PolygonIOSingleCryptoPriceFetcher)
-    polygonIOSingleCryptoPriceFetcher: PolygonIOSingleCryptoPriceFetcher,
-    @inject(PolygonIOStockSnapshotPriceFetcher) polygonIOStockSnapshotPriceFetcher: PolygonIOStockSnapshotPriceFetcher,
-
-    @inject(UniswapV3Fetcher) uniswapV3PriceFetcher: UniswapV3Fetcher,
-    @inject(SovrynPriceFetcher) sovrynPriceFetcher: SovrynPriceFetcher,
+    @inject(BinancePriceService) binancePriceService: BinancePriceService,
+    @inject(ByBitPriceService) byBitPriceService: ByBitPriceService,
+    // @inject(CoingeckoPriceFetcher) coingeckoPriceFetcher: CoingeckoPriceFetcher,
+    //
+    // @inject(PolygonIOCryptoSnapshotPriceFetcher)
+    // polygonIOCryptoSnapshotPriceFetcher: PolygonIOCryptoSnapshotPriceFetcher,
+    // @inject(PolygonIOSingleCryptoPriceFetcher)
+    // polygonIOSingleCryptoPriceFetcher: PolygonIOSingleCryptoPriceFetcher,
+    // @inject(PolygonIOStockSnapshotPriceFetcher) polygonIOStockSnapshotPriceFetcher: PolygonIOStockSnapshotPriceFetcher,
+    //
+    // @inject(UniswapV3Fetcher) uniswapV3PriceFetcher: UniswapV3Fetcher,
+    // @inject(SovrynPriceFetcher) sovrynPriceFetcher: SovrynPriceFetcher,
   ) {
     this.logger = logger;
 
-    // this.collection[FetcherName.BinancePrice] = binancePriceFetcher;
-    // this.collection[FetcherName.ByBitPrice] = byBitSpotPriceFetcher;
+    this.collection[FetcherName.BinancePrice] = binancePriceService;
+    this.collection[FetcherName.ByBitPrice] = byBitPriceService;
     //
     // this.collection[FetcherName.CoingeckoPrice] = coingeckoPriceFetcher;
     //
