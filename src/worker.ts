@@ -9,6 +9,7 @@ import {DeviationLeaderWorker} from './workers/DeviationLeaderWorker.js';
 import {DeviationDispatcherWorker} from './workers/DeviationDispatcherWorker.js';
 import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker.js';
 import UniswapV3LiquidityWorker from './workers/UniswapV3LiquidityWorker.js';
+import PriceFetchingWorker from './workers/PriceFetchingWorker.js';
 
 (async () => {
   await boot();
@@ -30,6 +31,7 @@ import UniswapV3LiquidityWorker from './workers/UniswapV3LiquidityWorker.js';
     case 'MetricsWorker': {
       Application.get(MetricsWorker).start();
       Application.get(BlockchainMetricsWorker).start();
+      Application.get(PriceFetchingWorker).start();
       break;
     }
     case 'DeviationLeaderWorker': {

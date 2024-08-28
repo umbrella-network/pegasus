@@ -4,7 +4,7 @@ import {boot} from './boot.js';
 import Application from './lib/Application.js';
 import BlockMintingWorker from './workers/BlockMintingWorker.js';
 import MetricsWorker from './workers/MetricsWorker.js';
-import Settings, {BlockDispatcherSettings} from './types/Settings.js';
+import Settings, {BlockDispatcherSettings, SchedulerFetcherSettings} from './types/Settings.js';
 import {BlockDispatcherWorker} from './workers/BlockDispatcherWorker.js';
 import {DeviationLeaderWorker} from './workers/DeviationLeaderWorker.js';
 import DataPurger from './services/DataPurger.js';
@@ -14,6 +14,8 @@ import {ChainsIds} from './types/ChainsIds.js';
 import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker.js';
 import {LiquidityWorkerRepository} from './repositories/LiquidityWorkerRepository.js';
 import {DexProtocolName} from './types/Dexes.js';
+import PriceFetchingWorker from './workers/PriceFetchingWorker.js';
+import {FetcherName} from './types/fetchers';
 
 (async (): Promise<void> => {
   await boot();
@@ -28,6 +30,7 @@ import {DexProtocolName} from './types/Dexes.js';
   const deviationDispatcherWorker = Application.get(DeviationDispatcherWorker);
   const liquidityWorkerRepository = Application.get(LiquidityWorkerRepository);
   const blockchainMetricsWorker = Application.get(BlockchainMetricsWorker);
+  const priceFetchingWorker = Application.get(PriceFetchingWorker);
 
   const jobCode = Math.floor(Math.random() * 1000).toString();
 
@@ -102,6 +105,23 @@ import {DexProtocolName} from './types/Dexes.js';
     }
   };
 
+  const schedulePriceFetcherWorker = async (dispatcher: BasicWorker, fetcherName: FetcherName): Promise<void> => {
+    logger.info(`Scheduling PriceFetcherWorker: ${fetcherName}`);
+
+    try {
+      await dispatcher.enqueue(
+        {},
+        {
+          removeOnComplete: true,
+          removeOnFail: true,
+          jobId: `${fetcherName}-${jobCode}`,
+        },
+      );
+    } catch (e) {
+      logger.error(`[Scheduling] ${fetcherName}: ${e}`);
+    }
+  };
+
   for (const chainId of Object.keys(settings.blockchain.multiChains)) {
     if (!blockDispatcherWorker.dispatcher.exists(chainId as ChainsIds)) {
       logger.info(`[${chainId}] BlockDispatcherWorker for ${chainId} not exists, skipping.`);
@@ -129,6 +149,11 @@ import {DexProtocolName} from './types/Dexes.js';
       },
     );
   }, settings.deviationTrigger.leaderInterval);
+
+  for (const fetcherName of Object.keys(settings.scheduler.fetchers)) {
+    const {interval} = settings.scheduler.fetchers[fetcherName];
+    setInterval(async () => schedulePriceFetcherWorker(priceFetchingWorker, fetcherName as FetcherName), interval);
+  }
 
   for (const chainId of Object.keys(settings.blockchain.multiChains)) {
     if (!deviationDispatcherWorker.dispatcher.exists(chainId as ChainsIds)) {

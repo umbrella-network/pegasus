@@ -39,8 +39,12 @@ import {
   PolygonIOCryptoSnapshotPriceFetcher,
   PolygonIOCurrencySnapshotGramsFetcher,
   PolygonIOSingleCryptoPriceFetcher,
+  PolygonIOStockSnapshotPriceFetcher,
 } from '../services/fetchers/index.js';
 import {VerifyProposedData} from '../services/tools/VerifyProposedData.js';
+
+import PriceFetchingWorker from '../workers/PriceFetchingWorker.js';
+import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -51,6 +55,8 @@ export function getContainer(): Container {
   container.bind(FeedFetcherRepository).toSelf().inSingletonScope();
   container.bind(CalculatorRepository).toSelf().inSingletonScope();
   container.bind(FeedRepository).toSelf().inSingletonScope();
+  container.bind(VerifyProposedData).toSelf().inSingletonScope();
+
   container.bind(BlockchainProviderRepository).toSelf().inSingletonScope();
   container.bind(MongoDBPriceRepository).toSelf().inSingletonScope();
   container.bind(FeedProcessor).toSelf().inSingletonScope();
@@ -77,7 +83,9 @@ export function getContainer(): Container {
   container.bind(PolygonIOCurrencySnapshotGramsFetcher).toSelf().inSingletonScope();
   container.bind(PolygonIOSingleCryptoDataRepository).toSelf().inSingletonScope();
   container.bind(PolygonIOSingleCryptoPriceFetcher).toSelf().inSingletonScope();
-  container.bind(VerifyProposedData).toSelf().inSingletonScope();
+  container.bind(PolygonIOStockSnapshotPriceFetcher).toSelf().inSingletonScope();
+  container.bind(PriceFetchingWorker).toSelf().inSingletonScope();
+  container.bind(PriceFetcherServiceRepository).toSelf().inSingletonScope();
 
   container
     .bind<Redis>('Redis')

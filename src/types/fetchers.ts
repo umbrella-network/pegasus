@@ -50,6 +50,10 @@ export interface FeedFetcherInterface {
   apply(params: FeedFetcherInputParams[], options: FeedFetcherOptions): Promise<FetcherResult>;
 }
 
+export interface ServiceInterface {
+  apply(): Promise<void>;
+}
+
 export enum FetcherName {
   GVolImpliedVolatility = 'GVolImpliedVolatility',
   CoingeckoPrice = 'CoingeckoPrice',

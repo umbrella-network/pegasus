@@ -14,7 +14,9 @@ import Settings, {
   BlockchainType,
   BlockchainTypeKeys,
   BlockDispatcherSettings,
+  SchedulerFetcherSettings,
 } from '../types/Settings.js';
+import {FetcherName} from '../types/fetchers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -489,7 +491,22 @@ const settings: Settings = {
       process.env.DEVIATION_FEEDS_FILE ||
       'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/onChainData128.8.yaml',
   },
+  scheduler: {
+    fetchers: {
+      [FetcherName.BinancePrice]: schedulerFetcherSettings(FetcherName.BinancePrice),
+    },
+  },
 };
+
+function schedulerFetcherSettings(fetcherName: FetcherName): SchedulerFetcherSettings {
+  return {
+    interval: getTimeSetting(parseInt(process.env[`${fetcherName}_JOB_INTERVAL`.toUpperCase()] || '1000'), 200),
+    lock: {
+      name: `lock::${fetcherName}Worker`,
+      ttl: getTimeSetting(parseInt(process.env[`${fetcherName}_LOCK_TTL`.toUpperCase()] || '60'), 60),
+    },
+  };
+}
 
 function getTimeSetting(value: number, min: number): number {
   return value > min ? value : min;
