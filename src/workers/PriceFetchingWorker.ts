@@ -2,7 +2,7 @@ import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
 import BasicWorker from './BasicWorker.js';
-import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository';
+import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository.js';
 
 @injectable()
 class PriceFetchingWorker extends BasicWorker {

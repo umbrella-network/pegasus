@@ -2,8 +2,9 @@ import {Container} from 'inversify';
 import Settings from '../types/Settings.js';
 import settings from '../config/settings.js';
 import {Logger} from 'winston';
-import logger from './logger.js';
 import {Redis} from 'ioredis';
+
+import logger from './logger.js';
 
 import PriceRepository from '../repositories/PriceRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
@@ -44,7 +45,7 @@ import {
 import {VerifyProposedData} from '../services/tools/VerifyProposedData.js';
 
 import PriceFetchingWorker from '../workers/PriceFetchingWorker.js';
-import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository';
+import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});

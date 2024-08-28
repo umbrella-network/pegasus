@@ -1,10 +1,8 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import Blockchain from '../lib/Blockchain.js';
 import Settings from '../types/Settings.js';
-import {ChainsIds} from '../types/ChainsIds.js';
-import {FeedFetcherInterface, FetcherName, ServiceInterface} from '../types/fetchers.js';
+import {ServiceInterface} from '../types/fetchers.js';
 import {
   BinancePriceFetcher,
   ByBitPriceFetcher,
@@ -12,9 +10,9 @@ import {
   PolygonIOCryptoSnapshotPriceFetcher,
   PolygonIOSingleCryptoPriceFetcher,
   PolygonIOStockSnapshotPriceFetcher,
-} from '../services/fetchers';
-import UniswapV3Fetcher from '../services/dexes/uniswapV3/UniswapV3Fetcher';
-import {SovrynPriceFetcher} from '../services/dexes/sovryn/SovrynPriceFetcher';
+} from '../services/fetchers/index.js';
+import UniswapV3Fetcher from '../services/dexes/uniswapV3/UniswapV3Fetcher.js';
+import {SovrynPriceFetcher} from '../services/dexes/sovryn/SovrynPriceFetcher.js';
 
 export type PriceFetchersCollection = {
   [fetcherName: string]: ServiceInterface | undefined;
