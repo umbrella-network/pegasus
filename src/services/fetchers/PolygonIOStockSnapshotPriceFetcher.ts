@@ -49,7 +49,7 @@ export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFet
     await this.priceDataRepository.saveFetcherResults(
       fetcherResults,
       options.symbols,
-      FetcherName.PolygonIOCryptoSnapshotPrice,
+      FetcherName.PolygonIOStockSnapshotPrice,
       FetchedValueType.Price,
     );
 
