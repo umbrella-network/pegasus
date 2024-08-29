@@ -39,8 +39,8 @@ describe('Worker', () => {
         },
       },
       scheduler: {
-        fetchers: {}
-      }
+        fetchers: {},
+      },
     } as Settings;
 
     connection = new IORedis(settings.redis.url);
