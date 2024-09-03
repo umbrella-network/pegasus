@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.1.5] - 2024-09-03
+### Fixed
+- fix version number
+
 ## [8.1.4] - 2024-09-02
 ### Fixed
 - add check for leaves and proposed data
