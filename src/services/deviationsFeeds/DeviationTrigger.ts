@@ -7,7 +7,7 @@ import {DeviationTriggerFilters} from './DeviationTriggerFilters.js';
 import {DataFilter} from '../tools/DataFilter.js';
 import {DeviationFeedsPerChainSplitter} from './DeviationFeedsPerChainSplitter.js';
 import {PriceDataOverflowChecker} from './PriceDataOverflowChecker.js';
-import {ChainsId, FeedName} from '../../types/Feed';
+import {ChainsId, FeedName} from '../../types/Feed.js';
 
 @injectable()
 export class DeviationTrigger {

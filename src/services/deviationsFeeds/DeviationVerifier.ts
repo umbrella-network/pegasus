@@ -11,6 +11,7 @@ import {DeviationChainMetadata} from './DeviationChainMetadata.js';
 import {DeviationTrigger} from './DeviationTrigger.js';
 import {DeviationHasher} from './DeviationHasher.js';
 import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository.js';
+import {VerifyProposedData} from '../tools/VerifyProposedData.js';
 
 @injectable()
 export class DeviationVerifier {
@@ -22,6 +23,7 @@ export class DeviationVerifier {
   @inject(DeviationSignerRepository) deviationSignerRepository!: DeviationSignerRepository;
   @inject(DeviationChainMetadata) deviationChainMetadata!: DeviationChainMetadata;
   @inject(DeviationTrigger) deviationTrigger!: DeviationTrigger;
+  @inject(VerifyProposedData) verifyProposedData!: VerifyProposedData;
 
   async apply(deviationDataToSign: DeviationDataToSign): Promise<DeviationSignerResponse> {
     const uniqueKeys = Object.keys(deviationDataToSign.leaves);
@@ -41,6 +43,8 @@ export class DeviationVerifier {
     );
 
     const {dataTimestamp} = deviationDataToSign;
+
+    this.verifyProposedData.apply(deviationDataToSign, data.feeds as DeviationLeavesAndFeeds);
 
     const triggerResponse = await this.deviationTrigger.apply(
       dataTimestamp,

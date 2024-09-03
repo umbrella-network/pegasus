@@ -40,6 +40,7 @@ import {
   PolygonIOCurrencySnapshotGramsFetcher,
   PolygonIOSingleCryptoPriceFetcher,
 } from '../services/fetchers/index.js';
+import {VerifyProposedData} from '../services/tools/VerifyProposedData.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -76,6 +77,7 @@ export function getContainer(): Container {
   container.bind(PolygonIOCurrencySnapshotGramsFetcher).toSelf().inSingletonScope();
   container.bind(PolygonIOSingleCryptoDataRepository).toSelf().inSingletonScope();
   container.bind(PolygonIOSingleCryptoPriceFetcher).toSelf().inSingletonScope();
+  container.bind(VerifyProposedData).toSelf().inSingletonScope();
 
   container
     .bind<Redis>('Redis')

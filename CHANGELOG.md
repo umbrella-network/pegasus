@@ -13,13 +13,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - removed stock fetcher service
 - remove unused fetcher name: `PolygonIOPrice`
 
+## [8.1.4] - 2024-09-02
+### Fixed
+- add check for leaves and proposed data
+
 ## [8.1.3] - 2024-08-22
 ### Fixed
 - return gas price in `Gwei`
 
 ## [8.1.2] - 2024-08-21
 ### Fixed
-- use `Gwei` denoominator for `EvmTWAPGasPriceFetcher` prices
+- use `Gwei` denominator for `EvmTWAPGasPriceFetcher` prices
 
 ## [8.1.1] - 2024-08-21
 ### Fixed
