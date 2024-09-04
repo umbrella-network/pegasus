@@ -36,8 +36,6 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
   private logPrefix = `[${FetcherName.CoingeckoPrice}]`;
   static fetcherSource = '';
 
-  constructor(@inject('Settings') settings: Settings) {}
-
   async apply(inputsParams: CoingeckoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     try {
       await this.cacheInput(inputsParams);

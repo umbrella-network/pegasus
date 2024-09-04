@@ -1,6 +1,5 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import axios from 'axios';
 
 import {
   FeedFetcherInterface,
@@ -14,6 +13,7 @@ import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import Settings from '../../types/Settings.js';
 import TimeService from '../TimeService.js';
 import {GoldApiDataRepository} from '../../repositories/fetchers/GoldApiDataRepository.js';
+import {MappingRepository} from '../../repositories/MappingRepository.js';
 
 export interface GoldApiPriceInputParams {
   symbol: string;
@@ -22,24 +22,18 @@ export interface GoldApiPriceInputParams {
 
 @injectable()
 export class GoldApiPriceFetcher implements FeedFetcherInterface {
+  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(GoldApiDataRepository) private goldApiDataRepository!: GoldApiDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
-  private token: string;
-  private timeout: number;
   private logPrefix = `[${FetcherName.GoldApiPrice}]`;
   static fetcherSource = '';
 
-  constructor(@inject('Settings') settings: Settings) {
-    this.token = settings.api.goldApi.apiKey;
-    this.timeout = settings.api.goldApi.timeout;
-  }
-
   async apply(params: GoldApiPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     try {
-      await this.fetchPrices(params);
+      await this.cacheInput(params);
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
@@ -60,45 +54,18 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
     return {prices};
   }
 
-  private async fetchPrices(params: GoldApiPriceInputParams[]): Promise<void> {
-    if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
+  private async cacheInput(params: GoldApiPriceInputParams[]): Promise<void> {
+    const timestamp = this.timeService.apply();
 
-    const {symbol, currency} = params[0];
+    const key = `${FetcherName.GoldApiPrice}_cachedParams`;
 
-    this.logger.debug(`${this.logPrefix} call for: ${symbol}/${currency}`);
+    const cache = await this.mappingRepository.get(key);
+    const cachedParams = JSON.parse(cache || '{}');
 
-    const url = `https://www.goldapi.io/api/${symbol}/${currency}`;
-
-    const response = await axios.get(url, {
-      headers: {'x-access-token': this.token},
-      timeout: this.timeout,
-      timeoutErrorMessage: `${this.logPrefix} Timeout exceeded: ${url}`,
+    params.forEach((input) => {
+      cachedParams[`${input.symbol};${input.currency}`.toLowerCase()] = timestamp;
     });
 
-    if (response.status !== 200) {
-      this.logger.error(
-        `${this.logPrefix} Error fetching data for ${symbol}/${currency}: ${response.statusText}.` +
-          `Error: ${response.data}`,
-      );
-
-      return;
-    }
-
-    const {price_gram_24k} = response.data;
-
-    if (!price_gram_24k) {
-      this.logger.error(`${this.logPrefix} Missing rate for ${symbol}/${currency}`);
-      return;
-    }
-
-    this.logger.debug(`${this.logPrefix} resolved price: ${symbol}/${currency}: ${price_gram_24k}`);
-
-    await this.goldApiDataRepository.save([
-      {
-        value: price_gram_24k,
-        timestamp: this.timeService.apply(),
-        params: params[0],
-      },
-    ]);
+    await this.mappingRepository.set(key, JSON.stringify(cachedParams));
   }
 }
