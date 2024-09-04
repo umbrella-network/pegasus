@@ -106,8 +106,6 @@ import {FetcherName} from './types/fetchers';
   };
 
   const schedulePriceWorker = async (priceWorker: BasicWorker, fetcherName: FetcherName): Promise<void> => {
-    logger.info(`[Scheduler] PriceFetcherWorker: ${fetcherName}`);
-
     try {
       await priceWorker.enqueue(
         {
@@ -154,6 +152,7 @@ import {FetcherName} from './types/fetchers';
 
   for (const fetcherName of Object.keys(settings.scheduler.fetchers)) {
     const {interval} = settings.scheduler.fetchers[fetcherName];
+    logger.info(`[Scheduler] PriceFetcherWorker: ${fetcherName}, interval: ${interval}`);
     setInterval(async () => schedulePriceWorker(priceFetchingWorker, fetcherName as FetcherName), interval);
   }
 

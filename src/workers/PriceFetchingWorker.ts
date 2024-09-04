@@ -31,8 +31,6 @@ class PriceFetchingWorker extends BasicWorker {
     const {fetcherName} = job.data;
     const loggerPrefix = `[PriceFetchingWorker.${fetcherName}]`;
 
-    // this.logger.debug(`[${loggerPrefix}] job: ${JSON.stringify(job)}`);
-
     if (this.isStale(job)) {
       this.logger.debug(`${loggerPrefix} stale`);
       return;
