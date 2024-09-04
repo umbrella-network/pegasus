@@ -56,6 +56,10 @@ export class PolygonIOStockSnapshotDataRepository extends CommonPriceDataReposit
   }
 
   async getPrices(params: PolygonIOStockSnapshotFetcherInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const $in = params.map((p) => p.ticker.toLowerCase());
 
     this.logger.debug(

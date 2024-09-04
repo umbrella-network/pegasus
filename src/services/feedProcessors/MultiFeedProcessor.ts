@@ -16,8 +16,8 @@ import {
   FetcherName,
   StringOrUndefined,
 } from '../../types/fetchers.js';
-import UniswapV3Fetcher from '../dexes/uniswapV3/UniswapV3Fetcher.js';
-import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
+import {UniswapV3Fetcher} from '../fetchers/UniswapV3Fetcher.js';
+import {SovrynPriceFetcher} from '../fetchers/SovrynPriceFetcher.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
 @injectable()

@@ -2,7 +2,6 @@ import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
 import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
-import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../../services/TimeService.js';
 import {
   PolygonIOSingleCryptoDataRepository,
@@ -29,7 +28,6 @@ type ParsedResponse = {
 export class PolygonIOSingleCryptoPriceService extends BasePolygonIOSingleFetcher implements ServiceInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PolygonIOSingleCryptoDataRepository) pIOSingleCryptoDataRepository!: PolygonIOSingleCryptoDataRepository;
-  @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
 
   constructor(@inject('Settings') settings: Settings) {
@@ -43,7 +41,14 @@ export class PolygonIOSingleCryptoPriceService extends BasePolygonIOSingleFetche
 
   async apply(): Promise<void> {
     try {
-      await this.fetchPrices(await this.getInput());
+      const params = await this.getInput();
+
+      if (params.length === 0) {
+        this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+        return;
+      }
+
+      await this.fetchPrices(params);
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }

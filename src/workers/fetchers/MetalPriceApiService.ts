@@ -2,7 +2,6 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 
 import Settings from '../../types/Settings.js';
@@ -21,7 +20,6 @@ export interface MetalPriceApiInputParams {
 export class MetalPriceApiService implements ServiceInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MetalPriceApiDataRepository) private metalPriceApiDataRepository!: MetalPriceApiDataRepository;
-  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
@@ -38,7 +36,14 @@ export class MetalPriceApiService implements ServiceInterface {
 
   async apply(): Promise<void> {
     try {
-      await this.fetchPrices(await this.getInput());
+      const params = await this.getInput();
+
+      if (params.length === 0) {
+        this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+        return;
+      }
+
+      await this.fetchPrices(params);
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }

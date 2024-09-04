@@ -36,6 +36,11 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
   }
 
   async apply(params: PolygonIOCryptoSnapshotInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length === 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return {prices: []};
+    }
+
     const prices = await this.pIOCryptoSnapshotDataRepository.getPrices(
       this.backwardsCompatibleParams(params),
       options.timestamp,

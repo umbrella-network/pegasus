@@ -58,6 +58,10 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
   }
 
   async getPrices(params: ByBitPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const results = await this.model
       .find(
         {

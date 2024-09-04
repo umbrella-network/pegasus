@@ -2,18 +2,18 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import {Token, ChainId} from '@uniswap/sdk-core';
 
-import TimeService from '../../TimeService.js';
-import {FeedsType} from '../../../types/Feed.js';
-import {FeedDataService} from '../../FeedDataService.js';
+import TimeService from '../../../../services/TimeService.js';
+import {FeedsType} from '../../../../types/Feed.js';
+import {FeedDataService} from '../../../../services/FeedDataService.js';
 import {LiquiditySummingService} from './LiquiditySummingService.js';
-import {SaveLiquidityParams, UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
-import {ChainsIds} from '../../../types/ChainsIds.js';
-import {TokenRepository} from '../../../repositories/TokenRepository.js';
+import {SaveLiquidityParams, UniswapV3PoolRepository} from '../../../../repositories/UniswapV3PoolRepository.js';
+import {ChainsIds} from '../../../../types/ChainsIds.js';
+import {TokenRepository} from '../../../../repositories/TokenRepository.js';
 import {UniswapV3Param} from './interfaces.js';
-import {DexProtocolName} from '../../../types/Dexes.js';
-import {UniswapV3Pool} from '../../../models/UniswapV3Pool.js';
-import {FetcherName} from '../../../types/fetchers.js';
-import {DeviationLeavesAndFeeds} from '../../../types/DeviationFeeds.js';
+import {DexProtocolName} from '../../../../types/Dexes.js';
+import {UniswapV3Pool} from '../../../../models/UniswapV3Pool.js';
+import {FetcherName} from '../../../../types/fetchers.js';
+import {DeviationLeavesAndFeeds} from '../../../../types/DeviationFeeds.js';
 
 @injectable()
 export class UniswapV3LiquidityResolver {

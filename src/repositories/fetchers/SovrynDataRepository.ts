@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {FetcherName, FetchedValueType, NumberOrUndefined} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_Sovryn} from '../../models/fetchers/PriceModel_Sovryn.js';
-import {SovrynPriceInputParams} from '../../services/dexes/sovryn/SovrynPriceFetcher.js';
+import {SovrynPriceInputParams} from '../../services/fetchers/SovrynPriceFetcher.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 
 export type SovrynDataRepositoryInput = {
@@ -62,6 +62,10 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
   }
 
   async getPrices(params: SovrynPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const or = params.map((param) => {
       return {
         chainId: ChainsIds.ROOTSTOCK.toLowerCase(),

@@ -36,14 +36,19 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
   private logPrefix = `[${FetcherName.CoingeckoPrice}]`;
   static fetcherSource = '';
 
-  async apply(inputsParams: CoingeckoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(params: CoingeckoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length === 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return {prices: []};
+    }
+
     try {
-      await this.cacheInput(inputsParams);
+      await this.cacheInput(params);
     } catch (e) {
       this.logger.error(`${this.logPrefix} cacheInput failed: ${(e as Error).message}`);
     }
 
-    const prices = await this.coingeckoDataRepository.getPrices(inputsParams, options.timestamp);
+    const prices = await this.coingeckoDataRepository.getPrices(params, options.timestamp);
     const fetcherResult = {prices, timestamp: options.timestamp};
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts

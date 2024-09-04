@@ -28,18 +28,15 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
   @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
-  private apiKey: string;
-  private timeout: number;
   private logPrefix = `[${FetcherName.MetalPriceApi}]`;
-
   static fetcherSource = '';
 
-  constructor(@inject('Settings') settings: Settings) {
-    this.apiKey = settings.api.metalPriceApi.apiKey;
-    this.timeout = settings.api.metalPriceApi.timeout;
-  }
-
   async apply(params: MetalPriceApiInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length === 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return {prices: []};
+    }
+
     try {
       await this.cacheInput(params);
     } catch (e) {

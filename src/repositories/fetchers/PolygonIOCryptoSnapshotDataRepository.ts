@@ -56,6 +56,10 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
   }
 
   async getPrices(params: PolygonIOCryptoSnapshotInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const $in = params.map((p) => p.symbol.toLowerCase());
 
     this.logger.debug(

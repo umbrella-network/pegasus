@@ -34,7 +34,14 @@ export class PolygonIOCurrencySnapshotGramsService extends BasePolygonIOSnapshot
 
   async apply(): Promise<void> {
     try {
-      await this.fetchPrices(await this.getInput());
+      const params = await this.getInput();
+
+      if (params.length === 0) {
+        this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+        return;
+      }
+
+      await this.fetchPrices(params);
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }

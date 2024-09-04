@@ -5,24 +5,19 @@ import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
 import path from 'path';
 
-import {DexProtocolName} from '../../../types/Dexes.js';
-import {ChainsIds} from '../../../types/ChainsIds.js';
-import {UniswapV3PoolRepository} from '../../../repositories/UniswapV3PoolRepository.js';
-import {ContractAddressService} from '../../ContractAddressService.js';
-import {PriceDataRepository} from '../../../repositories/PriceDataRepository.js';
-import TimeService from '../../../services/TimeService.js';
+import {DexProtocolName} from '../../../../types/Dexes.js';
+import {ChainsIds} from '../../../../types/ChainsIds.js';
+import {UniswapV3PoolRepository} from '../../../../repositories/UniswapV3PoolRepository.js';
+import {ContractAddressService} from '../../../ContractAddressService.js';
+import {PriceDataRepository} from '../../../../repositories/PriceDataRepository.js';
+import TimeService from '../../../../services/TimeService.js';
 
-import {
-  FeedFetcherInterface,
-  FeedFetcherOptions,
-  FetcherResult,
-  FetcherName,
-  FetchedValueType,
-} from '../../../types/fetchers.js';
+import {FetcherName, ServiceInterface} from '../../../../types/fetchers.js';
 import {
   UniswapV3PriceRepository,
   UniswapV3DataRepositoryInput,
-} from '../../../repositories/fetchers/UniswapV3PriceRepository.js';
+} from '../../../../repositories/fetchers/UniswapV3PriceRepository.js';
+import {MappingRepository} from '../../../../repositories/MappingRepository.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,7 +47,8 @@ type PricesResponse = {
 };
 
 @injectable()
-class UniswapV3Fetcher implements FeedFetcherInterface {
+export class UniswapV3Service implements ServiceInterface {
+  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(UniswapV3PriceRepository) protected uniswapV3PriceRepository!: UniswapV3PriceRepository;
   @inject(UniswapV3PoolRepository) protected uniswapV3PoolRepository!: UniswapV3PoolRepository;
   @inject(ContractAddressService) contractAddressService!: ContractAddressService;
@@ -60,15 +56,17 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
 
-  private logPrefix = `[${FetcherName.UniswapV3}]`;
+  private logPrefix = `[UniswapV3Service]`;
 
   readonly dexProtocol = DexProtocolName.UNISWAP_V3;
   static fetcherSource = '';
 
-  async apply(params: UniswapV3FetcherInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(): Promise<void> {
+    const params = await this.getInput();
+
     if (params.length === 0) {
       this.logger.debug(`${this.logPrefix} no inputs to fetch`);
-      return {prices: []};
+      return;
     }
 
     this.logger.debug(`${this.logPrefix}: start with inputs ${JSON.stringify(params)}`);
@@ -77,25 +75,10 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
 
     if (poolsToFetch.size === 0) {
       this.logger.error(`${this.logPrefix} no pools for ${JSON.stringify(params)}`);
-      return {prices: []};
+      return;
     }
 
     await Promise.allSettled([...poolsToFetch.entries()].map(([chainId, pools]) => this.fetchData(chainId, pools)));
-
-    const timestamp = options.timestamp ?? this.timeService.apply();
-    const prices = await this.uniswapV3PriceRepository.getPrices(params, timestamp);
-    const fetcherResult = {prices, timestamp};
-
-    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
-    await this.priceDataRepository.saveFetcherResults(
-      fetcherResult,
-      options.symbols,
-      FetcherName.UniswapV3,
-      FetchedValueType.Price,
-      UniswapV3Fetcher.fetcherSource,
-    );
-
-    return fetcherResult;
   }
 
   private async getPoolsToFetch(
@@ -182,6 +165,16 @@ class UniswapV3Fetcher implements FeedFetcherInterface {
       })
       .filter((data) => data !== undefined) as UniswapV3DataRepositoryInput[];
   }
-}
 
-export default UniswapV3Fetcher;
+  private async getInput(): Promise<UniswapV3FetcherInputParams[]> {
+    const key = `${FetcherName.UniswapV3}_cachedParams`;
+
+    const cache = await this.mappingRepository.get(key);
+    const cachedParams = JSON.parse(cache || '{}');
+
+    return Object.keys(cachedParams).map((id) => {
+      const {params} = <{params: UniswapV3FetcherInputParams}>cachedParams[id];
+      return params;
+    });
+  }
+}

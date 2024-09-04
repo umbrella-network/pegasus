@@ -32,8 +32,13 @@ export class ByBitPriceFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.byBit.timeout;
   }
 
-  async apply(inputs: ByBitPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
-    const prices = await this.byBitDataRepository.getPrices(inputs, options.timestamp);
+  async apply(params: ByBitPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length === 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return {prices: []};
+    }
+
+    const prices = await this.byBitDataRepository.getPrices(params, options.timestamp);
     const fetcherResult = {prices, timestamp: options.timestamp};
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts

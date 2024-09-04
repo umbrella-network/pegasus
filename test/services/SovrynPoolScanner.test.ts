@@ -1,12 +1,12 @@
 import {expect} from 'chai';
 import mongoose from 'mongoose';
 
-import {LoggerBase, Pool, SovrynPoolScanner} from '../../src/services/dexes/sovryn/SovrynPoolScanner.js';
+import {LoggerBase, Pool, SovrynPoolScanner} from '../../src/workers/fetchers/dexes/sovryn/SovrynPoolScanner.js';
 import {
   PoolRepositoryBase,
   SearchToken,
   SovrynPoolRepository,
-} from '../../src/services/dexes/sovryn/SovrynPoolRepository.js';
+} from '../../src/workers/fetchers/dexes/sovryn/SovrynPoolRepository.js';
 import {GraphClient, GraphClientBase} from '../../src/services/graph/GraphClient.js';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
 

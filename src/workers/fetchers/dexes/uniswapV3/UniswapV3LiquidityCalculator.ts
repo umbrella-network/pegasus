@@ -5,13 +5,13 @@ import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
 import path from 'path';
 
-import {ChainsIds} from '../../../types/ChainsIds.js';
+import {ChainsIds} from '../../../../types/ChainsIds.js';
 import {UniswapV3TickQuery} from './UniswapV3TickQuery.js';
 import {BarChartTick, GraphTick} from './interfaces.js';
-import {BlockchainProviderRepository} from '../../../repositories/BlockchainProviderRepository.js';
+import {BlockchainProviderRepository} from '../../../../repositories/BlockchainProviderRepository.js';
 import {ActiveLiquititySDK} from './ActiveLiquiditySDK.js';
-import {ContractAddressService} from '../../../services/ContractAddressService.js';
-import {sortTokensByAddress} from '../../../utils/token.js';
+import {ContractAddressService} from '../../../../services/ContractAddressService.js';
+import {sortTokensByAddress} from '../../../../utils/token.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

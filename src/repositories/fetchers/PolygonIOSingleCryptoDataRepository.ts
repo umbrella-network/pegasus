@@ -58,6 +58,10 @@ export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataReposito
   }
 
   async getPrices(params: PolygonIOSingleCryptoPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const results = await this.model
       .find(
         {

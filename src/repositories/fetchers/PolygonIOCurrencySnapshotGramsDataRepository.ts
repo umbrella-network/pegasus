@@ -59,6 +59,10 @@ export class PolygonIOCurrencySnapshotGramsDataRepository extends CommonPriceDat
     params: PolygonIOCurrencySnapshotGramsInputParams[],
     timestamp: number,
   ): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const results = await this.model
       .find(
         {

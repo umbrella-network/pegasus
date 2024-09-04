@@ -30,6 +30,11 @@ export class MetalsDevApiFetcher implements FeedFetcherInterface {
   static fetcherSource = '';
 
   async apply(params: MetalsDevApiPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length === 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return {prices: []};
+    }
+
     try {
       await this.cacheInput(params);
     } catch (e) {

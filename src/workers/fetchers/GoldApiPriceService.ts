@@ -7,7 +7,7 @@ import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
 import {GoldApiDataRepository} from '../../repositories/fetchers/GoldApiDataRepository.js';
-import {MappingRepository} from '../../repositories/MappingRepository';
+import {MappingRepository} from '../../repositories/MappingRepository.js';
 
 export interface GoldApiPriceInputParams {
   symbol: string;
@@ -33,7 +33,14 @@ export class GoldApiPriceService implements ServiceInterface {
 
   async apply(): Promise<void> {
     try {
-      await this.fetchPrices(await this.getInput());
+      const params = await this.getInput();
+
+      if (params.length === 0) {
+        this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+        return;
+      }
+
+      await this.fetchPrices(params);
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }

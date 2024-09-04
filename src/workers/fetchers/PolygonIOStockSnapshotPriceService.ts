@@ -2,7 +2,6 @@ import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
 import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
-import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {PolygonIOStockSnapshotDataRepository} from '../../repositories/fetchers/PolygonIOStockSnapshotDataRepository.js';
 import {
   BasePolygonIOSnapshotFetcher,
@@ -13,7 +12,6 @@ type ParsedResponse = {ticker: string; price: number; timestamp: number};
 
 @injectable()
 export class PolygonIOStockSnapshotPriceService extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
-  @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(PolygonIOStockSnapshotDataRepository)
   polygonIOStockSnapshotDataRepository!: PolygonIOStockSnapshotDataRepository;
 

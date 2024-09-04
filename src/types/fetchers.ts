@@ -1,4 +1,4 @@
-import {SovrynPriceInputParams} from 'src/services/dexes/sovryn/SovrynPriceFetcher';
+import {SovrynPriceInputParams} from 'src/services/fetchers/SovrynPriceFetcher';
 import {BinancePriceInputParams} from 'src/services/fetchers/BinancePriceFetcher';
 import {ByBitPriceInputParams} from 'src/services/fetchers/ByBitPriceFetcher';
 import {CoingeckoPriceInputParams} from 'src/services/fetchers/CoingeckoPriceFetcher';
@@ -10,7 +10,7 @@ import {PolygonIOCurrencySnapshotGramsInputParams} from 'src/services/fetchers/P
 import {PolygonIOStockSnapshotFetcherInputParams} from 'src/services/fetchers/PolygonIOStockSnapshotPriceFetcher';
 import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceFetcher.js';
 import {PolygonIOSingleCryptoPriceInputParams} from '../services/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
-import {UniswapV3FetcherInputParams} from '../services/dexes/uniswapV3/UniswapV3Fetcher';
+import {UniswapV3FetcherInputParams} from '../services/fetchers/UniswapV3Fetcher';
 
 export type NumberOrUndefined = number | undefined;
 

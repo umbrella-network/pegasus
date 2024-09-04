@@ -31,6 +31,11 @@ export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFet
   }
 
   async apply(params: PolygonIOStockSnapshotFetcherInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length === 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return {prices: []};
+    }
+
     const prices = await this.polygonIOStockSnapshotDataRepository.getPrices(params, options.timestamp);
 
     const fetcherResults: FetcherResult = {prices, timestamp: options.timestamp};

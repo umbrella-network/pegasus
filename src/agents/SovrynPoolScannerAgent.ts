@@ -4,8 +4,8 @@ import {LoopAgent} from './LoopAgent.js';
 import {GraphClient} from '../services/graph/GraphClient.js';
 import Settings from '../types/Settings.js';
 import logger from '../lib/logger.js';
-import {SovrynPoolRepository} from '../services/dexes/sovryn/SovrynPoolRepository.js';
-import {SovrynPoolScanner} from '../services/dexes/sovryn/SovrynPoolScanner.js';
+import {SovrynPoolRepository} from '../services/fetchers/dexes/sovryn/SovrynPoolRepository.js';
+import {SovrynPoolScanner} from '../services/fetchers/dexes/sovryn/SovrynPoolScanner.js';
 import {ChainsIds} from '../types/ChainsIds.js';
 import {DexProtocolName} from '../types/Dexes.js';
 

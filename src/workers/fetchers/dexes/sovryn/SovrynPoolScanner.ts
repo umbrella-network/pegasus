@@ -1,10 +1,10 @@
 import {Validator} from 'jsonschema';
 
-import {GraphClientBase} from '../../graph/GraphClient';
+import {GraphClientBase} from '../../../../services/graph/GraphClient.js';
 import {PoolRepositoryBase} from './SovrynPoolRepository.js';
 import {SovrynGraphPoolsResponseJSONSchema} from './SovrynGraphResponseSchema.js';
 import {liquidityPoolsQuery} from './SovrynGraphQueries.js';
-import {ChainsIds} from '../../../types/ChainsIds.js';
+import {ChainsIds} from '../../../../types/ChainsIds.js';
 
 interface SovrynPoolsQueryResponse {
   data: {

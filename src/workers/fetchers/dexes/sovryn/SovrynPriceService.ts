@@ -6,21 +6,17 @@ import {fileURLToPath} from 'url';
 import {BaseProvider} from '@ethersproject/providers';
 import {Logger} from 'winston';
 
-import {
-  FetcherName,
-  FetcherResult,
-  NumberOrUndefined,
-  FetchedValueType,
-  FeedFetcherInterface,
-  FeedFetcherOptions,
-} from '../../../types/fetchers.js';
+import {FetcherName, ServiceInterface} from '../../../../types/fetchers.js';
 
-import {ChainsIds} from '../../../types/ChainsIds.js';
-import {bigIntToFloatingPoint} from '../../../utils/math.js';
-import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
-import {BlockchainRepository} from '../../../repositories/BlockchainRepository.js';
-import {PriceDataRepository} from '../../../repositories/PriceDataRepository.js';
-import {SovrynDataRepository, SovrynDataRepositoryInput} from '../../../repositories/fetchers/SovrynDataRepository.js';
+import {ChainsIds} from '../../../../types/ChainsIds.js';
+import {bigIntToFloatingPoint} from '../../../../utils/math.js';
+import {RegistryContractFactory} from '../../../../factories/contracts/RegistryContractFactory.js';
+import {BlockchainRepository} from '../../../../repositories/BlockchainRepository.js';
+import {
+  SovrynDataRepository,
+  SovrynDataRepositoryInput,
+} from '../../../../repositories/fetchers/SovrynDataRepository.js';
+import {MappingRepository} from '../../../../repositories/MappingRepository.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,63 +41,34 @@ const pairRequestToString = (pair: SovrynPriceInputParams) => {
   return '{' + pair.base + ' -> ' + pair.quote + ' amount:' + pair.amountInDecimals + '}';
 };
 
-/*
-For getting the prices of different of a Sovryn pool the `base` (input token)
-and `quote` (output token), and the `amount` of the input token should be provided.
-
-weBTC-rUSDT:
-  inputs:
-    - fetcher:
-        name: SovrynPriceFetcher
-        params:
-          base: '0x69fe5cec81d5ef92600c1a0db1f11986ab3758ab'
-          quote: '0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0'
-          amountIdDecimals: 18
-*/
 @injectable()
-export class SovrynPriceFetcher implements FeedFetcherInterface {
+export class SovrynPriceService implements ServiceInterface {
+  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(SovrynDataRepository) private sovrynDataRepository!: SovrynDataRepository;
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
-  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject('Logger') private logger!: Logger;
 
   private logPrefix = `[${FetcherName.SovrynPrice}]`;
   static fetcherSource = '';
 
-  public async apply(params: SovrynPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
-    this.logger.debug(
-      `${this.logPrefix} fetcher started for ${params.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`,
-    );
-    let timestamp;
+  public async apply(): Promise<void> {
+    const params = await this.getInput();
+
+    if (params.length === 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return;
+    }
 
     try {
       const response = await this.fetchPrices(params);
       await this.sovrynDataRepository.save(this.processResponse(response, params));
-      timestamp = Number(response.timestamp);
     } catch (error) {
       this.logger.error(`${this.logPrefix} failed to get price for pairs. ${error}`);
 
       for (const pair of params) {
         this.logger.error(`${this.logPrefix} price is not successful for pair: ${pairRequestToString(pair)}.`);
       }
-
-      return {prices: []};
     }
-
-    const pricesResponse: NumberOrUndefined[] = await this.sovrynDataRepository.getPrices(params, timestamp);
-
-    const fetcherResult = {prices: pricesResponse, timestamp};
-
-    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
-    await this.priceDataRepository.saveFetcherResults(
-      fetcherResult,
-      options.symbols,
-      FetcherName.SovrynPrice,
-      FetchedValueType.Price,
-      SovrynPriceFetcher.fetcherSource,
-    );
-
-    return fetcherResult;
   }
 
   private async fetchPrices(pairs: SovrynPriceInputParams[]): Promise<PricesResponse> {
@@ -137,5 +104,17 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
     });
 
     return successfulPrices.filter((p) => p != undefined) as SovrynDataRepositoryInput[];
+  }
+
+  private async getInput(): Promise<SovrynPriceInputParams[]> {
+    const key = `${FetcherName.SovrynPrice}_cachedParams`;
+
+    const cache = await this.mappingRepository.get(key);
+    const cachedParams = JSON.parse(cache || '{}');
+
+    return Object.keys(cachedParams).map((id) => {
+      const {params} = <{params: SovrynPriceInputParams}>cachedParams[id];
+      return params;
+    });
   }
 }

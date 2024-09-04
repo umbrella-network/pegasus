@@ -35,12 +35,17 @@ export class BinancePriceFetcher implements FeedFetcherInterface {
     this.timeout = settings.api.binance.timeout;
   }
 
-  async apply(inputs: BinancePriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
-    const prices = await this.binanceDataRepository.getPrices(inputs, options.timestamp);
+  async apply(params: BinancePriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length === 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return {prices: []};
+    }
+
+    const prices = await this.binanceDataRepository.getPrices(params, options.timestamp);
 
     const fetcherResults: FetcherResult = {
       prices: prices.map((price, ix) =>
-        price !== undefined && price != 0 && inputs[ix].inverse ? 1.0 / price : price,
+        price !== undefined && price != 0 && params[ix].inverse ? 1.0 / price : price,
       ),
       timestamp: options.timestamp,
     };

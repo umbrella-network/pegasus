@@ -31,6 +31,11 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
   static fetcherSource = '';
 
   async apply(params: GoldApiPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+    if (params.length === 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return {prices: []};
+    }
+
     try {
       await this.cacheInput(params);
     } catch (e) {

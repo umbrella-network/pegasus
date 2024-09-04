@@ -2,7 +2,7 @@ import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
 import BasicWorker from './BasicWorker.js';
-import {UniswapV3LiquidityResolver} from '../services/dexes/uniswapV3/UniswapV3LiquidityResolver.js';
+import {UniswapV3LiquidityResolver} from '../services/fetchers/dexes/uniswapV3/UniswapV3LiquidityResolver.js';
 import {ChainsIds} from '../types/ChainsIds.js';
 import {DexProtocolName} from '../types/Dexes.js';
 
