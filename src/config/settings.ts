@@ -496,10 +496,15 @@ const settings: Settings = {
     fetchers: {
       [FetcherName.BinancePrice]: schedulerFetcherSettings(FetcherName.BinancePrice),
       [FetcherName.ByBitPrice]: schedulerFetcherSettings(FetcherName.ByBitPrice),
-      [FetcherName.PolygonIOCryptoSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOCryptoSnapshotPrice),
-      [FetcherName.PolygonIOStockSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOStockSnapshotPrice),
       [FetcherName.CoingeckoPrice]: schedulerFetcherSettings(FetcherName.CoingeckoPrice),
       [FetcherName.GoldApiPrice]: schedulerFetcherSettings(FetcherName.GoldApiPrice),
+      [FetcherName.MetalPriceApi]: schedulerFetcherSettings(FetcherName.MetalPriceApi),
+      [FetcherName.MetalsDevApi]: schedulerFetcherSettings(FetcherName.MetalsDevApi),
+      [FetcherName.PolygonIOCryptoSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOCryptoSnapshotPrice),
+      [FetcherName.PolygonIOCurrencySnapshotGrams]: schedulerFetcherSettings(
+        FetcherName.PolygonIOCurrencySnapshotGrams,
+      ),
+      [FetcherName.PolygonIOStockSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOStockSnapshotPrice),
     },
   },
 };
