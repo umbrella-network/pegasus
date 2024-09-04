@@ -58,11 +58,11 @@ export class CoingeckoPriceService implements ServiceInterface {
       }),
     );
 
-    const parsed = this.parseResponse(responses);
+    const parsed = this.parseResponse(responses, currencies);
     await this.savePrices(parsed);
   }
 
-  private parseResponse(axiosResponse: PromiseSettledResult<AxiosResponse>[]): ParsedResponse[] {
+  private parseResponse(axiosResponse: PromiseSettledResult<AxiosResponse>[], currencies: string[]): ParsedResponse[] {
     const outputs: ParsedResponse[] = [];
 
     axiosResponse.forEach((response) => {
@@ -86,7 +86,7 @@ export class CoingeckoPriceService implements ServiceInterface {
       Object.keys(axiosResponse.data).forEach((id) => {
         if (!axiosResponse.data[id]) return;
 
-        Object.keys(axiosResponse.data[id]).forEach((currency) => {
+        currencies.forEach((currency) => {
           let value = axiosResponse.data[id][currency];
 
           if (!value) {
