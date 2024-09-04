@@ -49,7 +49,6 @@ export default {
             {$ref: '#/definitions/MetalPriceApi'},
             {$ref: '#/definitions/MetalsDevApi'},
             {$ref: '#/definitions/SovrynPrice'},
-            {$ref: '#/definitions/SovrynPriceFetcher'}, // TODO: remove in newer versions
           ],
         },
         calculator: {
