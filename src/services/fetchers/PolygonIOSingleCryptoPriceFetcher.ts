@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
 
-import Settings from '../../types/Settings.js';
-import {BasePolygonIOSingleFetcher, SinglePriceResponse} from './common/BasePolygonIOSingleFetcher.js';
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
@@ -11,40 +10,27 @@ import {
 } from '../../types/fetchers.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
-import {
-  PolygonIOSingleCryptoDataRepository,
-  PolygonIOSingleCryptoDataRepositoryInput,
-} from '../../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
+import {PolygonIOSingleCryptoDataRepository} from '../../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
+import {MappingRepository} from '../../repositories/MappingRepository.js';
 
 export interface PolygonIOSingleCryptoPriceInputParams {
   fsym: string;
   tsym: string;
 }
 
-type ParsedResponse = {
-  symbol: string;
-  price: number;
-  timestamp: number;
-};
-
 @injectable()
-export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetcher implements FeedFetcherInterface {
+export class PolygonIOSingleCryptoPriceFetcher implements FeedFetcherInterface {
+  @inject('Logger') protected logger!: Logger;
+  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PolygonIOSingleCryptoDataRepository) pIOSingleCryptoDataRepository!: PolygonIOSingleCryptoDataRepository;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
 
-  constructor(@inject('Settings') settings: Settings) {
-    super();
-    this.apiKey = settings.api.polygonIO.apiKey;
-    this.timeout = settings.api.polygonIO.timeout;
-    this.valuePath = '$.last.price';
-
-    this.logPrefix = `[${FetcherName.PolygonIOSingleCryptoPrice}]`;
-  }
+  private logPrefix = `[${FetcherName.PolygonIOSingleCryptoPrice}]`;
 
   async apply(params: PolygonIOSingleCryptoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     try {
-      await this.fetchPrices(params);
+      await this.cacheInput(params);
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
@@ -63,51 +49,17 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
     return fetcherResults;
   }
 
-  private async fetchPrices(params: PolygonIOSingleCryptoPriceInputParams[]): Promise<void> {
-    const responses = await Promise.all(params.map((p) => this.fetchPrice(p)));
-    const parsed = this.parseResponse(responses.filter((r) => r !== undefined) as SinglePriceResponse[]);
-    await this.savePrices(parsed);
-  }
+  private async cacheInput(params: PolygonIOSingleCryptoPriceInputParams[]): Promise<void> {
+    const timestamp = this.timeService.apply();
+    const key = `${FetcherName.PolygonIOSingleCryptoPrice}_cachedParams`;
 
-  private async fetchPrice({
-    fsym,
-    tsym,
-  }: PolygonIOSingleCryptoPriceInputParams): Promise<SinglePriceResponse | undefined> {
-    try {
-      this.logger.debug(`${this.logPrefix} call for ${fsym}-${tsym}`);
-      const sourceUrl = `https://api.polygon.io/v1/last/crypto/${fsym}/${tsym}?apiKey=${this.apiKey}`;
-      return <SinglePriceResponse>await this.fetch(sourceUrl, true);
-    } catch (e) {
-      this.logger.error(`${this.logPrefix} fail to fetch price for ${fsym}-${tsym}`);
-    }
-  }
+    const cache = await this.mappingRepository.get(key);
+    const cachedParams = JSON.parse(cache || '{}');
 
-  private parseResponse(response: SinglePriceResponse[]): ParsedResponse[] {
-    return response
-      .map(({symbol, last}) => {
-        const value = last.price;
-
-        if (isNaN(value)) {
-          this.logger.warn(`${this.logPrefix} NaN: ${symbol}`);
-          return;
-        }
-
-        return {symbol, price: value, timestamp: Math.trunc(last.timestamp / 1e3)};
-      })
-      .filter((e) => !!e) as ParsedResponse[];
-  }
-
-  private async savePrices(parsed: ParsedResponse[]): Promise<void> {
-    const allData = parsed.map((data) => {
-      return <PolygonIOSingleCryptoDataRepositoryInput>{
-        timestamp: data.timestamp,
-        value: data.price,
-        params: {
-          symbol: data.symbol,
-        },
-      };
+    params.forEach((input) => {
+      cachedParams[`${input.fsym};${input.tsym}`.toLowerCase()] = timestamp;
     });
 
-    await this.pIOSingleCryptoDataRepository.save(allData);
+    await this.mappingRepository.set(key, JSON.stringify(cachedParams));
   }
 }

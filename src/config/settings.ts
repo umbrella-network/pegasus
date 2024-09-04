@@ -504,6 +504,7 @@ const settings: Settings = {
       [FetcherName.PolygonIOCurrencySnapshotGrams]: schedulerFetcherSettings(
         FetcherName.PolygonIOCurrencySnapshotGrams,
       ),
+      [FetcherName.PolygonIOSingleCryptoPrice]: schedulerFetcherSettings(FetcherName.PolygonIOSingleCryptoPrice),
       [FetcherName.PolygonIOStockSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOStockSnapshotPrice),
     },
   },
