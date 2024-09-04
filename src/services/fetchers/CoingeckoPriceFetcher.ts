@@ -1,8 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import Settings from '../../types/Settings.js';
-
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
@@ -22,8 +20,6 @@ export interface CoingeckoPriceInputParams {
   id: string;
   currency: string;
 }
-
-type ParsedResponse = {id: string; currency: string; value: number};
 
 @injectable()
 export class CoingeckoPriceFetcher implements FeedFetcherInterface {
@@ -66,7 +62,7 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
   private async cacheInput(inputsParams: CoingeckoPriceInputParams[]): Promise<void> {
     const timestamp = this.timeService.apply();
 
-    const idKey = `${FetcherName.CoingeckoPrice}_cachedIds`;
+    const idKey = `${FetcherName.CoingeckoPrice}_ids`;
     const currenciesKey = `${FetcherName.CoingeckoPrice}_vs_currencies`;
 
     const cache = await this.mappingRepository.getMany([idKey, currenciesKey]);
