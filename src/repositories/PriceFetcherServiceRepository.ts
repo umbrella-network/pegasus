@@ -13,6 +13,8 @@ import {MetalPriceApiService} from '../workers/fetchers/MetalPriceApiService.js'
 import {MetalsDevApiService} from '../workers/fetchers/MetalsDevApiService.js';
 import {PolygonIOCurrencySnapshotGramsService} from '../workers/fetchers/PolygonIOCurrencySnapshotGramsService.js';
 import {PolygonIOSingleCryptoPriceService} from '../workers/fetchers/PolygonIOSingleCryptoPriceService.js';
+import {UniswapV3Service} from '../workers/fetchers/dexes/uniswapV3/UniswapV3Service.js';
+import {SovrynPriceService} from '../workers/fetchers/dexes/sovryn/SovrynPriceService.js';
 
 export type PriceFetchersCollection = {
   [fetcherName: string]: ServiceInterface | undefined;
@@ -40,9 +42,9 @@ export class PriceFetcherServiceRepository {
     @inject(PolygonIOCurrencySnapshotGramsService)
     polygonIOCurrencySnapshotGramsService: PolygonIOCurrencySnapshotGramsService,
     @inject(PolygonIOStockSnapshotPriceService) polygonIOStockSnapshotPrice: PolygonIOStockSnapshotPriceService,
-    //
-    // @inject(UniswapV3Fetcher) uniswapV3PriceFetcher: UniswapV3Fetcher,
-    // @inject(SovrynPriceFetcher) sovrynPriceFetcher: SovrynPriceFetcher,
+
+    @inject(UniswapV3Service) uniswapV3Service: UniswapV3Service,
+    @inject(SovrynPriceService) sovrynPriceService: SovrynPriceService,
   ) {
     this.logger = logger;
 
@@ -56,15 +58,8 @@ export class PriceFetcherServiceRepository {
     this.collection[FetcherName.PolygonIOCurrencySnapshotGrams] = polygonIOCurrencySnapshotGramsService;
     this.collection[FetcherName.PolygonIOSingleCryptoPrice] = polygonIOSingleCryptoPriceService;
     this.collection[FetcherName.PolygonIOStockSnapshotPrice] = polygonIOStockSnapshotPrice;
-    // this.collection[FetcherName.PolygonIOSingleCryptoPrice] = polygonIOSingleCryptoPriceFetcher;
-    //
-    // this.collection[FetcherName.SovrynPrice] = sovrynPriceFetcher;
-    // // TODO: remove this backward compatible code
-    // this.collection[FetcherName.SovrynPriceOLD] = sovrynPriceFetcher;
-    //
-    // this.collection[FetcherName.UniswapV3] = uniswapV3PriceFetcher;
-    // // TODO: remove this backward compatible code
-    // this.collection[FetcherName.UniswapV3OLD] = uniswapV3PriceFetcher;
+    this.collection[FetcherName.SovrynPrice] = sovrynPriceService;
+    this.collection[FetcherName.UniswapV3] = uniswapV3Service;
   }
 
   get(feedName: string): ServiceInterface | undefined {

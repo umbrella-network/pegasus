@@ -40,25 +40,26 @@ import {
   PolygonIOCryptoSnapshotPriceFetcher,
   PolygonIOCurrencySnapshotGramsFetcher,
   PolygonIOSingleCryptoPriceFetcher,
-  PolygonIOStockSnapshotPriceFetcher, RandomNumberFetcher,
+  PolygonIOStockSnapshotPriceFetcher,
+  RandomNumberFetcher,
 } from '../services/fetchers/index.js';
 import {VerifyProposedData} from '../services/tools/VerifyProposedData.js';
 
 import PriceFetchingWorker from '../workers/PriceFetchingWorker.js';
 import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository.js';
 import BlockMintingWorker from '../workers/BlockMintingWorker.js';
-import {SovrynPriceFetcher} from "../services/fetchers/SovrynPriceFetcher";
-import {UniswapV3Fetcher} from "../services/fetchers/UniswapV3Fetcher";
-import {BinancePriceService} from "../workers/fetchers/BinancePriceService";
-import {ByBitPriceService} from "../workers/fetchers/ByBitPriceService";
-import {CoingeckoPriceService} from "../workers/fetchers/CoingeckoPriceService";
-import {GoldApiPriceService} from "../workers/fetchers/GoldApiPriceService";
-import {MetalPriceApiService} from "../workers/fetchers/MetalPriceApiService";
-import {MetalsDevApiService} from "../workers/fetchers/MetalsDevApiService";
-import {PolygonIOCryptoSnapshotPriceService} from "../workers/fetchers/PolygonIOCryptoSnapshotPriceService";
-import {PolygonIOCurrencySnapshotGramsService} from "../workers/fetchers/PolygonIOCurrencySnapshotGramsService";
-import {PolygonIOSingleCryptoPriceService} from "../workers/fetchers/PolygonIOSingleCryptoPriceService";
-import {PolygonIOStockSnapshotPriceService} from "../workers/fetchers/PolygonIOStockSnapshotPriceService";
+import {SovrynPriceFetcher} from '../services/fetchers/SovrynPriceFetcher';
+import {UniswapV3Fetcher} from '../services/fetchers/UniswapV3Fetcher';
+import {BinancePriceService} from '../workers/fetchers/BinancePriceService';
+import {ByBitPriceService} from '../workers/fetchers/ByBitPriceService';
+import {CoingeckoPriceService} from '../workers/fetchers/CoingeckoPriceService';
+import {GoldApiPriceService} from '../workers/fetchers/GoldApiPriceService';
+import {MetalPriceApiService} from '../workers/fetchers/MetalPriceApiService';
+import {MetalsDevApiService} from '../workers/fetchers/MetalsDevApiService';
+import {PolygonIOCryptoSnapshotPriceService} from '../workers/fetchers/PolygonIOCryptoSnapshotPriceService';
+import {PolygonIOCurrencySnapshotGramsService} from '../workers/fetchers/PolygonIOCurrencySnapshotGramsService';
+import {PolygonIOSingleCryptoPriceService} from '../workers/fetchers/PolygonIOSingleCryptoPriceService';
+import {PolygonIOStockSnapshotPriceService} from '../workers/fetchers/PolygonIOStockSnapshotPriceService';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
