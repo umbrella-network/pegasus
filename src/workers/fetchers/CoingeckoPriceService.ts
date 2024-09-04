@@ -22,7 +22,7 @@ export class CoingeckoPriceService implements ServiceInterface {
   @inject(CoingeckoDataRepository) private coingeckoDataRepository!: CoingeckoDataRepository;
   @inject('Logger') private logger!: Logger;
 
-  private logPrefix = `[${FetcherName.CoingeckoPrice}]`;
+  private logPrefix = '[CoingeckoPriceService]';
   private timeout: number;
   private maxBatchSize: number;
 

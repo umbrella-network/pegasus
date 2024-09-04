@@ -5,7 +5,7 @@ import axios from 'axios';
 import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 
 import Settings from '../../types/Settings.js';
-import TimeService from '../TimeService.js';
+import TimeService from '../../services/TimeService.js';
 import {GoldApiDataRepository} from '../../repositories/fetchers/GoldApiDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository';
 
@@ -23,7 +23,7 @@ export class GoldApiPriceService implements ServiceInterface {
 
   private token: string;
   private timeout: number;
-  private logPrefix = `[${FetcherName.GoldApiPrice}]`;
+  private logPrefix = '[GoldApiPriceService]';
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {

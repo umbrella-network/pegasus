@@ -1,4 +1,3 @@
-import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
@@ -14,8 +13,7 @@ import {
 import Settings from '../../types/Settings.js';
 import {MetalPriceApiDataRepository} from '../../repositories/fetchers/MetalPriceApiDataRepository.js';
 import TimeService from '../TimeService.js';
-
-const GRAMS_PER_TROY_OUNCE = 31.1035;
+import {MappingRepository} from '../../repositories/MappingRepository.js';
 
 export interface MetalPriceApiInputParams {
   symbol: string;
@@ -24,6 +22,7 @@ export interface MetalPriceApiInputParams {
 
 @injectable()
 export class MetalPriceApiFetcher implements FeedFetcherInterface {
+  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MetalPriceApiDataRepository) private metalPriceApiDataRepository!: MetalPriceApiDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(TimeService) private timeService!: TimeService;
@@ -42,7 +41,7 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
 
   async apply(params: MetalPriceApiInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     try {
-      await this.fetchPrices(params);
+      await this.cacheInput(params);
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
@@ -56,7 +55,7 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
     await this.priceDataRepository.saveFetcherResults(
       result,
       symbols,
-      FetcherName.MetalsDevApi,
+      FetcherName.MetalPriceApi,
       FetchedValueType.Price,
       MetalPriceApiFetcher.fetcherSource,
     );
@@ -64,53 +63,19 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
     return result;
   }
 
-  private async fetchPrices(params: MetalPriceApiInputParams[]): Promise<void> {
-    if (params.length != 1) throw new Error(`${this.logPrefix} not a multifetcher: ${params}`);
+  private async cacheInput(params: MetalPriceApiInputParams[]): Promise<void> {
+    const timestamp = this.timeService.apply();
 
-    const {symbol, currency} = params[0];
+    const key = `${FetcherName.MetalPriceApi}_cachedParams`;
 
-    this.logger.debug(`${this.logPrefix} call for: ${symbol}/${currency}`);
+    // const cache = await this.mappingRepository.get(key);
+    // const cachedParams = JSON.parse(cache || '{}');
+    const cachedParams: Record<string, number> = {};
 
-    const apiUrl = 'https://api.metalpriceapi.com/v1/latest';
-    const url = `${apiUrl}?api_key=${this.apiKey}&base=${currency}&currency=${currency}`;
+    params.forEach((input) => {
+      cachedParams[`${input.symbol};${input.currency}`.toLowerCase()] = timestamp;
+    });
 
-    try {
-      const response = await axios.get(url, {
-        timeout: this.timeout,
-        timeoutErrorMessage: `${this.logPrefix} Timeout exceeded: ${url}`,
-      });
-
-      if (response.status !== 200) {
-        this.logger.error(
-          `${this.logPrefix} Error fetching data for ${symbol}/${currency}: ${response.statusText}.` +
-            `Error: ${response.data}`,
-        );
-
-        return;
-      }
-
-      const rate = response.data?.rates[symbol];
-
-      if (!rate) {
-        this.logger.error(`${this.logPrefix} Missing rate for ${symbol}/${currency}`);
-        return;
-      }
-
-      const pricePerTroyOunce = 1 / rate;
-      const pricePerGram = pricePerTroyOunce / GRAMS_PER_TROY_OUNCE;
-
-      this.logger.debug(`${this.logPrefix} resolved price per gram: ${symbol}/${currency}: ${pricePerGram}`);
-
-      await this.metalPriceApiDataRepository.save([
-        {
-          value: pricePerGram,
-          timestamp: this.timeService.apply(),
-          params: params[0],
-        },
-      ]);
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} An error occurred while fetching metal prices: ${error}`);
-      return;
-    }
+    await this.mappingRepository.set(key, JSON.stringify(cachedParams));
   }
 }

@@ -4,7 +4,7 @@ import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
-import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
+import {ServiceInterface} from '../../types/fetchers.js';
 
 import {BinanceDataRepository} from '../../repositories/fetchers/BinanceDataRepository.js';
 
@@ -18,7 +18,7 @@ export class BinancePriceService implements ServiceInterface {
   @inject('Logger') private logger!: Logger;
 
   private timeout: number;
-  private logPrefix = `[${FetcherName.BinancePrice}]`;
+  private logPrefix = '[BinancePriceService]';
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {

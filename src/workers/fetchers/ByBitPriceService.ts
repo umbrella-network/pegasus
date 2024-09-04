@@ -4,7 +4,7 @@ import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 
-import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
+import {ServiceInterface} from '../../types/fetchers.js';
 import {ByBitDataRepository, ByBitDataRepositoryInput} from '../../repositories/fetchers/ByBitDataRepository.js';
 
 type ParsedResponse = {symbol: string; usdIndexPrice: number | undefined; lastPrice: number};
@@ -15,7 +15,7 @@ export class ByBitPriceService implements ServiceInterface {
   @inject('Logger') protected logger!: Logger;
 
   private timeout: number;
-  private logPrefix = `[${FetcherName.ByBitPrice}]`;
+  private logPrefix = '[ByBitPriceService]';
 
   constructor(@inject('Settings') settings: Settings) {
     this.timeout = settings.api.byBit.timeout;
