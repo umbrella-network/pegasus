@@ -23,7 +23,7 @@ const feedsFetcher = [
   },
 ];
 
-const fetcherWSNames = [FetcherName.PolygonIOCryptoPriceOLD];
+const fetcherWSNames = [FetcherName.PolygonIOCryptoSnapshotPrice];
 
 describe.skip('FeedProcessor integration tests', () => {
   let feedProcessor: FeedProcessor;

@@ -42,23 +42,12 @@ export default class MultiFeedProcessor {
   ) {
     this.multifetchersMap[FetcherName.BinancePrice] = binancePriceFetcher;
     this.multifetchersMap[FetcherName.ByBitPrice] = byBitSpotPriceFetcher;
-
     this.multifetchersMap[FetcherName.CoingeckoPrice] = coingeckoPriceFetcher;
-
     this.multifetchersMap[FetcherName.PolygonIOCryptoSnapshotPrice] = polygonIOCryptoSnapshotPriceFetcher;
-    // TODO: remove this backward compatible code
-    this.multifetchersMap[FetcherName.PolygonIOCryptoPriceOLD] = polygonIOCryptoSnapshotPriceFetcher;
-
     this.multifetchersMap[FetcherName.PolygonIOStockSnapshotPrice] = polygonIOStockSnapshotPriceFetcher;
     this.multifetchersMap[FetcherName.PolygonIOSingleCryptoPrice] = polygonIOSingleCryptoPriceFetcher;
-
     this.multifetchersMap[FetcherName.SovrynPrice] = sovrynPriceFetcher;
-    // TODO: remove this backward compatible code
-    this.multifetchersMap[FetcherName.SovrynPriceOLD] = sovrynPriceFetcher;
-
     this.multifetchersMap[FetcherName.UniswapV3] = uniswapV3PriceFetcher;
-    // TODO: remove this backward compatible code
-    this.multifetchersMap[FetcherName.UniswapV3OLD] = uniswapV3PriceFetcher;
   }
 
   private logPrefix = '[MultiFeedProcessor]';
