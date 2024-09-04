@@ -515,7 +515,7 @@ function schedulerFetcherSettings(fetcherName: FetcherName): SchedulerFetcherSet
     interval: getTimeSetting(parseInt(process.env[`${fetcherName}_JOB_INTERVAL`.toUpperCase()] || '15000'), 200),
     lock: {
       name: `lock::${fetcherName}Worker`,
-      ttl: getTimeSetting(parseInt(process.env[`${fetcherName}_LOCK_TTL`.toUpperCase()] || '15000'), 60),
+      ttl: getTimeSetting(parseInt(process.env[`${fetcherName}_LOCK_TTL`.toUpperCase()] || '30'), 10),
     },
   };
 }

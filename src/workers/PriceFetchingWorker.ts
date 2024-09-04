@@ -47,10 +47,8 @@ class PriceFetchingWorker extends BasicWorker {
     const unlocked = await this.connection.set(lock.name, 'lock', 'EX', lock.ttl, 'NX');
 
     if (!unlocked) {
-      const data = await this.connection.get(lock.name);
-      this.logger.error(
-        `${loggerPrefix} apply for job but job !unlocked: ${lock.name}, ttl: ${lock.ttl}. ${JSON.stringify(data)}`,
-      );
+      const data = await this.connection.ttl(lock.name);
+      this.logger.error(`${loggerPrefix} job locked: ${lock.name}, ttl: ${lock.ttl}, left: ${JSON.stringify(data)}s`);
       return;
     }
 
