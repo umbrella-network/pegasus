@@ -398,7 +398,7 @@ const settings: Settings = {
     },
     coingecko: {
       timeout: timeoutWithCode(process.env.COINGECKO_TIMEOUT || '5000', TimeoutCodes.COINGECKO),
-      maxBatchSize: parseInt(process.env.COINGECKO_MAX_BATCH_SIZE || '500', 10),
+      maxBatchSize: parseInt(process.env.COINGECKO_MAX_BATCH_SIZE || '250', 10),
     },
     polygonIO: {
       apiKey: process.env.POLYGON_IO_API_KEY as string,
@@ -498,6 +498,7 @@ const settings: Settings = {
       [FetcherName.ByBitPrice]: schedulerFetcherSettings(FetcherName.ByBitPrice),
       [FetcherName.PolygonIOCryptoSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOCryptoSnapshotPrice),
       [FetcherName.PolygonIOStockSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOStockSnapshotPrice),
+      [FetcherName.CoingeckoPrice]: schedulerFetcherSettings(FetcherName.CoingeckoPrice),
     },
   },
 };
