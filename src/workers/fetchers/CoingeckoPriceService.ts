@@ -42,6 +42,11 @@ export class CoingeckoPriceService implements ServiceInterface {
   private async fetchPrices(): Promise<void> {
     const {ids, currencies} = await this.generateInput();
 
+    if (ids.length == 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return;
+    }
+
     const batchedInputs = _.chunk(ids, Math.ceil(this.maxBatchSize));
 
     const responses = await Promise.allSettled(
