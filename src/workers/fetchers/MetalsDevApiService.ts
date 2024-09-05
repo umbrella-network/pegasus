@@ -2,11 +2,12 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
+import {ServiceInterface} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
 import {MetalsDevApiDataRepository} from '../../repositories/fetchers/MetalsDevApiDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
 export interface MetalsDevApiPriceInputParams {
   metal: string;
@@ -90,7 +91,7 @@ export class MetalsDevApiService implements ServiceInterface {
   }
 
   private async getInput(): Promise<MetalsDevApiPriceInputParams[]> {
-    const key = `${FetcherName.MetalPriceApi}_cachedParams`;
+    const key = FetchersMappingCacheKeys.METALS_DEV_API_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
     const cachedParams = JSON.parse(cache || '{}');

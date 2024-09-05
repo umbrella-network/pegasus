@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 import Settings from '../../types/Settings.js';
 
-import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
+import {ServiceInterface} from '../../types/fetchers.js';
 
 import {
   CoingeckoDataRepository,
@@ -13,6 +13,7 @@ import {
 } from '../../repositories/fetchers/CoingeckoDataRepository.js';
 
 import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
 type ParsedResponse = {id: string; currency: string; value: number; timestamp: number};
 
@@ -131,8 +132,8 @@ export class CoingeckoPriceService implements ServiceInterface {
   }
 
   private async generateInput(): Promise<{ids: string[]; currencies: string[]}> {
-    const idKey = `${FetcherName.CoingeckoPrice}_cachedIds`;
-    const currenciesKey = `${FetcherName.CoingeckoPrice}_vs_currencies`;
+    const idKey = FetchersMappingCacheKeys.COINGECKO_PRICE_IDS;
+    const currenciesKey = FetchersMappingCacheKeys.COINGECKO_PRICE_CURRENCIES;
 
     const cache = await this.mappingRepository.getMany([idKey, currenciesKey]);
     const idsCache = JSON.parse(cache[idKey] || '{}');

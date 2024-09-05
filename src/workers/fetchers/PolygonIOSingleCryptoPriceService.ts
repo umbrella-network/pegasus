@@ -12,6 +12,7 @@ import {
   BasePolygonIOSingleFetcher,
   SinglePriceResponse,
 } from '../../services/fetchers/common/BasePolygonIOSingleFetcher.js';
+import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
 export interface PolygonIOSingleCryptoPriceInputParams {
   fsym: string;
@@ -103,7 +104,7 @@ export class PolygonIOSingleCryptoPriceService extends BasePolygonIOSingleFetche
   }
 
   private async getInput(): Promise<PolygonIOSingleCryptoPriceInputParams[]> {
-    const key = `${FetcherName.PolygonIOSingleCryptoPrice}_cachedParams`;
+    const key = FetchersMappingCacheKeys.POLYGONIO_SINGLE_CRYPO_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
     const cachedParams = JSON.parse(cache || '{}');

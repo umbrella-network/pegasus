@@ -10,10 +10,10 @@ import {
   FetchedValueType,
 } from '../../types/fetchers.js';
 
-import Settings from '../../types/Settings.js';
 import {MetalPriceApiDataRepository} from '../../repositories/fetchers/MetalPriceApiDataRepository.js';
 import TimeService from '../TimeService.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export interface MetalPriceApiInputParams {
   symbol: string;
@@ -62,8 +62,7 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
 
   private async cacheInput(params: MetalPriceApiInputParams[]): Promise<void> {
     const timestamp = this.timeService.apply();
-
-    const key = `${FetcherName.MetalPriceApi}_cachedParams`;
+    const key = FetchersMappingCacheKeys.METAL_PRICE_API_PARAMS;
 
     // const cache = await this.mappingRepository.get(key);
     // const cachedParams = JSON.parse(cache || '{}');

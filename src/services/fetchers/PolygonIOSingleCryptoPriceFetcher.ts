@@ -12,6 +12,7 @@ import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
 import {PolygonIOSingleCryptoDataRepository} from '../../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export interface PolygonIOSingleCryptoPriceInputParams {
   fsym: string;
@@ -56,7 +57,7 @@ export class PolygonIOSingleCryptoPriceFetcher implements FeedFetcherInterface {
 
   private async cacheInput(params: PolygonIOSingleCryptoPriceInputParams[]): Promise<void> {
     const timestamp = this.timeService.apply();
-    const key = `${FetcherName.PolygonIOSingleCryptoPrice}_cachedParams`;
+    const key = FetchersMappingCacheKeys.POLYGONIO_SINGLE_CRYPO_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
     const cachedParams = JSON.parse(cache || '{}');

@@ -12,6 +12,7 @@ import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {PolygonIOCurrencySnapshotGramsDataRepository} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
 import TimeService from '../TimeService.js';
+import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export interface PolygonIOCurrencySnapshotGramsInputParams {
   ticker: string;
@@ -67,7 +68,7 @@ export class PolygonIOCurrencySnapshotGramsFetcher implements FeedFetcherInterfa
 
   private async cacheInput(params: PolygonIOCurrencySnapshotGramsInputParams[]): Promise<void> {
     const timestamp = this.timeService.apply();
-    const key = `${FetcherName.PolygonIOCurrencySnapshotGrams}_cachedParams`;
+    const key = FetchersMappingCacheKeys.POLYGONIO_CURRENCY_SNAPSHOT_GRAMS_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
     const cachedParams = JSON.parse(cache || '{}');

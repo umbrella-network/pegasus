@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 
-import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
+import {ServiceInterface} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 import {PolygonIOCurrencySnapshotGramsDataRepository} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
@@ -8,6 +8,7 @@ import {
   BasePolygonIOSnapshotFetcher,
   SnapshotResponse,
 } from '../../services/fetchers/common/BasePolygonIOSnapshotFetcher.js';
+import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
 export interface PolygonIOCurrencySnapshotGramsInputParams {
   ticker: string;
@@ -106,7 +107,7 @@ export class PolygonIOCurrencySnapshotGramsService extends BasePolygonIOSnapshot
   }
 
   private async getInput(): Promise<PolygonIOCurrencySnapshotGramsInputParams[]> {
-    const key = `${FetcherName.PolygonIOCurrencySnapshotGrams}_cachedParams`;
+    const key = FetchersMappingCacheKeys.POLYGONIO_CURRENCY_SNAPSHOT_GRAMS_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
     const cachedParams = JSON.parse(cache || '{}');

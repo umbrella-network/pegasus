@@ -15,6 +15,7 @@ import TimeService from '../TimeService.js';
 import {CoingeckoDataRepository} from '../../repositories/fetchers/CoingeckoDataRepository.js';
 
 import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export interface CoingeckoPriceInputParams {
   id: string;
@@ -62,8 +63,8 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
   private async cacheInput(inputsParams: CoingeckoPriceInputParams[]): Promise<void> {
     const timestamp = this.timeService.apply();
 
-    const idKey = `${FetcherName.CoingeckoPrice}_ids`;
-    const currenciesKey = `${FetcherName.CoingeckoPrice}_vs_currencies`;
+    const idKey = FetchersMappingCacheKeys.COINGECKO_PRICE_IDS;
+    const currenciesKey = FetchersMappingCacheKeys.COINGECKO_PRICE_CURRENCIES;
 
     const cache = await this.mappingRepository.getMany([idKey, currenciesKey]);
     const idsCache = JSON.parse(cache[idKey] || '{}');

@@ -2,12 +2,13 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
+import {ServiceInterface} from '../../types/fetchers.js';
 
 import Settings from '../../types/Settings.js';
 import {MetalPriceApiDataRepository} from '../../repositories/fetchers/MetalPriceApiDataRepository.js';
 import TimeService from '../../services/TimeService.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
 const GRAMS_PER_TROY_OUNCE = 31.1035;
 
@@ -100,7 +101,7 @@ export class MetalPriceApiService implements ServiceInterface {
   }
 
   private async getInput(): Promise<MetalPriceApiInputParams[]> {
-    const key = `${FetcherName.MetalPriceApi}_cachedParams`;
+    const key = FetchersMappingCacheKeys.METAL_PRICE_API_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
     const cachedParams = JSON.parse(cache || '{}');

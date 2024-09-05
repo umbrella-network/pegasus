@@ -2,12 +2,13 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import axios from 'axios';
 
-import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
+import {ServiceInterface} from '../../types/fetchers.js';
 
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
 import {GoldApiDataRepository} from '../../repositories/fetchers/GoldApiDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
 export interface GoldApiPriceInputParams {
   symbol: string;
@@ -89,7 +90,7 @@ export class GoldApiPriceService implements ServiceInterface {
   }
 
   private async getInput(): Promise<GoldApiPriceInputParams[]> {
-    const key = `${FetcherName.GoldApiPrice}_cachedParams`;
+    const key = FetchersMappingCacheKeys.GOLD_API_PRICE_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
     const cachedParams = JSON.parse(cache || '{}');

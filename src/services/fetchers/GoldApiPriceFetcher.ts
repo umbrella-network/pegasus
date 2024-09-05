@@ -13,6 +13,7 @@ import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
 import {GoldApiDataRepository} from '../../repositories/fetchers/GoldApiDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export interface GoldApiPriceInputParams {
   symbol: string;
@@ -60,7 +61,7 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
 
   private async cacheInput(params: GoldApiPriceInputParams[]): Promise<void> {
     const timestamp = this.timeService.apply();
-    const key = `${FetcherName.GoldApiPrice}_cachedParams`;
+    const key = FetchersMappingCacheKeys.GOLD_API_PRICE_PARAMS;
 
     // const cache = await this.mappingRepository.get(key);
     // const cachedParams = JSON.parse(cache || '{}');
