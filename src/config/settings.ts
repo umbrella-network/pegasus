@@ -506,6 +506,8 @@ const settings: Settings = {
       ),
       [FetcherName.PolygonIOSingleCryptoPrice]: schedulerFetcherSettings(FetcherName.PolygonIOSingleCryptoPrice),
       [FetcherName.PolygonIOStockSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOStockSnapshotPrice),
+      [FetcherName.SovrynPrice]: schedulerFetcherSettings(FetcherName.SovrynPrice),
+      [FetcherName.UniswapV3]: schedulerFetcherSettings(FetcherName.UniswapV3),
     },
   },
 };
