@@ -1,7 +1,6 @@
 import {inject, injectable} from 'inversify';
+import {Logger} from 'winston';
 
-import Settings from '../../types/Settings.js';
-import {BasePolygonIOSnapshotFetcher} from './common/BasePolygonIOSnapshotFetcher.js';
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
@@ -20,20 +19,13 @@ export interface PolygonIOCryptoSnapshotInputParams {
 }
 
 @injectable()
-export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements FeedFetcherInterface {
+export class PolygonIOCryptoSnapshotPriceFetcher implements FeedFetcherInterface {
+  @inject('Logger') protected logger!: Logger;
   @inject(PolygonIOCryptoSnapshotDataRepository)
   pIOCryptoSnapshotDataRepository!: PolygonIOCryptoSnapshotDataRepository;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
 
-  constructor(@inject('Settings') settings: Settings) {
-    super();
-
-    this.apiKey = settings.api.polygonIO.apiKey;
-    this.timeout = settings.api.polygonIO.timeout;
-    this.valuePath = '$.tickers[*].lastTrade.p';
-
-    this.logPrefix = `[${FetcherName.PolygonIOCryptoSnapshotPrice}]`;
-  }
+  private logPrefix = `[${FetcherName.PolygonIOCryptoSnapshotPrice}]`;
 
   async apply(params: PolygonIOCryptoSnapshotInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
     if (params.length === 0) {

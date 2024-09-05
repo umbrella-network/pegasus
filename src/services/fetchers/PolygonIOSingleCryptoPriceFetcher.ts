@@ -38,7 +38,7 @@ export class PolygonIOSingleCryptoPriceFetcher implements FeedFetcherInterface {
     try {
       await this.cacheInput(params);
     } catch (e) {
-      this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
+      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
     }
 
     const prices = await this.pIOSingleCryptoDataRepository.getPrices(params, options.timestamp);

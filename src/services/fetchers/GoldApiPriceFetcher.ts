@@ -40,17 +40,15 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
     try {
       await this.cacheInput(params);
     } catch (e) {
-      this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
+      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
     }
-
-    const {symbols} = options;
 
     const prices = await this.goldApiDataRepository.getPrices(params, options.timestamp);
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
       {prices, timestamp: options.timestamp},
-      symbols,
+      options.symbols,
       FetcherName.MetalsDevApi,
       FetchedValueType.Price,
       GoldApiPriceFetcher.fetcherSource,

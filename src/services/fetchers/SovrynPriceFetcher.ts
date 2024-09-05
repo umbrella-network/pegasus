@@ -15,6 +15,7 @@ import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {SovrynDataRepository} from '../../repositories/fetchers/SovrynDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
 import TimeService from '../TimeService.js';
+import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export type SovrynPriceInputParams = {
   base: string;
@@ -53,8 +54,8 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
 
     try {
       await this.cacheInput(params);
-    } catch (error) {
-      this.logger.error(`${this.logPrefix} failed to get price for pairs. ${error}`);
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
     }
 
     const pricesResponse: NumberOrUndefined[] = await this.sovrynDataRepository.getPrices(params, options.timestamp);
@@ -75,8 +76,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
 
   private async cacheInput(params: SovrynPriceInputParams[]): Promise<void> {
     const timestamp = this.timeService.apply();
-
-    const key = `${FetcherName.SovrynPrice}_cachedParams`;
+    const key = FetchersMappingCacheKeys.SOVRYN_PRICE_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
     const cachedParams = JSON.parse(cache || '{}');

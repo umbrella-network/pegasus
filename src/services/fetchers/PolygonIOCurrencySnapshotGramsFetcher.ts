@@ -48,7 +48,7 @@ export class PolygonIOCurrencySnapshotGramsFetcher implements FeedFetcherInterfa
     try {
       await this.cacheInput(params);
     } catch (e) {
-      this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
+      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
     }
 
     const {symbols, timestamp} = options;

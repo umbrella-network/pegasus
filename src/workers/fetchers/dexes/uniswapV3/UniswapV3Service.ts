@@ -12,12 +12,13 @@ import {ContractAddressService} from '../../../../services/ContractAddressServic
 import {PriceDataRepository} from '../../../../repositories/PriceDataRepository.js';
 import TimeService from '../../../../services/TimeService.js';
 
-import {FetcherName, ServiceInterface} from '../../../../types/fetchers.js';
+import {ServiceInterface} from '../../../../types/fetchers.js';
 import {
   UniswapV3PriceRepository,
   UniswapV3DataRepositoryInput,
 } from '../../../../repositories/fetchers/UniswapV3PriceRepository.js';
 import {MappingRepository} from '../../../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from '../../../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,7 +57,7 @@ export class UniswapV3Service implements ServiceInterface {
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
 
-  private logPrefix = `[UniswapV3Service]`;
+  private logPrefix = '[UniswapV3Service]';
 
   readonly dexProtocol = DexProtocolName.UNISWAP_V3;
   static fetcherSource = '';
@@ -167,7 +168,7 @@ export class UniswapV3Service implements ServiceInterface {
   }
 
   private async getInput(): Promise<UniswapV3FetcherInputParams[]> {
-    const key = `${FetcherName.UniswapV3}_cachedParams`;
+    const key = FetchersMappingCacheKeys.UNISWAPV3_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
     const cachedParams = JSON.parse(cache || '{}');

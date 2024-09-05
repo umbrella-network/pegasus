@@ -17,6 +17,7 @@ import {
   SovrynDataRepositoryInput,
 } from '../../../../repositories/fetchers/SovrynDataRepository.js';
 import {MappingRepository} from '../../../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from '../../../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -107,7 +108,7 @@ export class SovrynPriceService implements ServiceInterface {
   }
 
   private async getInput(): Promise<SovrynPriceInputParams[]> {
-    const key = `${FetcherName.SovrynPrice}_cachedParams`;
+    const key = FetchersMappingCacheKeys.SOVRYN_PRICE_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
     const cachedParams = JSON.parse(cache || '{}');

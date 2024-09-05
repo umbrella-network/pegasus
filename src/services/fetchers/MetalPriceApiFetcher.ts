@@ -40,10 +40,8 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
     try {
       await this.cacheInput(params);
     } catch (e) {
-      this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
+      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
     }
-
-    const {symbols} = options;
 
     const [price] = await this.metalPriceApiDataRepository.getPrices(params, options.timestamp);
     const result = {prices: [price], timestamp: options.timestamp};
@@ -51,7 +49,7 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
       result,
-      symbols,
+      options.symbols,
       FetcherName.MetalPriceApi,
       FetchedValueType.Price,
       MetalPriceApiFetcher.fetcherSource,
