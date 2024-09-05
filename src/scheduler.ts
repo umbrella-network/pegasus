@@ -107,6 +107,8 @@ import {FetcherName} from './types/fetchers';
 
   const schedulePriceWorker = async (priceWorker: BasicWorker, fetcherName: FetcherName): Promise<void> => {
     try {
+      logger.info(`[Scheduler] PriceFetcherWorker for ${fetcherName} enqueued`);
+
       await priceWorker.enqueue(
         {
           fetcherName,
@@ -118,7 +120,7 @@ import {FetcherName} from './types/fetchers';
         },
       );
     } catch (e) {
-      logger.error(`[Scheduling] ${fetcherName}: ${(e as Error).message}`);
+      logger.error(`[Scheduling] ${fetcherName} error: ${(e as Error).message}`);
     }
   };
 
