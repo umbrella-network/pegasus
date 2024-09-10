@@ -19,7 +19,7 @@ export interface ByBitPriceInputParams {
 }
 
 @injectable()
-export class ByBitPriceFetcher implements FeedFetcherInterface {
+export class ByBitPriceGetter implements FeedFetcherInterface {
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(ByBitDataRepository) byBitDataRepository!: ByBitDataRepository;
   @inject('Logger') protected logger!: Logger;
@@ -47,7 +47,7 @@ export class ByBitPriceFetcher implements FeedFetcherInterface {
       options.symbols,
       FetcherName.ByBitPrice,
       FetchedValueType.Price,
-      ByBitPriceFetcher.fetcherSource,
+      ByBitPriceGetter.fetcherSource,
     );
 
     return fetcherResult;

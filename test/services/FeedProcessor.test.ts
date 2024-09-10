@@ -13,7 +13,7 @@ import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
 import {FeedFetcherInterface, FetcherName} from '../../src/types/fetchers.js';
 import Feeds from '../../src/types/Feed.js';
 import Leaf from '../../src/types/Leaf.js';
-import {PolygonIOSingleCryptoPriceInputParams} from '../../src/services/fetchers/PolygonIOSingleCryptoPriceFetcher';
+import {PolygonIOSingleCryptoPriceInputParams} from '../../src/services/fetchers/PolygonIOSingleCryptoPriceGetter';
 
 const {expect} = chai;
 

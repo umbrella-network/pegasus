@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {FetcherName, FetchedValueType, NumberOrUndefined} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_UniswapV3} from '../../models/fetchers/PriceModel_UniswapV3.js';
-import {UniswapV3FetcherInputParams} from '../../services/fetchers/UniswapV3Fetcher.js';
+import {UniswapV3FetcherInputParams} from '../../services/fetchers/UniswapV3Getter.js';
 
 export type UniswapV3DataRepositoryInput = {
   params: UniswapV3FetcherInputParams;

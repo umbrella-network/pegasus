@@ -1,12 +1,12 @@
 import chai from 'chai';
 
-import {MetalPriceApiFetcher} from '../../../src/services/fetchers/MetalPriceApiFetcher.js';
+import {MetalPriceApiGetter} from '../../../src/services/fetchers/MetalPriceApiGetter.js';
 import Application from '../../../src/lib/Application.js';
 
 const {expect} = chai;
 
 describe.skip('MetalPriceApiFetcher (this test needs API key)', () => {
-  const fetcher = Application.get(MetalPriceApiFetcher);
+  const fetcher = Application.get(MetalPriceApiGetter);
 
   describe('#apply', () => {
     describe('with valid parameters', () => {

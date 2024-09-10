@@ -2,12 +2,12 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {
-  ByBitPriceFetcher,
-  BinancePriceFetcher,
-  CoingeckoPriceFetcher,
-  PolygonIOCryptoSnapshotPriceFetcher,
-  PolygonIOSingleCryptoPriceFetcher,
-  PolygonIOStockSnapshotPriceFetcher,
+  ByBitPriceGetter,
+  BinancePriceGetter,
+  CoingeckoPriceGetter,
+  PolygonIOCryptoSnapshotPriceGetter,
+  PolygonIOSingleCryptoPriceGetter,
+  PolygonIOStockSnapshotPriceGetter,
 } from '../fetchers/index.js';
 import {
   allMultiFetchers,
@@ -16,8 +16,8 @@ import {
   FetcherName,
   StringOrUndefined,
 } from '../../types/fetchers.js';
-import {UniswapV3Fetcher} from '../fetchers/UniswapV3Fetcher.js';
-import {SovrynPriceFetcher} from '../fetchers/SovrynPriceFetcher.js';
+import {UniswapV3Getter} from '../fetchers/UniswapV3Getter.js';
+import {SovrynPriceGetter} from '../fetchers/SovrynPriceGetter.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
 @injectable()
@@ -27,27 +27,27 @@ export default class MultiFeedProcessor {
   private multifetchersMap: Record<string, FeedFetcherInterface> = {};
 
   constructor(
-    @inject(BinancePriceFetcher) binancePriceFetcher: BinancePriceFetcher,
-    @inject(ByBitPriceFetcher) byBitSpotPriceFetcher: ByBitPriceFetcher,
-    @inject(CoingeckoPriceFetcher) coingeckoPriceFetcher: CoingeckoPriceFetcher,
+    @inject(BinancePriceGetter) binancePricGetter: BinancePriceGetter,
+    @inject(ByBitPriceGetter) byBitSpotPriceGetter: ByBitPriceGetter,
+    @inject(CoingeckoPriceGetter) coingeckoPriceGetter: CoingeckoPriceGetter,
 
-    @inject(PolygonIOCryptoSnapshotPriceFetcher)
-    polygonIOCryptoSnapshotPriceFetcher: PolygonIOCryptoSnapshotPriceFetcher,
-    @inject(PolygonIOSingleCryptoPriceFetcher)
-    polygonIOSingleCryptoPriceFetcher: PolygonIOSingleCryptoPriceFetcher,
-    @inject(PolygonIOStockSnapshotPriceFetcher) polygonIOStockSnapshotPriceFetcher: PolygonIOStockSnapshotPriceFetcher,
+    @inject(PolygonIOCryptoSnapshotPriceGetter)
+    polygonIOCryptoSnapshotPriceGetter: PolygonIOCryptoSnapshotPriceGetter,
+    @inject(PolygonIOSingleCryptoPriceGetter)
+    polygonIOSingleCryptoPriceGetter: PolygonIOSingleCryptoPriceGetter,
+    @inject(PolygonIOStockSnapshotPriceGetter) polygonIOStockSnapshotPriceGetter: PolygonIOStockSnapshotPriceGetter,
 
-    @inject(UniswapV3Fetcher) uniswapV3PriceFetcher: UniswapV3Fetcher,
-    @inject(SovrynPriceFetcher) sovrynPriceFetcher: SovrynPriceFetcher,
+    @inject(UniswapV3Getter) uniswapV3PriceGetter: UniswapV3Getter,
+    @inject(SovrynPriceGetter) sovrynPriceGetter: SovrynPriceGetter,
   ) {
-    this.multifetchersMap[FetcherName.BinancePrice] = binancePriceFetcher;
-    this.multifetchersMap[FetcherName.ByBitPrice] = byBitSpotPriceFetcher;
-    this.multifetchersMap[FetcherName.CoingeckoPrice] = coingeckoPriceFetcher;
-    this.multifetchersMap[FetcherName.PolygonIOCryptoSnapshotPrice] = polygonIOCryptoSnapshotPriceFetcher;
-    this.multifetchersMap[FetcherName.PolygonIOStockSnapshotPrice] = polygonIOStockSnapshotPriceFetcher;
-    this.multifetchersMap[FetcherName.PolygonIOSingleCryptoPrice] = polygonIOSingleCryptoPriceFetcher;
-    this.multifetchersMap[FetcherName.SovrynPrice] = sovrynPriceFetcher;
-    this.multifetchersMap[FetcherName.UniswapV3] = uniswapV3PriceFetcher;
+    this.multifetchersMap[FetcherName.BinancePrice] = binancePricGetter;
+    this.multifetchersMap[FetcherName.ByBitPrice] = byBitSpotPriceGetter;
+    this.multifetchersMap[FetcherName.CoingeckoPrice] = coingeckoPriceGetter;
+    this.multifetchersMap[FetcherName.PolygonIOCryptoSnapshotPrice] = polygonIOCryptoSnapshotPriceGetter;
+    this.multifetchersMap[FetcherName.PolygonIOStockSnapshotPrice] = polygonIOStockSnapshotPriceGetter;
+    this.multifetchersMap[FetcherName.PolygonIOSingleCryptoPrice] = polygonIOSingleCryptoPriceGetter;
+    this.multifetchersMap[FetcherName.SovrynPrice] = sovrynPriceGetter;
+    this.multifetchersMap[FetcherName.UniswapV3] = uniswapV3PriceGetter;
   }
 
   private logPrefix = '[MultiFeedProcessor]';

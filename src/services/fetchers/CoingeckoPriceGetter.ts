@@ -23,7 +23,7 @@ export interface CoingeckoPriceInputParams {
 }
 
 @injectable()
-export class CoingeckoPriceFetcher implements FeedFetcherInterface {
+export class CoingeckoPriceGetter implements FeedFetcherInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(CoingeckoDataRepository) private coingeckoDataRepository!: CoingeckoDataRepository;
@@ -54,7 +54,7 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
       options.symbols,
       FetcherName.CoingeckoPrice,
       FetchedValueType.Price,
-      CoingeckoPriceFetcher.fetcherSource,
+      CoingeckoPriceGetter.fetcherSource,
     );
 
     return fetcherResult;

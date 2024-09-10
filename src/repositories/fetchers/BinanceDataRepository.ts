@@ -2,7 +2,7 @@ import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
-import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceFetcher.js';
+import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceGetter.js';
 import {PriceModel_Binance} from '../../models/fetchers/PriceModel_Binance.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 

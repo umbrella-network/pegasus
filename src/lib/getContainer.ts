@@ -29,18 +29,18 @@ import {PolygonIOCryptoSnapshotDataRepository} from '../repositories/fetchers/Po
 import {PolygonIOCurrencySnapshotGramsDataRepository} from '../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
 import {PolygonIOSingleCryptoDataRepository} from '../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
 import {
-  BinancePriceFetcher,
-  ByBitPriceFetcher,
-  CoingeckoPriceFetcher,
-  EvmTWAPGasPriceFetcher,
-  GoldApiPriceFetcher,
-  MetalPriceApiFetcher,
-  MetalsDevApiFetcher,
+  BinancePriceGetter,
+  ByBitPriceGetter,
+  CoingeckoPriceGetter,
+  EvmTWAPGasPriceGetter,
+  GoldApiPriceGetter,
+  MetalPriceApiGetter,
+  MetalsDevApiGetter,
   OnChainDataFetcher,
-  PolygonIOCryptoSnapshotPriceFetcher,
-  PolygonIOCurrencySnapshotGramsFetcher,
-  PolygonIOSingleCryptoPriceFetcher,
-  PolygonIOStockSnapshotPriceFetcher,
+  PolygonIOCryptoSnapshotPriceGetter,
+  PolygonIOCurrencySnapshotGramsGetter,
+  PolygonIOSingleCryptoPriceGetter,
+  PolygonIOStockSnapshotPriceGetter,
   RandomNumberFetcher,
 } from '../services/fetchers/index.js';
 import {VerifyProposedData} from '../services/tools/VerifyProposedData.js';
@@ -48,8 +48,8 @@ import {VerifyProposedData} from '../services/tools/VerifyProposedData.js';
 import PriceFetchingWorker from '../workers/PriceFetchingWorker.js';
 import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository.js';
 import BlockMintingWorker from '../workers/BlockMintingWorker.js';
-import {SovrynPriceFetcher} from '../services/fetchers/SovrynPriceFetcher.js';
-import {UniswapV3Fetcher} from '../services/fetchers/UniswapV3Fetcher.js';
+import {SovrynPriceGetter} from '../services/fetchers/SovrynPriceGetter.js';
+import {UniswapV3Getter} from '../services/fetchers/UniswapV3Getter.js';
 import {BinancePriceService} from '../workers/fetchers/BinancePriceService.js';
 import {ByBitPriceService} from '../workers/fetchers/ByBitPriceService.js';
 import {CoingeckoPriceService} from '../workers/fetchers/CoingeckoPriceService.js';
@@ -77,32 +77,32 @@ export function getContainer(): Container {
   container.bind(FeedProcessor).toSelf().inSingletonScope();
   container.bind(ContractAddressService).toSelf().inSingletonScope();
 
-  container.bind(BinancePriceFetcher).toSelf().inSingletonScope();
+  container.bind(BinancePriceGetter).toSelf().inSingletonScope();
   container.bind(BinanceDataRepository).toSelf().inSingletonScope();
-  container.bind(ByBitPriceFetcher).toSelf().inSingletonScope();
+  container.bind(ByBitPriceGetter).toSelf().inSingletonScope();
   container.bind(ByBitDataRepository).toSelf().inSingletonScope();
   container.bind(CoingeckoDataRepository).toSelf().inSingletonScope();
-  container.bind(CoingeckoPriceFetcher).toSelf().inSingletonScope();
-  container.bind(EvmTWAPGasPriceFetcher).toSelf().inSingletonScope();
+  container.bind(CoingeckoPriceGetter).toSelf().inSingletonScope();
+  container.bind(EvmTWAPGasPriceGetter).toSelf().inSingletonScope();
   container.bind(TWAPGasRepository).toSelf().inSingletonScope();
   container.bind(GoldApiDataRepository).toSelf().inSingletonScope();
-  container.bind(GoldApiPriceFetcher).toSelf().inSingletonScope();
+  container.bind(GoldApiPriceGetter).toSelf().inSingletonScope();
   container.bind(MetalPriceApiDataRepository).toSelf().inSingletonScope();
-  container.bind(MetalPriceApiFetcher).toSelf().inSingletonScope();
+  container.bind(MetalPriceApiGetter).toSelf().inSingletonScope();
   container.bind(MetalsDevApiDataRepository).toSelf().inSingletonScope();
-  container.bind(MetalsDevApiFetcher).toSelf().inSingletonScope();
+  container.bind(MetalsDevApiGetter).toSelf().inSingletonScope();
   container.bind(OnChainDataFetcher).toSelf().inSingletonScope();
   container.bind(OnChainDataRepository).toSelf().inSingletonScope();
-  container.bind(PolygonIOCryptoSnapshotPriceFetcher).toSelf().inSingletonScope();
+  container.bind(PolygonIOCryptoSnapshotPriceGetter).toSelf().inSingletonScope();
   container.bind(PolygonIOCryptoSnapshotDataRepository).toSelf().inSingletonScope();
   container.bind(PolygonIOCurrencySnapshotGramsDataRepository).toSelf().inSingletonScope();
-  container.bind(PolygonIOCurrencySnapshotGramsFetcher).toSelf().inSingletonScope();
+  container.bind(PolygonIOCurrencySnapshotGramsGetter).toSelf().inSingletonScope();
   container.bind(PolygonIOSingleCryptoDataRepository).toSelf().inSingletonScope();
-  container.bind(PolygonIOSingleCryptoPriceFetcher).toSelf().inSingletonScope();
-  container.bind(PolygonIOStockSnapshotPriceFetcher).toSelf().inSingletonScope();
+  container.bind(PolygonIOSingleCryptoPriceGetter).toSelf().inSingletonScope();
+  container.bind(PolygonIOStockSnapshotPriceGetter).toSelf().inSingletonScope();
   container.bind(RandomNumberFetcher).toSelf().inSingletonScope();
-  container.bind(SovrynPriceFetcher).toSelf().inSingletonScope();
-  container.bind(UniswapV3Fetcher).toSelf().inSingletonScope();
+  container.bind(SovrynPriceGetter).toSelf().inSingletonScope();
+  container.bind(UniswapV3Getter).toSelf().inSingletonScope();
 
   container.bind(PriceFetchingWorker).toSelf().inSingletonScope();
   container.bind(PriceFetcherServiceRepository).toSelf().inSingletonScope();

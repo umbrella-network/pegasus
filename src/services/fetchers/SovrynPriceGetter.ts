@@ -37,7 +37,7 @@ weBTC-rUSDT:
           amountIdDecimals: 18
 */
 @injectable()
-export class SovrynPriceFetcher implements FeedFetcherInterface {
+export class SovrynPriceGetter implements FeedFetcherInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(SovrynDataRepository) private sovrynDataRepository!: SovrynDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
@@ -68,7 +68,7 @@ export class SovrynPriceFetcher implements FeedFetcherInterface {
       options.symbols,
       FetcherName.SovrynPrice,
       FetchedValueType.Price,
-      SovrynPriceFetcher.fetcherSource,
+      SovrynPriceGetter.fetcherSource,
     );
 
     return fetcherResult;

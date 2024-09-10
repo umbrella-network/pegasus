@@ -19,7 +19,7 @@ export interface PolygonIOCryptoSnapshotInputParams {
 }
 
 @injectable()
-export class PolygonIOCryptoSnapshotPriceFetcher implements FeedFetcherInterface {
+export class PolygonIOCryptoSnapshotPriceGetter implements FeedFetcherInterface {
   @inject('Logger') protected logger!: Logger;
   @inject(PolygonIOCryptoSnapshotDataRepository)
   pIOCryptoSnapshotDataRepository!: PolygonIOCryptoSnapshotDataRepository;

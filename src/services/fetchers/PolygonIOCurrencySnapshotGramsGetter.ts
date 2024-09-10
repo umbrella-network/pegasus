@@ -25,7 +25,7 @@ export interface PolygonIOCurrencySnapshotGramsInputParams {
           ticker: C:XAUUSD
  */
 @injectable()
-export class PolygonIOCurrencySnapshotGramsFetcher implements FeedFetcherInterface {
+export class PolygonIOCurrencySnapshotGramsGetter implements FeedFetcherInterface {
   @inject('Logger') protected logger!: Logger;
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(TimeService) private timeService!: TimeService;
@@ -60,7 +60,7 @@ export class PolygonIOCurrencySnapshotGramsFetcher implements FeedFetcherInterfa
       symbols,
       FetcherName.PolygonIOCurrencySnapshotGrams,
       FetchedValueType.Price,
-      PolygonIOCurrencySnapshotGramsFetcher.fetcherSource,
+      PolygonIOCurrencySnapshotGramsGetter.fetcherSource,
     );
 
     return {prices};

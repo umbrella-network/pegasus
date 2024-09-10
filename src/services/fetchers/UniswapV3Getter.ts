@@ -25,7 +25,7 @@ export type UniswapV3FetcherInputParams = {
 };
 
 @injectable()
-export class UniswapV3Fetcher implements FeedFetcherInterface {
+export class UniswapV3Getter implements FeedFetcherInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(UniswapV3PriceRepository) protected uniswapV3PriceRepository!: UniswapV3PriceRepository;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
@@ -58,7 +58,7 @@ export class UniswapV3Fetcher implements FeedFetcherInterface {
       options.symbols,
       FetcherName.UniswapV3,
       FetchedValueType.Price,
-      UniswapV3Fetcher.fetcherSource,
+      UniswapV3Getter.fetcherSource,
     );
 
     return fetcherResult;

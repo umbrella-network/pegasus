@@ -1,33 +1,37 @@
-import {PolygonIOCurrencySnapshotGramsFetcher} from './PolygonIOCurrencySnapshotGramsFetcher.js';
+import {PolygonIOCurrencySnapshotGramsGetter} from './PolygonIOCurrencySnapshotGramsGetter.js';
 import {YearnVaultTokenPriceFetcher} from './YearnVaultTokenPriceFetcher.js';
-import {CoingeckoPriceFetcher} from './CoingeckoPriceFetcher.js';
+import {CoingeckoPriceGetter} from './CoingeckoPriceGetter.js';
 import {OptionsPriceFetcher} from './OptionsPriceFetcher.js';
 import {RandomNumberFetcher} from './RandomNumberFetcher.js';
 import {OnChainDataFetcher} from './OnChainDataFetcher.js';
-import {EvmTWAPGasPriceFetcher} from './EvmTWAPGasPriceFetcher.js';
-import {MetalPriceApiFetcher} from './MetalPriceApiFetcher.js';
-import {MetalsDevApiFetcher} from './MetalsDevApiFetcher.js';
-import {GoldApiPriceFetcher} from './GoldApiPriceFetcher.js';
-import {ByBitPriceFetcher} from './ByBitPriceFetcher.js';
-import {BinancePriceFetcher} from './BinancePriceFetcher.js';
-import {PolygonIOCryptoSnapshotPriceFetcher} from './PolygonIOCryptoSnapshotPriceFetcher.js';
-import {PolygonIOSingleCryptoPriceFetcher} from './PolygonIOSingleCryptoPriceFetcher.js';
-import {PolygonIOStockSnapshotPriceFetcher} from './PolygonIOStockSnapshotPriceFetcher.js';
+import {EvmTWAPGasPriceGetter} from './EvmTWAPGasPriceGetter.js';
+import {MetalPriceApiGetter} from './MetalPriceApiGetter.js';
+import {MetalsDevApiGetter} from './MetalsDevApiGetter.js';
+import {GoldApiPriceGetter} from './GoldApiPriceGetter.js';
+import {ByBitPriceGetter} from './ByBitPriceGetter.js';
+import {BinancePriceGetter} from './BinancePriceGetter.js';
+import {PolygonIOCryptoSnapshotPriceGetter} from './PolygonIOCryptoSnapshotPriceGetter.js';
+import {PolygonIOSingleCryptoPriceGetter} from './PolygonIOSingleCryptoPriceGetter.js';
+import {PolygonIOStockSnapshotPriceGetter} from './PolygonIOStockSnapshotPriceGetter.js';
+import {SovrynPriceGetter} from './SovrynPriceGetter.js';
+import {UniswapV3Getter} from './UniswapV3Getter.js';
 
 export {
-  BinancePriceFetcher,
-  ByBitPriceFetcher,
-  CoingeckoPriceFetcher,
-  EvmTWAPGasPriceFetcher,
-  GoldApiPriceFetcher,
-  MetalPriceApiFetcher,
-  MetalsDevApiFetcher,
+  BinancePriceGetter,
+  ByBitPriceGetter,
+  CoingeckoPriceGetter,
+  EvmTWAPGasPriceGetter,
+  GoldApiPriceGetter,
+  MetalPriceApiGetter,
+  MetalsDevApiGetter,
   OnChainDataFetcher,
   OptionsPriceFetcher,
-  PolygonIOCryptoSnapshotPriceFetcher,
-  PolygonIOCurrencySnapshotGramsFetcher,
-  PolygonIOSingleCryptoPriceFetcher,
-  PolygonIOStockSnapshotPriceFetcher,
+  PolygonIOCryptoSnapshotPriceGetter,
+  PolygonIOCurrencySnapshotGramsGetter,
+  PolygonIOSingleCryptoPriceGetter,
+  PolygonIOStockSnapshotPriceGetter,
   RandomNumberFetcher,
+  SovrynPriceGetter,
+  UniswapV3Getter,
   YearnVaultTokenPriceFetcher,
 };

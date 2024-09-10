@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {FetcherName, FetchedValueType, NumberOrUndefined} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_Sovryn} from '../../models/fetchers/PriceModel_Sovryn.js';
-import {SovrynPriceInputParams} from '../../services/fetchers/SovrynPriceFetcher.js';
+import {SovrynPriceInputParams} from '../../services/fetchers/SovrynPriceGetter.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 
 export type SovrynDataRepositoryInput = {

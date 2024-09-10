@@ -20,7 +20,7 @@ export interface PolygonIOSingleCryptoPriceInputParams {
 }
 
 @injectable()
-export class PolygonIOSingleCryptoPriceFetcher implements FeedFetcherInterface {
+export class PolygonIOSingleCryptoPriceGetter implements FeedFetcherInterface {
   @inject('Logger') protected logger!: Logger;
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PolygonIOSingleCryptoDataRepository) pIOSingleCryptoDataRepository!: PolygonIOSingleCryptoDataRepository;

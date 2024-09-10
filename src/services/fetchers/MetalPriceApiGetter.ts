@@ -21,7 +21,7 @@ export interface MetalPriceApiInputParams {
 }
 
 @injectable()
-export class MetalPriceApiFetcher implements FeedFetcherInterface {
+export class MetalPriceApiGetter implements FeedFetcherInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MetalPriceApiDataRepository) private metalPriceApiDataRepository!: MetalPriceApiDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
@@ -52,7 +52,7 @@ export class MetalPriceApiFetcher implements FeedFetcherInterface {
       options.symbols,
       FetcherName.MetalPriceApi,
       FetchedValueType.Price,
-      MetalPriceApiFetcher.fetcherSource,
+      MetalPriceApiGetter.fetcherSource,
     );
 
     return result;

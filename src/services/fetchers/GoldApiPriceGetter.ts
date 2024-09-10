@@ -21,7 +21,7 @@ export interface GoldApiPriceInputParams {
 }
 
 @injectable()
-export class GoldApiPriceFetcher implements FeedFetcherInterface {
+export class GoldApiPriceGetter implements FeedFetcherInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(GoldApiDataRepository) private goldApiDataRepository!: GoldApiDataRepository;
@@ -51,7 +51,7 @@ export class GoldApiPriceFetcher implements FeedFetcherInterface {
       options.symbols,
       FetcherName.MetalsDevApi,
       FetchedValueType.Price,
-      GoldApiPriceFetcher.fetcherSource,
+      GoldApiPriceGetter.fetcherSource,
     );
 
     return {prices};

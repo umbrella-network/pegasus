@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {PriceModel_PolygonIOSingleCrypto} from '../../models/fetchers/PriceModel_PolygonIOSingleCrypto.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {PolygonIOSingleCryptoPriceInputParams} from '../../services/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
+import {PolygonIOSingleCryptoPriceInputParams} from '../../services/fetchers/PolygonIOSingleCryptoPriceGetter.js';
 
 export type PolygonIOSingleCryptoDataRepositoryInput = {
   value: number;

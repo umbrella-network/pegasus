@@ -2,14 +2,14 @@ import chai from 'chai';
 import moxios from 'moxios';
 import sinon, {SinonFakeTimers} from 'sinon';
 
-import {BinancePriceFetcher} from '../../../src/services/fetchers/index.js';
+import {BinancePriceGetter} from '../../../src/services/fetchers/index.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import Settings from '../../../src/types/Settings.js';
 
 const {expect} = chai;
 
 describe('BinancePriceMultiFetcher', () => {
-  let binancePriceMultiFetcher: BinancePriceFetcher;
+  let binancePriceMultiFetcher: BinancePriceGetter;
   let clock: SinonFakeTimers;
 
   beforeEach(async () => {
@@ -31,9 +31,9 @@ describe('BinancePriceMultiFetcher', () => {
     } as Settings;
 
     const container = getTestContainer();
-    container.bind(BinancePriceFetcher).toSelf();
+    container.bind(BinancePriceGetter).toSelf();
     container.rebind('Settings').toConstantValue(settings);
-    binancePriceMultiFetcher = container.get(BinancePriceFetcher);
+    binancePriceMultiFetcher = container.get(BinancePriceGetter);
   });
 
   afterEach(() => {

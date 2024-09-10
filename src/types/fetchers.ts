@@ -1,16 +1,16 @@
-import {SovrynPriceInputParams} from 'src/services/fetchers/SovrynPriceFetcher';
-import {BinancePriceInputParams} from 'src/services/fetchers/BinancePriceFetcher';
-import {ByBitPriceInputParams} from 'src/services/fetchers/ByBitPriceFetcher';
-import {CoingeckoPriceInputParams} from 'src/services/fetchers/CoingeckoPriceFetcher';
-import {EvmTWAPGasPriceInputParams} from 'src/services/fetchers/EvmTWAPGasPriceFetcher';
-import {GoldApiPriceInputParams} from 'src/services/fetchers/GoldApiPriceFetcher';
-import {MetalPriceApiInputParams} from 'src/services/fetchers/MetalPriceApiFetcher';
-import {MetalsDevApiPriceInputParams} from 'src/services/fetchers/MetalsDevApiFetcher';
-import {PolygonIOCurrencySnapshotGramsInputParams} from 'src/services/fetchers/PolygonIOCurrencySnapshotGramsFetcher';
-import {PolygonIOStockSnapshotFetcherInputParams} from 'src/services/fetchers/PolygonIOStockSnapshotPriceFetcher';
-import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceFetcher.js';
-import {PolygonIOSingleCryptoPriceInputParams} from '../services/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
-import {UniswapV3FetcherInputParams} from '../services/fetchers/UniswapV3Fetcher';
+import {SovrynPriceInputParams} from '../services/fetchers/SovrynPriceGetter.js';
+import {BinancePriceInputParams} from '../services/fetchers/BinancePriceGetter.js';
+import {ByBitPriceInputParams} from '../services/fetchers/ByBitPriceGetter.js';
+import {CoingeckoPriceInputParams} from '../services/fetchers/CoingeckoPriceGetter.js';
+import {EvmTWAPGasPriceInputParams} from '../services/fetchers/EvmTWAPGasPriceGetter.js';
+import {GoldApiPriceInputParams} from '../services/fetchers/GoldApiPriceGetter.js';
+import {MetalPriceApiInputParams} from '../services/fetchers/MetalPriceApiGetter.js';
+import {MetalsDevApiPriceInputParams} from '../services/fetchers/MetalsDevApiGetter.js';
+import {PolygonIOCurrencySnapshotGramsInputParams} from '../services/fetchers/PolygonIOCurrencySnapshotGramsGetter.js';
+import {PolygonIOStockSnapshotFetcherInputParams} from '../services/fetchers/PolygonIOStockSnapshotPriceGetter.js';
+import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceGetter.js';
+import {PolygonIOSingleCryptoPriceInputParams} from '../services/fetchers/PolygonIOSingleCryptoPriceGetter.js';
+import {UniswapV3FetcherInputParams} from '../services/fetchers/UniswapV3Getter.js';
 
 export type NumberOrUndefined = number | undefined;
 
@@ -34,17 +34,17 @@ export type FetcherResult = {
 export type FeedFetcherInputParams =
   | ByBitPriceInputParams
   | BinancePriceInputParams
-  | GoldApiPriceInputParams
-  | PolygonIOCryptoSnapshotInputParams
-  | PolygonIOSingleCryptoPriceInputParams
-  | PolygonIOCurrencySnapshotGramsInputParams
-  | PolygonIOStockSnapshotFetcherInputParams
+  | CoingeckoPriceInputParams
   | EvmTWAPGasPriceInputParams
+  | GoldApiPriceInputParams
   | MetalPriceApiInputParams
   | MetalsDevApiPriceInputParams
+  | PolygonIOCryptoSnapshotInputParams
+  | PolygonIOCurrencySnapshotGramsInputParams
+  | PolygonIOSingleCryptoPriceInputParams
+  | PolygonIOStockSnapshotFetcherInputParams
   | SovrynPriceInputParams
-  | UniswapV3FetcherInputParams
-  | CoingeckoPriceInputParams;
+  | UniswapV3FetcherInputParams;
 
 export interface FeedFetcherInterface {
   apply(params: FeedFetcherInputParams[], options: FeedFetcherOptions): Promise<FetcherResult>;
@@ -55,24 +55,24 @@ export interface ServiceInterface {
 }
 
 export enum FetcherName {
-  GVolImpliedVolatility = 'GVolImpliedVolatility',
+  ByBitPrice = 'ByBitPrice',
+  BinancePrice = 'BinancePrice',
   CoingeckoPrice = 'CoingeckoPrice',
+  GoldApiPrice = 'GoldApiPrice',
+  GVolImpliedVolatility = 'GVolImpliedVolatility',
+  MetalPriceApi = 'MetalPriceApi',
+  MetalsDevApi = 'MetalsDevApi',
   PolygonIOStockSnapshotPrice = 'PolygonIOStockSnapshotPrice',
   PolygonIOSingleCryptoPrice = 'PolygonIOSingleCryptoPrice',
   PolygonIOCurrencySnapshotGrams = 'PolygonIOCurrencySnapshotGrams',
   PolygonIOCryptoSnapshotPrice = 'PolygonIOCryptoSnapshotPrice',
-  TWAPGasPrice = 'TWAPGasPrice',
   OnChainData = 'OnChainData',
-  UniswapV3 = 'UniswapV3',
-  GoldApiPrice = 'GoldApiPrice',
-  MetalPriceApi = 'MetalPriceApi',
-  MetalsDevApi = 'MetalsDevApi',
   OptionsPrice = 'OptionsPrice',
-  YearnVaultTokenPrice = 'YearnVaultTokenPrice',
   RandomNumber = 'RandomNumber',
   SovrynPrice = 'SovrynPrice',
-  ByBitPrice = 'ByBitPrice',
-  BinancePrice = 'BinancePrice',
+  TWAPGasPrice = 'TWAPGasPrice',
+  UniswapV3 = 'UniswapV3',
+  YearnVaultTokenPrice = 'YearnVaultTokenPrice',
 }
 
 export const allMultiFetchers: Set<string> = new Set([

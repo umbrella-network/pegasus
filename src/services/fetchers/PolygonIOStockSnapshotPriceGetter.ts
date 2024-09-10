@@ -16,7 +16,7 @@ export interface PolygonIOStockSnapshotFetcherInputParams {
 }
 
 @injectable()
-export class PolygonIOStockSnapshotPriceFetcher implements FeedFetcherInterface {
+export class PolygonIOStockSnapshotPriceGetter implements FeedFetcherInterface {
   @inject('Logger') protected logger!: Logger;
 
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;

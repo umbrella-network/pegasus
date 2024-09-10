@@ -21,7 +21,7 @@ export interface BinancePriceInputParams {
 }
 
 @injectable()
-export class BinancePriceFetcher implements FeedFetcherInterface {
+export class BinancePriceGetter implements FeedFetcherInterface {
   @inject(BinanceDataRepository) binanceDataRepository!: BinanceDataRepository;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
@@ -56,7 +56,7 @@ export class BinancePriceFetcher implements FeedFetcherInterface {
       options.symbols,
       FetcherName.BinancePrice,
       FetchedValueType.Price,
-      BinancePriceFetcher.fetcherSource,
+      BinancePriceGetter.fetcherSource,
     );
 
     return fetcherResults;
