@@ -18,7 +18,7 @@ import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersM
 type ParsedResponse = {id: string; currency: string; value: number; timestamp: number};
 
 @injectable()
-export class CoingeckoPriceService implements ServiceInterface {
+export class CoingeckoPriceFetcher implements ServiceInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(CoingeckoDataRepository) private coingeckoDataRepository!: CoingeckoDataRepository;
   @inject('Logger') private logger!: Logger;

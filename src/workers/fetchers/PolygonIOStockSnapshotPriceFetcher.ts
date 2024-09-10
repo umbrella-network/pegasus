@@ -11,7 +11,7 @@ import {
 type ParsedResponse = {ticker: string; price: number; timestamp: number};
 
 @injectable()
-export class PolygonIOStockSnapshotPriceService extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
+export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
   @inject(PolygonIOStockSnapshotDataRepository)
   polygonIOStockSnapshotDataRepository!: PolygonIOStockSnapshotDataRepository;
 

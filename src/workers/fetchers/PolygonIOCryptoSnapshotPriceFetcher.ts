@@ -12,7 +12,7 @@ import {
 type ParsedResponse = {symbol: string; price: number; timestamp: number};
 
 @injectable()
-export class PolygonIOCryptoSnapshotPriceService extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
+export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
   @inject(PolygonIOCryptoSnapshotDataRepository)
   pIOCryptoSnapshotDataRepository!: PolygonIOCryptoSnapshotDataRepository;
 

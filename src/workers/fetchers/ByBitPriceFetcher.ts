@@ -10,7 +10,7 @@ import {ByBitDataRepository, ByBitDataRepositoryInput} from '../../repositories/
 type ParsedResponse = {symbol: string; usdIndexPrice: number | undefined; lastPrice: number};
 
 @injectable()
-export class ByBitPriceService implements ServiceInterface {
+export class ByBitPriceFetcher implements ServiceInterface {
   @inject(ByBitDataRepository) byBitDataRepository!: ByBitDataRepository;
   @inject('Logger') protected logger!: Logger;
 

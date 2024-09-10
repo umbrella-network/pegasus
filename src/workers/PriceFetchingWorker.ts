@@ -2,12 +2,12 @@ import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
 import BasicWorker from './BasicWorker.js';
-import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository.js';
+import {PriceFetcherRepository} from '../repositories/PriceFetcherRepository.js';
 import {SchedulerFetcherSettings} from '../types/Settings.js';
 
 @injectable()
 class PriceFetchingWorker extends BasicWorker {
-  @inject(PriceFetcherServiceRepository) priceFetcherServiceRepository!: PriceFetcherServiceRepository;
+  @inject(PriceFetcherRepository) priceFetcherServiceRepository!: PriceFetcherRepository;
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
     // example of params and opts:

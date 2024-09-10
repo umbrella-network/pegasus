@@ -16,7 +16,7 @@ export interface GoldApiPriceInputParams {
 }
 
 @injectable()
-export class GoldApiPriceService implements ServiceInterface {
+export class GoldApiPriceFetcher implements ServiceInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(GoldApiDataRepository) private goldApiDataRepository!: GoldApiDataRepository;
   @inject(TimeService) timeService!: TimeService;

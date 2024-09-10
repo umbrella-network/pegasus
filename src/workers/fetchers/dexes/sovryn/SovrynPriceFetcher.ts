@@ -43,7 +43,7 @@ const pairRequestToString = (pair: SovrynPriceInputParams) => {
 };
 
 @injectable()
-export class SovrynPriceService implements ServiceInterface {
+export class SovrynPriceFetcher implements ServiceInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(SovrynDataRepository) private sovrynDataRepository!: SovrynDataRepository;
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;

@@ -48,7 +48,7 @@ type PricesResponse = {
 };
 
 @injectable()
-export class UniswapV3Service implements ServiceInterface {
+export class UniswapV3Fetcher implements ServiceInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(UniswapV3PriceRepository) protected uniswapV3PriceRepository!: UniswapV3PriceRepository;
   @inject(UniswapV3PoolRepository) protected uniswapV3PoolRepository!: UniswapV3PoolRepository;

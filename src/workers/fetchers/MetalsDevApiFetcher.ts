@@ -15,7 +15,7 @@ export interface MetalsDevApiPriceInputParams {
 }
 
 @injectable()
-export class MetalsDevApiService implements ServiceInterface {
+export class MetalsDevApiFetcher implements ServiceInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MetalsDevApiDataRepository) private metalsDevApiDataRepository!: MetalsDevApiDataRepository;
   @inject(TimeService) private timeService!: TimeService;

@@ -17,7 +17,7 @@ export interface PolygonIOCurrencySnapshotGramsInputParams {
 type ParsedResponse = {ticker: string; price: number; timestamp: number};
 
 @injectable()
-export class PolygonIOCurrencySnapshotGramsService extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
+export class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PolygonIOCurrencySnapshotGramsDataRepository)
   private pIOCurrencySnapshotGramsDataRepository!: PolygonIOCurrencySnapshotGramsDataRepository;

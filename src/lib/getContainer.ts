@@ -46,20 +46,20 @@ import {
 import {VerifyProposedData} from '../services/tools/VerifyProposedData.js';
 
 import PriceFetchingWorker from '../workers/PriceFetchingWorker.js';
-import {PriceFetcherServiceRepository} from '../repositories/PriceFetcherServiceRepository.js';
+import {PriceFetcherRepository} from '../repositories/PriceFetcherRepository.js';
 import BlockMintingWorker from '../workers/BlockMintingWorker.js';
 import {SovrynPriceGetter} from '../services/fetchers/SovrynPriceGetter.js';
 import {UniswapV3Getter} from '../services/fetchers/UniswapV3Getter.js';
-import {BinancePriceService} from '../workers/fetchers/BinancePriceService.js';
-import {ByBitPriceService} from '../workers/fetchers/ByBitPriceService.js';
-import {CoingeckoPriceService} from '../workers/fetchers/CoingeckoPriceService.js';
-import {GoldApiPriceService} from '../workers/fetchers/GoldApiPriceService.js';
-import {MetalPriceApiService} from '../workers/fetchers/MetalPriceApiService.js';
-import {MetalsDevApiService} from '../workers/fetchers/MetalsDevApiService.js';
-import {PolygonIOCryptoSnapshotPriceService} from '../workers/fetchers/PolygonIOCryptoSnapshotPriceService.js';
-import {PolygonIOCurrencySnapshotGramsService} from '../workers/fetchers/PolygonIOCurrencySnapshotGramsService.js';
-import {PolygonIOSingleCryptoPriceService} from '../workers/fetchers/PolygonIOSingleCryptoPriceService.js';
-import {PolygonIOStockSnapshotPriceService} from '../workers/fetchers/PolygonIOStockSnapshotPriceService.js';
+import {BinancePriceFetcher} from '../workers/fetchers/BinancePriceFetcher.js';
+import {ByBitPriceFetcher} from '../workers/fetchers/ByBitPriceFetcher.js';
+import {CoingeckoPriceFetcher} from '../workers/fetchers/CoingeckoPriceFetcher.js';
+import {GoldApiPriceFetcher} from '../workers/fetchers/GoldApiPriceFetcher.js';
+import {MetalPriceApiFetcher} from '../workers/fetchers/MetalPriceApiFetcher.js';
+import {MetalsDevApiFetcher} from '../workers/fetchers/MetalsDevApiFetcher.js';
+import {PolygonIOCryptoSnapshotPriceFetcher} from '../workers/fetchers/PolygonIOCryptoSnapshotPriceFetcher.js';
+import {PolygonIOCurrencySnapshotGramsFetcher} from '../workers/fetchers/PolygonIOCurrencySnapshotGramsFetcher.js';
+import {PolygonIOSingleCryptoPriceFetcher} from '../workers/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
+import {PolygonIOStockSnapshotPriceFetcher} from '../workers/fetchers/PolygonIOStockSnapshotPriceFetcher.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -105,18 +105,18 @@ export function getContainer(): Container {
   container.bind(UniswapV3Getter).toSelf().inSingletonScope();
 
   container.bind(PriceFetchingWorker).toSelf().inSingletonScope();
-  container.bind(PriceFetcherServiceRepository).toSelf().inSingletonScope();
+  container.bind(PriceFetcherRepository).toSelf().inSingletonScope();
 
-  container.bind(BinancePriceService).toSelf().inSingletonScope();
-  container.bind(ByBitPriceService).toSelf().inSingletonScope();
-  container.bind(CoingeckoPriceService).toSelf().inSingletonScope();
-  container.bind(GoldApiPriceService).toSelf().inSingletonScope();
-  container.bind(MetalPriceApiService).toSelf().inSingletonScope();
-  container.bind(MetalsDevApiService).toSelf().inSingletonScope();
-  container.bind(PolygonIOCryptoSnapshotPriceService).toSelf().inSingletonScope();
-  container.bind(PolygonIOCurrencySnapshotGramsService).toSelf().inSingletonScope();
-  container.bind(PolygonIOSingleCryptoPriceService).toSelf().inSingletonScope();
-  container.bind(PolygonIOStockSnapshotPriceService).toSelf().inSingletonScope();
+  container.bind(BinancePriceFetcher).toSelf().inSingletonScope();
+  container.bind(ByBitPriceFetcher).toSelf().inSingletonScope();
+  container.bind(CoingeckoPriceFetcher).toSelf().inSingletonScope();
+  container.bind(GoldApiPriceFetcher).toSelf().inSingletonScope();
+  container.bind(MetalPriceApiFetcher).toSelf().inSingletonScope();
+  container.bind(MetalsDevApiFetcher).toSelf().inSingletonScope();
+  container.bind(PolygonIOCryptoSnapshotPriceFetcher).toSelf().inSingletonScope();
+  container.bind(PolygonIOCurrencySnapshotGramsFetcher).toSelf().inSingletonScope();
+  container.bind(PolygonIOSingleCryptoPriceFetcher).toSelf().inSingletonScope();
+  container.bind(PolygonIOStockSnapshotPriceFetcher).toSelf().inSingletonScope();
 
   container
     .bind<Redis>('Redis')

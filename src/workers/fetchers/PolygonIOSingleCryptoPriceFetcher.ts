@@ -26,7 +26,7 @@ type ParsedResponse = {
 };
 
 @injectable()
-export class PolygonIOSingleCryptoPriceService extends BasePolygonIOSingleFetcher implements ServiceInterface {
+export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetcher implements ServiceInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PolygonIOSingleCryptoDataRepository) pIOSingleCryptoDataRepository!: PolygonIOSingleCryptoDataRepository;
   @inject(TimeService) timeService!: TimeService;
