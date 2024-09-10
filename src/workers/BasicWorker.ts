@@ -27,10 +27,12 @@ abstract class BasicWorker {
   }
 
   get concurrency(): number {
-    let workersCount = Object.keys(this.settings.blockchain.multiChains).length;
+    let workersCount = Object.keys(this.settings.blockchain.multiChains).length * 2;
     const liquiditiesCount = Object.keys(this.settings.jobs?.liquidities || {}).length;
     workersCount += liquiditiesCount;
-    workersCount += 2; // MetricsWorker + BlockMintingWorker
+    workersCount += Object.keys(this.settings.scheduler.fetchers).length;
+    workersCount += ['MetricsWorker', 'ValidatorListWorker', 'BlockMintingWorker', 'DeviationLeaderWorker'].length;
+    this.logger.debug(`[BasicWorker] concurrency: ${workersCount}`);
     return workersCount;
   }
 
@@ -61,6 +63,12 @@ abstract class BasicWorker {
   private shutdown = async () => {
     await this.worker.close(true);
     process.exit(0);
+  };
+
+  isStale = (job: Bull.Job): boolean => {
+    const age = new Date().getTime() - job.timestamp;
+    this.logger.debug(`[BasicWorker] age ${age} > ${job.data.settings.interval}?`);
+    return age > job.data.settings.interval;
   };
 }
 

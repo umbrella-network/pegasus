@@ -2,7 +2,7 @@ import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
-import {ByBitPriceInputParams} from '../../services/fetchers/ByBitPriceFetcher.js';
+import {ByBitPriceInputParams} from '../../services/fetchers/ByBitPriceGetter.js';
 import {PriceModel_ByBit} from '../../models/fetchers/PriceModel_ByBit.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 
@@ -58,6 +58,10 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
   }
 
   async getPrices(params: ByBitPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const results = await this.model
       .find(
         {

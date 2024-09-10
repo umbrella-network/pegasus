@@ -2,7 +2,7 @@ import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
-import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceFetcher.js';
+import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceGetter.js';
 import {PriceModel_Coingecko} from '../../models/fetchers/PriceModel_Coingecko.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 
@@ -58,6 +58,10 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
   }
 
   async getPrices(params: CoingeckoPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const or = params.map(({id, currency}) => {
       return {id: id.toLowerCase(), currency: currency.toLowerCase()};
     });

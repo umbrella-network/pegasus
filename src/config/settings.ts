@@ -14,7 +14,10 @@ import Settings, {
   BlockchainType,
   BlockchainTypeKeys,
   BlockDispatcherSettings,
+  SchedulerFetcherSettings,
 } from '../types/Settings.js';
+
+import {FetcherName} from '../types/fetchers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -395,7 +398,7 @@ const settings: Settings = {
     },
     coingecko: {
       timeout: timeoutWithCode(process.env.COINGECKO_TIMEOUT || '5000', TimeoutCodes.COINGECKO),
-      maxBatchSize: parseInt(process.env.COINGECKO_MAX_BATCH_SIZE || '500', 10),
+      maxBatchSize: parseInt(process.env.COINGECKO_MAX_BATCH_SIZE || '250', 10),
     },
     polygonIO: {
       apiKey: process.env.POLYGON_IO_API_KEY as string,
@@ -489,7 +492,35 @@ const settings: Settings = {
       process.env.DEVIATION_FEEDS_FILE ||
       'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/prod/onChainData128.8.yaml',
   },
+  scheduler: {
+    fetchers: {
+      [FetcherName.BinancePrice]: schedulerFetcherSettings(FetcherName.BinancePrice),
+      [FetcherName.ByBitPrice]: schedulerFetcherSettings(FetcherName.ByBitPrice),
+      [FetcherName.CoingeckoPrice]: schedulerFetcherSettings(FetcherName.CoingeckoPrice),
+      [FetcherName.GoldApiPrice]: schedulerFetcherSettings(FetcherName.GoldApiPrice),
+      [FetcherName.MetalPriceApi]: schedulerFetcherSettings(FetcherName.MetalPriceApi),
+      [FetcherName.MetalsDevApi]: schedulerFetcherSettings(FetcherName.MetalsDevApi),
+      [FetcherName.PolygonIOCryptoSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOCryptoSnapshotPrice),
+      [FetcherName.PolygonIOCurrencySnapshotGrams]: schedulerFetcherSettings(
+        FetcherName.PolygonIOCurrencySnapshotGrams,
+      ),
+      [FetcherName.PolygonIOSingleCryptoPrice]: schedulerFetcherSettings(FetcherName.PolygonIOSingleCryptoPrice),
+      [FetcherName.PolygonIOStockSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOStockSnapshotPrice),
+      [FetcherName.SovrynPrice]: schedulerFetcherSettings(FetcherName.SovrynPrice),
+      [FetcherName.UniswapV3]: schedulerFetcherSettings(FetcherName.UniswapV3),
+    },
+  },
 };
+
+function schedulerFetcherSettings(fetcherName: FetcherName): SchedulerFetcherSettings {
+  return {
+    interval: getTimeSetting(parseInt(process.env[`${fetcherName}_JOB_INTERVAL`.toUpperCase()] || '15000'), 200),
+    lock: {
+      name: `lock::${fetcherName}Worker`,
+      ttl: getTimeSetting(parseInt(process.env[`${fetcherName}_LOCK_TTL`.toUpperCase()] || '30'), 10),
+    },
+  };
+}
 
 function getTimeSetting(value: number, min: number): number {
   return value > min ? value : min;

@@ -2,11 +2,12 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {
-  ByBitPriceFetcher,
-  BinancePriceFetcher,
-  CoingeckoPriceFetcher,
-  PolygonIOCryptoSnapshotPriceFetcher,
-  PolygonIOSingleCryptoPriceFetcher,
+  ByBitPriceGetter,
+  BinancePriceGetter,
+  CoingeckoPriceGetter,
+  PolygonIOCryptoSnapshotPriceGetter,
+  PolygonIOSingleCryptoPriceGetter,
+  PolygonIOStockSnapshotPriceGetter,
 } from '../fetchers/index.js';
 import {
   allMultiFetchers,
@@ -15,23 +16,39 @@ import {
   FetcherName,
   StringOrUndefined,
 } from '../../types/fetchers.js';
-import UniswapV3Fetcher from '../dexes/uniswapV3/UniswapV3Fetcher.js';
-import {SovrynPriceFetcher} from '../dexes/sovryn/SovrynPriceFetcher.js';
+import {UniswapV3Getter} from '../fetchers/UniswapV3Getter.js';
+import {SovrynPriceGetter} from '../fetchers/SovrynPriceGetter.js';
 import {FeedFetcher} from '../../types/Feed.js';
 
 @injectable()
 export default class MultiFeedProcessor {
-  @inject(BinancePriceFetcher) binancePriceFetcher!: BinancePriceFetcher;
-  @inject(ByBitPriceFetcher) byBitSpotPriceFetcher!: ByBitPriceFetcher;
-  @inject(CoingeckoPriceFetcher) coingeckoPriceFetcher!: CoingeckoPriceFetcher;
-  @inject(PolygonIOCryptoSnapshotPriceFetcher)
-  polygonIOCryptoSnapshotPriceFetcher!: PolygonIOCryptoSnapshotPriceFetcher;
-  @inject(PolygonIOSingleCryptoPriceFetcher)
-  polygonIOSingleCryptoPriceFetcher!: PolygonIOSingleCryptoPriceFetcher;
-  @inject(UniswapV3Fetcher) uniswapV3PriceFetcher!: UniswapV3Fetcher;
-  @inject(SovrynPriceFetcher) sovrynPriceFetcher!: SovrynPriceFetcher;
-
   @inject('Logger') logger!: Logger;
+
+  private multifetchersMap: Record<string, FeedFetcherInterface> = {};
+
+  constructor(
+    @inject(BinancePriceGetter) binancePricGetter: BinancePriceGetter,
+    @inject(ByBitPriceGetter) byBitSpotPriceGetter: ByBitPriceGetter,
+    @inject(CoingeckoPriceGetter) coingeckoPriceGetter: CoingeckoPriceGetter,
+
+    @inject(PolygonIOCryptoSnapshotPriceGetter)
+    polygonIOCryptoSnapshotPriceGetter: PolygonIOCryptoSnapshotPriceGetter,
+    @inject(PolygonIOSingleCryptoPriceGetter)
+    polygonIOSingleCryptoPriceGetter: PolygonIOSingleCryptoPriceGetter,
+    @inject(PolygonIOStockSnapshotPriceGetter) polygonIOStockSnapshotPriceGetter: PolygonIOStockSnapshotPriceGetter,
+
+    @inject(UniswapV3Getter) uniswapV3PriceGetter: UniswapV3Getter,
+    @inject(SovrynPriceGetter) sovrynPriceGetter: SovrynPriceGetter,
+  ) {
+    this.multifetchersMap[FetcherName.BinancePrice] = binancePricGetter;
+    this.multifetchersMap[FetcherName.ByBitPrice] = byBitSpotPriceGetter;
+    this.multifetchersMap[FetcherName.CoingeckoPrice] = coingeckoPriceGetter;
+    this.multifetchersMap[FetcherName.PolygonIOCryptoSnapshotPrice] = polygonIOCryptoSnapshotPriceGetter;
+    this.multifetchersMap[FetcherName.PolygonIOStockSnapshotPrice] = polygonIOStockSnapshotPriceGetter;
+    this.multifetchersMap[FetcherName.PolygonIOSingleCryptoPrice] = polygonIOSingleCryptoPriceGetter;
+    this.multifetchersMap[FetcherName.SovrynPrice] = sovrynPriceGetter;
+    this.multifetchersMap[FetcherName.UniswapV3] = uniswapV3PriceGetter;
+  }
 
   private logPrefix = '[MultiFeedProcessor]';
 
@@ -58,39 +75,15 @@ export default class MultiFeedProcessor {
         input.symbols.push(fetcher.symbol);
         input.indices.push(ix);
       } else {
-        let fetcherObject;
+        const fetcherObject = this.multifetchersMap[fetcher.name];
 
-        switch (fetcher.name) {
-          case FetcherName.BinancePrice:
-            fetcherObject = this.binancePriceFetcher;
-            break;
-          case FetcherName.ByBitPrice:
-            fetcherObject = this.byBitSpotPriceFetcher;
-            break;
-          case FetcherName.CoingeckoPrice:
-            fetcherObject = this.coingeckoPriceFetcher;
-            break;
-          case FetcherName.PolygonIOCryptoSnapshotPrice:
-          case FetcherName.PolygonIOCryptoPriceOLD: // TODO: remove this backward compatible code
-            fetcherObject = this.polygonIOCryptoSnapshotPriceFetcher;
-            break;
-          case FetcherName.PolygonIOSingleCryptoPrice:
-            fetcherObject = this.polygonIOSingleCryptoPriceFetcher;
-            break;
-          case FetcherName.SovrynPrice:
-          case FetcherName.SovrynPriceOLD: // TODO: remove this backward compatible code
-            fetcherObject = this.sovrynPriceFetcher;
-            break;
-          case FetcherName.UniswapV3:
-          case FetcherName.UniswapV3OLD: // TODO: remove this backward compatible code
-            fetcherObject = this.uniswapV3PriceFetcher;
-            break;
-          default:
-            if (allMultiFetchers.has(fetcher.name)) {
-              throw new Error(`allMultiFetchers missconfiguration for ${fetcher.name}`);
-            }
-
+        if (!fetcherObject) {
+          if (allMultiFetchers.has(fetcher.name)) {
+            throw new Error(`allMultiFetchers misconfiguration for ${fetcher.name}`);
+          } else {
+            // this is single fetcher, so it should be ignored
             continue;
+          }
         }
 
         inputMap[fetcher.name] = {

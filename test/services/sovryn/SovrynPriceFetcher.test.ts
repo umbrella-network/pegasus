@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 
-import {SovrynPriceFetcher} from '../../../src/services/dexes/sovryn/SovrynPriceFetcher.js';
+import {SovrynPriceGetter} from '../../../src/services/fetchers/SovrynPriceGetter.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import {bigIntToFloatingPoint} from '../../../src/utils/math.js';
 import Settings from '../../../src/types/Settings.js';
@@ -8,8 +8,8 @@ import Settings from '../../../src/types/Settings.js';
 describe('SovrynFetcher', () => {
   it('gets successfully an instance of the SovrynFetcher from the container', () => {
     const container = getTestContainer();
-    container.bind('SovrynPriceFetcher').to(SovrynPriceFetcher);
-    const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceFetcher;
+    container.bind('SovrynPriceFetcher').to(SovrynPriceGetter);
+    const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceGetter;
 
     expect(sovrynPriceFetcher !== undefined);
   });
@@ -100,14 +100,14 @@ describe.skip('SovrynFetcher-IntegrationTests', () => {
       },
     } as Settings);
 
-    container.bind('SovrynPriceFetcher').to(SovrynPriceFetcher);
+    container.bind('SovrynPriceFetcher').to(SovrynPriceGetter);
 
     const rUSDT = '0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0';
     const weBTC = '0x69fe5cec81d5ef92600c1a0db1f11986ab3758ab';
     const amountInDecimals = 8;
     const requestPair1 = {base: weBTC, quote: rUSDT, amountInDecimals};
 
-    const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceFetcher;
+    const sovrynPriceFetcher = container.get('SovrynPriceFetcher') as SovrynPriceGetter;
     const output = await sovrynPriceFetcher.apply([requestPair1, requestPair1], {symbols: [], timestamp: 1});
 
     console.log('price weBTC/rUSDT:', output.prices[0]);

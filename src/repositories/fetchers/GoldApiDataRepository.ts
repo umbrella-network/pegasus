@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_GoldApi} from '../../models/fetchers/PriceModel_GoldApi.js';
-import {GoldApiPriceInputParams} from '../../services/fetchers/GoldApiPriceFetcher.js';
+import {GoldApiPriceInputParams} from '../../services/fetchers/GoldApiPriceGetter.js';
 
 export type GoldApiDataRepositoryInput = {
   params: GoldApiPriceInputParams;
@@ -58,6 +58,10 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
   }
 
   async getPrices(params: GoldApiPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const or = params.map(({symbol, currency}) => {
       return {symbol: symbol.toLowerCase(), currency: currency.toLowerCase()};
     });

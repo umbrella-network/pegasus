@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_MetalsDevApi} from '../../models/fetchers/PriceModel_MetalsDevApi.js';
-import {MetalsDevApiPriceInputParams} from '../../services/fetchers/MetalsDevApiFetcher.js';
+import {MetalsDevApiPriceInputParams} from '../../services/fetchers/MetalsDevApiGetter.js';
 
 export type MetalsDevApiDataRepositoryInput = {
   params: MetalsDevApiPriceInputParams;

@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {FetcherName, FetchedValueType, NumberOrUndefined} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_UniswapV3} from '../../models/fetchers/PriceModel_UniswapV3.js';
-import {UniswapV3FetcherInputParams} from '../../services/dexes/uniswapV3/UniswapV3Fetcher.js';
+import {UniswapV3FetcherInputParams} from '../../services/fetchers/UniswapV3Getter.js';
 
 export type UniswapV3DataRepositoryInput = {
   params: UniswapV3FetcherInputParams;
@@ -61,6 +61,10 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
   }
 
   async getPrices(params: UniswapV3FetcherInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const or = params.map((param) => {
       return {
         chainId: param.fromChain.toLowerCase(),

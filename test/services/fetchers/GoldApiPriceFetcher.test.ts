@@ -1,12 +1,12 @@
 import chai from 'chai';
 
-import {GoldApiPriceFetcher} from '../../../src/services/fetchers/GoldApiPriceFetcher.js';
+import {GoldApiPriceGetter} from '../../../src/services/fetchers/GoldApiPriceGetter.js';
 import Application from '../../../src/lib/Application.js';
 
 const {expect} = chai;
 
 describe.skip('GoldApiPriceFetcher (to run them we need API keys)', () => {
-  const fetcher = Application.get(GoldApiPriceFetcher);
+  const fetcher = Application.get(GoldApiPriceGetter);
 
   describe('#apply', () => {
     describe('with valid parameters', () => {

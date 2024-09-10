@@ -8,28 +8,40 @@ export class FeedFetcherRepository {
   readonly collection: {[key: string]: FeedFetcherInterface};
 
   constructor(
-    @inject(fetchers.PolygonIOCryptoSnapshotPriceFetcher)
-    PolygonIOCryptoSnapshotPrice: fetchers.PolygonIOCryptoSnapshotPriceFetcher,
-    @inject(fetchers.PolygonIOStockPriceFetcher) PolygonIOStockPrice: fetchers.PolygonIOStockPriceFetcher,
-    @inject(fetchers.PolygonIOSingleCryptoPriceFetcher)
-    PolygonIOSingleCryptoPrice: fetchers.PolygonIOSingleCryptoPriceFetcher,
-    @inject(fetchers.PolygonIOCurrencySnapshotGramsFetcher)
-    PolygonIOCurrencySnapshotGrams: fetchers.PolygonIOCurrencySnapshotGramsFetcher,
-    @inject(fetchers.EvmTWAPGasPriceFetcher) evmTWAPGasPriceFetcher: fetchers.EvmTWAPGasPriceFetcher,
-    @inject(fetchers.GoldApiPriceFetcher) GoldApiPrice: fetchers.GoldApiPriceFetcher,
-    @inject(fetchers.MetalPriceApiFetcher) MetalPriceApi: fetchers.MetalPriceApiFetcher,
-    @inject(fetchers.MetalsDevApiFetcher) MetalsDevApi: fetchers.MetalsDevApiFetcher,
+    @inject(fetchers.BinancePriceGetter) BinancePrice: fetchers.BinancePriceGetter,
+    @inject(fetchers.ByBitPriceGetter) ByBitPrice: fetchers.ByBitPriceGetter,
+    @inject(fetchers.CoingeckoPriceGetter) CoingeckoPrice: fetchers.CoingeckoPriceGetter,
+    @inject(fetchers.EvmTWAPGasPriceGetter) evmTWAPGasPriceFetcher: fetchers.EvmTWAPGasPriceGetter,
+    @inject(fetchers.GoldApiPriceGetter) GoldApiPrice: fetchers.GoldApiPriceGetter,
+    @inject(fetchers.MetalPriceApiGetter) MetalPriceApi: fetchers.MetalPriceApiGetter,
+    @inject(fetchers.MetalsDevApiGetter) MetalsDevApi: fetchers.MetalsDevApiGetter,
+
+    @inject(fetchers.PolygonIOCryptoSnapshotPriceGetter)
+    PolygonIOCryptoSnapshotPrice: fetchers.PolygonIOCryptoSnapshotPriceGetter,
+    @inject(fetchers.PolygonIOSingleCryptoPriceGetter)
+    PolygonIOSingleCryptoPrice: fetchers.PolygonIOSingleCryptoPriceGetter,
+    @inject(fetchers.PolygonIOCurrencySnapshotGramsGetter)
+    PolygonIOCurrencySnapshotGrams: fetchers.PolygonIOCurrencySnapshotGramsGetter,
+    @inject(fetchers.PolygonIOStockSnapshotPriceGetter)
+    PolygonIOStockSnapshotPrice: fetchers.PolygonIOStockSnapshotPriceGetter,
+
+    @inject(fetchers.SovrynPriceGetter) SovrynPrice: fetchers.SovrynPriceGetter,
+    @inject(fetchers.UniswapV3Getter) UniswapV3: fetchers.UniswapV3Getter,
   ) {
     this.collection = {
-      PolygonIOCryptoSnapshotPrice,
-      PolygonIOSingleCryptoPrice,
-      PolygonIOStockPrice,
-      PolygonIOCryptoPrice: PolygonIOCryptoSnapshotPrice,
-      PolygonIOCurrencySnapshotGrams,
+      BinancePrice,
+      ByBitPrice,
+      CoingeckoPrice,
       TWAPGasPrice: evmTWAPGasPriceFetcher,
       GoldApiPrice,
       MetalPriceApi,
       MetalsDevApi,
+      PolygonIOCryptoSnapshotPrice,
+      PolygonIOCurrencySnapshotGrams,
+      PolygonIOSingleCryptoPrice,
+      PolygonIOStockSnapshotPrice,
+      SovrynPrice,
+      UniswapV3,
     };
   }
 

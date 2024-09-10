@@ -15,7 +15,7 @@ export class DeviationLeaderWorker extends BasicWorker {
   };
 
   apply = async (job: Bull.Job): Promise<void> => {
-    // CryptoCompareWSInitializer and PolygonIOPriceInitializer are started in BlockMintingWorker
+    // CryptoCompareWSInitializer is started in BlockMintingWorker
     // we need them for providing prices
     const {lock} = this.settings.deviationTrigger;
 
