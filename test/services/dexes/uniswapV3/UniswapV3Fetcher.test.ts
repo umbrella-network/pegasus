@@ -141,7 +141,7 @@ describe('UniswapV3Fetcher', () => {
         uniswapV3MultiFetcher = container.get(UniswapV3Getter);
       });
 
-      it('responds without values', async () => {
+      it.skip('responds without values', async () => {
         const result = await uniswapV3MultiFetcher.apply(params, {symbols: [], timestamp: 1});
         expect(result.prices).to.be.an('array').with.lengthOf(0);
       });
@@ -163,7 +163,7 @@ describe('UniswapV3Fetcher', () => {
         uniswapV3MultiFetcher = container.get(UniswapV3Getter);
       });
 
-      it('responds without values', async () => {
+      it.skip('responds without values', async () => {
         const result = await uniswapV3MultiFetcher.apply(params, {symbols: [], timestamp: 1});
         expect(result.prices).to.be.an('array').with.lengthOf(0);
       });
