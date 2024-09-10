@@ -3,60 +3,30 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
-import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import TimeService from '../../services/TimeService.js';
 
-import {
-  FeedFetcherInterface,
-  FeedFetcherOptions,
-  FetcherResult,
-  FetcherName,
-  FetchedValueType,
-} from '../../types/fetchers.js';
-
+import {ServiceInterface} from '../../types/fetchers.js';
 import {ByBitDataRepository, ByBitDataRepositoryInput} from '../../repositories/fetchers/ByBitDataRepository.js';
-
-export interface ByBitPriceInputParams {
-  symbol: string;
-}
 
 type ParsedResponse = {symbol: string; usdIndexPrice: number | undefined; lastPrice: number};
 
 @injectable()
-export class ByBitPriceFetcher implements FeedFetcherInterface {
-  @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
+export class ByBitPriceFetcher implements ServiceInterface {
   @inject(ByBitDataRepository) byBitDataRepository!: ByBitDataRepository;
-  @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
 
   private timeout: number;
-  private logPrefix = `[${FetcherName.ByBitPrice}]`;
-  static fetcherSource = '';
+  private logPrefix = '[ByBitPriceService]';
 
   constructor(@inject('Settings') settings: Settings) {
     this.timeout = settings.api.byBit.timeout;
   }
 
-  async apply(inputs: ByBitPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(): Promise<void> {
     try {
       await this.fetchPrices();
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
-
-    const prices = await this.byBitDataRepository.getPrices(inputs, options.timestamp);
-    const fetcherResult = {prices, timestamp: options.timestamp};
-
-    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
-    await this.priceDataRepository.saveFetcherResults(
-      fetcherResult,
-      options.symbols,
-      FetcherName.ByBitPrice,
-      FetchedValueType.Price,
-      ByBitPriceFetcher.fetcherSource,
-    );
-
-    return fetcherResult;
   }
 
   private async fetchPrices(): Promise<void> {

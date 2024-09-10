@@ -1,6 +1,8 @@
 import {ChainsIds} from './ChainsIds.js';
 import {SubmitMonitor} from './SubmitMonitor.js';
 import {DexProtocolName, DexAPISettings} from './Dexes.js';
+import {FeedsType} from './Feed';
+import {FetcherName} from './fetchers';
 
 export enum BlockchainType {
   LAYER2 = 'LAYER2',
@@ -59,6 +61,14 @@ export type BlockchainInfoSettings = {
 export type BlockDispatcherSettings = {
   interval: number;
   deviationInterval: number;
+};
+
+export type SchedulerFetcherSettings = {
+  interval: number;
+  lock: {
+    name: string;
+    ttl: number;
+  };
 };
 
 type Settings = {
@@ -222,6 +232,11 @@ type Settings = {
       ttl: number;
     };
     feedsFile: string;
+  };
+  scheduler: {
+    fetchers: {
+      [fetcherName: string]: SchedulerFetcherSettings;
+    };
   };
 };
 

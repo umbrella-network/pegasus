@@ -5,9 +5,9 @@ import {FeeAmount} from '@uniswap/v3-sdk';
 import JSBI from 'jsbi';
 
 import {BarChartTick} from './interfaces.js';
-import {ChainsIds} from '../../../types/ChainsIds.js';
+import {ChainsIds} from '../../../../types/ChainsIds.js';
 import {UniswapV3LiquidityCalculator} from './UniswapV3LiquidityCalculator.js';
-import {SaveLiquidityParams} from '../../../repositories/UniswapV3PoolRepository.js';
+import {SaveLiquidityParams} from '../../../../repositories/UniswapV3PoolRepository.js';
 
 @injectable()
 export class LiquiditySummingService {

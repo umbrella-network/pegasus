@@ -1,26 +1,17 @@
 import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
-import {BasePolygonIOSnapshotFetcher, SnapshotResponse} from './common/BasePolygonIOSnapshotFetcher.js';
-import {
-  FeedFetcherInterface,
-  FeedFetcherOptions,
-  FetchedValueType,
-  FetcherName,
-  FetcherResult,
-} from '../../types/fetchers.js';
-import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
+import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 import {PolygonIOStockSnapshotDataRepository} from '../../repositories/fetchers/PolygonIOStockSnapshotDataRepository.js';
-
-export interface PolygonIOStockSnapshotFetcherInputParams {
-  ticker: string;
-}
+import {
+  BasePolygonIOSnapshotFetcher,
+  SnapshotResponse,
+} from '../../services/fetchers/common/BasePolygonIOSnapshotFetcher.js';
 
 type ParsedResponse = {ticker: string; price: number; timestamp: number};
 
 @injectable()
-export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements FeedFetcherInterface {
-  @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
+export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
   @inject(PolygonIOStockSnapshotDataRepository)
   polygonIOStockSnapshotDataRepository!: PolygonIOStockSnapshotDataRepository;
 
@@ -32,26 +23,12 @@ export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFet
     this.logPrefix = `[${FetcherName.PolygonIOStockSnapshotPrice}]`;
   }
 
-  async apply(params: PolygonIOStockSnapshotFetcherInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(): Promise<void> {
     try {
       await this.fetchPrices();
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
-
-    const prices = await this.polygonIOStockSnapshotDataRepository.getPrices(params, options.timestamp);
-
-    const fetcherResults: FetcherResult = {prices, timestamp: options.timestamp};
-
-    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
-    await this.priceDataRepository.saveFetcherResults(
-      fetcherResults,
-      options.symbols,
-      FetcherName.PolygonIOStockSnapshotPrice,
-      FetchedValueType.Price,
-    );
-
-    return fetcherResults;
   }
 
   private async fetchPrices(): Promise<void> {

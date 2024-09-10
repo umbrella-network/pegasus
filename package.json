@@ -16,7 +16,7 @@
     "lint:fix": "eslint \"./src/**/*.ts\" \"./test/**/*.ts\" --fix",
     "prettier": "prettier --config .prettierrc \"./src/**/*.ts\" \"./test/**/*.ts\" --check",
     "prettier:format": "prettier --config .prettierrc \"./src/**/*.ts\" \"./test/**/*.ts\" --write",
-    "format": "npm run lint:fix && npm run prettier:format",
+    "format_off": "npm run lint:fix && npm run prettier:format",
     "clean": "rm -rf dist",
     "compile": "tsc -p .",
     "copy:assets": "cpx 'src/**/*.{graphql,html,png,json}' dist",

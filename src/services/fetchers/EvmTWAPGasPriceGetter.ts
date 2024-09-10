@@ -29,7 +29,7 @@ export interface EvmTWAPGasPriceInputParams {
 }
 
 @injectable()
-export class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
+export class EvmTWAPGasPriceGetter implements FeedFetcherInterface {
   @inject('Logger') protected logger!: Logger;
   @inject(TWAPGasRepository) protected gasRepository!: TWAPGasRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
@@ -63,7 +63,7 @@ export class EvmTWAPGasPriceFetcher implements FeedFetcherInterface {
       symbols,
       FetcherName.TWAPGasPrice,
       FetchedValueType.Price,
-      EvmTWAPGasPriceFetcher.fetcherSource,
+      EvmTWAPGasPriceGetter.fetcherSource,
     );
 
     return {prices: [gasPriceGwei], timestamp};

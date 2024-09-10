@@ -2,7 +2,7 @@ import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
 import BasicWorker from './BasicWorker.js';
-import {UniswapV3LiquidityResolver} from '../services/dexes/uniswapV3/UniswapV3LiquidityResolver.js';
+import {UniswapV3LiquidityResolver} from '../workers/fetchers/dexes/uniswapV3/UniswapV3LiquidityResolver.js';
 import {ChainsIds} from '../types/ChainsIds.js';
 import {DexProtocolName} from '../types/Dexes.js';
 
@@ -44,11 +44,6 @@ class UniswapV3LiquidityWorker extends BasicWorker {
     } finally {
       await this.connection.del(lock.name);
     }
-  };
-
-  isStale = (job: Bull.Job): boolean => {
-    const age = new Date().getTime() - job.timestamp;
-    return age > job.data.settings.interval;
   };
 
   start = (): void => {

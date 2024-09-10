@@ -87,7 +87,10 @@ export class HistoryController {
   private symbolHistoryChart = async (request: Request, response: Response): Promise<void> => {
     const symbol = request.params.symbol;
     const result = this.feedSymbolChecker.apply(symbol);
-    if (!result) return;
+    if (!result) {
+      response.send(`no history for ${symbol}`);
+      return;
+    }
 
     const [feedBase, feedQuote] = result;
     const {data, fetchers} = await this.makeHistoryChartData(feedBase, feedQuote);

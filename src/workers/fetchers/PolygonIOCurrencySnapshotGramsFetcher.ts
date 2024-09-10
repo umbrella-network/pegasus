@@ -1,16 +1,14 @@
 import {inject, injectable} from 'inversify';
 
-import {
-  FetcherName,
-  FeedFetcherOptions,
-  FeedFetcherInterface,
-  FetcherResult,
-  FetchedValueType,
-} from '../../types/fetchers.js';
-import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
+import {ServiceInterface} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 import {PolygonIOCurrencySnapshotGramsDataRepository} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
-import {BasePolygonIOSnapshotFetcher, SnapshotResponse} from './common/BasePolygonIOSnapshotFetcher.js';
+import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {
+  BasePolygonIOSnapshotFetcher,
+  SnapshotResponse,
+} from '../../services/fetchers/common/BasePolygonIOSnapshotFetcher.js';
+import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
 export interface PolygonIOCurrencySnapshotGramsInputParams {
   ticker: string;
@@ -18,20 +16,11 @@ export interface PolygonIOCurrencySnapshotGramsInputParams {
 
 type ParsedResponse = {ticker: string; price: number; timestamp: number};
 
-/*
-    - fetcher:
-        name: PolygonIOCurrencySnapshotGrams
-        params:
-          ticker: C:XAUUSD
- */
 @injectable()
-export class PolygonIOCurrencySnapshotGramsFetcher
-  extends BasePolygonIOSnapshotFetcher
-  implements FeedFetcherInterface
-{
+export class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
+  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PolygonIOCurrencySnapshotGramsDataRepository)
   private pIOCurrencySnapshotGramsDataRepository!: PolygonIOCurrencySnapshotGramsDataRepository;
-  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
 
   static fetcherSource = '';
 
@@ -41,32 +30,22 @@ export class PolygonIOCurrencySnapshotGramsFetcher
     this.timeout = settings.api.polygonIO.timeout;
     this.valuePath = '$.ticker.lastQuote.a';
 
-    this.logPrefix = `[${FetcherName.PolygonIOCurrencySnapshotGrams}]`;
+    this.logPrefix = '[PolygonIOCurrencySnapshotGramsService]';
   }
 
-  async apply(
-    params: PolygonIOCurrencySnapshotGramsInputParams[],
-    options: FeedFetcherOptions,
-  ): Promise<FetcherResult> {
+  async apply(): Promise<void> {
     try {
+      const params = await this.getInput();
+
+      if (params.length === 0) {
+        this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+        return;
+      }
+
       await this.fetchPrices(params);
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
-
-    const {symbols, timestamp} = options;
-
-    const prices = await this.pIOCurrencySnapshotGramsDataRepository.getPrices(params, timestamp);
-
-    await this.priceDataRepository.saveFetcherResults(
-      {prices, timestamp},
-      symbols,
-      FetcherName.PolygonIOCurrencySnapshotGrams,
-      FetchedValueType.Price,
-      PolygonIOCurrencySnapshotGramsFetcher.fetcherSource,
-    );
-
-    return {prices};
   }
 
   private async fetchPrices(params: PolygonIOCurrencySnapshotGramsInputParams[]): Promise<void> {
@@ -125,5 +104,16 @@ export class PolygonIOCurrencySnapshotGramsFetcher
     });
 
     await this.pIOCurrencySnapshotGramsDataRepository.save(allData);
+  }
+
+  private async getInput(): Promise<PolygonIOCurrencySnapshotGramsInputParams[]> {
+    const key = FetchersMappingCacheKeys.POLYGONIO_CURRENCY_SNAPSHOT_GRAMS_PARAMS;
+
+    const cache = await this.mappingRepository.get(key);
+    const cachedParams = JSON.parse(cache || '{}');
+
+    return Object.keys(cachedParams).map((ticker) => {
+      return {ticker};
+    });
   }
 }

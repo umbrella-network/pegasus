@@ -4,7 +4,7 @@ import {FeeAmount, Pool, TickMath, tickToPrice} from '@uniswap/v3-sdk';
 import JSBI from 'jsbi';
 
 import {GraphTick, BarChartTick, TickProcessed} from './interfaces.js';
-import {sortTokensByAddress} from '../../../utils/token.js';
+import {sortTokensByAddress} from '../../../../utils/token.js';
 
 enum Direction {
   ASC,

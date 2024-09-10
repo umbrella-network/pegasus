@@ -4,7 +4,7 @@ import {getModelForClass} from '@typegoose/typegoose';
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_PolygonIOCryptoSnapshot} from '../../models/fetchers/PriceModel_PolygonIOCryptoSnapshot.js';
-import {PolygonIOCryptoSnapshotInputParams} from '../../services/fetchers/PolygonIOCryptoSnapshotPriceFetcher.js';
+import {PolygonIOCryptoSnapshotInputParams} from '../../services/fetchers/PolygonIOCryptoSnapshotPriceGetter.js';
 
 export type PolygonIOCryptoSnapshotDataRepositoryInput = {
   value: number;
@@ -56,6 +56,10 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
   }
 
   async getPrices(params: PolygonIOCryptoSnapshotInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const $in = params.map((p) => p.symbol.toLowerCase());
 
     this.logger.debug(

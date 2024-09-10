@@ -1,12 +1,12 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {GraphClient} from '../../graph/GraphClient.js';
+import {GraphClient} from '../../../../services/graph/GraphClient.js';
 import {liquidityPoolsQuery} from './UniswapV3GraphQueries.js';
 import {GraphTick, LiquidityTick} from './interfaces.js';
-import Settings from '../../../types/Settings.js';
-import {ChainsIds} from '../../../types/ChainsIds.js';
-import {DexProtocolName} from '../../../types/Dexes.js';
+import Settings from '../../../../types/Settings.js';
+import {ChainsIds} from '../../../../types/ChainsIds.js';
+import {DexProtocolName} from '../../../../types/Dexes.js';
 
 @injectable()
 export class UniswapV3TickQuery {

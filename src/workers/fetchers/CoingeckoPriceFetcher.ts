@@ -5,79 +5,55 @@ import _ from 'lodash';
 
 import Settings from '../../types/Settings.js';
 
-import {
-  FeedFetcherInterface,
-  FeedFetcherOptions,
-  FetcherResult,
-  FetcherName,
-  FetchedValueType,
-} from '../../types/fetchers.js';
-
-import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import TimeService from '../TimeService.js';
+import {ServiceInterface} from '../../types/fetchers.js';
 
 import {
   CoingeckoDataRepository,
   CoingeckoDataRepositoryInput,
 } from '../../repositories/fetchers/CoingeckoDataRepository.js';
 
-import {uniqueElements} from '../../utils/arrays.js';
+import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
-export interface CoingeckoPriceInputParams {
-  id: string;
-  currency: string;
-}
-
-type ParsedResponse = {id: string; currency: string; value: number};
+type ParsedResponse = {id: string; currency: string; value: number; timestamp: number};
 
 @injectable()
-export class CoingeckoPriceFetcher implements FeedFetcherInterface {
-  @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
+export class CoingeckoPriceFetcher implements ServiceInterface {
+  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(CoingeckoDataRepository) private coingeckoDataRepository!: CoingeckoDataRepository;
-  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
-  private logPrefix = `[${FetcherName.CoingeckoPrice}]`;
+  private logPrefix = '[CoingeckoPriceService]';
   private timeout: number;
   private maxBatchSize: number;
-  static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
     this.timeout = settings.api.coingecko.timeout;
     this.maxBatchSize = settings.api.coingecko.maxBatchSize;
   }
 
-  async apply(inputsParams: CoingeckoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(): Promise<void> {
     try {
-      await this.fetchPrices(inputsParams);
+      await this.fetchPrices();
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
-
-    const prices = await this.coingeckoDataRepository.getPrices(inputsParams, options.timestamp);
-    const fetcherResult = {prices, timestamp: options.timestamp};
-
-    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
-    await this.priceDataRepository.saveFetcherResults(
-      fetcherResult,
-      options.symbols,
-      FetcherName.CoingeckoPrice,
-      FetchedValueType.Price,
-      CoingeckoPriceFetcher.fetcherSource,
-    );
-
-    return fetcherResult;
   }
 
-  private async fetchPrices(inputsParams: CoingeckoPriceInputParams[]): Promise<void> {
-    const batchedInputs = _.chunk(inputsParams, this.maxBatchSize);
+  private async fetchPrices(): Promise<void> {
+    const {ids, currencies} = await this.generateInput();
+
+    if (ids.length == 0) {
+      this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+      return;
+    }
+
+    const batchedInputs = _.chunk(ids, Math.ceil(this.maxBatchSize));
 
     const responses = await Promise.allSettled(
       batchedInputs.map((inputs) => {
         const baseUrl = 'https://api.coingecko.com/api/v3/simple/price';
-        const ids = uniqueElements(inputs.map((o) => o.id.toLowerCase()));
-        const currencies = uniqueElements(inputs.map((o) => o.currency.toLowerCase()));
-        const url = `${baseUrl}?ids=${ids}&vs_currencies=${currencies}`;
+        const url = `${baseUrl}?ids=${inputs}&vs_currencies=${currencies}&precision=18&include_last_updated_at=true`;
 
         this.logger.debug(`${this.logPrefix} batched call ${url}`);
 
@@ -88,11 +64,11 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
       }),
     );
 
-    const parsed = this.parseResponse(responses);
-    await this.savePrices(this.timeService.apply(), parsed);
+    const parsed = this.parseResponse(responses, currencies);
+    await this.savePrices(parsed);
   }
 
-  private parseResponse(axiosResponse: PromiseSettledResult<AxiosResponse>[]): ParsedResponse[] {
+  private parseResponse(axiosResponse: PromiseSettledResult<AxiosResponse>[], currencies: string[]): ParsedResponse[] {
     const outputs: ParsedResponse[] = [];
 
     axiosResponse.forEach((response) => {
@@ -116,7 +92,7 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
       Object.keys(axiosResponse.data).forEach((id) => {
         if (!axiosResponse.data[id]) return;
 
-        Object.keys(axiosResponse.data[id]).forEach((currency) => {
+        currencies.forEach((currency) => {
           let value = axiosResponse.data[id][currency];
 
           if (!value) {
@@ -131,7 +107,7 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
             return;
           }
 
-          outputs.push({id, currency, value});
+          outputs.push({id, currency, value, timestamp: axiosResponse.data[id]['last_updated_at']});
           this.logger.debug(`${this.logPrefix} resolved price: ${id}-${currency}: ${value}`);
         });
       });
@@ -140,10 +116,10 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
     return outputs;
   }
 
-  private async savePrices(timestamp: number, parsed: ParsedResponse[]): Promise<void> {
+  private async savePrices(parsed: ParsedResponse[]): Promise<void> {
     const allData: CoingeckoDataRepositoryInput[] = parsed.map((data) => {
       return {
-        timestamp,
+        timestamp: data.timestamp,
         value: data.value,
         params: {
           id: data.id,
@@ -153,5 +129,19 @@ export class CoingeckoPriceFetcher implements FeedFetcherInterface {
     });
 
     await this.coingeckoDataRepository.save(allData);
+  }
+
+  private async generateInput(): Promise<{ids: string[]; currencies: string[]}> {
+    const idKey = FetchersMappingCacheKeys.COINGECKO_PRICE_IDS;
+    const currenciesKey = FetchersMappingCacheKeys.COINGECKO_PRICE_CURRENCIES;
+
+    const cache = await this.mappingRepository.getMany([idKey, currenciesKey]);
+    const idsCache = JSON.parse(cache[idKey] || '{}');
+    const currenciesCache = JSON.parse(cache[currenciesKey] || '{}');
+
+    const ids = Object.keys(idsCache);
+    const currencies = Object.keys(currenciesCache);
+
+    return {ids, currencies};
   }
 }

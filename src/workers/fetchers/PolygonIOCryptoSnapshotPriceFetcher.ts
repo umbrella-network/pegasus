@@ -1,33 +1,20 @@
 import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
-import {BasePolygonIOSnapshotFetcher, SnapshotResponse} from './common/BasePolygonIOSnapshotFetcher.js';
-import {
-  FeedFetcherInterface,
-  FeedFetcherOptions,
-  FetchedValueType,
-  FetcherName,
-  FetcherResult,
-} from '../../types/fetchers.js';
+import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 
 import {PolygonIOCryptoSnapshotDataRepository} from '../../repositories/fetchers/PolygonIOCryptoSnapshotDataRepository.js';
-import TimeService from '../TimeService.js';
-import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-
-export interface PolygonIOCryptoSnapshotInputParams {
-  symbol: string;
-  fsym?: string; // TODO backwards compatible, to remove
-  tsym?: string; // TODO backwards compatible, to remove
-}
+import {
+  BasePolygonIOSnapshotFetcher,
+  SnapshotResponse,
+} from '../../services/fetchers/common/BasePolygonIOSnapshotFetcher.js';
 
 type ParsedResponse = {symbol: string; price: number; timestamp: number};
 
 @injectable()
-export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements FeedFetcherInterface {
+export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
   @inject(PolygonIOCryptoSnapshotDataRepository)
   pIOCryptoSnapshotDataRepository!: PolygonIOCryptoSnapshotDataRepository;
-  @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
-  @inject(TimeService) timeService!: TimeService;
 
   constructor(@inject('Settings') settings: Settings) {
     super();
@@ -39,29 +26,12 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
     this.logPrefix = `[${FetcherName.PolygonIOCryptoSnapshotPrice}]`;
   }
 
-  async apply(params: PolygonIOCryptoSnapshotInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(): Promise<void> {
     try {
       await this.fetchPrices();
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
-
-    const prices = await this.pIOCryptoSnapshotDataRepository.getPrices(
-      this.backwardsCompatibleParams(params),
-      options.timestamp,
-    );
-
-    const fetcherResults: FetcherResult = {prices, timestamp: options.timestamp};
-
-    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
-    await this.priceDataRepository.saveFetcherResults(
-      fetcherResults,
-      options.symbols,
-      FetcherName.PolygonIOCryptoSnapshotPrice,
-      FetchedValueType.Price,
-    );
-
-    return fetcherResults;
   }
 
   private async fetchPrices(): Promise<void> {
@@ -74,18 +44,6 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
     const parsed = this.parseResponse(response);
 
     await this.savePrices(parsed);
-  }
-
-  private backwardsCompatibleParams(
-    params: PolygonIOCryptoSnapshotInputParams[],
-  ): PolygonIOCryptoSnapshotInputParams[] {
-    return params.map((p) => {
-      if (p.symbol) return p;
-
-      return {
-        symbol: `X:${p.fsym}${p.tsym}`,
-      };
-    });
   }
 
   private parseResponse(response: SnapshotResponse): ParsedResponse[] {

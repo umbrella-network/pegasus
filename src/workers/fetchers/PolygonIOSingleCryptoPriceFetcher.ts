@@ -1,20 +1,18 @@
 import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
-import {BasePolygonIOSingleFetcher, SinglePriceResponse} from './common/BasePolygonIOSingleFetcher.js';
-import {
-  FeedFetcherInterface,
-  FeedFetcherOptions,
-  FetchedValueType,
-  FetcherName,
-  FetcherResult,
-} from '../../types/fetchers.js';
-import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import TimeService from '../TimeService.js';
+import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
+import TimeService from '../../services/TimeService.js';
 import {
   PolygonIOSingleCryptoDataRepository,
   PolygonIOSingleCryptoDataRepositoryInput,
 } from '../../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
+import {MappingRepository} from '../../repositories/MappingRepository.js';
+import {
+  BasePolygonIOSingleFetcher,
+  SinglePriceResponse,
+} from '../../services/fetchers/common/BasePolygonIOSingleFetcher.js';
+import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
 
 export interface PolygonIOSingleCryptoPriceInputParams {
   fsym: string;
@@ -28,9 +26,9 @@ type ParsedResponse = {
 };
 
 @injectable()
-export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetcher implements FeedFetcherInterface {
+export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetcher implements ServiceInterface {
+  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PolygonIOSingleCryptoDataRepository) pIOSingleCryptoDataRepository!: PolygonIOSingleCryptoDataRepository;
-  @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
 
   constructor(@inject('Settings') settings: Settings) {
@@ -42,25 +40,19 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
     this.logPrefix = `[${FetcherName.PolygonIOSingleCryptoPrice}]`;
   }
 
-  async apply(params: PolygonIOSingleCryptoPriceInputParams[], options: FeedFetcherOptions): Promise<FetcherResult> {
+  async apply(): Promise<void> {
     try {
+      const params = await this.getInput();
+
+      if (params.length === 0) {
+        this.logger.debug(`${this.logPrefix} no inputs to fetch`);
+        return;
+      }
+
       await this.fetchPrices(params);
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
     }
-
-    const prices = await this.pIOSingleCryptoDataRepository.getPrices(params, options.timestamp);
-    const fetcherResults: FetcherResult = {prices, timestamp: options.timestamp};
-
-    // TODO this will be deprecated once we fully switch to DB and have dedicated charts
-    await this.priceDataRepository.saveFetcherResults(
-      fetcherResults,
-      options.symbols,
-      FetcherName.PolygonIOSingleCryptoPrice,
-      FetchedValueType.Price,
-    );
-
-    return fetcherResults;
   }
 
   private async fetchPrices(params: PolygonIOSingleCryptoPriceInputParams[]): Promise<void> {
@@ -109,5 +101,17 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
     });
 
     await this.pIOSingleCryptoDataRepository.save(allData);
+  }
+
+  private async getInput(): Promise<PolygonIOSingleCryptoPriceInputParams[]> {
+    const key = FetchersMappingCacheKeys.POLYGONIO_SINGLE_CRYPO_PARAMS;
+
+    const cache = await this.mappingRepository.get(key);
+    const cachedParams = JSON.parse(cache || '{}');
+
+    return Object.keys(cachedParams).map((fsymTsym) => {
+      const [fsym, tsym] = fsymTsym.split(';');
+      return {fsym, tsym};
+    });
   }
 }

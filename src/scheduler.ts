@@ -14,6 +14,8 @@ import {ChainsIds} from './types/ChainsIds.js';
 import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker.js';
 import {LiquidityWorkerRepository} from './repositories/LiquidityWorkerRepository.js';
 import {DexProtocolName} from './types/Dexes.js';
+import PriceFetchingWorker from './workers/PriceFetchingWorker.js';
+import {FetcherName} from './types/fetchers';
 
 (async (): Promise<void> => {
   await boot();
@@ -28,6 +30,7 @@ import {DexProtocolName} from './types/Dexes.js';
   const deviationDispatcherWorker = Application.get(DeviationDispatcherWorker);
   const liquidityWorkerRepository = Application.get(LiquidityWorkerRepository);
   const blockchainMetricsWorker = Application.get(BlockchainMetricsWorker);
+  const priceFetchingWorker = Application.get(PriceFetchingWorker);
 
   const jobCode = Math.floor(Math.random() * 1000).toString();
 
@@ -102,6 +105,25 @@ import {DexProtocolName} from './types/Dexes.js';
     }
   };
 
+  const schedulePriceWorker = async (priceWorker: BasicWorker, fetcherName: FetcherName): Promise<void> => {
+    try {
+      logger.info(`[Scheduler] PriceFetcherWorker for ${fetcherName} enqueued`);
+
+      await priceWorker.enqueue(
+        {
+          fetcherName,
+        },
+        {
+          removeOnComplete: true,
+          removeOnFail: true,
+          jobId: `${fetcherName}-${jobCode}`,
+        },
+      );
+    } catch (e) {
+      logger.error(`[Scheduling] ${fetcherName} error: ${(e as Error).message}`);
+    }
+  };
+
   for (const chainId of Object.keys(settings.blockchain.multiChains)) {
     if (!blockDispatcherWorker.dispatcher.exists(chainId as ChainsIds)) {
       logger.info(`[${chainId}] BlockDispatcherWorker for ${chainId} not exists, skipping.`);
@@ -129,6 +151,12 @@ import {DexProtocolName} from './types/Dexes.js';
       },
     );
   }, settings.deviationTrigger.leaderInterval);
+
+  for (const fetcherName of Object.keys(settings.scheduler.fetchers)) {
+    const {interval} = settings.scheduler.fetchers[fetcherName];
+    logger.info(`[Scheduler] PriceFetcherWorker: ${fetcherName}, interval: ${interval}`);
+    setInterval(async () => schedulePriceWorker(priceFetchingWorker, fetcherName as FetcherName), interval);
+  }
 
   for (const chainId of Object.keys(settings.blockchain.multiChains)) {
     if (!deviationDispatcherWorker.dispatcher.exists(chainId as ChainsIds)) {

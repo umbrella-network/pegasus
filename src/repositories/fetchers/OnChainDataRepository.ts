@@ -63,6 +63,10 @@ export class OnChainDataRepository extends CommonPriceDataRepository {
   }
 
   async getData(params: OnChainDataInputParams[], timestamp: number): Promise<StringOrUndefined[]> {
+    if (params.length === 0) {
+      return [];
+    }
+
     const or = params.map((param) => {
       return {
         chainId: param.chainId?.toLowerCase(),
