@@ -28,6 +28,11 @@ export interface Signature {
   s: string;
 }
 
+export interface SignatureWithSigner {
+  signature: string;
+  signer: string;
+}
+
 export interface PriceData {
   data: number;
   heartbeat: number;
@@ -45,7 +50,7 @@ export type PriceDataPerChain = DataCollection<PriceDataByKey>;
 
 export type FeedNamesPerChain = Record<ChainsId, FeedName[]>;
 
-export type DeviationSignatures = Record<string, string>; // chainId => signature
+export type DeviationSignatures = Record<string, SignatureWithSigner>; // chainId => SignatureWithSigner
 
 export type DeviationTriggerResponse = {
   dataToUpdate?: DeviationDataToSign | undefined;
@@ -69,7 +74,7 @@ export interface DeviationSignerResponse {
 export type UmbrellaFeedsUpdateArgs = {
   keys: FeedName[];
   priceDatas: PriceData[];
-  signatures: string[];
+  signatures: SignatureWithSigner[];
 };
 
 export type OnChainMetadataType = [chainId: ChainsIds, networkId: number, contractAddress: string];

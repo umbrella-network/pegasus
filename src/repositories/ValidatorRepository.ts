@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {BigNumber} from 'ethers';
-import {Validator} from '../types/Validator.js';
+import {ChainValidator, Validator} from '../types/Validator.js';
 import CachedValidator from '../models/CachedValidator.js';
 import {Logger} from 'winston';
 import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds.js';
@@ -28,6 +28,30 @@ export class ValidatorRepository {
           location: data.location,
         };
       });
+  }
+
+  async listForLeaderSelection(): Promise<ChainValidator[]> {
+    const locationMap: Record<string, ChainValidator> = {};
+    const validators = await getModelForClass(CachedValidator).find().exec();
+
+    validators.forEach(data => {
+      const location = this.removeLastSlash(data.location).toLowerCase();
+
+      if (locationMap[location]) {
+        locationMap[location].chains.add(data.chainId as ChainsIds);
+      } else {
+        locationMap[location] = {
+          id: data.address,
+          power: BigNumber.from(data.power),
+          location: data.location,
+          chains: new Set([data.chainId as ChainsIds])
+        };
+      }
+    });
+
+    return Object.keys(locationMap)
+      .sort((a, b) => (a < b ? -1 : 1))
+      .map((v): ChainValidator => locationMap[v]);
   }
 
   async getAll(): Promise<DataCollection<Set<string>>> {
@@ -84,5 +108,9 @@ export class ValidatorRepository {
         ).exec();
       }),
     );
+  }
+
+  private removeLastSlash(url: string): string {
+    return (url.endsWith('/')) ? url.slice(0, -1) : url;
   }
 }

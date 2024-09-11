@@ -2,6 +2,7 @@ import {BigNumber} from 'ethers';
 
 import Feeds, {HexStringWith0x} from '../types/Feed.js';
 import Leaf from '../types/Leaf.js';
+import {SignatureWithSigner} from './DeviationFeeds.js';
 
 export enum ConsensusStatus {
   SUCCESS = 'SUCCESS',
@@ -31,7 +32,7 @@ export interface Consensus {
 export type ConsensusDataProps = {
   root: string;
   chainIds: string[];
-  signatures: string[];
+  signatures: SignatureWithSigner[];
   fcdKeys: string[];
   fcdValues: HexStringWith0x[];
   leaves: Leaf[];

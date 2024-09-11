@@ -2,7 +2,12 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import Settings from '../../types/Settings.js';
 import {FeedDataService} from '../FeedDataService.js';
-import {DeviationDataToSign, DeviationLeavesAndFeeds, DeviationSignerResponse} from '../../types/DeviationFeeds.js';
+import {
+  DeviationDataToSign,
+  DeviationLeavesAndFeeds,
+  DeviationSignerResponse,
+  SignatureWithSigner,
+} from '../../types/DeviationFeeds.js';
 import {FeedsType} from '../../types/Feed.js';
 import {DiscrepancyFinder} from '../DiscrepancyFinder.js';
 import {KeyValuesToLeaves} from '../tools/KeyValuesToLeaves.js';
@@ -12,6 +17,7 @@ import {DeviationTrigger} from './DeviationTrigger.js';
 import {DeviationHasher} from './DeviationHasher.js';
 import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository.js';
 import {VerifyProposedData} from '../tools/VerifyProposedData.js';
+import {ChainsIds} from '../../types/ChainsIds.js';
 
 @injectable()
 export class DeviationVerifier {
@@ -110,22 +116,28 @@ export class DeviationVerifier {
           priceDatas,
         );
 
-        const signer = this.deviationSignerRepository.get(chainId);
-
-        return signer.apply(hash);
+        return this.getSignatureWithSigner(chainId, hash);
       }),
     );
 
-    const signaturesToReturn: Record<string, string> = {};
+    const signaturesToReturn: Record<string, SignatureWithSigner> = {};
 
     chainMetadata.forEach(([chainId], i) => {
       const sig = signatures[i];
 
-      if (sig) {
-        signaturesToReturn[chainId] = sig;
+      if (sig.signature) {
+        signaturesToReturn[chainId] = {...sig};
       }
     });
 
     return {signatures: signaturesToReturn, discrepancies, version: this.settings.version};
+  }
+
+  private async getSignatureWithSigner(chainId: ChainsIds, hash: string): Promise<SignatureWithSigner> {
+    const signer = this.deviationSignerRepository.get(chainId);
+
+    const [signature, address] = await Promise.all([signer.apply(hash), signer.address()]);
+
+    return <SignatureWithSigner>{signature, signer: address};
   }
 }

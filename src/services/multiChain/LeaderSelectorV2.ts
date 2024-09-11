@@ -1,4 +1,6 @@
-import {injectable} from "inversify";
+import {inject, injectable} from "inversify";
+import {ValidatorRepository} from "../../repositories/ValidatorRepository";
+import {ChainValidator} from "../../types/Validator";
 
 /*
   leader is selected in predictable, circular way,
@@ -7,9 +9,10 @@ import {injectable} from "inversify";
   that way, if leader is a bit late, his signature call will not be rejected, because he will be always a leader
   for provided `consensusTimestamp`, he should be rejected only when data is too old.
 */
+
 @injectable()
-export class LeaderSelector {
-  apply(consensusTimestamp: number, validators: string[], roundLength: number): string {
+export class LeaderSelectorV2 {
+  apply(consensusTimestamp: number, validators: ChainValidator[], roundLength: number): string {
     if (validators.length == 0) {
       return '';
     }
@@ -17,16 +20,18 @@ export class LeaderSelector {
     return this.getLeaderAddressAtTime(consensusTimestamp, validators, roundLength);
   }
 
-  protected getLeaderAddressAtTime = (consensusTimestamp: number, validators: string[], roundLength: number): string => {
+  protected getLeaderAddressAtTime = (consensusTimestamp: number, validators: ChainValidator[], roundLength: number): string => {
     if (validators.length == 0) {
       return '';
     }
 
     const validatorIndex = this.getLeaderIndex(consensusTimestamp, validators, roundLength);
-    return validators[validatorIndex];
+    // for (let i = validatorIndex; validators[i].chains)
+    const candidate = validators[validatorIndex];
+    return 'TODO';
   };
 
-  protected getLeaderIndex = (consensusTimestamp: number, validators: string[], roundLength: number): number => {
+  protected getLeaderIndex = (consensusTimestamp: number, validators: ChainValidator[], roundLength: number): number => {
     if (validators.length == 0) {
       return -1;
     }

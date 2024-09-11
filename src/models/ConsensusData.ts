@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 
 import Leaf from '../types/Leaf.js';
 import {HexStringWith0x} from '../types/custom.js';
+import {SignatureWithSigner} from '../types/DeviationFeeds.js';
 
 @index({expireAt: 1}, {expireAfterSeconds: 0})
 @modelOptions({options: {allowMixed: Severity.ALLOW}})
@@ -14,7 +15,7 @@ class ConsensusData {
   chainIds!: Array<string>;
 
   @prop({required: true, type: () => [String]})
-  signatures!: Array<string>;
+  signatures!: Array<SignatureWithSigner>;
 
   @prop({required: true, type: () => [String]})
   fcdKeys!: Array<string>;

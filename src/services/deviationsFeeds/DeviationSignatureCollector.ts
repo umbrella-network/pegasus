@@ -5,13 +5,19 @@ import {Wallet} from 'ethers';
 
 import {Validator} from '../../types/Validator.js';
 import Settings from '../../types/Settings.js';
-import {DeviationDataToSign, DeviationSignatures, DeviationSignerResponse} from '../../types/DeviationFeeds.js';
+import {
+  DeviationDataToSign,
+  DeviationSignatures,
+  DeviationSignerResponse,
+  SignatureWithSigner,
+} from '../../types/DeviationFeeds.js';
 import {ValidatorStatusChecker} from '../ValidatorStatusChecker.js';
 import {DeviationChainMetadata} from './DeviationChainMetadata.js';
 import {DeviationHasher} from './DeviationHasher.js';
 import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository.js';
 import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
 import {DataCollection} from '../../types/custom';
+import {ChainsIds} from '../../types/ChainsIds.js';
 
 @injectable()
 export class DeviationSignatureCollector {
@@ -66,8 +72,7 @@ export class DeviationSignatureCollector {
         const keys = data.feedsForChain[chainId];
         const priceDatas = keys.map((key) => data.proposedPriceData[key]);
         const hashOfData = this.deviationHasher.apply(chainId, networkId, target, keys, priceDatas);
-        const deviationSigner = this.deviationSignerRepository.get(chainId);
-        return deviationSigner.apply(hashOfData);
+        return this.getLocalSignatureWithSigner(chainId, hashOfData);
       }),
     );
 
@@ -82,6 +87,14 @@ export class DeviationSignatureCollector {
       discrepancies: [],
       version: this.settings.version,
     };
+  }
+
+  protected async getLocalSignatureWithSigner(chainId: ChainsIds, hashOfData: string): Promise<SignatureWithSigner> {
+    const deviationSigner = this.deviationSignerRepository.get(chainId);
+
+    const [signature, signer] = await Promise.all([deviationSigner.apply(hashOfData), deviationSigner.address()]);
+
+    return <SignatureWithSigner>{signature, signer};
   }
 
   protected async getParticipantSignature(

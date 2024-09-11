@@ -3,10 +3,12 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {DeviationConsensus} from '../models/DeviationConsensus.js';
 import {Logger} from 'winston';
+import {ConsensusSignatureFilter} from '../services/dispatchers/ConsensusSignatureFilter';
 
 @injectable()
 export class DeviationTriggerConsensusRepository {
   @inject('Logger') logger!: Logger;
+  @inject(ConsensusSignatureFilter) consensusSignatureFilter!: ConsensusSignatureFilter;
 
   async save(props: DeviationConsensus): Promise<void> {
     const ConsensusDataModel = getModelForClass(DeviationConsensus);
@@ -39,7 +41,7 @@ export class DeviationTriggerConsensusRepository {
       });
     }
 
-    return consensusData;
+    return this.consensusSignatureFilter.apply(consensusData);
   }
 
   async delete(chainId: string): Promise<void> {

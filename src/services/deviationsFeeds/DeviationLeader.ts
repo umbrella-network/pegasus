@@ -68,6 +68,10 @@ export class DeviationLeader {
       return;
     }
 
+    // TODO 1. we have to check feeds to get chains we will submit to
+    // 2. then we select leader
+    // 3. then we fetch prices
+
     // interval filter is applied in feedDataService
     const data = await this.feedDataService.apply(dataTimestamp, FeedsType.DEVIATION_TRIGGER);
 

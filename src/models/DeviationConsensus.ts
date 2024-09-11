@@ -1,7 +1,7 @@
 import {index, modelOptions, prop, Severity} from '@typegoose/typegoose';
 import mongoose from 'mongoose';
 
-import {PriceData} from '../types/DeviationFeeds.js';
+import {PriceData, SignatureWithSigner} from '../types/DeviationFeeds.js';
 
 @index({chainId: 1})
 @index({createdAt: 1}, {expireAfterSeconds: 300})
@@ -13,8 +13,8 @@ export class DeviationConsensus {
   @prop({required: true, type: () => [String]})
   keys!: Array<string>;
 
-  @prop({required: true, type: () => [String]})
-  signatures!: Array<string>;
+  @prop({required: true, type: () => [mongoose.SchemaTypes.Mixed]})
+  signatures!: Array<SignatureWithSigner>;
 
   @prop({type: mongoose.SchemaTypes.Mixed})
   priceData!: Array<PriceData>;

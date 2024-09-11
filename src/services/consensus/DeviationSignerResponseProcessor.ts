@@ -3,7 +3,7 @@ import {Logger} from 'winston';
 
 import {ConsensusOptimizer} from '../ConsensusOptimizer.js';
 import Settings from '../../types/Settings.js';
-import {DeviationSignerResponse} from '../../types/DeviationFeeds.js';
+import {DeviationSignerResponse, SignatureWithSigner} from '../../types/DeviationFeeds.js';
 import {VersionChecker} from './VersionChecker.js';
 
 @injectable()
@@ -16,8 +16,8 @@ export class DeviationSignerResponseProcessor {
   apply(
     deviationSignerResponses: DeviationSignerResponse[],
     requiredSignatures: number,
-  ): {signatures: Record<string, string[]>; discrepantKeys: Set<string>} {
-    const signaturesPerChain: Record<string, string[]> = {};
+  ): {signatures: Record<string, SignatureWithSigner[]>; discrepantKeys: Set<string>} {
+    const signaturesPerChain: Record<string, SignatureWithSigner[]> = {};
     const discrepantKeys: Set<string> = new Set();
 
     deviationSignerResponses.forEach((response) => {
@@ -51,10 +51,10 @@ export class DeviationSignerResponseProcessor {
   }
 
   protected searchForConsensus(
-    signaturesPerChain: Record<string, string[]>,
+    signaturesPerChain: Record<string, SignatureWithSigner[]>,
     requiredSignatures: number,
-  ): Record<string, string[]> {
-    const consensuses: Record<string, string[]> = {};
+  ): Record<string, SignatureWithSigner[]> {
+    const consensuses: Record<string, SignatureWithSigner[]> = {};
 
     const chains = Object.keys(signaturesPerChain);
 
