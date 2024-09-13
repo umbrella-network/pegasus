@@ -11,7 +11,8 @@ import {DeviationChainMetadata} from './DeviationChainMetadata.js';
 import {DeviationHasher} from './DeviationHasher.js';
 import {DeviationSignerRepository} from '../../repositories/DeviationSignerRepository.js';
 import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
-import {DataCollection} from '../../types/custom';
+import {DataCollection} from '../../types/custom.js';
+import {sortValidators} from '../../utils/sortValidators.js';
 
 @injectable()
 export class DeviationSignatureCollector {
@@ -24,7 +25,7 @@ export class DeviationSignatureCollector {
   @inject(DeviationChainMetadata) protected deviationChainMetadata!: DeviationChainMetadata;
 
   async apply(data: DeviationDataToSign, validators: Validator[]): Promise<DeviationSignerResponse[]> {
-    const participants = validators.sort((a, b) => (a.id.toLowerCase() < b.id.toLowerCase() ? -1 : 1));
+    const participants = sortValidators(validators);
 
     return this.getSignatures(data, participants);
   }

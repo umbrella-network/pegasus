@@ -93,7 +93,7 @@ class BlockSigner {
       throw Error('[BlockSigner] You should not call yourself for signature.');
     }
 
-    if (proposedConsensus.signer.toLowerCase() !== nextLeader.toLowerCase()) {
+    if (proposedConsensus.signer.toLowerCase() !== nextLeader.id.toLowerCase()) {
       throw Error(
         [
           'Signature does not belong to the current leader,',

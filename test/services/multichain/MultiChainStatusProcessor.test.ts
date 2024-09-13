@@ -47,7 +47,9 @@ describe('MultiChainStatusProcessor', () => {
 
   describe('when all chains can mint', () => {
     it('returns the chainsIdsReadyForBlock for all chains', async () => {
-      mockValidatorRepository.list.resolves([<Validator>{id: 'a', location: 'b', power: BigNumber.from(1)}]);
+      mockValidatorRepository.listForLeaderSelection.resolves([
+        <Validator>{id: 'a', location: 'b', power: BigNumber.from(1)},
+      ]);
 
       const result = await multiChainStatusProcessor.apply(chainStatusWithAddress, 10);
 
@@ -75,7 +77,9 @@ describe('MultiChainStatusProcessor', () => {
     });
 
     it('returns the chainsIdsReadyForBlock for the one chain that can mint', async () => {
-      mockValidatorRepository.list.resolves([<Validator>{id: 'a', location: 'b', power: BigNumber.from(1)}]);
+      mockValidatorRepository.listForLeaderSelection.resolves([
+        <Validator>{id: 'a', location: 'b', power: BigNumber.from(1)},
+      ]);
 
       const result = await multiChainStatusProcessor.apply(chainStatusWithAddress, 10);
       expect(result.chainsStatuses[0]).to.includes({chainId: 'bsc'});

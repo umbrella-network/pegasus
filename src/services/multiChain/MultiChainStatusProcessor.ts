@@ -1,11 +1,11 @@
 import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
-import Settings from '../../types/Settings.js';
+import Settings, {BlockchainType} from '../../types/Settings.js';
 import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus.js';
 import {CanMint} from '../CanMint.js';
 import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
-import LeaderSelector from './LeaderSelector.js';
+import {LeaderSelector} from './LeaderSelector.js';
 
 @injectable()
 export class MultiChainStatusProcessor {
@@ -13,6 +13,8 @@ export class MultiChainStatusProcessor {
   @inject('Settings') settings!: Settings;
   @inject(CanMint) canMint!: CanMint;
   @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
+
+  private logPrefix = '[MultiChainStatusProcessor]';
 
   async apply(chainStatuses: ChainStatusWithAddress[], dataTimestamp: number): Promise<ChainsStatuses> {
     return this.processStates(chainStatuses, dataTimestamp);
@@ -22,10 +24,10 @@ export class MultiChainStatusProcessor {
     chainsStatuses: ChainStatusWithAddress[],
     dataTimestamp: number,
   ): Promise<ChainsStatuses> {
-    const validators = await this.validatorRepository.list(undefined);
+    const validators = await this.validatorRepository.listForLeaderSelection(undefined, BlockchainType.LAYER2);
 
     if (validators.length == 0) {
-      throw new Error('[MultiChainStatusProcessor] empty validators list');
+      throw new Error(`${this.logPrefix} empty validators list`);
     }
 
     const chainsIdsReadyForBlock = chainsStatuses
@@ -36,11 +38,7 @@ export class MultiChainStatusProcessor {
 
     return {
       validators,
-      nextLeader: LeaderSelector.apply(
-        dataTimestamp,
-        validators.map((v) => v.id),
-        roundLength,
-      ),
+      nextLeader: LeaderSelector.apply(dataTimestamp, validators, roundLength),
       chainsStatuses,
       chainsIdsReadyForBlock,
     };

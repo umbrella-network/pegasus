@@ -46,7 +46,7 @@ describe('ValidatorRepository', () => {
     });
 
     it('expect to get list of 3 validators in order', async () => {
-      const list = await validatorRepository.list(undefined);
+      const list = await validatorRepository.listForLeaderSelection(undefined);
       expect(list.length).eq(expectedValidators.length);
       expect(list).deep.eq(expectedValidators);
     });
@@ -62,7 +62,7 @@ describe('ValidatorRepository', () => {
       });
 
       it('expect to get list of 2 validators in order', async () => {
-        const list = await validatorRepository.list(undefined);
+        const list = await validatorRepository.listForLeaderSelection(undefined);
         expect(list.length).eq(twoValidators.length);
         expect(list).deep.eq(twoValidators);
       });

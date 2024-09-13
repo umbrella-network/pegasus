@@ -1,33 +1,79 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {BigNumber} from 'ethers';
+import {Logger} from 'winston';
+
 import {Validator} from '../types/Validator.js';
 import CachedValidator from '../models/CachedValidator.js';
-import {Logger} from 'winston';
 import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds.js';
 import {DataCollection} from '../types/custom.js';
+import Settings, {BlockchainType} from '../types/Settings.js';
+import {sortValidators} from '../utils/sortValidators.js';
 
 @injectable()
 export class ValidatorRepository {
   @inject('Logger') logger!: Logger;
+  @inject('Settings') settings!: Settings;
 
-  async list(chainId: ChainsIds | undefined): Promise<Validator[]> {
+  private logPrefix = '[ValidatorRepository]';
+
+  async listForLeaderSelection(chainId: ChainsIds | undefined, chainType: BlockchainType): Promise<Validator[]> {
+    const chains = this.chainIdsForType(chainType);
+
     if (!chainId) {
-      chainId = await this.anyChainWithList();
+      [chainId] = chains;
     }
 
-    this.logger.debug(`[ValidatorRepository] pulling cached list of validators for ${chainId}`);
-    const validators = await getModelForClass(CachedValidator).find({chainId}).exec();
+    this.logger.debug(`${this.logPrefix} pulling cached list of validators for ${chainId}`);
 
-    return validators
-      .sort((a, b) => (a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1))
-      .map((data): Validator => {
-        return {
-          id: data.address,
-          power: BigNumber.from(data.power),
-          location: data.location,
-        };
+    const counter: Record<string, number> = {};
+
+    const [validators, evmValidators] = await Promise.all([
+      getModelForClass(CachedValidator)
+        .find({chainId: {$in: chains}})
+        .exec(),
+      this.evmValidators(),
+    ]);
+
+    validators.forEach((data: CachedValidator) => {
+      const location = this.procesLocation(data.location);
+      counter[location] = (counter[location] ?? 0) + 1;
+    });
+
+    const maxCount = Math.max(...Object.values(counter));
+
+    const selectedValidators = validators
+      .filter((data: CachedValidator) => {
+        const location = this.procesLocation(data.location);
+        return counter[location] == maxCount;
+      })
+      .map((data: CachedValidator) => {
+        const location = this.procesLocation(data.location);
+        return evmValidators[location];
       });
+
+    return sortValidators(selectedValidators);
+  }
+
+  private async evmValidators(): Promise<Record<string, Validator>> {
+    const evmValidators = await getModelForClass(CachedValidator)
+      .find({chainId: {$nin: NonEvmChainsIds}})
+      .limit(1)
+      .exec();
+
+    const byLocation: Record<string, Validator> = {};
+
+    evmValidators.forEach((evmValidator) => {
+      const location = this.procesLocation(evmValidator.location);
+
+      byLocation[location] = {
+        id: evmValidator.address,
+        power: BigNumber.from(evmValidator.power),
+        location,
+      };
+    });
+
+    return byLocation;
   }
 
   async getAll(): Promise<DataCollection<Set<string>>> {
@@ -46,17 +92,12 @@ export class ValidatorRepository {
     return result;
   }
 
-  protected async anyChainWithList(): Promise<ChainsIds | undefined> {
-    const allCachedChains = await getModelForClass(CachedValidator)
-      .find({}, {chainId: 1})
-      .sort({contractIndex: 1})
-      .exec();
-
-    if (!allCachedChains) return;
-
-    const one = allCachedChains.find((doc) => !NonEvmChainsIds.includes(doc.chainId as ChainsIds));
-
-    return one?.chainId as ChainsIds;
+  protected chainIdsForType(chainType: BlockchainType): ChainsIds[] {
+    return Object.entries(this.settings.blockchain.multiChains)
+      .map(([chainId, cfg]) => {
+        return cfg.type.includes(chainType) ? chainId : undefined;
+      })
+      .filter((v) => v !== undefined) as ChainsIds[];
   }
 
   async cache(chainId: ChainsIds, validators: Validator[]): Promise<void> {
@@ -84,5 +125,10 @@ export class ValidatorRepository {
         ).exec();
       }),
     );
+  }
+
+  private procesLocation(url: string): string {
+    const noSlash = url.endsWith('/') ? url.slice(0, -1) : url;
+    return noSlash.toLowerCase();
   }
 }

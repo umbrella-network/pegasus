@@ -45,12 +45,6 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       return;
     }
 
-    if (!(await this.amILeader())) {
-      this.printNotImportantInfo("I'm not a leader atm");
-      await this.consensusRepository.delete(this.chainId);
-      return;
-    }
-
     // NOTICE: KEEP this check at begin, otherwise leader worker will be locked
     if (!(await this.checkBalanceIsEnough(this.blockchain.deviationWallet))) {
       await sleep(60_000); // slow down execution
@@ -61,6 +55,12 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
 
     if (!consensus) {
       this.printNotImportantInfo('no consensus data found to dispatch');
+      return;
+    }
+
+    if (consensus.dataTimestamp + this.settings.deviationTrigger.roundLengthSeconds / 2 < this.timeService.apply()) {
+      this.logger.warn(`${this.logPrefix} consensus for ${consensus.keys} at ${consensus.dataTimestamp} deprecated`);
+      await this.consensusRepository.delete(this.chainId);
       return;
     }
 
@@ -94,18 +94,6 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       await sleep(15_000); // slow down execution
     }
   };
-
-  protected async amILeader(): Promise<boolean> {
-    const dataTimestamp = this.timeService.apply();
-    const validators = await this.validatorRepository.list(undefined);
-
-    if (validators.length === 0) throw new Error(`${this.logPrefix} validators list is empty`);
-
-    return this.deviationLeaderSelector.apply(
-      dataTimestamp,
-      validators.map((v) => v.id),
-    );
-  }
 
   protected async updateFeedsTxData(consensus: DeviationConsensus): Promise<{
     fn: () => Promise<ExecutedTx>;

@@ -18,6 +18,7 @@ import {MappingRepository} from '../repositories/MappingRepository.js';
 import {MasterChainData} from '../types/Consensus.js';
 import {BalanceMonitorChecker} from './balanceMonitor/BalanceMonitorChecker.js';
 import {sleep} from '../utils/sleep.js';
+import {Validator} from '../types/Validator.js';
 
 const MASTERCHAINSTATUS_MIN_SIGNATURES = 'masterChainStatus.minSignatures';
 
@@ -61,7 +62,7 @@ class BlockMinter {
       return;
     }
 
-    if (!this.isLeader(nextLeader, dataTimestamp)) {
+    if (!(await this.isLeader(nextLeader, dataTimestamp))) {
       return;
     }
 
@@ -109,9 +110,9 @@ class BlockMinter {
     };
   }
 
-  private isLeader(nextLeader: string, dataTimestamp: number): boolean {
+  private async isLeader(nextLeader: Validator, dataTimestamp: number): Promise<boolean> {
     const walletAddress = new Wallet(this.settings.blockchain.wallets.evm.privateKey).address;
-    const addressMatch = nextLeader.toLowerCase() === walletAddress.toLowerCase();
+    const addressMatch = nextLeader.id.toLowerCase() === walletAddress.toLowerCase();
 
     if (addressMatch) {
       this.logger.info(`You are leader for ${dataTimestamp}`);

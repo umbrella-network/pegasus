@@ -33,9 +33,11 @@ export class DeviationLeader {
   @inject(BalanceMonitorChecker) balanceMonitorChecker!: BalanceMonitorChecker;
   @inject(RequiredSignaturesRepository) requiredSignaturesRepository!: RequiredSignaturesRepository;
 
+  private logPrefix = '[DeviationLeader]';
+
   async apply(): Promise<void> {
     if (!(await this.balanceMonitorChecker.apply(BlockchainType.ON_CHAIN))) {
-      this.logger.error('[DeviationLeader][ON_CHAIN] There is not enough balance in any of the chains');
+      this.logger.error(`${this.logPrefix}[ON_CHAIN] There is not enough balance in any of the chains`);
       await sleep(60_000); // slow down execution
       return;
     }
@@ -45,26 +47,21 @@ export class DeviationLeader {
 
     if (!requiredSignatures) {
       // we do not set last intervals if we didn't manage to get consensus
-      this.logger.error('[DeviationLeader] unknown requiredSignatures');
+      this.logger.error(`${this.logPrefix} unknown requiredSignatures`);
       return;
     }
 
     const dataTimestamp = this.timeService.apply();
 
     const [validators, pendingChains] = await Promise.all([
-      this.validatorRepository.list(undefined),
+      this.validatorRepository.listForLeaderSelection(undefined, BlockchainType.ON_CHAIN),
       this.deviationConsensusRepository.existedChains(),
     ]);
 
-    if (validators.length === 0) throw new Error('[DeviationLeader] validators list is empty');
+    if (validators.length === 0) throw new Error(`${this.logPrefix} validators list is empty`);
 
-    if (
-      !this.deviationLeaderSelector.apply(
-        dataTimestamp,
-        validators.map((v) => v.id),
-      )
-    ) {
-      this.logger.debug(`[DeviationLeader] I'm not a leader at ${dataTimestamp}`);
+    if (!this.deviationLeaderSelector.apply(dataTimestamp, validators)) {
+      this.logger.debug(`${this.logPrefix} I'm not a leader at ${dataTimestamp}`);
       return;
     }
 
@@ -72,7 +69,7 @@ export class DeviationLeader {
     const data = await this.feedDataService.apply(dataTimestamp, FeedsType.DEVIATION_TRIGGER);
 
     if (data.rejected) {
-      this.logger.info(`[DeviationLeader] rejected: ${data.rejected}`);
+      this.logger.info(`${this.logPrefix} rejected: ${data.rejected}`);
     }
 
     const {dataToUpdate} = await this.deviationTrigger.apply(
@@ -83,7 +80,7 @@ export class DeviationLeader {
 
     if (!dataToUpdate) {
       await this.deviationTriggerLastIntervals.set(Object.keys(data.feeds), dataTimestamp);
-      this.logger.debug(`[DeviationLeader] no data to update at ${dataTimestamp}`);
+      this.logger.debug(`${this.logPrefix} no data to update at ${dataTimestamp}`);
       return;
     }
 
@@ -91,17 +88,17 @@ export class DeviationLeader {
 
     if (!consensuses) {
       // we do not set last intervals if we didn't manage to get consensus
-      this.logger.warn(`[DeviationLeader] no consensus for ${JSON.stringify(dataToUpdate.feedsForChain)}`);
+      this.logger.warn(`${this.logPrefix} no consensus for ${JSON.stringify(dataToUpdate.feedsForChain)}`);
       return;
     }
 
-    this.logger.debug(`[DeviationLeader] got ${consensuses.length} consensus(es)`);
+    this.logger.debug(`${this.logPrefix} got ${consensuses.length} consensus(es)`);
 
     await Promise.all([
       this.deviationTriggerLastIntervals.set(Object.keys(data.feeds), dataTimestamp),
       ...consensuses.map((consensus) => this.deviationConsensusRepository.save(consensus)),
     ]);
 
-    this.logger.debug('[DeviationLeader] finished');
+    this.logger.debug('${this.logPrefix} finished');
   }
 }
