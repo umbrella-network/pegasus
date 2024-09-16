@@ -25,6 +25,7 @@ export class DeviationSignatureCollector {
   @inject(DeviationChainMetadata) protected deviationChainMetadata!: DeviationChainMetadata;
 
   async apply(data: DeviationDataToSign, validators: Validator[]): Promise<DeviationSignerResponse[]> {
+    this.logger.debug(`validators before sorting: ${JSON.stringify(validators)}`);
     const participants = sortValidators(validators);
 
     return this.getSignatures(data, participants);

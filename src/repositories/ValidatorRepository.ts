@@ -35,6 +35,8 @@ export class ValidatorRepository {
       this.evmValidators(),
     ]);
 
+    this.logger.debug(`${this.logPrefix} evmValidators: ${JSON.stringify(evmValidators)}`);
+
     validators.forEach((data: CachedValidator) => {
       const location = this.procesLocation(data.location);
       counter[location] = (counter[location] ?? 0) + 1;
@@ -52,15 +54,13 @@ export class ValidatorRepository {
         return evmValidators[location];
       });
 
+    this.logger.debug(`${this.logPrefix} selectedValidators (${maxCount}): ${JSON.stringify(selectedValidators)}`);
+
     return sortValidators(selectedValidators);
   }
 
   private async evmValidators(): Promise<Record<string, Validator>> {
-    const evmValidators = await getModelForClass(CachedValidator)
-      .find({chainId: {$nin: NonEvmChainsIds}})
-      .limit(1)
-      .exec();
-
+    const evmValidators = await getModelForClass(CachedValidator).find({chainId: {$nin: NonEvmChainsIds}}).exec();
     const byLocation: Record<string, Validator> = {};
 
     evmValidators.forEach((evmValidator) => {
