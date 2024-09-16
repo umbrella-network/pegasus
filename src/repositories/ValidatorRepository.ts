@@ -86,7 +86,7 @@ export class ValidatorRepository {
       }
 
       // remove `/` from the end
-      result[data.chainId].add(data.location.endsWith('/') ? data.location.slice(0, -1) : data.location);
+      result[data.chainId].add(this.procesLocation(data.location));
     });
 
     return result;
