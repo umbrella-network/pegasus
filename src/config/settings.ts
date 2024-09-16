@@ -308,7 +308,7 @@ const settings: Settings = {
       },
     },
     blockchainMetrics: {
-      interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '600000'),
+      interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '60000'),
       lock: {
         name: process.env.VALIDATORS_RESOLVER_LOCK_NAME || 'lock::ValidatorsResolver',
         ttl: parseInt(process.env.VALIDATORS_RESOLVER_LOCK_TTL || '60'),
