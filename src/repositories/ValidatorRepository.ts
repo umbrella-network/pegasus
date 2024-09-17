@@ -17,6 +17,25 @@ export class ValidatorRepository {
 
   private logPrefix = '[ValidatorRepository]';
 
+  async list_deprecated(chainId: ChainsIds | undefined): Promise<Validator[]> {
+    if (!chainId) {
+      chainId = await this.anyChainWithList_deprecated();
+    }
+
+    this.logger.debug(`[ValidatorRepository] pulling cached list of validators for ${chainId}`);
+    const validators = await getModelForClass(CachedValidator).find({chainId}).exec();
+
+    return validators
+      .sort((a, b) => (a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1))
+      .map((data): Validator => {
+        return {
+          id: data.address,
+          power: BigNumber.from(data.power),
+          location: data.location,
+        };
+      });
+  }
+
   async listForLeaderSelection(chainId: ChainsIds | undefined, chainType: BlockchainType): Promise<Validator[]> {
     const chains = this.chainIdsForType(chainType);
 
@@ -38,7 +57,7 @@ export class ValidatorRepository {
     this.logger.debug(`${this.logPrefix} evmValidators: ${JSON.stringify(evmValidators)}`);
 
     validators.forEach((data: CachedValidator) => {
-      const location = this.procesLocation(data.location);
+      const location = this.processLocation(data.location);
       counter[location] = (counter[location] ?? 0) + 1;
     });
 
@@ -46,11 +65,11 @@ export class ValidatorRepository {
 
     const selectedValidators = validators
       .filter((data: CachedValidator) => {
-        const location = this.procesLocation(data.location);
+        const location = this.processLocation(data.location);
         return counter[location] == maxCount;
       })
       .map((data: CachedValidator) => {
-        const location = this.procesLocation(data.location);
+        const location = this.processLocation(data.location);
         return evmValidators[location];
       });
 
@@ -66,7 +85,7 @@ export class ValidatorRepository {
     const byLocation: Record<string, Validator> = {};
 
     evmValidators.forEach((evmValidator) => {
-      const location = this.procesLocation(evmValidator.location);
+      const location = this.processLocation(evmValidator.location);
 
       byLocation[location] = {
         id: evmValidator.address,
@@ -88,7 +107,7 @@ export class ValidatorRepository {
       }
 
       // remove `/` from the end
-      result[data.chainId].add(this.procesLocation(data.location));
+      result[data.chainId].add(this.processLocation(data.location));
     });
 
     return result;
@@ -129,8 +148,21 @@ export class ValidatorRepository {
     );
   }
 
-  private procesLocation(url: string): string {
+  private processLocation(url: string): string {
     const noSlash = url.endsWith('/') ? url.slice(0, -1) : url;
     return noSlash.toLowerCase();
+  }
+
+  protected async anyChainWithList_deprecated(): Promise<ChainsIds | undefined> {
+    const allCachedChains = await getModelForClass(CachedValidator)
+      .find({}, {chainId: 1})
+      .sort({contractIndex: 1})
+      .exec();
+
+    if (!allCachedChains) return;
+
+    const one = allCachedChains.find((doc) => !NonEvmChainsIds.includes(doc.chainId as ChainsIds));
+
+    return one?.chainId as ChainsIds;
   }
 }
