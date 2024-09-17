@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import chai from 'chai';
 
-import LeaderSelector from '../../src/services/multiChain/LeaderSelector.js';
+import LeaderSelector from '../../src/services/multiChain/LeaderSelectorV2.js';
 import {ChainStatus} from '../../src/types/ChainStatus.js';
 import {chainStatusFactory} from '../mocks/factories/chainStatusFactory.js';
 

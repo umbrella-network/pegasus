@@ -62,7 +62,7 @@ class BlockMinter {
       return;
     }
 
-    if (!(await this.isLeader(nextLeader, dataTimestamp))) {
+    if (!this.isLeader(nextLeader, dataTimestamp)) {
       return;
     }
 
@@ -110,7 +110,7 @@ class BlockMinter {
     };
   }
 
-  private async isLeader(nextLeader: Validator, dataTimestamp: number): Promise<boolean> {
+  private isLeader(nextLeader: Validator, dataTimestamp: number): boolean {
     const walletAddress = new Wallet(this.settings.blockchain.wallets.evm.privateKey).address;
     const addressMatch = nextLeader.id.toLowerCase() === walletAddress.toLowerCase();
 

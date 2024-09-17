@@ -58,7 +58,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       return;
     }
 
-    if (consensus.dataTimestamp + this.settings.deviationTrigger.roundLengthSeconds / 2 < this.timeService.apply()) {
+    if (consensus.dataTimestamp + this.settings.deviationTrigger.roundLengthSeconds / 3 < this.timeService.apply()) {
       this.logger.warn(`${this.logPrefix} consensus for ${consensus.keys} at ${consensus.dataTimestamp} deprecated`);
       await this.consensusRepository.delete(this.chainId);
       return;

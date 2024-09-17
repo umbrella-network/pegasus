@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+### Changed
+- by default check validators list every 60s
+- leader selection changes:
+  - use validator urls (instead of evm addresses) to create ordered list of validators
+  - use only validators that are present on all blockchains
+- on consensus dispatching do not check if you leader, but deprecate it after some time
+
 ## [8.2.1] - 2024-09-10
 ### Changed
 - disable `PolygonIOStockSnapshotPrice` fetcher

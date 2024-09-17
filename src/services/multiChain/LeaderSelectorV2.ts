@@ -8,13 +8,13 @@ import {Validator} from '../../types/Validator.js';
   for provided `consensusTimestamp`, he should be rejected only when data is too old.
 */
 
-export class LeaderSelector {
+export class LeaderSelectorV2 {
   static apply(consensusTimestamp: number, validators: Validator[], roundLength: number): Validator {
     if (validators.length == 0) {
       throw new Error('LeaderSelector.apply: empty validators');
     }
 
-    return LeaderSelector.getLeaderAddressAtTime(consensusTimestamp, validators, roundLength);
+    return LeaderSelectorV2.getLeaderAddressAtTime(consensusTimestamp, validators, roundLength);
   }
 
   static getLeaderAddressAtTime = (
@@ -26,7 +26,7 @@ export class LeaderSelector {
       throw new Error('LeaderSelector.getLeaderAddressAtTime: empty validators');
     }
 
-    const validatorIndex = LeaderSelector.getLeaderIndex(consensusTimestamp, validators, roundLength);
+    const validatorIndex = LeaderSelectorV2.getLeaderIndex(consensusTimestamp, validators, roundLength);
     return validators[validatorIndex];
   };
 
