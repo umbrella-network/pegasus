@@ -60,7 +60,9 @@ export class ValidatorRepository {
   }
 
   private async evmValidators(): Promise<Record<string, Validator>> {
-    const evmValidators = await getModelForClass(CachedValidator).find({chainId: {$nin: NonEvmChainsIds}}).exec();
+    const evmValidators = await getModelForClass(CachedValidator)
+      .find({chainId: {$nin: NonEvmChainsIds}})
+      .exec();
     const byLocation: Record<string, Validator> = {};
 
     evmValidators.forEach((evmValidator) => {

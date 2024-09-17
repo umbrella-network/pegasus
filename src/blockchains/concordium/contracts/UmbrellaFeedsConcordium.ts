@@ -157,7 +157,11 @@ export class UmbrellaFeedsConcordium implements UmbrellaFeedInterface {
 
     const error = decodeDryRunError(res);
     this.logger.error(`${this.loggerPrefix} estimateCost error: ${error}`);
-    this.logger.warn(`${this.loggerPrefix} ${JSON.stringify(contract.contractAddress)}: ${JSON.stringify(parameter)}`);
+
+    this.logger.info(
+      `${this.loggerPrefix} dump ${JSON.stringify(contract.contractAddress)}: ${JSON.stringify(parameter)}`,
+    );
+
     return undefined;
   }
 

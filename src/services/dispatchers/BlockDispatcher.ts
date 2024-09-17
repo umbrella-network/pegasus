@@ -107,7 +107,7 @@ export abstract class BlockDispatcher extends Dispatcher implements IBlockChainD
         consensus.fcdValues,
       );
 
-      this.logger.warn(`${this.logPrefix} ${JSON.stringify(chainSubmitArgs)}`);
+      this.logger.info(`${this.logPrefix} dump: ${JSON.stringify(chainSubmitArgs)}`);
     }
   };
 

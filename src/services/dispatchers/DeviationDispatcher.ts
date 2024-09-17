@@ -89,7 +89,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
         signatures: consensus.signatures,
       };
 
-      this.logger.warn(`${this.logPrefix} ${JSON.stringify(updateFeedsArgs)}`);
+      this.logger.info(`${this.logPrefix} dump: ${JSON.stringify(updateFeedsArgs)}`);
 
       await sleep(15_000); // slow down execution
     }
