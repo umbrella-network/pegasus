@@ -9,34 +9,22 @@ import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds.js';
 import {DataCollection} from '../types/custom.js';
 import Settings, {BlockchainType} from '../types/Settings.js';
 import {sortValidators} from '../utils/sortValidators.js';
+import {ReleasesResolver} from "../services/files/ReleasesResolver.js";
 
 @injectable()
 export class ValidatorRepository {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
+  @inject(ReleasesResolver) releasesResolver!: ReleasesResolver;
 
   private logPrefix = '[ValidatorRepository]';
 
-  async list_deprecated(chainId: ChainsIds | undefined): Promise<Validator[]> {
-    if (!chainId) {
-      chainId = await this.anyChainWithList_deprecated();
+  async listForLeaderSelection(chainId: ChainsIds | undefined, chainType: BlockchainType): Promise<Validator[]> {
+    if (!(await this.releasesResolver.get('leaderSelectorV2'))) {
+      this.logger.info(`${this.logPrefix} using old list for ${chainId}`);
+      return this.list_deprecated(chainId);
     }
 
-    this.logger.debug(`[ValidatorRepository] pulling cached list of validators for ${chainId}`);
-    const validators = await getModelForClass(CachedValidator).find({chainId}).exec();
-
-    return validators
-      .sort((a, b) => (a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1))
-      .map((data): Validator => {
-        return {
-          id: data.address,
-          power: BigNumber.from(data.power),
-          location: data.location,
-        };
-      });
-  }
-
-  async listForLeaderSelection(chainId: ChainsIds | undefined, chainType: BlockchainType): Promise<Validator[]> {
     const chains = this.chainIdsForType(chainType);
 
     if (!chainId) {
@@ -76,6 +64,25 @@ export class ValidatorRepository {
     this.logger.debug(`${this.logPrefix} selectedValidators (${maxCount}): ${JSON.stringify(selectedValidators)}`);
 
     return sortValidators(selectedValidators);
+  }
+
+  private async list_deprecated(chainId: ChainsIds | undefined): Promise<Validator[]> {
+    if (!chainId) {
+      chainId = await this.anyChainWithList_deprecated();
+    }
+
+    this.logger.debug(`${this.logPrefix} pulling cached list of validators for ${chainId}`);
+    const validators = await getModelForClass(CachedValidator).find({chainId}).exec();
+
+    return validators
+      .sort((a, b) => (a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1))
+      .map((data): Validator => {
+        return {
+          id: data.address,
+          power: BigNumber.from(data.power),
+          location: data.location,
+        };
+      });
   }
 
   private async evmValidators(): Promise<Record<string, Validator>> {
