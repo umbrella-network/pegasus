@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- option to turn on release on whole network at once
+
 ### Changed
 - by default check validators list every 60s
 - leader selection changes:

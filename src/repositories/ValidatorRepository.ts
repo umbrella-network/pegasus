@@ -87,6 +87,19 @@ export class ValidatorRepository {
       });
   }
 
+  protected async anyChainWithList_deprecated(): Promise<ChainsIds | undefined> {
+    const allCachedChains = await getModelForClass(CachedValidator)
+      .find({}, {chainId: 1})
+      .sort({contractIndex: 1})
+      .exec();
+
+    if (!allCachedChains) return;
+
+    const one = allCachedChains.find((doc) => !NonEvmChainsIds.includes(doc.chainId as ChainsIds));
+
+    return one?.chainId as ChainsIds;
+  }
+
   private async evmValidators(): Promise<Record<string, Validator>> {
     const evmValidators = await getModelForClass(CachedValidator)
       .find({chainId: {$nin: NonEvmChainsIds}})
@@ -160,18 +173,5 @@ export class ValidatorRepository {
   private processLocation(url: string): string {
     const noSlash = url.endsWith('/') ? url.slice(0, -1) : url;
     return noSlash.toLowerCase();
-  }
-
-  protected async anyChainWithList_deprecated(): Promise<ChainsIds | undefined> {
-    const allCachedChains = await getModelForClass(CachedValidator)
-      .find({}, {chainId: 1})
-      .sort({contractIndex: 1})
-      .exec();
-
-    if (!allCachedChains) return;
-
-    const one = allCachedChains.find((doc) => !NonEvmChainsIds.includes(doc.chainId as ChainsIds));
-
-    return one?.chainId as ChainsIds;
   }
 }
