@@ -38,7 +38,7 @@ export class ValidatorRepository {
       });
   }
 
-  async listForLeaderSelection(chainId: ChainsIds | undefined, chainType: BlockchainType): Promise<Validator[]> {
+  async list(chainId: ChainsIds | undefined, chainType: BlockchainType): Promise<Validator[]> {
     if (!(await this.releasesResolver.get('leaderSelectorV2'))) {
       this.logger.info(`${this.logPrefix} using old list for ${chainId}`);
       return this.list_deprecated(chainId);
@@ -102,7 +102,7 @@ export class ValidatorRepository {
 
     return result;
   }
-  
+
   protected async anyChainWithList_deprecated(): Promise<ChainsIds | undefined> {
     const allCachedChains = await getModelForClass(CachedValidator)
       .find({}, {chainId: 1})

@@ -24,7 +24,7 @@ export class MultiChainStatusProcessor {
     chainsStatuses: ChainStatusWithAddress[],
     dataTimestamp: number,
   ): Promise<ChainsStatuses> {
-    const validators = await this.validatorRepository.listForLeaderSelection(undefined, BlockchainType.LAYER2);
+    const validators = await this.validatorRepository.list(undefined, BlockchainType.LAYER2);
 
     if (validators.length == 0) {
       throw new Error(`${this.logPrefix} empty validators list`);

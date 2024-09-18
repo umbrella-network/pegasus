@@ -54,7 +54,7 @@ export class DeviationLeader {
     const dataTimestamp = this.timeService.apply();
 
     const [validators, pendingChains] = await Promise.all([
-      this.validatorRepository.listForLeaderSelection(undefined, BlockchainType.ON_CHAIN),
+      this.validatorRepository.list(undefined, BlockchainType.ON_CHAIN),
       this.deviationConsensusRepository.existedChains(),
     ]);
 
