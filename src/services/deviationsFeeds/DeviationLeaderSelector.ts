@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 
-import {LeaderSelectorV2} from '../multiChain/LeaderSelectorV2.js';
+import {LeaderSelector} from '../multiChain/LeaderSelector.js';
 import Settings from '../../types/Settings.js';
 import {Wallet} from 'ethers';
 import {Validator} from '../../types/Validator.js';
@@ -11,7 +11,7 @@ export class DeviationLeaderSelector {
 
   apply(dataTimestamp: number, validators: Validator[]): boolean {
     const roundLength = this.settings.deviationTrigger.roundLengthSeconds;
-    const leader = LeaderSelectorV2.apply(dataTimestamp, validators, roundLength);
+    const leader = LeaderSelector.apply(dataTimestamp, validators, roundLength);
     return leader.id.toLowerCase() == new Wallet(this.settings.blockchain.wallets.evm.privateKey).address.toLowerCase();
   }
 }

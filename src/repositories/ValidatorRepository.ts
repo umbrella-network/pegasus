@@ -9,7 +9,7 @@ import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds.js';
 import {DataCollection} from '../types/custom.js';
 import Settings, {BlockchainType} from '../types/Settings.js';
 import {sortValidators} from '../utils/sortValidators.js';
-import {ReleasesResolver} from "../services/files/ReleasesResolver.js";
+import {ReleasesResolver} from '../services/files/ReleasesResolver.js';
 
 @injectable()
 export class ValidatorRepository {
@@ -23,6 +23,8 @@ export class ValidatorRepository {
     if (!(await this.releasesResolver.get('leaderSelectorV2'))) {
       this.logger.info(`${this.logPrefix} using old list for ${chainId}`);
       return this.list_deprecated(chainId);
+    } else {
+      this.logger.debug(`${this.logPrefix} using leaderSelectorV2`);
     }
 
     const chains = this.chainIdsForType(chainType);

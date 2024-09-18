@@ -23,7 +23,7 @@ export class LeaderSelector {
     roundLength: number,
   ): Validator => {
     if (validators.length == 0) {
-      throw new Error('LeaderSelector.apply: empty validators');
+      throw new Error('LeaderSelector.getLeaderAddressAtTime: empty validators');
     }
 
     const validatorIndex = LeaderSelector.getLeaderIndex(consensusTimestamp, validators, roundLength);
@@ -32,7 +32,7 @@ export class LeaderSelector {
 
   static getLeaderIndex = (consensusTimestamp: number, validators: Validator[], roundLength: number): number => {
     if (validators.length == 0) {
-      return -1;
+      throw new Error('LeaderSelector.getLeaderIndex: empty validators');
     }
 
     return Math.trunc(consensusTimestamp / roundLength) % validators.length;

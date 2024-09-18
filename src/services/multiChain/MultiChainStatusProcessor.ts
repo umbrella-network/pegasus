@@ -5,7 +5,7 @@ import Settings, {BlockchainType} from '../../types/Settings.js';
 import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus.js';
 import {CanMint} from '../CanMint.js';
 import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
-import {LeaderSelectorV2} from './LeaderSelectorV2.js';
+import {LeaderSelector} from './LeaderSelector.js';
 
 @injectable()
 export class MultiChainStatusProcessor {
@@ -38,7 +38,7 @@ export class MultiChainStatusProcessor {
 
     return {
       validators,
-      nextLeader: LeaderSelectorV2.apply(dataTimestamp, validators, roundLength),
+      nextLeader: LeaderSelector.apply(dataTimestamp, validators, roundLength),
       chainsStatuses,
       chainsIdsReadyForBlock,
     };
