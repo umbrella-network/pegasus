@@ -11,6 +11,7 @@ import CachedValidator from '../../src/models/CachedValidator.js';
 import {loadTestEnv} from '../helpers/loadTestEnv.js';
 import {getTestContainer} from '../helpers/getTestContainer.js';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
+import {BlockchainType} from '../../src/types/Settings.js';
 
 const {expect} = chai;
 
@@ -46,7 +47,7 @@ describe('ValidatorRepository', () => {
     });
 
     it('expect to get list of 3 validators in order', async () => {
-      const list = await validatorRepository.list(undefined);
+      const list = await validatorRepository.list(undefined, BlockchainType.LAYER2);
       expect(list.length).eq(expectedValidators.length);
       expect(list).deep.eq(expectedValidators);
     });
@@ -62,7 +63,7 @@ describe('ValidatorRepository', () => {
       });
 
       it('expect to get list of 2 validators in order', async () => {
-        const list = await validatorRepository.list(undefined);
+        const list = await validatorRepository.list(undefined, BlockchainType.LAYER2);
         expect(list.length).eq(twoValidators.length);
         expect(list).deep.eq(twoValidators);
       });

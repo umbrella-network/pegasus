@@ -44,7 +44,11 @@ const allStates: ChainsStatuses = {
     {id: '0xabctest', power: BigNumber.from(1), location: ''},
     {id: '0xdeftest', power: BigNumber.from(1), location: ''},
   ],
-  nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
+  nextLeader: {
+    id: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
+    location: '',
+    power: BigNumber.from(1),
+  },
   chainsStatuses: [],
   chainsIdsReadyForBlock: [],
 };
@@ -284,7 +288,11 @@ describe('BlockMinter', () => {
           chainId: ChainsIds.AVALANCHE,
         },
       ];
-      allStates.nextLeader = wallet.address;
+      allStates.nextLeader = {
+        id: wallet.address,
+        location: 'abc',
+        power: BigNumber.from(1),
+      };
 
       allStates.chainsIdsReadyForBlock = [ChainsIds.AVALANCHE];
       mockedMultiChainStatusResolver.apply.resolves(allStates);
