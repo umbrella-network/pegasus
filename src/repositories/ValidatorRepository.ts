@@ -19,6 +19,25 @@ export class ValidatorRepository {
 
   private logPrefix = '[ValidatorRepository]';
 
+  private async list_deprecated(chainId: ChainsIds | undefined): Promise<Validator[]> {
+    if (!chainId) {
+      chainId = await this.anyChainWithList_deprecated();
+    }
+
+    this.logger.debug(`${this.logPrefix} pulling cached list of validators for ${chainId}`);
+    const validators = await getModelForClass(CachedValidator).find({chainId}).exec();
+
+    return validators
+      .sort((a, b) => (a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1))
+      .map((data): Validator => {
+        return {
+          id: data.address,
+          power: BigNumber.from(data.power),
+          location: data.location,
+        };
+      });
+  }
+
   async listForLeaderSelection(chainId: ChainsIds | undefined, chainType: BlockchainType): Promise<Validator[]> {
     if (!(await this.releasesResolver.get('leaderSelectorV2'))) {
       this.logger.info(`${this.logPrefix} using old list for ${chainId}`);
@@ -68,25 +87,22 @@ export class ValidatorRepository {
     return sortValidators(selectedValidators);
   }
 
-  private async list_deprecated(chainId: ChainsIds | undefined): Promise<Validator[]> {
-    if (!chainId) {
-      chainId = await this.anyChainWithList_deprecated();
-    }
+  async getAll(): Promise<DataCollection<Set<string>>> {
+    const result: DataCollection<Set<string>> = {};
+    const validators = await getModelForClass(CachedValidator).find().exec();
 
-    this.logger.debug(`${this.logPrefix} pulling cached list of validators for ${chainId}`);
-    const validators = await getModelForClass(CachedValidator).find({chainId}).exec();
+    validators.forEach((data) => {
+      if (!result[data.chainId]) {
+        result[data.chainId] = new Set<string>();
+      }
 
-    return validators
-      .sort((a, b) => (a.address.toLowerCase() < b.address.toLowerCase() ? -1 : 1))
-      .map((data): Validator => {
-        return {
-          id: data.address,
-          power: BigNumber.from(data.power),
-          location: data.location,
-        };
-      });
+      // remove `/` from the end
+      result[data.chainId].add(this.processLocation(data.location));
+    });
+
+    return result;
   }
-
+  
   protected async anyChainWithList_deprecated(): Promise<ChainsIds | undefined> {
     const allCachedChains = await getModelForClass(CachedValidator)
       .find({}, {chainId: 1})
@@ -117,22 +133,6 @@ export class ValidatorRepository {
     });
 
     return byLocation;
-  }
-
-  async getAll(): Promise<DataCollection<Set<string>>> {
-    const result: DataCollection<Set<string>> = {};
-    const validators = await getModelForClass(CachedValidator).find().exec();
-
-    validators.forEach((data) => {
-      if (!result[data.chainId]) {
-        result[data.chainId] = new Set<string>();
-      }
-
-      // remove `/` from the end
-      result[data.chainId].add(this.processLocation(data.location));
-    });
-
-    return result;
   }
 
   protected chainIdsForType(chainType: BlockchainType): ChainsIds[] {
