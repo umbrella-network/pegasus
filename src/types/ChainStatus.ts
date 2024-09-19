@@ -23,7 +23,7 @@ export interface ChainStatusWithAddress {
 
 export interface ChainsStatuses {
   validators: Validator[];
-  nextLeader: string;
+  nextLeader: Validator;
   chainsStatuses: ChainStatusWithAddress[];
   chainsIdsReadyForBlock: string[];
 }

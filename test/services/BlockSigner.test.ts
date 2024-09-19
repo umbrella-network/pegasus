@@ -26,7 +26,7 @@ const allStates: ChainsStatuses = {
     {id: '0xabctest', power: BigNumber.from(1), location: ''},
     {id: '0xdeftest', power: BigNumber.from(1), location: ''},
   ],
-  nextLeader: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0',
+  nextLeader: {id: '0x998cb7821e605cC16b6174e7C50E19ADb2Dd2fB0', location: '', power: BigNumber.from(1)},
   chainsStatuses: [],
   chainsIdsReadyForBlock: [],
 };
@@ -83,7 +83,7 @@ describe('BlockSigner', () => {
         },
       ];
 
-      allStates.nextLeader = leaderWallet.address;
+      allStates.nextLeader = {id: leaderWallet.address, location: '', power: BigNumber.from(1)};
 
       mockedMultiChainStatusResolver.apply.resolves(allStates);
 
@@ -103,7 +103,7 @@ describe('BlockSigner', () => {
       const {affidavit, fcd, timestamp} = leafWithAffidavit;
       const wallet = Wallet.createRandom();
       const signature = await signAffidavitWithWallet(wallet, affidavit);
-      const nextLeader = Wallet.createRandom().address;
+      const nextLeader = {id: Wallet.createRandom().address, location: '', power: BigNumber.from(1)};
 
       mockedBlockchain.wallet.setRawWallet(Wallet.createRandom());
 
@@ -112,7 +112,7 @@ describe('BlockSigner', () => {
           chainAddress: '0x123',
           chainStatus: chainStatusFactory.build({
             timePadding,
-            validators: [nextLeader, wallet.address],
+            validators: [nextLeader.id, wallet.address],
             lastDataTimestamp: timestamp - timePadding,
           }),
           chainId: 'bsc',
@@ -187,7 +187,7 @@ describe('BlockSigner', () => {
           },
         ];
 
-        allStates.nextLeader = leaderWallet.address;
+        allStates.nextLeader = {id: leaderWallet.address, location: '', power: BigNumber.from(1)};
         allStates.chainsIdsReadyForBlock = ['bsc'];
         mockedMultiChainStatusResolver.apply.resolves(allStates);
 
@@ -233,7 +233,7 @@ describe('BlockSigner', () => {
           },
         ];
 
-        allStates.nextLeader = leaderWallet.address;
+        allStates.nextLeader = {id: leaderWallet.address, location: '', power: BigNumber.from(1)};
         allStates.chainsIdsReadyForBlock = ['bsc'];
         mockedMultiChainStatusResolver.apply.resolves(allStates);
 

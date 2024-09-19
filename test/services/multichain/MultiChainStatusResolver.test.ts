@@ -52,7 +52,7 @@ describe('MultiChainStatusResolver', () => {
           {id: '0xabctest', power: BigNumber.from(1), location: ''},
           {id: '0xdeftest', power: BigNumber.from(1), location: ''},
         ],
-        nextLeader: '1',
+        nextLeader: {id: '1', location: '', power: BigNumber.from(1)},
         chainsStatuses: [
           {
             chainId: 'bsc',

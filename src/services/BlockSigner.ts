@@ -87,13 +87,15 @@ class BlockSigner {
     }
 
     const {chainAddress, chainStatus} = chainsStatuses[0];
-    this.logger.info(`[BlockSigner] Signing a block for ${nextLeader} at ${block.dataTimestamp}...`);
+    this.logger.info(
+      `[BlockSigner] Signing a block for ${nextLeader.location} (${nextLeader.id}) at ${block.dataTimestamp}...`,
+    );
 
     if (this.signingWallet().address.toLowerCase() === proposedConsensus.signer.toLowerCase()) {
       throw Error('[BlockSigner] You should not call yourself for signature.');
     }
 
-    if (proposedConsensus.signer.toLowerCase() !== nextLeader.toLowerCase()) {
+    if (proposedConsensus.signer.toLowerCase() !== nextLeader.id.toLowerCase()) {
       throw Error(
         [
           'Signature does not belong to the current leader,',

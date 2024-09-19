@@ -270,6 +270,9 @@ const settings: Settings = {
       enabled: process.env.APPLICATION_AUTO_UPDATE_ENABLED == 'true',
       url: process.env.APPLICATION_AUTO_UPDATE_URL,
       interval: getTimeSetting(parseInt(process.env.APPLICATION_AUTO_UPDATE_INTERVAL || '1800000'), 1000),
+      releasesUrl:
+        process.env.APPLICATION_RELEASE_UPDATE ??
+        'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/releases.json',
     },
   },
   jobs: {
@@ -308,7 +311,7 @@ const settings: Settings = {
       },
     },
     blockchainMetrics: {
-      interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '600000'),
+      interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '60000'),
       lock: {
         name: process.env.VALIDATORS_RESOLVER_LOCK_NAME || 'lock::ValidatorsResolver',
         ttl: parseInt(process.env.VALIDATORS_RESOLVER_LOCK_TTL || '60'),

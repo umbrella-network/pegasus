@@ -1,8 +1,6 @@
 import {ChainsIds} from './ChainsIds.js';
 import {SubmitMonitor} from './SubmitMonitor.js';
 import {DexProtocolName, DexAPISettings} from './Dexes.js';
-import {FeedsType} from './Feed';
-import {FetcherName} from './fetchers';
 
 export enum BlockchainType {
   LAYER2 = 'LAYER2',
@@ -79,6 +77,7 @@ type Settings = {
       enabled: boolean;
       interval?: number;
       url?: string;
+      releasesUrl: string;
     };
   };
   jobs: {
