@@ -38,7 +38,7 @@ describe('ValidatorRepository', () => {
   describe('when 3 validators cached', () => {
     const expectedValidators: Validator[] = [
       {id: '0xa', location: 'url1', power: BigNumber.from(1)},
-      {id: '0xB', location: 'url2', power: BigNumber.from(2)},
+      {id: '0xb', location: 'url2', power: BigNumber.from(2)},
       {id: '0xc', location: 'url3', power: BigNumber.from(3)},
     ];
 
