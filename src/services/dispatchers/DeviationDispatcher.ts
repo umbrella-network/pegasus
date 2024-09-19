@@ -131,7 +131,8 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
     const roundLengthSeconds = this.settings.deviationTrigger.roundLengthSeconds;
     const beginOfTheRound = Math.trunc(consensusDataTimestamp / roundLengthSeconds) * roundLengthSeconds;
 
-    return beginOfTheRound + roundLengthSeconds + 10 < this.timeService.apply();
+    // we have 5 sec to send tx if our round is over
+    return beginOfTheRound + roundLengthSeconds + 5 < this.timeService.apply();
   }
 
   protected async send(consensus: DeviationConsensus): Promise<TxHash | null> {
