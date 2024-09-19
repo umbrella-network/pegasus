@@ -47,7 +47,7 @@ describe('ValidatorRepository', () => {
     });
 
     it('expect to get list of 3 validators in order', async () => {
-      const list = await validatorRepository.list(undefined, BlockchainType.LAYER2);
+      const list = await validatorRepository.list(undefined, BlockchainType.ON_CHAIN);
       expect(list.length).eq(expectedValidators.length);
       expect(list).deep.eq(expectedValidators);
     });
