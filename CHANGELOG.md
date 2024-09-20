@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.3.2] - 2024-09-20
+### Fixed
+- assume release is active by default, eg. when flag not present
+
 ## [8.3.1] - 2024-09-20
 ### Changed
 - Fix github actions
