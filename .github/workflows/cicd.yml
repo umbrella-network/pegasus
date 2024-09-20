@@ -13,7 +13,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: main
 
@@ -84,28 +84,28 @@ jobs:
           printf $(printf ${GITHUB_REF##*/} | shasum) > build-id.txt
       
       - name: Upload Docker-image name to be used by the next job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: image
           path: image.txt
           retention-days: 1
       
       - name: Upload Docker-image version to be used by the next job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: version
           path: version.txt
           retention-days: 1
 
       - name: Upload environment to be used by the next job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: environment
           path: environment.txt
           retention-days: 1
 
       - name: Upload build-id to be used by the next job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: build-id
           path: build-id.txt
@@ -128,28 +128,28 @@ jobs:
           && sudo apt update \
           && sudo apt install gh -y
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: ${{ secrets.GITOPS_REPOSITORY_NAME }}
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
 
       - name: Retrieve image
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: image
 
       - name: Retrieve version
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: version
 
       - name: Retrieve environment
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: environment
 
       - name: Retrieve build-id
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: build-id
 
