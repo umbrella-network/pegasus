@@ -16,7 +16,7 @@ export class ReleasesResolver {
   @inject(MappingRepository) mappingRepository!: MappingRepository;
   @inject(Downloader) downloader!: Downloader;
 
-  private readonly RELEASE_PREFIX = 'RELEASE_';
+  readonly RELEASE_PREFIX = 'RELEASE_';
   private readonly logPrefix = '[Releases]';
 
   async update(): Promise<void> {
@@ -24,14 +24,14 @@ export class ReleasesResolver {
     if (!url) throw new Error(`${this.logPrefix} empty URL`);
 
     const data = await this.downloader.apply<ReleasesData>(url);
-    if (data === undefined) throw new Error(`${this.logPrefix} empty data`);
+    if (data === undefined) throw new Error(`${this.logPrefix} empty data at ${url}`);
 
     await this.mappingRepository.setMany([this.parseData(data, 'leaderSelectorV2')]);
   }
 
-  async get(key: keyof ReleasesData): Promise<boolean> {
+  async active(key: keyof ReleasesData): Promise<boolean> {
     const data = await this.mappingRepository.get(`${this.RELEASE_PREFIX}${key}`);
-    return data === '1';
+    return data === undefined || data === '1';
   }
 
   protected parseData(data: ReleasesData, key: keyof ReleasesData): {_id: string; value: string} {

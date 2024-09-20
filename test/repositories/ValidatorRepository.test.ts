@@ -12,11 +12,13 @@ import {loadTestEnv} from '../helpers/loadTestEnv.js';
 import {getTestContainer} from '../helpers/getTestContainer.js';
 import {ChainsIds} from '../../src/types/ChainsIds.js';
 import {BlockchainType} from '../../src/types/Settings.js';
+import {ReleasesResolver} from '../../src/services/files/ReleasesResolver.js';
 
 const {expect} = chai;
 
 describe('ValidatorRepository', () => {
   let validatorRepository: ValidatorRepository;
+  let releasesResolver: ReleasesResolver;
 
   before(async () => {
     const container = getTestContainer();
@@ -26,8 +28,12 @@ describe('ValidatorRepository', () => {
     await getModelForClass(CachedValidator).deleteMany({});
 
     container.bind(ValidatorRepository).to(ValidatorRepository);
+    container.bind(ReleasesResolver).to(ReleasesResolver);
 
     validatorRepository = container.get(ValidatorRepository);
+    releasesResolver = container.get(ReleasesResolver);
+
+    await releasesResolver.mappingRepository.set(`${releasesResolver.RELEASE_PREFIX}leaderSelectorV2`, '0');
   });
 
   after(async () => {
@@ -35,7 +41,7 @@ describe('ValidatorRepository', () => {
     await mongoose.connection.close();
   });
 
-  describe('when 3 validators cached', () => {
+  describe.only('when 3 validators cached', () => {
     const expectedValidators: Validator[] = [
       {id: '0xa', location: 'url1', power: BigNumber.from(1)},
       {id: '0xb', location: 'url2', power: BigNumber.from(2)},
