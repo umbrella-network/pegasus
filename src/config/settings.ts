@@ -87,7 +87,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       minGasPrice: 1000000000,
       minBalance: {
         warningLimit: '0.5',
-        errorLimit: '0.02',
+        errorLimit: '0.01',
       },
     },
   },
@@ -98,8 +98,8 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: 1000,
       minGasPrice: 100_000_000,
       minBalance: {
-        warningLimit: '0.05',
-        errorLimit: '0.001',
+        warningLimit: '0.001',
+        errorLimit: '0.00001',
       },
     },
   },
@@ -270,6 +270,9 @@ const settings: Settings = {
       enabled: process.env.APPLICATION_AUTO_UPDATE_ENABLED == 'true',
       url: process.env.APPLICATION_AUTO_UPDATE_URL,
       interval: getTimeSetting(parseInt(process.env.APPLICATION_AUTO_UPDATE_INTERVAL || '1800000'), 1000),
+      releasesUrl:
+        process.env.APPLICATION_RELEASE_UPDATE ??
+        'https://raw.githubusercontent.com/umbrella-network/pegasus-feeds/main/releases.json',
     },
   },
   jobs: {
@@ -308,7 +311,7 @@ const settings: Settings = {
       },
     },
     blockchainMetrics: {
-      interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '600000'),
+      interval: parseInt(process.env.VALIDATORS_RESOLVER_JOB_INTERVAL || '60000'),
       lock: {
         name: process.env.VALIDATORS_RESOLVER_LOCK_NAME || 'lock::ValidatorsResolver',
         ttl: parseInt(process.env.VALIDATORS_RESOLVER_LOCK_TTL || '60'),

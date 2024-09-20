@@ -4,6 +4,7 @@ import {inject, injectable} from 'inversify';
 import path from 'path';
 import axios from 'axios';
 import fs from 'fs';
+import {Downloader} from './files/Downloader.js';
 
 export type Manifest = {
   timestamp: Date;
@@ -17,12 +18,11 @@ export type Asset = {
 
 @injectable()
 export default class ApplicationUpdateService {
+  @inject(Downloader) downloader!: Downloader;
   @inject('Settings') settings!: Settings;
   @inject('Logger') logger!: Logger;
 
   currentManifest?: Manifest;
-
-  private readonly SUCCESS_CODES = [200, 201, 301];
 
   async startUpdate(): Promise<void> {
     if (!this.settings.application.autoUpdate.enabled) return;
@@ -53,7 +53,7 @@ export default class ApplicationUpdateService {
 
   private async getLatestManifest(url: string): Promise<Manifest | undefined> {
     try {
-      const manifest = await this.downloadManifest(url);
+      const manifest = await this.downloader.apply<Manifest>(url);
 
       if (!manifest) {
         this.logger.error('[ApplicationUpdateService] No manifest found');
@@ -68,24 +68,6 @@ export default class ApplicationUpdateService {
       return manifest;
     } catch (e) {
       this.logger.error('[ApplicationUpdateService] Manifest parsing error');
-      this.logger.error(e);
-      return;
-    }
-  }
-
-  private async downloadManifest(url: string): Promise<Manifest | undefined> {
-    try {
-      const response = await axios.get(url);
-
-      if (!this.SUCCESS_CODES.includes(response.status)) {
-        this.logger.error(`[ApplicationUpdateService] Manifest Download Failed. HTTP Status: ${response.status}`);
-        this.logger.error(`[ApplicationUpdateService] HTTP Response: ${JSON.stringify(response)}`);
-        return;
-      }
-
-      return response.data;
-    } catch (e) {
-      this.logger.error('[ApplicationUpdateService] Manifest Download Failed');
       this.logger.error(e);
       return;
     }
