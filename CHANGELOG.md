@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.3.0] - 2024-09-19
 ### Added
 - option to turn on release on whole network at once
 
