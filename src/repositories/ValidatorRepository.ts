@@ -39,7 +39,7 @@ export class ValidatorRepository {
   }
 
   async list(chainId: ChainsIds | undefined, chainType: BlockchainType): Promise<Validator[]> {
-    if (!(await this.releasesResolver.get('leaderSelectorV2'))) {
+    if (!(await this.releasesResolver.active('leaderSelectorV2'))) {
       this.logger.info(`${this.logPrefix} using old list for ${chainId}`);
       return this.list_deprecated(chainId);
     } else {
