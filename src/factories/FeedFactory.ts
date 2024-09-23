@@ -16,7 +16,6 @@ export class FeedFactory {
     this.validator = new Validator();
   }
 
-  // TODO: add Uniswap support in the future
   createCollectionFromYaml(data: string): Feeds {
     if (isYamlEmpty(data)) {
       this.logger.warn('[FeedFactory] Empty YAML');
@@ -28,7 +27,7 @@ export class FeedFactory {
 
     if (!validation.valid) {
       if (validation.errors.every((error) => error.property.split('.').pop() == 'fetcher')) {
-        this.logger.warn(`[FeedFactory] Invalid YAML: ${validation.errors.map((e) => e.property)}`);
+        this.logger.error(`[FeedFactory] Invalid YAML: ${validation.errors.map((e) => e.property)}`);
       } else {
         throw new Error(`[FeedFactory] Invalid YAML ${JSON.stringify(validation.errors)}`);
       }
