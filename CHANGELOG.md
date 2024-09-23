@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.3.4] - 2024-09-23
+### Changed
+- change log level for yaml parser
+
 ## [8.3.3] - 2024-09-20
 ### Changed
 - change path for release configuration
