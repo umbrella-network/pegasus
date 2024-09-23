@@ -86,7 +86,7 @@ export class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSnapshot
           return;
         }
 
-        this.logger.debug(`${this.logPrefix}#${ix} price for ${params.ticker} (${ticker.ticker}): ${price}`);
+        this.logger.debug(`${this.logPrefix}#${ix} price for ${ticker.ticker}: ${price}`);
         return {price, ticker: ticker.ticker, timestamp: Math.trunc(ticker.lastQuote.t / 1e3)};
       })
       .filter((d) => d !== undefined) as ParsedResponse[];
