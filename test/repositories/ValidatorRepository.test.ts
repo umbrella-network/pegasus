@@ -41,7 +41,7 @@ describe('ValidatorRepository', () => {
     await mongoose.connection.close();
   });
 
-  describe.only('when 3 validators cached', () => {
+  describe('when 3 validators cached', () => {
     const expectedValidators: Validator[] = [
       {id: '0xa', location: 'url1', power: BigNumber.from(1)},
       {id: '0xb', location: 'url2', power: BigNumber.from(2)},
