@@ -8,14 +8,15 @@ import CachedValidator from '../models/CachedValidator.js';
 import {ChainsIds, NonEvmChainsIds} from '../types/ChainsIds.js';
 import {DataCollection} from '../types/custom.js';
 import Settings, {BlockchainType} from '../types/Settings.js';
-import {sortValidators} from '../utils/sortValidators.js';
 import {ReleasesResolver} from '../services/files/ReleasesResolver.js';
+import {ValidatorsSelector} from '../services/ValidatorsSelector.js';
 
 @injectable()
 export class ValidatorRepository {
   @inject('Logger') logger!: Logger;
   @inject('Settings') settings!: Settings;
   @inject(ReleasesResolver) releasesResolver!: ReleasesResolver;
+  @inject(ValidatorsSelector) validatorsSelector!: ValidatorsSelector;
 
   private logPrefix = '[ValidatorRepository]';
 
@@ -48,13 +49,7 @@ export class ValidatorRepository {
 
     const chains = this.chainIdsForType(chainType);
 
-    if (!chainId) {
-      [chainId] = chains;
-    }
-
-    this.logger.debug(`${this.logPrefix} pulling cached list of validators for ${chainId}`);
-
-    const counter: Record<string, number> = {};
+    this.logger.debug(`${this.logPrefix} pulling cached list of validators for ${chainType}`);
 
     const [validators, evmValidators] = await Promise.all([
       getModelForClass(CachedValidator)
@@ -63,28 +58,7 @@ export class ValidatorRepository {
       this.evmValidators(),
     ]);
 
-    this.logger.debug(`${this.logPrefix} evmValidators: ${JSON.stringify(evmValidators)}`);
-
-    validators.forEach((data: CachedValidator) => {
-      const location = this.processLocation(data.location);
-      counter[location] = (counter[location] ?? 0) + 1;
-    });
-
-    const maxCount = Math.max(...Object.values(counter));
-
-    const selectedValidators = validators
-      .filter((data: CachedValidator) => {
-        const location = this.processLocation(data.location);
-        return counter[location] == maxCount;
-      })
-      .map((data: CachedValidator) => {
-        const location = this.processLocation(data.location);
-        return evmValidators[location];
-      });
-
-    this.logger.debug(`${this.logPrefix} selectedValidators (${maxCount}): ${JSON.stringify(selectedValidators)}`);
-
-    return sortValidators(selectedValidators);
+    return this.validatorsSelector.apply(evmValidators, validators);
   }
 
   async getAll(): Promise<DataCollection<Set<string>>> {
