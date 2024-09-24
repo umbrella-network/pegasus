@@ -20,8 +20,6 @@ export class ValidatorsSelector {
     });
 
     const maxCount = Math.max(...Object.values(counter));
-    console.log(maxCount);
-    console.log(counter);
 
     const selectedValidators = Object.entries(counter)
       .filter(([, count]) => {
@@ -31,8 +29,6 @@ export class ValidatorsSelector {
         return evmValidators[location];
       })
       .filter((v) => !!v);
-
-    console.log(selectedValidators);
 
     this.logger.debug(
       `${this.logPrefix} selectedValidators (${selectedValidators.length}): ${JSON.stringify(selectedValidators)}`,
