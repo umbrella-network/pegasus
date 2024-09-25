@@ -16,6 +16,7 @@ import {MoCMeasurementDataRepository} from '../../repositories/fetchers/MoCMeasu
 
 import {MappingRepository} from '../../repositories/MappingRepository.js';
 import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
+import {MoCMeasurementCache} from '../../types/fetchersCachedTypes';
 
 export interface MoCMeasurementPriceInputParams {
   measurement_id: string;
@@ -62,22 +63,17 @@ export class MoCMeasurementGetter implements FeedFetcherInterface {
   private async cacheInput(inputsParams: MoCMeasurementPriceInputParams[]): Promise<void> {
     const timestamp = this.timeService.apply();
 
-    const key = FetchersMappingCacheKeys.MOC_MEASUREMENT_MEASUREMENT_ID;
+    const key = FetchersMappingCacheKeys.MOC_MEASUREMENT_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
-    const idsCache = JSON.parse(cache || '{}');
+    const idsCache = JSON.parse(cache || '{}') as MoCMeasurementCache;
 
     inputsParams.forEach((input) => {
-      idsCache[input.measurement_id] = timestamp;
+      if (!idsCache[input.measurement_id]) idsCache[input.measurement_id] = [];
+
+      idsCache[input.measurement_id].push(input.field);
     });
 
-    inputsParams.forEach((input) => {
-      currenciesCache[input.currency.toLowerCase()] = timestamp;
-    });
-
-    await this.mappingRepository.setMany([
-      {_id: idKey, value: JSON.stringify(idsCache)},
-      {_id: currenciesKey, value: JSON.stringify(currenciesCache)},
-    ]);
+    await this.mappingRepository.set(key, JSON.stringify(idsCache));
   }
 }

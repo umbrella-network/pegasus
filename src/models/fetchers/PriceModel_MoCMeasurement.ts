@@ -9,7 +9,4 @@ export class PriceModel_MoCMeasurement extends CommonPriceModel {
 
   @prop({required: true})
   field!: string;
-
-  @prop({required: true})
-  block_number!: number;
 }

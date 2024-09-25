@@ -3,8 +3,8 @@ import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
-import {MoCMeasurementPriceInputParams} from "../../services/fetchers/MoCMeasurementGetter.js";
-import {PriceModel_MoCMeasurement} from "../../models/fetchers/PriceModel_MoCMeasurement";
+import {MoCMeasurementPriceInputParams} from '../../services/fetchers/MoCMeasurementGetter.js';
+import {PriceModel_MoCMeasurement} from '../../models/fetchers/PriceModel_MoCMeasurement.js';
 
 export type MoCMeasurementDataRepositoryInput = {
   params: MoCMeasurementPriceInputParams;
@@ -31,6 +31,7 @@ export class MoCMeasurementDataRepository extends CommonPriceDataRepository {
           this.hashVersion,
           FetcherName.MoCMeasurement,
           params.measurement_id,
+          params.field,
         );
 
         return this.priceSignerService.sign(messageToSign);
@@ -42,7 +43,7 @@ export class MoCMeasurementDataRepository extends CommonPriceDataRepository {
 
       payloads.push({
         measurement_id: params.measurement_id,
-        block_number: params.,
+        field: params.field,
         value: value.toString(),
         valueType: FetchedValueType.Price,
         timestamp,
@@ -61,15 +62,15 @@ export class MoCMeasurementDataRepository extends CommonPriceDataRepository {
       return [];
     }
 
-    const or = params.map(({id, currency}) => {
-      return {id: id.toLowerCase(), currency: currency.toLowerCase()};
+    const or = params.map(({measurement_id, field}) => {
+      return {measurement_id, field};
     });
 
     this.logger.debug(`${this.logPrefix} find: or: ${or.map((o) => JSON.stringify(o)).join(',')}`);
     this.logger.debug(`${this.logPrefix} find: timestamp: ${JSON.stringify(this.getTimestampWindowFilter(timestamp))}`);
 
     const results = await this.model
-      .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1, id: 1, currency: 1})
+      .find({$or: or, timestamp: this.getTimestampWindowFilter(timestamp)}, {value: 1, field: 1, measurement_id: 1})
       .sort({timestamp: -1})
       .exec();
 
@@ -86,16 +87,16 @@ export class MoCMeasurementDataRepository extends CommonPriceDataRepository {
       `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
     );
 
-    const getSymbol = (id: string, currency: string) => `${id}-${currency}`;
+    const getSymbol = (measurement_id: string, field: string) => `${measurement_id}-${field}`;
 
-    sortedResults.forEach(({id, currency, value}) => {
-      const symbol = getSymbol(id, currency);
+    sortedResults.forEach(({measurement_id, field, value}) => {
+      const symbol = getSymbol(measurement_id, field);
       if (map[symbol]) return; // already set newest price
 
       map[symbol] = parseFloat(value);
     });
 
-    const newest = inputs.map(({id, currency}) => map[getSymbol(id, currency).toLowerCase()]);
+    const newest = inputs.map(({measurement_id, field}) => map[getSymbol(measurement_id, field)]);
     this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
     return newest;
   }

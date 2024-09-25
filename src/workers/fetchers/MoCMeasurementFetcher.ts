@@ -49,12 +49,12 @@ export class MoCMeasurementFetcher implements ServiceInterface {
 
   private async fetchPrice(params: CachedParams): Promise<void> {
     if (params.fields.length == 0) {
-      this.logger.debug(`${this.logPrefix} no fields for ${input.measurement_id}`);
+      this.logger.debug(`${this.logPrefix} no fields for ${params.measurement_id}`);
       return;
     }
 
     const baseUrl = 'https://api.moneyonchain.com/api/measurement/';
-    const url = `${baseUrl}${input.measurement_id}`;
+    const url = `${baseUrl}${params.measurement_id}`;
     const response = await axios.get(url);
 
     const parsed = this.parseResponse(response, params);
