@@ -62,6 +62,7 @@ export enum FetcherName {
   GVolImpliedVolatility = 'GVolImpliedVolatility',
   MetalPriceApi = 'MetalPriceApi',
   MetalsDevApi = 'MetalsDevApi',
+  MoCMeasurement = 'MoCMeasurement',
   PolygonIOStockSnapshotPrice = 'PolygonIOStockSnapshotPrice',
   PolygonIOSingleCryptoPrice = 'PolygonIOSingleCryptoPrice',
   PolygonIOCurrencySnapshotGrams = 'PolygonIOCurrencySnapshotGrams',

@@ -15,7 +15,7 @@ export class ByBitPriceFetcher implements ServiceInterface {
   @inject('Logger') protected logger!: Logger;
 
   private timeout: number;
-  private logPrefix = '[ByBitPriceService]';
+  private logPrefix = '[ByBitPriceFetcher]';
 
   constructor(@inject('Settings') settings: Settings) {
     this.timeout = settings.api.byBit.timeout;

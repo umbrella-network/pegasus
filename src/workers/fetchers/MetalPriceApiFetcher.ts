@@ -26,7 +26,7 @@ export class MetalPriceApiFetcher implements ServiceInterface {
 
   private apiKey: string;
   private timeout: number;
-  private logPrefix = '[MetalPriceApiService]';
+  private logPrefix = '[MetalPriceApiFetcher]';
 
   static fetcherSource = '';
 
