@@ -10,7 +10,6 @@ import {
 } from '../../types/fetchers.js';
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import TimeService from '../TimeService.js';
 
 import {MoCMeasurementDataRepository} from '../../repositories/fetchers/MoCMeasurementDataRepository.js';
 
@@ -28,7 +27,6 @@ export class MoCMeasurementGetter implements FeedFetcherInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(MoCMeasurementDataRepository) private moCMeasurementDataRepository!: MoCMeasurementDataRepository;
-  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private logPrefix = `[${FetcherName.MoCMeasurement}]`;
@@ -61,8 +59,6 @@ export class MoCMeasurementGetter implements FeedFetcherInterface {
   }
 
   private async cacheInput(inputsParams: MoCMeasurementPriceInputParams[]): Promise<void> {
-    const timestamp = this.timeService.apply();
-
     const key = FetchersMappingCacheKeys.MOC_MEASUREMENT_PARAMS;
 
     const cache = await this.mappingRepository.get(key);
