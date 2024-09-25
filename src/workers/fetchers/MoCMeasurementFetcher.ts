@@ -18,7 +18,21 @@ import {MoCMeasurementCache} from '../../types/fetchersCachedTypes.js';
 type ParsedResponse = {measurement_id: string; timestamp: number; field: string; value: number};
 type CachedParams = {measurement_id: string; fields: string[]};
 
-// https://api.moneyonchain.com/api/doc
+
+/*
+
+Feed-Name:
+  inputs:
+    - fetcher:
+        name: MoCMeasurement
+        params:
+          measurement_id: rdocMainnet
+          field: rifp_leverage
+
+
+https://api.moneyonchain.com/api/doc
+
+*/
 @injectable()
 export class MoCMeasurementFetcher implements ServiceInterface {
   @inject(AxiosResponseChecker) private axiosResponseChecker!: AxiosResponseChecker;
