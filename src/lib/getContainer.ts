@@ -36,6 +36,7 @@ import {
   GoldApiPriceGetter,
   MetalPriceApiGetter,
   MetalsDevApiGetter,
+  MoCMeasurementGetter,
   OnChainDataFetcher,
   PolygonIOCryptoSnapshotPriceGetter,
   PolygonIOCurrencySnapshotGramsGetter,
@@ -60,6 +61,8 @@ import {PolygonIOCryptoSnapshotPriceFetcher} from '../workers/fetchers/PolygonIO
 import {PolygonIOCurrencySnapshotGramsFetcher} from '../workers/fetchers/PolygonIOCurrencySnapshotGramsFetcher.js';
 import {PolygonIOSingleCryptoPriceFetcher} from '../workers/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
 import {PolygonIOStockSnapshotPriceFetcher} from '../workers/fetchers/PolygonIOStockSnapshotPriceFetcher.js';
+import {MoCMeasurementDataRepository} from "../repositories/fetchers/MoCMeasurementDataRepository.js";
+import {MoCMeasurementFetcher} from "../workers/fetchers/MoCMeasurementFetcher.js";
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -91,6 +94,11 @@ export function getContainer(): Container {
   container.bind(MetalPriceApiGetter).toSelf().inSingletonScope();
   container.bind(MetalsDevApiDataRepository).toSelf().inSingletonScope();
   container.bind(MetalsDevApiGetter).toSelf().inSingletonScope();
+
+  container.bind(MoCMeasurementDataRepository).toSelf().inSingletonScope();
+  container.bind(MoCMeasurementFetcher).toSelf().inSingletonScope();
+  container.bind(MoCMeasurementGetter).toSelf().inSingletonScope();
+
   container.bind(OnChainDataFetcher).toSelf().inSingletonScope();
   container.bind(OnChainDataRepository).toSelf().inSingletonScope();
   container.bind(PolygonIOCryptoSnapshotPriceGetter).toSelf().inSingletonScope();

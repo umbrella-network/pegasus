@@ -47,7 +47,7 @@ export class MoCMeasurementFetcher implements ServiceInterface {
     await Promise.allSettled(mocParams.map((params) => this.fetchPrice(params)));
   }
 
-  private async fetchPrice(params: CachedParams): Promise<void> {
+  public async fetchPrice(params: CachedParams): Promise<void> {
     if (params.fields.length == 0) {
       this.logger.debug(`${this.logPrefix} no fields for ${params.measurement_id}`);
       return;
