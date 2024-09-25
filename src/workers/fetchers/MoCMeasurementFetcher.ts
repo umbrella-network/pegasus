@@ -69,7 +69,10 @@ export class MoCMeasurementFetcher implements ServiceInterface {
     const outputs: ParsedResponse[] = [];
 
     params.fields.forEach((field) => {
-      if (!axiosResponse.data[field]) return;
+      if (!axiosResponse.data[field]) {
+        this.logger.warn(`${this.logPrefix} missing field (or null) '${field}' for ${measurement_id}`);
+        return;
+      }
 
       let value = axiosResponse.data[field];
 
@@ -129,6 +132,6 @@ export class MoCMeasurementFetcher implements ServiceInterface {
 
   private parseTime(t: string): number {
     const d = new Date(t.toLowerCase().endsWith('z') ? t : `${t}Z`);
-    return d.getTime();
+    return Math.trunc(d.getTime() / 1000);
   }
 }

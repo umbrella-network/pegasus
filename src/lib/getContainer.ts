@@ -61,8 +61,8 @@ import {PolygonIOCryptoSnapshotPriceFetcher} from '../workers/fetchers/PolygonIO
 import {PolygonIOCurrencySnapshotGramsFetcher} from '../workers/fetchers/PolygonIOCurrencySnapshotGramsFetcher.js';
 import {PolygonIOSingleCryptoPriceFetcher} from '../workers/fetchers/PolygonIOSingleCryptoPriceFetcher.js';
 import {PolygonIOStockSnapshotPriceFetcher} from '../workers/fetchers/PolygonIOStockSnapshotPriceFetcher.js';
-import {MoCMeasurementDataRepository} from "../repositories/fetchers/MoCMeasurementDataRepository.js";
-import {MoCMeasurementFetcher} from "../workers/fetchers/MoCMeasurementFetcher.js";
+import {MoCMeasurementDataRepository} from '../repositories/fetchers/MoCMeasurementDataRepository.js';
+import {MoCMeasurementFetcher} from '../workers/fetchers/MoCMeasurementFetcher.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
