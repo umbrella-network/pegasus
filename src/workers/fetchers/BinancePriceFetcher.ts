@@ -18,7 +18,7 @@ export class BinancePriceFetcher implements ServiceInterface {
   @inject('Logger') private logger!: Logger;
 
   private timeout: number;
-  private logPrefix = '[BinancePriceService]';
+  private logPrefix = '[BinancePriceFetcher]';
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {

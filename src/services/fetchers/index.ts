@@ -7,6 +7,7 @@ import {OnChainDataFetcher} from './OnChainDataFetcher.js';
 import {EvmTWAPGasPriceGetter} from './EvmTWAPGasPriceGetter.js';
 import {MetalPriceApiGetter} from './MetalPriceApiGetter.js';
 import {MetalsDevApiGetter} from './MetalsDevApiGetter.js';
+import {MoCMeasurementGetter} from './MoCMeasurementGetter.js';
 import {GoldApiPriceGetter} from './GoldApiPriceGetter.js';
 import {ByBitPriceGetter} from './ByBitPriceGetter.js';
 import {BinancePriceGetter} from './BinancePriceGetter.js';
@@ -24,6 +25,7 @@ export {
   GoldApiPriceGetter,
   MetalPriceApiGetter,
   MetalsDevApiGetter,
+  MoCMeasurementGetter,
   OnChainDataFetcher,
   OptionsPriceFetcher,
   PolygonIOCryptoSnapshotPriceGetter,

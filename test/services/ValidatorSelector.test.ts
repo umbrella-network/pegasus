@@ -11,7 +11,7 @@ import {getTestContainer} from '../helpers/getTestContainer.js';
 
 const {expect} = chai;
 
-describe.only('ValidatorSelector', () => {
+describe('ValidatorSelector', () => {
   let vs: ValidatorsSelector;
 
   before(() => {

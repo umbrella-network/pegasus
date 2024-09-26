@@ -11,6 +11,7 @@ import {PolygonIOStockSnapshotFetcherInputParams} from '../services/fetchers/Pol
 import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceGetter.js';
 import {PolygonIOSingleCryptoPriceInputParams} from '../services/fetchers/PolygonIOSingleCryptoPriceGetter.js';
 import {UniswapV3FetcherInputParams} from '../services/fetchers/UniswapV3Getter.js';
+import {MoCMeasurementPriceInputParams} from '../services/fetchers/MoCMeasurementGetter';
 
 export type NumberOrUndefined = number | undefined;
 
@@ -38,6 +39,7 @@ export type FeedFetcherInputParams =
   | EvmTWAPGasPriceInputParams
   | GoldApiPriceInputParams
   | MetalPriceApiInputParams
+  | MoCMeasurementPriceInputParams
   | MetalsDevApiPriceInputParams
   | PolygonIOCryptoSnapshotInputParams
   | PolygonIOCurrencySnapshotGramsInputParams
@@ -62,6 +64,7 @@ export enum FetcherName {
   GVolImpliedVolatility = 'GVolImpliedVolatility',
   MetalPriceApi = 'MetalPriceApi',
   MetalsDevApi = 'MetalsDevApi',
+  MoCMeasurement = 'MoCMeasurement',
   PolygonIOStockSnapshotPrice = 'PolygonIOStockSnapshotPrice',
   PolygonIOSingleCryptoPrice = 'PolygonIOSingleCryptoPrice',
   PolygonIOCurrencySnapshotGrams = 'PolygonIOCurrencySnapshotGrams',
@@ -79,6 +82,7 @@ export const allMultiFetchers: Set<string> = new Set([
   FetcherName.BinancePrice,
   FetcherName.ByBitPrice,
   FetcherName.CoingeckoPrice,
+  FetcherName.MoCMeasurement,
   FetcherName.PolygonIOCryptoSnapshotPrice,
   FetcherName.PolygonIOStockSnapshotPrice,
   FetcherName.PolygonIOSingleCryptoPrice,

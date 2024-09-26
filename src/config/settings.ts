@@ -503,6 +503,7 @@ const settings: Settings = {
       [FetcherName.GoldApiPrice]: schedulerFetcherSettings(FetcherName.GoldApiPrice),
       [FetcherName.MetalPriceApi]: schedulerFetcherSettings(FetcherName.MetalPriceApi),
       [FetcherName.MetalsDevApi]: schedulerFetcherSettings(FetcherName.MetalsDevApi),
+      [FetcherName.MoCMeasurement]: schedulerFetcherSettings(FetcherName.MoCMeasurement),
       [FetcherName.PolygonIOCryptoSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOCryptoSnapshotPrice),
       [FetcherName.PolygonIOCurrencySnapshotGrams]: schedulerFetcherSettings(
         FetcherName.PolygonIOCurrencySnapshotGrams,

@@ -1,5 +1,6 @@
 import {CalculatorName} from '../types/Calculator.js';
 import {FetcherName} from '../types/fetchers.js';
+import {MoCMeasurementGetter} from '../services/fetchers';
 
 export default {
   description: 'Feeds schema for the JSONSchema validator',
@@ -48,6 +49,7 @@ export default {
             {$ref: '#/definitions/GoldApiPrice'},
             {$ref: '#/definitions/MetalPriceApi'},
             {$ref: '#/definitions/MetalsDevApi'},
+            {$ref: '#/definitions/MoCMeasurement'},
             {$ref: '#/definitions/SovrynPrice'},
           ],
         },
@@ -252,6 +254,22 @@ export default {
             currency: {type: 'string'},
           },
           required: ['symbol', 'currency'],
+          additionalProperties: false,
+        },
+      },
+      required: ['params'],
+      additionalProperties: false,
+    },
+    MoCMeasurement: {
+      properties: {
+        name: {const: FetcherName.MoCMeasurement},
+        params: {
+          type: 'object',
+          properties: {
+            measurement_id: {type: 'string'},
+            field: {type: 'string'},
+          },
+          required: ['measurement_id', 'field'],
           additionalProperties: false,
         },
       },

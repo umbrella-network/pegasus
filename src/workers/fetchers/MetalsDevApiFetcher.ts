@@ -23,7 +23,7 @@ export class MetalsDevApiFetcher implements ServiceInterface {
 
   private apiKey: string;
   private timeout: number;
-  private logPrefix = '[MetalsDevApiService]';
+  private logPrefix = '[MetalsDevApiFetcher]';
   static fetcherSource = '';
 
   constructor(@inject('Settings') settings: Settings) {
