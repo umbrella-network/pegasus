@@ -1,6 +1,6 @@
 import {CalculatorName} from '../types/Calculator.js';
 import {FetcherName} from '../types/fetchers.js';
-import {MoCMeasurementGetter} from "../services/fetchers";
+import {MoCMeasurementGetter} from '../services/fetchers';
 
 export default {
   description: 'Feeds schema for the JSONSchema validator',

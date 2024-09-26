@@ -18,7 +18,6 @@ import {MoCMeasurementCache} from '../../types/fetchersCachedTypes.js';
 type ParsedResponse = {measurement_id: string; timestamp: number; field: string; value: number};
 type CachedParams = {measurement_id: string; fields: string[]};
 
-
 /*
 
 Feed-Name:
