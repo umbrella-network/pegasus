@@ -36,6 +36,7 @@ export class DeviationHasher implements DeviationHasherInterface {
       case ChainsIds.ASTAR:
       case ChainsIds.ROOTSTOCK:
       case ChainsIds.ZK_LINK_NOVA:
+      case ChainsIds.BOB:
         return DeviationHasherEvm.apply(networkId, target, names, priceDatas);
 
       default:
