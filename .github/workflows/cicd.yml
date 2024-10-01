@@ -62,22 +62,17 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         uses: docker/build-push-action@v6
-        env:
-          IMAGE: ${{ steps.docker-params.outputs.image }}
-          IMAGE_GIT_TAG: ${{ steps.docker-params.outputs.commit_version }}
-          IMAGE_VERSION_TAG: ${{ steps.docker-params.outputs.version }}
-          IMAGE_GIT_TAG_SBX: ${{ steps.docker-params.outputs.commit_version }}_sbx
         with:
           platforms: |
             linux/amd64
             linux/arm64
           push: true
           tags: |
-            $IMAGE:$IMAGE_VERSION_TAG
-            $IMAGE:$IMAGE_GIT_TAG
-            $IMAGE:${{ steps.building-params.outputs.environment }}
-            $IMAGE:$IMAGE_GIT_TAG_SBX
-            $IMAGE:sandbox
+            ${{ steps.docker-params.outputs.image }}:${{ steps.docker-params.outputs.version }}
+            ${{ steps.docker-params.outputs.image }}:${{ steps.docker-params.outputs.commit_version }}
+            ${{ steps.docker-params.outputs.image }}:${{ steps.building-params.outputs.environment }}
+            ${{ steps.docker-params.outputs.image }}:${{ steps.docker-params.outputs.commit_version }}_sbx
+            ${{ steps.docker-params.outputs.image }}:sandbox
 
       - name: Log out of Amazon ECR
         if: always()
