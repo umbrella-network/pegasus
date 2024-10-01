@@ -37,6 +37,7 @@ export class DeviationWalletFactory {
       case ChainsIds.ASTAR:
       case ChainsIds.ROOTSTOCK:
       case ChainsIds.ZK_LINK_NOVA:
+      case ChainsIds.BOB:
         if (!wallets.evm.deviationPrivateKey) return;
         return new EvmWallet(chainId, wallets.evm.deviationPrivateKey);
 

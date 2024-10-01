@@ -63,6 +63,7 @@ import {PolygonIOSingleCryptoPriceFetcher} from '../workers/fetchers/PolygonIOSi
 import {PolygonIOStockSnapshotPriceFetcher} from '../workers/fetchers/PolygonIOStockSnapshotPriceFetcher.js';
 import {MoCMeasurementDataRepository} from '../repositories/fetchers/MoCMeasurementDataRepository.js';
 import {MoCMeasurementFetcher} from '../workers/fetchers/MoCMeasurementFetcher.js';
+import {BobDeviationDispatcher} from '../services/dispatchers/networks/BobDeviationDispatche.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -125,6 +126,8 @@ export function getContainer(): Container {
   container.bind(PolygonIOCurrencySnapshotGramsFetcher).toSelf().inSingletonScope();
   container.bind(PolygonIOSingleCryptoPriceFetcher).toSelf().inSingletonScope();
   container.bind(PolygonIOStockSnapshotPriceFetcher).toSelf().inSingletonScope();
+
+  container.bind(BobDeviationDispatcher).toSelf().inSingletonScope();
 
   container
     .bind<Redis>('Redis')

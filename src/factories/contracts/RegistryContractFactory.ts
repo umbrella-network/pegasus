@@ -33,6 +33,7 @@ export class RegistryContractFactory {
       case ChainsIds.ASTAR:
       case ChainsIds.ROOTSTOCK:
       case ChainsIds.ZK_LINK_NOVA:
+      case ChainsIds.BOB:
         return new ContractRegistry(blockchain.provider.getRawProviderSync(), blockchain.getContractRegistryAddress());
 
       default:
