@@ -1,0 +1,188 @@
+name: deploy_nonProd
+on:
+  workflow_dispatch:
+    branches:
+      - feature/*
+      - release/*
+      - hotfix/*
+      - develop
+    inputs:
+      validator:
+        required: true
+        description: 'Please select validator you want to deploy the version'
+        default: dev_validator1
+        type: choice
+        options:
+          - dev_validator1
+          - dev_validator2
+          - sbx_validator1
+jobs:
+  build_local:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials to SBX
+        uses: aws-actions/configure-aws-credentials@v4
+        if: inputs.validator == 'sbx_validator1'
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_NONPROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_NONPROD }}
+          aws-region: ${{ secrets.AWS_REGION_NONPROD }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_NONPROD }}:role/Developers
+          role-skip-session-tagging: true
+          role-duration-seconds: 1800
+      
+      - name: Configure AWS Kubeconfig Credentials to SBX
+        if: inputs.validator == 'sbx_validator1'
+        run: |
+          aws --region ${{ secrets.AWS_REGION_NONPROD }} eks update-kubeconfig --kubeconfig ~/.kube/config-staging --name ${{ secrets.CLUSTER_NAME_NONPROD }}
+
+      - name: Get sbx image tag
+        id: sbx_tag
+        if: inputs.validator == 'sbx_validator1'
+        run: |
+          export SBX_TAG=$(kubectl --kubeconfig ~/.kube/config-staging get deployments -n sandbox pegasus-api-bsc01 -o=jsonpath='{$$.spec.template.spec.containers[:1].image}' | awk -F':' '{print $2}')
+          echo "The tag is: $SBX_TAG"
+          echo "tag=$SBX_TAG" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ECR }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ECR }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      
+      - name: Extract Docker-image params
+        id: docker-params
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          export IMAGE="$ECR_REGISTRY/pegasus"
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+      
+      - name: Build and push to develop1
+        uses: docker/build-push-action@v6
+        if: inputs.validator == 'dev_validator1'
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: |
+            ${{ steps.docker-params.outputs.image }}:develop1
+      
+      - name: Build and push to develop2
+        uses: docker/build-push-action@v6
+        if: inputs.validator == 'dev_validator2'
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: |
+            ${{ steps.docker-params.outputs.image }}:develop2
+      
+      - name: Build and push to sbx
+        uses: docker/build-push-action@v6
+        if: inputs.validator == 'sbx_validator1'
+        with:
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: |
+            ${{ steps.docker-params.outputs.image }}:${{ steps.sbx_tag.outputs.tag }}
+      
+      - name: Log out of Amazon ECR
+        if: always()
+        run: docker logout ${{ steps.login-ecr.outputs.registry }}
+
+  restart_deployments:
+    runs-on: ubuntu-latest
+    needs: build_local
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials to non-prod
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_NONPROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_NONPROD }}
+          aws-region: ${{ secrets.AWS_REGION_NONPROD }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_NONPROD }}:role/Developers
+          role-skip-session-tagging: true
+          role-duration-seconds: 1800
+      
+      - name: Configure AWS Kubeconfig Credentials to non_prod
+        run: |
+          aws --region ${{ secrets.AWS_REGION_NONPROD }} eks update-kubeconfig --kubeconfig ~/.kube/config-staging --name ${{ secrets.CLUSTER_NAME_NONPROD }}
+      
+      - name: Restart deployments to take last Image
+        run: |
+          if [ "${{ inputs.validator }}" == "dev_validator1" ]; then
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-metrics-worker-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-metrics-worker-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-minting-worker-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-minting-worker-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-dispatcher-worker-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-dispatcher-worker-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-deviation-leader-worker-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-deviation-leader-worker-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-liquidity-worker-bsc01 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-liquidity-worker-bsc01 -n dev
+          fi
+          
+          if [ "${{ inputs.validator }}" == "dev_validator2" ]; then
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-metrics-worker-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-metrics-worker-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-minting-worker-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-minting-worker-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-dispatcher-worker-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-dispatcher-worker-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-deviation-leader-worker-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-deviation-leader-worker-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-liquidity-worker-bsc02 -n dev
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-liquidity-worker-bsc02 -n dev
+          fi
+          
+          if [ "${{ inputs.validator }}" == "sbx_validator1" ]; then
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-metrics-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-metrics-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-minting-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-minting-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-dispatcher-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-dispatcher-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-deviation-leader-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-deviation-leader-worker-bsc01 -n sandbox
+          fi

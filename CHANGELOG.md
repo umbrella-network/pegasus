@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.4.0] - 2024-10-01
+### Added
+- add `Money on chain /measurement` fetcher
+- add BOB blockchain support
+
 ## [8.3.6] - 2024-09-24
 ### Removed
 - remove `console.log`

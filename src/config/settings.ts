@@ -260,6 +260,18 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
+  [ChainsIds.BOB]: {
+    type: resolveBlockchainType(ChainsIds.BOB) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.BOB),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100_000_000,
+      minBalance: {
+        warningLimit: '0.01',
+        errorLimit: '0.0005',
+      },
+    },
+  },
 };
 
 const settings: Settings = {
@@ -503,6 +515,7 @@ const settings: Settings = {
       [FetcherName.GoldApiPrice]: schedulerFetcherSettings(FetcherName.GoldApiPrice),
       [FetcherName.MetalPriceApi]: schedulerFetcherSettings(FetcherName.MetalPriceApi),
       [FetcherName.MetalsDevApi]: schedulerFetcherSettings(FetcherName.MetalsDevApi),
+      [FetcherName.MoCMeasurement]: schedulerFetcherSettings(FetcherName.MoCMeasurement),
       [FetcherName.PolygonIOCryptoSnapshotPrice]: schedulerFetcherSettings(FetcherName.PolygonIOCryptoSnapshotPrice),
       [FetcherName.PolygonIOCurrencySnapshotGrams]: schedulerFetcherSettings(
         FetcherName.PolygonIOCurrencySnapshotGrams,

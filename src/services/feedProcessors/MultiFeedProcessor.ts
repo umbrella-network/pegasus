@@ -8,6 +8,7 @@ import {
   PolygonIOCryptoSnapshotPriceGetter,
   PolygonIOSingleCryptoPriceGetter,
   PolygonIOStockSnapshotPriceGetter,
+  MoCMeasurementGetter,
 } from '../fetchers/index.js';
 import {
   allMultiFetchers,
@@ -30,6 +31,7 @@ export default class MultiFeedProcessor {
     @inject(BinancePriceGetter) binancePricGetter: BinancePriceGetter,
     @inject(ByBitPriceGetter) byBitSpotPriceGetter: ByBitPriceGetter,
     @inject(CoingeckoPriceGetter) coingeckoPriceGetter: CoingeckoPriceGetter,
+    @inject(MoCMeasurementGetter) moCMeasurementGetter: MoCMeasurementGetter,
 
     @inject(PolygonIOCryptoSnapshotPriceGetter)
     polygonIOCryptoSnapshotPriceGetter: PolygonIOCryptoSnapshotPriceGetter,
@@ -43,6 +45,7 @@ export default class MultiFeedProcessor {
     this.multifetchersMap[FetcherName.BinancePrice] = binancePricGetter;
     this.multifetchersMap[FetcherName.ByBitPrice] = byBitSpotPriceGetter;
     this.multifetchersMap[FetcherName.CoingeckoPrice] = coingeckoPriceGetter;
+    this.multifetchersMap[FetcherName.MoCMeasurement] = moCMeasurementGetter;
     this.multifetchersMap[FetcherName.PolygonIOCryptoSnapshotPrice] = polygonIOCryptoSnapshotPriceGetter;
     this.multifetchersMap[FetcherName.PolygonIOStockSnapshotPrice] = polygonIOStockSnapshotPriceGetter;
     this.multifetchersMap[FetcherName.PolygonIOSingleCryptoPrice] = polygonIOSingleCryptoPriceGetter;
