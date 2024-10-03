@@ -116,14 +116,22 @@ export class UniswapV3Fetcher implements ServiceInterface {
     return helperInputMap;
   }
 
-  private async fetchData(chainId: ChainsIds, poolsToFetch: UniswapV3ContractHelperInput[]): Promise<void> {
-    const abi = JSON.parse(readFileSync(__dirname + '/UniswapV3FetcherHelper.abi.json', 'utf-8')).abi as never;
+  private async fetchData(chainId: ChainsIds, params: UniswapV3ContractHelperInput[]): Promise<void> {
     let parsed: UniswapV3DataRepositoryInput[] = [];
+    let contract;
 
     try {
-      const contract = await this.contractAddressService.getContract(chainId, 'UniswapV3FetcherHelper', abi);
-      const response = await contract.callStatic.getPrices(poolsToFetch);
-      parsed = this.processResult(chainId, response, poolsToFetch);
+      const abi = JSON.parse(readFileSync(__dirname + '/UniswapV3FetcherHelper.abi.json', 'utf-8')).abi as never;
+      contract = await this.contractAddressService.getContract(chainId, 'UniswapV3FetcherHelper', abi);
+    } catch (error) {
+      this.logger.error(`${this.logPrefix} [${chainId}] getContract failed: ${error}`);
+      return;
+    }
+
+    try {
+      this.logger.debug(`${this.logPrefix} [${chainId}] poolsToFetch: ${JSON.stringify(params)}`);
+      const response = await contract.callStatic.getPrices(params);
+      parsed = this.processResult(chainId, response, params);
     } catch (error) {
       this.logger.error(`${this.logPrefix} [${chainId}] getPrices failed: ${error}`);
       return;
