@@ -65,9 +65,9 @@ export class MoCMeasurementGetter implements FeedFetcherInterface {
     const idsCache = JSON.parse(cache || '{}') as MoCMeasurementCache;
 
     inputsParams.forEach((input) => {
-      if (!idsCache[input.measurement_id]) idsCache[input.measurement_id] = [];
+      if (!idsCache[input.measurement_id]) idsCache[input.measurement_id] = {};
 
-      idsCache[input.measurement_id].push(input.field);
+      idsCache[input.measurement_id][input.field] = true;
     });
 
     await this.mappingRepository.set(key, JSON.stringify(idsCache));
