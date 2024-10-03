@@ -14,6 +14,7 @@ class Migrations {
     await Migrations.migrateTo_7_27_1();
     await Migrations.migrateTo7280();
     await Migrations.migrateTo_8_4_1();
+    await Migrations.migrateTo_8_4_2();
   }
 
   private static hasMigration = async (v: string): Promise<boolean> => {
@@ -89,6 +90,26 @@ class Migrations {
       }
 
       console.log('Migration 8.4.1 finished');
+    });
+  };
+
+  private static migrateTo_8_4_2 = async () => {
+    await Migrations.wrapMigration('8.4.2', async () => {
+      const mapping = await getModelForClass(Mapping);
+
+      try {
+        await mapping.deleteMany({
+          $or: [
+            {_id: FetchersMappingCacheKeys.MOC_MEASUREMENT_PARAMS},
+            {_id: FetchersMappingCacheKeys.UNISWAPV3_PARAMS},
+            {_id: FetchersMappingCacheKeys.SOVRYN_PRICE_PARAMS},
+          ],
+        });
+      } catch (reason) {
+        throw new Error(`Migration 8.4.2 failed: ${reason}`);
+      }
+
+      console.log('Migration 8.4.2 finished');
     });
   };
 

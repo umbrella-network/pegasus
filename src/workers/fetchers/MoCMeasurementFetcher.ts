@@ -136,7 +136,7 @@ export class MoCMeasurementFetcher implements ServiceInterface {
     Object.keys(parsed).forEach((measurement_id) => {
       result.push({
         measurement_id,
-        fields: parsed[measurement_id],
+        fields: Object.keys(parsed[measurement_id]),
       });
     });
 
