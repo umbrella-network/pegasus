@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.4.1] - 2024-10-02
+### Fixed
+- fix usage of `amountInDecimals`
+
 ## [8.4.0] - 2024-10-01
 ### Added
 - add `Money on chain /measurement` fetcher

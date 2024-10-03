@@ -143,7 +143,7 @@ export class UniswapV3Fetcher implements ServiceInterface {
   ): UniswapV3DataRepositoryInput[] {
     return results.prices
       .map((result, ix) => {
-        const {base, quote} = poolsToFetch[ix];
+        const {base, quote, amountInDecimals} = poolsToFetch[ix];
 
         if (!result.success) {
           this.logger.error(`${this.logPrefix} failed to fetch: ${base}, ${quote}`);
@@ -151,7 +151,12 @@ export class UniswapV3Fetcher implements ServiceInterface {
         }
 
         const price = Number(ethers.utils.formatUnits(result.price.toString(), 18));
-        this.logger.debug(`${this.logPrefix} resolved price: ${base}, ${quote}: ${result.price.toString()} / ${price}`);
+
+        this.logger.debug(
+          `${
+            this.logPrefix
+          } resolved price: ${base}, ${quote} (1e${amountInDecimals}): ${result.price.toString()} / ${price}`,
+        );
 
         return <UniswapV3DataRepositoryInput>{
           value: price,

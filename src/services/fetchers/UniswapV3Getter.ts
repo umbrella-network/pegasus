@@ -72,9 +72,7 @@ export class UniswapV3Getter implements FeedFetcherInterface {
     const cachedParams = JSON.parse(cache || '{}');
 
     params.forEach((input) => {
-      const id = ethers.utils.id(
-        `${input.fromChain};${input.base};${input.quote};${input.amountInDecimals}`.toLowerCase(),
-      );
+      const id = ethers.utils.id(`${input.fromChain};${input.base};${input.quote}`.toLowerCase());
 
       cachedParams[id] = {
         params: <UniswapV3FetcherInputParams>{

@@ -70,6 +70,7 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
         chainId: param.fromChain.toLowerCase(),
         base: param.base.toLowerCase(),
         quote: param.quote.toLowerCase(),
+        amountInDecimals: param.amountInDecimals,
       };
     });
 
@@ -96,17 +97,18 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
 
     const map: Record<string, number> = {};
 
-    const getSymbol = (chainId: string, base: string, quote: string) => [chainId, base, quote].join(';').toLowerCase();
+    const getSymbol = (chainId: string, base: string, quote: string, decimals: number) =>
+      [chainId, base, quote, decimals.toString()].join(';').toLowerCase();
 
     sortedResults.forEach((data) => {
-      const key = getSymbol(data.chainId, data.base, data.quote);
+      const key = getSymbol(data.chainId, data.base, data.quote, data.amountInDecimals);
       if (map[key]) return; // already set newest price
 
       map[key] = parseFloat(data.value);
     });
 
     const newest = inputs.map((data) => {
-      const key = getSymbol(data.fromChain, data.base, data.quote);
+      const key = getSymbol(data.fromChain, data.base, data.quote, data.amountInDecimals);
       return map[key];
     });
 
