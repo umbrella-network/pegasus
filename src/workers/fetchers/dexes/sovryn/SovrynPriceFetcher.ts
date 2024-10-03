@@ -39,7 +39,7 @@ type PricesResponse = {
 };
 
 const pairRequestToString = (pair: SovrynPriceInputParams) => {
-  return '{' + pair.base + ' -> ' + pair.quote + ' amount:' + pair.amountInDecimals + '}';
+  return '{' + pair.base + ' -> ' + pair.quote + ' amountInDecimals:' + pair.amountInDecimals + '}';
 };
 
 @injectable()

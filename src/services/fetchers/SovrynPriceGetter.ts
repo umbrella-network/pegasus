@@ -82,7 +82,7 @@ export class SovrynPriceGetter implements FeedFetcherInterface {
     const cachedParams = JSON.parse(cache || '{}');
 
     params.forEach((input) => {
-      const id = ethers.utils.id(`${input.base};${input.quote};${input.amountInDecimals}`.toLowerCase());
+      const id = ethers.utils.id(`${input.base};${input.quote}`.toLowerCase());
 
       cachedParams[id] = {
         params: <SovrynPriceInputParams>{

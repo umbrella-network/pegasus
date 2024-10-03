@@ -5,12 +5,15 @@ import Migration from '../models/Migration.js';
 import CachedValidator from '../models/CachedValidator.js';
 import {UniswapV3Pool} from '../models/UniswapV3Pool.js';
 import {Token} from '../models/Token.js';
+import {Mapping} from '../models/Mapping.js';
+import {FetchersMappingCacheKeys} from './fetchers/common/FetchersMappingCacheKeys.js';
 
 class Migrations {
   static async apply(): Promise<void> {
     await Migrations.migrateTo7110();
     await Migrations.migrateTo_7_27_1();
     await Migrations.migrateTo7280();
+    await Migrations.migrateTo_8_4_1();
   }
 
   private static hasMigration = async (v: string): Promise<boolean> => {
@@ -66,6 +69,26 @@ class Migrations {
       }
 
       console.log('Migration 7.28.0 finished');
+    });
+  };
+
+  private static migrateTo_8_4_1 = async () => {
+    await Migrations.wrapMigration('8.4.1', async () => {
+      const mapping = await getModelForClass(Mapping);
+
+      try {
+        await mapping.deleteOne({_id: FetchersMappingCacheKeys.UNISWAPV3_PARAMS});
+      } catch (reason) {
+        throw new Error(`Migration 8.4.1 failed: ${reason}`);
+      }
+
+      try {
+        await mapping.deleteOne({_id: FetchersMappingCacheKeys.SOVRYN_PRICE_PARAMS});
+      } catch (reason) {
+        throw new Error(`Migration 8.4.1 failed: ${reason}`);
+      }
+
+      console.log('Migration 8.4.1 finished');
     });
   };
 
