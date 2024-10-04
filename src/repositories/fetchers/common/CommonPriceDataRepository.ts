@@ -40,6 +40,7 @@ export abstract class CommonPriceDataRepository implements IPurger {
   private priceTimeWindowBefore = 2 * 60; // TODO time window, configurable?
   private priceTimeWindowAfter = 5; // TODO time window, configurable?
   protected hashVersion = 1;
+  protected purgeLimit = 2000;
 
   // this is definition from @typegoose
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,11 +61,11 @@ export abstract class CommonPriceDataRepository implements IPurger {
       const results = await this.model
         .find({timestamp: {$lt: daysAgo}}, {id: true})
         .sort({timestamp: -1})
-        .limit(5000);
+        .limit(this.purgeLimit);
 
       const ids = results.map((r: {_id: string}) => r._id);
       if (ids.length == 0) return 0;
-      
+
       const del = await this.model.deleteMany({_id: {$in: ids}});
       const deleted = del.deletedCount ?? 0;
 
