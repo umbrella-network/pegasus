@@ -8,7 +8,7 @@ import Block from '../models/Block.js';
 import Leaf from '../types/Leaf.js';
 import {SignedBlockConsensus} from '../types/Consensus.js';
 import TimeService from '../services/TimeService.js';
-import {IPurger} from '../types/IPurge.js';
+import {IPurger} from '../types/IPurger.js';
 
 type Params = {
   id: string;
