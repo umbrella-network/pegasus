@@ -40,7 +40,7 @@ export abstract class CommonPriceDataRepository implements IPurger {
   private priceTimeWindowBefore = 2 * 60; // TODO time window, configurable?
   private priceTimeWindowAfter = 5; // TODO time window, configurable?
   protected hashVersion = 1;
-  protected purgeLimit = 2000;
+  protected purgeLimit = 1000;
 
   // this is definition from @typegoose
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
