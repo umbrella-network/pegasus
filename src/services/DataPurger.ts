@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import TimeService from './TimeService.js';
-import BlockRepository from '../repositories/BlockRepository';
+import BlockRepository from '../repositories/BlockRepository.js';
 import {CoingeckoDataRepository} from '../repositories/fetchers/CoingeckoDataRepository.js';
 
 @injectable()
