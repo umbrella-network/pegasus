@@ -7,6 +7,8 @@ import {BeAnObject} from '@typegoose/typegoose/lib/types';
 import Settings from '../../../types/Settings.js';
 import {FetcherName} from '../../../types/fetchers.js';
 import PriceSignerService from '../../../services/PriceSignerService.js';
+import {IPurger} from '../../../types/IPurger.js';
+import TimeService from '../../../services/TimeService.js';
 
 // based on {BulkWriteError} from 'mongodb'
 type BulkWriteError = {
@@ -26,9 +28,10 @@ type BulkWriteError = {
 };
 
 @injectable()
-export abstract class CommonPriceDataRepository {
+export abstract class CommonPriceDataRepository implements IPurger {
   @inject('Logger') protected logger!: Logger;
   @inject('Settings') protected settings!: Settings;
+  @inject(TimeService) timeService!: TimeService;
   @inject(PriceSignerService) protected priceSignerService!: PriceSignerService;
 
   // even with N minutes window, only newest price will be considered anyway
@@ -45,6 +48,20 @@ export abstract class CommonPriceDataRepository {
 
   constructor() {
     this.logPrefix = '[CommonPriceDataRepository]';
+  }
+
+  async purge(): Promise<number> {
+    const oneDay = 24 * 60 * 60;
+    const daysAgo = this.timeService.apply(7 * oneDay);
+
+    const results = await this.model
+      .find({timestamp: {$lt: daysAgo}}, {id: true})
+      .sort({timestamp: -1})
+      .limit(1000);
+
+    const ids = results.map((r: {_id: string}) => r._id);
+    const del = await this.model.deleteMany({_id: {$in: ids}});
+    return del.deletedCount ?? 0;
   }
 
   protected getTimestampWindowFilter(timestamp: number) {

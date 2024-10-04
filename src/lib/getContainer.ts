@@ -64,12 +64,15 @@ import {PolygonIOStockSnapshotPriceFetcher} from '../workers/fetchers/PolygonIOS
 import {MoCMeasurementDataRepository} from '../repositories/fetchers/MoCMeasurementDataRepository.js';
 import {MoCMeasurementFetcher} from '../workers/fetchers/MoCMeasurementFetcher.js';
 import {BobDeviationDispatcher} from '../services/dispatchers/networks/BobDeviationDispatcher.js';
+import DataPurger from '../services/DataPurger.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
   container.bind<Settings>('Settings').toConstantValue(settings);
   container.bind<Logger>('Logger').toConstantValue(logger);
   container.bind<FetcherAPILimit>('FetcherAPILimit').toConstantValue(fetcherAPILimit);
+
+  container.bind(DataPurger).toSelf().inSingletonScope();
   container.bind(PriceRepository).toSelf().inSingletonScope();
   container.bind(FeedFetcherRepository).toSelf().inSingletonScope();
   container.bind(CalculatorRepository).toSelf().inSingletonScope();

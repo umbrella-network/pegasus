@@ -1,53 +1,35 @@
 import {inject, injectable} from 'inversify';
-import {getModelForClass} from '@typegoose/typegoose';
+import {Logger} from 'winston';
 
 import TimeService from './TimeService.js';
-import Block from '../models/Block.js';
-import {sleep} from '../utils/sleep.js';
+import BlockRepository from '../repositories/BlockRepository';
+import {CoingeckoDataRepository} from '../repositories/fetchers/CoingeckoDataRepository.js';
 
 @injectable()
 class DataPurger {
+  @inject('Logger') protected logger!: Logger;
   @inject(TimeService) timeService!: TimeService;
+  @inject(BlockRepository) blockRepository!: BlockRepository;
+  @inject(CoingeckoDataRepository) coingeckoDataRepository!: CoingeckoDataRepository;
+
+  private logPrefix = '${this.logPrefix} ';
 
   async apply(): Promise<void> {
-    let removedAll = false;
+    this.logger.info(`${this.logPrefix} started`);
 
-    while (!removedAll) {
-      console.time('DataPurger.chunk');
+    console.time('DataPurger.chunk');
 
-      try {
-        // removing 1K records takes 1~10sec
-        const purged = await this.purgeChunk(1000, 6);
-        removedAll = purged === 0;
-      } catch (e: unknown) {
-        // ignoring
-        console.log(`[DataPurger] error: ${(<Error>e).message}`);
+    const results = await Promise.allSettled([this.blockRepository.purge(), this.coingeckoDataRepository.purge()]);
+
+    results.forEach((r) => {
+      if (r.status == 'rejected') {
+        this.logger.error(`${this.logPrefix} error: ${r.reason}`);
       }
+    });
 
-      console.timeEnd('DataPurger.chunk');
+    console.timeEnd('DataPurger.chunk');
 
-      await sleep(5000);
-    }
-
-    console.time('[DataPurger] done.');
-  }
-
-  private async purgeChunk(limit: number, months: number): Promise<number> {
-    const blockModel = getModelForClass(Block);
-
-    const oneMonth = 30 * 24 * 60 * 60;
-    const monthsAgo = this.timeService.apply(months * oneMonth);
-
-    const blocks = await blockModel
-      .find({blockId: {$lt: monthsAgo}}, {blockId: true})
-      .sort({blockId: -1})
-      .limit(limit);
-    const blockIds = blocks.map((b) => b.blockId);
-    console.log(`[DataPurger] removing blocks older than ${months}mo, found ${blockIds.length}`);
-
-    await blockModel.deleteMany({blockId: {$in: blockIds}});
-
-    return blockIds.length;
+    this.logger.info(`${this.logPrefix} done.`);
   }
 }
 

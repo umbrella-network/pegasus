@@ -36,7 +36,7 @@ import {FetcherName} from './types/fetchers';
 
   logger.info('[Scheduler] Starting scheduler...');
 
-  setTimeout(() => dataPurger.apply(), 100);
+  setInterval(() => dataPurger.apply(), 60 * 5 * 1000);
 
   setInterval(async () => {
     logger.info('[Scheduler] Scheduling MetricsWorker');
