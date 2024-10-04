@@ -12,7 +12,7 @@ class DataPurger {
   @inject(BlockRepository) blockRepository!: BlockRepository;
   @inject(CoingeckoDataRepository) coingeckoDataRepository!: CoingeckoDataRepository;
 
-  private logPrefix = '${this.logPrefix} ';
+  private logPrefix = '[DataPurger] ';
 
   async apply(): Promise<void> {
     this.logger.info(`${this.logPrefix} started`);
