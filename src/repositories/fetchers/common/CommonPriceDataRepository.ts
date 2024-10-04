@@ -57,14 +57,14 @@ export abstract class CommonPriceDataRepository implements IPurger {
     const results = await this.model
       .find({timestamp: {$lt: daysAgo}}, {id: true})
       .sort({timestamp: -1})
-      .limit(1000);
+      .limit(5);
 
     const ids = results.map((r: {_id: string}) => r._id);
     const del = await this.model.deleteMany({_id: {$in: ids}});
     const deleted = del.deletedCount ?? 0;
 
     if (deleted != 0) {
-      this.logger.debug(`${this.logPrefix} deleted ${deleted}`);
+      this.logger.debug(`${this.logPrefix} deleted ${deleted} records older than ${daysAgo}`);
     }
 
     return deleted;
