@@ -61,7 +61,13 @@ export abstract class CommonPriceDataRepository implements IPurger {
 
     const ids = results.map((r: {_id: string}) => r._id);
     const del = await this.model.deleteMany({_id: {$in: ids}});
-    return del.deletedCount ?? 0;
+    const deleted = del.deletedCount ?? 0;
+
+    if (deleted != 0) {
+      this.logger.debug(`${this.logPrefix} deleted ${deleted}`);
+    }
+
+    return deleted;
   }
 
   protected getTimestampWindowFilter(timestamp: number) {
