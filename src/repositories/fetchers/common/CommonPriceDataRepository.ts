@@ -51,23 +51,32 @@ export abstract class CommonPriceDataRepository implements IPurger {
   }
 
   async purge(): Promise<number> {
-    const oneDay = 24 * 60 * 60;
-    const daysAgo = this.timeService.apply(7 * oneDay);
+    try {
+      const tStart = this.timeService.apply();
 
-    const results = await this.model
-      .find({timestamp: {$lt: daysAgo}}, {id: true})
-      .sort({timestamp: -1})
-      .limit(1000);
+      const oneDay = 24 * 60 * 60;
+      const daysAgo = this.timeService.apply(7 * oneDay);
 
-    const ids = results.map((r: {_id: string}) => r._id);
-    const del = await this.model.deleteMany({_id: {$in: ids}});
-    const deleted = del.deletedCount ?? 0;
+      const results = await this.model
+        .find({timestamp: {$lt: daysAgo}}, {id: true})
+        .sort({timestamp: -1})
+        .limit(1000);
 
-    if (deleted != 0) {
-      this.logger.debug(`${this.logPrefix} deleted ${deleted} records older than ${daysAgo}`);
+      const ids = results.map((r: {_id: string}) => r._id);
+      const del = await this.model.deleteMany({_id: {$in: ids}});
+      const deleted = del.deletedCount ?? 0;
+
+      if (deleted != 0) {
+        const timeSpend = this.timeService.apply() - tStart;
+        this.logger.debug(`${this.logPrefix} deleted ${deleted} records older than ${daysAgo} (${timeSpend}s)`);
+      }
+
+      return deleted;
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} purge error: ${(e as Error).message}`);
     }
 
-    return deleted;
+    return 0;
   }
 
   protected getTimestampWindowFilter(timestamp: number) {
@@ -124,6 +133,8 @@ export abstract class CommonPriceDataRepository implements IPurger {
       } else {
         this.logger.error(`${this.logPrefix} ${JSON.stringify(error)}`);
       }
+    } finally {
+      await this.purge();
     }
   }
 }
