@@ -63,6 +63,8 @@ export abstract class CommonPriceDataRepository implements IPurger {
         .limit(5000);
 
       const ids = results.map((r: {_id: string}) => r._id);
+      if (ids.length == 0) return 0;
+      
       const del = await this.model.deleteMany({_id: {$in: ids}});
       const deleted = del.deletedCount ?? 0;
 
