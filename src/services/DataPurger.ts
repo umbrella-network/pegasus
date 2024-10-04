@@ -1,89 +1,53 @@
 import {inject, injectable} from 'inversify';
-import {Logger} from 'winston';
+import {getModelForClass} from '@typegoose/typegoose';
 
 import TimeService from './TimeService.js';
-import BlockRepository from '../repositories/BlockRepository.js';
-// import {CoingeckoDataRepository} from '../repositories/fetchers/CoingeckoDataRepository.js';
-// import {BinanceDataRepository} from '../repositories/fetchers/BinanceDataRepository.js';
-// import {ByBitDataRepository} from '../repositories/fetchers/ByBitDataRepository.js';
-// import {GoldApiDataRepository} from '../repositories/fetchers/GoldApiDataRepository.js';
-// import {MetalPriceApiDataRepository} from '../repositories/fetchers/MetalPriceApiDataRepository.js';
-// import {MetalsDevApiDataRepository} from '../repositories/fetchers/MetalsDevApiDataRepository.js';
-// import {MoCMeasurementDataRepository} from '../repositories/fetchers/MoCMeasurementDataRepository.js';
-// import {OnChainDataRepository} from '../repositories/fetchers/OnChainDataRepository.js';
-// import {PolygonIOCryptoSnapshotDataRepository} from '../repositories/fetchers/PolygonIOCryptoSnapshotDataRepository.js';
-// import {PolygonIOCurrencySnapshotGramsDataRepository} from '../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
-// import {PolygonIOSingleCryptoDataRepository} from '../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
-// import {PolygonIOStockSnapshotDataRepository} from '../repositories/fetchers/PolygonIOStockSnapshotDataRepository.js';
-// import {SovrynDataRepository} from '../repositories/fetchers/SovrynDataRepository.js';
-// import {UniswapV3PriceRepository} from '../repositories/fetchers/UniswapV3PriceRepository.js';
+import Block from '../models/Block.js';
+import {sleep} from '../utils/sleep.js';
 
 @injectable()
 class DataPurger {
-  @inject('Logger') protected logger!: Logger;
   @inject(TimeService) timeService!: TimeService;
-  @inject(BlockRepository) blockRepository!: BlockRepository;
-
-  // @inject(BinanceDataRepository) binanceDataRepository!: BinanceDataRepository;
-  // @inject(ByBitDataRepository) byBitDataRepository!: ByBitDataRepository;
-  // @inject(CoingeckoDataRepository) coingeckoDataRepository!: CoingeckoDataRepository;
-  // @inject(GoldApiDataRepository) goldApiDataRepository!: GoldApiDataRepository;
-  // @inject(MetalPriceApiDataRepository) metalPriceApiDataRepository!: MetalPriceApiDataRepository;
-  // @inject(MetalsDevApiDataRepository) metalsDevApiDataRepository!: MetalsDevApiDataRepository;
-  // @inject(MoCMeasurementDataRepository) moCMeasurementDataRepository!: MoCMeasurementDataRepository;
-  // @inject(OnChainDataRepository) onChainDataRepository!: OnChainDataRepository;
-  // @inject(PolygonIOCryptoSnapshotDataRepository)
-  // polygonIOCryptoSnapshotDataRepository!: PolygonIOCryptoSnapshotDataRepository;
-  // @inject(PolygonIOCurrencySnapshotGramsDataRepository)
-  // polygonIOCurrencySnapshotGramsDataRepository!: PolygonIOCurrencySnapshotGramsDataRepository;
-  // @inject(PolygonIOSingleCryptoDataRepository)
-  // polygonIOSingleCryptoDataRepository!: PolygonIOSingleCryptoDataRepository;
-  // @inject(PolygonIOStockSnapshotDataRepository)
-  // polygonIOStockSnapshotDataRepository!: PolygonIOStockSnapshotDataRepository;
-  // @inject(SovrynDataRepository) sovrynDataRepository!: SovrynDataRepository;
-  // @inject(UniswapV3PriceRepository) uniswapV3PriceRepository!: UniswapV3PriceRepository;
-
-  private logPrefix = '[DataPurger] ';
 
   async apply(): Promise<void> {
-    this.logger.debug(`${this.logPrefix} started`);
+    let removedAll = false;
 
-    const tStart = this.timeService.apply();
+    while (!removedAll) {
+      console.time('DataPurger.chunk');
 
-    const results = await Promise.allSettled([
-      this.blockRepository.purge(),
-      // this.binanceDataRepository.purge(),
-      // this.byBitDataRepository.purge(),
-      // this.coingeckoDataRepository.purge(),
-      // this.goldApiDataRepository.purge(),
-      // this.metalPriceApiDataRepository.purge(),
-      // this.metalsDevApiDataRepository.purge(),
-      // this.moCMeasurementDataRepository.purge(),
-      // this.onChainDataRepository.purge(),
-      // this.polygonIOCryptoSnapshotDataRepository.purge(),
-      // this.polygonIOCurrencySnapshotGramsDataRepository.purge(),
-      // this.polygonIOSingleCryptoDataRepository.purge(),
-      // this.polygonIOStockSnapshotDataRepository.purge(),
-      // this.sovrynDataRepository.purge(),
-      // this.uniswapV3PriceRepository.purge(),
-    ]);
-
-    let totalDeleted = 0;
-
-    results.forEach((r) => {
-      if (r.status == 'rejected') {
-        this.logger.error(`${this.logPrefix} error: ${r.reason}`);
-      } else {
-        totalDeleted += r.value;
+      try {
+        // removing 1K records takes 1~10sec
+        const purged = await this.purgeChunk(1000, 6);
+        removedAll = purged === 0;
+      } catch (e: unknown) {
+        // ignoring
+        console.log(`[DataPurger] error: ${(<Error>e).message}`);
       }
-    });
 
-    if (totalDeleted != 0) {
-      const timeSpend = (await this.timeService.apply()) - tStart;
-      this.logger.info(`${this.logPrefix} done, time spend: ${timeSpend}s`);
-    } else {
-      this.logger.debug(`${this.logPrefix} done.`);
+      console.timeEnd('DataPurger.chunk');
+
+      await sleep(5000);
     }
+
+    console.time('[DataPurger] done.');
+  }
+
+  private async purgeChunk(limit: number, months: number): Promise<number> {
+    const blockModel = getModelForClass(Block);
+
+    const oneMonth = 30 * 24 * 60 * 60;
+    const monthsAgo = this.timeService.apply(months * oneMonth);
+
+    const blocks = await blockModel
+      .find({blockId: {$lt: monthsAgo}}, {blockId: true})
+      .sort({blockId: -1})
+      .limit(limit);
+    const blockIds = blocks.map((b) => b.blockId);
+    console.log(`[DataPurger] removing blocks older than ${months}mo, found ${blockIds.length}`);
+
+    await blockModel.deleteMany({blockId: {$in: blockIds}});
+
+    return blockIds.length;
   }
 }
 
