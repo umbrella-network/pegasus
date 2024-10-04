@@ -15,21 +15,27 @@ class DataPurger {
   private logPrefix = '[DataPurger] ';
 
   async apply(): Promise<void> {
-    this.logger.info(`${this.logPrefix} started`);
+    this.logger.debug(`${this.logPrefix} started`);
 
-    console.time('DataPurger.chunk');
+    const tStart = this.timeService.apply();
 
     const results = await Promise.allSettled([this.blockRepository.purge(), this.coingeckoDataRepository.purge()]);
+    let totalDeleted = 0;
 
     results.forEach((r) => {
       if (r.status == 'rejected') {
         this.logger.error(`${this.logPrefix} error: ${r.reason}`);
+      } else {
+        totalDeleted += r.value;
       }
     });
 
-    console.timeEnd('DataPurger.chunk');
-
-    this.logger.info(`${this.logPrefix} done.`);
+    if (totalDeleted != 0) {
+      const timeSpend = await this.timeService.apply() - tStart;
+      this.logger.info(`${this.logPrefix} done, time spend: ${timeSpend}s`);
+    } else {
+      this.logger.debug(`${this.logPrefix} done.`);
+    }
   }
 }
 
