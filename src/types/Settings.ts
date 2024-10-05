@@ -111,6 +111,7 @@ type Settings = {
   };
   mongodb: {
     url: string;
+    purgeDays: number;
   };
   consensus: {
     retries: number;

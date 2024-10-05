@@ -41,7 +41,6 @@ export abstract class CommonPriceDataRepository implements IPurger {
   private priceTimeWindowAfter = 5; // TODO time window, configurable?
   protected hashVersion = 1;
   protected purgeLimit = 1000;
-  protected purgeDays = 1;
 
   // this is definition from @typegoose
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -57,7 +56,7 @@ export abstract class CommonPriceDataRepository implements IPurger {
       const tStart = this.timeService.apply();
 
       const oneDay = 24 * 60 * 60;
-      const daysAgo = this.timeService.apply(this.purgeDays * oneDay);
+      const daysAgo = this.timeService.apply(this.settings.mongodb.purgeDays * oneDay);
 
       const results = await this.model
         .find({timestamp: {$lt: daysAgo}}, {id: true})
