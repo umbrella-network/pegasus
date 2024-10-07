@@ -49,10 +49,11 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
     }
   }
 
-  async purge(): Promise<void> {
+  async purge(): Promise<number> {
     const oneDay = 60 * 60 * 24;
     const oldTimestamp = Math.trunc(Date.now() / 1000 - oneDay);
-    await this.model.deleteMany({timestamp: {$lt: oldTimestamp}});
+    const deleted = await this.model.deleteMany({timestamp: {$lt: oldTimestamp}});
+    return deleted.deletedCount ?? 0;
   }
 
   async save(gas: BlockchainGas): Promise<void> {
