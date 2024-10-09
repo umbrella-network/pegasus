@@ -3,6 +3,10 @@ import {DeviationFeeds, DeviationFeed, PriceData, PriceDataByKey} from '../types
 
 export class PriceDataFactory {
   static create(dataTimestamp: number, leaf: Leaf, feed: DeviationFeed): PriceData {
+    if (feed === undefined) {
+      throw new Error(`[PriceDataFactory] (debug) deviationFeed is undefined for ${leaf.label}`);
+    }
+
     if (feed.precision < 0 || feed.precision > 18) {
       throw new Error(`[PriceDataFactory] invalid precision for ${leaf.label}: ${feed.precision}`);
     }

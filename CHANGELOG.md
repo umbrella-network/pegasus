@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.5.1] - 2024-10-09
+### Added
+- added errors to debug issue with `Cannot read properties of undefined (reading 'precision')`
+
 ## [8.5.0] - 2024-10-07
 ### Added
 - purge price collections
