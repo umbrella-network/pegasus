@@ -10,6 +10,10 @@ export class VerifyProposedData {
     const keys = Object.keys(deviationDataToSign.leaves);
 
     keys.forEach((key) => {
+      if (feeds.feeds[key] === undefined) {
+        throw new Error(`[VerifyProposedData] (debug) undefined data for ${key}`);
+      }
+
       // because we are using only prices (numbers) for on-chain data, we can simply compare hex value
       const leaveValue = BigInt(deviationDataToSign.leaves[key]);
       const precision = BigInt(feeds.feeds[key].precision);
