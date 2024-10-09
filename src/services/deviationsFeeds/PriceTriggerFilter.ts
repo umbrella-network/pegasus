@@ -6,6 +6,10 @@ import {DeviationFeed, FilterResult, PriceData} from '../../types/DeviationFeeds
 @injectable()
 export class PriceTriggerFilter {
   apply(deviationFeed: DeviationFeed, leaf: Leaf, priceData: PriceData): FilterResult {
+    if (deviationFeed === undefined) {
+      throw new Error(`[PriceTriggerFilter] (debug) deviationFeed is undefined for ${leaf.label}`);
+    }
+
     const newPrice = this.currentPrice(leaf, deviationFeed.precision);
     const priceDiff = this.abs(newPrice - priceData.price);
     const percent = Number((priceDiff * 10000n) / priceData.price) / 100;
