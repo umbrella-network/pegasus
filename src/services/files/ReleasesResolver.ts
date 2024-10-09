@@ -7,6 +7,7 @@ import Settings from '../../types/Settings.js';
 
 export type ReleasesData = {
   leaderSelectorV2: boolean;
+  removeMapping: string[];
 };
 
 @injectable()
@@ -26,7 +27,9 @@ export class ReleasesResolver {
     const data = await this.downloader.apply<ReleasesData>(url);
     if (data === undefined) throw new Error(`${this.logPrefix} empty data at ${url}`);
 
-    await this.mappingRepository.setMany([this.parseData(data, 'leaderSelectorV2')]);
+    await this.mappingRepository.setMany([
+      this.parseBoolean(data, 'leaderSelectorV2'),
+      this.parseString(data, 'removeMapping')]);
   }
 
   async active(key: keyof ReleasesData): Promise<boolean> {
@@ -34,8 +37,13 @@ export class ReleasesResolver {
     return data === undefined || data === '1';
   }
 
-  protected parseData(data: ReleasesData, key: keyof ReleasesData): {_id: string; value: string} {
+  protected parseBoolean(data: ReleasesData, key: keyof ReleasesData): {_id: string; value: string} {
     const value = data?.[key] === undefined ? '1' : data?.[key] ? '1' : '0';
+    return {_id: `${this.RELEASE_PREFIX}${key}`, value};
+  }
+
+  protected parseString(data: ReleasesData, key: keyof ReleasesData): {_id: string; value: string} {
+    const value = (data?.[key] || '') as string;
     return {_id: `${this.RELEASE_PREFIX}${key}`, value};
   }
 }
