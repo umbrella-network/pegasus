@@ -11,7 +11,8 @@ export class VerifyProposedData {
 
     keys.forEach((key) => {
       if (feeds.feeds[key] === undefined) {
-        throw new Error(`[VerifyProposedData] (debug) undefined data for ${key}`);
+        this.logger.info(`[VerifyProposedData] ${key} skipped, feed empty.`);
+        return;
       }
 
       // because we are using only prices (numbers) for on-chain data, we can simply compare hex value
