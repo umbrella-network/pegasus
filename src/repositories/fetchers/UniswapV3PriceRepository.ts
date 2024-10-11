@@ -54,6 +54,7 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
         signature,
         priceHash: hash,
         signer: signerAddress,
+        expireAt: this.expireAtDate(),
       });
     });
 
