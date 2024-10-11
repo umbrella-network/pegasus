@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - do not throw error when verifying proposed data, when feed not exists
 
+## [8.5.2] - 2024-10-11
+### Added
+- option to set purge limit by env
+
 ## [8.5.1] - 2024-10-09
 ### Added
 - added errors to debug issue with `Cannot read properties of undefined (reading 'precision')`
