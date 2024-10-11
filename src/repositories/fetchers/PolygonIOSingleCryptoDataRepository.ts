@@ -51,6 +51,7 @@ export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataReposito
         signature,
         priceHash: hash,
         signer: signerAddress,
+        expireAt: this.expireAtDate(),
       });
     });
 

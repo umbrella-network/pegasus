@@ -3,6 +3,7 @@ import {index, prop} from '@typegoose/typegoose';
 @index({timestamp: -1})
 @index({signer: 1})
 @index({id: 1, currency: 1})
+@index({expireAt: 1}, {expireAfterSeconds: 0})
 export class CommonPriceModel {
   @prop({required: true})
   value!: string;
@@ -24,4 +25,7 @@ export class CommonPriceModel {
 
   @prop({required: true})
   signature!: string;
+
+  @prop({required: true})
+  expireAt!: Date;
 }

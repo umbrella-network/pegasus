@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.5.3] - 2024-10-11
+### Fixed
+- turn off purge, drop price collections and use TTL for removing data 
+
 ## [8.5.2] - 2024-10-11
 ### Added
 - option to set purge limit by env

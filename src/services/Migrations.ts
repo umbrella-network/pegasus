@@ -7,6 +7,19 @@ import {UniswapV3Pool} from '../models/UniswapV3Pool.js';
 import {Token} from '../models/Token.js';
 import {Mapping} from '../models/Mapping.js';
 import {FetchersMappingCacheKeys} from './fetchers/common/FetchersMappingCacheKeys.js';
+import {PriceModel_Binance} from '../models/fetchers/PriceModel_Binance.js';
+import {PriceModel_ByBit} from '../models/fetchers/PriceModel_ByBit.js';
+import {PriceModel_Coingecko} from '../models/fetchers/PriceModel_Coingecko.js';
+import {PriceModel_GoldApi} from '../models/fetchers/PriceModel_GoldApi.js';
+import {PriceModel_MetalPriceApi} from '../models/fetchers/PriceModel_MetalPriceApi.js';
+import {PriceModel_MetalsDevApi} from '../models/fetchers/PriceModel_MetalsDevApi.js';
+import {PriceModel_MoCMeasurement} from '../models/fetchers/PriceModel_MoCMeasurement.js';
+import {PriceModel_PolygonIOCryptoSnapshot} from '../models/fetchers/PriceModel_PolygonIOCryptoSnapshot.js';
+import {PriceModel_PolygonIOCurrencySnapshotGrams} from '../models/fetchers/PriceModel_PolygonIOCurrencySnapshotGrams.js';
+import {PriceModel_PolygonIOSingleCrypto} from '../models/fetchers/PriceModel_PolygonIOSingleCrypto.js';
+import {PriceModel_PolygonIOStockSnapshot} from '../models/fetchers/PriceModel_PolygonIOStockSnapshot.js';
+import {PriceModel_Sovryn} from '../models/fetchers/PriceModel_Sovryn.js';
+import {PriceModel_UniswapV3} from '../models/fetchers/PriceModel_UniswapV3.js';
 
 class Migrations {
   static async apply(): Promise<void> {
@@ -15,6 +28,7 @@ class Migrations {
     await Migrations.migrateTo7280();
     await Migrations.migrateTo_8_4_1();
     await Migrations.migrateTo_8_4_2();
+    await Migrations.migrateTo_8_5_3();
   }
 
   private static hasMigration = async (v: string): Promise<boolean> => {
@@ -110,6 +124,30 @@ class Migrations {
       }
 
       console.log('Migration 8.4.2 finished');
+    });
+  };
+
+  private static migrateTo_8_5_3 = async () => {
+    await Migrations.wrapMigration('8.5.3', async () => {
+      try {
+        await getModelForClass(PriceModel_Binance).collection.drop();
+        await getModelForClass(PriceModel_ByBit).collection.drop();
+        await getModelForClass(PriceModel_Coingecko).collection.drop();
+        await getModelForClass(PriceModel_GoldApi).collection.drop();
+        await getModelForClass(PriceModel_MetalPriceApi).collection.drop();
+        await getModelForClass(PriceModel_MetalsDevApi).collection.drop();
+        await getModelForClass(PriceModel_MoCMeasurement).collection.drop();
+        await getModelForClass(PriceModel_PolygonIOCryptoSnapshot).collection.drop();
+        await getModelForClass(PriceModel_PolygonIOCurrencySnapshotGrams).collection.drop();
+        await getModelForClass(PriceModel_PolygonIOSingleCrypto).collection.drop();
+        await getModelForClass(PriceModel_PolygonIOStockSnapshot).collection.drop();
+        await getModelForClass(PriceModel_Sovryn).collection.drop();
+        await getModelForClass(PriceModel_UniswapV3).collection.drop();
+      } catch (reason) {
+        throw new Error(`Migration 8.5.3 failed: ${reason}`);
+      }
+
+      console.log('Migration 8.5.3 finished');
     });
   };
 

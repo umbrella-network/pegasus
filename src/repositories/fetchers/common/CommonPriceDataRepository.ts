@@ -3,6 +3,7 @@ import {Logger} from 'winston';
 import {ReturnModelType} from '@typegoose/typegoose';
 import {BulkWriteOpResultObject} from 'mongodb';
 import {BeAnObject} from '@typegoose/typegoose/lib/types';
+import dayjs from 'dayjs';
 
 import Settings from '../../../types/Settings.js';
 import {FetcherName} from '../../../types/fetchers.js';
@@ -136,7 +137,11 @@ export abstract class CommonPriceDataRepository implements IPurger {
         this.logger.error(`${this.logPrefix} ${JSON.stringify(error)}`);
       }
     } finally {
-      await this.purge();
+      // await this.purge();
     }
+  }
+
+  protected expireAtDate(): Date {
+    return dayjs().add(this.settings.mongodb.purgeDays, 'days').toDate();
   }
 }
