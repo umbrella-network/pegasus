@@ -51,6 +51,7 @@ export class MoCMeasurementDataRepository extends CommonPriceDataRepository {
         signature,
         priceHash: hash,
         signer: signerAddress,
+        expireAt: this.expireAtDate(),
       });
     });
 

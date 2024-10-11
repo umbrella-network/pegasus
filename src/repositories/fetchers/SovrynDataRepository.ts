@@ -55,6 +55,7 @@ export class SovrynDataRepository extends CommonPriceDataRepository {
         signature,
         priceHash: hash,
         signer: signerAddress,
+        expireAt: this.expireAtDate(),
       });
     });
 

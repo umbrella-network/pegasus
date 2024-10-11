@@ -51,6 +51,7 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
         signature,
         priceHash: hash,
         signer: signerAddress,
+        expireAt: this.expireAtDate(),
       });
     });
 

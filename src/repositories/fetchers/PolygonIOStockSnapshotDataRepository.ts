@@ -49,6 +49,7 @@ export class PolygonIOStockSnapshotDataRepository extends CommonPriceDataReposit
         signature,
         priceHash: hash,
         signer: signerAddress,
+        expireAt: this.expireAtDate(),
       });
     });
 
