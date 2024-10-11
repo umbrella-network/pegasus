@@ -338,6 +338,7 @@ const settings: Settings = {
   mongodb: {
     url: process.env.MONGODB_URL || 'mongodb://localhost:27017/pegasus',
     purgeDays: parseInt(process.env.MONGODB_PURGE_DAYS || '1'),
+    purgeLimit: parseInt(process.env.MONGODB_PURGE_LIMIT || '1000'),
   },
   consensus: {
     retries: parseInt(process.env.CONSENSUS_RETRIES || '2', 10),
