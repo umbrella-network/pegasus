@@ -28,7 +28,7 @@ class Migrations {
     await Migrations.migrateTo7280();
     await Migrations.migrateTo_8_4_1();
     await Migrations.migrateTo_8_4_2();
-    await Migrations.migrateTo_8_5_3();
+    await Migrations.migrateTo_8_5_4();
   }
 
   private static hasMigration = async (v: string): Promise<boolean> => {
@@ -127,27 +127,40 @@ class Migrations {
     });
   };
 
-  private static migrateTo_8_5_3 = async () => {
-    await Migrations.wrapMigration('8.5.3', async () => {
+  private static migrateTo_8_5_4 = async () => {
+    await Migrations.wrapMigration('8.5.4', async () => {
       try {
+        console.log('PriceModel_Binance...');
         await getModelForClass(PriceModel_Binance).collection.drop();
+        console.log('...dropped, PriceModel_ByBit...');
         await getModelForClass(PriceModel_ByBit).collection.drop();
+        console.log('...dropped, PriceModel_Coingecko...');
         await getModelForClass(PriceModel_Coingecko).collection.drop();
+        console.log('...dropped, PriceModel_GoldApi...');
         await getModelForClass(PriceModel_GoldApi).collection.drop();
+        console.log('...dropped, PriceModel_MetalPriceApi...');
         await getModelForClass(PriceModel_MetalPriceApi).collection.drop();
+        console.log('...dropped, PriceModel_MetalsDevApi...');
         await getModelForClass(PriceModel_MetalsDevApi).collection.drop();
+        console.log('...dropped, PriceModel_MoCMeasurement...');
         await getModelForClass(PriceModel_MoCMeasurement).collection.drop();
+        console.log('...dropped, PriceModel_PolygonIOCryptoSnapshot...');
         await getModelForClass(PriceModel_PolygonIOCryptoSnapshot).collection.drop();
+        console.log('...dropped, PriceModel_PolygonIOCurrencySnapshotGrams...');
         await getModelForClass(PriceModel_PolygonIOCurrencySnapshotGrams).collection.drop();
+        console.log('...dropped, PriceModel_PolygonIOSingleCrypto...');
         await getModelForClass(PriceModel_PolygonIOSingleCrypto).collection.drop();
+        console.log('...dropped, PriceModel_PolygonIOStockSnapshot...');
         await getModelForClass(PriceModel_PolygonIOStockSnapshot).collection.drop();
+        console.log('...dropped, PriceModel_Sovryn...');
         await getModelForClass(PriceModel_Sovryn).collection.drop();
+        console.log('...dropped, PriceModel_UniswapV3...');
         await getModelForClass(PriceModel_UniswapV3).collection.drop();
       } catch (reason) {
-        throw new Error(`Migration 8.5.3 failed: ${reason}`);
+        throw new Error(`Migration 8.5.4 failed: ${reason}`);
       }
 
-      console.log('Migration 8.5.3 finished');
+      console.log('Migration 8.5.4 finished');
     });
   };
 
