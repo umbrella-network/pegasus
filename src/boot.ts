@@ -11,11 +11,14 @@ import Application from './lib/Application.js';
   return this.toString();
 };
 
-export async function boot(): Promise<void> {
+export async function boot(migrations = false): Promise<void> {
   const {default: settings} = await import('./config/settings.js');
 
   await initMongoDB(settings);
-  await Migrations.apply();
+
+  if (migrations) {
+    await Migrations.apply();
+  }
 
   await Application.get(ApplicationUpdateService).startUpdate();
 }

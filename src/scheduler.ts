@@ -18,7 +18,7 @@ import PriceFetchingWorker from './workers/PriceFetchingWorker.js';
 import {FetcherName} from './types/fetchers';
 
 (async (): Promise<void> => {
-  await boot();
+  await boot(true);
 
   const settings: Settings = Application.get('Settings');
   const logger: Logger = Application.get('Logger');
