@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - do not throw error when verifying proposed data, when feed not exists
 
+## [8.5.4] - 2024-10-12
+### Changed
+- run migrations only on scheduler
+
 ## [8.5.3] - 2024-10-11
 ### Fixed
 - turn off purge, drop price collections and use TTL for removing data 
