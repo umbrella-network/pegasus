@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - do not throw error when verifying proposed data, when feed not exists
 
+## [8.5.8] - 2024-10-13
+### Changed
+- do not throw error on dropping collection when collection does not exist
+
 ## [8.5.7] - 2024-10-13
 ### Added
 - added back migration for dropping price collections. 
