@@ -1,4 +1,4 @@
-import {getModelForClass, mongoose} from '@typegoose/typegoose';
+import {getModelForClass, mongoose, ReturnModelType} from '@typegoose/typegoose';
 import {ModelType} from '@typegoose/typegoose/lib/types.js';
 
 import Migration from '../models/Migration.js';
@@ -20,6 +20,7 @@ import {PriceModel_PolygonIOSingleCrypto} from '../models/fetchers/PriceModel_Po
 import {PriceModel_PolygonIOStockSnapshot} from '../models/fetchers/PriceModel_PolygonIOStockSnapshot.js';
 import {PriceModel_Sovryn} from '../models/fetchers/PriceModel_Sovryn.js';
 import {PriceModel_UniswapV3} from '../models/fetchers/PriceModel_UniswapV3.js';
+import {BeAnObject} from '@typegoose/typegoose/lib/types';
 
 class Migrations {
   static async apply(): Promise<void> {
@@ -28,7 +29,7 @@ class Migrations {
     await Migrations.migrateTo7280();
     await Migrations.migrateTo_8_4_1();
     await Migrations.migrateTo_8_4_2();
-    await Migrations.migrateTo_8_5_7();
+    await Migrations.migrateTo_8_5_8();
   }
 
   private static hasMigration = async (v: string): Promise<boolean> => {
@@ -127,40 +128,38 @@ class Migrations {
     });
   };
 
-  private static migrateTo_8_5_7 = async () => {
-    await Migrations.wrapMigration('8.5.7', async () => {
+  private static migrateTo_8_5_8 = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dropCollection = async (model: ReturnModelType<any, BeAnObject>) => {
       try {
-        console.log('PriceModel_Binance...');
-        await getModelForClass(PriceModel_Binance).collection.drop();
-        console.log('...dropped, PriceModel_ByBit...');
-        await getModelForClass(PriceModel_ByBit).collection.drop();
-        console.log('...dropped, PriceModel_Coingecko...');
-        await getModelForClass(PriceModel_Coingecko).collection.drop();
-        console.log('...dropped, PriceModel_GoldApi...');
-        await getModelForClass(PriceModel_GoldApi).collection.drop();
-        console.log('...dropped, PriceModel_MetalPriceApi...');
-        await getModelForClass(PriceModel_MetalPriceApi).collection.drop();
-        console.log('...dropped, PriceModel_MetalsDevApi...');
-        await getModelForClass(PriceModel_MetalsDevApi).collection.drop();
-        console.log('...dropped, PriceModel_MoCMeasurement...');
-        await getModelForClass(PriceModel_MoCMeasurement).collection.drop();
-        console.log('...dropped, PriceModel_PolygonIOCryptoSnapshot...');
-        await getModelForClass(PriceModel_PolygonIOCryptoSnapshot).collection.drop();
-        console.log('...dropped, PriceModel_PolygonIOCurrencySnapshotGrams...');
-        await getModelForClass(PriceModel_PolygonIOCurrencySnapshotGrams).collection.drop();
-        console.log('...dropped, PriceModel_PolygonIOSingleCrypto...');
-        await getModelForClass(PriceModel_PolygonIOSingleCrypto).collection.drop();
-        console.log('...dropped, PriceModel_PolygonIOStockSnapshot...');
-        await getModelForClass(PriceModel_PolygonIOStockSnapshot).collection.drop();
-        console.log('...dropped, PriceModel_Sovryn...');
-        await getModelForClass(PriceModel_Sovryn).collection.drop();
-        console.log('...dropped, PriceModel_UniswapV3...');
-        await getModelForClass(PriceModel_UniswapV3).collection.drop();
+        console.log(`dropping ${model.name}...`);
+        await getModelForClass(model).collection.drop();
       } catch (reason) {
-        throw new Error(`Migration 8.5.7 failed: ${reason}`);
-      }
+        if (JSON.stringify(reason).includes('ns not found')) {
+          console.log(`${model.name} not found`);
+          return;
+        }
 
-      console.log('Migration 8.5.7 finished');
+        throw new Error(`Migration 8.5.8 failed: ${reason}`);
+      }
+    };
+
+    await Migrations.wrapMigration('8.5.8', async () => {
+      await dropCollection(PriceModel_Binance);
+      await dropCollection(PriceModel_ByBit);
+      await dropCollection(PriceModel_Coingecko);
+      await dropCollection(PriceModel_GoldApi);
+      await dropCollection(PriceModel_MetalPriceApi);
+      await dropCollection(PriceModel_MetalsDevApi);
+      await dropCollection(PriceModel_MoCMeasurement);
+      await dropCollection(PriceModel_PolygonIOCryptoSnapshot);
+      await dropCollection(PriceModel_PolygonIOCurrencySnapshotGrams);
+      await dropCollection(PriceModel_PolygonIOSingleCrypto);
+      await dropCollection(PriceModel_PolygonIOStockSnapshot);
+      await dropCollection(PriceModel_Sovryn);
+      await dropCollection(PriceModel_UniswapV3);
+
+      console.log('Migration 8.5.8 finished');
     });
   };
 
