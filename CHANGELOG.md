@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.5.7] - 2024-10-13
+### Added
+- added back migration for dropping price collections. 
+  Collections should be dropped manually before updating to this version.
+
 ## [8.5.6] - 2024-10-12
 ### Removed
 - removed migration for dropping price collection because it was too slow. 
