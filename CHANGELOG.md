@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - do not throw error when verifying proposed data, when feed not exists
 
+## [8.5.9] - 2024-10-14
+### Added
+- support floating numbers for `MONGODB_PURGE_DAYS` eg 1.5 = 1 day + 12h
+
+### Changed
+- clean up after adding TTL for price collections
+
 ## [8.5.8] - 2024-10-13
 ### Changed
 - do not throw error on dropping collection when collection does not exist
