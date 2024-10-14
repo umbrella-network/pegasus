@@ -1,4 +1,5 @@
 import chai from 'chai';
+import dayjs from 'dayjs';
 
 import {calcDiscrepancy} from '../../src/utils/math.js';
 
@@ -6,6 +7,23 @@ const {expect} = chai;
 
 describe('calcDiscrepancy', () => {
   const round4 = (value: number) => Math.round(value * 1000000) / 1000000;
+
+  it('dayjs', async () => {
+    console.log(dayjs().add(0, 'days').toDate());
+    console.log(dayjs().add(1, 'days').toDate());
+    console.log(
+      dayjs()
+        .add(1.5, 'days')
+        .add(24 * (1.5 % 1), 'hours')
+        .toDate(),
+    );
+    console.log(
+      dayjs()
+        .add(1.5, 'days')
+        .add(24 * (0 % 1), 'hours')
+        .toDate(),
+    );
+  });
 
   it('no discrepancy', async () => {
     expect(calcDiscrepancy(10, 10, '')).to.be.eq(0);
