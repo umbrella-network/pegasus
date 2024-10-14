@@ -8,7 +8,6 @@ import dayjs from 'dayjs';
 import Settings from '../../../types/Settings.js';
 import {FetcherName} from '../../../types/fetchers.js';
 import PriceSignerService from '../../../services/PriceSignerService.js';
-import {IPurger} from '../../../types/IPurger.js';
 import TimeService from '../../../services/TimeService.js';
 
 // based on {BulkWriteError} from 'mongodb'
@@ -29,7 +28,7 @@ type BulkWriteError = {
 };
 
 @injectable()
-export abstract class CommonPriceDataRepository implements IPurger {
+export abstract class CommonPriceDataRepository {
   @inject('Logger') protected logger!: Logger;
   @inject('Settings') protected settings!: Settings;
   @inject(TimeService) timeService!: TimeService;
@@ -49,37 +48,6 @@ export abstract class CommonPriceDataRepository implements IPurger {
 
   constructor() {
     this.logPrefix = '[CommonPriceDataRepository]';
-  }
-
-  async purge(): Promise<number> {
-    try {
-      const tStart = this.timeService.apply();
-
-      const oneDay = 24 * 60 * 60;
-      const daysAgo = this.timeService.apply(this.settings.mongodb.purgeDays * oneDay);
-
-      const results = await this.model
-        .find({timestamp: {$lt: daysAgo}}, {id: true})
-        .sort({timestamp: -1})
-        .limit(this.settings.mongodb.purgeLimit);
-
-      const ids = results.map((r: {_id: string}) => r._id);
-      if (ids.length == 0) return 0;
-
-      const del = await this.model.deleteMany({_id: {$in: ids}});
-      const deleted = del.deletedCount ?? 0;
-
-      if (deleted != 0) {
-        const timeSpend = this.timeService.apply() - tStart;
-        this.logger.debug(`${this.logPrefix} deleted ${deleted} records older than ${daysAgo} (${timeSpend}s)`);
-      }
-
-      return deleted;
-    } catch (e) {
-      this.logger.error(`${this.logPrefix} purge error: ${(e as Error).message}`);
-    }
-
-    return 0;
   }
 
   protected getTimestampWindowFilter(timestamp: number) {
@@ -136,12 +104,15 @@ export abstract class CommonPriceDataRepository implements IPurger {
       } else {
         this.logger.error(`${this.logPrefix} ${JSON.stringify(error)}`);
       }
-    } finally {
-      // await this.purge();
     }
   }
 
   protected expireAtDate(): Date {
-    return dayjs().add(this.settings.mongodb.purgeDays, 'days').toDate();
+    const {purgeDays} = this.settings.mongodb;
+
+    return dayjs()
+      .add(purgeDays, 'days')
+      .add(24 * (purgeDays % 1), 'hours')
+      .toDate();
   }
 }
