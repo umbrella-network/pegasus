@@ -600,7 +600,9 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
         minGasPrice:
           parseInt(process.env[`${chain}_MIN_GAS_PRICE`] as string, 10) ||
           defaultByChain[ChainsIds[chain]].transactions.minGasPrice,
-        maxFeePerGas: getMaxFeePerGas(chain),
+        maxFeePerGas: process.env[`${chain}_MAX_FEE_PER_GAS`]
+          ? parseInt(process.env[`${chain}_MAX_FEE_PER_GAS`] as string, 10)
+          : undefined,
         maxPriorityFeePerGas: process.env[`${chain}_MAX_PRIORITY_FEE_PER_GAS`]
           ? parseInt(process.env[`${chain}_MAX_PRIORITY_FEE_PER_GAS`] as string, 10)
           : undefined,
@@ -620,18 +622,6 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
   }
 
   return multichains;
-}
-
-function getMaxFeePerGas(chain: string): number | undefined {
-  if (chain == ChainsIds.MASSA) {
-    return process.env[`${chain}_MAX_FEE_PER_GAS`]
-      ? parseFloat(process.env[`${chain}_MAX_FEE_PER_GAS`] as string)
-      : undefined;
-  } else {
-    return process.env[`${chain}_MAX_FEE_PER_GAS`]
-      ? parseInt(process.env[`${chain}_MAX_FEE_PER_GAS`] as string, 10)
-      : undefined;
-  }
 }
 
 function isEmptyBlockchainSettings(chain: ChainsIdsKeys): boolean {
