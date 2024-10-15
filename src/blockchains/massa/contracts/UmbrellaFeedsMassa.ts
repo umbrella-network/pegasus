@@ -146,12 +146,16 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
       if (filteredEvent) {
         const storageCostMargin = 11n; // 1.1
         estimatedStorageCost = (BigInt(filteredEvent.data.slice(prefix.length)) * storageCostMargin) / 10n;
+        this.logger.debug(`${this.loggerPrefix} estimated storage cost: ${estimatedStorageCost}`);
       } else {
         this.logger.error(`${this.loggerPrefix} Failed to get storage cost: no event`);
       }
 
+      estimatedGas = estimatedGas > MAX_GAS ? MAX_GAS : estimatedGas;
+      this.logger.debug(`${this.loggerPrefix} estimated gas: ${estimatedGas}`);
+
       return {
-        estimatedGas: estimatedGas > MAX_GAS ? MAX_GAS : estimatedGas,
+        estimatedGas,
         estimatedStorageCost,
       };
     } catch (e: unknown) {
