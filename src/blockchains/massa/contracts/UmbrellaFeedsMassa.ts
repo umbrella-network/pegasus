@@ -108,9 +108,9 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
 
     const estimateGas = await this.estimateGasForUpdate(targetAddress, args);
 
-    this.logger.info(`${this.loggerPrefix} estimatedGas: ${JSON.stringify(estimateGas)}`);
-
     const fee = this.settings.blockchain.multiChains[ChainsIds.MASSA]?.transactions.maxFeePerGas;
+    this.logger.info(`${this.loggerPrefix} estimatedGas: ${JSON.stringify(estimateGas)}, fee ${fee}`);
+
     if (fee == undefined) throw new Error(`${this.loggerPrefix} empty maxFeePerGas`);
 
     const operationId = await this.client.smartContracts().callSmartContract(
