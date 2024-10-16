@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.5.11] - 2024-10-16
+### Fixed
+- use `Math.trunc` for better precision for `MONGODB_PURGE_DAYS`
+
 ## [8.5.10] - 2024-10-16
-### fixed
+### Fixed
 - fix support floating numbers for `MONGODB_PURGE_DAYS`
 
 ## [8.5.9] - 2024-10-14
