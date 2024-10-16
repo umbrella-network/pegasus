@@ -111,8 +111,8 @@ export abstract class CommonPriceDataRepository {
     const {purgeDays} = this.settings.mongodb;
 
     return dayjs()
-      .add(purgeDays, 'days')
-      .add(24 * (purgeDays % 1), 'hours')
+      .add(Math.trunc(purgeDays), 'days')
+      .add(Math.trunc(24 * 60 * (purgeDays % 1)), 'minutes')
       .toDate();
   }
 }
