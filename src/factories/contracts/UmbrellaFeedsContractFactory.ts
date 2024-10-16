@@ -16,7 +16,7 @@ export class UmbrellaFeedsContractFactory {
         return new UmbrellaFeedsMultiversX(blockchain);
 
       case ChainsIds.MASSA:
-        return new UmbrellaFeedsMassa(blockchain);
+        return new UmbrellaFeedsMassa(settings, blockchain);
 
       case ChainsIds.CONCORDIUM:
         return new UmbrellaFeedsConcordium(blockchain);
