@@ -6,6 +6,7 @@ import {ChainsIds} from '../../src/types/ChainsIds.js';
 import {ProviderFactory} from '../../src/factories/ProviderFactory.js';
 import {loadTestEnv} from '../helpers/loadTestEnv.js';
 import {ProviderInterface} from '../../src/interfaces/ProviderInterface.js';
+import {MassaProvider} from '../../src/blockchains/massa/MassaProvider.js';
 
 const {expect} = chai;
 
@@ -26,6 +27,11 @@ describe.skip('Test Providers - debug integration tests', () => {
       beforeEach(() => {
         provider = ProviderFactory.create(chainId as ChainsIds);
       });
+
+      it(`[${chainId}] #getFee`, async () => {
+        const fee = await (provider as MassaProvider).getMinimalFee();
+        console.log(`${chainId} fee: `, fee);
+      }).timeout(5000);
 
       it(`[${chainId}] #getBlockNumber`, async () => {
         const bn = await provider.getBlockNumber();

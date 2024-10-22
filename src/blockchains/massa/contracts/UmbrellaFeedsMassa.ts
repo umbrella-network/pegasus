@@ -136,12 +136,15 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     let estimatedStorageCost = 0n;
 
     try {
-      const readOnlyCall = await this.rawCall({
-        targetAddress,
-        targetFunction: 'update',
-        parameter: this.parseArgs(args),
-        gas: MAX_GAS,
-      });
+      const [readOnlyCall, minimalFees] = await Promise.all([
+        this.rawCall({
+          targetAddress,
+          targetFunction: 'update',
+          parameter: this.parseArgs(args),
+          gas: MAX_GAS,
+        }),
+        (this.provider as MassaProvider).getMinimalFee(),
+      ]);
 
       const gasMargin = 12n; // 1.2;
       estimatedGas = (BigInt(readOnlyCall.info.gas_cost) * gasMargin) / 10n;
@@ -158,9 +161,10 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
       }
 
       estimatedGas = estimatedGas > MAX_GAS ? MAX_GAS : estimatedGas;
-      this.logger.debug(`${this.loggerPrefix} estimated gas: ${estimatedGas}`);
+      this.logger.debug(`${this.loggerPrefix} estimated gas: ${estimatedGas}, fees: ${minimalFees}`);
 
       return {
+        minimalFees,
         estimatedGas,
         estimatedStorageCost,
       };
