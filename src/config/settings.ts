@@ -369,9 +369,9 @@ const settings: Settings = {
           : undefined,
       },
       massa: {
-        privateKey: process.env.MASSA_DEVIATION_PRIVATE_KEY as string,
-        deviationPrivateKey: process.env.MASSA_DEVIATION_PRIVATE_KEY
-          ? (process.env.MASSA_DEVIATION_PRIVATE_KEY as string)
+        privateKey: process.env.MASSA_SIGNING_PRIVATE_KEY as string,
+        deviationPrivateKey: process.env.MASSA_SIGNING_PRIVATE_KEY
+          ? (process.env.MASSA_SIGNING_PRIVATE_KEY as string)
           : undefined,
       },
       concordium: {
