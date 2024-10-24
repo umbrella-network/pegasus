@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.6.1] - 2024-10-24
+### Fixed
+- fix log for `searchForConsensus`
+
 ## [8.6.0] - 2024-10-24
 ### Changed
 - do not throw error when verifying proposed data, when feed not exists
