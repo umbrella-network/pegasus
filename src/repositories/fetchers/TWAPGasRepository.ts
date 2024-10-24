@@ -77,6 +77,7 @@ export class TWAPGasRepository extends CommonPriceDataRepository {
       timestamp: gas.blockTimestamp,
       blockNumber: gas.blockNumber,
       valueType: FetchedValueType.Price,
+      expireAt: this.expireAtDate(),
     });
 
     await doc.save();
