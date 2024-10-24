@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Changed
 - do not throw error when verifying proposed data, when feed not exists
+- check required signatures per chain
 
 ### Fixed
 - fix `validatorExistInBank`
