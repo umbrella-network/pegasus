@@ -20,7 +20,7 @@ export class DeviationConsensusRunner {
   async apply(
     dataForConsensus: DeviationDataToSign,
     validators: Validator[],
-    requiredSignatures: number,
+    requiredSignatures: Record<string, number>,
   ): Promise<DeviationConsensus[] | null> {
     const maxLeafKeyCount = Object.keys(dataForConsensus.leaves).length;
     const maxRetries = this.settings.consensus.retries;
@@ -62,7 +62,7 @@ export class DeviationConsensusRunner {
   protected async runConsensus(
     dataForConsensus: DeviationDataToSign,
     validators: Validator[],
-    requiredSignatures: number,
+    requiredSignatures: Record<string, number>,
   ): Promise<{consensuses: DeviationConsensus[]; discrepantKeys: Set<string>}> {
     const {dataTimestamp, leaves} = dataForConsensus;
 

@@ -12,18 +12,22 @@ export class RequiredSignaturesRepository {
 
   readonly ID = 'NUMBER_OF_SIGNATURES';
 
-  async get(blockchainType: BlockchainType, chainId: ChainsIds | undefined): Promise<number | undefined> {
+  async get(
+    blockchainType: BlockchainType,
+    chainId: ChainsIds | undefined,
+  ): Promise<Record<string, number> | undefined> {
     const data = await this.getAll();
     if (!data) return;
 
-    if (!chainId) {
-      const found = Object.entries(data).find(([, value]) => value[blockchainType] != 0);
-      if (!found) return;
+    if (chainId) return {[chainId]: data[chainId][blockchainType]};
 
-      chainId = found[0] as ChainsIds;
-    }
+    const perChain: Record<string, number> = {};
 
-    return data[chainId][blockchainType];
+    Object.entries(data).forEach(([id, value]) => {
+      perChain[id] = value[blockchainType] ?? 0;
+    });
+
+    return perChain;
   }
 
   async cache(data: NumberOfSignaturesPerChain): Promise<void> {

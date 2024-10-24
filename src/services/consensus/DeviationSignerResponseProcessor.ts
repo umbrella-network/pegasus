@@ -15,7 +15,7 @@ export class DeviationSignerResponseProcessor {
 
   apply(
     deviationSignerResponses: DeviationSignerResponse[],
-    requiredSignatures: number,
+    requiredSignatures: Record<string, number>,
   ): {signatures: Record<string, string[]>; discrepantKeys: Set<string>} {
     const signaturesPerChain: Record<string, string[]> = {};
     const discrepantKeys: Set<string> = new Set();
@@ -52,7 +52,7 @@ export class DeviationSignerResponseProcessor {
 
   protected searchForConsensus(
     signaturesPerChain: Record<string, string[]>,
-    requiredSignatures: number,
+    requiredSignatures: Record<string, number>,
   ): Record<string, string[]> {
     const consensuses: Record<string, string[]> = {};
 
@@ -60,8 +60,12 @@ export class DeviationSignerResponseProcessor {
 
     chains.forEach((chainId) => {
       const gotSignatures = signaturesPerChain[chainId].length;
+      if (!requiredSignatures[chainId]) {
+        this.logger.error(`[${chainId}] requiredSignatures N/A`);
+        return;
+      }
 
-      if (gotSignatures >= requiredSignatures) {
+      if (gotSignatures >= requiredSignatures[chainId]) {
         consensuses[chainId] = [...signaturesPerChain[chainId]];
         this.logger.info(`[${chainId}] got consensus for ${chainId} with ${gotSignatures} signatures`);
       } else {
