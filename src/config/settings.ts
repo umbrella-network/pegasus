@@ -152,7 +152,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   [ChainsIds.MASSA]: {
-    // TODO
     type: resolveBlockchainType(ChainsIds.MASSA) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.MASSA),
     transactions: {
