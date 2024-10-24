@@ -55,6 +55,15 @@ export class MassaProvider implements ProviderInterface {
     return Math.floor(status.current_time / 1000);
   }
 
+  async getMinimalFee(): Promise<bigint> {
+    await this.beforeAnyAction();
+
+    if (!this.client) throw Error(`${this.loggerPrefix} getMinimalFee(): provider not set`);
+
+    const {minimal_fees} = (await this.client.publicApi().getNodeStatus()) as unknown as {minimal_fees: string};
+    return BigInt(Math.trunc(parseFloat(minimal_fees ?? '0') * 1e9));
+  }
+
   async getBalance(address: string): Promise<bigint> {
     await this.beforeAnyAction();
 

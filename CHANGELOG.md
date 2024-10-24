@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - do not throw error when verifying proposed data, when feed not exists
 
+### Fixed
+- fix `validatorExistInBank`
+- fix massa integration
+
 ## [8.5.12] - 2024-10-24
 ### Fixed
 - set expire to gas model

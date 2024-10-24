@@ -20,6 +20,7 @@ import {ProviderInterface} from '../../../interfaces/ProviderInterface.js';
 import {MassaEstimatedGas} from '../massaTypes.js';
 import {FeedName} from '../../../types/Feed';
 import {hashFeedName} from '../../../utils/hashFeedName.js';
+import Settings from '../../../types/Settings';
 
 export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   protected logger!: Logger;
@@ -28,11 +29,12 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   readonly provider!: ProviderInterface;
   readonly registry!: RegistryInterface;
   readonly blockchain!: Blockchain;
+  readonly settings!: Settings;
 
   protected client!: Client;
   protected deviationClient!: Client;
 
-  constructor(blockchain: Blockchain, umbrellaFeedsName = 'UmbrellaFeeds') {
+  constructor(settings: Settings, blockchain: Blockchain, umbrellaFeedsName = 'UmbrellaFeeds') {
     this.logger = logger;
     this.umbrellaFeedsName = umbrellaFeedsName;
     this.loggerPrefix = `[${blockchain.chainId}][UmbrellaFeedsMassa]`;
@@ -40,6 +42,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     this.provider = blockchain.getProvider();
     this.registry = RegistryContractFactory.create(blockchain);
     this.blockchain = blockchain;
+    this.settings = settings;
 
     this.beforeAnyAction().then(() => {
       this.logger.info(`${this.loggerPrefix} constructor done`);
@@ -105,11 +108,14 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
 
     const estimateGas = await this.estimateGasForUpdate(targetAddress, args);
 
-    this.logger.info(`${this.loggerPrefix} estimatedGas: ${JSON.stringify(estimateGas)}`);
+    const fee = this.settings.blockchain.multiChains[ChainsIds.MASSA]?.transactions.maxFeePerGas;
+    this.logger.info(`${this.loggerPrefix} estimatedGas: ${JSON.stringify(estimateGas)}, fee ${fee}`);
+
+    if (fee == undefined) throw new Error(`${this.loggerPrefix} empty maxFeePerGas`);
 
     const operationId = await this.client.smartContracts().callSmartContract(
       {
-        fee: 0n,
+        fee: BigInt(Math.trunc(fee)),
         maxGas: estimateGas.estimatedGas,
         coins: estimateGas.estimatedStorageCost,
         targetAddress: targetAddress,
@@ -130,12 +136,15 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     let estimatedStorageCost = 0n;
 
     try {
-      const readOnlyCall = await this.rawCall({
-        targetAddress,
-        targetFunction: 'update',
-        parameter: this.parseArgs(args),
-        gas: MAX_GAS,
-      });
+      const [readOnlyCall, minimalFees] = await Promise.all([
+        this.rawCall({
+          targetAddress,
+          targetFunction: 'update',
+          parameter: this.parseArgs(args),
+          gas: MAX_GAS,
+        }),
+        (this.provider as MassaProvider).getMinimalFee(),
+      ]);
 
       const gasMargin = 12n; // 1.2;
       estimatedGas = (BigInt(readOnlyCall.info.gas_cost) * gasMargin) / 10n;
@@ -146,12 +155,17 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
       if (filteredEvent) {
         const storageCostMargin = 11n; // 1.1
         estimatedStorageCost = (BigInt(filteredEvent.data.slice(prefix.length)) * storageCostMargin) / 10n;
+        this.logger.debug(`${this.loggerPrefix} estimated storage cost: ${estimatedStorageCost}`);
       } else {
         this.logger.error(`${this.loggerPrefix} Failed to get storage cost: no event`);
       }
 
+      estimatedGas = estimatedGas > MAX_GAS ? MAX_GAS : estimatedGas;
+      this.logger.debug(`${this.loggerPrefix} estimated gas: ${estimatedGas}, fees: ${minimalFees}`);
+
       return {
-        estimatedGas: estimatedGas > MAX_GAS ? MAX_GAS : estimatedGas,
+        minimalFees,
+        estimatedGas,
         estimatedStorageCost,
       };
     } catch (e: unknown) {
