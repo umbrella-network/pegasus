@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.6.2] - 2024-10-24
+### Removed
+- remove `maxFeePerGas` for massa
+
 ## [8.6.1] - 2024-10-24
 ### Fixed
 - fix log for `searchForConsensus`
