@@ -147,7 +147,9 @@ export class DeviationSignatureCollector {
   }
 
   // we're only checking existance if `chainValidators` is not empty set, otherwise we return TRUE
-  protected validatorExistInBank(validator: Validator, chainValidators: Set<string>): boolean {
+  protected validatorExistInBank(validator: Validator, chainValidators?: Set<string>): boolean {
+    if (!chainValidators) return false;
+
     const location = validator.location.endsWith('/') ? validator.location.slice(0, -1) : validator.location;
     return chainValidators.size == 0 || chainValidators.has(location);
   }

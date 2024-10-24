@@ -152,7 +152,6 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     },
   },
   [ChainsIds.MASSA]: {
-    // TODO
     type: resolveBlockchainType(ChainsIds.MASSA) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.MASSA),
     transactions: {
@@ -370,8 +369,8 @@ const settings: Settings = {
       },
       massa: {
         privateKey: process.env.MASSA_SIGNING_PRIVATE_KEY as string,
-        deviationPrivateKey: process.env.MASSA_DEVIATION_PRIVATE_KEY
-          ? (process.env.MASSA_DEVIATION_PRIVATE_KEY as string)
+        deviationPrivateKey: process.env.MASSA_SIGNING_PRIVATE_KEY
+          ? (process.env.MASSA_SIGNING_PRIVATE_KEY as string)
           : undefined,
       },
       concordium: {
