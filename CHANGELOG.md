@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.6.3] - 2024-10-28
+### Added
+- throw full error on massa estimation 
+
+### Fixed
+- fix gas management for massa
+
 ## [8.6.2] - 2024-10-24
 ### Removed
 - remove `maxFeePerGas` for massa
