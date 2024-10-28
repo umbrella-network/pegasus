@@ -16,12 +16,12 @@ jobs:
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
-          echo "::set-output name=packageJson::$content"
+          echo "packageJson=$content" >> $GITHUB_OUTPUT
 
       - name: Extract Docker-image params
         id: docker-params
         run: |
-          echo "::set-output name=version::${{fromJson(steps.package_json.outputs.packageJson).version}}"
+          echo "version=${{fromJson(steps.package_json.outputs.packageJson).version}}" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
