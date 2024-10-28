@@ -23,6 +23,8 @@ import {hashFeedName} from '../../../utils/hashFeedName.js';
 import Settings from '../../../types/Settings';
 
 export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
+  protected readonly MAX_GAS = 4_294_167_295n; // Max gas for an op on Massa blockchain
+
   protected logger!: Logger;
   protected loggerPrefix!: string;
   readonly umbrellaFeedsName!: string;
@@ -75,7 +77,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   async requiredSignatures(): Promise<number> {
     await this.beforeAnyAction();
 
-    const res = await this.rawCall({targetFunction: 'REQUIRED_SIGNATURES', gas: 10_000_000n});
+    const res = await this.rawCall({targetFunction: 'REQUIRED_SIGNATURES'});
     return Number(new Args(res.returnValue).nextU8());
   }
 
@@ -86,7 +88,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     const parameter = new Args();
     parameter.addSerializableObjectArray(this.serializeFeedsNames(names));
 
-    const res = await this.rawCall({targetFunction: 'getManyPriceDataRaw', parameter, gas: 10_000_000n});
+    const res = await this.rawCall({targetFunction: 'getManyPriceDataRaw', parameter});
     const priceDatas = new Args(res.returnValue).nextSerializableObjectArray(MassaPriceDataSerializer);
 
     return names.map((key, i) => {
@@ -126,10 +128,8 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   }
 
   async estimateGasForUpdate(targetAddress: string, args: UmbrellaFeedsUpdateArgs): Promise<MassaEstimatedGas> {
-    const MAX_GAS = 4_294_167_295n; // Max gas for an op on Massa blockchain
-
     // max can change in the future, so le's use some safer value, simple tx should never be even close to the max
-    let estimatedGas = (MAX_GAS * 8n) / 10n;
+    let estimatedGas = (this.MAX_GAS * 8n) / 10n;
     let estimatedStorageCost = 0n;
 
     try {
@@ -138,7 +138,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
           targetAddress,
           targetFunction: 'update',
           parameter: this.parseArgs(args),
-          gas: MAX_GAS,
+          gas: this.MAX_GAS,
         }),
         (this.provider as MassaProvider).getMinimalFee(),
       ]);
@@ -157,7 +157,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
         this.logger.error(`${this.loggerPrefix} Failed to get storage cost: no event`);
       }
 
-      estimatedGas = estimatedGas > MAX_GAS ? MAX_GAS : estimatedGas;
+      estimatedGas = estimatedGas > this.MAX_GAS ? this.MAX_GAS : estimatedGas;
       this.logger.debug(`${this.loggerPrefix} estimated gas: ${estimatedGas}, fees: ${minimalFees}`);
 
       return {
@@ -167,9 +167,8 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
       };
     } catch (e: unknown) {
       this.logger.error(`${this.loggerPrefix} Failed to get dynamic gas cost for update: ${(e as Error).message}`);
+      throw e;
     }
-
-    throw new Error(`${this.loggerPrefix} gas estimation error`);
   }
 
   protected resolveContract = async (): Promise<undefined> => {
@@ -186,7 +185,7 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
     const targetAddress = params.targetAddress || (await this.registry.getAddress(this.umbrellaFeedsName));
 
     return this.client.smartContracts().readSmartContract({
-      maxGas: params.gas || 10_000_000n,
+      maxGas: params.gas || this.MAX_GAS,
       targetAddress: targetAddress,
       targetFunction: params.targetFunction,
       parameter: params.parameter || [],
