@@ -20,7 +20,7 @@ jobs:
       - name: Extract building params
         id: building-params
         run: |
-          echo "::set-output name=environment::production"
+          echo "environment=production" >> $GITHUB_OUTPUT
 
       - name: Analyze JSON Package
         id: package_json
@@ -29,7 +29,7 @@ jobs:
           content="${content//'%'/'%25'}"
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
-          echo "::set-output name=packageJson::$content"
+          echo "packageJson=$content" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -56,9 +56,9 @@ jobs:
           export IMAGE="$ECR_REGISTRY/pegasus"
           export GIT_COMMIT_VERSION=$(git rev-parse main | cut -c1-8)
           export DATE=$(date +%s)
-          echo "::set-output name=image::$IMAGE"
-          echo "::set-output name=commit_version::$(echo ${GIT_COMMIT_VERSION}_${DATE})"
-          echo "::set-output name=version::${{fromJson(steps.package_json.outputs.packageJson).version}}"
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+          echo "commit_version=$(echo ${GIT_COMMIT_VERSION}_${DATE})" >> $GITHUB_OUTPUT
+          echo "version=${{fromJson(steps.package_json.outputs.packageJson).version}}" >> $GITHUB_OUTPUT
 
       - name: Build, tag, and push image to Amazon ECR
         uses: docker/build-push-action@v6
@@ -168,10 +168,10 @@ jobs:
           BUILD_ID=$(cat build-id.txt)
           rm -rf version.txt environment.txt build-id.txt
           IMAGE="$IMAGE_ECR:$VERSION"
-          echo "::set-output name=version::$VERSION"
-          echo "::set-output name=environment::$BUILDING_ENVIRONMENT"
-          echo "::set-output name=build-id::$BUILD_ID"
-          echo "::set-output name=image::$IMAGE"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "environment=$BUILDING_ENVIRONMENT" >> $GITHUB_OUTPUT
+          echo "build-id=$BUILD_ID" >> $GITHUB_OUTPUT
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
 
       - name: Update GitOps Sandbox repository
         env:
