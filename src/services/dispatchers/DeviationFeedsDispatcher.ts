@@ -21,7 +21,7 @@ import {AstarDeviationDispatcher} from './networks/AstarDeviationDispatcher.js';
 import {RootstockDeviationDispatcher} from './networks/RootstockDeviationDispatcher.js';
 import {ZkLinkNovaDeviationDispatcher} from './networks/ZkLinkNovaDeviationDispatcher.js';
 import {BobDeviationDispatcher} from './networks/BobDeviationDispatcher.js';
-import {_5ireDeviationDispatcher} from "./networks/_5ireDeviationDispatcher";
+import {_5ireDeviationDispatcher} from "./networks/_5ireDeviationDispatcher.js";
 
 export type DeviationFeedsDispatcherProps = {
   chainId: ChainsIds;
