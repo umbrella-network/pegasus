@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.7.0] - 2024-10-29
+### Added
+- add support for 5ire blockchain 
+
 ## [8.6.3] - 2024-10-28
 ### Added
 - throw full error on massa estimation 

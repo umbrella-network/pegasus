@@ -36,6 +36,7 @@ export class UmbrellaFeedsContractFactory {
       case ChainsIds.ROOTSTOCK:
       case ChainsIds.ZK_LINK_NOVA:
       case ChainsIds.BOB:
+      case ChainsIds._5IRE:
         return new FeedContract(settings, blockchain);
 
       default:

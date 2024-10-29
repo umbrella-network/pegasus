@@ -34,6 +34,7 @@ export class StakingBankContractFactory {
       case ChainsIds.ROOTSTOCK:
       case ChainsIds.ZK_LINK_NOVA:
       case ChainsIds.BOB:
+      case ChainsIds._5IRE:
         return new StakingBankContract(blockchain, settings.blockchain.contracts.bank.name);
 
       default:
