@@ -30,6 +30,8 @@ export class ValidatorsSelector {
       })
       .filter((v) => !!v);
 
+    this.logger.debug(`${this.logPrefix} validators (${validators.length}): ${JSON.stringify(validators)}`);
+    this.logger.debug(`${this.logPrefix} evmValidators (${evmValidators.length}): ${JSON.stringify(evmValidators)}`);
     this.logger.debug(
       `${this.logPrefix} selectedValidators (${selectedValidators.length}): ${JSON.stringify(selectedValidators)}`,
     );

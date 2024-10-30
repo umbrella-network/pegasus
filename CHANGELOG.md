@@ -6,10 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-
-## [8.7.0] - 2024-10-29
 ### Added
-- add support for 5ire blockchain 
+- add support for 5ire blockchain
+
+## [8.6.4] - 2024-10-30
+### Added
+- additional debug logs for validators selection
 
 ## [8.6.3] - 2024-10-28
 ### Added
