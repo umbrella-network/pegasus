@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.6.4] - 2024-10-30
+### Added
+- additional debug logs for validators selection
+
 ## [8.6.3] - 2024-10-28
 ### Added
 - throw full error on massa estimation 
