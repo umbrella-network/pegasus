@@ -8,7 +8,7 @@ const {expect} = chai;
 describe('calcDiscrepancy', () => {
   const round4 = (value: number) => Math.round(value * 1000000) / 1000000;
 
-  it.only('dayjs', async () => {
+  it('dayjs', async () => {
     console.log(0, dayjs().add(0, 'days').toDate());
     console.log(0.5, dayjs().add(0.5, 'days').toDate());
     console.log(

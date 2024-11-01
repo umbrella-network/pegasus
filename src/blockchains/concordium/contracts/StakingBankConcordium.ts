@@ -94,13 +94,13 @@ export class StakingBankConcordium implements StakingBankInterface {
       BankContract.dryRunGetPublicKeys(bank, Parameter.empty()),
     ]);
 
-    // const parsed = BankContract.parseReturnValueGetPublicKeys(result);
-    const parsed = this.parseReturnValueGetPublicKeys(numberOfValidators, result);
-    if (parsed == undefined) throw new Error(`${this.loggerPrefix} resolveValidatorsAddresses failed`);
-
+    const parsed = BankContract.parseReturnValueGetPublicKeys(result);
     const arr = parsed as unknown as string[];
 
     if (arr.length != numberOfValidators) {
+      this.logger.debug(`${this.loggerPrefix} result: ${JSON.stringify(result)}`);
+      this.logger.debug(`${this.loggerPrefix} arr: ${JSON.stringify(arr)}`);
+
       throw new Error(
         `${this.loggerPrefix} different number of validators returned ${arr.length} vs ${numberOfValidators}`,
       );

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.6.5] - 2024-11-01
+### Fixed
+- fix fetching list of validators on concordium
+
 ## [8.6.4] - 2024-10-30
 ### Added
 - additional debug logs for validators selection
