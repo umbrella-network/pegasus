@@ -27,9 +27,8 @@ jobs:
         run: |
           content=`cat ./package.json`
           content="${content//'%'/'%25'}"
-          content="${content//$'\n'/'%0A'}"
-          content="${content//$'\r'/'%0D'}"
-          echo "packageJson=$content" >> $GITHUB_OUTPUT
+          version=$(echo $content | jq -r '.version')
+          echo "packageVersion=$version" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -58,7 +57,7 @@ jobs:
           export DATE=$(date +%s)
           echo "image=$IMAGE" >> $GITHUB_OUTPUT
           echo "commit_version=$(echo ${GIT_COMMIT_VERSION}_${DATE})" >> $GITHUB_OUTPUT
-          echo "version=${{fromJson(steps.package_json.outputs.packageJson).version}}" >> $GITHUB_OUTPUT
+          echo "version=${{ steps.package_json.outputs.packageVersion }}" >> $GITHUB_OUTPUT
 
       - name: Build, tag, and push image to Amazon ECR
         uses: docker/build-push-action@v6
