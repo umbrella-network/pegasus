@@ -271,6 +271,18 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       },
     },
   },
+  [ChainsIds._5IRE]: {
+    type: resolveBlockchainType(ChainsIds._5IRE) || [BlockchainType.ON_CHAIN],
+    gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds._5IRE),
+    transactions: {
+      waitForBlockTime: 1000,
+      minGasPrice: 100_000_000,
+      minBalance: {
+        warningLimit: '0.01',
+        errorLimit: '0.0005',
+      },
+    },
+  },
 };
 
 const settings: Settings = {

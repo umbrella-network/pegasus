@@ -36,6 +36,7 @@ export class DeviationSignerFactory {
       case ChainsIds.ROOTSTOCK:
       case ChainsIds.ZK_LINK_NOVA:
       case ChainsIds.BOB:
+      case ChainsIds._5IRE:
         return new DeviationSignerEvm(settings, chainId);
 
       default:
