@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - add support for 5ire blockchain
 
+### Removed
+- remove unused aggregation code
+
 ## [8.6.7] - 2024-11-14
 ### Fixed
 - fix CI
