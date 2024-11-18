@@ -6,7 +6,6 @@ import {Redis} from 'ioredis';
 
 import logger from './logger.js';
 
-import PriceRepository from '../repositories/PriceRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedRepository} from '../repositories/FeedRepository.js';
@@ -73,7 +72,6 @@ export function getContainer(): Container {
   container.bind<FetcherAPILimit>('FetcherAPILimit').toConstantValue(fetcherAPILimit);
 
   container.bind(DataPurger).toSelf().inSingletonScope();
-  container.bind(PriceRepository).toSelf().inSingletonScope();
   container.bind(FeedFetcherRepository).toSelf().inSingletonScope();
   container.bind(CalculatorRepository).toSelf().inSingletonScope();
   container.bind(FeedRepository).toSelf().inSingletonScope();
