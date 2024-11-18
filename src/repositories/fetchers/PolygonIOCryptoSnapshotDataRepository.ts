@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
+import {FetcherName, FetchedValueType, FeedPrice} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_PolygonIOCryptoSnapshot} from '../../models/fetchers/PriceModel_PolygonIOCryptoSnapshot.js';
 import {PolygonIOCryptoSnapshotInputParams} from '../../services/fetchers/PolygonIOCryptoSnapshotPriceGetter.js';
@@ -56,7 +56,7 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
     await this.savePrices(payloads);
   }
 
-  async getPrices(params: PolygonIOCryptoSnapshotInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: PolygonIOCryptoSnapshotInputParams[], timestamp: number): Promise<FeedPrice[]> {
     if (params.length === 0) {
       return [];
     }
@@ -79,7 +79,7 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
   private getNewestPrices(
     sortedResults: PriceModel_PolygonIOCryptoSnapshot[],
     inputs: PolygonIOCryptoSnapshotInputParams[],
-  ): NumberOrUndefined[] {
+  ): FeedPrice[] {
     this.logger.debug(
       `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
     );
@@ -94,6 +94,9 @@ export class PolygonIOCryptoSnapshotDataRepository extends CommonPriceDataReposi
 
     const newest = inputs.map(({symbol}) => map[symbol.toLowerCase()]);
     this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
-    return newest;
+
+    return newest.map((price) => {
+      return {value: price};
+    });
   }
 }

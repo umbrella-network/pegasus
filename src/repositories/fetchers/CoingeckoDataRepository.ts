@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
+import {FetcherName, FetchedValueType, FeedPrice} from '../../types/fetchers.js';
 import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceGetter.js';
 import {PriceModel_Coingecko} from '../../models/fetchers/PriceModel_Coingecko.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
@@ -58,7 +58,7 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  async getPrices(params: CoingeckoPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: CoingeckoPriceInputParams[], timestamp: number): Promise<FeedPrice[]> {
     if (params.length === 0) {
       return [];
     }
@@ -79,11 +79,9 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestPrices(
-    sortedResults: PriceModel_Coingecko[],
-    inputs: CoingeckoPriceInputParams[],
-  ): NumberOrUndefined[] {
+  private getNewestPrices(sortedResults: PriceModel_Coingecko[], inputs: CoingeckoPriceInputParams[]): FeedPrice[] {
     const map: Record<string, number> = {};
+
     this.logger.debug(
       `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
     );
@@ -99,6 +97,9 @@ export class CoingeckoDataRepository extends CommonPriceDataRepository {
 
     const newest = inputs.map(({id, currency}) => map[getSymbol(id, currency).toLowerCase()]);
     this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
-    return newest;
+
+    return newest.map((price) => {
+      return {value: price};
+    });
   }
 }
