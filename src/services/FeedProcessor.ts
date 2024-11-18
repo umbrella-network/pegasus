@@ -9,7 +9,7 @@ import MultiFeedProcessor from './feedProcessors/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {allMultiFetchers} from '../types/fetchers.js';
+import {allMultiFetchers, FeedPrice, FetcherResult} from '../types/fetchers.js';
 import FeedSymbolChecker from './FeedSymbolChecker.js';
 
 interface Calculator {
@@ -75,7 +75,7 @@ class FeedProcessor {
     this.logger.debug(`${this.logPrefix} singleFeeds: ${JSON.stringify(singleFeeds)}`);
     this.logger.debug(`${this.logPrefix} multiFeeds: ${JSON.stringify(multiFeeds)}`);
 
-    const values = [...singleFeeds, ...multiFeeds];
+    const values: (FeedPrice | undefined)[] = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
     const keyValueMap: {[key: string]: number} = {};
@@ -117,7 +117,7 @@ class FeedProcessor {
     return result;
   }
 
-  private async processFeed(feedFetcher: FeedFetcher, timestamp: number): Promise<unknown> {
+  private async processFeed(feedFetcher: FeedFetcher, timestamp: number): Promise<FeedPrice | undefined> {
     const fetcher = this.feedFetcherRepository.find(feedFetcher.name);
 
     if (!fetcher) {
@@ -127,6 +127,7 @@ class FeedProcessor {
 
     try {
       this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
+
       const result = await fetcher.apply([feedFetcher.params], {
         symbols: [feedFetcher.symbol],
         timestamp,
@@ -155,18 +156,18 @@ class FeedProcessor {
 
   private calculateFeed(
     key: string,
-    value: unknown,
+    value: FeedPrice | undefined,
     prices: {[key: string]: number},
     feedCalculator?: FeedCalculator,
   ): FeedOutput[] {
-    if (!value) return [];
+    if (!value || value.value == undefined) return [];
 
     const calculator = <Calculator>this.calculatorRepository.find(feedCalculator?.name || 'Identity');
 
-    return calculator.apply(key, value, feedCalculator?.params, prices);
+    return calculator.apply(key, value.value, feedCalculator?.params, prices);
   }
 
-  private async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<unknown[]> {
+  private async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<(undefined | FeedPrice)[]> {
     return Promise.all(feedFetchers.map((input) => this.processFeed(input, timestamp)));
   }
 
