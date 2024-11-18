@@ -13,8 +13,10 @@ import {
 import {
   allMultiFetchers,
   FeedFetcherInputParams,
-  FeedFetcherInterface, FeedPrice,
-  FetcherName, FetcherResult,
+  FeedFetcherInterface,
+  FeedPrice,
+  FetcherName,
+  FetcherResult,
   StringOrUndefined,
 } from '../../types/fetchers.js';
 import {UniswapV3Getter} from '../fetchers/UniswapV3Getter.js';
@@ -116,7 +118,9 @@ export default class MultiFeedProcessor {
       const indieces = mapInputs[ix].indices;
       const fetcherName = mapInputs[ix].fetcherName;
 
-      this.logger.debug(`${this.logPrefix} [${fetcherName}] fetchedResults.prices: ${fetchedResults.prices.map(p => p.value)}`);
+      this.logger.debug(
+        `${this.logPrefix} [${fetcherName}] fetchedResults.prices: ${fetchedResults.prices.map((p) => p.value)}`,
+      );
       this.logger.debug(`${this.logPrefix} [${fetcherName}] symbols: ${mapInputs[ix].symbols}`);
 
       fetchedResults.prices.forEach((price, i) => {
@@ -127,7 +131,7 @@ export default class MultiFeedProcessor {
       });
     });
 
-    this.logger.debug(`${this.logPrefix} response: ${response.map(p => p?.value)}`);
+    this.logger.debug(`${this.logPrefix} response: ${response.map((p) => p?.value)}`);
 
     return response;
   }
