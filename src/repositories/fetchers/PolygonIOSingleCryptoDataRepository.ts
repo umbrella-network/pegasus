@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
+import {FetcherName, FetchedValueType, FeedPrice} from '../../types/fetchers.js';
 import {PriceModel_PolygonIOSingleCrypto} from '../../models/fetchers/PriceModel_PolygonIOSingleCrypto.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PolygonIOSingleCryptoPriceInputParams} from '../../services/fetchers/PolygonIOSingleCryptoPriceGetter.js';
@@ -58,7 +58,7 @@ export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataReposito
     await this.savePrices(payloads);
   }
 
-  async getPrices(params: PolygonIOSingleCryptoPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: PolygonIOSingleCryptoPriceInputParams[], timestamp: number): Promise<FeedPrice[]> {
     if (params.length === 0) {
       return [];
     }
@@ -81,7 +81,7 @@ export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataReposito
   private getNewestPrices(
     sortedResults: PriceModel_PolygonIOSingleCrypto[],
     inputs: PolygonIOSingleCryptoPriceInputParams[],
-  ): NumberOrUndefined[] {
+  ): FeedPrice[] {
     this.logger.debug(
       `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
     );
@@ -96,6 +96,9 @@ export class PolygonIOSingleCryptoDataRepository extends CommonPriceDataReposito
 
     const newest = inputs.map(({fsym, tsym}) => map[`${fsym}-${tsym}`.toLowerCase()]);
     this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
-    return newest;
+
+    return newest.map((price) => {
+      return {value: price};
+    });
   }
 }
