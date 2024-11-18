@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - remove unused aggregation code
 
+## [8.6.8] - 2024-11-18
+### Added
+- Update CI due to helm chart migration
+
 ## [8.6.7] - 2024-11-14
 ### Fixed
 - fix CI

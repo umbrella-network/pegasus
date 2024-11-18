@@ -178,7 +178,7 @@ jobs:
           VERSION: ${{ steps.atifact-reader.outputs.version }}_sbx
           BUILDING_ENVIRONMENT: "staging/sbx"
         run: |
-          yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/deployments/bsc-01/kustomization.yaml
+          yq eval ".global.imageTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/bsc01.yaml
 
       - name: Commit and Push to master for SANDBOX
         env:
