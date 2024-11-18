@@ -13,8 +13,6 @@ import {PolygonIOSingleCryptoPriceInputParams} from '../services/fetchers/Polygo
 import {UniswapV3FetcherInputParams} from '../services/fetchers/UniswapV3Getter.js';
 import {MoCMeasurementPriceInputParams} from '../services/fetchers/MoCMeasurementGetter';
 
-export type NumberOrUndefined = number | undefined;
-
 export type StringOrUndefined = string | undefined;
 
 export type FeedFetcherOptions = {
@@ -27,8 +25,13 @@ export enum FetchedValueType {
   Hex = 'Hex',
 }
 
+export type FeedPrice = {
+  value: number | undefined;
+  vwapVolume?: number | undefined;
+};
+
 export type FetcherResult = {
-  prices: (number | undefined)[];
+  prices: FeedPrice[];
   timestamp?: number;
 };
 
