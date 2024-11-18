@@ -119,7 +119,9 @@ export default class MultiFeedProcessor {
       const fetcherName = mapInputs[ix].fetcherName;
 
       this.logger.debug(
-        `${this.logPrefix} [${fetcherName}] fetchedResults.prices (${fetchedResults.prices.length}): ${fetchedResults.prices.map((p) => p.value)}`,
+        `${this.logPrefix} [${fetcherName}] fetchedResults.prices (${
+          fetchedResults.prices.length
+        }): ${fetchedResults.prices.map((p) => p.value)}`,
       );
       this.logger.debug(`${this.logPrefix} [${fetcherName}] symbols: ${mapInputs[ix].symbols}`);
 
