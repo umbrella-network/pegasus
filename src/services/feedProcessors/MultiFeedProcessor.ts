@@ -13,8 +13,8 @@ import {
 import {
   allMultiFetchers,
   FeedFetcherInputParams,
-  FeedFetcherInterface,
-  FetcherName,
+  FeedFetcherInterface, FeedPrice,
+  FetcherName, FetcherResult,
   StringOrUndefined,
 } from '../../types/fetchers.js';
 import {UniswapV3Getter} from '../fetchers/UniswapV3Getter.js';
@@ -55,7 +55,7 @@ export default class MultiFeedProcessor {
 
   private logPrefix = '[MultiFeedProcessor]';
 
-  async apply(feedFetchers: FeedFetcher[], timestamp: number): Promise<unknown[]> {
+  async apply(feedFetchers: FeedFetcher[], timestamp: number): Promise<(undefined | FeedPrice)[]> {
     if (!feedFetchers.length) return [];
 
     this.logger.debug(`${this.logPrefix} feedFetchers ${feedFetchers.map((f) => `${f.name}: ${f.symbol}`)}`);
@@ -99,7 +99,7 @@ export default class MultiFeedProcessor {
       }
     }
 
-    const response: unknown[] = new Array(feedFetchers.length).fill(undefined);
+    const response: (undefined | FeedPrice)[] = new Array(feedFetchers.length).fill(undefined);
     const mapInputs = Object.values(inputMap);
 
     const fetchedFeeds = await Promise.allSettled(
@@ -112,22 +112,22 @@ export default class MultiFeedProcessor {
         return;
       }
 
-      const fetchedResults = results.value;
+      const fetchedResults = results.value as FetcherResult;
       const indieces = mapInputs[ix].indices;
       const fetcherName = mapInputs[ix].fetcherName;
 
-      this.logger.debug(`${this.logPrefix} [${fetcherName}] fetchedResults.prices: ${fetchedResults.prices}`);
+      this.logger.debug(`${this.logPrefix} [${fetcherName}] fetchedResults.prices: ${fetchedResults.prices.map(p => p.value)}`);
       this.logger.debug(`${this.logPrefix} [${fetcherName}] symbols: ${mapInputs[ix].symbols}`);
 
       fetchedResults.prices.forEach((price, i) => {
-        if (price) {
+        if (price.value != undefined) {
           response[indieces[i]] = price;
-          this.logger.debug(`${this.logPrefix} response[${indieces[i]}] = ${price}`);
+          this.logger.debug(`${this.logPrefix} response[${indieces[i]}] = ${price.value}`);
         }
       });
     });
 
-    this.logger.debug(`${this.logPrefix} response: ${response}`);
+    this.logger.debug(`${this.logPrefix} response: ${response.map(p => p?.value)}`);
 
     return response;
   }

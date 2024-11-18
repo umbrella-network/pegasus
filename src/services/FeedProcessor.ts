@@ -9,7 +9,7 @@ import MultiFeedProcessor from './feedProcessors/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {allMultiFetchers} from '../types/fetchers.js';
+import {allMultiFetchers, FeedPrice, FetcherResult} from '../types/fetchers.js';
 import FeedSymbolChecker from './FeedSymbolChecker.js';
 
 interface Calculator {
@@ -102,7 +102,7 @@ class FeedProcessor {
           const groups = FeedProcessor.groupInputs(feedValues);
 
           for (const key in groups) {
-            const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
+            const value = FeedProcessor.calculateMean(groups[key] as FeedPrice[], feed.precision);
             keyValueMap[key] = value;
             leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
           }
@@ -117,7 +117,7 @@ class FeedProcessor {
     return result;
   }
 
-  private async processFeed(feedFetcher: FeedFetcher, timestamp: number): Promise<unknown> {
+  private async processFeed(feedFetcher: FeedFetcher, timestamp: number): Promise<FeedPrice | undefined> {
     const fetcher = this.feedFetcherRepository.find(feedFetcher.name);
 
     if (!fetcher) {
@@ -127,6 +127,7 @@ class FeedProcessor {
 
     try {
       this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
+
       const result = await fetcher.apply([feedFetcher.params], {
         symbols: [feedFetcher.symbol],
         timestamp,
@@ -166,7 +167,7 @@ class FeedProcessor {
     return calculator.apply(key, value, feedCalculator?.params, prices);
   }
 
-  private async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<unknown[]> {
+  private async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<(undefined | FeedPrice)[]> {
     return Promise.all(feedFetchers.map((input) => this.processFeed(input, timestamp)));
   }
 
