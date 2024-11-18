@@ -102,7 +102,7 @@ class FeedProcessor {
           const groups = FeedProcessor.groupInputs(feedValues);
 
           for (const key in groups) {
-            const value = FeedProcessor.calculateMean(groups[key] as FeedPrice[], feed.precision);
+            const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
             keyValueMap[key] = value;
             leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
           }
