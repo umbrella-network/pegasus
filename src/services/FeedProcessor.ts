@@ -75,7 +75,7 @@ class FeedProcessor {
     this.logger.debug(`${this.logPrefix} singleFeeds: ${JSON.stringify(singleFeeds)}`);
     this.logger.debug(`${this.logPrefix} multiFeeds: ${JSON.stringify(multiFeeds)}`);
 
-    const values = [...singleFeeds, ...multiFeeds];
+    const values: (FeedPrice | undefined)[] = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
     const keyValueMap: {[key: string]: number} = {};
@@ -156,15 +156,15 @@ class FeedProcessor {
 
   private calculateFeed(
     key: string,
-    value: unknown,
+    value: FeedPrice | undefined,
     prices: {[key: string]: number},
     feedCalculator?: FeedCalculator,
   ): FeedOutput[] {
-    if (!value) return [];
+    if (!value || value.value == undefined) return [];
 
     const calculator = <Calculator>this.calculatorRepository.find(feedCalculator?.name || 'Identity');
 
-    return calculator.apply(key, value, feedCalculator?.params, prices);
+    return calculator.apply(key, value.value, feedCalculator?.params, prices);
   }
 
   private async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<(undefined | FeedPrice)[]> {
