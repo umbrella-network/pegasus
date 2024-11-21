@@ -278,8 +278,8 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
       waitForBlockTime: 1000,
       minGasPrice: 100_000_000,
       minBalance: {
-        warningLimit: '0.01',
-        errorLimit: '0.0005',
+        warningLimit: '0.1',
+        errorLimit: '0.05',
       },
     },
   },
