@@ -19,6 +19,8 @@ export class ArbitrumBlockDispatcher extends BlockDispatcher {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async calculatePayableOverrides(props?: {nonce?: bigint; data?: unknown}): Promise<PayableOverrides> {
+    if (this.blockchain.chainSettings.transactions.useDefaultGasEstimation) return {};
+
     // for unknown reason, when we let provider resolve gas limit automatically, it does not work
     // when we call estimation manually and use result it does work
     const gas = await this.chainContract.estimateGasForSubmit(props?.data as ChainSubmitArgs);

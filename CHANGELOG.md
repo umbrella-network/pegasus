@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.6.10] - 2024-11-25
+### Updated
+- fallback to default RPC provider gas estimation based on env setup
+
 ## [8.6.9] - 2024-11-21
 ### Updated
 - set proper warning and error level for `5ire` balances

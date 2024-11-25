@@ -17,6 +17,7 @@ export type BlockchainSettings = {
   gasPriceCheckBlocksInterval?: number;
   transactions: {
     waitForBlockTime: number;
+    useDefaultGasEstimation: boolean;
     minGasPrice: number;
     maxFeePerGas?: number;
     maxPriorityFeePerGas?: number;
