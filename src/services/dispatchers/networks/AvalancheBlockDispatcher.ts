@@ -11,6 +11,8 @@ export class AvalancheBlockDispatcher extends BlockDispatcher {
   readonly blockchainType = BlockchainType.LAYER2;
 
   protected async calculatePayableOverrides(props?: {nonce?: bigint; data?: unknown}): Promise<PayableOverrides> {
+    if (this.blockchain.chainSettings.transactions.useDefaultGasEstimation) return {};
+
     const gasMetrics = await this.resolveGasMetrics();
     if (!gasMetrics) return {};
 

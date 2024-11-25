@@ -67,6 +67,11 @@ export abstract class Dispatcher {
   }
 
   protected async calculatePayableOverrides(props?: {nonce?: bigint; data?: unknown}): Promise<PayableOverrides> {
+    if (this.blockchain.chainSettings.transactions.useDefaultGasEstimation) {
+      this.logger.debug(`${this.logPrefix} useDefaultGasEstimation`);
+      return {};
+    }
+
     const gasMetrics = await this.resolveGasMetrics();
     if (!gasMetrics) return {};
 
