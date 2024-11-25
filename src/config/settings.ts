@@ -53,12 +53,17 @@ function resolveGasPriceInterval(chain: ChainsIds): number | undefined {
   return parseInt(interval, 10);
 }
 
+function resolveDefaultGasEstimation(chain: ChainsIds): boolean {
+  return !!process.env[`${chain}_USE_DEFAULT_GAS_ESTIMATION`];
+}
+
 const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
   [ChainsIds.BSC]: {
     type: resolveBlockchainType(ChainsIds.BSC) || [BlockchainType.LAYER2],
     contractRegistryAddress: process.env.REGISTRY_CONTRACT_ADDRESS,
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.BSC),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.BSC),
       waitForBlockTime: parseInt(process.env.WAIT_FOR_BLOCK_TIME || '1000', 10),
       minGasPrice: 2000000000,
       minBalance: {
@@ -71,6 +76,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.AVALANCHE) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.AVALANCHE),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.AVALANCHE),
       waitForBlockTime: 1000,
       minGasPrice: 25000000000,
       minBalance: {
@@ -83,6 +89,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.POLYGON) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.POLYGON),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.POLYGON),
       waitForBlockTime: 1000,
       minGasPrice: 1000000000,
       minBalance: {
@@ -95,6 +102,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.ARBITRUM) || [BlockchainType.LAYER2, BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ARBITRUM),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.ARBITRUM),
       waitForBlockTime: 1000,
       minGasPrice: 100_000_000,
       minBalance: {
@@ -107,6 +115,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.ETH) || [BlockchainType.LAYER2],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ETH),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.ETH),
       waitForBlockTime: 1000,
       minGasPrice: 2000000000,
       minBalance: {
@@ -119,6 +128,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.LINEA) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.LINEA),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.LINEA),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -131,6 +141,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.BASE) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.BASE),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.BASE),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -143,6 +154,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.MULTIVERSX) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.MULTIVERSX),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.MULTIVERSX),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -155,6 +167,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.MASSA) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.MASSA),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.MASSA),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -167,6 +180,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.CONCORDIUM) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.CONCORDIUM),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.CONCORDIUM),
       waitForBlockTime: 1000,
       minGasPrice: 0,
       minBalance: {
@@ -179,6 +193,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.AVAX_MELD) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.AVAX_MELD),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.AVAX_MELD),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -191,6 +206,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.XDC) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.XDC),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.XDC),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -203,6 +219,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.OKX) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.OKX),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.OKX),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -215,6 +232,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.ARTHERA) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ARTHERA),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.ARTHERA),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -227,6 +245,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.ASTAR) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ASTAR),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.ASTAR),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -239,6 +258,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.ROOTSTOCK) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ROOTSTOCK),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.ROOTSTOCK),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -251,6 +271,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.ZK_LINK_NOVA) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.ZK_LINK_NOVA),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.ZK_LINK_NOVA),
       waitForBlockTime: 1000,
       minGasPrice: 100000000,
       minBalance: {
@@ -263,6 +284,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds.BOB) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds.BOB),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds.BOB),
       waitForBlockTime: 1000,
       minGasPrice: 100_000_000,
       minBalance: {
@@ -275,6 +297,7 @@ const defaultByChain: Record<ChainsIds, BlockchainSettings> = {
     type: resolveBlockchainType(ChainsIds._5IRE) || [BlockchainType.ON_CHAIN],
     gasPriceCheckBlocksInterval: resolveGasPriceInterval(ChainsIds._5IRE),
     transactions: {
+      useDefaultGasEstimation: resolveDefaultGasEstimation(ChainsIds._5IRE),
       waitForBlockTime: 1000,
       minGasPrice: 100_000_000,
       minBalance: {
@@ -605,6 +628,7 @@ function resolveMultichainSettings(): Partial<Record<ChainsIds, BlockchainSettin
       providerUrl: clearLastSlash(process.env[`${chain}_BLOCKCHAIN_PROVIDER_URL`]),
       blockchainId: process.env[`${chain}_CHAIN_ID`],
       transactions: {
+        useDefaultGasEstimation: !!process.env[`${chain}_USE_DEFAULT_GAS_ESTIMATION`],
         waitForBlockTime:
           parseInt(process.env[`${chain}_WAIT_FOR_BLOCK_TIME`] as string, 10) ||
           defaultByChain[ChainsIds[chain]].transactions.waitForBlockTime,

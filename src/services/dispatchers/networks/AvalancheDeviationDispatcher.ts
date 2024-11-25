@@ -11,6 +11,8 @@ export class AvalancheDeviationDispatcher extends DeviationDispatcher {
   readonly blockchainType = BlockchainType.ON_CHAIN;
 
   protected async calculatePayableOverrides(props?: {nonce?: bigint; data?: unknown}): Promise<PayableOverrides> {
+    if (this.blockchain.chainSettings.transactions.useDefaultGasEstimation) return {};
+
     const gasMetrics = await this.resolveGasMetrics();
     if (!gasMetrics) return {};
 

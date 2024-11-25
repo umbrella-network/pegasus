@@ -18,6 +18,8 @@ export class ArbitrumDeviationDispatcher extends DeviationDispatcher {
   }
 
   protected async calculatePayableOverrides(props?: {nonce?: bigint; data?: unknown}): Promise<PayableOverrides> {
+    if (this.blockchain.chainSettings.transactions.useDefaultGasEstimation) return {};
+
     // for unknown reason, when we let provider resolve gas limit automatically, it does not work
     // when we call estimation manually and use result it does work
     const gas = await (this.feedsContract as FeedContract).estimateGasForUpdate(props?.data as UmbrellaFeedsUpdateArgs);
