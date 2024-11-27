@@ -20,7 +20,7 @@ describe('calculators.IdentityCalculator', () => {
     expect(result).to.eql([
       {
         key: 'ABC-a',
-        feedPrice: {value: 2}
+        feedPrice: {value: 2},
       },
     ]);
   });
@@ -30,7 +30,7 @@ describe('calculators.IdentityCalculator', () => {
     expect(result).to.eql([
       {
         key: 'ABC-a',
-        feedPrice: {value: 2}
+        feedPrice: {value: 2},
       },
     ]);
   });
@@ -40,7 +40,7 @@ describe('calculators.IdentityCalculator', () => {
     expect(result).to.eql([
       {
         key: 'ABC',
-        feedPrice: {value: 3}
+        feedPrice: {value: 3},
       },
     ]);
   });
