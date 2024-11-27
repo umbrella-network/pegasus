@@ -9,7 +9,7 @@ export type VWAPCalculatorValueType = [price.BarPrice, number];
 @injectable()
 class VWAPCalculator implements CalculatorInterface {
   apply(key: string, value: CalculatorValueType): FeedOutput[] {
-    return [{key, value: {value: price.volumeWeightedAveragePriceWithBars(value as VWAPCalculatorValueType[])}}];
+    return [{key, feedPrice: {value: price.volumeWeightedAveragePriceWithBars(value as VWAPCalculatorValueType[])}}];
   }
 }
 

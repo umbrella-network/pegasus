@@ -14,13 +14,16 @@ class IdentityCalculator implements CalculatorInterface {
   apply(feedKey: string, feedValue: CalculatorValueType): FeedOutput[] {
     if (!feedValue) {
       return [];
-    } else if (Array.isArray((feedValue as IdentityCalculatorAnyValueType))) {
-      return (feedValue as IdentityCalculatorValueType[]).map(({key, value}) => ({key: feedKey.replace('*', key), value: {value}}));
+    } else if (Array.isArray(feedValue as IdentityCalculatorAnyValueType)) {
+      return (feedValue as IdentityCalculatorValueType[]).map(({key, value}) => ({
+        key: feedKey.replace('*', key),
+        feedPrice: {value},
+      }));
     } else if (typeof feedValue === 'object') {
       const {key, value} = feedValue as IdentityCalculatorValueType;
-      return [{key: feedKey.replace('*', key), value: {value}}];
+      return [{key: feedKey.replace('*', key), feedPrice: {value}}];
     } else {
-      return [{key: feedKey, value: {value: feedValue}}];
+      return [{key: feedKey, feedPrice: {value: feedValue}}];
     }
   }
 }

@@ -9,7 +9,14 @@ export type TWAPCalculatorValueType = [price.BarPrice, unknown];
 @injectable()
 class TWAPCalculator implements CalculatorInterface {
   apply(key: string, value: CalculatorValueType): FeedOutput[] {
-    return [{key, value: {value: price.timeWeightedAveragePrice((value as TWAPCalculatorValueType[]).map(([barPrice]) => barPrice))}}];
+    return [
+      {
+        key,
+        feedPrice: {
+          value: price.timeWeightedAveragePrice((value as TWAPCalculatorValueType[]).map(([barPrice]) => barPrice)),
+        },
+      },
+    ];
   }
 }
 

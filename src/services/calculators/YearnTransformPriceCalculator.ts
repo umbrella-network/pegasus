@@ -8,12 +8,17 @@ import {CalculatorInterface, CalculatorValueType} from '../../types/CalculatorIn
 
 @injectable()
 class YearnTransformPriceCalculator implements CalculatorInterface {
-  apply(key: string, vaults: CalculatorValueType, params: {tsym: string}, prices: {[key: string]: number}): FeedOutput[] {
+  apply(
+    key: string,
+    vaults: CalculatorValueType,
+    params: {tsym: string},
+    prices: {[key: string]: number},
+  ): FeedOutput[] {
     const {tsym} = params;
 
     const result: {[key: string]: FeedOutput} = {};
 
-    for (const vault of (vaults as Vault[])) {
+    for (const vault of vaults as Vault[]) {
       const {tokenSymbol, decimals, pricePerShare, tokenVirtualPrice, tokenDecimals, symbol} = vault;
 
       const priceConverter = new PriceConverter(
@@ -35,7 +40,7 @@ class YearnTransformPriceCalculator implements CalculatorInterface {
 
       // Override with the most recent vault token price if the same key already exists
       const outputKey = key.replace('*', symbol);
-      result[outputKey] = {key: outputKey, value: {value: yvPrice}};
+      result[outputKey] = {key: outputKey, feedPrice: {value: yvPrice}};
     }
 
     return Object.values(result);

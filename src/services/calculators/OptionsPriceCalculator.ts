@@ -26,7 +26,7 @@ class OptionsPriceCalculator implements CalculatorInterface {
       const key = this.getKeyWithoutPrefix(optionKey);
       for (const [optionParam, value] of Object.entries(entryValues)) {
         const param = lodash.snakeCase(optionParam);
-        result.push({key: `${SIGNED_NUMBER_PREFIX}${key}_${param}`, value: {value}});
+        result.push({key: `${SIGNED_NUMBER_PREFIX}${key}_${param}`, feedPrice: {value}});
       }
     }
 
