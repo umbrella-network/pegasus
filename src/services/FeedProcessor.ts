@@ -9,13 +9,9 @@ import MultiFeedProcessor from './feedProcessors/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
 import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {allMultiFetchers, FeedPrice, FetcherResult} from '../types/fetchers.js';
+import {allMultiFetchers, FeedPrice} from '../types/fetchers.js';
 import FeedSymbolChecker from './FeedSymbolChecker.js';
-
-interface Calculator {
-  // eslint-disable-next-line
-  apply: (key: string, value: any, params: any, ...args: any[]) => FeedOutput[];
-}
+import {CalculatorInterface} from '../types/CalculatorInterface';
 
 interface FetcherError {
   message?: string;
@@ -75,7 +71,7 @@ class FeedProcessor {
     this.logger.debug(`${this.logPrefix} singleFeeds: ${JSON.stringify(singleFeeds)}`);
     this.logger.debug(`${this.logPrefix} multiFeeds: ${JSON.stringify(multiFeeds)}`);
 
-    const values: (FeedPrice | undefined)[] = [...singleFeeds, ...multiFeeds];
+    const allFeeds: (FeedPrice | undefined)[] = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
     const keyValueMap: {[key: string]: number} = {};
@@ -89,14 +85,18 @@ class FeedProcessor {
 
         const feedValues = feed.inputs
           .map((input) =>
-            this.calculateFeed(ticker, values[inputIndexByHash[hash(input.fetcher)]], keyValueMap, input.calculator),
+            this.calculateFeed(ticker, allFeeds[inputIndexByHash[hash(input.fetcher)]], keyValueMap, input.calculator),
           )
           .flat();
 
         this.logger.debug(`${this.logPrefix} feedValues: ${JSON.stringify(feedValues)}`);
 
         if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
-          leaves.push(this.buildLeaf(feedValues[0].key, feedValues[0].value));
+          if (feedValues[0].feedPrice.value == undefined) {
+            throw new Error(`${this.logPrefix} ${feedValues[0].key} has undefined value`);
+          }
+
+          leaves.push(this.buildLeaf(feedValues[0].key, feedValues[0].feedPrice.value));
         } else {
           // calculateFeed is allowed to return different keys
           const groups = FeedProcessor.groupInputs(feedValues);
@@ -156,15 +156,15 @@ class FeedProcessor {
 
   private calculateFeed(
     key: string,
-    value: FeedPrice | undefined,
+    feedPrice: FeedPrice | undefined,
     prices: {[key: string]: number},
     feedCalculator?: FeedCalculator,
   ): FeedOutput[] {
-    if (!value || value.value == undefined) return [];
+    if (!feedPrice || feedPrice.value == undefined) return [];
 
-    const calculator = <Calculator>this.calculatorRepository.find(feedCalculator?.name || 'Identity');
+    const calculator = <CalculatorInterface>this.calculatorRepository.find(feedCalculator?.name || 'Identity');
 
-    return calculator.apply(key, value.value, feedCalculator?.params, prices);
+    return calculator.apply(key, feedPrice.value, feedCalculator?.params, prices);
   }
 
   private async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<(undefined | FeedPrice)[]> {
@@ -217,13 +217,15 @@ class FeedProcessor {
 
     const result: {[key: string]: OutputValue[]} = {};
 
-    for (const {key, value} of outputs) {
+    for (const {key, feedPrice} of outputs) {
       let array = result[key];
+
       if (!array) {
         result[key] = array = [];
       }
 
-      array.push(value);
+      if (feedPrice.value == undefined) throw new Error(`[FeedProcessor] undefined value for key ${key}`);
+      array.push(feedPrice.value);
     }
 
     return result;

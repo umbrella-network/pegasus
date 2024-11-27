@@ -3,14 +3,15 @@ import lodash from 'lodash';
 
 import {FeedOutput} from '../../types/Feed.js';
 import {OptionsEntries, OptionsValues} from '../fetchers/OptionsPriceFetcher.js';
+import {CalculatorInterface, CalculatorValueType} from '../../types/CalculatorInterface.js';
 
 const SIGNED_NUMBER_PREFIX = 'SN_';
 const CHAIN_PREFIX_LENGTH = 4;
 
 @injectable()
-class OptionsPriceCalculator {
-  apply(_: string, values: OptionsEntries, params: {sym: string}): FeedOutput[] {
-    const chainSpecificEntries = this.getChainSpecificEntries(values, params.sym);
+class OptionsPriceCalculator implements CalculatorInterface {
+  apply(_: string, values: CalculatorValueType, params: {sym: string}): FeedOutput[] {
+    const chainSpecificEntries = this.getChainSpecificEntries(values as OptionsEntries, params.sym);
     return this.formatOptionsEntries(chainSpecificEntries);
   }
 
@@ -25,7 +26,7 @@ class OptionsPriceCalculator {
       const key = this.getKeyWithoutPrefix(optionKey);
       for (const [optionParam, value] of Object.entries(entryValues)) {
         const param = lodash.snakeCase(optionParam);
-        result.push({key: `${SIGNED_NUMBER_PREFIX}${key}_${param}`, value: value});
+        result.push({key: `${SIGNED_NUMBER_PREFIX}${key}_${param}`, feedPrice: {value}});
       }
     }
 

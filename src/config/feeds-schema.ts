@@ -1,4 +1,4 @@
-import {CalculatorName} from '../types/Calculator.js';
+import {CalculatorName} from '../types/CalculatorInterface.js';
 import {FetcherName} from '../types/fetchers.js';
 import {MoCMeasurementGetter} from '../services/fetchers';
 

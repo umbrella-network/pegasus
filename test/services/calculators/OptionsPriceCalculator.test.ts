@@ -46,27 +46,27 @@ describe('OptionsPriceCalculator', () => {
       const expected = [
         {
           key: 'SN_ETH-21OCT21-3900_call_price',
-          value: 0.016236001202900016,
+          feedPrice: {value: 0.016236001202900016},
         },
         {
           key: 'SN_ETH-21OCT21-3900_put_price',
-          value: 0.0271408306715053,
+          feedPrice: {value: 0.0271408306715053},
         },
         {
           key: 'SN_ETH-21OCT21-3900_iv',
-          value: 80.28058628458555,
+          feedPrice: {value: 80.28058628458555},
         },
         {
           key: 'SN_ETH-21OCT21-3900_gamma',
-          value: 0.001922652027551252,
+          feedPrice: {value: 0.001922652027551252},
         },
         {
           key: 'SN_ETH-21OCT21-3900_call_delta',
-          value: 0.42924941087945023,
+          feedPrice: {value: 0.42924941087945023},
         },
         {
           key: 'SN_ETH-21OCT21-3900_put_delta',
-          value: -0.5707505891205498,
+          feedPrice: {value: -0.5707505891205498},
         },
       ];
 

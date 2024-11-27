@@ -1,5 +1,5 @@
 import {ChainsIds} from './ChainsIds.js';
-import {FeedFetcherInputParams, FetcherName} from './fetchers.js';
+import {FeedFetcherInputParams, FeedPrice, FetcherName} from './fetchers.js';
 
 export type HashedKey = string;
 export type FeedName = string;
@@ -54,7 +54,7 @@ export interface FeedInput {
 
 export interface FeedOutput {
   key: string;
-  value: number | string;
+  feedPrice: FeedPrice;
 }
 
 export interface Pair {
