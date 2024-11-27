@@ -7,7 +7,7 @@ interface IdentityCalculatorValueType {
   value: number;
 }
 
-export type IdentityCalculatorAnyValueType = IdentityCalculatorValueType | IdentityCalculatorValueType[] | number;
+export type IdentityCalculatorAnyValueType = IdentityCalculatorValueType | IdentityCalculatorValueType[] | number | null;
 
 @injectable()
 class IdentityCalculator implements CalculatorInterface {
