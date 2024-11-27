@@ -4,16 +4,16 @@ import {BigNumber} from 'ethers';
 import {FeedOutput} from '../../types/Feed.js';
 import {Vault} from '../fetchers/YearnVaultTokenPriceFetcher.js';
 import PriceConverter from '../PriceConverter.js';
+import {CalculatorInterface, CalculatorValueType} from '../../types/CalculatorInterface.js';
 
 @injectable()
-class YearnTransformPriceCalculator {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(key: string, vaults: Vault[], params: any, prices: {[key: string]: number}): FeedOutput[] {
+class YearnTransformPriceCalculator implements CalculatorInterface {
+  apply(key: string, vaults: CalculatorValueType, params: {tsym: string}, prices: {[key: string]: number}): FeedOutput[] {
     const {tsym} = params;
 
     const result: {[key: string]: FeedOutput} = {};
 
-    for (const vault of vaults) {
+    for (const vault of (vaults as Vault[])) {
       const {tokenSymbol, decimals, pricePerShare, tokenVirtualPrice, tokenDecimals, symbol} = vault;
 
       const priceConverter = new PriceConverter(
@@ -35,7 +35,7 @@ class YearnTransformPriceCalculator {
 
       // Override with the most recent vault token price if the same key already exists
       const outputKey = key.replace('*', symbol);
-      result[outputKey] = {key: outputKey, value: yvPrice};
+      result[outputKey] = {key: outputKey, value: {value: yvPrice}};
     }
 
     return Object.values(result);

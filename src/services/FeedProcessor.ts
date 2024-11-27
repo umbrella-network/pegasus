@@ -8,14 +8,10 @@ import Leaf from '../types/Leaf.js';
 import MultiFeedProcessor from './feedProcessors/MultiFeedProcessor.js';
 import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
-import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {allMultiFetchers, FeedPrice, FetcherResult} from '../types/fetchers.js';
+import Feeds, {CalcMethod, FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
+import {allMultiFetchers, FeedPrice} from '../types/fetchers.js';
 import FeedSymbolChecker from './FeedSymbolChecker.js';
-
-interface Calculator {
-  // eslint-disable-next-line
-  apply: (key: string, value: any, params: any, ...args: any[]) => FeedOutput[];
-}
+import {CalculatorInterface} from "../types/CalculatorInterface";
 
 interface FetcherError {
   message?: string;
@@ -75,7 +71,7 @@ class FeedProcessor {
     this.logger.debug(`${this.logPrefix} singleFeeds: ${JSON.stringify(singleFeeds)}`);
     this.logger.debug(`${this.logPrefix} multiFeeds: ${JSON.stringify(multiFeeds)}`);
 
-    const values: (FeedPrice | undefined)[] = [...singleFeeds, ...multiFeeds];
+    const allFeeds: (FeedPrice | undefined)[] = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
     const keyValueMap: {[key: string]: number} = {};
@@ -89,7 +85,7 @@ class FeedProcessor {
 
         const feedValues = feed.inputs
           .map((input) =>
-            this.calculateFeed(ticker, values[inputIndexByHash[hash(input.fetcher)]], keyValueMap, input.calculator),
+            this.calculateFeed(ticker, allFeeds[inputIndexByHash[hash(input.fetcher)]], keyValueMap, input.calculator),
           )
           .flat();
 
@@ -156,15 +152,15 @@ class FeedProcessor {
 
   private calculateFeed(
     key: string,
-    value: FeedPrice | undefined,
+    feedPrice: FeedPrice | undefined,
     prices: {[key: string]: number},
     feedCalculator?: FeedCalculator,
   ): FeedOutput[] {
-    if (!value || value.value == undefined) return [];
+    if (!feedPrice || feedPrice.value == undefined) return [];
 
-    const calculator = <Calculator>this.calculatorRepository.find(feedCalculator?.name || 'Identity');
+    const calculator = <CalculatorInterface>this.calculatorRepository.find(feedCalculator?.name || 'Identity');
 
-    return calculator.apply(key, value.value, feedCalculator?.params, prices);
+    return calculator.apply(key, feedPrice.value, feedCalculator?.params, prices);
   }
 
   private async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<(undefined | FeedPrice)[]> {

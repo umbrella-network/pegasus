@@ -1,19 +1,26 @@
 import {injectable} from 'inversify';
 import {FeedOutput} from '../../types/Feed.js';
+import {CalculatorInterface, CalculatorValueType} from '../../types/CalculatorInterface.js';
+
+interface IdentityCalculatorValueType {
+  key: string;
+  value: number;
+}
+
+export type IdentityCalculatorAnyValueType = IdentityCalculatorValueType | IdentityCalculatorValueType[] | number;
 
 @injectable()
-class IdentityCalculator {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apply(feedKey: string, feedValue: any): FeedOutput[] {
+class IdentityCalculator implements CalculatorInterface {
+  apply(feedKey: string, feedValue: CalculatorValueType): FeedOutput[] {
     if (!feedValue) {
       return [];
-    } else if (Array.isArray(feedValue)) {
-      return feedValue.map(({key, value}) => ({key: feedKey.replace('*', key), value}));
+    } else if (Array.isArray((feedValue as IdentityCalculatorAnyValueType))) {
+      return (feedValue as IdentityCalculatorValueType[]).map(({key, value}) => ({key: feedKey.replace('*', key), value: {value}}));
     } else if (typeof feedValue === 'object') {
-      const {key, value} = feedValue;
-      return [{key: feedKey.replace('*', key), value}];
+      const {key, value} = feedValue as IdentityCalculatorValueType;
+      return [{key: feedKey.replace('*', key), value: {value}}];
     } else {
-      return [{key: feedKey, value: feedValue}];
+      return [{key: feedKey, value: {value: feedValue}}];
     }
   }
 }

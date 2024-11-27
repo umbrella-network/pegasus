@@ -1,15 +1,10 @@
 import {inject, injectable} from 'inversify';
-import {FeedOutput} from '../types/Feed.js';
 import * as calculators from '../services/calculators/index.js';
-
-interface Calculator {
-  // eslint-disable-next-line
-  apply: (key: string, value: any, params: any, ...args: any[]) => FeedOutput[];
-}
+import {CalculatorInterface} from '../types/CalculatorInterface.js';
 
 @injectable()
 export class CalculatorRepository {
-  readonly collection: {[key: string]: Calculator};
+  readonly collection: {[key: string]: CalculatorInterface};
 
   constructor(
     @inject(calculators.TWAPCalculator) TWAP: calculators.TWAPCalculator,
@@ -28,11 +23,11 @@ export class CalculatorRepository {
     };
   }
 
-  find(id: string): Calculator | undefined {
+  find(id: string): CalculatorInterface | undefined {
     return this.collection[id];
   }
 
-  all(): Calculator[] {
+  all(): CalculatorInterface[] {
     return Object.values(this.collection);
   }
 }
