@@ -39,7 +39,7 @@ describe('YearnTransformPriceCalculator', () => {
     expect(result).to.eql([
       {
         key: 'ABC-SMB',
-        value: 0.08,
+        feedPrice: {value: 0.08},
       },
     ]);
   });
