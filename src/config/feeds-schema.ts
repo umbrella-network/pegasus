@@ -87,7 +87,7 @@ export default {
           properties: {
             symbol: {type: 'string'},
             inverse: {type: 'boolean'},
-            interval: {type: 'string'},
+            vwapInterval: {type: 'string'},
           },
           required: ['symbol'],
           additionalProperties: false,
