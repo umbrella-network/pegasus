@@ -24,6 +24,7 @@ export default {
         chains: {type: 'array', minItems: 1},
         base: {type: 'string'},
         quote: {type: 'string'},
+        averagePriceMethod: {type: 'string'},
       },
       required: ['discrepancy', 'precision', 'inputs'],
       additionalProperties: false,
@@ -86,6 +87,7 @@ export default {
           properties: {
             symbol: {type: 'string'},
             inverse: {type: 'boolean'},
+            interval: {type: 'string'},
           },
           required: ['symbol'],
           additionalProperties: false,
