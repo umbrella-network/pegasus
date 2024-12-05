@@ -12,7 +12,7 @@ loadTestEnv();
 
 const {expect} = chai;
 
-describe.only('Staking Banks debug integration tests', () => {
+describe.skip('Staking Banks debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
 
   before(() => {
@@ -66,7 +66,7 @@ describe.only('Staking Banks debug integration tests', () => {
         expect(getNumberOfValidators).gt(0);
       });
 
-      it.only(`[${chainId}] #resolveValidators`, async () => {
+      it(`[${chainId}] #resolveValidators`, async () => {
         const addr = await bank.resolveValidators();
         console.log(addr);
         console.log(addr.length);
