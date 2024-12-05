@@ -42,14 +42,8 @@ export interface FeedFetcher {
   params: FeedFetcherInputParams;
 }
 
-export interface FeedCalculator {
-  name: string;
-  params?: unknown;
-}
-
 export interface FeedInput {
   fetcher: FeedFetcher;
-  calculator?: FeedCalculator;
 }
 
 export interface FeedOutput {

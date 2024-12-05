@@ -6,12 +6,10 @@ import {LeafValueCoder} from '@umb-network/toolbox';
 
 import Leaf from '../types/Leaf.js';
 import MultiFeedProcessor from './feedProcessors/MultiFeedProcessor.js';
-import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
-import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
+import Feeds, {FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
 import {allMultiFetchers, FeedPrice} from '../types/fetchers.js';
 import FeedSymbolChecker from './FeedSymbolChecker.js';
-import {CalculatorInterface} from '../types/CalculatorInterface';
 
 interface FetcherError {
   message?: string;
@@ -23,7 +21,6 @@ interface FetcherError {
 @injectable()
 class FeedProcessor {
   @inject(MultiFeedProcessor) multiFeedProcessor!: MultiFeedProcessor;
-  @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
   @inject(FeedSymbolChecker) feedSymbolChecker!: FeedSymbolChecker;
   @inject('Logger') private logger!: Logger;
@@ -74,7 +71,6 @@ class FeedProcessor {
     const allFeeds: (FeedPrice | undefined)[] = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
-    const keyValueMap: {[key: string]: number} = {};
 
     feedsArray.forEach((feeds) => {
       const tickers = Object.keys(feeds);
@@ -84,9 +80,7 @@ class FeedProcessor {
         const feed = feeds[ticker];
 
         const feedValues = feed.inputs
-          .map((input) =>
-            this.calculateFeed(ticker, allFeeds[inputIndexByHash[hash(input.fetcher)]], keyValueMap, input.calculator),
-          )
+          .map((input) => this.mergeKeyWithFeed(ticker, allFeeds[inputIndexByHash[hash(input.fetcher)]]))
           .flat();
 
         this.logger.debug(`${this.logPrefix} feedValues: ${JSON.stringify(feedValues)}`);
@@ -103,8 +97,7 @@ class FeedProcessor {
 
           for (const key in groups) {
             const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
-            keyValueMap[key] = value;
-            leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
+            leaves.push(this.buildLeaf(key, value));
           }
         }
       });
@@ -154,17 +147,15 @@ class FeedProcessor {
     }
   }
 
-  private calculateFeed(
-    key: string,
-    feedPrice: FeedPrice | undefined,
-    prices: {[key: string]: number},
-    feedCalculator?: FeedCalculator,
-  ): FeedOutput[] {
+  private mergeKeyWithFeed(key: string, feedPrice: FeedPrice | undefined): FeedOutput[] {
     if (!feedPrice || feedPrice.value == undefined) return [];
 
-    const calculator = <CalculatorInterface>this.calculatorRepository.find(feedCalculator?.name || 'Identity');
-
-    return calculator.apply(key, feedPrice.value, feedCalculator?.params, prices);
+    return [
+      {
+        key,
+        feedPrice,
+      },
+    ];
   }
 
   private async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<(undefined | FeedPrice)[]> {

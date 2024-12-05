@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Updated
 - Update GitHub Action. The deployments are managed by helm charts
 - prepare schema for vwap
+- remove calculators
 
 ## [8.6.10] - 2024-11-25
 ### Updated

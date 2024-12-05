@@ -7,7 +7,6 @@ import {Redis} from 'ioredis';
 import logger from './logger.js';
 
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
-import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedRepository} from '../repositories/FeedRepository.js';
 import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository.js';
 import {initRedis} from '../config/initRedis.js';
@@ -73,7 +72,6 @@ export function getContainer(): Container {
 
   container.bind(DataPurger).toSelf().inSingletonScope();
   container.bind(FeedFetcherRepository).toSelf().inSingletonScope();
-  container.bind(CalculatorRepository).toSelf().inSingletonScope();
   container.bind(FeedRepository).toSelf().inSingletonScope();
   container.bind(VerifyProposedData).toSelf().inSingletonScope();
   container.bind(BlockMintingWorker).toSelf().inSingletonScope();

@@ -17,8 +17,8 @@ describe('LoadFeeds', () => {
 
       const keys = Object.keys(feeds);
       console.log({keys});
-      expect(keys).to.have.length(5);
-      expect(feeds).to.have.keys('BTC-USDT', 'BTC-USD', 'ETH-USDT', 'ETH-USD', 'YEARN-FI:*-ETH');
+      expect(keys).to.have.length(4);
+      expect(feeds).to.have.keys('BTC-USDT', 'BTC-USD', 'ETH-USDT', 'ETH-USD');
       expect(feeds[keys[0]]).to.have.property('discrepancy');
       expect(feeds[keys[0]]).to.have.property('precision');
       expect(feeds[keys[0]]).to.have.property('inputs');

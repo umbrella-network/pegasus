@@ -39,17 +39,3 @@ ETH-USD:
         params:
           id: ETH
           currency: USDT
-
-YEARN-FI:*-ETH:
-  discrepancy: 1
-  precision: 2
-  inputs:
-    - fetcher:
-        name: YearnVaultTokenPrice
-        params:
-          address: '0x5081a39b8a5f0e35a8d959395a630b68b74dd30f'
-          network: localhost
-      calculator:
-        name: YearnTransformPrice
-        params:
-          tsym: ETH

@@ -1,6 +1,4 @@
-import {CalculatorName} from '../types/CalculatorInterface.js';
 import {FetcherName} from '../types/fetchers.js';
-import {MoCMeasurementGetter} from '../services/fetchers';
 
 export default {
   description: 'Feeds schema for the JSONSchema validator',
@@ -52,15 +50,6 @@ export default {
             {$ref: '#/definitions/MetalsDevApi'},
             {$ref: '#/definitions/MoCMeasurement'},
             {$ref: '#/definitions/SovrynPrice'},
-          ],
-        },
-        calculator: {
-          oneOf: [
-            {$ref: '#/definitions/TWAPCalculator'},
-            {$ref: '#/definitions/VWAPCalculator'},
-            {$ref: '#/definitions/IdentityCalculator'},
-            {$ref: '#/definitions/OptionsPriceCalculator'},
-            {$ref: '#/definitions/YearnTransformPriceCalculator'},
           ],
         },
       },
@@ -358,54 +347,6 @@ export default {
         },
       },
       required: ['params'],
-      additionalProperties: false,
-    },
-    YearnTransformPriceCalculator: {
-      properties: {
-        name: {const: CalculatorName.YEARN_TRANSFORM_PRICE},
-        params: {
-          type: 'object',
-          properties: {
-            tsym: {type: 'string'},
-          },
-          required: ['tsym'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    OptionsPriceCalculator: {
-      properties: {
-        name: {const: CalculatorName.OPTIONS_PRICE},
-        params: {
-          type: 'object',
-          properties: {
-            sym: {type: 'string'},
-          },
-          required: ['sym'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    IdentityCalculator: {
-      properties: {
-        name: {const: CalculatorName.IDENTITY},
-      },
-      additionalProperties: false,
-    },
-    TWAPCalculator: {
-      properties: {
-        name: {const: CalculatorName.TWAP},
-      },
-      additionalProperties: false,
-    },
-    VWAPCalculator: {
-      properties: {
-        name: {const: CalculatorName.VWAP},
-      },
       additionalProperties: false,
     },
   },
