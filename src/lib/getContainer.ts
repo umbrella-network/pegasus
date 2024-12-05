@@ -7,7 +7,6 @@ import {Redis} from 'ioredis';
 import logger from './logger.js';
 
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
-import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedRepository} from '../repositories/FeedRepository.js';
 import {BlockchainProviderRepository} from '../repositories/BlockchainProviderRepository.js';
 import {initRedis} from '../config/initRedis.js';
