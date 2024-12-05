@@ -72,22 +72,16 @@ class FeedProcessor {
 
     const result: Leaf[][] = [];
 
-    console.log(`${this.logPrefix} inputIndexByHash ${JSON.stringify(inputIndexByHash)}`);
-
     feedsArray.forEach((feeds) => {
       const tickers = Object.keys(feeds);
       const leaves: Leaf[] = [];
 
       tickers.forEach((ticker) => {
-        console.log(`[tickers.forEach] ticker ${ticker}`);
-
         const feed = feeds[ticker];
 
         const feedValues = feed.inputs
           .map((input) => this.mergeKeyWithFeed(ticker, allFeeds[inputIndexByHash[hash(input.fetcher)]]))
           .flat();
-
-        this.logger.debug(`${this.logPrefix} feedValues: ${JSON.stringify(feedValues)}`);
 
         if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
           if (feedValues[0].feedPrice.value == undefined) {
@@ -104,15 +98,7 @@ class FeedProcessor {
 
             switch (feed.averagePriceMethod) {
               case AveragePriceMethod.VWAP:
-                this.logger.debug(`key: ${key}`);
-                this.logger.debug(`groups: ${JSON.stringify(groups)}`);
-                this.logger.debug(`feeds: ${JSON.stringify(feeds)}`);
-                this.logger.debug(`allFeeds: ${JSON.stringify(allFeeds)}`);
-                this.logger.debug(`feedValues: ${JSON.stringify(feedValues)}`);
-
                 value = this.calculateVwap(groups[key], feed.precision);
-
-                this.logger.debug(`vwap = ${value}`);
                 break;
 
               case AveragePriceMethod.MEAN:

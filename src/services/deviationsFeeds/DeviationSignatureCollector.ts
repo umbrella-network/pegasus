@@ -164,7 +164,11 @@ export class DeviationSignatureCollector {
     }
 
     if (response.discrepancies.length) {
-      this.logger.warn(`${validator.location} respond with ${response.discrepancies.map((d) => d.key)} discrepancies`);
+      this.logger.warn(
+        `${validator.location} respond with ${response.discrepancies.map(
+          (d) => `${d.key} (${d.discrepancy}%)`,
+        )} discrepancies`,
+      );
     }
 
     const signed = Object.keys(response?.signatures || {});
