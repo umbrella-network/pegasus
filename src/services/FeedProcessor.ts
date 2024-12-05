@@ -80,7 +80,6 @@ class FeedProcessor {
 
       tickers.forEach((ticker) => {
         console.log(`[tickers.forEach] ticker ${ticker}`);
-        console.log(`[tickers.forEach] keyValueMap ${JSON.stringify(keyValueMap)}`);
 
         const feed = feeds[ticker];
 
@@ -118,12 +117,11 @@ class FeedProcessor {
 
               case AveragePriceMethod.MEAN:
               default:
-                value = FeedProcessor.calculateMean(groups[key].map(g => g.value) as number[], feed.precision);
+                value = FeedProcessor.calculateMean(groups[key].map((g) => g.value) as number[], feed.precision);
             }
 
             if (!value) return;
 
-            keyValueMap[key] = value;
             leaves.push(this.buildLeaf(key, value));
           }
         }
@@ -133,7 +131,6 @@ class FeedProcessor {
     });
 
     this.logger.debug(`${this.logPrefix} result: ${JSON.stringify(result)}`);
-    this.logger.debug(`keyValueMap: ${JSON.stringify(keyValueMap)}`);
 
     return result;
   }

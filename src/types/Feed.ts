@@ -24,7 +24,7 @@ export interface Feed {
   discrepancy: number;
   precision: number;
   inputs: FeedInput[];
-  averagePriceMethod: AveragePriceMethod;
+  averagePriceMethod?: AveragePriceMethod;
 }
 
 export default interface Feeds {
