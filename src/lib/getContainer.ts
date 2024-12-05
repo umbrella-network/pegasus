@@ -72,7 +72,6 @@ export function getContainer(): Container {
 
   container.bind(DataPurger).toSelf().inSingletonScope();
   container.bind(FeedFetcherRepository).toSelf().inSingletonScope();
-  container.bind(CalculatorRepository).toSelf().inSingletonScope();
   container.bind(FeedRepository).toSelf().inSingletonScope();
   container.bind(VerifyProposedData).toSelf().inSingletonScope();
   container.bind(BlockMintingWorker).toSelf().inSingletonScope();
