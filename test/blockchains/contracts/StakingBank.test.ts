@@ -12,7 +12,7 @@ loadTestEnv();
 
 const {expect} = chai;
 
-describe.skip('Staking Banks debug integration tests', () => {
+describe.only('Staking Banks debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
 
   before(() => {
@@ -21,7 +21,7 @@ describe.skip('Staking Banks debug integration tests', () => {
     blockchainRepo = container.get(BlockchainRepository);
   });
 
-  [ChainsIds.CONCORDIUM].forEach((chainId) => {
+  [ChainsIds.MASSA].forEach((chainId) => {
     describe(`[${chainId}] bank tests`, () => {
       let bank: StakingBankInterface;
 
@@ -66,7 +66,7 @@ describe.skip('Staking Banks debug integration tests', () => {
         expect(getNumberOfValidators).gt(0);
       });
 
-      it(`[${chainId}] #resolveValidators`, async () => {
+      it.only(`[${chainId}] #resolveValidators`, async () => {
         const addr = await bank.resolveValidators();
         console.log(addr);
         console.log(addr.length);

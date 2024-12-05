@@ -15,7 +15,7 @@ import {StakingBankContractFactory} from '../../../src/factories/contracts/Staki
 
 const {expect} = chai;
 
-describe.skip('Umbrella Feeds debug integration tests', () => {
+describe.only('Umbrella Feeds debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
   let deviationSignerRepository: DeviationSignerRepository;
 
@@ -33,9 +33,9 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
   [
     // ChainsIds.AVALANCHE,
     // ChainsIds.MULTIVERSX,
-    // ChainsIds.MASSA,
+    ChainsIds.MASSA,
     // ChainsIds.LINEA,
-    ChainsIds.CONCORDIUM,
+    // ChainsIds.CONCORDIUM,
   ].forEach((chainId) => {
     describe(`[${chainId}] on-chain feeds tests`, () => {
       let umbrellaFeeds: UmbrellaFeedInterface;
@@ -71,7 +71,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         }
       }).timeout(5000);
 
-      it.skip(`[${chainId}] #requiredSignatures`, async () => {
+      it.only(`[${chainId}] #requiredSignatures`, async () => {
         expect(await umbrellaFeeds.requiredSignatures()).eq(2);
       });
 

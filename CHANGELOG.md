@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- VWAP for Binance and Bybit
+
 ### Updated
 - Update GitHub Action. The deployments are managed by helm charts
 - prepare schema for vwap
@@ -27,6 +30,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update CI due to helm chart migration
 
 ## [8.6.7] - 2024-11-14
+### Added
+- add support for 5ire blockchain
+
 ### Fixed
 - fix CI
 

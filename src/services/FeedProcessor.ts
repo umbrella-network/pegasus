@@ -7,7 +7,7 @@ import {LeafValueCoder} from '@umb-network/toolbox';
 import Leaf from '../types/Leaf.js';
 import MultiFeedProcessor from './feedProcessors/MultiFeedProcessor.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
-import Feeds, {FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
+import Feeds, {AveragePriceMethod, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
 import {allMultiFetchers, FeedPrice} from '../types/fetchers.js';
 import FeedSymbolChecker from './FeedSymbolChecker.js';
 
@@ -31,7 +31,7 @@ class FeedProcessor {
     // collect unique inputs
     const uniqueFeedFetcherMap: {[hash: string]: FeedFetcher} = {};
 
-    feedsArray.forEach((feeds) => {
+    feedsArray.forEach((feeds: Feeds) => {
       const keys = Object.keys(feeds);
 
       keys.forEach((leafLabel) =>
@@ -39,7 +39,7 @@ class FeedProcessor {
           uniqueFeedFetcherMap[hash(input.fetcher)] = {
             ...input.fetcher,
             symbol: leafLabel,
-            base: feeds[leafLabel].base,
+            base: feeds[leafLabel].base, // TODO remove base/quote
             quote: feeds[leafLabel].quote,
           };
         }),
@@ -60,7 +60,7 @@ class FeedProcessor {
       inputIndexByHash[hash] = index + offset;
     });
 
-    const [singleFeeds, multiFeeds] = await Promise.all([
+    const [singleFeeds, multiFeeds]: [(undefined | FeedPrice)[], (undefined | FeedPrice)[]] = await Promise.all([
       this.processFeeds(Object.values(singleInputs), timestamp),
       this.multiFeedProcessor.apply(Object.values(multiInputs), timestamp),
     ]);
@@ -72,11 +72,16 @@ class FeedProcessor {
 
     const result: Leaf[][] = [];
 
+    console.log(`${this.logPrefix} inputIndexByHash ${JSON.stringify(inputIndexByHash)}`);
+
     feedsArray.forEach((feeds) => {
       const tickers = Object.keys(feeds);
       const leaves: Leaf[] = [];
 
       tickers.forEach((ticker) => {
+        console.log(`[tickers.forEach] ticker ${ticker}`);
+        console.log(`[tickers.forEach] keyValueMap ${JSON.stringify(keyValueMap)}`);
+
         const feed = feeds[ticker];
 
         const feedValues = feed.inputs
@@ -96,7 +101,29 @@ class FeedProcessor {
           const groups = FeedProcessor.groupInputs(feedValues);
 
           for (const key in groups) {
-            const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
+            let value;
+
+            switch (feed.averagePriceMethod) {
+              case AveragePriceMethod.VWAP:
+                this.logger.debug(`key: ${key}`);
+                this.logger.debug(`groups: ${JSON.stringify(groups)}`);
+                this.logger.debug(`feeds: ${JSON.stringify(feeds)}`);
+                this.logger.debug(`allFeeds: ${JSON.stringify(allFeeds)}`);
+                this.logger.debug(`feedValues: ${JSON.stringify(feedValues)}`);
+
+                value = this.calculateVwap(groups[key], feed.precision);
+
+                this.logger.debug(`vwap = ${value}`);
+                break;
+
+              case AveragePriceMethod.MEAN:
+              default:
+                value = FeedProcessor.calculateMean(groups[key].map(g => g.value) as number[], feed.precision);
+            }
+
+            if (!value) return;
+
+            keyValueMap[key] = value;
             leaves.push(this.buildLeaf(key, value));
           }
         }
@@ -106,6 +133,7 @@ class FeedProcessor {
     });
 
     this.logger.debug(`${this.logPrefix} result: ${JSON.stringify(result)}`);
+    this.logger.debug(`keyValueMap: ${JSON.stringify(keyValueMap)}`);
 
     return result;
   }
@@ -175,6 +203,34 @@ class FeedProcessor {
     return Math.round(price.mean(values) * multi) / multi;
   }
 
+  private calculateVwap(feedPrices: FeedPrice[], precision: number): number | undefined {
+    if (feedPrices.length == 0) {
+      this.logger.warn('[calculateVwap] no values');
+      return;
+    }
+
+    if (feedPrices.filter((f) => f.vwapVolume != undefined).length == 0) {
+      this.logger.warn('[calculateVwap] no volumes');
+      return;
+    }
+
+    const totalVolume = feedPrices.reduce((acc: number, n) => acc + (n.vwapVolume ?? 0), 0);
+
+    const weightedValues = feedPrices.map((v) => {
+      if (!v.vwapVolume) return 0;
+      if (!v.value) return 0;
+
+      return (v.value * v.vwapVolume) / totalVolume;
+    });
+
+    const waightedSum = weightedValues.reduce((acc, n) => acc + n, 0);
+
+    this.logger.debug(`[calculateVwap] totalVolume: ${totalVolume}, ${weightedValues}, waightedSum: ${waightedSum}`);
+
+    const multi = Math.pow(10, precision);
+    return Math.round(waightedSum * multi) / multi;
+  }
+
   /**
    * Separate fetchers into two different arrays
    * @return singleInputs will be fetched each with one API call
@@ -203,8 +259,8 @@ class FeedProcessor {
     return separatedInputs;
   }
 
-  private static groupInputs(outputs: FeedOutput[]) {
-    type OutputValue = number | string;
+  private static groupInputs(outputs: FeedOutput[]): {[key: string]: FeedPrice[]} {
+    type OutputValue = FeedPrice;
 
     const result: {[key: string]: OutputValue[]} = {};
 
@@ -216,18 +272,10 @@ class FeedProcessor {
       }
 
       if (feedPrice.value == undefined) throw new Error(`[FeedProcessor] undefined value for key ${key}`);
-      array.push(feedPrice.value);
+      array.push(feedPrice);
     }
 
     return result;
-  }
-
-  private getBaseAndQuote(feedFetcher: FeedFetcher): string[] | undefined {
-    if (feedFetcher.base && feedFetcher.quote) {
-      return [feedFetcher.base, feedFetcher.quote];
-    } else {
-      return this.feedSymbolChecker.apply(feedFetcher.symbol);
-    }
   }
 }
 

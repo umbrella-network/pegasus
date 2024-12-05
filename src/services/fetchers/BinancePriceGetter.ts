@@ -14,15 +14,21 @@ import {
 } from '../../types/fetchers.js';
 
 import {BinanceDataRepository} from '../../repositories/fetchers/BinanceDataRepository.js';
+import {
+  BinanceCandlestickFetcher,
+  BinanceCandlestickInterval,
+} from '../../workers/fetchers/BinanceCandlestickFetcher.js';
 
 export interface BinancePriceInputParams {
   symbol: string;
   inverse: boolean;
+  vwapInterval?: BinanceCandlestickInterval;
 }
 
 @injectable()
 export class BinancePriceGetter implements FeedFetcherInterface {
   @inject(BinanceDataRepository) binanceDataRepository!: BinanceDataRepository;
+  @inject(BinanceCandlestickFetcher) candlestickFetcher!: BinanceCandlestickFetcher;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
@@ -42,11 +48,17 @@ export class BinancePriceGetter implements FeedFetcherInterface {
     }
 
     const prices = await this.binanceDataRepository.getPrices(params, options.timestamp);
+    this.logger.debug(`${this.logPrefix} DEBUG candlestickFetcher.apply`);
+    const candles = await this.candlestickFetcher.apply(options.timestamp, params);
+    this.logger.debug(`${this.logPrefix} DEBUG candles ${JSON.stringify(candles)}`);
 
     const fetcherResults: FetcherResult = {
       prices: prices.map((price, ix) => {
+        const volume = candles[ix]?.value;
+
         return {
           value: price.value !== undefined && price.value != 0 && params[ix].inverse ? 1.0 / price.value : price.value,
+          vwapVolume: volume ? parseFloat(volume) : undefined,
         };
       }),
       timestamp: options.timestamp,
