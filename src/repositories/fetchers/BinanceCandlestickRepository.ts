@@ -141,7 +141,9 @@ export class BinanceCandlestickRepository extends CommonPriceDataRepository {
 
     this.logger.debug(`${this.logPrefix} or: ${JSON.stringify($or)}`);
 
-    const results: CandlestickModel_Binance[] = await this.model.find({$or}, {value: 1, symbol: 1, interval: 1}).exec();
+    const results: CandlestickModel_Binance[] = await this.model
+      .find({$or}, {value: 1, symbol: 1, interval: 1, timestamp: 1})
+      .exec();
 
     const map: Record<string, CandlestickModel_Binance> = {};
 

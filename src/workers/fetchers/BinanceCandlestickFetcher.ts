@@ -211,6 +211,6 @@ export class BinanceCandlestickFetcher {
   private beginOfInterval(interval: BinanceCandlestickInterval): number {
     const intervalMs = this.candlestickRepository.intervalToSeconds(interval);
     const t = Math.trunc(Date.now() / 1000);
-    return (t - (t % intervalMs)) * 1000;
+    return (t - (t % intervalMs) - intervalMs) * 1000;
   }
 }
