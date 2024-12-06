@@ -122,7 +122,7 @@ export class BinanceCandlestickFetcher {
     symbol: string,
     interval: BinanceCandlestickInterval,
   ): Promise<CandlestickModel_Binance | undefined> {
-    const startTime = this.candlestickRepository.beginOfIntervalMs(interval);
+    const startTime = this.candlestickRepository.beginOfIntervalMs(interval, timestamp);
     const api = 'https://www.binance.com/api/v3';
     const url = `${api}/klines?symbol=${symbol}&interval=${interval}&startTime=${startTime}&limit=1`;
 
