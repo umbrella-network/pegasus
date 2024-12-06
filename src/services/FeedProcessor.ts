@@ -106,7 +106,7 @@ class FeedProcessor {
                 value = FeedProcessor.calculateMean(groups[key].map((g) => g.value) as number[], feed.precision);
             }
 
-            this.logger.debug(`${this.logPrefix} key: ${JSON.stringify(value)}`);
+            this.logger.debug(`${this.logPrefix} ${key}: ${JSON.stringify(value)}`);
 
             if (!value) return;
 
