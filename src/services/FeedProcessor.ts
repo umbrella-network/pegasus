@@ -83,6 +83,8 @@ class FeedProcessor {
           .map((input) => this.mergeKeyWithFeed(ticker, allFeeds[inputIndexByHash[hash(input.fetcher)]]))
           .flat();
 
+        this.logger.debug(`${this.logPrefix} feedValues: ${JSON.stringify(feedValues)}`);
+
         if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
           if (feedValues[0].feedPrice.value == undefined) {
             throw new Error(`${this.logPrefix} ${feedValues[0].key} has undefined value`);
@@ -99,14 +101,13 @@ class FeedProcessor {
             switch (feed.averagePriceMethod) {
               case AveragePriceMethod.VWAP:
                 value = this.calculateVwap(groups[key], feed.precision);
+                this.logger.debug(`${this.logPrefix} VWAP ${key}: ${value}`);
                 break;
 
               case AveragePriceMethod.MEAN:
               default:
                 value = FeedProcessor.calculateMean(groups[key].map((g) => g.value) as number[], feed.precision);
             }
-
-            this.logger.debug(`${this.logPrefix} ${key}: ${JSON.stringify(value)}`);
 
             if (!value) return;
 

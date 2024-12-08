@@ -48,9 +48,8 @@ export class BinancePriceGetter implements FeedFetcherInterface {
     }
 
     const prices = await this.binanceDataRepository.getPrices(params, options.timestamp);
-    this.logger.debug(`${this.logPrefix} DEBUG candlestickFetcher.apply`);
     const candles = await this.candlestickFetcher.apply(options.timestamp, params);
-    this.logger.debug(`${this.logPrefix} DEBUG candles ${JSON.stringify(candles)}`);
+    this.logger.debug(`${this.logPrefix} candles ${JSON.stringify(candles)}`);
 
     const fetcherResults: FetcherResult = {
       prices: prices.map((price, ix) => {

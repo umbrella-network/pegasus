@@ -5,7 +5,7 @@ import {FetchedValueType, FetcherName} from '../../types/fetchers.js';
 import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceGetter.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {CandlestickModel_Binance} from '../../models/fetchers/CandlestickModel_Binance.js';
-import {BinanceCandlestickInterval} from '../../workers/fetchers/BinanceCandlestickFetcher';
+import {BinanceCandlestickInterval} from '../../workers/fetchers/BinanceCandlestickFetcher.js';
 
 export type BinanceCandle = {
   symbol: string;
@@ -62,7 +62,7 @@ export class BinanceCandlestickRepository extends CommonPriceDataRepository {
         return 60 * 60 * 24 * 30;
     }
 
-    throw new Error(`unknown BinanceCandlestickInterval: ${i}`);
+    throw new Error(`unknown ${this.logPrefix}: ${i}`);
   }
 
   async save(dataArr: BinanceCandlestickRepositoryInput[]): Promise<void> {
@@ -103,33 +103,14 @@ export class BinanceCandlestickRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  // async getOne(
-  //   timestamp: number,
-  //   symbol: string,
-  //   interval: BinanceCandlestickInterval,
-  // ): Promise<CandlestickModel_Binance | undefined> {
-  //   const results = await this.model
-  //     .find(
-  //       {
-  //         symbol: symbol.toLowerCase(),
-  //         interval: this.intervalToSeconds(interval),
-  //         timestamp: {$ge: timestamp, $lt: timestamp + interval},
-  //       },
-  //       {value: 1, symbol: 1},
-  //     )
-  //     .exec();
-  //
-  //   return results[0];
-  // }
-
   async getMany(
     timestamp: number,
     params: BinancePriceInputParams[],
   ): Promise<(CandlestickModel_Binance | undefined)[]> {
-    const filteredParams = params.filter((p) => !!p.vwapInterval);
-    if (filteredParams.length == 0) return params.map(() => undefined);
+    const vwapParams = params.filter((p) => !!p.vwapInterval);
+    if (vwapParams.length == 0) return params.map(() => undefined);
 
-    const $or = filteredParams.map((p) => {
+    const $or = vwapParams.map((p) => {
       if (!p.vwapInterval) throw new Error('vwapInterval filtering not working');
 
       return {

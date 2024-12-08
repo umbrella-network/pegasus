@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Added
-- VWAP for Binance and Bybit
+- VWAP for Binance
 
 ### Updated
 - Update GitHub Action. The deployments are managed by helm charts

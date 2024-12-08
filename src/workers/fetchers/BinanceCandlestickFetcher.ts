@@ -88,14 +88,6 @@ export class BinanceCandlestickFetcher {
   ): Promise<(CandlestickModel_Binance | undefined)[]> {
     const existing = await this.candlestickRepository.getMany(timestamp, params);
 
-    this.logger.debug(
-      `${this.logPrefix} existing candles: ${JSON.stringify(
-        existing.map((e) => {
-          return e ? {symbol: e.symbol, volume: e.value} : {};
-        }),
-      )}`,
-    );
-
     const results = await Promise.allSettled(
       existing.map((candle, i) => {
         if (candle != undefined) return candle;
@@ -103,7 +95,6 @@ export class BinanceCandlestickFetcher {
         const interval = params[i].vwapInterval;
 
         if (!interval) {
-          this.logger.debug(`${this.logPrefix} vwapInterval not set for ${params[i].symbol}`);
           return undefined;
         }
 
