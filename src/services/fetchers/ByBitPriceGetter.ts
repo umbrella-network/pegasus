@@ -39,6 +39,9 @@ export class ByBitPriceGetter implements FeedFetcherInterface {
     }
 
     const prices = await this.byBitDataRepository.getPrices(params, options.timestamp);
+    const candles = await this.candlestickFetcher.apply(options.timestamp, params);
+    this.logger.debug(`${this.logPrefix} candles ${JSON.stringify(candles)}`);
+
     const fetcherResult = {prices, timestamp: options.timestamp};
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts

@@ -84,6 +84,7 @@
   "dependencies": {
     "@concordium/common-sdk": "9.5.3",
     "@concordium/web-sdk": "7.1.0",
+    "bybit-api": "~3.10.27",
     "@grpc/grpc-js": "1.9.12",
     "@massalabs/massa-as-sdk": "2.5.4",
     "@massalabs/massa-web3": "3.0.2",
