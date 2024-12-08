@@ -33,9 +33,9 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
   [
     // ChainsIds.AVALANCHE,
     // ChainsIds.MULTIVERSX,
-    // ChainsIds.MASSA,
+    ChainsIds.MASSA,
     // ChainsIds.LINEA,
-    ChainsIds.CONCORDIUM,
+    // ChainsIds.CONCORDIUM,
   ].forEach((chainId) => {
     describe(`[${chainId}] on-chain feeds tests`, () => {
       let umbrellaFeeds: UmbrellaFeedInterface;

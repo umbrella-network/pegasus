@@ -21,13 +21,14 @@ export type FeedFetcherOptions = {
 };
 
 export enum FetchedValueType {
+  Number = 'Number',
   Price = 'Price',
   Hex = 'Hex',
 }
 
 export type FeedPrice = {
   value: number | undefined;
-  vwapVolume?: number | undefined;
+  vwapVolume?: number;
 };
 
 export type FetcherResult = {
@@ -62,6 +63,7 @@ export interface ServiceInterface {
 export enum FetcherName {
   ByBitPrice = 'ByBitPrice',
   BinancePrice = 'BinancePrice',
+  BinanceCandlestick = 'BinanceCandlestick',
   CoingeckoPrice = 'CoingeckoPrice',
   GoldApiPrice = 'GoldApiPrice',
   GVolImpliedVolatility = 'GVolImpliedVolatility',
