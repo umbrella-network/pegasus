@@ -93,7 +93,7 @@ export class BybitCandlestickFetcher {
         }
 
         const category = params[i].vwapCategory;
-        
+
         if (!category) {
           return undefined;
         }
