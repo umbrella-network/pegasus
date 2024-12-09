@@ -6,12 +6,11 @@ import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
 import {
   CandlestickRepository,
-  CandlestickRepositoryInput,
   CandlestickSearchInput,
 } from '../../repositories/fetchers/CandlestickRepository.js';
 import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceGetter.js';
 import {CandlestickModel} from '../../models/fetchers/CandlestickModel.js';
-import {FetcherName} from '../../types/fetchers';
+import {FetcherName} from '../../types/fetchers.js';
 
 export type BinanceCandlestickInterval =
   | '1s'

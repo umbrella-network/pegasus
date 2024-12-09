@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {KlineIntervalV3, CategoryV5} from 'bybit-api';
+import {KlineIntervalV3} from 'bybit-api';
 
 import Settings from '../../types/Settings.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
