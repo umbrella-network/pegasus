@@ -63,7 +63,7 @@ import {MoCMeasurementDataRepository} from '../repositories/fetchers/MoCMeasurem
 import {MoCMeasurementFetcher} from '../workers/fetchers/MoCMeasurementFetcher.js';
 import {BobDeviationDispatcher} from '../services/dispatchers/networks/BobDeviationDispatcher.js';
 import DataPurger from '../services/DataPurger.js';
-import {BinanceCandlestickRepository} from '../repositories/fetchers/BinanceCandlestickRepository.js';
+import {CandlestickRepository} from '../repositories/fetchers/CandlestickRepository.js';
 import {BinanceCandlestickFetcher} from '../workers/fetchers/BinanceCandlestickFetcher.js';
 
 export function getContainer(): Container {
@@ -84,7 +84,7 @@ export function getContainer(): Container {
 
   container.bind(BinancePriceGetter).toSelf().inSingletonScope();
   container.bind(BinanceDataRepository).toSelf().inSingletonScope();
-  container.bind(BinanceCandlestickRepository).toSelf().inSingletonScope();
+  container.bind(CandlestickRepository).toSelf().inSingletonScope();
   container.bind(BinanceCandlestickFetcher).toSelf().inSingletonScope();
   container.bind(ByBitPriceGetter).toSelf().inSingletonScope();
   container.bind(ByBitDataRepository).toSelf().inSingletonScope();

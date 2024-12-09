@@ -63,6 +63,8 @@ export default {
           type: 'object',
           properties: {
             symbol: {type: 'string'},
+            vwapInterval: {type: 'string'},
+            vwapCategory: {type: 'string'},
           },
           required: ['symbol'],
         },
