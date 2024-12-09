@@ -1,31 +1,44 @@
-import axios, {AxiosResponse} from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {RestClientV5, KlineIntervalV3} from 'bybit-api';
+import {CategorySymbolListV5, GetKlineParamsV5, KlineIntervalV3, RestClientV5, CategoryV5} from 'bybit-api';
 
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
-import {CandlestickRepository} from '../../repositories/fetchers/CandlestickRepository.js';
-import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceGetter.js';
+import {
+  CandlestickRepository,
+  CandlestickRepositoryInput,
+  CandlestickSearchInput,
+} from '../../repositories/fetchers/CandlestickRepository.js';
 import {CandlestickModel} from '../../models/fetchers/CandlestickModel.js';
-import {ByBitPriceInputParams} from "../../services/fetchers/ByBitPriceGetter";
+import {ByBitPriceInputParams} from '../../services/fetchers/ByBitPriceGetter.js';
+import {FetcherName} from '../../types/fetchers.js';
 
-
-export type BinanceCandlestick = {
+/*
+category	string	Product type
+symbol	string	Symbol name
+list	array
+An string array of individual candle
+Sort in reverse by startTime
+> list[0]: startTime	string	Start time of the candle (ms)
+> list[1]: openPrice	string	Open price
+> list[2]: highPrice	string	Highest price
+> list[3]: lowPrice	string	Lowest price
+> list[4]: closePrice	string	Close price. Is the last traded price when the candle is not closed
+> list[5]: volume	string	Trade volume. Unit of contract: pieces of contract. Unit of spot: quantity of coins
+> list[6]: turnover	string	Turnover. Unit of figure: quantity of quota coin
+ */
+export type ByBitCandlestick = {
+  category: string;
   symbol: string;
-  interval: KlineIntervalV3;
-
-  openTime: number; // Kline open time
-  openPrice: number; // Open price, parseFloat
-  highPrice: number; // High price
-  lowPrice: number; // Low price
-  closePrice: number; // Close price
-  volume: number; // Volume
-  closeTime: number; // Kline Close time
-  quoteAssetVolume: number; // Quote asset volume
-  nOfTrades: number; // Number of trades
-  buyBaseAssetVolume: number; // Taker buy base asset volume
-  buyQuoteAssetVolume: number; // Taker buy quote asset volume
+  candle: {
+    startTime: number; // string, Start time of the candle (ms)
+    openPrice: number; // string, Open price
+    highPrice: number; // string, Highest price
+    lowPrice: number; // string, Lowest price
+    closePrice: number; // string, Close price. Is the last traded price when the candle is not closed
+    volume: number; // string, Trade volume. Unit of contract: pieces of contract. Unit of spot: quantity of coins
+    turnover: number; // string, Turnover. Unit of figure: quantity of quota coin
+  };
 };
 
 @injectable()
@@ -54,9 +67,20 @@ export class BybitCandlestickFetcher {
 
   private async fetchCandlesticks(
     timestamp: number,
-    params: BinancePriceInputParams[],
+    params: ByBitPriceInputParams[],
   ): Promise<(CandlestickModel | undefined)[]> {
-    const existing = await this.candlestickRepository.getMany(timestamp, params);
+    const candleParams: CandlestickSearchInput[] = params.map((p) => {
+      return {
+        fetcher: FetcherName.ByBitCandlestick,
+        params: {
+          symbol: p.symbol,
+          interval: p.vwapInterval ? this.intervalToSeconds(p.vwapInterval) : 0,
+          timestamp,
+        },
+      };
+    });
+
+    const existing = await this.candlestickRepository.getMany(timestamp, candleParams);
 
     const results = await Promise.allSettled(
       existing.map((candle, i) => {
@@ -68,8 +92,27 @@ export class BybitCandlestickFetcher {
           return undefined;
         }
 
-        this.logger.debug(`${this.logPrefix} pulling candle for: ${params[i].symbol} for ${interval}`);
-        return candle != undefined ? candle : this.fetchCandlestick(timestamp, params[i].symbol, interval);
+        const category = params[i].vwapCategory;
+        
+        if (!category) {
+          return undefined;
+        }
+
+        const startTime = this.candlestickRepository.beginOfIntervalSec(this.intervalToSeconds(interval), timestamp);
+
+        const klineParams: GetKlineParamsV5 = {
+          category,
+          limit: 1,
+          interval,
+          symbol: params[i].symbol,
+          start: startTime,
+        };
+
+        this.logger.debug(
+          `${this.logPrefix} pulling candle for: ${params[i].symbol} for ${JSON.stringify(klineParams)}`,
+        );
+
+        return candle != undefined ? candle : this.fetchCandlestick(klineParams);
       }),
     );
 
@@ -78,79 +121,49 @@ export class BybitCandlestickFetcher {
     });
   }
 
-  private async fetchCandlestick(
-    timestamp: number,
-    symbol: string,
-    interval: KlineIntervalV3,
-  ): Promise<CandlestickModel | undefined> {
+  /*
+  // https://api-testnet.bybit.com/v5/market/kline?
+  category=inverse
+  &symbol=BTCUSD
+  &interval=60
+  &start=1670601600000
+  &end=1670608800000
+   */
+  private async fetchCandlestick(params: GetKlineParamsV5): Promise<CandlestickModel | undefined> {
     const client = new RestClientV5({
-      testnet: true,
+      testnet: false,
     });
 
-    client
-      .getKline({
-        category: 'inverse',
-        symbol: 'BTCUSD',
-        interval: '60',
-        start: 1670601600000,
-        end: 1670608800000,
-      })
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    try {
+      const response = await client.getKline(params);
 
-    const startTime = this.candlestickRepository.beginOfIntervalMs(interval, timestamp);
-    const api = 'https://www.binance.com/v5/market/kline';
-    const url = `${api}?symbol=${symbol}&interval=${interval}&startTime=${startTime}&limit=1`;
+      if (response.retMsg != 'OK') {
+        this.logger.error(`${this.logPrefix} error [${response.retCode}] ${response.retMsg}`);
+        return;
+      }
 
-    this.logger.debug(`${this.logPrefix} call for: ${url}`);
+      const parsed = this.toCandlestick(response.result as unknown as CategorySymbolListV5<string[], CategoryV5>);
+      await this.saveCandles(params.interval, parsed);
 
-    const response = await axios.get(url, {
-      timeout: this.timeout,
-      timeoutErrorMessage: `Timeout exceeded: ${url}`,
-    });
-
-    if (response.status !== 200) {
-      this.logger.error(`${this.logPrefix} status ${response.status}`);
-      return;
+      return {
+        symbol: parsed?.symbol,
+        value: parsed?.candle.volume,
+      } as unknown as CandlestickModel;
+    } catch (e) {
+      this.logger.error(`${this.logPrefix} error: ${JSON.stringify(e)}`);
     }
-
-    const parsed = this.parseCandlestickResponse(symbol, interval, response);
-    await this.saveCandles(parsed);
-
-    return {
-      symbol,
-      value: parsed?.volume,
-    } as unknown as CandlestickModel;
   }
 
-  private parseCandlestickResponse(
-    symbol: string,
-    interval: KlineIntervalV3,
-    axiosResponse: AxiosResponse,
-  ): BinanceCandlestick | undefined {
-    if (axiosResponse.status !== 200) {
-      this.logger.error(`${this.logPrefix} status ${axiosResponse.status}`);
-      return undefined;
-    }
-
-    return (axiosResponse.data as CandlestickResponse[]).map((item) => {
-      return this.toCandlestick(symbol, interval, item);
-    })[0];
-  }
-
-  private async saveCandles(parsed: BinanceCandlestick | undefined): Promise<void> {
+  private async saveCandles(interval: KlineIntervalV3, parsed: ByBitCandlestick | undefined): Promise<void> {
     if (!parsed) return;
 
-    const data = {
-      timestamp: parsed.openTime,
-      value: parsed.volume,
+    const data: CandlestickRepositoryInput = {
+      fetcher: FetcherName.ByBitCandlestick,
       params: {
+        timestamp: parsed.candle.startTime,
         symbol: parsed.symbol,
-        interval: parsed.interval,
+        interval: this.intervalToSeconds(interval),
+        value: parsed.candle.volume,
       },
     };
 
@@ -158,33 +171,59 @@ export class BybitCandlestickFetcher {
     await this.candlestickRepository.save([data]);
   }
 
-  private toCandlestick(
-    symbol: string,
-    interval: KlineIntervalV3,
-    data: CandlestickResponse,
-  ): BinanceCandlestick | undefined {
-    const c: BinanceCandlestick = {
-      symbol,
-      interval,
-
-      openTime: Math.trunc(data[0] / 1000),
-      openPrice: parseFloat(data[1]),
-      highPrice: parseFloat(data[2]),
-      lowPrice: parseFloat(data[3]),
-      closePrice: parseFloat(data[4]),
-      volume: parseFloat(data[5]),
-      closeTime: Math.trunc(data[6] / 1000),
-      quoteAssetVolume: parseFloat(data[7]),
-      nOfTrades: data[8],
-      buyBaseAssetVolume: parseFloat(data[9]),
-      buyQuoteAssetVolume: parseFloat(data[10]),
+  private toCandlestick(data: CategorySymbolListV5<string[], CategoryV5>): ByBitCandlestick | undefined {
+    const c: ByBitCandlestick = {
+      symbol: data.symbol,
+      category: data.category,
+      candle: {
+        startTime: Math.trunc(parseInt(data.list[0]) / 1000),
+        openPrice: parseFloat(data.list[1]),
+        highPrice: parseFloat(data.list[2]),
+        lowPrice: parseFloat(data.list[3]),
+        closePrice: parseFloat(data.list[4]),
+        volume: parseFloat(data.list[5]),
+        turnover: parseFloat(data.list[6]),
+      },
     };
 
-    if (isNaN(c.volume)) {
-      this.logger.error(`${this.logPrefix} toCandlestick fail for ${symbol}`);
+    if (isNaN(c.candle.volume)) {
+      this.logger.error(`${this.logPrefix} toCandlestick fail for ${data.symbol}: ${JSON.stringify(data)}`);
       return undefined;
     }
 
     return c;
+  }
+
+  private intervalToSeconds(i: KlineIntervalV3): number {
+    switch (i) {
+      case '1':
+        return 60;
+      case '3':
+        return 3 * 60;
+      case '5':
+        return 5 * 60;
+      case '15':
+        return 15 * 60;
+      case '30':
+        return 30 * 60;
+      case '60':
+        return 60 * 60;
+      case '120':
+        return 120 * 60;
+      case '240':
+        return 240 * 60;
+      case '360':
+        return 360 * 60;
+      case '720':
+        return 720 * 60;
+      case 'D':
+        return 60 * 60 * 24;
+      case 'W':
+        return 60 * 60 * 24 * 7;
+      case 'M':
+        return 60 * 60 * 24 * 30;
+    }
+
+    throw new Error(`unknown ${this.logPrefix}: ${i}`);
   }
 }

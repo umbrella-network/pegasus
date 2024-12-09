@@ -2,21 +2,28 @@ import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
 import {FetchedValueType, FetcherName} from '../../types/fetchers.js';
-import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceGetter.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {CandlestickModel} from '../../models/fetchers/CandlestickModel.js';
-import {BinanceCandlestickInterval} from '../../workers/fetchers/BinanceCandlestickFetcher.js';
 
-export type Candle = {
+export type Candlestick = {
   symbol: string;
   interval: number;
+  value: number;
+  timestamp: number; // start time
 };
 
 export type CandlestickRepositoryInput = {
   fetcher: FetcherName;
-  value: number;
-  timestamp: number; // start time
-  params: Candle;
+  params: Candlestick;
+};
+
+export type CandlestickSearchInput = {
+  fetcher: FetcherName;
+  params: {
+    symbol: string;
+    interval: number;
+    timestamp: number;
+  };
 };
 
 @injectable()
@@ -31,12 +38,12 @@ export class CandlestickRepository extends CommonPriceDataRepository {
     const payloads: CandlestickModel[] = [];
 
     const signatures = await Promise.all(
-      dataArr.map(({value, params, timestamp}) => {
+      dataArr.map(({fetcher, params}) => {
         const messageToSign = this.createMessageToSign(
-          value,
-          timestamp,
+          params.value,
+          params.timestamp,
           this.hashVersion,
-          FetcherName.BinanceCandlestick,
+          fetcher,
           params.symbol,
           params.interval.toString(),
         );
@@ -45,16 +52,16 @@ export class CandlestickRepository extends CommonPriceDataRepository {
       }),
     );
 
-    dataArr.forEach(({value, params, timestamp, fetcher}, ix) => {
+    dataArr.forEach(({params, fetcher}, ix) => {
       const {signerAddress, signature, hash, hashVersion} = signatures[ix];
 
       payloads.push({
         fetcher,
         symbol: params.symbol,
-        value: value.toString(),
+        value: params.value.toString(),
         interval: params.interval,
         valueType: FetchedValueType.Number,
-        timestamp,
+        timestamp: params.timestamp,
         hashVersion,
         signature,
         priceHash: hash,
@@ -66,27 +73,23 @@ export class CandlestickRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  async getMany(
-    timestamp: number,
-    params: BinancePriceInputParams[],
-  ): Promise<(CandlestickModel | undefined)[]> {
-    const vwapParams = params.filter((p) => !!p.vwapInterval);
+  async getMany(timestamp: number, params: CandlestickSearchInput[]): Promise<(CandlestickModel | undefined)[]> {
+    const vwapParams = params.filter((p) => p.params.interval != 0);
     if (vwapParams.length == 0) return params.map(() => undefined);
 
-    const $or = vwapParams.map((p) => {
-      if (!p.vwapInterval) throw new Error('vwapInterval filtering not working');
-
+    const $or = vwapParams.map(({fetcher, params}) => {
       return {
-        symbol: p.symbol.toLowerCase(),
-        interval: this.intervalToSeconds(p.vwapInterval),
-        timestamp: Math.trunc(this.beginOfIntervalMs(p.vwapInterval, timestamp) / 1000),
+        fetcher,
+        symbol: params.symbol.toLowerCase(),
+        interval: params.interval,
+        timestamp: this.beginOfIntervalSec(params.interval, timestamp),
       };
     });
 
     this.logger.debug(`${this.logPrefix} or: ${JSON.stringify($or)}`);
 
     const results: CandlestickModel[] = await this.model
-      .find({$or}, {value: 1, symbol: 1, interval: 1, timestamp: 1})
+      .find({$or}, {value: 1, symbol: 1, interval: 1, timestamp: 1, fetcher: 1})
       .exec();
 
     const map: Record<string, CandlestickModel> = {};
@@ -95,12 +98,11 @@ export class CandlestickRepository extends CommonPriceDataRepository {
       map[r.symbol] = r;
     });
 
-    return params.map((p) => map[p.symbol.toLowerCase()]);
+    return params.map(({params}) => map[params.symbol.toLowerCase()]);
   }
 
-  public beginOfIntervalMs(interval: BinanceCandlestickInterval, now?: number): number {
-    const intervalSec = this.intervalToSeconds(interval);
+  public beginOfIntervalSec(intervalSec: number, now?: number): number {
     const timestamp = Math.trunc(now ? now : Date.now() / 1000);
-    return (timestamp - (timestamp % intervalSec)) * 1000;
+    return timestamp - (timestamp % intervalSec);
   }
 }

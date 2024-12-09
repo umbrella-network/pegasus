@@ -4,10 +4,14 @@ import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
-import {CandlestickRepository} from '../../repositories/fetchers/CandlestickRepository.js';
+import {
+  CandlestickRepository,
+  CandlestickRepositoryInput,
+  CandlestickSearchInput,
+} from '../../repositories/fetchers/CandlestickRepository.js';
 import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceGetter.js';
 import {CandlestickModel} from '../../models/fetchers/CandlestickModel.js';
-import {FetcherName} from "../../types/fetchers";
+import {FetcherName} from '../../types/fetchers';
 
 export type BinanceCandlestickInterval =
   | '1s'
@@ -87,7 +91,18 @@ export class BinanceCandlestickFetcher {
     timestamp: number,
     params: BinancePriceInputParams[],
   ): Promise<(CandlestickModel | undefined)[]> {
-    const existing = await this.candlestickRepository.getMany(timestamp, params);
+    const candleParams = params.map((p): CandlestickSearchInput => {
+      return {
+        fetcher: FetcherName.BinanceCandlestick,
+        params: {
+          symbol: p.symbol,
+          interval: p.vwapInterval ? this.intervalToSeconds(p.vwapInterval) : 0,
+          timestamp,
+        },
+      };
+    });
+
+    const existing = await this.candlestickRepository.getMany(timestamp, candleParams);
 
     const results = await Promise.allSettled(
       existing.map((candle, i) => {
@@ -114,7 +129,7 @@ export class BinanceCandlestickFetcher {
     symbol: string,
     interval: BinanceCandlestickInterval,
   ): Promise<CandlestickModel | undefined> {
-    const startTime = this.candlestickRepository.beginOfIntervalMs(interval, timestamp);
+    const startTime = this.candlestickRepository.beginOfIntervalSec(this.intervalToSeconds(interval), timestamp) * 1000;
     const api = 'https://www.binance.com/api/v3';
     const url = `${api}/klines?symbol=${symbol}&interval=${interval}&startTime=${startTime}&limit=1`;
 
@@ -159,10 +174,10 @@ export class BinanceCandlestickFetcher {
 
     const data = {
       fetcher: FetcherName.BinancePrice,
-      timestamp: parsed.openTime,
-      value: parsed.volume,
       params: {
         symbol: parsed.symbol,
+        timestamp: parsed.openTime,
+        value: parsed.volume,
         interval: this.intervalToSeconds(parsed.interval),
       },
     };
@@ -201,7 +216,7 @@ export class BinanceCandlestickFetcher {
     return c;
   }
 
-  public intervalToSeconds(i: BinanceCandlestickInterval): number {
+  private intervalToSeconds(i: BinanceCandlestickInterval): number {
     switch (i) {
       case '1s':
         return 1;
