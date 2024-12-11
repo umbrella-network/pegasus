@@ -105,7 +105,7 @@ export class BybitCandlestickFetcher {
           limit: 1,
           interval,
           symbol: params[i].symbol,
-          start: startTime,
+          start: startTime * 1000,
         };
 
         this.logger.debug(
@@ -189,7 +189,7 @@ export class BybitCandlestickFetcher {
     };
 
     if (isNaN(c.candle.volume)) {
-      this.logger.error(`${this.logPrefix} toCandlestick fail for ${data.symbol}: ${JSON.stringify(data)}`);
+      this.logger.error(`${this.logPrefix} toCandlestick fail for ${data.symbol}: ${JSON.stringify(data)} => ${JSON.stringify(c)}`);
       return undefined;
     }
 
