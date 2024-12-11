@@ -73,7 +73,7 @@ export class BybitCandlestickFetcher {
       return {
         fetcher: FetcherName.ByBitCandlestick,
         params: {
-          symbol: p.symbol,
+          symbol: p.vwapSymbol ?? '',
           interval: p.vwapInterval ? this.intervalToSeconds(p.vwapInterval) : 0,
           timestamp,
         },
@@ -98,13 +98,19 @@ export class BybitCandlestickFetcher {
           return undefined;
         }
 
+        const symbol = params[i].vwapSymbol;
+
+        if (!symbol) {
+          return undefined;
+        }
+
         const startTime = this.candlestickRepository.beginOfIntervalSec(this.intervalToSeconds(interval), timestamp);
 
         const klineParams: GetKlineParamsV5 = {
           category,
           limit: 1,
           interval,
-          symbol: params[i].symbol,
+          symbol,
           start: startTime * 1000,
         };
 

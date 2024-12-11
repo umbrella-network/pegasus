@@ -20,6 +20,7 @@ export type ByBitCategory = 'spot' | 'linear' | 'inverse';
 
 export interface ByBitPriceInputParams {
   symbol: string;
+  vwapSymbol?: string;
   vwapInterval?: KlineIntervalV3;
   vwapCategory?: ByBitCategory;
 }
