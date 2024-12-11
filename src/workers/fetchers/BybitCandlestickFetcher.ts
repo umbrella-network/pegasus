@@ -135,6 +135,8 @@ export class BybitCandlestickFetcher {
     });
 
     try {
+      this.logger.debug(`${this.logPrefix} call for ${JSON.stringify(params)}`);
+
       const response = await client.getKline(params);
 
       if (response.retMsg != 'OK') {

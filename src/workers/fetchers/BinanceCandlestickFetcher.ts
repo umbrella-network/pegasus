@@ -172,7 +172,7 @@ export class BinanceCandlestickFetcher {
     if (!parsed) return;
 
     const data = {
-      fetcher: FetcherName.BinancePrice,
+      fetcher: FetcherName.BinanceCandlestick,
       params: {
         symbol: parsed.symbol,
         timestamp: parsed.openTime,
