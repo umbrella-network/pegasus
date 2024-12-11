@@ -16,7 +16,7 @@ import {
 import {ByBitDataRepository} from '../../repositories/fetchers/ByBitDataRepository.js';
 import {BybitCandlestickFetcher} from '../../workers/fetchers/BybitCandlestickFetcher.js';
 
-export type ByBitCategory  = 'spot' | 'linear' | 'inverse';
+export type ByBitCategory = 'spot' | 'linear' | 'inverse';
 
 export interface ByBitPriceInputParams {
   symbol: string;

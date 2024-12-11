@@ -178,18 +178,20 @@ export class BybitCandlestickFetcher {
       symbol: data.symbol,
       category: data.category,
       candle: {
-        startTime: Math.trunc(parseInt(data.list[0]) / 1000),
-        openPrice: parseFloat(data.list[1]),
-        highPrice: parseFloat(data.list[2]),
-        lowPrice: parseFloat(data.list[3]),
-        closePrice: parseFloat(data.list[4]),
-        volume: parseFloat(data.list[5]),
-        turnover: parseFloat(data.list[6]),
+        startTime: Math.trunc(parseInt(data.list[0][0]) / 1000),
+        openPrice: parseFloat(data.list[0][1]),
+        highPrice: parseFloat(data.list[0][2]),
+        lowPrice: parseFloat(data.list[0][3]),
+        closePrice: parseFloat(data.list[0][4]),
+        volume: parseFloat(data.list[0][5]),
+        turnover: parseFloat(data.list[0][6]),
       },
     };
 
     if (isNaN(c.candle.volume)) {
-      this.logger.error(`${this.logPrefix} toCandlestick fail for ${data.symbol}: ${JSON.stringify(data)} => ${JSON.stringify(c)}`);
+      this.logger.error(
+        `${this.logPrefix} toCandlestick fail for ${data.symbol}: ${JSON.stringify(data)} => ${JSON.stringify(c)}`,
+      );
       return undefined;
     }
 

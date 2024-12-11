@@ -4,10 +4,7 @@ import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
-import {
-  CandlestickRepository,
-  CandlestickSearchInput,
-} from '../../repositories/fetchers/CandlestickRepository.js';
+import {CandlestickRepository, CandlestickSearchInput} from '../../repositories/fetchers/CandlestickRepository.js';
 import {BinancePriceInputParams} from '../../services/fetchers/BinancePriceGetter.js';
 import {CandlestickModel} from '../../models/fetchers/CandlestickModel.js';
 import {FetcherName} from '../../types/fetchers.js';
