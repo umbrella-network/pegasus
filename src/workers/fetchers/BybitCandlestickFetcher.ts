@@ -197,7 +197,7 @@ export class BybitCandlestickFetcher {
   }
 
   private intervalToSeconds(i: KlineIntervalV3): number {
-    switch (i) {
+    switch (i.toString()) {
       case '1':
         return 60;
       case '3':
@@ -226,6 +226,6 @@ export class BybitCandlestickFetcher {
         return 60 * 60 * 24 * 30;
     }
 
-    throw new Error(`unknown ${this.logPrefix}: ${i}`);
+    throw new Error(`${this.logPrefix} intervalToSeconds unknown: ${i}`);
   }
 }
