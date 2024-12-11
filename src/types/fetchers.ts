@@ -64,6 +64,7 @@ export enum FetcherName {
   ByBitPrice = 'ByBitPrice',
   BinancePrice = 'BinancePrice',
   BinanceCandlestick = 'BinanceCandlestick',
+  ByBitCandlestick = 'ByBitCandlestick',
   CoingeckoPrice = 'CoingeckoPrice',
   GoldApiPrice = 'GoldApiPrice',
   GVolImpliedVolatility = 'GVolImpliedVolatility',
