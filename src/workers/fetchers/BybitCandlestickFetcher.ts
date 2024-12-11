@@ -55,7 +55,7 @@ export class BybitCandlestickFetcher {
     this.timeout = settings.api.binance.timeout;
   }
 
-  async apply(timestamp: number, params: ByBitPriceInputParams[]): Promise<(CandlestickModel | undefined)[]> {
+  async apply(params: ByBitPriceInputParams[], timestamp: number): Promise<(CandlestickModel | undefined)[]> {
     try {
       return await this.fetchCandlesticks(timestamp, params);
     } catch (e) {

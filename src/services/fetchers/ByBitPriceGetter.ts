@@ -46,10 +46,10 @@ export class ByBitPriceGetter implements FeedFetcherInterface {
     }
 
     const prices = await this.byBitDataRepository.getPrices(params, options.timestamp);
-    const candles = await this.candlestickFetcher.apply(options.timestamp, params);
+    const candles = await this.candlestickFetcher.apply(params, options.timestamp);
     this.logger.debug(`${this.logPrefix} candles ${JSON.stringify(candles)}`);
 
-    const fetcherResult: FetcherResult = {
+    const fetcherResults: FetcherResult = {
       prices: prices.map((price, ix) => {
         const volume = candles[ix]?.value;
 
@@ -61,15 +61,17 @@ export class ByBitPriceGetter implements FeedFetcherInterface {
       timestamp: options.timestamp,
     };
 
+    this.logger.debug(`${this.logPrefix} fetcherResult ${JSON.stringify(fetcherResults)}`);
+
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
-      fetcherResult,
+      fetcherResults,
       options.symbols,
       FetcherName.ByBitPrice,
       FetchedValueType.Price,
       ByBitPriceGetter.fetcherSource,
     );
 
-    return fetcherResult;
+    return fetcherResults;
   }
 }
