@@ -91,12 +91,6 @@ export class BybitCandlestickFetcher {
         if (!interval) {
           return undefined;
         }
-        
-        const symbol = params[i].vwapSymbol;
-
-        if (!symbol) {
-          return undefined;
-        }
 
         const startTime = this.candlestickRepository.beginOfIntervalSec(this.intervalToSeconds(interval), timestamp);
 
@@ -104,7 +98,7 @@ export class BybitCandlestickFetcher {
           category: params[i].vwapCategory || 'spot',
           limit: 1,
           interval,
-          symbol,
+          symbol: params[i].vwapSymbol || params[i].symbol,
           start: startTime * 1000,
         };
 
