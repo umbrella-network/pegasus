@@ -121,7 +121,7 @@ export class BinanceCandlestickFetcher {
   }
 
   /*
-  https://www.binance.com/api/v3/klines?symbol=BTCUSDC&interval=1d&limit=2
+  https://www.binance.com/api/v3/klines?symbol=BTCUSDC&interval=1d&limit=1&startTime=1734220800000
   as response we will get volume = "2238.50824000" => Vol(BTC)
    */
   private async fetchCandlestick(

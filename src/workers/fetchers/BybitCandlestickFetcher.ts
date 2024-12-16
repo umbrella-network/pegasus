@@ -91,13 +91,7 @@ export class BybitCandlestickFetcher {
         if (!interval) {
           return undefined;
         }
-
-        const category = params[i].vwapCategory;
-
-        if (!category) {
-          return undefined;
-        }
-
+        
         const symbol = params[i].vwapSymbol;
 
         if (!symbol) {
@@ -107,7 +101,7 @@ export class BybitCandlestickFetcher {
         const startTime = this.candlestickRepository.beginOfIntervalSec(this.intervalToSeconds(interval), timestamp);
 
         const klineParams: GetKlineParamsV5 = {
-          category,
+          category: params[i].vwapCategory || 'spot',
           limit: 1,
           interval,
           symbol,
@@ -128,12 +122,9 @@ export class BybitCandlestickFetcher {
   }
 
   /*
-  // https://api-testnet.bybit.com/v5/market/kline?
-  category=inverse
-  &symbol=BTCUSD
-  &interval=60
-  &start=1670601600000
-  &end=1670608800000
+  https://api.bybit.com/v5/market/kline?category=spot&symbol=BTCUSDC&interval=D&start=1734220800000
+  response is volume = "1042.851483", Vol(BTC)
+  for same time Binace has volume "2238.50824000"
    */
   private async fetchCandlestick(params: GetKlineParamsV5): Promise<CandlestickModel | undefined> {
     const client = new RestClientV5({
