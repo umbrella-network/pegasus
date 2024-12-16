@@ -48,7 +48,7 @@ export class BinancePriceGetter implements FeedFetcherInterface {
     }
 
     const prices = await this.binanceDataRepository.getPrices(params, options.timestamp);
-    const candles = await this.candlestickFetcher.apply(options.timestamp, params);
+    const candles = await this.candlestickFetcher.apply(params, options.timestamp);
     this.logger.debug(`${this.logPrefix} candles ${JSON.stringify(candles)}`);
 
     const fetcherResults: FetcherResult = {
@@ -62,6 +62,8 @@ export class BinancePriceGetter implements FeedFetcherInterface {
       }),
       timestamp: options.timestamp,
     };
+
+    this.logger.debug(`${this.logPrefix} fetcherResult ${JSON.stringify(fetcherResults)}`);
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
