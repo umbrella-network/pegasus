@@ -120,6 +120,10 @@ export class BinanceCandlestickFetcher {
     });
   }
 
+  /*
+  https://www.binance.com/api/v3/klines?symbol=BTCUSDC&interval=1d&limit=2
+  as response we will get volume = "2238.50824000" => Vol(BTC)
+   */
   private async fetchCandlestick(
     timestamp: number,
     symbol: string,
