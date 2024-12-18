@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Added
 - VWAP for Binance, ByBit
+- KuCoin fetcher with vwap
 
 ### Updated
 - Update GitHub Action. The deployments are managed by helm charts
