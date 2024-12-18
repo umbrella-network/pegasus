@@ -118,9 +118,10 @@ export class KuCoinCandlestickFetcher {
     symbol: string,
     interval: KuCoinCandlestickInterval,
   ): Promise<CandlestickModel | undefined> {
-    const startTime = this.candlestickRepository.beginOfIntervalSec(this.intervalToSeconds(interval), timestamp) * 1000;
+    const startTime = this.candlestickRepository.beginOfIntervalSec(this.intervalToSeconds(interval), timestamp);
+    const endAt = startTime + 1;
     const api = 'https://api.kucoin.com';
-    const url = `${api}/api/v1/market/candles?symbol=${symbol}&type=${interval}&startTime=${startTime}`;
+    const url = `${api}/api/v1/market/candles?symbol=${symbol}&type=${interval}&startAt=${startTime}&endAt=${endAt}`;
 
     this.logger.debug(`${this.logPrefix} call for: ${url}`);
 
