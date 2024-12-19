@@ -49,7 +49,6 @@ export abstract class SymbolDataRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  // InputParams from price getter eg. BinancePriceInputParams
   async getPrices(params: {symbol: string}[], timestamp: number): Promise<FeedPrice[]> {
     if (params.length === 0) {
       return [];
