@@ -22,6 +22,7 @@ import {
 import {UniswapV3Getter} from '../fetchers/UniswapV3Getter.js';
 import {SovrynPriceGetter} from '../fetchers/SovrynPriceGetter.js';
 import {FeedFetcher} from '../../types/Feed.js';
+import {KuCoinPriceGetter} from '../fetchers/KuCoinPriceGetter.js';
 
 @injectable()
 export default class MultiFeedProcessor {
@@ -33,6 +34,7 @@ export default class MultiFeedProcessor {
     @inject(BinancePriceGetter) binancePricGetter: BinancePriceGetter,
     @inject(ByBitPriceGetter) byBitSpotPriceGetter: ByBitPriceGetter,
     @inject(CoingeckoPriceGetter) coingeckoPriceGetter: CoingeckoPriceGetter,
+    @inject(KuCoinPriceGetter) kuCoinPriceGetter: KuCoinPriceGetter,
     @inject(MoCMeasurementGetter) moCMeasurementGetter: MoCMeasurementGetter,
 
     @inject(PolygonIOCryptoSnapshotPriceGetter)
@@ -47,6 +49,7 @@ export default class MultiFeedProcessor {
     this.multifetchersMap[FetcherName.BinancePrice] = binancePricGetter;
     this.multifetchersMap[FetcherName.ByBitPrice] = byBitSpotPriceGetter;
     this.multifetchersMap[FetcherName.CoingeckoPrice] = coingeckoPriceGetter;
+    this.multifetchersMap[FetcherName.KuCoinPrice] = kuCoinPriceGetter;
     this.multifetchersMap[FetcherName.MoCMeasurement] = moCMeasurementGetter;
     this.multifetchersMap[FetcherName.PolygonIOCryptoSnapshotPrice] = polygonIOCryptoSnapshotPriceGetter;
     this.multifetchersMap[FetcherName.PolygonIOStockSnapshotPrice] = polygonIOStockSnapshotPriceGetter;

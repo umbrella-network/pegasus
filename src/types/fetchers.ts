@@ -11,7 +11,8 @@ import {PolygonIOStockSnapshotFetcherInputParams} from '../services/fetchers/Pol
 import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceGetter.js';
 import {PolygonIOSingleCryptoPriceInputParams} from '../services/fetchers/PolygonIOSingleCryptoPriceGetter.js';
 import {UniswapV3FetcherInputParams} from '../services/fetchers/UniswapV3Getter.js';
-import {MoCMeasurementPriceInputParams} from '../services/fetchers/MoCMeasurementGetter';
+import {MoCMeasurementPriceInputParams} from '../services/fetchers/MoCMeasurementGetter.js';
+import {KuCoinPriceInputParams} from '../services/fetchers/KuCoinPriceGetter.js';
 
 export type StringOrUndefined = string | undefined;
 
@@ -42,6 +43,7 @@ export type FeedFetcherInputParams =
   | CoingeckoPriceInputParams
   | EvmTWAPGasPriceInputParams
   | GoldApiPriceInputParams
+  | KuCoinPriceInputParams
   | MetalPriceApiInputParams
   | MoCMeasurementPriceInputParams
   | MetalsDevApiPriceInputParams
@@ -68,6 +70,8 @@ export enum FetcherName {
   CoingeckoPrice = 'CoingeckoPrice',
   GoldApiPrice = 'GoldApiPrice',
   GVolImpliedVolatility = 'GVolImpliedVolatility',
+  KuCoinCandlestick = 'KuCoinCandlestick',
+  KuCoinPrice = 'KuCoinPrice',
   MetalPriceApi = 'MetalPriceApi',
   MetalsDevApi = 'MetalsDevApi',
   MoCMeasurement = 'MoCMeasurement',
@@ -88,6 +92,7 @@ export const allMultiFetchers: Set<string> = new Set([
   FetcherName.BinancePrice,
   FetcherName.ByBitPrice,
   FetcherName.CoingeckoPrice,
+  FetcherName.KuCoinPrice,
   FetcherName.MoCMeasurement,
   FetcherName.PolygonIOCryptoSnapshotPrice,
   FetcherName.PolygonIOStockSnapshotPrice,

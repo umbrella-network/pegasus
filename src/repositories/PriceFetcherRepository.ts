@@ -16,6 +16,7 @@ import {PolygonIOSingleCryptoPriceFetcher} from '../workers/fetchers/PolygonIOSi
 import {UniswapV3Fetcher} from '../workers/fetchers/dexes/uniswapV3/UniswapV3Fetcher.js';
 import {SovrynPriceFetcher} from '../workers/fetchers/dexes/sovryn/SovrynPriceFetcher.js';
 import {MoCMeasurementFetcher} from '../workers/fetchers/MoCMeasurementFetcher.js';
+import {KuCoinPriceFetcher} from '../workers/fetchers/KuCoinPriceFetcher.js';
 
 export type PriceFetchersCollection = {
   [fetcherName: string]: ServiceInterface | undefined;
@@ -34,6 +35,7 @@ export class PriceFetcherRepository {
     @inject(ByBitPriceFetcher) byBitPriceService: ByBitPriceFetcher,
     @inject(CoingeckoPriceFetcher) coingeckoPriceService: CoingeckoPriceFetcher,
     @inject(GoldApiPriceFetcher) goldApiPriceService: GoldApiPriceFetcher,
+    @inject(KuCoinPriceFetcher) kuCoinPriceFetcher: KuCoinPriceFetcher,
     @inject(MetalPriceApiFetcher) metalPriceApiService: MetalPriceApiFetcher,
     @inject(MetalsDevApiFetcher) metalsDevApiService: MetalsDevApiFetcher,
     @inject(MoCMeasurementFetcher) moCMeasurementFetcher: MoCMeasurementFetcher,
@@ -54,6 +56,7 @@ export class PriceFetcherRepository {
     this.collection[FetcherName.ByBitPrice] = byBitPriceService;
     this.collection[FetcherName.CoingeckoPrice] = coingeckoPriceService;
     this.collection[FetcherName.GoldApiPrice] = goldApiPriceService;
+    this.collection[FetcherName.KuCoinPrice] = kuCoinPriceFetcher;
     this.collection[FetcherName.MetalPriceApi] = metalPriceApiService;
     this.collection[FetcherName.MetalsDevApi] = metalsDevApiService;
     this.collection[FetcherName.MoCMeasurement] = moCMeasurementFetcher;
