@@ -65,6 +65,10 @@ import {BobDeviationDispatcher} from '../services/dispatchers/networks/BobDeviat
 import DataPurger from '../services/DataPurger.js';
 import {CandlestickRepository} from '../repositories/fetchers/CandlestickRepository.js';
 import {BinanceCandlestickFetcher} from '../workers/fetchers/BinanceCandlestickFetcher.js';
+import {KuCoinPriceGetter} from '../services/fetchers/KuCoinPriceGetter.js';
+import {KuCoinCandlestickFetcher} from '../workers/fetchers/KuCoinCandlestickFetcher.js';
+import {KuCoinPriceFetcher} from '../workers/fetchers/KuCoinPriceFetcher.js';
+import {KuCoinDataRepository} from '../repositories/fetchers/KuCoinDataRepository.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
@@ -129,6 +133,10 @@ export function getContainer(): Container {
   container.bind(PolygonIOCurrencySnapshotGramsFetcher).toSelf().inSingletonScope();
   container.bind(PolygonIOSingleCryptoPriceFetcher).toSelf().inSingletonScope();
   container.bind(PolygonIOStockSnapshotPriceFetcher).toSelf().inSingletonScope();
+  container.bind(KuCoinPriceGetter).toSelf().inSingletonScope();
+  container.bind(KuCoinCandlestickFetcher).toSelf().inSingletonScope();
+  container.bind(KuCoinPriceFetcher).toSelf().inSingletonScope();
+  container.bind(KuCoinDataRepository).toSelf().inSingletonScope();
 
   container.bind(BobDeviationDispatcher).toSelf().inSingletonScope();
 

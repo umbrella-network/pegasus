@@ -548,6 +548,7 @@ const settings: Settings = {
       [FetcherName.ByBitPrice]: schedulerFetcherSettings(FetcherName.ByBitPrice),
       [FetcherName.CoingeckoPrice]: schedulerFetcherSettings(FetcherName.CoingeckoPrice),
       [FetcherName.GoldApiPrice]: schedulerFetcherSettings(FetcherName.GoldApiPrice),
+      [FetcherName.KuCoinPrice]: schedulerFetcherSettings(FetcherName.KuCoinPrice),
       [FetcherName.MetalPriceApi]: schedulerFetcherSettings(FetcherName.MetalPriceApi),
       [FetcherName.MetalsDevApi]: schedulerFetcherSettings(FetcherName.MetalsDevApi),
       [FetcherName.MoCMeasurement]: schedulerFetcherSettings(FetcherName.MoCMeasurement),
