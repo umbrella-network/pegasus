@@ -65,10 +65,10 @@ import {BobDeviationDispatcher} from '../services/dispatchers/networks/BobDeviat
 import DataPurger from '../services/DataPurger.js';
 import {CandlestickRepository} from '../repositories/fetchers/CandlestickRepository.js';
 import {BinanceCandlestickFetcher} from '../workers/fetchers/BinanceCandlestickFetcher.js';
-import {KuCoinPriceGetter} from "../services/fetchers/KuCoinPriceGetter.js;
-import {KuCoinCandlestickFetcher} from "../workers/fetchers/KuCoinCandlestickFetcher.js";
-import {KuCoinPriceFetcher} from "../workers/fetchers/KuCoinPriceFetcher.js";
-import {KuCoinDataRepository} from "../repositories/fetchers/KuCoinDataRepository.js";
+import {KuCoinPriceGetter} from '../services/fetchers/KuCoinPriceGetter.js';
+import {KuCoinCandlestickFetcher} from '../workers/fetchers/KuCoinCandlestickFetcher.js';
+import {KuCoinPriceFetcher} from '../workers/fetchers/KuCoinPriceFetcher.js';
+import {KuCoinDataRepository} from '../repositories/fetchers/KuCoinDataRepository.js';
 
 export function getContainer(): Container {
   const container = new Container({autoBindInjectable: true});
