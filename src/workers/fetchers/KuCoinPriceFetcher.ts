@@ -48,25 +48,28 @@ export class KuCoinPriceFetcher extends SymbolPriceFetcher {
     this.fetcherName = FetcherName.KuCoinPrice;
   }
 
-  protected parseResponse(axiosResponse: AxiosResponse): SymbolParsedResponse[] {
+  protected parseResponse(axiosResponse: AxiosResponse): {timestamp?: number; parsed: SymbolParsedResponse[]} {
     if (axiosResponse.status !== 200) {
       this.logger.error(`${this.logPrefix} status ${axiosResponse.status}`);
-      return [];
+      return {parsed: []};
     }
 
-    return (axiosResponse.data.data as KuCoinResponse).ticker
-      .map(({symbol, last}) => {
-        const value = parseFloat(last);
+    return {
+      timestamp: Math.trunc((axiosResponse.data.data as KuCoinResponse).time / 1000),
+      parsed: (axiosResponse.data.data as KuCoinResponse).ticker
+        .map(({symbol, last}) => {
+          const value = parseFloat(last);
 
-        if (isNaN(value)) {
-          this.logger.warn(`${this.logPrefix} NaN: ${symbol}: ${last}`);
-          return;
-        }
+          if (isNaN(value)) {
+            this.logger.warn(`${this.logPrefix} NaN: ${symbol}: ${last}`);
+            return;
+          }
 
-        this.logger.debug(`${this.logPrefix} fetched ${symbol}: ${value}`);
+          this.logger.debug(`${this.logPrefix} fetched ${symbol}: ${value}`);
 
-        return {symbol, price: value};
-      })
-      .filter((e) => !!e) as SymbolParsedResponse[];
+          return {symbol, price: value};
+        })
+        .filter((e) => !!e) as SymbolParsedResponse[],
+    };
   }
 }

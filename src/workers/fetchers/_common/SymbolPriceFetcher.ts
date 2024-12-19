@@ -41,14 +41,17 @@ export abstract class SymbolPriceFetcher implements ServiceInterface {
       timeoutErrorMessage: `Timeout exceeded: ${this.sourceUrl}`,
     });
 
-    const parsed = this.parseResponse(response);
-    await this.savePrices(this.timeService.apply(), parsed);
+    const {parsed, timestamp} = this.parseResponse(response);
+    await this.savePrices(timestamp ?? this.timeService.apply(), parsed);
   }
 
-  protected parseResponse(axiosResponse: AxiosResponse): SymbolParsedResponse[] {
+  protected parseResponse(axiosResponse: AxiosResponse): {
+    timestamp?: number;
+    parsed: SymbolParsedResponse[];
+  } {
     this.logger.debug(JSON.stringify(axiosResponse));
     new Error('[SymbolPriceFetcher] please override `parseResponse()`');
-    return [];
+    return {timestamp: 0, parsed: []};
   }
 
   // {
