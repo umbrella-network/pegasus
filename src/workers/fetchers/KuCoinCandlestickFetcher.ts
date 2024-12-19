@@ -137,7 +137,7 @@ export class KuCoinCandlestickFetcher {
 
     this.logger.debug(`${this.logPrefix} response: ${JSON.stringify(response.data)}`);
 
-    const parsed = this.parseCandlestickResponse(symbol, interval, response);
+    const parsed = this.parseCandlestickResponse(symbol, interval, response.data);
     await this.saveCandles(parsed);
 
     return {
@@ -157,6 +157,7 @@ export class KuCoinCandlestickFetcher {
     }
 
     return (axiosResponse.data as CandlestickResponse[]).map((item) => {
+      this.logger.debug(`${this.logPrefix} map ${item}`);
       return this.toCandlestick(symbol, interval, item);
     })[0];
   }
@@ -183,7 +184,7 @@ export class KuCoinCandlestickFetcher {
     interval: KuCoinCandlestickInterval,
     data: CandlestickResponse,
   ): KuCoinCandlestick | undefined {
-    this.logger.debug(`${this.logPrefix} data ${data}`);
+    this.logger.debug(`${this.logPrefix} toCandlestick ${data}`);
 
     const c: KuCoinCandlestick = {
       symbol,

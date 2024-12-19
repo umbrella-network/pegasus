@@ -54,9 +54,7 @@ export class KuCoinPriceFetcher extends SymbolPriceFetcher {
       return [];
     }
 
-    this.logger.debug(`${this.logPrefix} status ${JSON.stringify(axiosResponse.data)}`);
-
-    return (axiosResponse.data as KuCoinResponse).ticker
+    return (axiosResponse.data.data as KuCoinResponse).ticker
       .map(({symbol, last}) => {
         const value = parseFloat(last);
 
