@@ -135,6 +135,8 @@ export class KuCoinCandlestickFetcher {
       return;
     }
 
+    this.logger.debug(`${this.logPrefix} response: ${JSON.stringify(response.data)}`);
+
     const parsed = this.parseCandlestickResponse(symbol, interval, response);
     await this.saveCandles(parsed);
 
@@ -181,6 +183,8 @@ export class KuCoinCandlestickFetcher {
     interval: KuCoinCandlestickInterval,
     data: CandlestickResponse,
   ): KuCoinCandlestick | undefined {
+    this.logger.debug(`${this.logPrefix} data ${data}`);
+
     const c: KuCoinCandlestick = {
       symbol,
       interval,
