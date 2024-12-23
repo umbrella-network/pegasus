@@ -54,28 +54,6 @@ export abstract class SymbolPriceFetcher implements ServiceInterface {
     return {timestamp: 0, parsed: []};
   }
 
-  // {
-  //   if (axiosResponse.status !== 200) {
-  //     this.logger.error(`${this.logPrefix} status ${axiosResponse.status}`);
-  //     return [];
-  //   }
-  //
-  //   return (axiosResponse.data as SymbolResponse[])
-  //     .map(({symbol, price}) => {
-  //       const value = parseFloat(price);
-  //
-  //       if (isNaN(value)) {
-  //         this.logger.warn(`${this.logPrefix} NaN: ${symbol}: ${price}`);
-  //         return;
-  //       }
-  //
-  //       this.logger.debug(`${this.logPrefix} fetched ${symbol}: ${value}`);
-  //
-  //       return {symbol, price: value};
-  //     })
-  //     .filter((e) => !!e) as ParsedResponse[];
-  // }
-
   private async savePrices(timestamp: number, parsed: SymbolParsedResponse[]): Promise<void> {
     const allData = parsed.map((data) => {
       return {
