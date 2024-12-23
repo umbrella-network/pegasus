@@ -39,6 +39,7 @@ export default {
             {$ref: '#/definitions/PolygonIOCurrencySnapshotGrams'},
             {$ref: '#/definitions/PolygonIOStockSnapshotPrice'},
             {$ref: '#/definitions/CoingeckoPrice'},
+            {$ref: '#/definitions/KuCoinPrice'},
             {$ref: '#/definitions/OnChainData'},
             {$ref: '#/definitions/UniswapV3'},
             {$ref: '#/definitions/OptionsPrice'},
@@ -68,6 +69,20 @@ export default {
             vwapCategory: {type: 'string'},
           },
           required: ['symbol'],
+        },
+      },
+    },
+    KuCoinPrice: {
+      properties: {
+        name: {const: FetcherName.KuCoinPrice},
+        params: {
+          type: 'object',
+          properties: {
+            symbol: {type: 'string'},
+            vwapInterval: {type: 'string'},
+          },
+          required: ['symbol'],
+          additionalProperties: false,
         },
       },
     },
