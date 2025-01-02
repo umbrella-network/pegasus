@@ -2,9 +2,11 @@ import bs58 from 'bs58';
 
 export class MassaAddress {
   static toHex(addr: string): string {
-    const base58WithChecksum = bs58.decode(addr.slice(2));
-    const base58 = Buffer.from(base58WithChecksum.slice(1, 33));
-    return '0x' + base58.toString('hex');
+    // Remove 'P'
+    const base58WithChecksum = bs58.decode(addr.slice(1));
+    // Remove version (0) and b58 checksum (at the end)
+    const base58 = Buffer.from(base58WithChecksum.slice(1, -4));
+    return '0x' + base58.toString('hex').toLowerCase();
   }
 
   static sort(addr1: string, addr2: string): number {
