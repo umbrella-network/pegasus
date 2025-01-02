@@ -206,8 +206,8 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
 
   protected sortSignatures(signatures: string[]): {sortedSignatures: string[]; publicKeys: string[]} {
     const sorted = signatures.sort((a, b) => {
-      const addr1 = a.split('@')[1];
-      const addr2 = b.split('@')[1];
+      const addr1 = a.split('@')[0];
+      const addr2 = b.split('@')[0];
       return MassaAddress.sort(addr1, addr2);
     });
 
