@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - prepare schema for vwap
 - remove calculators
 
+## [8.6.11] - 2025-01-02
+### Fixed
+- fix sorting signatures for Massa
+
 ## [8.6.10] - 2024-11-25
 ### Updated
 - fallback to default RPC provider gas estimation based on env setup
