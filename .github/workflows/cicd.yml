@@ -211,4 +211,4 @@ jobs:
           git checkout -b $BRANCH
           git commit -a -m "chore(build): $IMAGE"
           git push origin -f $BRANCH 
-          gh pr create --base master --title "Pegasus Release" --body "Pegasus" || exit 0
+          gh pr create --base master --head $BRANCH --title "Pegasus Release" --body "Pegasus" || exit 0
