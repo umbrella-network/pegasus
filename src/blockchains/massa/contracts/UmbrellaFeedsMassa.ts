@@ -220,6 +220,8 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
       sortedSignatures.push(s);
     });
 
+    console.log({sortedSignatures, publicKeys});
+
     return {sortedSignatures, publicKeys};
   }
 
