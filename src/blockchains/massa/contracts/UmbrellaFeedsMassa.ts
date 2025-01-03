@@ -205,11 +205,20 @@ export class UmbrellaFeedsMassa implements UmbrellaFeedInterface {
   }
 
   protected sortSignatures(signatures: string[]): {sortedSignatures: string[]; publicKeys: string[]} {
-    const sorted = signatures.sort((a, b) => {
-      const addr1 = a.split('@')[0];
-      const addr2 = b.split('@')[0];
-      return MassaAddress.sort(addr1, addr2);
-    });
+    const VALIDATOR_0: string = 'P12W6zgQb5aykbYSz4CfQLuk3axRcp5jYX1fmBT7VRdgVnzv6oHH';
+    const VALIDATOR_1: string = 'P1QV6AsrtPdZqk9BVyMMfFCDgYEaMaSBatnCk8xs1jJzcMGNeFa';
+
+    const sorted = signatures
+      // TODO remove this once sorting for massa will be fixed
+      .filter((pk) => {
+        const addr = pk.split('@')[0];
+        return [VALIDATOR_0, VALIDATOR_1].includes(addr);
+      })
+      .sort((a, b) => {
+        const addr1 = a.split('@')[0];
+        const addr2 = b.split('@')[0];
+        return MassaAddress.sort(addr1, addr2);
+      });
 
     const sortedSignatures: string[] = [];
     const publicKeys: string[] = [];
