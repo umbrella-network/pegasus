@@ -6,8 +6,9 @@ import {LeavesAndFeeds} from '../types/Consensus.js';
 import Leaf from '../types/Leaf.js';
 import {Logger} from 'winston';
 import {FeedsType} from '../types/Feed.js';
-import {DeviationLeavesAndFeeds} from '../types/DeviationFeeds.js';
+import {DeviationFeeds, DeviationLeavesAndFeeds} from '../types/DeviationFeeds.js';
 import {IntervalTriggerFilter} from './deviationsFeeds/IntervalTriggerFilter.js';
+import {ChainsIds} from '../types/ChainsIds';
 
 @injectable()
 export class FeedDataService {
@@ -31,8 +32,8 @@ export class FeedDataService {
     return {feeds: leavesAndFeeds};
   }
 
-  getParamsByFetcherName<T>(data: DeviationLeavesAndFeeds, fetcherName: string): T[] {
-    const {feeds} = data;
+  getParamsByFetcherName<T>(data: DeviationLeavesAndFeeds, fetcherName: string, chain: ChainsIds): T[] {
+    const feeds: DeviationFeeds = data.feeds;
 
     if (!feeds || Object.keys(feeds).length === 0) {
       return [];
@@ -40,7 +41,9 @@ export class FeedDataService {
 
     const fetcherParams = [];
 
-    for (const [i, feed] of Object.entries(feeds)) {
+    for (const [, feed] of Object.entries(feeds)) {
+      if (!feed.chains.includes(chain)) continue;
+
       const feedInput = feed.inputs.find((entry) => {
         return entry.fetcher.name === fetcherName;
       });
