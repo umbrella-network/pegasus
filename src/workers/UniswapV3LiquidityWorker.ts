@@ -56,7 +56,13 @@ class UniswapV3LiquidityWorker extends BasicWorker {
   };
 
   checkIsValidSettings = (jobData: {chainId: ChainsIds; protocol: DexProtocolName}) => {
-    return Boolean(this.settings.dexes[jobData?.chainId]?.[jobData?.protocol]?.subgraphUrl);
+    const url = this.settings.dexes[jobData?.chainId]?.[jobData?.protocol]?.subgraphUrl;
+    if (!url) {
+      this.logger.error(`[checkIsValidSettings] missing subgraphUrl for ${jobData?.chainId} ${jobData?.protocol}`);
+      return false;
+    }
+
+    return true;
   };
 }
 
