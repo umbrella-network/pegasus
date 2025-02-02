@@ -62,7 +62,7 @@ export abstract class GraphPaginator {
       const typedResponse = response as {data: Record<string, T[]>};
       return typedResponse.data[this.dataKey()] || [];
     } catch (error) {
-      this.logger.error(`${this.logPrefix}[${chainId}] Failed to make query. ${error}`);
+      this.logger.error(`${this.logPrefix}[${chainId}] Failed to make query. ${error}, ${query}`);
       return [];
     }
   }
