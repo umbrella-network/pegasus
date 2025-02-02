@@ -38,17 +38,18 @@ class UniswapV3LiquidityWorker extends BasicWorker {
       return;
     }
 
-    try {
-      this.logger.debug(`${loggerPrefix} job run at ${new Date().toISOString()}`);
-      await Promise.allSettled([
-        this.uniswapV3LiquidityResolver.apply(job.data.chainId),
-        this.uniswapV3PoolsDiscovery.apply(job.data.chainId),
-      ]);
-    } catch (e) {
-      this.logger.error(e);
-    } finally {
-      await this.connection.del(lock.name);
-    }
+    this.logger.debug(`${loggerPrefix} job run at ${new Date().toISOString()}`);
+
+    const results = await Promise.allSettled([
+      this.uniswapV3LiquidityResolver.apply(job.data.chainId),
+      this.uniswapV3PoolsDiscovery.apply(job.data.chainId),
+    ]);
+
+    results.forEach((r, i) => {
+      if (r.status == 'rejected') this.logger.error(`${loggerPrefix} error[${i}]: ${r.reason}`);
+    });
+
+    await this.connection.del(lock.name);
   };
 
   start = (): void => {
