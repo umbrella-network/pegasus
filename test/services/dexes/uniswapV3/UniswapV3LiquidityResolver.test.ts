@@ -2,8 +2,7 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
 import chai from 'chai';
-import {getModelForClass} from '@typegoose/typegoose';
-import {mongoose} from '@typegoose/typegoose';
+import {getModelForClass, mongoose} from '@typegoose/typegoose';
 import {DotenvParseOutput} from 'dotenv';
 
 import {mockedLogger} from '../../../mocks/logger.js';
@@ -11,7 +10,9 @@ import {getTestContainer} from '../../../helpers/getTestContainer.js';
 import {ChainsIds} from '../../../../src/types/ChainsIds.js';
 import {LiquiditySummingService} from '../../../../src/workers/fetchers/dexes/uniswapV3/LiquiditySummingService.js';
 import {UniswapV3PoolRepository} from '../../../../src/repositories/UniswapV3PoolRepository.js';
-import {UniswapV3LiquidityResolver} from '../../../../src/workers/fetchers/dexes/uniswapV3/UniswapV3LiquidityResolver.js';
+import {
+  UniswapV3LiquidityResolver
+} from '../../../../src/workers/fetchers/dexes/uniswapV3/UniswapV3LiquidityResolver.js';
 import {loadTestEnv} from '../../../helpers/loadTestEnv.js';
 import {UniswapV3Pool} from '../../../../src/models/UniswapV3Pool.js';
 import {FeedDataService} from '../../../../src/services/FeedDataService.js';

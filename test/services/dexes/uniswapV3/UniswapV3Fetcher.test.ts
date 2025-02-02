@@ -3,7 +3,7 @@ import {BigNumber} from 'ethers';
 import sinon from 'sinon';
 import chai from 'chai';
 
-import {UniswapV3Getter, UniswapV3FetcherInputParams} from '../../../../src/services/fetchers/UniswapV3Getter.js';
+import {UniswapV3FetcherInputParams, UniswapV3Getter} from '../../../../src/services/fetchers/UniswapV3Getter.js';
 
 import {UniswapV3PoolRepository} from '../../../../src/repositories/UniswapV3PoolRepository.js';
 import {BlockchainRepository} from '../../../../src/repositories/BlockchainRepository.js';

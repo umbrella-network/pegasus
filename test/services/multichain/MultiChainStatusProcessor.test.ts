@@ -7,7 +7,7 @@ import {BigNumber} from 'ethers';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 import {MultiChainStatusProcessor} from '../../../src/services/multiChain/MultiChainStatusProcessor.js';
 import {ChainStatusWithAddress} from '../../../src/types/ChainStatus.js';
-import {chainStatusWithAddressFactory, chainStatusFactory} from '../../mocks/factories/chainStatusFactory.js';
+import {chainStatusFactory, chainStatusWithAddressFactory} from '../../mocks/factories/chainStatusFactory.js';
 import {loadTestEnv} from '../../helpers/loadTestEnv.js';
 import {ValidatorRepository} from '../../../src/repositories/ValidatorRepository.js';
 import {Validator} from '../../../src/types/Validator.js';

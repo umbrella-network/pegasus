@@ -1,8 +1,7 @@
 import {BigNumber} from 'ethers';
 import {Factory} from 'rosie';
 
-import {ChainStatus} from '../../../src/types/ChainStatus.js';
-import {ChainStatusWithAddress} from '../../../src/types/ChainStatus.js';
+import {ChainStatus, ChainStatusWithAddress} from '../../../src/types/ChainStatus.js';
 
 export const chainStatusFactory = Factory.define<ChainStatus>('LeavesAndFeeds')
   .attr('blockNumber', BigNumber.from(132153))

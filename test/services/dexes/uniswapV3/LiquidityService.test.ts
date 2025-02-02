@@ -2,13 +2,15 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
 import chai from 'chai';
-import {Token, ChainId} from '@uniswap/sdk-core';
+import {ChainId, Token} from '@uniswap/sdk-core';
 
 import {mockedLogger} from '../../../mocks/logger.js';
 import Settings from '../../../../src/types/Settings.js';
 import {getTestContainer} from '../../../helpers/getTestContainer.js';
 import {ChainsIds} from '../../../../src/types/ChainsIds.js';
-import {UniswapV3LiquidityCalculator} from '../../../../src/workers/fetchers/dexes/uniswapV3/UniswapV3LiquidityCalculator.js';
+import {
+  UniswapV3LiquidityCalculator
+} from '../../../../src/workers/fetchers/dexes/uniswapV3/UniswapV3LiquidityCalculator.js';
 import {LiquiditySummingService} from '../../../../src/workers/fetchers/dexes/uniswapV3/LiquiditySummingService.js';
 
 const {expect} = chai;

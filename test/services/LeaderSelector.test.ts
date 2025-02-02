@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import chai from 'chai';
 
 import {LeaderSelector} from '../../src/services/multiChain/LeaderSelector.js';
-import {chainStatusFactory} from '../mocks/factories/chainStatusFactory.js';
 import {Validator} from '../../src/types/Validator.js';
 import {BigNumber} from 'ethers';
 

@@ -3,6 +3,7 @@ import winston from 'winston';
 import settings from '../../src/config/settings.js';
 import Settings from '../../src/types/Settings.js';
 import FeedSymbolChecker from '../../src/services/FeedSymbolChecker.js';
+
 const {createLogger, format, transports} = winston;
 
 export function getTestContainer(customSetting?: Settings): Container {
