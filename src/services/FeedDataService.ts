@@ -8,7 +8,6 @@ import {Logger} from 'winston';
 import {FeedsType} from '../types/Feed.js';
 import {DeviationFeeds, DeviationLeavesAndFeeds} from '../types/DeviationFeeds.js';
 import {IntervalTriggerFilter} from './deviationsFeeds/IntervalTriggerFilter.js';
-import {ChainsIds} from '../types/ChainsIds';
 
 @injectable()
 export class FeedDataService {
