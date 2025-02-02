@@ -2,7 +2,7 @@ export const liquidityPoolsSubgraphQuery = (poolAddress: string, limit: number, 
 query TickPoolsQuery {
     ticks(
         where: {poolAddress: "${poolAddress.toLowerCase()}", liquidityNet_not: "0"}
-        first: ${limit}
+        first: ${limit},
         orderBy: tickIdx,
         orderDirection: asc,
         skip: ${skip}
@@ -44,24 +44,22 @@ export const uniswapPoolsSubgraphQuery = (
 
   return `
 query SubgraphPoolsQuery {
-  {
-    pools(
-      first: ${limit},
-      skip: ${skip}
-      where: {
-        or: [${whereTokens}]
-      }
-    ) {
+  pools(
+    first: ${limit}
+    skip: ${skip}
+    where: {
+      or: [${whereTokens}]
+    }
+  ) {
+    id
+    feeTier
+    token1 {
       id
-      feeTier
-      token1 {
-        id
-        symbol
-      }
-      token0 {
-        id
-        symbol
-      }
+      symbol
+    }
+    token0 {
+      id
+      symbol
     }
   }
 }
