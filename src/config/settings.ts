@@ -496,7 +496,7 @@ const settings: Settings = {
       [DexProtocolName.UNISWAP_V3]: {
         subgraphUrl: <string>process.env['ROOTSTOCK_UNISWAPV3_SUBGRAPH_API'],
         liquidityFreshness: parseInt(
-          process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_FRESHNESS || String(getDayInMillisecond(365)),
+          process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_FRESHNESS || String(getDayInMillisecond(10)),
           10,
         ),
       },

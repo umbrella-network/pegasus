@@ -21,7 +21,8 @@ export class UniswapV3FeedsGetter {
 
   async apply(chainId: ChainsIds): Promise<UniswapV3Param[]> {
     const feeds = await this.getFeeds(chainId);
-    return this.feedDataService.getParamsByFetcherName<UniswapV3Param>(feeds, FetcherName.UniswapV3, chainId);
+    const uniswapFeeds = this.feedDataService.getParamsByFetcherName<UniswapV3Param>(feeds, FetcherName.UniswapV3);
+    return uniswapFeeds.filter((f) => f.fromChain == chainId);
   }
 
   private async getFeeds(chainId: ChainsIds): Promise<DeviationLeavesAndFeeds> {

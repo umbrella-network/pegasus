@@ -32,7 +32,7 @@ export class FeedDataService {
     return {feeds: leavesAndFeeds};
   }
 
-  getParamsByFetcherName<T>(data: DeviationLeavesAndFeeds, fetcherName: string, chain: ChainsIds): T[] {
+  getParamsByFetcherName<T>(data: DeviationLeavesAndFeeds, fetcherName: string): T[] {
     const feeds: DeviationFeeds = data.feeds;
 
     if (!feeds || Object.keys(feeds).length === 0) {
@@ -42,8 +42,6 @@ export class FeedDataService {
     const fetcherParams = [];
 
     for (const [, feed] of Object.entries(feeds)) {
-      if (!feed.chains.includes(chain)) continue;
-
       const feedInput = feed.inputs.find((entry) => {
         return entry.fetcher.name === fetcherName;
       });
