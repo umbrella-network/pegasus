@@ -1,4 +1,4 @@
-import {AccountSigner, HexString, parseWallet, WalletExportFormat, buildAccountSigner} from '@concordium/web-sdk';
+import {AccountSigner, buildAccountSigner, HexString, parseWallet, WalletExportFormat} from '@concordium/web-sdk';
 
 import {DeviationSignerInterface} from '../../services/deviationsFeeds/interfaces/DeviationSignerInterface.js';
 import {ChainsIds} from '../../types/ChainsIds.js';

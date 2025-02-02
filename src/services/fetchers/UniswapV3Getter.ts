@@ -9,9 +9,9 @@ import TimeService from '../TimeService.js';
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
-  FetcherResult,
-  FetcherName,
   FetchedValueType,
+  FetcherName,
+  FetcherResult,
 } from '../../types/fetchers.js';
 import {UniswapV3PriceRepository} from '../../repositories/fetchers/UniswapV3PriceRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';

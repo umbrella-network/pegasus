@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
 
-import {FetcherResult, FetchedValueType, StringOrUndefined} from '../types/fetchers.js';
+import {FetchedValueType, FetcherResult, StringOrUndefined} from '../types/fetchers.js';
 import PriceSignerService from '../services/PriceSignerService.js';
 import {PriceDataModel} from '../models/PriceDataModel.js';
 import Settings from '../types/Settings.js';

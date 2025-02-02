@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {Token, ChainId} from '@uniswap/sdk-core';
+import {ChainId, Token} from '@uniswap/sdk-core';
 
 import TimeService from '../../../../services/TimeService.js';
 import {FeedsType} from '../../../../types/Feed.js';

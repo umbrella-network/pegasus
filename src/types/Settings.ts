@@ -1,6 +1,6 @@
 import {ChainsIds} from './ChainsIds.js';
 import {SubmitMonitor} from './SubmitMonitor.js';
-import {DexProtocolName, DexAPISettings} from './Dexes.js';
+import {DexAPISettings, DexProtocolName} from './Dexes.js';
 
 export enum BlockchainType {
   LAYER2 = 'LAYER2',

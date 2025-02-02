@@ -1,6 +1,6 @@
 import {injectable} from 'inversify';
 
-import {FetcherName, FetchedValueType, FeedPrice} from '../../../types/fetchers.js';
+import {FeedPrice, FetchedValueType, FetcherName} from '../../../types/fetchers.js';
 import {CommonPriceDataRepository} from './CommonPriceDataRepository.js';
 
 export type SymbolDataRepositoryInput = {
