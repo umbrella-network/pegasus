@@ -2,7 +2,9 @@ import {inject, injectable} from 'inversify';
 
 import {ServiceInterface} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
-import {PolygonIOCurrencySnapshotGramsDataRepository} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
+import {
+  PolygonIOCurrencySnapshotGramsDataRepository
+} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
 import {
   BasePolygonIOSnapshotFetcher,

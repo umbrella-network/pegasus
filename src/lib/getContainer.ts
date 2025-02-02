@@ -24,7 +24,9 @@ import {MetalPriceApiDataRepository} from '../repositories/fetchers/MetalPriceAp
 import {MetalsDevApiDataRepository} from '../repositories/fetchers/MetalsDevApiDataRepository.js';
 import {OnChainDataRepository} from '../repositories/fetchers/OnChainDataRepository.js';
 import {PolygonIOCryptoSnapshotDataRepository} from '../repositories/fetchers/PolygonIOCryptoSnapshotDataRepository.js';
-import {PolygonIOCurrencySnapshotGramsDataRepository} from '../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
+import {
+  PolygonIOCurrencySnapshotGramsDataRepository
+} from '../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
 import {PolygonIOSingleCryptoDataRepository} from '../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
 import {
   BinancePriceGetter,

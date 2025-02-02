@@ -9,7 +9,9 @@ import {
   FetcherResult,
 } from '../../types/fetchers.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import {PolygonIOStockSnapshotDataRepository} from '../../repositories/fetchers/PolygonIOStockSnapshotDataRepository.js';
+import {
+  PolygonIOStockSnapshotDataRepository
+} from '../../repositories/fetchers/PolygonIOStockSnapshotDataRepository.js';
 
 export interface PolygonIOStockSnapshotFetcherInputParams {
   ticker: string;

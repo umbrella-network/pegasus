@@ -2,7 +2,9 @@ import {inject, injectable} from 'inversify';
 
 import Settings from '../../types/Settings.js';
 import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
-import {PolygonIOStockSnapshotDataRepository} from '../../repositories/fetchers/PolygonIOStockSnapshotDataRepository.js';
+import {
+  PolygonIOStockSnapshotDataRepository
+} from '../../repositories/fetchers/PolygonIOStockSnapshotDataRepository.js';
 import {
   BasePolygonIOSnapshotFetcher,
   SnapshotResponse,
