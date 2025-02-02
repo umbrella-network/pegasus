@@ -16,7 +16,7 @@ query TickPoolsQuery {
 
 export type SubgraphPoolResult = {
   id: string;
-  feeTrier: number;
+  feeTier: number;
   token1: {
     id: string;
     symbol: string;
@@ -53,7 +53,7 @@ query SubgraphPoolsQuery {
       }
     ) {
       id
-      feeTrier
+      feeTier
       token1 {
         id
         symbol

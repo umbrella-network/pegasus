@@ -46,7 +46,7 @@ export class UniswapV3PoolsDiscovery extends GraphPaginator {
       return <SavePoolParams>{
         chainId,
         address: r.id,
-        fee: r.feeTrier,
+        fee: r.feeTier,
         token0: r.token0.id,
         token1: r.token1.id,
         protocol: DexProtocolName.UNISWAP_V3,
