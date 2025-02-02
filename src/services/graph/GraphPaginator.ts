@@ -44,7 +44,7 @@ export abstract class GraphPaginator {
   protected abstract constructQuery(args: {limit: number; skip: number}): string;
 
   // eg. {data: [dataPath]: T[]} in response
-  //{data: pools: T[]}
+  // {data: pools: T[]}
   protected abstract dataKey(): string;
 
   protected abstract getSubgraphURL(chainId: ChainsIds): string;
