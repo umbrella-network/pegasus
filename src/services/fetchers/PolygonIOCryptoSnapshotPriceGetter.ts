@@ -9,9 +9,7 @@ import {
   FetcherResult,
 } from '../../types/fetchers.js';
 
-import {
-  PolygonIOCryptoSnapshotDataRepository
-} from '../../repositories/fetchers/PolygonIOCryptoSnapshotDataRepository.js';
+import {PolygonIOCryptoSnapshotDataRepository} from '../../repositories/fetchers/PolygonIOCryptoSnapshotDataRepository.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 
 export interface PolygonIOCryptoSnapshotInputParams {

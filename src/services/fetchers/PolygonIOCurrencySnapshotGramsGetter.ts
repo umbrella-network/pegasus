@@ -9,9 +9,7 @@ import {
   FetcherResult,
 } from '../../types/fetchers.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import {
-  PolygonIOCurrencySnapshotGramsDataRepository
-} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
+import {PolygonIOCurrencySnapshotGramsDataRepository} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
 import TimeService from '../TimeService.js';
 import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
