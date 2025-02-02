@@ -2,7 +2,7 @@ export const liquidityPoolsSubgraphQuery = (poolAddress: string, limit: number, 
 query TickPoolsQuery {
     ticks(
         where: {poolAddress: "${poolAddress.toLowerCase()}", liquidityNet_not: "0"}
-        first: ${limit},
+        first: ${limit}
         orderBy: tickIdx,
         orderDirection: asc,
         skip: ${skip}
