@@ -49,7 +49,7 @@ query SubgraphPoolsQuery {
       first: ${limit},
       skip: ${skip}
       where: {
-        or: [${whereTokens})}]
+        or: [${whereTokens}]
       }
     ) {
       id
