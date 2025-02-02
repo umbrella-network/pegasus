@@ -15,9 +15,7 @@ import {PriceModel_MetalPriceApi} from '../models/fetchers/PriceModel_MetalPrice
 import {PriceModel_MetalsDevApi} from '../models/fetchers/PriceModel_MetalsDevApi.js';
 import {PriceModel_MoCMeasurement} from '../models/fetchers/PriceModel_MoCMeasurement.js';
 import {PriceModel_PolygonIOCryptoSnapshot} from '../models/fetchers/PriceModel_PolygonIOCryptoSnapshot.js';
-import {
-  PriceModel_PolygonIOCurrencySnapshotGrams
-} from '../models/fetchers/PriceModel_PolygonIOCurrencySnapshotGrams.js';
+import {PriceModel_PolygonIOCurrencySnapshotGrams} from '../models/fetchers/PriceModel_PolygonIOCurrencySnapshotGrams.js';
 import {PriceModel_PolygonIOSingleCrypto} from '../models/fetchers/PriceModel_PolygonIOSingleCrypto.js';
 import {PriceModel_PolygonIOStockSnapshot} from '../models/fetchers/PriceModel_PolygonIOStockSnapshot.js';
 import {PriceModel_Sovryn} from '../models/fetchers/PriceModel_Sovryn.js';
