@@ -72,7 +72,7 @@ export class UniswapV3LiquidityResolver {
           });
 
           if (pools.length === 0) {
-            this.logger.error(`${this.logPrefix}[${chainId}] pool not found for token ${param.quote}-${param.base}`);
+            this.logger.error(`${this.logPrefix}[${chainId}] pool not found for pair ${param.base}/${param.quote}`);
             return;
           }
 
