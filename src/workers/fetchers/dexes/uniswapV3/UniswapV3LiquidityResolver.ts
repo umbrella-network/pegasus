@@ -2,9 +2,6 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import {ChainId, Token} from '@uniswap/sdk-core';
 
-import TimeService from '../../../../services/TimeService.js';
-import {FeedsType} from '../../../../types/Feed.js';
-import {FeedDataService} from '../../../../services/FeedDataService.js';
 import {LiquiditySummingService} from './LiquiditySummingService.js';
 import {SaveLiquidityParams, UniswapV3PoolRepository} from '../../../../repositories/UniswapV3PoolRepository.js';
 import {ChainsIds} from '../../../../types/ChainsIds.js';
@@ -12,13 +9,11 @@ import {TokenRepository} from '../../../../repositories/TokenRepository.js';
 import {UniswapV3Param} from './interfaces.js';
 import {DexProtocolName} from '../../../../types/Dexes.js';
 import {UniswapV3Pool} from '../../../../models/UniswapV3Pool.js';
-import {FetcherName} from '../../../../types/fetchers.js';
-import {DeviationLeavesAndFeeds} from '../../../../types/DeviationFeeds.js';
+import {UniswapV3FeedsGetter} from './UniswapV3FeedsGetter.js';
 
 @injectable()
 export class UniswapV3LiquidityResolver {
-  @inject(FeedDataService) feedDataService!: FeedDataService;
-  @inject(TimeService) timeService!: TimeService;
+  @inject(UniswapV3FeedsGetter) uniswapV3FeedsGetter!: UniswapV3FeedsGetter;
   @inject(TokenRepository) tokenRepository!: TokenRepository;
   @inject(LiquiditySummingService) liquiditySummingService!: LiquiditySummingService;
   @inject(UniswapV3PoolRepository) uniswapV3PoolRepository!: UniswapV3PoolRepository;
@@ -28,8 +23,7 @@ export class UniswapV3LiquidityResolver {
   readonly logPrefix = '[UniswapV3LiquidityResolver]';
 
   async apply(chainId: ChainsIds): Promise<void> {
-    const feeds = await this.getFeeds(chainId);
-    const uniswapV3Params = this.feedDataService.getParamsByFetcherName<UniswapV3Param>(feeds, FetcherName.UniswapV3);
+    const uniswapV3Params = await this.uniswapV3FeedsGetter.apply(chainId);
 
     if (uniswapV3Params.length === 0) {
       this.logger.info(`${this.logPrefix}[${chainId}] No params for fetcher`);
@@ -37,17 +31,6 @@ export class UniswapV3LiquidityResolver {
     }
 
     await this.processParams(uniswapV3Params, chainId);
-  }
-
-  private async getFeeds(chainId: ChainsIds): Promise<DeviationLeavesAndFeeds> {
-    const dataTimestamp = this.timeService.apply();
-    const data = await this.feedDataService.apply(dataTimestamp, FeedsType.DEVIATION_TRIGGER);
-
-    if (data.rejected) {
-      this.logger.info(`${this.logPrefix}[${chainId}] rejected: ${data.rejected}`);
-    }
-
-    return data.feeds as DeviationLeavesAndFeeds;
   }
 
   private async getTokens(token0: string, token1: string, chainId: ChainsIds): Promise<Token[]> {
@@ -89,7 +72,7 @@ export class UniswapV3LiquidityResolver {
           });
 
           if (pools.length === 0) {
-            this.logger.error(`${this.logPrefix}[${chainId}] pool not found for token ${param.quote}-${param.base}`);
+            this.logger.error(`${this.logPrefix}[${chainId}] pool not found for pair ${param.base}/${param.quote}`);
             return;
           }
 

@@ -196,7 +196,7 @@ import {FetcherName} from './types/fetchers.js';
       }, 1000);
 
       setInterval(async () => {
-        logger.info(`[Scheduler] Scheduling ${workerName}`);
+        logger.info(`[Scheduler] Scheduling ${workerName} with interval ${jobSettings.interval}`);
 
         await worker!.enqueue(
           {name: workerName, chainId, settings: jobSettings},
