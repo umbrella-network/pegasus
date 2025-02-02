@@ -3,9 +3,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 import Settings from '../../../src/types/Settings.js';
-import {
-  PolygonIOCurrencySnapshotGramsGetter
-} from '../../../src/services/fetchers/PolygonIOCurrencySnapshotGramsGetter.js';
+import {PolygonIOCurrencySnapshotGramsGetter} from '../../../src/services/fetchers/PolygonIOCurrencySnapshotGramsGetter.js';
 import {getTestContainer} from '../../helpers/getTestContainer.js';
 
 chai.use(chaiAsPromised);
