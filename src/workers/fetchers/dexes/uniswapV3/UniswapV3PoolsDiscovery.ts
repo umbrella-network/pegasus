@@ -25,8 +25,8 @@ export class UniswapV3PoolsDiscovery extends GraphPaginator {
     }
 
     const data = await this.pullData<SubgraphPoolResult>(chainId, {uniswapV3Params});
-    const poolstoSave = this.processSubgraphResponseData(chainId, data);
-    await this.savePools(poolstoSave);
+    const poolsToSave = this.processSubgraphResponseData(chainId, data);
+    await this.savePools(poolsToSave);
   }
 
   protected constructQuery(args: {uniswapV3Params: UniswapV3Param[]; limit: number; skip: number}): string {
@@ -60,6 +60,8 @@ export class UniswapV3PoolsDiscovery extends GraphPaginator {
     saved.forEach((r, ix) => {
       if (r.status === 'rejected') {
         this.logger.error(`${this.logPrefix} Failed to save pool: ${r.reason}, ${JSON.stringify(pools[ix])}`);
+      } else {
+        this.logger.debug(`${this.logPrefix} Pool saved: ${JSON.stringify(pools[ix])}`);
       }
     });
   }
