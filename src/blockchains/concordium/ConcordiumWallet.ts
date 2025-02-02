@@ -1,11 +1,11 @@
 import {
   AccountAddress,
+  Base58String,
+  HexString,
+  JsonString,
   NextAccountNonce,
   parseWallet,
   WalletExportFormat,
-  JsonString,
-  Base58String,
-  HexString,
 } from '@concordium/web-sdk';
 import {ConcordiumGRPCNodeClient} from '@concordium/web-sdk/nodejs';
 import {utils as ethersUtils} from 'ethers';

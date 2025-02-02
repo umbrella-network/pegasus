@@ -8,9 +8,9 @@ import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
-  FetcherResult,
-  FetcherName,
   FetchedValueType,
+  FetcherName,
+  FetcherResult,
 } from '../../types/fetchers.js';
 
 import {ByBitDataRepository} from '../../repositories/fetchers/ByBitDataRepository.js';

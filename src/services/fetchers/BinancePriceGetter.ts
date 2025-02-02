@@ -8,9 +8,9 @@ import TimeService from '../../services/TimeService.js';
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
-  FetcherResult,
-  FetcherName,
   FetchedValueType,
+  FetcherName,
+  FetcherResult,
 } from '../../types/fetchers.js';
 
 import {BinanceDataRepository} from '../../repositories/fetchers/BinanceDataRepository.js';

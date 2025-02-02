@@ -6,8 +6,7 @@ import Settings from '../../types/Settings.js';
 import {ChainContractRepository} from '../../repositories/ChainContractRepository.js';
 import {promiseWithTimeout} from '../../utils/promiseWithTimeout.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
-import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus.js';
-import {ChainStatus} from '../../types/ChainStatus.js';
+import {ChainsStatuses, ChainStatus, ChainStatusWithAddress} from '../../types/ChainStatus.js';
 import {MultiChainStatusProcessor} from './MultiChainStatusProcessor.js';
 
 @injectable()

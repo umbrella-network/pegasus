@@ -3,12 +3,12 @@ import {ethers} from 'ethers';
 import {Logger} from 'winston';
 
 import {
-  FetcherName,
-  FetcherResult,
-  FetchedValueType,
   FeedFetcherInterface,
   FeedFetcherOptions,
   FeedPrice,
+  FetchedValueType,
+  FetcherName,
+  FetcherResult,
 } from '../../types/fetchers.js';
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';

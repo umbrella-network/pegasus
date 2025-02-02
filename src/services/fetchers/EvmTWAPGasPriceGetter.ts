@@ -8,9 +8,9 @@ import {ChainsIds} from '../../types/ChainsIds.js';
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
+  FetchedValueType,
   FetcherName,
   FetcherResult,
-  FetchedValueType,
 } from '../../types/fetchers.js';
 
 /*

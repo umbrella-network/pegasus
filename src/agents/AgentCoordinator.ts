@@ -6,8 +6,6 @@ import {BasicAgent} from './BasicAgent.js';
 // import {UniswapPoolScannerAgent} from './UniswapPoolScannerAgent.js';
 // import {UniswapPriceScannerAgent} from './UniswapPriceScannerAgent.js';
 // import {UniswapVerificationAgent} from './UniswapVerificationAgent.js';
-import {SovrynPoolScannerAgent} from './SovrynPoolScannerAgent.js';
-import Settings from '../types/Settings.js';
 
 @injectable()
 export class AgentCoordinator {

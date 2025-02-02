@@ -1,11 +1,11 @@
 import {
+  AbiRegistry,
   Address,
+  AddressValue,
   ContractFunction,
   Interaction,
   ResultsParser,
   SmartContract,
-  AbiRegistry,
-  AddressValue,
   Struct,
 } from '@multiversx/sdk-core';
 import {ApiNetworkProvider} from '@multiversx/sdk-network-providers';

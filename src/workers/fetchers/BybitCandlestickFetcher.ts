@@ -1,6 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
-import {CategorySymbolListV5, GetKlineParamsV5, KlineIntervalV3, RestClientV5, CategoryV5} from 'bybit-api';
+import {CategorySymbolListV5, CategoryV5, GetKlineParamsV5, KlineIntervalV3, RestClientV5} from 'bybit-api';
 
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';

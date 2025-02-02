@@ -1,4 +1,4 @@
-import {IAddress, Address, AddressValue} from '@multiversx/sdk-core';
+import {Address, AddressValue, IAddress} from '@multiversx/sdk-core';
 
 export class MultiversXAddress {
   static toAddressValue(erdAddress: string): AddressValue {

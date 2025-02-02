@@ -5,11 +5,11 @@ import {Logger} from 'winston';
 import {ConcordiumGRPCNodeClient} from '@concordium/web-sdk/nodejs';
 import {
   AccountAddress,
-  TransactionHash,
-  TransactionSummaryType,
-  TransactionKindString,
-  FailedTransactionSummary,
   Base58String,
+  FailedTransactionSummary,
+  TransactionHash,
+  TransactionKindString,
+  TransactionSummaryType,
 } from '@concordium/web-sdk';
 
 import {ProviderInterface} from '../../interfaces/ProviderInterface.js';

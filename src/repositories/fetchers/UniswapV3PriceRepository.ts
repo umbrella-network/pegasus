@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, FetchedValueType, FeedPrice} from '../../types/fetchers.js';
+import {FeedPrice, FetchedValueType, FetcherName} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_UniswapV3} from '../../models/fetchers/PriceModel_UniswapV3.js';
 import {UniswapV3FetcherInputParams} from '../../services/fetchers/UniswapV3Getter.js';

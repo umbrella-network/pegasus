@@ -2,13 +2,13 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {
-  ByBitPriceGetter,
   BinancePriceGetter,
+  ByBitPriceGetter,
   CoingeckoPriceGetter,
+  MoCMeasurementGetter,
   PolygonIOCryptoSnapshotPriceGetter,
   PolygonIOSingleCryptoPriceGetter,
   PolygonIOStockSnapshotPriceGetter,
-  MoCMeasurementGetter,
 } from '../fetchers/index.js';
 import {
   allMultiFetchers,

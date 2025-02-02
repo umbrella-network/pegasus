@@ -1,4 +1,4 @@
-import {Args, ISerializable, IDeserializedResult} from '@massalabs/massa-web3';
+import {Args, IDeserializedResult, ISerializable} from '@massalabs/massa-web3';
 
 export class MassaWBytesSerializer implements ISerializable<MassaWBytesSerializer> {
   private arr: Uint8Array = new Uint8Array(0);

@@ -2,7 +2,7 @@ import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 
 import Settings, {BlockchainType} from '../../types/Settings.js';
-import {ChainStatusWithAddress, ChainsStatuses} from '../../types/ChainStatus.js';
+import {ChainsStatuses, ChainStatusWithAddress} from '../../types/ChainStatus.js';
 import {CanMint} from '../CanMint.js';
 import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
 import {LeaderSelector} from './LeaderSelector.js';

@@ -1,9 +1,9 @@
 import {injectable} from 'inversify';
-import {Token, CurrencyAmount} from '@uniswap/sdk-core';
+import {CurrencyAmount, Token} from '@uniswap/sdk-core';
 import {FeeAmount, Pool, TickMath, tickToPrice} from '@uniswap/v3-sdk';
 import JSBI from 'jsbi';
 
-import {GraphTick, BarChartTick, TickProcessed} from './interfaces.js';
+import {BarChartTick, GraphTick, TickProcessed} from './interfaces.js';
 import {sortTokensByAddress} from '../../../../utils/token.js';
 
 enum Direction {

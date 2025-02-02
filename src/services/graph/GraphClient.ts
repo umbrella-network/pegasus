@@ -1,4 +1,4 @@
-import {Client, cacheExchange, fetchExchange} from '@urql/core';
+import {cacheExchange, Client, fetchExchange} from '@urql/core';
 
 export abstract class GraphClientBase {
   abstract query(subgraphUrl: string, query: string): Promise<unknown>;
