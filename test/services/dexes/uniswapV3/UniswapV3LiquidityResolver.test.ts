@@ -2,8 +2,7 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
 import chai from 'chai';
-import {getModelForClass} from '@typegoose/typegoose';
-import {mongoose} from '@typegoose/typegoose';
+import {getModelForClass, mongoose} from '@typegoose/typegoose';
 import {DotenvParseOutput} from 'dotenv';
 
 import {mockedLogger} from '../../../mocks/logger.js';

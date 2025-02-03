@@ -4,13 +4,13 @@ import {Logger} from 'winston';
 import Leaf from '../../types/Leaf.js';
 import {
   DeviationFeed,
-  PriceDataByKey,
-  PriceDataPerChain,
-  PriceData,
   DeviationFeeds,
+  DeviationTriggerResponse,
   FilterResult,
   FilterResultWithKey,
-  DeviationTriggerResponse,
+  PriceData,
+  PriceDataByKey,
+  PriceDataPerChain,
 } from '../../types/DeviationFeeds.js';
 import {PriceTriggerFilter} from './PriceTriggerFilter.js';
 import {HeartbeatTriggerFilter} from './HeartbeatTriggerFilter.js';

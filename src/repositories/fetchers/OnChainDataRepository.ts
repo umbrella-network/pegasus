@@ -2,7 +2,7 @@ import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {ethers} from 'ethers';
 
-import {FetcherName, FetchedValueType, StringOrUndefined} from '../../types/fetchers.js';
+import {FetchedValueType, FetcherName, StringOrUndefined} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {DataModel_OnChain} from '../../models/fetchers/DataModel_OnChain.js';
 import {OnChainDataInputParams} from '../../services/fetchers/OnChainDataFetcher';

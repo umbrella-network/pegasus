@@ -2,7 +2,7 @@
 import 'reflect-metadata';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
-import {BigNumber, ethers, Wallet, utils as ethersUtils} from 'ethers';
+import {BigNumber, ethers, utils as ethersUtils, Wallet} from 'ethers';
 import mongoose from 'mongoose';
 import {getModelForClass} from '@typegoose/typegoose';
 import {GasEstimator} from '@umb-network/toolbox';

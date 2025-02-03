@@ -99,6 +99,6 @@ export class DeviationLeader {
       ...consensuses.map((consensus) => this.deviationConsensusRepository.save(consensus)),
     ]);
 
-    this.logger.debug('${this.logPrefix} finished');
+    this.logger.debug(`${this.logPrefix} finished`);
   }
 }

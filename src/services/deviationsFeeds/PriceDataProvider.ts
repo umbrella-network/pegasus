@@ -1,7 +1,7 @@
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {FeedNamesPerChain, PriceDataWithKey, PriceDataPerChain} from '../../types/DeviationFeeds.js';
+import {FeedNamesPerChain, PriceDataPerChain, PriceDataWithKey} from '../../types/DeviationFeeds.js';
 import {ChainsIds} from '../../types/ChainsIds.js';
 import {FeedsContractRepository} from '../../repositories/FeedsContractRepository.js';
 import {FeedName} from '../../types/Feed';

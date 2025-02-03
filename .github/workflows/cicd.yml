@@ -196,8 +196,8 @@ jobs:
           VERSION: ${{ steps.atifact-reader.outputs.version }}
           BUILDING_ENVIRONMENT: ${{ steps.atifact-reader.outputs.environment }}
         run: |
-          yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/deployments/bsc-01/kustomization.yaml
-          yq eval ".images[0].newTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/deployments/bsc-02/kustomization.yaml
+          yq eval ".global.imageTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/bsc01.yaml
+          yq eval ".global.imageTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/bsc02.yaml
 
       - name: Commit, Push and create Pull Request
         env:
@@ -211,4 +211,4 @@ jobs:
           git checkout -b $BRANCH
           git commit -a -m "chore(build): $IMAGE"
           git push origin -f $BRANCH 
-          gh pr create --base master --title "Pegasus Release" --body "Pegasus" || exit 0
+          gh pr create --base master --head $BRANCH --title "Pegasus Release" --body "Pegasus" || exit 0

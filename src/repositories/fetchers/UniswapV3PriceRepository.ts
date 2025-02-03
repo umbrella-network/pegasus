@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, FetchedValueType, NumberOrUndefined} from '../../types/fetchers.js';
+import {FeedPrice, FetchedValueType, FetcherName} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_UniswapV3} from '../../models/fetchers/PriceModel_UniswapV3.js';
 import {UniswapV3FetcherInputParams} from '../../services/fetchers/UniswapV3Getter.js';
@@ -61,7 +61,7 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  async getPrices(params: UniswapV3FetcherInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: UniswapV3FetcherInputParams[], timestamp: number): Promise<FeedPrice[]> {
     if (params.length === 0) {
       return [];
     }
@@ -88,10 +88,7 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestData(
-    sortedResults: PriceModel_UniswapV3[],
-    inputs: UniswapV3FetcherInputParams[],
-  ): NumberOrUndefined[] {
+  private getNewestData(sortedResults: PriceModel_UniswapV3[], inputs: UniswapV3FetcherInputParams[]): FeedPrice[] {
     this.logger.debug(
       `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
     );
@@ -114,6 +111,9 @@ export class UniswapV3PriceRepository extends CommonPriceDataRepository {
     });
 
     this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
-    return newest;
+
+    return newest.map((price) => {
+      return {value: price};
+    });
   }
 }

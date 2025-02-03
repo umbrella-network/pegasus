@@ -6,16 +6,10 @@ import {LeafValueCoder} from '@umb-network/toolbox';
 
 import Leaf from '../types/Leaf.js';
 import MultiFeedProcessor from './feedProcessors/MultiFeedProcessor.js';
-import {CalculatorRepository} from '../repositories/CalculatorRepository.js';
 import {FeedFetcherRepository} from '../repositories/FeedFetcherRepository.js';
-import Feeds, {FeedCalculator, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
-import {allMultiFetchers} from '../types/fetchers.js';
+import Feeds, {AveragePriceMethod, FeedFetcher, FeedOutput, FeedValue} from '../types/Feed.js';
+import {allMultiFetchers, FeedPrice} from '../types/fetchers.js';
 import FeedSymbolChecker from './FeedSymbolChecker.js';
-
-interface Calculator {
-  // eslint-disable-next-line
-  apply: (key: string, value: any, params: any, ...args: any[]) => FeedOutput[];
-}
 
 interface FetcherError {
   message?: string;
@@ -27,7 +21,6 @@ interface FetcherError {
 @injectable()
 class FeedProcessor {
   @inject(MultiFeedProcessor) multiFeedProcessor!: MultiFeedProcessor;
-  @inject(CalculatorRepository) calculatorRepository!: CalculatorRepository;
   @inject(FeedFetcherRepository) feedFetcherRepository!: FeedFetcherRepository;
   @inject(FeedSymbolChecker) feedSymbolChecker!: FeedSymbolChecker;
   @inject('Logger') private logger!: Logger;
@@ -38,7 +31,7 @@ class FeedProcessor {
     // collect unique inputs
     const uniqueFeedFetcherMap: {[hash: string]: FeedFetcher} = {};
 
-    feedsArray.forEach((feeds) => {
+    feedsArray.forEach((feeds: Feeds) => {
       const keys = Object.keys(feeds);
 
       keys.forEach((leafLabel) =>
@@ -46,7 +39,7 @@ class FeedProcessor {
           uniqueFeedFetcherMap[hash(input.fetcher)] = {
             ...input.fetcher,
             symbol: leafLabel,
-            base: feeds[leafLabel].base,
+            base: feeds[leafLabel].base, // TODO remove base/quote
             quote: feeds[leafLabel].quote,
           };
         }),
@@ -67,7 +60,7 @@ class FeedProcessor {
       inputIndexByHash[hash] = index + offset;
     });
 
-    const [singleFeeds, multiFeeds] = await Promise.all([
+    const [singleFeeds, multiFeeds]: [(undefined | FeedPrice)[], (undefined | FeedPrice)[]] = await Promise.all([
       this.processFeeds(Object.values(singleInputs), timestamp),
       this.multiFeedProcessor.apply(Object.values(multiInputs), timestamp),
     ]);
@@ -75,10 +68,9 @@ class FeedProcessor {
     this.logger.debug(`${this.logPrefix} singleFeeds: ${JSON.stringify(singleFeeds)}`);
     this.logger.debug(`${this.logPrefix} multiFeeds: ${JSON.stringify(multiFeeds)}`);
 
-    const values = [...singleFeeds, ...multiFeeds];
+    const allFeeds: (FeedPrice | undefined)[] = [...singleFeeds, ...multiFeeds];
 
     const result: Leaf[][] = [];
-    const keyValueMap: {[key: string]: number} = {};
 
     feedsArray.forEach((feeds) => {
       const tickers = Object.keys(feeds);
@@ -88,23 +80,38 @@ class FeedProcessor {
         const feed = feeds[ticker];
 
         const feedValues = feed.inputs
-          .map((input) =>
-            this.calculateFeed(ticker, values[inputIndexByHash[hash(input.fetcher)]], keyValueMap, input.calculator),
-          )
+          .map((input) => this.mergeKeyWithFeed(ticker, allFeeds[inputIndexByHash[hash(input.fetcher)]]))
           .flat();
 
         this.logger.debug(`${this.logPrefix} feedValues: ${JSON.stringify(feedValues)}`);
 
         if (feedValues.length === 1 && LeafValueCoder.isFixedValue(feedValues[0].key)) {
-          leaves.push(this.buildLeaf(feedValues[0].key, feedValues[0].value));
+          if (feedValues[0].feedPrice.value == undefined) {
+            throw new Error(`${this.logPrefix} ${feedValues[0].key} has undefined value`);
+          }
+
+          leaves.push(this.buildLeaf(feedValues[0].key, feedValues[0].feedPrice.value));
         } else {
           // calculateFeed is allowed to return different keys
           const groups = FeedProcessor.groupInputs(feedValues);
 
           for (const key in groups) {
-            const value = FeedProcessor.calculateMean(groups[key] as number[], feed.precision);
-            keyValueMap[key] = value;
-            leaves.push(this.buildLeaf(key, (keyValueMap[key] = value)));
+            let value;
+
+            switch (feed.averagePriceMethod) {
+              case AveragePriceMethod.VWAP:
+                value = this.calculateVwap(groups[key], feed.precision);
+                this.logger.debug(`${this.logPrefix} VWAP ${key}: ${value}`);
+                break;
+
+              case AveragePriceMethod.MEAN:
+              default:
+                value = FeedProcessor.calculateMean(groups[key].map((g) => g.value) as number[], feed.precision);
+            }
+
+            if (!value) return;
+
+            leaves.push(this.buildLeaf(key, value));
           }
         }
       });
@@ -117,7 +124,7 @@ class FeedProcessor {
     return result;
   }
 
-  private async processFeed(feedFetcher: FeedFetcher, timestamp: number): Promise<unknown> {
+  private async processFeed(feedFetcher: FeedFetcher, timestamp: number): Promise<FeedPrice | undefined> {
     const fetcher = this.feedFetcherRepository.find(feedFetcher.name);
 
     if (!fetcher) {
@@ -127,6 +134,7 @@ class FeedProcessor {
 
     try {
       this.logger.debug(`${this.logPrefix} using "${feedFetcher.name}"`);
+
       const result = await fetcher.apply([feedFetcher.params], {
         symbols: [feedFetcher.symbol],
         timestamp,
@@ -153,20 +161,18 @@ class FeedProcessor {
     }
   }
 
-  private calculateFeed(
-    key: string,
-    value: unknown,
-    prices: {[key: string]: number},
-    feedCalculator?: FeedCalculator,
-  ): FeedOutput[] {
-    if (!value) return [];
+  private mergeKeyWithFeed(key: string, feedPrice: FeedPrice | undefined): FeedOutput[] {
+    if (!feedPrice || feedPrice.value == undefined) return [];
 
-    const calculator = <Calculator>this.calculatorRepository.find(feedCalculator?.name || 'Identity');
-
-    return calculator.apply(key, value, feedCalculator?.params, prices);
+    return [
+      {
+        key,
+        feedPrice,
+      },
+    ];
   }
 
-  private async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<unknown[]> {
+  private async processFeeds(feedFetchers: FeedFetcher[], timestamp: number): Promise<(undefined | FeedPrice)[]> {
     return Promise.all(feedFetchers.map((input) => this.processFeed(input, timestamp)));
   }
 
@@ -181,6 +187,34 @@ class FeedProcessor {
     const multi = Math.pow(10, precision);
 
     return Math.round(price.mean(values) * multi) / multi;
+  }
+
+  private calculateVwap(feedPrices: FeedPrice[], precision: number): number | undefined {
+    if (feedPrices.length == 0) {
+      this.logger.warn('[calculateVwap] no values');
+      return;
+    }
+
+    if (feedPrices.filter((f) => f.vwapVolume != undefined).length == 0) {
+      this.logger.warn('[calculateVwap] no volumes');
+      return;
+    }
+
+    const totalVolume = feedPrices.reduce((acc: number, n) => acc + (n.vwapVolume ?? 0), 0);
+
+    const weightedValues = feedPrices.map((v) => {
+      if (!v.vwapVolume) return 0;
+      if (!v.value) return 0;
+
+      return (v.value * v.vwapVolume) / totalVolume;
+    });
+
+    const waightedSum = weightedValues.reduce((acc, n) => acc + n, 0);
+
+    this.logger.debug(`[calculateVwap] totalVolume: ${totalVolume}, ${weightedValues}, waightedSum: ${waightedSum}`);
+
+    const multi = Math.pow(10, precision);
+    return Math.round(waightedSum * multi) / multi;
   }
 
   /**
@@ -211,29 +245,23 @@ class FeedProcessor {
     return separatedInputs;
   }
 
-  private static groupInputs(outputs: FeedOutput[]) {
-    type OutputValue = number | string;
+  private static groupInputs(outputs: FeedOutput[]): {[key: string]: FeedPrice[]} {
+    type OutputValue = FeedPrice;
 
     const result: {[key: string]: OutputValue[]} = {};
 
-    for (const {key, value} of outputs) {
+    for (const {key, feedPrice} of outputs) {
       let array = result[key];
+
       if (!array) {
         result[key] = array = [];
       }
 
-      array.push(value);
+      if (feedPrice.value == undefined) throw new Error(`[FeedProcessor] undefined value for key ${key}`);
+      array.push(feedPrice);
     }
 
     return result;
-  }
-
-  private getBaseAndQuote(feedFetcher: FeedFetcher): string[] | undefined {
-    if (feedFetcher.base && feedFetcher.quote) {
-      return [feedFetcher.base, feedFetcher.quote];
-    } else {
-      return this.feedSymbolChecker.apply(feedFetcher.symbol);
-    }
   }
 }
 

@@ -6,14 +6,11 @@ import {LeafValueCoder} from '@umb-network/toolbox';
 
 import {getTestContainer} from '../helpers/getTestContainer.js';
 import {FeedFetcherRepository} from '../../src/repositories/FeedFetcherRepository.js';
-import {CalculatorRepository} from '../../src/repositories/CalculatorRepository.js';
 import FeedProcessor from '../../src/services/FeedProcessor.js';
-import {IdentityCalculator} from '../../src/services/calculators/index.js';
 import {feedFactory, feedInputFactory} from '../mocks/factories/feedFactory.js';
 import {FeedFetcherInterface, FetcherName} from '../../src/types/fetchers.js';
 import Feeds from '../../src/types/Feed.js';
 import Leaf from '../../src/types/Leaf.js';
-import {PolygonIOSingleCryptoPriceInputParams} from '../../src/services/fetchers/PolygonIOSingleCryptoPriceGetter';
 
 const {expect} = chai;
 
@@ -23,22 +20,16 @@ describe.skip('FeedProcessor', () => {
   let testFetcher: FeedFetcherInterface;
   let result: Leaf[][];
   let feedFetcherRepository: SinonStubbedInstance<FeedFetcherRepository>;
-  let calculatorRepository: SinonStubbedInstance<CalculatorRepository>;
-  let identityCalculator: SinonStubbedInstance<IdentityCalculator>;
 
   before(() => {
     container = getTestContainer();
     testFetcher = <FeedFetcherInterface>{};
 
     feedFetcherRepository = createStubInstance(FeedFetcherRepository);
-    calculatorRepository = createStubInstance(CalculatorRepository);
-    identityCalculator = createStubInstance(IdentityCalculator);
 
     feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
-    calculatorRepository.find.withArgs('Identity').returns(identityCalculator);
 
     container.bind(FeedFetcherRepository).toConstantValue(feedFetcherRepository);
-    container.bind(CalculatorRepository).toConstantValue(calculatorRepository);
 
     instance = container.get(FeedProcessor);
   });
@@ -56,16 +47,11 @@ describe.skip('FeedProcessor', () => {
       it('responds with an empty multidimensional array', () => {
         expect(result).to.deep.equal([[]]);
       });
-
-      it('does not call identityCalculator.apply', () => {
-        expect(identityCalculator.apply.called).to.be.false;
-      });
     });
 
     describe('when fetcher rejects', () => {
       before(async () => {
         feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
-        calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
         const feeds: Feeds = {
           TEST: feedFactory.build(),
@@ -79,17 +65,12 @@ describe.skip('FeedProcessor', () => {
       it('responds with an empty multidimensional array', () => {
         expect(result).to.deep.equal([[]]);
       });
-
-      it('does not call identityCalculator.apply', () => {
-        expect(identityCalculator.apply.called).to.be.false;
-      });
     });
 
     describe('when feeds and fetcher exist', () => {
       describe('when feeds key is FIXED', () => {
         before(async () => {
           feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
-          calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
           const feeds: Feeds = {
             FIXED_TEST: feedFactory.build({base: 'base', quote: 'quote'}),
@@ -113,7 +94,6 @@ describe.skip('FeedProcessor', () => {
       describe('when fetcher is different than CryptoComparePrice', () => {
         before(async () => {
           feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
-          calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
           const feeds: Feeds = {
             TEST: feedFactory.build({base: 'base', quote: 'quote'}),
@@ -138,7 +118,6 @@ describe.skip('FeedProcessor', () => {
         before(async () => {
           feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
           testFetcher.apply = stub().resolves(90.3);
-          calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
           const feeds: Feeds = {
             'BASE-QUOTE': feedFactory.build({
@@ -179,10 +158,6 @@ describe.skip('FeedProcessor', () => {
       });
 
       describe('when processing multi feeds', () => {
-        beforeEach(() => {
-          calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
-        });
-
         const feeds: Feeds = {
           'UMB-USD': feedFactory.build({
             inputs: [
@@ -281,7 +256,6 @@ describe.skip('FeedProcessor', () => {
     describe('when two valid feeds are given', () => {
       before(async () => {
         feedFetcherRepository.find.withArgs('TestFetcher').returns(testFetcher);
-        calculatorRepository.find.withArgs('Identity').returns(new IdentityCalculator());
 
         const feeds1: Feeds = {
           TEST: feedFactory.build(),

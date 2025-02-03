@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
+import {FeedPrice, FetchedValueType, FetcherName} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {MoCMeasurementPriceInputParams} from '../../services/fetchers/MoCMeasurementGetter.js';
 import {PriceModel_MoCMeasurement} from '../../models/fetchers/PriceModel_MoCMeasurement.js';
@@ -58,7 +58,7 @@ export class MoCMeasurementDataRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  async getPrices(params: MoCMeasurementPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: MoCMeasurementPriceInputParams[], timestamp: number): Promise<FeedPrice[]> {
     if (params.length === 0) {
       return [];
     }
@@ -82,7 +82,7 @@ export class MoCMeasurementDataRepository extends CommonPriceDataRepository {
   private getNewestPrices(
     sortedResults: PriceModel_MoCMeasurement[],
     inputs: MoCMeasurementPriceInputParams[],
-  ): NumberOrUndefined[] {
+  ): FeedPrice[] {
     const map: Record<string, number> = {};
     this.logger.debug(
       `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
@@ -99,6 +99,9 @@ export class MoCMeasurementDataRepository extends CommonPriceDataRepository {
 
     const newest = inputs.map(({measurement_id, field}) => map[getSymbol(measurement_id, field)]);
     this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
-    return newest;
+
+    return newest.map((price) => {
+      return {value: price};
+    });
   }
 }

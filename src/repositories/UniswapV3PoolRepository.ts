@@ -6,7 +6,7 @@ import {ChainsIds} from '../types/ChainsIds.js';
 import Settings from '../types/Settings.js';
 import {DexProtocolName} from '../types/Dexes.js';
 
-type SavePoolParams = {
+export type SavePoolParams = {
   chainId: string;
   protocol: string;
   token0: string;
@@ -27,17 +27,26 @@ type LiquidityFilterParams = {chainId: ChainsIds; token0: string; token1: string
 export class UniswapV3PoolRepository {
   @inject('Settings') protected settings!: Settings;
 
-  async savePool(props: SavePoolParams): Promise<UniswapV3Pool> {
-    const UniswapV3PoolModel = getModelForClass(UniswapV3Pool);
+  async savePool(props: SavePoolParams): Promise<void> {
+    const uniswapV3PoolModel = getModelForClass(UniswapV3Pool);
 
-    const uniswapV3PoolData = new UniswapV3PoolModel({
-      ...props,
-      token0: props.token0.toLowerCase(),
-      token1: props.token1.toLowerCase(),
-      createdDate: new Date(Date.now()),
-    });
-
-    return uniswapV3PoolData.save();
+    await uniswapV3PoolModel.findOneAndUpdate(
+      {
+        chainId: props.chainId,
+        address: props.address.toLowerCase(),
+      },
+      {
+        chainId: props.chainId,
+        protocol: props.protocol,
+        token0: props.token0.toLowerCase(),
+        token1: props.token1.toLowerCase(),
+        fee: props.fee,
+        address: props.address.toLowerCase(),
+      },
+      {
+        upsert: true,
+      },
+    );
   }
 
   async saveLiquidity(filter: LiquidityFilterParams, liquidity: SaveLiquidityParams): Promise<UniswapV3Pool | null> {

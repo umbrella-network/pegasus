@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.7.0] - 2025-02-03
+### Added
+- VWAP for Binance, ByBit
+- KuCoin fetcher with vwap
+
+### Updated
+- Update GitHub Action. The deployments are managed by helm charts
+- prepare schema for vwap
+- remove calculators
+
 ## [8.6.13] - 2025-01-03
 ### Fixed
 - temporary workaround for sorting public keys for Massa
@@ -27,11 +37,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Updated
 - set proper warning and error level for `5ire` balances
 
+### Removed
+- remove unused aggregation code
+
 ## [8.6.8] - 2024-11-18
 ### Added
 - Update CI due to helm chart migration
 
 ## [8.6.7] - 2024-11-14
+### Added
+- add support for 5ire blockchain
+
 ### Fixed
 - fix CI
 

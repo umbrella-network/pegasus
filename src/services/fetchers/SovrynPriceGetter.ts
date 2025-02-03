@@ -3,12 +3,12 @@ import {ethers} from 'ethers';
 import {Logger} from 'winston';
 
 import {
-  FetcherName,
-  FetcherResult,
-  NumberOrUndefined,
-  FetchedValueType,
   FeedFetcherInterface,
   FeedFetcherOptions,
+  FeedPrice,
+  FetchedValueType,
+  FetcherName,
+  FetcherResult,
 } from '../../types/fetchers.js';
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
@@ -58,7 +58,7 @@ export class SovrynPriceGetter implements FeedFetcherInterface {
       this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
     }
 
-    const pricesResponse: NumberOrUndefined[] = await this.sovrynDataRepository.getPrices(params, options.timestamp);
+    const pricesResponse: FeedPrice[] = await this.sovrynDataRepository.getPrices(params, options.timestamp);
 
     const fetcherResult = {prices: pricesResponse, timestamp: options.timestamp};
 

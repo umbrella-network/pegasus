@@ -5,9 +5,9 @@ import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
+  FetchedValueType,
   FetcherName,
   FetcherResult,
-  FetchedValueType,
 } from '../../types/fetchers.js';
 
 import {MetalPriceApiDataRepository} from '../../repositories/fetchers/MetalPriceApiDataRepository.js';

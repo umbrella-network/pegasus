@@ -1,9 +1,14 @@
 import {ChainsIds} from './ChainsIds.js';
-import {FeedFetcherInputParams, FetcherName} from './fetchers.js';
+import {FeedFetcherInputParams, FeedPrice, FetcherName} from './fetchers.js';
 
 export type HashedKey = string;
 export type FeedName = string;
 export type ChainsId = string;
+
+export enum AveragePriceMethod {
+  MEAN = 'mean', // default
+  VWAP = 'vwap',
+}
 
 export interface Feed {
   // deviation feed attributes
@@ -19,6 +24,7 @@ export interface Feed {
   discrepancy: number;
   precision: number;
   inputs: FeedInput[];
+  averagePriceMethod?: AveragePriceMethod;
 }
 
 export default interface Feeds {
@@ -42,19 +48,13 @@ export interface FeedFetcher {
   params: FeedFetcherInputParams;
 }
 
-export interface FeedCalculator {
-  name: string;
-  params?: unknown;
-}
-
 export interface FeedInput {
   fetcher: FeedFetcher;
-  calculator?: FeedCalculator;
 }
 
 export interface FeedOutput {
   key: string;
-  value: number | string;
+  feedPrice: FeedPrice;
 }
 
 export interface Pair {

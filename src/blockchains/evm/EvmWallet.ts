@@ -1,7 +1,6 @@
-import {Wallet} from 'ethers';
+import {utils as ethersUtils, Wallet} from 'ethers';
 import {BaseProvider, TransactionRequest, TransactionResponse} from '@ethersproject/providers';
 import {Logger} from 'winston';
-import {utils as ethersUtils} from 'ethers';
 
 import {ChainsIds} from '../../types/ChainsIds.js';
 import {IWallet} from '../../interfaces/IWallet.js';

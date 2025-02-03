@@ -1,16 +1,16 @@
 import {Logger} from 'winston';
 import {
   AccountAddress,
+  buildBasicAccountSigner,
   CcdAmount,
+  ContractTransactionMetadata,
   Energy,
   Parameter,
   TransactionExpiry,
-  buildBasicAccountSigner,
-  ContractTransactionMetadata,
 } from '@concordium/web-sdk';
 
 import * as UmbrellaFeedsContract from './generated/umbrella_feeds_umbrella_feeds.js';
-import {UpdateParameter, ReturnValueViewContractSetup} from './generated/umbrella_feeds_umbrella_feeds.js';
+import {ReturnValueViewContractSetup, UpdateParameter} from './generated/umbrella_feeds_umbrella_feeds.js';
 
 import {RegistryContractFactory} from '../../../factories/contracts/RegistryContractFactory.js';
 import Blockchain from '../../../lib/Blockchain.js';

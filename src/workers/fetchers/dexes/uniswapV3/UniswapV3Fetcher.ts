@@ -14,8 +14,8 @@ import TimeService from '../../../../services/TimeService.js';
 
 import {ServiceInterface} from '../../../../types/fetchers.js';
 import {
-  UniswapV3PriceRepository,
   UniswapV3DataRepositoryInput,
+  UniswapV3PriceRepository,
 } from '../../../../repositories/fetchers/UniswapV3PriceRepository.js';
 import {MappingRepository} from '../../../../repositories/MappingRepository.js';
 import {FetchersMappingCacheKeys} from '../../../../services/fetchers/common/FetchersMappingCacheKeys.js';

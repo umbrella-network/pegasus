@@ -4,9 +4,9 @@ import {Logger} from 'winston';
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
+  FetchedValueType,
   FetcherName,
   FetcherResult,
-  FetchedValueType,
 } from '../../types/fetchers.js';
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';

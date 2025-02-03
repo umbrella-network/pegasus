@@ -1,4 +1,4 @@
-import {Contract, BigNumber} from 'ethers';
+import {BigNumber, Contract} from 'ethers';
 import {readFileSync} from 'fs';
 import {fileURLToPath} from 'url';
 import path from 'path';

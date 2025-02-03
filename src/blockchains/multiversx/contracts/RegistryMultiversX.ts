@@ -1,7 +1,6 @@
-import {ResultsParser, SmartContract, StringValue, Address, ContractFunction, Interaction} from '@multiversx/sdk-core';
+import {Address, ContractFunction, Interaction, ResultsParser, SmartContract, StringValue} from '@multiversx/sdk-core';
 import {ApiNetworkProvider} from '@multiversx/sdk-network-providers';
 // import {ProxyNetworkProvider} from "@multiversx/sdk-network-providers/out";
-
 import Blockchain from '../../../lib/Blockchain.js';
 import {RegistryInterface} from '../../../interfaces/RegistryInterface.js';
 

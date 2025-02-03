@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
+import {FeedPrice, FetchedValueType, FetcherName} from '../../types/fetchers.js';
 import {ByBitPriceInputParams} from '../../services/fetchers/ByBitPriceGetter.js';
 import {PriceModel_ByBit} from '../../models/fetchers/PriceModel_ByBit.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
@@ -58,7 +58,7 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  async getPrices(params: ByBitPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: ByBitPriceInputParams[], timestamp: number): Promise<FeedPrice[]> {
     if (params.length === 0) {
       return [];
     }
@@ -79,7 +79,7 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestPrices(sortedResults: PriceModel_ByBit[], inputs: ByBitPriceInputParams[]): NumberOrUndefined[] {
+  private getNewestPrices(sortedResults: PriceModel_ByBit[], inputs: ByBitPriceInputParams[]): FeedPrice[] {
     const map: Record<string, number> = {};
     this.logger.debug(
       `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
@@ -93,6 +93,9 @@ export class ByBitDataRepository extends CommonPriceDataRepository {
 
     const newest = inputs.map(({symbol}) => map[symbol.toLowerCase()]);
     this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
-    return newest;
+
+    return newest.map((price) => {
+      return {value: price};
+    });
   }
 }

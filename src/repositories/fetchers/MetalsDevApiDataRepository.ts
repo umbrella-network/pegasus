@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
+import {FeedPrice, FetchedValueType, FetcherName} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_MetalsDevApi} from '../../models/fetchers/PriceModel_MetalsDevApi.js';
 import {MetalsDevApiPriceInputParams} from '../../services/fetchers/MetalsDevApiGetter.js';
@@ -58,7 +58,7 @@ export class MetalsDevApiDataRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  async getPrices(params: MetalsDevApiPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: MetalsDevApiPriceInputParams[], timestamp: number): Promise<FeedPrice[]> {
     const or = params.map(({metal, currency}) => {
       return {metal: metal.toLowerCase(), currency: currency.toLowerCase()};
     });
@@ -75,7 +75,7 @@ export class MetalsDevApiDataRepository extends CommonPriceDataRepository {
   private getNewestPrices(
     sortedResults: PriceModel_MetalsDevApi[],
     inputs: MetalsDevApiPriceInputParams[],
-  ): NumberOrUndefined[] {
+  ): FeedPrice[] {
     this.logger.debug(
       `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
     );
@@ -92,6 +92,9 @@ export class MetalsDevApiDataRepository extends CommonPriceDataRepository {
 
     const newest = inputs.map(({metal, currency}) => map[getSymbol(metal, currency).toLowerCase()]);
     this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
-    return newest;
+
+    return newest.map((price) => {
+      return {value: price};
+    });
   }
 }

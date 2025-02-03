@@ -11,9 +11,8 @@ import {PolygonIOStockSnapshotFetcherInputParams} from '../services/fetchers/Pol
 import {PolygonIOCryptoSnapshotInputParams} from '../services/fetchers/PolygonIOCryptoSnapshotPriceGetter.js';
 import {PolygonIOSingleCryptoPriceInputParams} from '../services/fetchers/PolygonIOSingleCryptoPriceGetter.js';
 import {UniswapV3FetcherInputParams} from '../services/fetchers/UniswapV3Getter.js';
-import {MoCMeasurementPriceInputParams} from '../services/fetchers/MoCMeasurementGetter';
-
-export type NumberOrUndefined = number | undefined;
+import {MoCMeasurementPriceInputParams} from '../services/fetchers/MoCMeasurementGetter.js';
+import {KuCoinPriceInputParams} from '../services/fetchers/KuCoinPriceGetter.js';
 
 export type StringOrUndefined = string | undefined;
 
@@ -23,12 +22,18 @@ export type FeedFetcherOptions = {
 };
 
 export enum FetchedValueType {
+  Number = 'Number',
   Price = 'Price',
   Hex = 'Hex',
 }
 
+export type FeedPrice = {
+  value: number | undefined;
+  vwapVolume?: number;
+};
+
 export type FetcherResult = {
-  prices: (number | undefined)[];
+  prices: FeedPrice[];
   timestamp?: number;
 };
 
@@ -38,6 +43,7 @@ export type FeedFetcherInputParams =
   | CoingeckoPriceInputParams
   | EvmTWAPGasPriceInputParams
   | GoldApiPriceInputParams
+  | KuCoinPriceInputParams
   | MetalPriceApiInputParams
   | MoCMeasurementPriceInputParams
   | MetalsDevApiPriceInputParams
@@ -59,9 +65,13 @@ export interface ServiceInterface {
 export enum FetcherName {
   ByBitPrice = 'ByBitPrice',
   BinancePrice = 'BinancePrice',
+  BinanceCandlestick = 'BinanceCandlestick',
+  ByBitCandlestick = 'ByBitCandlestick',
   CoingeckoPrice = 'CoingeckoPrice',
   GoldApiPrice = 'GoldApiPrice',
   GVolImpliedVolatility = 'GVolImpliedVolatility',
+  KuCoinCandlestick = 'KuCoinCandlestick',
+  KuCoinPrice = 'KuCoinPrice',
   MetalPriceApi = 'MetalPriceApi',
   MetalsDevApi = 'MetalsDevApi',
   MoCMeasurement = 'MoCMeasurement',
@@ -82,6 +92,7 @@ export const allMultiFetchers: Set<string> = new Set([
   FetcherName.BinancePrice,
   FetcherName.ByBitPrice,
   FetcherName.CoingeckoPrice,
+  FetcherName.KuCoinPrice,
   FetcherName.MoCMeasurement,
   FetcherName.PolygonIOCryptoSnapshotPrice,
   FetcherName.PolygonIOStockSnapshotPrice,

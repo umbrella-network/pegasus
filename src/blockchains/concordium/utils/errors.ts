@@ -1,4 +1,4 @@
-import {FailedTransactionSummary, RejectedReceive, InvokeContractFailedResult} from '@concordium/web-sdk';
+import {FailedTransactionSummary, InvokeContractFailedResult, RejectedReceive} from '@concordium/web-sdk';
 
 enum UmbrellaFeedsCustomContractErrors {
   /// Failed to parse the parameter.

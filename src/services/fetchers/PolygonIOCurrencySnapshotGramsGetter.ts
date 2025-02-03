@@ -2,11 +2,11 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {
-  FetcherName,
-  FeedFetcherOptions,
   FeedFetcherInterface,
-  FetcherResult,
+  FeedFetcherOptions,
   FetchedValueType,
+  FetcherName,
+  FetcherResult,
 } from '../../types/fetchers.js';
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {PolygonIOCurrencySnapshotGramsDataRepository} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';

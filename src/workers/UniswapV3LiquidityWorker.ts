@@ -2,13 +2,15 @@ import Bull from 'bullmq';
 import {inject, injectable} from 'inversify';
 
 import BasicWorker from './BasicWorker.js';
-import {UniswapV3LiquidityResolver} from '../workers/fetchers/dexes/uniswapV3/UniswapV3LiquidityResolver.js';
+import {UniswapV3LiquidityResolver} from './fetchers/dexes/uniswapV3/UniswapV3LiquidityResolver.js';
+import {UniswapV3PoolsDiscovery} from './fetchers/dexes/uniswapV3/UniswapV3PoolsDiscovery.js';
 import {ChainsIds} from '../types/ChainsIds.js';
 import {DexProtocolName} from '../types/Dexes.js';
 
 @injectable()
 class UniswapV3LiquidityWorker extends BasicWorker {
   @inject(UniswapV3LiquidityResolver) uniswapV3LiquidityResolver!: UniswapV3LiquidityResolver;
+  @inject(UniswapV3PoolsDiscovery) uniswapV3PoolsDiscovery!: UniswapV3PoolsDiscovery;
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
     const name = (params as {name: string}).name;
@@ -36,14 +38,18 @@ class UniswapV3LiquidityWorker extends BasicWorker {
       return;
     }
 
-    try {
-      this.logger.debug(`${loggerPrefix} job run at ${new Date().toISOString()}`);
-      await this.uniswapV3LiquidityResolver.apply(job.data.chainId);
-    } catch (e) {
-      this.logger.error(e);
-    } finally {
-      await this.connection.del(lock.name);
-    }
+    this.logger.debug(`${loggerPrefix} job run at ${new Date().toISOString()}`);
+
+    const results = await Promise.allSettled([
+      this.uniswapV3LiquidityResolver.apply(job.data.chainId),
+      this.uniswapV3PoolsDiscovery.apply(job.data.chainId),
+    ]);
+
+    results.forEach((r, i) => {
+      if (r.status == 'rejected') this.logger.error(`${loggerPrefix} error[${i}]: ${r.reason}`);
+    });
+
+    await this.connection.del(lock.name);
   };
 
   start = (): void => {
@@ -51,7 +57,13 @@ class UniswapV3LiquidityWorker extends BasicWorker {
   };
 
   checkIsValidSettings = (jobData: {chainId: ChainsIds; protocol: DexProtocolName}) => {
-    return Boolean(this.settings.dexes[jobData?.chainId]?.[jobData?.protocol]?.subgraphUrl);
+    const url = this.settings.dexes[jobData?.chainId]?.[jobData?.protocol]?.subgraphUrl;
+    if (!url) {
+      this.logger.error(`[checkIsValidSettings] missing subgraphUrl for ${jobData?.chainId} ${jobData?.protocol}`);
+      return false;
+    }
+
+    return true;
   };
 }
 

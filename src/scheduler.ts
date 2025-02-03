@@ -15,7 +15,7 @@ import {BlockchainMetricsWorker} from './workers/BlockchainMetricsWorker.js';
 import {LiquidityWorkerRepository} from './repositories/LiquidityWorkerRepository.js';
 import {DexProtocolName} from './types/Dexes.js';
 import PriceFetchingWorker from './workers/PriceFetchingWorker.js';
-import {FetcherName} from './types/fetchers';
+import {FetcherName} from './types/fetchers.js';
 
 (async (): Promise<void> => {
   await boot(true);
@@ -196,7 +196,7 @@ import {FetcherName} from './types/fetchers';
       }, 1000);
 
       setInterval(async () => {
-        logger.info(`[Scheduler] Scheduling ${workerName}`);
+        logger.info(`[Scheduler] Scheduling ${workerName} with interval ${jobSettings.interval}`);
 
         await worker!.enqueue(
           {name: workerName, chainId, settings: jobSettings},

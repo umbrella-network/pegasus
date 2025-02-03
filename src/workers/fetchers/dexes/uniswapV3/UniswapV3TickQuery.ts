@@ -2,7 +2,7 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {GraphClient} from '../../../../services/graph/GraphClient.js';
-import {liquidityPoolsQuery} from './UniswapV3GraphQueries.js';
+import {liquidityPoolsSubgraphQuery} from './GraphQueries.js';
 import {GraphTick, LiquidityTick} from './interfaces.js';
 import Settings from '../../../../types/Settings.js';
 import {ChainsIds} from '../../../../types/ChainsIds.js';
@@ -13,6 +13,7 @@ export class UniswapV3TickQuery {
   @inject('Settings') settings!: Settings;
   @inject('Logger') logger!: Logger;
   readonly graphClient;
+  readonly queryLimit = 1000;
 
   constructor() {
     this.graphClient = new GraphClient();
@@ -22,16 +23,15 @@ export class UniswapV3TickQuery {
     let allTicks: GraphTick[] = [];
     let skip = 0;
     let loadingTicks = true;
-    const limit = 1000;
 
     while (loadingTicks) {
       const ticks = await this.getTickDataFromSubgraph(poolAddress, chainId, skip);
       allTicks = allTicks.concat(ticks);
 
-      if (ticks.length < limit) {
+      if (ticks.length < this.queryLimit) {
         loadingTicks = false;
       } else {
-        skip += limit;
+        skip += this.queryLimit;
       }
     }
 
@@ -42,7 +42,10 @@ export class UniswapV3TickQuery {
     try {
       const subgraphURL = this.settings.dexes?.[chainId]?.[DexProtocolName.UNISWAP_V3]?.subgraphUrl || '';
 
-      const response = (await this.graphClient.query(subgraphURL, liquidityPoolsQuery(poolAddress, skip))) as {
+      const response = (await this.graphClient.query(
+        subgraphURL,
+        liquidityPoolsSubgraphQuery(poolAddress, this.queryLimit, skip),
+      )) as {
         data: LiquidityTick;
       };
 

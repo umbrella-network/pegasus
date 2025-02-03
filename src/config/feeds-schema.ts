@@ -1,6 +1,4 @@
-import {CalculatorName} from '../types/Calculator.js';
 import {FetcherName} from '../types/fetchers.js';
-import {MoCMeasurementGetter} from '../services/fetchers';
 
 export default {
   description: 'Feeds schema for the JSONSchema validator',
@@ -24,6 +22,7 @@ export default {
         chains: {type: 'array', minItems: 1},
         base: {type: 'string'},
         quote: {type: 'string'},
+        averagePriceMethod: {type: 'string'},
       },
       required: ['discrepancy', 'precision', 'inputs'],
       additionalProperties: false,
@@ -40,6 +39,7 @@ export default {
             {$ref: '#/definitions/PolygonIOCurrencySnapshotGrams'},
             {$ref: '#/definitions/PolygonIOStockSnapshotPrice'},
             {$ref: '#/definitions/CoingeckoPrice'},
+            {$ref: '#/definitions/KuCoinPrice'},
             {$ref: '#/definitions/OnChainData'},
             {$ref: '#/definitions/UniswapV3'},
             {$ref: '#/definitions/OptionsPrice'},
@@ -53,15 +53,6 @@ export default {
             {$ref: '#/definitions/SovrynPrice'},
           ],
         },
-        calculator: {
-          oneOf: [
-            {$ref: '#/definitions/TWAPCalculator'},
-            {$ref: '#/definitions/VWAPCalculator'},
-            {$ref: '#/definitions/IdentityCalculator'},
-            {$ref: '#/definitions/OptionsPriceCalculator'},
-            {$ref: '#/definitions/YearnTransformPriceCalculator'},
-          ],
-        },
       },
       required: ['fetcher'],
       additionalProperties: false,
@@ -73,8 +64,25 @@ export default {
           type: 'object',
           properties: {
             symbol: {type: 'string'},
+            vwapSymbol: {type: 'string'},
+            vwapInterval: {type: 'string'},
+            vwapCategory: {type: 'string'},
           },
           required: ['symbol'],
+        },
+      },
+    },
+    KuCoinPrice: {
+      properties: {
+        name: {const: FetcherName.KuCoinPrice},
+        params: {
+          type: 'object',
+          properties: {
+            symbol: {type: 'string'},
+            vwapInterval: {type: 'string'},
+          },
+          required: ['symbol'],
+          additionalProperties: false,
         },
       },
     },
@@ -86,6 +94,7 @@ export default {
           properties: {
             symbol: {type: 'string'},
             inverse: {type: 'boolean'},
+            vwapInterval: {type: 'string'},
           },
           required: ['symbol'],
           additionalProperties: false,
@@ -356,54 +365,6 @@ export default {
         },
       },
       required: ['params'],
-      additionalProperties: false,
-    },
-    YearnTransformPriceCalculator: {
-      properties: {
-        name: {const: CalculatorName.YEARN_TRANSFORM_PRICE},
-        params: {
-          type: 'object',
-          properties: {
-            tsym: {type: 'string'},
-          },
-          required: ['tsym'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    OptionsPriceCalculator: {
-      properties: {
-        name: {const: CalculatorName.OPTIONS_PRICE},
-        params: {
-          type: 'object',
-          properties: {
-            sym: {type: 'string'},
-          },
-          required: ['sym'],
-          additionalProperties: false,
-        },
-      },
-      required: ['params'],
-      additionalProperties: false,
-    },
-    IdentityCalculator: {
-      properties: {
-        name: {const: CalculatorName.IDENTITY},
-      },
-      additionalProperties: false,
-    },
-    TWAPCalculator: {
-      properties: {
-        name: {const: CalculatorName.TWAP},
-      },
-      additionalProperties: false,
-    },
-    VWAPCalculator: {
-      properties: {
-        name: {const: CalculatorName.VWAP},
-      },
       additionalProperties: false,
     },
   },

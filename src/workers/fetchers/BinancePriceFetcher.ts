@@ -74,6 +74,7 @@ export class BinancePriceFetcher implements ServiceInterface {
       return {
         timestamp,
         value: data.price,
+
         params: {
           symbol: data.symbol,
           inverse: false,

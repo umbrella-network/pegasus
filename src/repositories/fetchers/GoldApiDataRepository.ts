@@ -1,7 +1,7 @@
 import {injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 
-import {FetcherName, NumberOrUndefined, FetchedValueType} from '../../types/fetchers.js';
+import {FeedPrice, FetchedValueType, FetcherName} from '../../types/fetchers.js';
 import {CommonPriceDataRepository} from './common/CommonPriceDataRepository.js';
 import {PriceModel_GoldApi} from '../../models/fetchers/PriceModel_GoldApi.js';
 import {GoldApiPriceInputParams} from '../../services/fetchers/GoldApiPriceGetter.js';
@@ -58,7 +58,7 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
     await this.savePrices(payloads);
   }
 
-  async getPrices(params: GoldApiPriceInputParams[], timestamp: number): Promise<NumberOrUndefined[]> {
+  async getPrices(params: GoldApiPriceInputParams[], timestamp: number): Promise<FeedPrice[]> {
     if (params.length === 0) {
       return [];
     }
@@ -76,7 +76,7 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
   }
 
   // sortedResults must be sorted by timestamp in DESC way
-  private getNewestPrices(sortedResults: PriceModel_GoldApi[], inputs: GoldApiPriceInputParams[]): NumberOrUndefined[] {
+  private getNewestPrices(sortedResults: PriceModel_GoldApi[], inputs: GoldApiPriceInputParams[]): FeedPrice[] {
     const map: Record<string, number> = {};
     this.logger.debug(
       `${this.logPrefix} results (${sortedResults.length}): ${sortedResults.map((r) => r.value).join(';')}`,
@@ -93,6 +93,9 @@ export class GoldApiDataRepository extends CommonPriceDataRepository {
 
     const newest = inputs.map(({symbol, currency}) => map[getSymbol(symbol, currency).toLowerCase()]);
     this.logger.debug(`${this.logPrefix} newest (${newest.filter((n) => !!n).length}): ${newest.filter((n) => !!n)}`);
-    return newest;
+
+    return newest.map((price) => {
+      return {value: price};
+    });
   }
 }

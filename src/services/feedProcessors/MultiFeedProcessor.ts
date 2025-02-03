@@ -2,24 +2,27 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
 import {
-  ByBitPriceGetter,
   BinancePriceGetter,
+  ByBitPriceGetter,
   CoingeckoPriceGetter,
+  MoCMeasurementGetter,
   PolygonIOCryptoSnapshotPriceGetter,
   PolygonIOSingleCryptoPriceGetter,
   PolygonIOStockSnapshotPriceGetter,
-  MoCMeasurementGetter,
 } from '../fetchers/index.js';
 import {
   allMultiFetchers,
   FeedFetcherInputParams,
   FeedFetcherInterface,
+  FeedPrice,
   FetcherName,
+  FetcherResult,
   StringOrUndefined,
 } from '../../types/fetchers.js';
 import {UniswapV3Getter} from '../fetchers/UniswapV3Getter.js';
 import {SovrynPriceGetter} from '../fetchers/SovrynPriceGetter.js';
 import {FeedFetcher} from '../../types/Feed.js';
+import {KuCoinPriceGetter} from '../fetchers/KuCoinPriceGetter.js';
 
 @injectable()
 export default class MultiFeedProcessor {
@@ -31,6 +34,7 @@ export default class MultiFeedProcessor {
     @inject(BinancePriceGetter) binancePricGetter: BinancePriceGetter,
     @inject(ByBitPriceGetter) byBitSpotPriceGetter: ByBitPriceGetter,
     @inject(CoingeckoPriceGetter) coingeckoPriceGetter: CoingeckoPriceGetter,
+    @inject(KuCoinPriceGetter) kuCoinPriceGetter: KuCoinPriceGetter,
     @inject(MoCMeasurementGetter) moCMeasurementGetter: MoCMeasurementGetter,
 
     @inject(PolygonIOCryptoSnapshotPriceGetter)
@@ -45,6 +49,7 @@ export default class MultiFeedProcessor {
     this.multifetchersMap[FetcherName.BinancePrice] = binancePricGetter;
     this.multifetchersMap[FetcherName.ByBitPrice] = byBitSpotPriceGetter;
     this.multifetchersMap[FetcherName.CoingeckoPrice] = coingeckoPriceGetter;
+    this.multifetchersMap[FetcherName.KuCoinPrice] = kuCoinPriceGetter;
     this.multifetchersMap[FetcherName.MoCMeasurement] = moCMeasurementGetter;
     this.multifetchersMap[FetcherName.PolygonIOCryptoSnapshotPrice] = polygonIOCryptoSnapshotPriceGetter;
     this.multifetchersMap[FetcherName.PolygonIOStockSnapshotPrice] = polygonIOStockSnapshotPriceGetter;
@@ -55,7 +60,7 @@ export default class MultiFeedProcessor {
 
   private logPrefix = '[MultiFeedProcessor]';
 
-  async apply(feedFetchers: FeedFetcher[], timestamp: number): Promise<unknown[]> {
+  async apply(feedFetchers: FeedFetcher[], timestamp: number): Promise<(undefined | FeedPrice)[]> {
     if (!feedFetchers.length) return [];
 
     this.logger.debug(`${this.logPrefix} feedFetchers ${feedFetchers.map((f) => `${f.name}: ${f.symbol}`)}`);
@@ -99,7 +104,7 @@ export default class MultiFeedProcessor {
       }
     }
 
-    const response: unknown[] = new Array(feedFetchers.length).fill(undefined);
+    const response: (undefined | FeedPrice)[] = new Array(feedFetchers.length).fill(undefined);
     const mapInputs = Object.values(inputMap);
 
     const fetchedFeeds = await Promise.allSettled(
@@ -112,22 +117,26 @@ export default class MultiFeedProcessor {
         return;
       }
 
-      const fetchedResults = results.value;
+      const fetchedResults = results.value as FetcherResult;
       const indieces = mapInputs[ix].indices;
       const fetcherName = mapInputs[ix].fetcherName;
 
-      this.logger.debug(`${this.logPrefix} [${fetcherName}] fetchedResults.prices: ${fetchedResults.prices}`);
+      this.logger.debug(
+        `${this.logPrefix} [${fetcherName}] fetchedResults.prices (${
+          fetchedResults.prices.length
+        }): ${fetchedResults.prices.map((p) => p.value)}`,
+      );
       this.logger.debug(`${this.logPrefix} [${fetcherName}] symbols: ${mapInputs[ix].symbols}`);
 
       fetchedResults.prices.forEach((price, i) => {
-        if (price) {
+        if (price.value != undefined) {
           response[indieces[i]] = price;
-          this.logger.debug(`${this.logPrefix} response[${indieces[i]}] = ${price}`);
+          this.logger.debug(`${this.logPrefix} response[${indieces[i]}] = ${price.value}`);
         }
       });
     });
 
-    this.logger.debug(`${this.logPrefix} response: ${response}`);
+    this.logger.debug(`${this.logPrefix} response: ${response.map((p) => p?.value)}`);
 
     return response;
   }

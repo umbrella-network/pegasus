@@ -8,9 +8,9 @@ import {ChainsIds} from '../../types/ChainsIds.js';
 import {
   FeedFetcherInterface,
   FeedFetcherOptions,
+  FetchedValueType,
   FetcherName,
   FetcherResult,
-  FetchedValueType,
 } from '../../types/fetchers.js';
 
 /*
@@ -59,13 +59,13 @@ export class EvmTWAPGasPriceGetter implements FeedFetcherInterface {
 
     // TODO this will be deprecated once we fully switch to DB and have dedicated charts
     await this.priceDataRepository.saveFetcherResults(
-      {prices: [gasPriceGwei]},
+      {prices: [{value: gasPriceGwei}]},
       symbols,
       FetcherName.TWAPGasPrice,
       FetchedValueType.Price,
       EvmTWAPGasPriceGetter.fetcherSource,
     );
 
-    return {prices: [gasPriceGwei], timestamp};
+    return {prices: [{value: gasPriceGwei}], timestamp};
   }
 }

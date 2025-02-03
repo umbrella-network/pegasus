@@ -496,7 +496,7 @@ const settings: Settings = {
       [DexProtocolName.UNISWAP_V3]: {
         subgraphUrl: <string>process.env['ROOTSTOCK_UNISWAPV3_SUBGRAPH_API'],
         liquidityFreshness: parseInt(
-          process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_FRESHNESS || String(getDayInMillisecond(365)),
+          process.env.ROOTSTOCK_UNISWAPV3_LIQUIDITY_FRESHNESS || String(getDayInMillisecond(10)),
           10,
         ),
       },
@@ -548,6 +548,7 @@ const settings: Settings = {
       [FetcherName.ByBitPrice]: schedulerFetcherSettings(FetcherName.ByBitPrice),
       [FetcherName.CoingeckoPrice]: schedulerFetcherSettings(FetcherName.CoingeckoPrice),
       [FetcherName.GoldApiPrice]: schedulerFetcherSettings(FetcherName.GoldApiPrice),
+      [FetcherName.KuCoinPrice]: schedulerFetcherSettings(FetcherName.KuCoinPrice),
       [FetcherName.MetalPriceApi]: schedulerFetcherSettings(FetcherName.MetalPriceApi),
       [FetcherName.MetalsDevApi]: schedulerFetcherSettings(FetcherName.MetalsDevApi),
       [FetcherName.MoCMeasurement]: schedulerFetcherSettings(FetcherName.MoCMeasurement),
