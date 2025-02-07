@@ -17,7 +17,7 @@ import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
 import TimeService from '../TimeService.js';
 import {ExecutedTx, TxHash} from '../../types/Consensus.js';
 import {UmbrellaFeedInterface} from '../../interfaces/UmbrellaFeedInterface.js';
-import {ChainsIds} from '../../types/ChainsIds';
+import {ChainsIds} from '../../types/ChainsIds.js';
 
 @injectable()
 export abstract class DeviationDispatcher extends Dispatcher implements IDeviationFeedsDispatcher {
