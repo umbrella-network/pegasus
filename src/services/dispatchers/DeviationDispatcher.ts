@@ -17,6 +17,7 @@ import {ValidatorRepository} from '../../repositories/ValidatorRepository.js';
 import TimeService from '../TimeService.js';
 import {ExecutedTx, TxHash} from '../../types/Consensus.js';
 import {UmbrellaFeedInterface} from '../../interfaces/UmbrellaFeedInterface.js';
+import {ChainsIds} from "../../types/ChainsIds";
 
 @injectable()
 export abstract class DeviationDispatcher extends Dispatcher implements IDeviationFeedsDispatcher {
@@ -57,7 +58,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
       return;
     }
 
-    if (this.isConsensusDeprecated(consensus.dataTimestamp)) {
+    if (this.isConsensusDeprecated(consensus.chainId, consensus.dataTimestamp)) {
       this.logger.warn(`${this.logPrefix} consensus for ${consensus.keys} at ${consensus.dataTimestamp} deprecated`);
       this.logger.debug(`${this.logPrefix} consensus dump ${JSON.stringify(consensus)}`);
       await this.consensusRepository.delete(this.chainId);
@@ -127,13 +128,14 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
     return 120_000;
   }
 
-  protected isConsensusDeprecated(consensusDataTimestamp: number): boolean {
+  protected isConsensusDeprecated(chainId: string, consensusDataTimestamp: number): boolean {
     const roundLengthSeconds = this.settings.deviationTrigger.roundLengthSeconds;
     const beginOfTheRound = Math.trunc(consensusDataTimestamp / roundLengthSeconds) * roundLengthSeconds;
 
-    this.logger.debug(`[isConsensusDeprecated] ${beginOfTheRound}, ${consensusDataTimestamp}`);
+    this.logger.debug(`${chainId}][isConsensusDeprecated] ${beginOfTheRound}, ${consensusDataTimestamp}`);
     // we have 1/2 of next round to send tx if our round is over
-    return beginOfTheRound + roundLengthSeconds * 1.5 < this.timeService.apply();
+    const offset = chainId == ChainsIds.CONCORDIUM ? 3 : 1.5;
+    return beginOfTheRound + roundLengthSeconds * offset < this.timeService.apply();
   }
 
   protected async send(consensus: DeviationConsensus): Promise<TxHash | null> {
