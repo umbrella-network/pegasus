@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.7.0] - 2025-02-07
+### Updated
+- increase time for consensus to became deprecated
+
 ## [8.7.0] - 2025-02-03
 ### Added
 - VWAP for Binance, ByBit
