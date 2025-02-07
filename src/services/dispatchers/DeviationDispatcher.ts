@@ -59,6 +59,7 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
 
     if (this.isConsensusDeprecated(consensus.dataTimestamp)) {
       this.logger.warn(`${this.logPrefix} consensus for ${consensus.keys} at ${consensus.dataTimestamp} deprecated`);
+      this.logger.debug(`${this.logPrefix} consensus dump ${JSON.stringify(consensus)}`);
       await this.consensusRepository.delete(this.chainId);
       return;
     }
@@ -130,8 +131,9 @@ export abstract class DeviationDispatcher extends Dispatcher implements IDeviati
     const roundLengthSeconds = this.settings.deviationTrigger.roundLengthSeconds;
     const beginOfTheRound = Math.trunc(consensusDataTimestamp / roundLengthSeconds) * roundLengthSeconds;
 
-    // we have 5 sec to send tx if our round is over
-    return beginOfTheRound + roundLengthSeconds + 5 < this.timeService.apply();
+    this.logger.debug(`[isConsensusDeprecated] ${beginOfTheRound}, ${consensusDataTimestamp}`);
+    // we have 1/2 of next round to send tx if our round is over
+    return beginOfTheRound + roundLengthSeconds * 1.5 < this.timeService.apply();
   }
 
   protected async send(consensus: DeviationConsensus): Promise<TxHash | null> {
