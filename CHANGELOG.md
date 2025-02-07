@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [8.7.4] - 2025-02-07
+### Fixed
+- typo on including module
+
 ## [8.7.3] - 2025-02-07
 ### Fixed
 - linter
