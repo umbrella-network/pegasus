@@ -72,7 +72,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
       }).timeout(5000);
 
       it.skip(`[${chainId}] #requiredSignatures`, async () => {
-        expect(await umbrellaFeeds.requiredSignatures()).eq(2);
+        expect(await umbrellaFeeds.requiredSignatures()).eq(6);
       });
 
       it(`[${chainId}] #getManyPriceDataRaw empty array`, async () => {
