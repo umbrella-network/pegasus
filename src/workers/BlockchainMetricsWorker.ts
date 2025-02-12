@@ -12,7 +12,11 @@ export class BlockchainMetricsWorker extends BasicWorker {
   @inject(RequiredSignaturesResolver) requiredSignaturesResolver!: RequiredSignaturesResolver;
   @inject(ReleasesResolver) releasesResolver!: ReleasesResolver;
 
-  private readonly logPrefix = '[BlockchainMetricsWorker]';
+  constructor() {
+    super();
+
+    this.logPrefix = '[BlockchainMetricsWorker]';
+  }
 
   enqueue = async <T>(params: T, opts?: Bull.JobsOptions): Promise<Bull.Job<T> | undefined> => {
     const isLocked = await this.connection.get(this.settings.jobs.blockchainMetrics.lock.name);
