@@ -15,7 +15,7 @@ import {StakingBankContractFactory} from '../../../src/factories/contracts/Staki
 
 const {expect} = chai;
 
-describe.skip('Umbrella Feeds debug integration tests', () => {
+describe.only('Umbrella Feeds debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
   let deviationSignerRepository: DeviationSignerRepository;
 
@@ -45,7 +45,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         umbrellaFeeds = UmbrellaFeedsContractFactory.create(blockchain);
       });
 
-      it(`[${chainId}] #address`, async () => {
+      it.only(`[${chainId}] #address`, async () => {
         const addr = await umbrellaFeeds.address();
         console.log(`${chainId} UmbrellaFeeds: `, addr);
 
@@ -71,7 +71,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         }
       }).timeout(5000);
 
-      it.skip(`[${chainId}] #requiredSignatures`, async () => {
+      it.only(`[${chainId}] #requiredSignatures`, async () => {
         expect(await umbrellaFeeds.requiredSignatures()).eq(6);
       });
 
@@ -96,8 +96,8 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
         expect(priceData.price).eq(0n, 'price');
       }).timeout(10000);
 
-      it(`[${chainId}] #getManyPriceDataRaw with existing keys`, async () => {
-        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['UMB-USD', 'EGLD-USD']);
+      it.only(`[${chainId}] #getManyPriceDataRaw with existing keys`, async () => {
+        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['WRBTC-rUSDT', 'ETH-USD', 'rifp-leverage']);
         console.log({priceDatas});
         if (!priceDatas) throw Error('undefined priceDatas');
 
@@ -167,7 +167,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
             },
           ];
 
-          const names = ['BTC-USD', 'ETH-USD'];
+          const names = ['WRBTC-rUSDT', 'ETH-USD', 'rifp-leverage'];
 
           const [hash, contractHash] = await Promise.all([
             hasher.apply(chainId, networkId, target, names, priceDatas),
