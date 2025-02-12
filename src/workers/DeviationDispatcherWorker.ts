@@ -16,9 +16,9 @@ export class DeviationDispatcherWorker extends BasicWorker {
 
   private execute = async (chainId: ChainsIds): Promise<void> => {
     try {
-      this.logger.debug(`[${chainId}] Starting Deviation Feeds Dispatcher`);
+      this.printNotImportantDebug(`[${chainId}] Starting Deviation Feeds Dispatcher`);
       await this.dispatcher.apply({chainId});
-      this.logger.debug(`[${chainId}] Deviation Feeds Dispatcher Complete`);
+      this.printNotImportantDebug(`[${chainId}] Deviation Feeds Dispatcher Complete`);
     } catch (e: unknown) {
       throw new Error(`[${chainId}] ${(e as Error).message}`);
     }
