@@ -72,7 +72,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
       }).timeout(5000);
 
       it.skip(`[${chainId}] #requiredSignatures`, async () => {
-        expect(await umbrellaFeeds.requiredSignatures()).eq(2);
+        expect(await umbrellaFeeds.requiredSignatures()).eq(6);
       });
 
       it(`[${chainId}] #getManyPriceDataRaw empty array`, async () => {
@@ -97,7 +97,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
       }).timeout(10000);
 
       it(`[${chainId}] #getManyPriceDataRaw with existing keys`, async () => {
-        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['UMB-USD', 'EGLD-USD']);
+        const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['WRBTC-rUSDT', 'ETH-USD', 'rifp-leverage']);
         console.log({priceDatas});
         if (!priceDatas) throw Error('undefined priceDatas');
 
@@ -167,7 +167,7 @@ describe.skip('Umbrella Feeds debug integration tests', () => {
             },
           ];
 
-          const names = ['BTC-USD', 'ETH-USD'];
+          const names = ['WRBTC-rUSDT', 'ETH-USD', 'rifp-leverage'];
 
           const [hash, contractHash] = await Promise.all([
             hasher.apply(chainId, networkId, target, names, priceDatas),
