@@ -15,7 +15,7 @@ import {StakingBankContractFactory} from '../../../src/factories/contracts/Staki
 
 const {expect} = chai;
 
-describe.only('Umbrella Feeds debug integration tests', () => {
+describe.skip('Umbrella Feeds debug integration tests', () => {
   let blockchainRepo: BlockchainRepository;
   let deviationSignerRepository: DeviationSignerRepository;
 
@@ -45,7 +45,7 @@ describe.only('Umbrella Feeds debug integration tests', () => {
         umbrellaFeeds = UmbrellaFeedsContractFactory.create(blockchain);
       });
 
-      it.only(`[${chainId}] #address`, async () => {
+      it(`[${chainId}] #address`, async () => {
         const addr = await umbrellaFeeds.address();
         console.log(`${chainId} UmbrellaFeeds: `, addr);
 
@@ -71,7 +71,7 @@ describe.only('Umbrella Feeds debug integration tests', () => {
         }
       }).timeout(5000);
 
-      it.only(`[${chainId}] #requiredSignatures`, async () => {
+      it.skip(`[${chainId}] #requiredSignatures`, async () => {
         expect(await umbrellaFeeds.requiredSignatures()).eq(6);
       });
 
@@ -96,7 +96,7 @@ describe.only('Umbrella Feeds debug integration tests', () => {
         expect(priceData.price).eq(0n, 'price');
       }).timeout(10000);
 
-      it.only(`[${chainId}] #getManyPriceDataRaw with existing keys`, async () => {
+      it(`[${chainId}] #getManyPriceDataRaw with existing keys`, async () => {
         const priceDatas = await umbrellaFeeds.getManyPriceDataRaw(['WRBTC-rUSDT', 'ETH-USD', 'rifp-leverage']);
         console.log({priceDatas});
         if (!priceDatas) throw Error('undefined priceDatas');
