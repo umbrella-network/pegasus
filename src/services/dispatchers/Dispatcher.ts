@@ -1,5 +1,4 @@
 import {inject} from 'inversify';
-import {Logger} from 'winston';
 import {BigNumber} from 'ethers';
 import {PayableOverrides} from '@ethersproject/contracts';
 import {GasEstimation} from '@umb-network/toolbox/dist/types/GasEstimation';
@@ -11,9 +10,9 @@ import {BalanceMonitorSaver} from '../balanceMonitor/BalanceMonitorSaver.js';
 import {IWallet} from '../../interfaces/IWallet.js';
 import {ExecutedTx, TxHash} from '../../types/Consensus.js';
 import Blockchain from '../../lib/Blockchain.js';
+import {LogPrinter} from '../tools/LogPrinter.js';
 
-export abstract class Dispatcher {
-  @inject('Logger') protected logger!: Logger;
+export abstract class Dispatcher extends LogPrinter {
   @inject('Settings') settings!: Settings;
   @inject(BlockchainRepository) blockchainRepository!: BlockchainRepository;
   @inject(BalanceMonitorSaver) balanceMonitorSaver!: BalanceMonitorSaver;
@@ -23,7 +22,6 @@ export abstract class Dispatcher {
   protected blockchain!: Blockchain;
   // this can be any wallet
   protected sendingWallet!: IWallet;
-  protected logPrefix!: string;
 
   protected lastStatusLogs: Record<string, number> = {};
 
@@ -199,29 +197,5 @@ export abstract class Dispatcher {
     if (balance < wallet.toNative(warningLimit)) {
       this.printNotImportantWarn(`${this.logPrefix} Balance (${address.slice(0, 10)}) is lower than ${warningLimit}`);
     }
-  }
-
-  protected printNotImportantInfo(msg: string) {
-    const lastTime = this.lastStatusLogs[msg];
-
-    if (lastTime && lastTime + 60_000 * 5 > Date.now()) {
-      // print only once a minute
-      return;
-    }
-
-    this.lastStatusLogs[msg] = Date.now();
-    this.logger.info(`${this.logPrefix} ${msg} (stat)`);
-  }
-
-  protected printNotImportantWarn(msg: string) {
-    const lastTime = this.lastStatusLogs[msg];
-
-    if (lastTime && lastTime + 60_000 * 5 > Date.now()) {
-      // print only once a minute
-      return;
-    }
-
-    this.lastStatusLogs[msg] = Date.now();
-    this.logger.warn(`${this.logPrefix} ${msg} (stat)`);
   }
 }

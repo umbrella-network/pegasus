@@ -1,12 +1,11 @@
 import Bull, {Queue, Worker} from 'bullmq';
-import {Logger} from 'winston';
 import {inject, injectable} from 'inversify';
 import {Redis} from 'ioredis';
 import Settings from 'src/types/Settings';
+import {LogPrinter} from '../services/tools/LogPrinter.js';
 
 @injectable()
-abstract class BasicWorker {
-  @inject('Logger') logger!: Logger;
+abstract class BasicWorker extends LogPrinter {
   @inject('Redis') connection!: Redis;
   @inject('Settings') settings!: Settings;
 
