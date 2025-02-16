@@ -79,14 +79,14 @@ export type SubgraphLiquidityResult = {
 };
 
 export const uniswapLiquiditySubgraphQuery = (pools: string[], limit: number, skip: number): string => {
-  const idIn = pools.map((p) => p.toLowerCase()).join(', ');
+  const idIn = pools.map((p) => `"${p.toLowerCase()}"`).join(', ');
 
   return `
 query SubgraphPoolsLiquidityQuery {
   pools(
     first: ${limit}
     skip: ${skip}
-    where: {id_in: "[${idIn}]"}
+    where: {id_in: [${idIn}]}
   ) {
     id
     totalValueLockedToken0
