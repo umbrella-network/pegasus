@@ -125,8 +125,7 @@ describe('UniswapV3PoolRepository', () => {
 
     it('responds with matching tokens and ordered', async () => {
       const result = await uniswapV3PoolRepository.find({
-        token0: tokenB,
-        token1: tokenA,
+        tokens: [{base: tokenA, quote: tokenB}],
         protocol: DexProtocolName.UNISWAP_V3,
         fromChain: ChainsIds.ETH,
       });
@@ -136,8 +135,7 @@ describe('UniswapV3PoolRepository', () => {
       expect(result[1]).to.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
 
       const resultInverted = await uniswapV3PoolRepository.find({
-        token0: tokenA,
-        token1: tokenB,
+        tokens: [{base: tokenA, quote: tokenB}],
         protocol: DexProtocolName.UNISWAP_V3,
         fromChain: ChainsIds.ETH,
       });

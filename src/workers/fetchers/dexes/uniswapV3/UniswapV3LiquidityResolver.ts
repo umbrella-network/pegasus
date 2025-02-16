@@ -1,6 +1,5 @@
 import {inject, injectable} from 'inversify';
 
-import {LiquiditySummingService} from './LiquiditySummingService.js';
 import {UniswapV3PoolRepository} from '../../../../repositories/UniswapV3PoolRepository.js';
 import {ChainsIds} from '../../../../types/ChainsIds.js';
 import {TokenRepository} from '../../../../repositories/TokenRepository.js';
@@ -14,7 +13,6 @@ import {GraphPaginator} from '../../../../services/graph/GraphPaginator.js';
 export class UniswapV3LiquidityResolver extends GraphPaginator {
   @inject(UniswapV3FeedsGetter) uniswapV3FeedsGetter!: UniswapV3FeedsGetter;
   @inject(TokenRepository) tokenRepository!: TokenRepository;
-  @inject(LiquiditySummingService) liquiditySummingService!: LiquiditySummingService;
   @inject(UniswapV3PoolRepository) uniswapV3PoolRepository!: UniswapV3PoolRepository;
 
   readonly protocol = DexProtocolName.UNISWAP_V3;
