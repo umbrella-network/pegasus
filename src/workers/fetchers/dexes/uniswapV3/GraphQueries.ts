@@ -65,3 +65,39 @@ query SubgraphPoolsQuery {
 }
 `;
 };
+
+export type SubgraphLiquidityResult = {
+  id: string;
+  totalValueLockedToken0: number;
+  totalValueLockedToken1: number;
+  token0: {
+    id: string;
+  };
+  token1: {
+    id: string;
+  };
+};
+
+export const uniswapLiquiditySubgraphQuery = (pools: string[], limit: number, skip: number): string => {
+  const idIn = pools.map((p) => p.toLowerCase()).join(', ');
+
+  return `
+query SubgraphPoolsLiquidityQuery {
+  pools(
+    first: ${limit}
+    skip: ${skip}
+    where: {id: "", id_in: "[${idIn}]"}
+  ) {
+    id
+    totalValueLockedToken0
+    totalValueLockedToken1
+    token0 {
+      id
+    }
+    token1 {
+      id
+    }
+  }
+}
+`;
+};

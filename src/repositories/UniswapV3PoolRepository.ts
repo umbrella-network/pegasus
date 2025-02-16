@@ -21,7 +21,7 @@ export type SaveLiquidityParams = {
   liquidityLockedToken1: number;
 };
 
-type LiquidityFilterParams = {chainId: ChainsIds; token0: string; token1: string; fee: number; address: string};
+type LiquidityFilterParams = {chainId: ChainsIds; address: string};
 
 @injectable()
 export class UniswapV3PoolRepository {
@@ -50,12 +50,9 @@ export class UniswapV3PoolRepository {
   }
 
   async saveLiquidity(filter: LiquidityFilterParams, liquidity: SaveLiquidityParams): Promise<UniswapV3Pool | null> {
-    const token0 = filter.token0.toLowerCase();
-    const token1 = filter.token1.toLowerCase();
-
     return getModelForClass(UniswapV3Pool)
       .findOneAndUpdate(
-        {...filter, token0: {$in: [token0, token1]}, token1: {$in: [token0, token1]}},
+        {...filter},
         {...liquidity, liquidityUpdatedAt: new Date(Date.now())},
         {
           new: true,
@@ -64,19 +61,27 @@ export class UniswapV3PoolRepository {
       .exec();
   }
 
-  async find(props: {protocol: string; fromChain: string; token0: string; token1: string}): Promise<UniswapV3Pool[]> {
-    const {protocol, fromChain} = props;
-    const token0 = props.token0.toLowerCase();
-    const token1 = props.token1.toLowerCase();
+  async find(props: {
+    protocol: string;
+    fromChain: string;
+    tokens: {base: string; quote: string}[];
+  }): Promise<UniswapV3Pool[]> {
+    const {protocol, fromChain, tokens} = props;
+
+    const allCases = tokens.map((t) => {
+      return [
+        {token0: t.base.toLowerCase(), token1: t.quote.toLowerCase()},
+        {token1: t.base.toLowerCase(), token0: t.quote.toLowerCase()},
+      ];
+    });
 
     const filter = {
       protocol,
       chainId: fromChain,
-      token0: {$in: [token0, token1]},
-      token1: {$in: [token0, token1]},
+      $or: allCases.flat(),
     };
 
-    return getModelForClass(UniswapV3Pool).find(filter).sort({token0: 1, token1: 1}).exec();
+    return getModelForClass(UniswapV3Pool).find(filter).exec();
   }
 
   async findBestPool(props: {
