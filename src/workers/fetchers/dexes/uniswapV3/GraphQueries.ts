@@ -86,7 +86,7 @@ query SubgraphPoolsLiquidityQuery {
   pools(
     first: ${limit}
     skip: ${skip}
-    where: {id: "", id_in: "[${idIn}]"}
+    where: {id_in: "[${idIn}]"}
   ) {
     id
     totalValueLockedToken0
