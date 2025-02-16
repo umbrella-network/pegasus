@@ -16,7 +16,6 @@ export type SavePoolParams = {
 };
 
 export type SaveLiquidityParams = {
-  liquidityActive: string;
   liquidityLockedToken0: number;
   liquidityLockedToken1: number;
 };
@@ -97,43 +96,31 @@ export class UniswapV3PoolRepository {
     const liquidityFreshness = this.getLiquidityFreshness(fromChain as ChainsIds, protocol as DexProtocolName);
     const liquidityUpdatedLimit = new Date(Date.now() - liquidityFreshness);
 
-    const filterToken0 = {
+    const filterPools = {
       protocol,
       chainId: fromChain,
-      token0: quote,
-      token1: base,
+      $or: [{token0: base}, {token1: quote}, {token0: quote, token1: base}],
       liquidityUpdatedAt: {$gt: liquidityUpdatedLimit},
     };
 
-    const filterToken1 = {
-      protocol,
-      chainId: fromChain,
-      token0: base,
-      token1: quote,
-      liquidityUpdatedAt: {$gt: liquidityUpdatedLimit},
-    };
+    const result = await getModelForClass(UniswapV3Pool).find(filterPools).sort({liquidityLockedToken0: 1}).exec();
 
-    const [liquidityToken0, liquidityToken1] = await Promise.all([
-      getModelForClass(UniswapV3Pool).find(filterToken0).sort({liquidityLockedToken0: 1}).exec(),
-      getModelForClass(UniswapV3Pool).find(filterToken1).sort({liquidityLockedToken1: 1}).exec(),
-    ]);
-
-    if (liquidityToken0.length === 0 && liquidityToken1.length === 0) {
+    if (result.length === 0) {
       return undefined;
     }
 
-    if (liquidityToken0.length > 0 && liquidityToken1.length === 0) {
-      return liquidityToken0[0];
-    }
-
-    if (liquidityToken1.length > 0 && liquidityToken0.length === 0) {
-      return liquidityToken1[0];
+    if (result.length === 1) {
+      return result[0];
     }
 
     // TODO Needs to be done for quote liquidity
-    return liquidityToken0[0].liquidityLockedToken0 > liquidityToken1[0].liquidityLockedToken1
-      ? liquidityToken0[0]
-      : liquidityToken1[0];
+    const poolsSortedDesc = result.sort((a, b) => {
+      const liquidityA = quote == a.token0 ? a.liquidityLockedToken0 : a.liquidityLockedToken1;
+      const liquidityB = quote == b.token0 ? b.liquidityLockedToken0 : b.liquidityLockedToken1;
+      return liquidityB - liquidityA;
+    });
+
+    return poolsSortedDesc[0];
   }
 
   private getLiquidityFreshness(chainId: ChainsIds, protocol: DexProtocolName): number {

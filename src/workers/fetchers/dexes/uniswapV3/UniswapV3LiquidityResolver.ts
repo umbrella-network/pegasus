@@ -63,7 +63,6 @@ export class UniswapV3LiquidityResolver extends GraphPaginator {
           {
             liquidityLockedToken0: r.totalValueLockedToken0,
             liquidityLockedToken1: r.totalValueLockedToken1,
-            liquidityActive: '1',
           },
         ),
       ),
