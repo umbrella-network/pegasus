@@ -65,8 +65,8 @@ const pool4 = {
   token0: tokenA,
   token1: tokenB,
   chainId: ChainsIds.ETH,
-  liquidityLockedToken0: 17061.479326096796,
-  liquidityLockedToken1: 0.9402189699,
+  liquidityLockedToken0: 0.9402189699,
+  liquidityLockedToken1: 17061.479326096796,
   liquidityUpdatedAt: new Date(Date.now()),
 };
 
