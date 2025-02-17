@@ -14,9 +14,9 @@ import Settings from '../../src/types/Settings.js';
 
 const {expect} = chai;
 
-const tokenA = '0x123';
-const tokenB = '0x234';
-const tokenC = '0x233';
+const tokenA = '0xtokenA';
+const tokenB = '0xtokenB';
+const tokenC = '0xtokenC';
 const poolAddressA = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8'.toLowerCase();
 const poolAddressB = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D1'.toLowerCase();
 const poolAddressC = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D2'.toLowerCase();
@@ -42,7 +42,7 @@ const pool2 = {
   token1: tokenA,
   chainId: ChainsIds.ETH,
   liquidityLockedToken0: 27061.479326096796,
-  liquidityLockedToken1: 0.00006402189699,
+  liquidityLockedToken1: 0.00007402189699,
   liquidityUpdatedAt: new Date(Date.now()),
 };
 
@@ -66,7 +66,7 @@ const pool4 = {
   token1: tokenB,
   chainId: ChainsIds.ETH,
   liquidityLockedToken0: 17061.479326096796,
-  liquidityLockedToken1: 0.00006402189699,
+  liquidityLockedToken1: 0.00009402189699,
   liquidityUpdatedAt: new Date(Date.now()),
 };
 
