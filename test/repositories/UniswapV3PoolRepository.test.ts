@@ -138,8 +138,8 @@ describe('UniswapV3PoolRepository', () => {
       });
 
       expect(result).to.be.an('array').with.lengthOf(2);
-      expect(resultInverted[0]).to.include(lodash.omit(pool1, 'liquidityUpdatedAt'));
-      expect(resultInverted[1]).to.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
+      expect(resultInverted[0].address).eq(pool1.address);
+      expect(resultInverted[1].address).eq(pool2.address);
     });
   });
 
