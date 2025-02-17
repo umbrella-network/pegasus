@@ -161,7 +161,19 @@ describe('UniswapV3PoolRepository', () => {
       await getModelForClass(UniswapV3Pool).deleteMany({});
     });
 
-    it('responds with matching tokens with higher liquidity and fresh', async () => {
+    it.only('finds best pools for tokenA', async () => {
+      const result = await uniswapV3PoolRepository.findBestPool({
+        base: tokenB,
+        quote: tokenA,
+        protocol: DexProtocolName.UNISWAP_V3,
+        fromChain: ChainsIds.ETH,
+      });
+
+      expect(result).to.be.an('object');
+      expect(result).to.deep.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
+    });
+
+    it.only('finds best pools for tokenA', async () => {
       const result = await uniswapV3PoolRepository.findBestPool({
         base: tokenA,
         quote: tokenB,

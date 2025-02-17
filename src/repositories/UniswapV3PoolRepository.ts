@@ -113,12 +113,14 @@ export class UniswapV3PoolRepository {
       return result[0];
     }
 
-    // TODO Needs to be done for quote liquidity
     const poolsSortedDesc = result.sort((a, b) => {
       const liquidityA = quote == a.token0 ? a.liquidityLockedToken0 : a.liquidityLockedToken1;
       const liquidityB = quote == b.token0 ? b.liquidityLockedToken0 : b.liquidityLockedToken1;
       return liquidityB - liquidityA;
     });
+
+    console.log({result});
+    console.log({poolsSortedDesc});
 
     return poolsSortedDesc[0];
   }
