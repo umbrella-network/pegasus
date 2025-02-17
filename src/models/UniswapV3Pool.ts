@@ -24,9 +24,6 @@ export class UniswapV3Pool {
   address!: string;
 
   @prop()
-  liquidityActive!: string;
-
-  @prop()
   liquidityLockedToken0!: number;
 
   @prop()
