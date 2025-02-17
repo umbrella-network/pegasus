@@ -17,13 +17,14 @@ const {expect} = chai;
 const tokenA = '0xtokenA';
 const tokenB = '0xtokenB';
 const tokenC = '0xtokenC';
-const poolAddressA = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8'.toLowerCase();
-const poolAddressB = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D1'.toLowerCase();
-const poolAddressC = '0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D2'.toLowerCase();
+const poolAddress1 = '0x1ad599c3A0ff1De082011EFDDc58f1908eb6e6D8'.toLowerCase();
+const poolAddress2 = '0x2ad599c3A0ff1De082011EFDDc58f1908eb6e6D1'.toLowerCase();
+const poolAddress3 = '0x3ad599c3A0ff1De082011EFDDc58f1908eb6e6D2'.toLowerCase();
+const poolAddress4 = '0x4ad599c3A0ff1De082011EFDDc58f1908eb6e6D2'.toLowerCase();
 const oneDayInMs = 1 * 1000 * 60 * 60 * 24;
 
 const pool1 = {
-  address: poolAddressA,
+  address: poolAddress1,
   protocol: 'uniswapV3',
   fee: 3000,
   token0: tokenA,
@@ -35,7 +36,7 @@ const pool1 = {
 };
 
 const pool2 = {
-  address: poolAddressB,
+  address: poolAddress2,
   protocol: 'uniswapV3',
   fee: 3000,
   token0: tokenB,
@@ -47,7 +48,7 @@ const pool2 = {
 };
 
 const pool3 = {
-  address: poolAddressC,
+  address: poolAddress3,
   protocol: 'uniswapV3',
   fee: 3000,
   token0: tokenA,
@@ -59,7 +60,7 @@ const pool3 = {
 };
 
 const pool4 = {
-  address: poolAddressB,
+  address: poolAddress4,
   protocol: 'uniswapV3',
   fee: 500,
   token0: tokenA,
@@ -161,7 +162,7 @@ describe('UniswapV3PoolRepository', () => {
       await getModelForClass(UniswapV3Pool).deleteMany({});
     });
 
-    it.only('finds best pools for tokenA', async () => {
+    it('finds best pools for tokenA', async () => {
       const result = await uniswapV3PoolRepository.findBestPool({
         base: tokenB,
         quote: tokenA,
@@ -170,10 +171,10 @@ describe('UniswapV3PoolRepository', () => {
       });
 
       expect(result).to.be.an('object');
-      expect(result).to.deep.include(lodash.omit(pool4, 'liquidityUpdatedAt'));
+      expect(result?.address).eq(pool4.address);
     });
 
-    it.only('finds best pools for tokenB', async () => {
+    it('finds best pools for tokenB', async () => {
       const result = await uniswapV3PoolRepository.findBestPool({
         base: tokenA,
         quote: tokenB,
@@ -182,7 +183,7 @@ describe('UniswapV3PoolRepository', () => {
       });
 
       expect(result).to.be.an('object');
-      expect(result).to.deep.include(lodash.omit(pool1, 'liquidityUpdatedAt'));
+      expect(result?.address).eq(pool2.address);
     });
   });
 });

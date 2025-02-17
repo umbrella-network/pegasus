@@ -122,10 +122,6 @@ export class UniswapV3PoolRepository {
       return liquidityB - liquidityA;
     });
 
-    console.log(JSON.stringify(filterPools, null, 2));
-    console.log({result});
-    console.log({poolsSortedDesc});
-
     return poolsSortedDesc[0];
   }
 
