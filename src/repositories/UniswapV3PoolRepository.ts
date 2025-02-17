@@ -99,11 +99,11 @@ export class UniswapV3PoolRepository {
     const filterPools = {
       protocol,
       chainId: fromChain,
-      $or: [{token0: base}, {token1: quote}, {token0: quote, token1: base}],
+      $or: [{token0: base, token1: quote}, {token0: quote, token1: base}],
       liquidityUpdatedAt: {$gt: liquidityUpdatedLimit},
     };
 
-    const result = await getModelForClass(UniswapV3Pool).find(filterPools).sort({liquidityLockedToken0: 1}).exec();
+    const result = await getModelForClass(UniswapV3Pool).find(filterPools).exec();
 
     if (result.length === 0) {
       return undefined;
@@ -119,6 +119,7 @@ export class UniswapV3PoolRepository {
       return liquidityB - liquidityA;
     });
 
+    console.log({filterPools});
     console.log({result});
     console.log({poolsSortedDesc});
 
