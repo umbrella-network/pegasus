@@ -170,10 +170,10 @@ describe('UniswapV3PoolRepository', () => {
       });
 
       expect(result).to.be.an('object');
-      expect(result).to.deep.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
+      expect(result).to.deep.include(lodash.omit(pool1, 'liquidityUpdatedAt'));
     });
 
-    it.only('finds best pools for tokenA', async () => {
+    it.only('finds best pools for tokenB', async () => {
       const result = await uniswapV3PoolRepository.findBestPool({
         base: tokenA,
         quote: tokenB,
@@ -182,7 +182,7 @@ describe('UniswapV3PoolRepository', () => {
       });
 
       expect(result).to.be.an('object');
-      expect(result).to.deep.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
+      expect(result).to.deep.include(lodash.omit(pool4, 'liquidityUpdatedAt'));
     });
   });
 });

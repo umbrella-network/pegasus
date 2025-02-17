@@ -99,7 +99,10 @@ export class UniswapV3PoolRepository {
     const filterPools = {
       protocol,
       chainId: fromChain,
-      $or: [{token0: base, token1: quote}, {token0: quote, token1: base}],
+      $or: [
+        {token0: base, token1: quote},
+        {token0: quote, token1: base},
+      ],
       liquidityUpdatedAt: {$gt: liquidityUpdatedLimit},
     };
 
