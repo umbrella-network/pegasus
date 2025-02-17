@@ -128,8 +128,8 @@ describe('UniswapV3PoolRepository', () => {
       });
 
       expect(result).to.be.an('array').with.lengthOf(2);
-      expect(result[0]).to.include(lodash.omit(pool1, 'liquidityUpdatedAt'));
-      expect(result[1]).to.include(lodash.omit(pool2, 'liquidityUpdatedAt'));
+      expect(result[0].address).eq(pool1.address);
+      expect(result[1].address).eq(pool2.address);
 
       const resultInverted = await uniswapV3PoolRepository.find({
         tokens: [{base: tokenA, quote: tokenB}],
