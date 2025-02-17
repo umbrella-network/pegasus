@@ -29,7 +29,7 @@ const pool1 = {
   token0: tokenA,
   token1: tokenB,
   chainId: ChainsIds.ETH,
-  liquidityLockedToken0: 1.0000640218969976,
+  liquidityLockedToken0: 0.640218969976,
   liquidityLockedToken1: 29061.479326096796,
   liquidityUpdatedAt: new Date(Date.now() - oneDayInMs * 3), // Old updated Date
 };
@@ -42,7 +42,7 @@ const pool2 = {
   token1: tokenA,
   chainId: ChainsIds.ETH,
   liquidityLockedToken0: 27061.479326096796,
-  liquidityLockedToken1: 0.00007402189699,
+  liquidityLockedToken1: 0.7402189699,
   liquidityUpdatedAt: new Date(Date.now()),
 };
 
@@ -54,7 +54,7 @@ const pool3 = {
   token1: tokenC,
   chainId: ChainsIds.ETH,
   liquidityLockedToken0: 17061.479326096796,
-  liquidityLockedToken1: 0.00006402189699,
+  liquidityLockedToken1: 0.6402189699,
   liquidityUpdatedAt: new Date(Date.now()),
 };
 
@@ -66,7 +66,7 @@ const pool4 = {
   token1: tokenB,
   chainId: ChainsIds.ETH,
   liquidityLockedToken0: 17061.479326096796,
-  liquidityLockedToken1: 0.00009402189699,
+  liquidityLockedToken1: 0.9402189699,
   liquidityUpdatedAt: new Date(Date.now()),
 };
 
@@ -170,7 +170,7 @@ describe('UniswapV3PoolRepository', () => {
       });
 
       expect(result).to.be.an('object');
-      expect(result).to.deep.include(lodash.omit(pool1, 'liquidityUpdatedAt'));
+      expect(result).to.deep.include(lodash.omit(pool4, 'liquidityUpdatedAt'));
     });
 
     it.only('finds best pools for tokenB', async () => {
@@ -182,7 +182,7 @@ describe('UniswapV3PoolRepository', () => {
       });
 
       expect(result).to.be.an('object');
-      expect(result).to.deep.include(lodash.omit(pool4, 'liquidityUpdatedAt'));
+      expect(result).to.deep.include(lodash.omit(pool1, 'liquidityUpdatedAt'));
     });
   });
 });
