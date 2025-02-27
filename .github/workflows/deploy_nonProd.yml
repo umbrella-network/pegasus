@@ -10,12 +10,12 @@ on:
       validator:
         required: true
         description: 'Please select validator you want to deploy the version'
-        default: dev_validator1
+        default: sbx_validator1
         type: choice
         options:
-          - dev_validator1
-          - dev_validator2
           - sbx_validator1
+          - sbx_validator2
+
 jobs:
   build_local:
     runs-on: ubuntu-latest
@@ -25,7 +25,6 @@ jobs:
 
       - name: Configure AWS Credentials to SBX
         uses: aws-actions/configure-aws-credentials@v4
-        if: inputs.validator == 'sbx_validator1'
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_NONPROD }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_NONPROD }}
@@ -35,15 +34,22 @@ jobs:
           role-duration-seconds: 1800
       
       - name: Configure AWS Kubeconfig Credentials to SBX
-        if: inputs.validator == 'sbx_validator1'
         run: |
           aws --region ${{ secrets.AWS_REGION_NONPROD }} eks update-kubeconfig --kubeconfig ~/.kube/config-staging --name ${{ secrets.CLUSTER_NAME_NONPROD }}
 
-      - name: Get sbx image tag
-        id: sbx_tag
+      - name: Get sbx 1 image tag
+        id: sbx_tag1
         if: inputs.validator == 'sbx_validator1'
         run: |
           export SBX_TAG=$(kubectl --kubeconfig ~/.kube/config-staging get deployments -n sandbox pegasus-api-bsc01 -o=jsonpath='{$$.spec.template.spec.containers[:1].image}' | awk -F':' '{print $2}')
+          echo "The tag is: $SBX_TAG"
+          echo "tag=$SBX_TAG" >> $GITHUB_OUTPUT
+      
+      - name: Get sbx 2 image tag
+        id: sbx_tag2
+        if: inputs.validator == 'sbx_validator2'
+        run: |
+          export SBX_TAG=$(kubectl --kubeconfig ~/.kube/config-staging get deployments -n sandbox pegasus-api-bsc02 -o=jsonpath='{$$.spec.template.spec.containers[:1].image}' | awk -F':' '{print $2}')
           echo "The tag is: $SBX_TAG"
           echo "tag=$SBX_TAG" >> $GITHUB_OUTPUT
 
@@ -72,31 +78,7 @@ jobs:
           export IMAGE="$ECR_REGISTRY/pegasus"
           echo "image=$IMAGE" >> $GITHUB_OUTPUT
       
-      - name: Build and push to develop1
-        uses: docker/build-push-action@v6
-        if: inputs.validator == 'dev_validator1'
-        with:
-          context: .
-          platforms: |
-            linux/amd64
-            linux/arm64
-          push: true
-          tags: |
-            ${{ steps.docker-params.outputs.image }}:develop1
-      
-      - name: Build and push to develop2
-        uses: docker/build-push-action@v6
-        if: inputs.validator == 'dev_validator2'
-        with:
-          context: .
-          platforms: |
-            linux/amd64
-            linux/arm64
-          push: true
-          tags: |
-            ${{ steps.docker-params.outputs.image }}:develop2
-      
-      - name: Build and push to sbx
+      - name: Build and push to sbx 1
         uses: docker/build-push-action@v6
         if: inputs.validator == 'sbx_validator1'
         with:
@@ -106,7 +88,19 @@ jobs:
             linux/arm64
           push: true
           tags: |
-            ${{ steps.docker-params.outputs.image }}:${{ steps.sbx_tag.outputs.tag }}
+            ${{ steps.docker-params.outputs.image }}:${{ steps.sbx_tag1.outputs.tag }}
+      
+      - name: Build and push to sbx 2
+        uses: docker/build-push-action@v6
+        if: inputs.validator == 'sbx_validator2'
+        with:
+          context: .
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          tags: |
+            ${{ steps.docker-params.outputs.image }}:${{ steps.sbx_tag2.outputs.tag }}
       
       - name: Log out of Amazon ECR
         if: always()
@@ -134,58 +128,23 @@ jobs:
           aws --region ${{ secrets.AWS_REGION_NONPROD }} eks update-kubeconfig --kubeconfig ~/.kube/config-staging --name ${{ secrets.CLUSTER_NAME_NONPROD }}
       
       - name: Restart deployments to take last Image
-        run: |
-          if [ "${{ inputs.validator }}" == "dev_validator1" ]; then
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-metrics-worker-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-metrics-worker-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-minting-worker-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-minting-worker-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-dispatcher-worker-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-dispatcher-worker-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-deviation-leader-worker-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-deviation-leader-worker-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-liquidity-worker-bsc01 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-liquidity-worker-bsc01 -n dev
-          fi
-          
-          if [ "${{ inputs.validator }}" == "dev_validator2" ]; then
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-metrics-worker-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-metrics-worker-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-minting-worker-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-minting-worker-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-dispatcher-worker-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-dispatcher-worker-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-deviation-leader-worker-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-deviation-leader-worker-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-liquidity-worker-bsc02 -n dev
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-liquidity-worker-bsc02 -n dev
-          fi
-          
+        run: |          
           if [ "${{ inputs.validator }}" == "sbx_validator1" ]; then
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-api-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-api-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-metrics-worker-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-metrics-worker-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-minting-worker-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-minting-worker-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-dispatcher-worker-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-dispatcher-worker-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-scheduler-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-scheduler-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-agent-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-agent-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=0 deployment/pegasus-deviation-leader-worker-bsc01 -n sandbox
-            kubectl --kubeconfig ~/.kube/config-staging scale --replicas=1 deployment/pegasus-deviation-leader-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-api-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-metrics-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-minting-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-dispatcher-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-scheduler-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-agent-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-deviation-leader-worker-bsc01 -n sandbox
+          fi
+
+          if [ "${{ inputs.validator }}" == "sbx_validator2" ]; then
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-api-bsc02 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-metrics-worker-bsc02 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-minting-worker-bsc02 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-dispatcher-worker-bsc02 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-scheduler-bsc02 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-agent-bsc02 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-deviation-leader-worker-bsc02 -n sandbox
           fi

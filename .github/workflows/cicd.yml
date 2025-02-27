@@ -71,7 +71,8 @@ jobs:
             ${{ steps.docker-params.outputs.image }}:${{ steps.docker-params.outputs.version }}
             ${{ steps.docker-params.outputs.image }}:${{ steps.docker-params.outputs.commit_version }}
             ${{ steps.docker-params.outputs.image }}:${{ steps.building-params.outputs.environment }}
-            ${{ steps.docker-params.outputs.image }}:${{ steps.docker-params.outputs.commit_version }}_sbx
+            ${{ steps.docker-params.outputs.image }}:${{ steps.docker-params.outputs.commit_version }}_sbx1
+            ${{ steps.docker-params.outputs.image }}:${{ steps.docker-params.outputs.commit_version }}_sbx2
             ${{ steps.docker-params.outputs.image }}:sandbox
 
       - name: Log out of Amazon ECR
@@ -178,7 +179,8 @@ jobs:
           VERSION: ${{ steps.atifact-reader.outputs.version }}_sbx
           BUILDING_ENVIRONMENT: "staging/sbx"
         run: |
-          yq eval ".global.imageTag = \"$VERSION\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/bsc01.yaml
+          yq eval ".global.imageTag = \"${VERSION}1\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/bsc01.yaml
+          yq eval ".global.imageTag = \"${VERSION}2\"" -i $BUILDING_ENVIRONMENT/backends/pegasus/bsc02.yaml
 
       - name: Commit and Push to master for SANDBOX
         env:
