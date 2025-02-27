@@ -4,7 +4,8 @@ import {Logger} from 'winston';
 import Settings from '../../../../types/Settings.js';
 import TimeService from '../../../../services/TimeService.js';
 import {
-  CandlestickRepository, CandlestickRepositoryInput,
+  CandlestickRepository,
+  CandlestickRepositoryInput,
   CandlestickSearchInput,
 } from '../../../../repositories/fetchers/CandlestickRepository.js';
 import {CandlestickModel} from '../../../../models/fetchers/CandlestickModel.js';
@@ -18,13 +19,13 @@ import {ChainsIds} from '../../../../types/ChainsIds.js';
 
 export type UniswapV3CandlestickInterval = '1day';
 
-type PoolWithQuote = { pool: string, quote: string } | undefined
+type PoolWithQuote = {pool: string; quote: string} | undefined;
 
 export type UniswapV3Candlestick = {
   symbol: string;
   interval: UniswapV3CandlestickInterval;
   volume: number; // Volume
-  openTime: number
+  openTime: number;
 };
 
 @injectable()
@@ -99,7 +100,7 @@ export class UniswapV3CandlestickFetcherFromChain {
       return poolsWithQuote[i];
     });
 
-    if (missingCandles.find(p => p == undefined) == undefined) return existing;
+    if (missingCandles.find((p) => p == undefined) == undefined) return existing;
 
     await this.fetchCandlestickFromGraph(chainId, timestamp, missingCandles);
     return this.candlestickRepository.getMany(timestamp, candleParams);
@@ -148,9 +149,8 @@ export class UniswapV3CandlestickFetcherFromChain {
   }
 
   private async saveCandles(chainId: ChainsIds, toSave: (UniswapV3Candlestick | undefined)[]): Promise<void> {
-    const data = (toSave
-      .filter(parsed => parsed != undefined) as UniswapV3Candlestick[])
-      .map((parsed: UniswapV3Candlestick): CandlestickRepositoryInput => {
+    const data = (toSave.filter((parsed) => parsed != undefined) as UniswapV3Candlestick[]).map(
+      (parsed: UniswapV3Candlestick): CandlestickRepositoryInput => {
         return {
           fetcher: this.getFetcherName(chainId),
           params: {
@@ -160,7 +160,8 @@ export class UniswapV3CandlestickFetcherFromChain {
             interval: this.intervalToSeconds(parsed.interval),
           },
         };
-      });
+      },
+    );
 
     await this.candlestickRepository.save(data);
   }
@@ -186,9 +187,7 @@ export class UniswapV3CandlestickFetcherFromChain {
     return `${chainId}::${FetcherName.UniswapV3Candlestick}`;
   }
 
-  protected async getPoolsWithQuote(
-    params: UniswapV3FetcherInputParams[],
-  ): Promise<PoolWithQuote[]> {
+  protected async getPoolsWithQuote(params: UniswapV3FetcherInputParams[]): Promise<PoolWithQuote[]> {
     const poolsForParams = await Promise.all(
       params.map((p) => {
         return this.poolRepository.findBestPool({
