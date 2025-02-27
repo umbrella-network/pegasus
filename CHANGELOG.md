@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - swich uniswap liquidity service to work entirely on the graph
 
+### Updated
+- Update Makefile and github actions due to decommission of DEV environment
+
 ## [8.8.0] - 2025-02-12
 ### Added
 - add test for sorting massa public keys
