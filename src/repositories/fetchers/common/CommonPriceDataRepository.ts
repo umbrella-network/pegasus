@@ -58,7 +58,7 @@ export abstract class CommonPriceDataRepository {
     value: number | bigint | string,
     timestamp: number,
     hashVersion: number,
-    fetcherName: FetcherName,
+    fetcherName: FetcherName | string,
     ...data: string[]
   ): string {
     const strValue = typeof value === 'string' ? value : value.toString(10);
