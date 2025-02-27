@@ -13,12 +13,12 @@ export type Candlestick = {
 };
 
 export type CandlestickRepositoryInput = {
-  fetcher: FetcherName;
+  fetcher: FetcherName | string;
   params: Candlestick;
 };
 
 export type CandlestickSearchInput = {
-  fetcher: FetcherName;
+  fetcher: FetcherName | string;
   params: {
     symbol: string;
     interval: number;

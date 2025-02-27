@@ -11,29 +11,14 @@ import {CandlestickModel} from '../../../../models/fetchers/CandlestickModel.js'
 import {FetcherName} from '../../../../types/fetchers.js';
 import {UniswapV3FetcherInputParams} from '../../../../services/fetchers/UniswapV3Getter.js';
 import {UniswapV3PoolRepository} from '../../../../repositories/UniswapV3PoolRepository.js';
-import {DexProtocolName} from '../../../../types/Dexes';
-import {GraphClient} from '../../../../services/graph/GraphClient';
-import {SubgraphCandlestickResponse, uniswapCandlestickSubgraphQuery} from './GraphQueries';
-import {ChainsIds} from '../../../../types/ChainsIds';
+import {DexProtocolName} from '../../../../types/Dexes.js';
+import {GraphClient} from '../../../../services/graph/GraphClient.js';
+import {SubgraphCandlestickResponse, uniswapCandlestickSubgraphQuery} from './GraphQueries.js';
+import {ChainsIds} from '../../../../types/ChainsIds.js';
 
 export type UniswapV3CandlestickInterval = '1day';
 
 type PoolWithQuote = { pool: string, quote: string } | undefined
-
-type CandlestickResponse = {
-  data: {
-    poolDayDatas: [
-      {
-        date: number;
-        volumeToken0: string;
-        volumeToken1: string;
-        pool: {
-          id: string;
-        };
-      },
-    ];
-  };
-};
 
 export type UniswapV3Candlestick = {
   symbol: string;
@@ -65,6 +50,7 @@ export class UniswapV3CandlestickFetcherFromChain {
 
     try {
       return await this.fetchCandlesticks(
+        chainId,
         timestamp,
         params.filter((p) => p.fromChain == chainId),
       );
@@ -76,6 +62,7 @@ export class UniswapV3CandlestickFetcherFromChain {
   }
 
   private async fetchCandlesticks(
+    chainId: ChainsIds,
     timestamp: number,
     params: UniswapV3FetcherInputParams[],
   ): Promise<(CandlestickModel | undefined)[]> {
@@ -89,7 +76,7 @@ export class UniswapV3CandlestickFetcherFromChain {
       const poolAddr = poolsWithQuote[ix]?.pool;
 
       return {
-        fetcher: FetcherName.UniswapV3,
+        fetcher: this.getFetcherName(chainId),
         params: {
           symbol: this.toCandlestickSymbol(p.fromChain, poolAddr),
           interval: p.vwapInterval ? this.intervalToSeconds(p.vwapInterval) : 0,
@@ -112,23 +99,17 @@ export class UniswapV3CandlestickFetcherFromChain {
       return poolsWithQuote[i];
     });
 
-    const results = await this.fetchCandlestickFromGraph(params, timestamp, missingCandles);
+    if (missingCandles.find(p => p == undefined) == undefined) return existing;
 
-    return results.map((r) => {
-      return r.status == 'fulfilled' ? r.value : undefined;
-    });
+    await this.fetchCandlestickFromGraph(chainId, timestamp, missingCandles);
+    return this.candlestickRepository.getMany(timestamp, candleParams);
   }
 
   private async fetchCandlestickFromGraph(
-    params: UniswapV3FetcherInputParams[],
+    chainId: ChainsIds,
     timestamp: number,
     poolsWithQuote: PoolWithQuote[],
-  ): Promise<(CandlestickModel | undefined)[]> {
-    if (params.length != poolsWithQuote.length) {
-      throw new Error(`${this.logPrefix} params vs poolsWithQuote: length mismatch`);
-    }
-
-    const chainId = params[0].fromChain as ChainsIds;
+  ): Promise<void> {
     const startTime = this.candlestickRepository.beginOfIntervalSec(this.intervalToSeconds('1day'), timestamp);
     const pools = poolsWithQuote.filter((p) => !p).map((p) => p?.pool);
 
@@ -138,14 +119,7 @@ export class UniswapV3CandlestickFetcherFromChain {
     );
 
     const parsed = this.parseSubgraphResponse(chainId, poolsWithQuote, response as SubgraphCandlestickResponse);
-    await this.saveCandles(parsed);
-
-    return params.map(p => {
-      return {
-        symbol: this.toCandlestickSymbol(chainId, p.),
-        value: parsed?.volume,
-      };
-    });
+    await this.saveCandles(chainId, parsed);
   }
 
   private parseSubgraphResponse(
@@ -173,12 +147,12 @@ export class UniswapV3CandlestickFetcherFromChain {
     });
   }
 
-  private async saveCandles(toSave: (UniswapV3Candlestick | undefined)[]): Promise<void> {
+  private async saveCandles(chainId: ChainsIds, toSave: (UniswapV3Candlestick | undefined)[]): Promise<void> {
     const data = (toSave
       .filter(parsed => parsed != undefined) as UniswapV3Candlestick[])
       .map((parsed: UniswapV3Candlestick): CandlestickRepositoryInput => {
         return {
-          fetcher: FetcherName.UniswapV3Candlestick,
+          fetcher: this.getFetcherName(chainId),
           params: {
             symbol: parsed.symbol,
             timestamp: parsed.openTime,
@@ -206,6 +180,10 @@ export class UniswapV3CandlestickFetcherFromChain {
 
   protected getSubgraphURL(chainId: ChainsIds): string {
     return this.settings.dexes?.[chainId]?.[DexProtocolName.UNISWAP_V3]?.subgraphUrl || '';
+  }
+
+  protected getFetcherName(chainId: ChainsIds): string {
+    return `${chainId}::${FetcherName.UniswapV3Candlestick}`;
   }
 
   protected async getPoolsWithQuote(
