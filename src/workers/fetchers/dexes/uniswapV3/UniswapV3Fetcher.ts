@@ -98,7 +98,6 @@ export class UniswapV3Fetcher implements ServiceInterface {
       const pool = await this.uniswapV3PoolRepository.findBestPool(query);
 
       if (!pool) {
-        this.logger.debug(`${this.logPrefix} no pool for query: ${JSON.stringify(query)}`);
         this.logger.error(`${this.logPrefix} no pool found for ${base}-${quote}`);
         continue;
       }

@@ -1,5 +1,6 @@
 import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
+import {Logger} from 'winston';
 
 import {UniswapV3Pool} from '../models/UniswapV3Pool.js';
 import {ChainsIds} from '../types/ChainsIds.js';
@@ -26,6 +27,7 @@ type LiquidityFilterParams = {chainId: ChainsIds; token0: string; token1: string
 @injectable()
 export class UniswapV3PoolRepository {
   @inject('Settings') protected settings!: Settings;
+  @inject('Logger') protected logger!: Logger;
 
   async savePool(props: SavePoolParams): Promise<void> {
     const uniswapV3PoolModel = getModelForClass(UniswapV3Pool);
@@ -114,6 +116,12 @@ export class UniswapV3PoolRepository {
     ]);
 
     if (liquidityToken0.length === 0 && liquidityToken1.length === 0) {
+      this.logger.debug(
+        `[UniswapV3PoolRepository] no pool for query: ${JSON.stringify(filterToken0)} and ${JSON.stringify(
+          filterToken1,
+        )}`,
+      );
+      
       return undefined;
     }
 
