@@ -16,14 +16,17 @@ import {
 import {UniswapV3PriceRepository} from '../../repositories/fetchers/UniswapV3PriceRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
 import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
-import {UniswapV3CandlestickFetcher} from '../../workers/fetchers/dexes/uniswapV3/UniswapV3CandlestickFetcher.js';
+import {
+  UniswapV2CandlestickInterval,
+  UniswapV3CandlestickFetcher
+} from '../../workers/fetchers/dexes/uniswapV3/UniswapV3CandlestickFetcher.js';
 
 export type UniswapV3FetcherInputParams = {
   fromChain: string;
   base: string;
   quote: string;
   amountInDecimals: number;
-  vwapInterval?: '1day';
+  vwapInterval?: UniswapV2CandlestickInterval;
 };
 
 @injectable()
