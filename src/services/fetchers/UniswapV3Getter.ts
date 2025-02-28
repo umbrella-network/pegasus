@@ -18,7 +18,7 @@ import {MappingRepository} from '../../repositories/MappingRepository.js';
 import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 import {
   UniswapV2CandlestickInterval,
-  UniswapV3CandlestickFetcher
+  UniswapV3CandlestickFetcher,
 } from '../../workers/fetchers/dexes/uniswapV3/UniswapV3CandlestickFetcher.js';
 
 export type UniswapV3FetcherInputParams = {
