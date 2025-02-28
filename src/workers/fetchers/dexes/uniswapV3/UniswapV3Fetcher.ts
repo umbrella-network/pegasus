@@ -88,14 +88,17 @@ export class UniswapV3Fetcher implements ServiceInterface {
     const helperInputMap: Map<ChainsIds, UniswapV3ContractHelperInput[]> = new Map();
 
     for (const {fromChain, base, quote, amountInDecimals} of inputs) {
-      const pool = await this.uniswapV3PoolRepository.findBestPool({
+      const query = {
         protocol: this.dexProtocol,
         fromChain,
         base,
         quote,
-      });
+      };
+
+      const pool = await this.uniswapV3PoolRepository.findBestPool(query);
 
       if (!pool) {
+        this.logger.debug(`${this.logPrefix} no pool for query: ${JSON.stringify(query)}`);
         this.logger.error(`${this.logPrefix} no pool found for ${base}-${quote}`);
         continue;
       }
