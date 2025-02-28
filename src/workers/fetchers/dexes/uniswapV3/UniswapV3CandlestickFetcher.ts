@@ -7,8 +7,8 @@ import {CandlestickRepository} from '../../../../repositories/fetchers/Candlesti
 import {CandlestickModel} from '../../../../models/fetchers/CandlestickModel.js';
 import {UniswapV3FetcherInputParams} from '../../../../services/fetchers/UniswapV3Getter.js';
 import {UniswapV3PoolRepository} from '../../../../repositories/UniswapV3PoolRepository.js';
-import {GraphClient} from '../../../../services/graph/GraphClient';
-import {ChainsIds} from '../../../../types/ChainsIds';
+import {GraphClient} from '../../../../services/graph/GraphClient.js';
+import {ChainsIds} from '../../../../types/ChainsIds.js';
 import {UniswapV3CandlestickFetcherFromChain} from './UniswapV3CandlestickFetcherFromChain.js';
 
 export type UniswapV2CandlestickInterval = '1day';
