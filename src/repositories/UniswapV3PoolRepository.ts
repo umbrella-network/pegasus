@@ -110,22 +110,9 @@ export class UniswapV3PoolRepository {
 
     const result = await getModelForClass(UniswapV3Pool).find(filterPools).exec();
 
-<<<<<<< HEAD
     if (result.length === 0) {
-=======
-    const [liquidityToken0, liquidityToken1] = await Promise.all([
-      getModelForClass(UniswapV3Pool).find(filterToken0).sort({liquidityLockedToken0: 1}).exec(),
-      getModelForClass(UniswapV3Pool).find(filterToken1).sort({liquidityLockedToken1: 1}).exec(),
-    ]);
-
-    if (liquidityToken0.length === 0 && liquidityToken1.length === 0) {
-      this.logger.debug(
-        `[UniswapV3PoolRepository] no pool for query: ${JSON.stringify(filterToken0)} and ${JSON.stringify(
-          filterToken1,
-        )}`,
-      );
+      this.logger.debug(`[UniswapV3PoolRepository] no pool for query: ${JSON.stringify(filterPools)}`);
       
->>>>>>> 8.8.2
       return undefined;
     }
 
