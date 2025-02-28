@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+## [8.8.1] - 2025-02-28
+### Added
+- add logs for uniswap pool search
+
 ## [8.8.0] - 2025-02-12
 ### Added
 - add test for sorting massa public keys
