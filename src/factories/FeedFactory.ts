@@ -28,6 +28,7 @@ export class FeedFactory {
     if (!validation.valid) {
       if (validation.errors.every((error) => error.property.split('.').pop() == 'fetcher')) {
         this.logger.error(`[FeedFactory] Invalid YAML: ${validation.errors.map((e) => e.property)}`);
+        this.logger.debug(`[FeedFactory] Invalid YAML: ${JSON.stringify(validation)}`);
       } else {
         throw new Error(`[FeedFactory] Invalid YAML ${JSON.stringify(validation.errors)}`);
       }
