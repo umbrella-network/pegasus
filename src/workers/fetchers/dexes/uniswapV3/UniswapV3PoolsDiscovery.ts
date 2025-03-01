@@ -24,6 +24,8 @@ export class UniswapV3PoolsDiscovery extends GraphPaginator {
       return;
     }
 
+    this.logger.debug(`${this.logPrefix}[${chainId}] uniswapV3Params ${JSON.stringify(uniswapV3Params)}`);
+
     const data = await this.pullData<SubgraphPoolResult>(chainId, {uniswapV3Params});
     const poolsToSave = this.processSubgraphResponseData(chainId, data);
     await this.savePools(poolsToSave);

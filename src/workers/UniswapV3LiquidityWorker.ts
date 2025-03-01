@@ -38,7 +38,7 @@ class UniswapV3LiquidityWorker extends BasicWorker {
       return;
     }
 
-    this.logger.debug(`${loggerPrefix} job run at ${new Date().toISOString()}`);
+    this.logger.debug(`${loggerPrefix} start at ${new Date().toISOString()}`);
 
     const results = await Promise.allSettled([
       this.uniswapV3LiquidityResolver.apply(job.data.chainId),

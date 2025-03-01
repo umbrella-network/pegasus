@@ -85,6 +85,7 @@ export enum FetcherName {
   SovrynPrice = 'SovrynPrice',
   TWAPGasPrice = 'TWAPGasPrice',
   UniswapV3 = 'UniswapV3',
+  UniswapV3Candlestick = 'UniswapV3Candlestick',
   YearnVaultTokenPrice = 'YearnVaultTokenPrice',
 }
 
