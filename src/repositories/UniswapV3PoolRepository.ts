@@ -2,7 +2,6 @@ import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
 
-
 import {UniswapV3Pool} from '../models/UniswapV3Pool.js';
 import {ChainsIds} from '../types/ChainsIds.js';
 import Settings from '../types/Settings.js';
