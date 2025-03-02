@@ -2,6 +2,7 @@ import {inject, injectable} from 'inversify';
 import {getModelForClass} from '@typegoose/typegoose';
 import {Logger} from 'winston';
 
+
 import {UniswapV3Pool} from '../models/UniswapV3Pool.js';
 import {ChainsIds} from '../types/ChainsIds.js';
 import Settings from '../types/Settings.js';
@@ -112,7 +113,6 @@ export class UniswapV3PoolRepository {
 
     if (result.length === 0) {
       this.logger.debug(`[UniswapV3PoolRepository] no pool for query: ${JSON.stringify(filterPools)}`);
-      
       return undefined;
     }
 

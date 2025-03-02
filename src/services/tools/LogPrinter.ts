@@ -1,6 +1,7 @@
-import {inject} from 'inversify';
+import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
+@injectable()
 export abstract class LogPrinter {
   @inject('Logger') protected logger!: Logger;
 

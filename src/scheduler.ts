@@ -17,6 +17,10 @@ import {DexProtocolName} from './types/Dexes.js';
 import PriceFetchingWorker from './workers/PriceFetchingWorker.js';
 import {FetcherName} from './types/fetchers.js';
 
+const toSec = (ms: number): string => {
+  return `${ms / 1000}s`;
+};
+
 (async (): Promise<void> => {
   await boot(true);
 
@@ -141,7 +145,9 @@ import {FetcherName} from './types/fetchers.js';
   }
 
   setInterval(async () => {
-    logger.info('[Scheduler] Scheduling DeviationLeaderWorker');
+    logger.info(
+      `[Scheduler] Scheduling DeviationLeaderWorker with interval ${toSec(settings.deviationTrigger.leaderInterval)}`,
+    );
 
     await deviationLeaderWorker.enqueue(
       {},
@@ -154,7 +160,7 @@ import {FetcherName} from './types/fetchers.js';
 
   for (const fetcherName of Object.keys(settings.scheduler.fetchers)) {
     const {interval} = settings.scheduler.fetchers[fetcherName];
-    logger.info(`[Scheduler] PriceFetcherWorker: ${fetcherName}, interval: ${interval}`);
+    logger.info(`[Scheduler] PriceFetcherWorker: ${fetcherName}, interval: ${toSec(interval)}`);
     setInterval(async () => schedulePriceWorker(priceFetchingWorker, fetcherName as FetcherName), interval);
   }
 
@@ -174,7 +180,7 @@ import {FetcherName} from './types/fetchers.js';
 
   for (const chainId of Object.keys(settings.jobs.liquidities)) {
     for (const [protocol, jobSettings] of Object.entries(settings.jobs.liquidities[chainId as ChainsIds]!)) {
-      const workerName = `[${chainId}-${protocol}]`;
+      const workerName = `[liquidities][${chainId}-${protocol}]`;
       const worker = liquidityWorkerRepository.find(protocol as DexProtocolName);
 
       if (!worker) {
@@ -196,7 +202,7 @@ import {FetcherName} from './types/fetchers.js';
       }, 1000);
 
       setInterval(async () => {
-        logger.info(`[Scheduler] Scheduling ${workerName} with interval ${jobSettings.interval}`);
+        logger.info(`[Scheduler] Scheduling ${workerName} with interval ${toSec(jobSettings.interval)}`);
 
         await worker!.enqueue(
           {name: workerName, chainId, settings: jobSettings},

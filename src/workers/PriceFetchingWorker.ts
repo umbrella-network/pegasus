@@ -53,7 +53,7 @@ class PriceFetchingWorker extends BasicWorker {
     }
 
     try {
-      this.logger.debug(`${loggerPrefix} job run for ${fetcherName} at ${new Date().toISOString()}`);
+      this.logger.debug(`${loggerPrefix} job run for ${fetcherName}`);
       await this.priceFetcherServiceRepository.get(fetcherName)?.apply();
     } catch (e) {
       this.logger.error(`${loggerPrefix} ${(e as Error).message}`);

@@ -42,6 +42,9 @@ import PriceFetchingWorker from './workers/PriceFetchingWorker.js';
       Application.get(UniswapV3LiquidityWorker).start();
       break;
     }
+    default: {
+      throw new Error(`Unknown worker ${argv.worker}`);
+    }
   }
 
   Application.get(ApplicationUpdateAgent).start();

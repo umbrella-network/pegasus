@@ -29,7 +29,7 @@ class BlockMintingWorker extends BasicWorker {
     }
 
     try {
-      this.logger.debug(`BlockMintingWorker job run at ${new Date().toISOString()}`);
+      this.logger.debug(`BlockMintingWorker job run`);
       await this.blockMinter.apply();
     } catch (e) {
       this.logger.error(e);

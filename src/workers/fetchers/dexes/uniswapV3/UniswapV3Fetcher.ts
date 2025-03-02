@@ -57,7 +57,7 @@ export class UniswapV3Fetcher implements ServiceInterface {
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
 
-  private logPrefix = '[UniswapV3Service]';
+  private logPrefix = '[UniswapV3Fetcher]';
 
   readonly dexProtocol = DexProtocolName.UNISWAP_V3;
   static fetcherSource = '';
