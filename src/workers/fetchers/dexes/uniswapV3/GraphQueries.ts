@@ -101,3 +101,41 @@ query SubgraphPoolsLiquidityQuery {
 }
 `;
 };
+
+export type SubgraphCandlestickResponse = {
+  data: {
+    poolDayDatas: [
+      {
+        date: number;
+        volumeToken0: string;
+        volumeToken1: string;
+        pool: {
+          id: string;
+          token0: string;
+          token1: string;
+        };
+      },
+    ];
+  };
+};
+
+export const uniswapCandlestickSubgraphQuery = (pools: string[], date: number): string => {
+  const idIn = pools.map((p) => `"${p.toLowerCase()}"`).join(', ');
+
+  return `
+query SubgraphPoolsCandlestickQuery { 
+  poolDayDatas(
+    where: {date: ${date}, pool_in: [${idIn}]}
+  ) {
+    date
+    volumeToken0
+    volumeToken1
+    pool {
+      id
+      token0
+      token1
+    }
+  }
+}
+`;
+};

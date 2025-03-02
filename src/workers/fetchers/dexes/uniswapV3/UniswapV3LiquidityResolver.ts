@@ -33,6 +33,8 @@ export class UniswapV3LiquidityResolver extends GraphPaginator {
       return;
     }
 
+    this.logger.debug(`${this.logPrefix}[${chainId}] liquidity for ${JSON.stringify(uniswapV3Params)} will be fetched`);
+
     const data = await this.pullData<SubgraphLiquidityResult>(chainId, {pools});
     await this.processSubgraphResponseData(chainId, data);
   }

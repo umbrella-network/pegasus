@@ -112,7 +112,6 @@ export class UniswapV3PoolRepository {
 
     if (result.length === 0) {
       this.logger.debug(`[UniswapV3PoolRepository] no pool for query: ${JSON.stringify(filterPools)}`);
-      
       return undefined;
     }
 

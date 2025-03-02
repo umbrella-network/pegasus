@@ -38,7 +38,7 @@ export class BlockchainMetricsWorker extends BasicWorker {
     }
 
     try {
-      this.logger.debug(`${this.logPrefix} job run at ${new Date().toISOString()}`);
+      this.logger.debug(`${this.logPrefix} run`);
 
       const results = await Promise.allSettled([
         this.validatorsResolver.apply(),
@@ -62,6 +62,8 @@ export class BlockchainMetricsWorker extends BasicWorker {
   };
 
   start = (): void => {
+    this.logger.debug(`${this.logPrefix} started`);
+
     super.start();
   };
 }

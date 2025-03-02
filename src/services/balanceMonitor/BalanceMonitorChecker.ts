@@ -56,8 +56,8 @@ export class BalanceMonitorChecker {
   }
 
   protected chainKeys(blockchainType: BlockchainType): ChainsIds[] {
-    return (Object.keys(this.settings.blockchain.multiChains) as ChainsIds[]).filter(
-      (id) => this.settings.blockchain.multiChains[id]?.type.includes(blockchainType),
+    return (Object.keys(this.settings.blockchain.multiChains) as ChainsIds[]).filter((id) =>
+      this.settings.blockchain.multiChains[id]?.type.includes(blockchainType),
     );
   }
 }

@@ -36,7 +36,7 @@ class MetricsWorker extends BasicWorker {
     }
 
     try {
-      this.logger.info('metrics worker start');
+      this.logger.debug('[MetricsWorker] start');
       await this.blockchainGasRepository.purge(); // purge before other tasks
 
       const results = await Promise.allSettled([

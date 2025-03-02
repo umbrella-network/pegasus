@@ -229,6 +229,7 @@ export default {
             base: {type: 'string'},
             quote: {type: 'string'},
             amountInDecimals: {type: 'number'},
+            vwapInterval: {type: 'string'},
           },
           required: ['fromChain', 'base', 'quote', 'amountInDecimals'],
           additionalProperties: false,

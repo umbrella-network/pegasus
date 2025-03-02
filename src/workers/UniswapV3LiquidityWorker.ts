@@ -22,6 +22,7 @@ class UniswapV3LiquidityWorker extends BasicWorker {
 
   apply = async (job: Bull.Job): Promise<void> => {
     if (this.isStale(job)) return;
+
     const loggerPrefix = `[UniswapV3LiquidityWorker][${job.data.chainId}][${job.data.protocol}]`;
     const isValidSettings = this.checkIsValidSettings(job.data);
 
@@ -38,7 +39,7 @@ class UniswapV3LiquidityWorker extends BasicWorker {
       return;
     }
 
-    this.logger.debug(`${loggerPrefix} job run at ${new Date().toISOString()}`);
+    this.logger.debug(`${loggerPrefix} start at ${new Date().toISOString()}`);
 
     const results = await Promise.allSettled([
       this.uniswapV3LiquidityResolver.apply(job.data.chainId),
@@ -58,8 +59,11 @@ class UniswapV3LiquidityWorker extends BasicWorker {
 
   checkIsValidSettings = (jobData: {chainId: ChainsIds; protocol: DexProtocolName}) => {
     const url = this.settings.dexes[jobData?.chainId]?.[jobData?.protocol]?.subgraphUrl;
+
     if (!url) {
-      this.logger.error(`[checkIsValidSettings] missing subgraphUrl for ${jobData?.chainId} ${jobData?.protocol}`);
+      this.logger.error(
+        `[${jobData?.chainId}][checkIsValidSettings] missing subgraphUrl for protocol: ${jobData?.protocol}`,
+      );
       return false;
     }
 

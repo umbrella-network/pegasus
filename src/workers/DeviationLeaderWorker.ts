@@ -29,7 +29,7 @@ export class DeviationLeaderWorker extends BasicWorker {
     }
 
     try {
-      this.logger.debug(`[DeviationLeaderWorker] job run at ${new Date().toISOString()}`);
+      this.logger.debug(`[DeviationLeaderWorker] job run}`);
       await this.deviationLeader.apply();
     } catch (e) {
       this.logger.error(e);

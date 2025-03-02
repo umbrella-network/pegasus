@@ -28,12 +28,19 @@ jobs:
           node-version: 18
 
       # Runs a set of commands using the runners shell
-      - name: npm install
-        run: npm install
+      - name: npm ci
+        run: npm ci
 
       # dsabling because has conflicts with prettier, and prettier is better
       # - name: run lint
       #  run: npm run lint
 
-      - name: run prettier
-        run: npm run prettier
+      - name: detect linter changes
+        run: |
+          if ! npm run prettier; then
+            echo "❌ Prettier failed to format the code properly. Please fix the issues."
+            npm run prettier:format
+            git diff
+            exit 1
+          fi
+            echo "✅ Prettier finished successfully."
