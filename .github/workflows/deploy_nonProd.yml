@@ -6,6 +6,7 @@ on:
       - release/*
       - hotfix/*
       - develop
+      - main
     inputs:
       validator:
         required: true
