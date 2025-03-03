@@ -137,6 +137,7 @@ jobs:
             kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-scheduler-bsc01 -n sandbox
             kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-agent-bsc01 -n sandbox
             kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-deviation-leader-worker-bsc01 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-liquidity-worker-bsc01 -n sandbox
           fi
 
           if [ "${{ inputs.validator }}" == "sbx_validator2" ]; then
@@ -147,4 +148,5 @@ jobs:
             kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-scheduler-bsc02 -n sandbox
             kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-agent-bsc02 -n sandbox
             kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-deviation-leader-worker-bsc02 -n sandbox
+            kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-liquidity-worker-bsc02 -n sandbox
           fi

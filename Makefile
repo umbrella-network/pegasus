@@ -50,15 +50,17 @@ publish-sbx1:
 	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-scheduler-bsc01 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-agent-bsc01 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-deviation-leader-worker-bsc01 -n sandbox
+	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-liquidity-worker-bsc01 -n sandbox
 	
 publish-sbx2:
 	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-api-bsc02 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-metrics-worker-bsc02 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-minting-worker-bsc02 -n sandbox
 	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-dispatcher-worker-bsc02 -n sandbox
-	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-scheduler-bsc01 -n sandbox
-	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-agent-bsc01 -n sandbox
-	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-deviation-leader-worker-bsc01 -n sandbox
+	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-scheduler-bsc02 -n sandbox
+	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-agent-bsc02 -n sandbox
+	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-deviation-leader-worker-bsc02 -n sandbox
+	@kubectl --kubeconfig ~/.kube/config-staging rollout restart deployment/pegasus-liquidity-worker-bsc02 -n sandbox
 	
 auth: assume login update-stg-kubeconfig
 
