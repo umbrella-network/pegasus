@@ -2,7 +2,7 @@ import axios, {AxiosResponse} from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ServiceInterface} from '../../types/fetchers.js';
+import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 
 import {
   MoCMeasurementDataRepository,
@@ -10,9 +10,10 @@ import {
 } from '../../repositories/fetchers/MoCMeasurementDataRepository.js';
 
 import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
 import {AxiosResponseChecker} from './_common/AxiosResponseChecker.js';
 import {MoCMeasurementCache} from '../../types/fetchersCachedTypes.js';
+import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter";
+import {MoCMeasurementPriceInputParams} from "../../services/fetchers/MoCMeasurementGetter";
 
 // field => value
 type ParsedResponse = {measurement_id: string; timestamp: number; field: string; value: number};
@@ -34,6 +35,7 @@ https://api.moneyonchain.com/api/doc
 */
 @injectable()
 export class MoCMeasurementFetcher implements ServiceInterface {
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(AxiosResponseChecker) private axiosResponseChecker!: AxiosResponseChecker;
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MoCMeasurementDataRepository) private moCMeasurementDataRepository!: MoCMeasurementDataRepository;
@@ -126,9 +128,7 @@ export class MoCMeasurementFetcher implements ServiceInterface {
   }
 
   private async generateInput(): Promise<CachedParams[]> {
-    const paramsKey = FetchersMappingCacheKeys.MOC_MEASUREMENT_PARAMS;
-
-    const cache = await this.mappingRepository.get(paramsKey);
+    const cache = await this.feedsGetter.apply<MoCMeasurementPriceInputParams>(FetcherName.MoCMeasurement);
     const parsed = JSON.parse(cache || '{}') as MoCMeasurementCache;
 
     const result: CachedParams[] = [];
@@ -142,6 +142,28 @@ export class MoCMeasurementFetcher implements ServiceInterface {
 
     return result;
   }
+
+  private toCacheInput(inputsParams: MoCMeasurementPriceInputParams[]): CachedParams[] {
+    const idsCache: MoCMeasurementCache = {};
+
+    inputsParams.forEach((input) => {
+      if (!idsCache[input.measurement_id]) idsCache[input.measurement_id] = {};
+
+      idsCache[input.measurement_id][input.field] = true;
+    });
+
+    const result: CachedParams[] = [];
+
+    Object.keys(idsCache).forEach((measurement_id) => {
+      result.push({
+        measurement_id,
+        fields: Object.keys(idsCache[measurement_id]),
+      });
+    });
+
+    return result;
+  }
+
 
   private parseTime(t: string): number {
     const d = new Date(t.toLowerCase().endsWith('z') ? t : `${t}Z`);
