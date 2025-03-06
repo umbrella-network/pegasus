@@ -12,8 +12,8 @@ import {
 import {MappingRepository} from '../../repositories/MappingRepository.js';
 import {AxiosResponseChecker} from './_common/AxiosResponseChecker.js';
 import {MoCMeasurementCache} from '../../types/fetchersCachedTypes.js';
-import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter";
-import {MoCMeasurementPriceInputParams} from "../../services/fetchers/MoCMeasurementGetter";
+import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter.js";
+import {MoCMeasurementPriceInputParams} from "../../services/fetchers/MoCMeasurementGetter.js";
 
 // field => value
 type ParsedResponse = {measurement_id: string; timestamp: number; field: string; value: number};
@@ -129,18 +129,7 @@ export class MoCMeasurementFetcher implements ServiceInterface {
 
   private async generateInput(): Promise<CachedParams[]> {
     const cache = await this.feedsGetter.apply<MoCMeasurementPriceInputParams>(FetcherName.MoCMeasurement);
-    const parsed = JSON.parse(cache || '{}') as MoCMeasurementCache;
-
-    const result: CachedParams[] = [];
-
-    Object.keys(parsed).forEach((measurement_id) => {
-      result.push({
-        measurement_id,
-        fields: Object.keys(parsed[measurement_id]),
-      });
-    });
-
-    return result;
+    return this.toCacheInput(cache);
   }
 
   private toCacheInput(inputsParams: MoCMeasurementPriceInputParams[]): CachedParams[] {
