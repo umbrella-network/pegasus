@@ -2,12 +2,11 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ServiceInterface} from '../../types/fetchers.js';
+import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
 import {MetalsDevApiDataRepository} from '../../repositories/fetchers/MetalsDevApiDataRepository.js';
-import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
+import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter.js";
 
 export interface MetalsDevApiPriceInputParams {
   metal: string;
@@ -16,7 +15,7 @@ export interface MetalsDevApiPriceInputParams {
 
 @injectable()
 export class MetalsDevApiFetcher implements ServiceInterface {
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(MetalsDevApiDataRepository) private metalsDevApiDataRepository!: MetalsDevApiDataRepository;
   @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
@@ -33,7 +32,7 @@ export class MetalsDevApiFetcher implements ServiceInterface {
 
   async apply(): Promise<void> {
     try {
-      const params = await this.getInput();
+      const params = await this.feedsGetter.apply<MetalsDevApiPriceInputParams>(FetcherName.MetalsDevApi);
 
       if (params.length === 0) {
         this.logger.debug(`${this.logPrefix} no inputs to fetch`);
@@ -88,17 +87,5 @@ export class MetalsDevApiFetcher implements ServiceInterface {
     } catch (error) {
       this.logger.error(`${this.logPrefix} An error occurred while fetching metal prices: ${error}`);
     }
-  }
-
-  private async getInput(): Promise<MetalsDevApiPriceInputParams[]> {
-    const key = FetchersMappingCacheKeys.METALS_DEV_API_PARAMS;
-
-    const cache = await this.mappingRepository.get(key);
-    const cachedParams = JSON.parse(cache || '{}');
-
-    return Object.keys(cachedParams).map((data) => {
-      const [metal, currency] = data.split(';');
-      return {metal, currency};
-    });
   }
 }

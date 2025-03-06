@@ -13,9 +13,8 @@ import {
 } from '../../repositories/fetchers/CoingeckoDataRepository.js';
 
 import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
-import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter";
-import {CoingeckoPriceInputParams} from "../../services/fetchers/CoingeckoPriceGetter";
+import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter.js";
+import {CoingeckoPriceInputParams} from "../../services/fetchers/CoingeckoPriceGetter.js";
 
 type ParsedResponse = {id: string; currency: string; value: number; timestamp: number}
 
@@ -46,20 +45,20 @@ export class CoingeckoPriceFetcher implements ServiceInterface {
   private async fetchPrices(): Promise<void> {
     const params = await this.feedsGetter.apply<CoingeckoPriceInputParams>(FetcherName.CoingeckoPrice);
     
-    const ids: 
-    const currencies: Set<string> = new Set(); 
-    
+    const map: Record<string, string> = {};
+
     params.forEach(p => {
-      ids.add(p.id);
-      currencies.add(p.currency);
+      map[p.id] = p.currency;
     });
 
-    if (ids.size == 0) {
+    const currencies = Object.values(map);
+
+    if (currencies.length == 0) {
       this.logger.debug(`${this.logPrefix} no inputs to fetch`);
       return;
     }
 
-    const batchedInputs = _.chunk(ids.keys(), Math.ceil(this.maxBatchSize));
+    const batchedInputs = _.chunk(Object.keys(map), Math.ceil(this.maxBatchSize));
 
     const responses = await Promise.allSettled(
       batchedInputs.map((inputs) => {
