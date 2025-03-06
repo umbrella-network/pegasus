@@ -7,7 +7,7 @@ import {
   BasePolygonIOSnapshotFetcher,
   SnapshotResponse,
 } from '../../services/fetchers/common/BasePolygonIOSnapshotFetcher.js';
-import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter';
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter.js';
 
 type ParsedResponse = {ticker: string; price: number; timestamp: number};
 
