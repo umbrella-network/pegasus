@@ -6,7 +6,7 @@ import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
 import {MetalsDevApiDataRepository} from '../../repositories/fetchers/MetalsDevApiDataRepository.js';
-import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter.js";
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter.js';
 
 export interface MetalsDevApiPriceInputParams {
   metal: string;

@@ -11,8 +11,8 @@ import {
 
 import {AxiosResponseChecker} from './_common/AxiosResponseChecker.js';
 import {MoCMeasurementCache} from '../../types/fetchersCachedTypes.js';
-import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter.js";
-import {MoCMeasurementPriceInputParams} from "../../services/fetchers/MoCMeasurementGetter.js";
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter.js';
+import {MoCMeasurementPriceInputParams} from '../../services/fetchers/MoCMeasurementGetter.js';
 
 // field => value
 type ParsedResponse = {measurement_id: string; timestamp: number; field: string; value: number};
@@ -150,7 +150,6 @@ export class MoCMeasurementFetcher implements ServiceInterface {
 
     return result;
   }
-
 
   private parseTime(t: string): number {
     const d = new Date(t.toLowerCase().endsWith('z') ? t : `${t}Z`);

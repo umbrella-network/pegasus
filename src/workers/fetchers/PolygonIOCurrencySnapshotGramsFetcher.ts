@@ -2,14 +2,12 @@ import {inject, injectable} from 'inversify';
 
 import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
-import {
-  PolygonIOCurrencySnapshotGramsDataRepository
-} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
+import {PolygonIOCurrencySnapshotGramsDataRepository} from '../../repositories/fetchers/PolygonIOCurrencySnapshotGramsDataRepository.js';
 import {
   BasePolygonIOSnapshotFetcher,
   SnapshotResponse,
 } from '../../services/fetchers/common/BasePolygonIOSnapshotFetcher.js';
-import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter.js";
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter.js';
 
 export interface PolygonIOCurrencySnapshotGramsInputParams {
   ticker: string;
@@ -36,7 +34,9 @@ export class PolygonIOCurrencySnapshotGramsFetcher extends BasePolygonIOSnapshot
 
   async apply(): Promise<void> {
     try {
-      const params = await this.feedsGetter.apply<PolygonIOCurrencySnapshotGramsInputParams>(FetcherName.PolygonIOCurrencySnapshotGrams);
+      const params = await this.feedsGetter.apply<PolygonIOCurrencySnapshotGramsInputParams>(
+        FetcherName.PolygonIOCurrencySnapshotGrams,
+      );
 
       if (params.length === 0) {
         this.logger.debug(`${this.logPrefix} no inputs to fetch`);

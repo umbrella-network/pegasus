@@ -17,7 +17,7 @@ import {
   SovrynDataRepositoryInput,
 } from '../../../../repositories/fetchers/SovrynDataRepository.js';
 import {MappingRepository} from '../../../../repositories/MappingRepository.js';
-import {DeviationFeedsGetter} from "../../_common/DeviationFeedsGetter.js";
+import {DeviationFeedsGetter} from '../../_common/DeviationFeedsGetter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

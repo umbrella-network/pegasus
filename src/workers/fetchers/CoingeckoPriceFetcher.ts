@@ -13,10 +13,10 @@ import {
 } from '../../repositories/fetchers/CoingeckoDataRepository.js';
 
 import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter.js";
-import {CoingeckoPriceInputParams} from "../../services/fetchers/CoingeckoPriceGetter.js";
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter.js';
+import {CoingeckoPriceInputParams} from '../../services/fetchers/CoingeckoPriceGetter.js';
 
-type ParsedResponse = {id: string; currency: string; value: number; timestamp: number}
+type ParsedResponse = {id: string; currency: string; value: number; timestamp: number};
 
 @injectable()
 export class CoingeckoPriceFetcher implements ServiceInterface {
@@ -44,10 +44,10 @@ export class CoingeckoPriceFetcher implements ServiceInterface {
 
   private async fetchPrices(): Promise<void> {
     const params = await this.feedsGetter.apply<CoingeckoPriceInputParams>(FetcherName.CoingeckoPrice);
-    
+
     const map: Record<string, string> = {};
 
-    params.forEach(p => {
+    params.forEach((p) => {
       map[p.id] = p.currency;
     });
 

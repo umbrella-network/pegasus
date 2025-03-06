@@ -12,7 +12,7 @@ import {
   BasePolygonIOSingleFetcher,
   SinglePriceResponse,
 } from '../../services/fetchers/common/BasePolygonIOSingleFetcher.js';
-import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter.js";
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter.js';
 
 export interface PolygonIOSingleCryptoPriceInputParams {
   fsym: string;
@@ -43,7 +43,9 @@ export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetche
 
   async apply(): Promise<void> {
     try {
-      const params = await this.feedsGetter.apply<PolygonIOSingleCryptoPriceInputParams>(FetcherName.PolygonIOSingleCryptoPrice);
+      const params = await this.feedsGetter.apply<PolygonIOSingleCryptoPriceInputParams>(
+        FetcherName.PolygonIOSingleCryptoPrice,
+      );
 
       if (params.length === 0) {
         this.logger.debug(`${this.logPrefix} no inputs to fetch`);
