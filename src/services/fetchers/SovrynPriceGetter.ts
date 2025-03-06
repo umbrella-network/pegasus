@@ -1,5 +1,4 @@
 import {inject, injectable} from 'inversify';
-import {ethers} from 'ethers';
 import {Logger} from 'winston';
 
 import {
@@ -13,9 +12,7 @@ import {
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {SovrynDataRepository} from '../../repositories/fetchers/SovrynDataRepository.js';
-import {MappingRepository} from '../../repositories/MappingRepository.js';
 import TimeService from '../TimeService.js';
-import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export type SovrynPriceInputParams = {
   base: string;

@@ -12,7 +12,6 @@ import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
 import {PolygonIOSingleCryptoDataRepository} from '../../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export interface PolygonIOSingleCryptoPriceInputParams {
   fsym: string;
