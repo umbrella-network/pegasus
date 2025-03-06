@@ -11,9 +11,6 @@ import {
 } from '../../types/fetchers.js';
 
 import {MetalPriceApiDataRepository} from '../../repositories/fetchers/MetalPriceApiDataRepository.js';
-import TimeService from '../TimeService.js';
-import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {DeviationFeedsGetter} from "../../workers/fetchers/_common/DeviationFeedsGetter";
 
 export interface MetalPriceApiInputParams {
   symbol: string;
@@ -22,11 +19,8 @@ export interface MetalPriceApiInputParams {
 
 @injectable()
 export class MetalPriceApiGetter implements FeedFetcherInterface {
-  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MetalPriceApiDataRepository) private metalPriceApiDataRepository!: MetalPriceApiDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
-  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private logPrefix = `[${FetcherName.MetalPriceApi}]`;
