@@ -2,13 +2,13 @@ import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 import axios from 'axios';
 
-import {ServiceInterface} from '../../types/fetchers.js';
+import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
 import {GoldApiDataRepository} from '../../repositories/fetchers/GoldApiDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
+import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter";
 
 export interface GoldApiPriceInputParams {
   symbol: string;
@@ -20,6 +20,7 @@ export class GoldApiPriceFetcher implements ServiceInterface {
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(GoldApiDataRepository) private goldApiDataRepository!: GoldApiDataRepository;
   @inject(TimeService) timeService!: TimeService;
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject('Logger') private logger!: Logger;
 
   private token: string;
@@ -34,7 +35,7 @@ export class GoldApiPriceFetcher implements ServiceInterface {
 
   async apply(): Promise<void> {
     try {
-      const params = await this.getInput();
+      const params = await this.feedsGetter.apply<GoldApiPriceInputParams>(FetcherName.GoldApiPrice);
 
       if (params.length === 0) {
         this.logger.debug(`${this.logPrefix} no inputs to fetch`);
@@ -87,17 +88,5 @@ export class GoldApiPriceFetcher implements ServiceInterface {
         params: params[0],
       },
     ]);
-  }
-
-  private async getInput(): Promise<GoldApiPriceInputParams[]> {
-    const key = FetchersMappingCacheKeys.GOLD_API_PRICE_PARAMS;
-
-    const cache = await this.mappingRepository.get(key);
-    const cachedParams = JSON.parse(cache || '{}');
-
-    return Object.keys(cachedParams).map((data) => {
-      const [symbol, currency] = data.split(';');
-      return {symbol, currency};
-    });
   }
 }
