@@ -10,11 +10,7 @@ import {
 } from '../../types/fetchers.js';
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
-import TimeService from '../TimeService.js';
-
 import {CoingeckoDataRepository} from '../../repositories/fetchers/CoingeckoDataRepository.js';
-
-import {MappingRepository} from '../../repositories/MappingRepository.js';
 
 export interface CoingeckoPriceInputParams {
   id: string;
@@ -23,10 +19,8 @@ export interface CoingeckoPriceInputParams {
 
 @injectable()
 export class CoingeckoPriceGetter implements FeedFetcherInterface {
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(CoingeckoDataRepository) private coingeckoDataRepository!: CoingeckoDataRepository;
-  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private logPrefix = `[${FetcherName.CoingeckoPrice}]`;

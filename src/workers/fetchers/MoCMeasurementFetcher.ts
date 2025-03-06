@@ -9,7 +9,6 @@ import {
   MoCMeasurementDataRepositoryInput,
 } from '../../repositories/fetchers/MoCMeasurementDataRepository.js';
 
-import {MappingRepository} from '../../repositories/MappingRepository.js';
 import {AxiosResponseChecker} from './_common/AxiosResponseChecker.js';
 import {MoCMeasurementCache} from '../../types/fetchersCachedTypes.js';
 import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter.js";
@@ -37,7 +36,6 @@ https://api.moneyonchain.com/api/doc
 export class MoCMeasurementFetcher implements ServiceInterface {
   @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(AxiosResponseChecker) private axiosResponseChecker!: AxiosResponseChecker;
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MoCMeasurementDataRepository) private moCMeasurementDataRepository!: MoCMeasurementDataRepository;
   @inject('Logger') private logger!: Logger;
 
