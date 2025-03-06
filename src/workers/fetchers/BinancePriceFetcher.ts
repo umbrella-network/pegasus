@@ -7,7 +7,7 @@ import TimeService from '../../services/TimeService.js';
 import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 
 import {BinanceDataRepository} from '../../repositories/fetchers/BinanceDataRepository.js';
-import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter";
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter.js';
 
 type BinanceResponse = {symbol: string; price: string};
 type ParsedResponse = {symbol: string; price: number};
@@ -28,10 +28,10 @@ export class BinancePriceFetcher implements ServiceInterface {
   }
 
   async apply(): Promise<void> {
-    const feeds =  await this.feedsGetter.apply(FetcherName.BinancePrice);
-    if (feeds.length === 0) return;
-
     try {
+      const feeds = await this.feedsGetter.apply(FetcherName.BinancePrice);
+      if (feeds.length === 0) return;
+
       await this.fetchPrices();
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);

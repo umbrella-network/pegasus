@@ -7,11 +7,13 @@ import {
   BasePolygonIOSnapshotFetcher,
   SnapshotResponse,
 } from '../../services/fetchers/common/BasePolygonIOSnapshotFetcher.js';
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter';
 
 type ParsedResponse = {ticker: string; price: number; timestamp: number};
 
 @injectable()
 export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(PolygonIOStockSnapshotDataRepository)
   polygonIOStockSnapshotDataRepository!: PolygonIOStockSnapshotDataRepository;
 
@@ -25,6 +27,9 @@ export class PolygonIOStockSnapshotPriceFetcher extends BasePolygonIOSnapshotFet
 
   async apply(): Promise<void> {
     try {
+      const params = await this.feedsGetter.apply<string[]>(FetcherName.PolygonIOStockSnapshotPrice);
+      if (params.length === 0) return;
+
       await this.fetchPrices();
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);

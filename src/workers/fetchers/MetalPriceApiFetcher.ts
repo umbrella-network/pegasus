@@ -7,7 +7,6 @@ import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 import Settings from '../../types/Settings.js';
 import {MetalPriceApiDataRepository} from '../../repositories/fetchers/MetalPriceApiDataRepository.js';
 import TimeService from '../../services/TimeService.js';
-import {MappingRepository} from '../../repositories/MappingRepository.js';
 import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter.js';
 
 const GRAMS_PER_TROY_OUNCE = 31.1035;
@@ -20,7 +19,6 @@ export interface MetalPriceApiInputParams {
 @injectable()
 export class MetalPriceApiFetcher implements ServiceInterface {
   @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MetalPriceApiDataRepository) private metalPriceApiDataRepository!: MetalPriceApiDataRepository;
   @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;

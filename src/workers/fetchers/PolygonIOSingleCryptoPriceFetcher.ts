@@ -7,7 +7,6 @@ import {
   PolygonIOSingleCryptoDataRepository,
   PolygonIOSingleCryptoDataRepositoryInput,
 } from '../../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
-import {MappingRepository} from '../../repositories/MappingRepository.js';
 import {
   BasePolygonIOSingleFetcher,
   SinglePriceResponse,
@@ -28,7 +27,6 @@ type ParsedResponse = {
 @injectable()
 export class PolygonIOSingleCryptoPriceFetcher extends BasePolygonIOSingleFetcher implements ServiceInterface {
   @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PolygonIOSingleCryptoDataRepository) pIOSingleCryptoDataRepository!: PolygonIOSingleCryptoDataRepository;
   @inject(TimeService) timeService!: TimeService;
 

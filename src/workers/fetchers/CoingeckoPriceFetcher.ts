@@ -44,6 +44,7 @@ export class CoingeckoPriceFetcher implements ServiceInterface {
 
   private async fetchPrices(): Promise<void> {
     const params = await this.feedsGetter.apply<CoingeckoPriceInputParams>(FetcherName.CoingeckoPrice);
+    if (params.length == 0) return;
 
     const map: Record<string, string> = {};
 

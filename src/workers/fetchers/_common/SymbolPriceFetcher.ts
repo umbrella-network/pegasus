@@ -5,11 +5,13 @@ import {Logger} from 'winston';
 import TimeService from '../../../services/TimeService.js';
 import {FetcherName, ServiceInterface} from '../../../types/fetchers.js';
 import {SymbolDataRepository} from '../../../repositories/fetchers/common/SymbolDataRepository.js';
+import {DeviationFeedsGetter} from './DeviationFeedsGetter.js';
 
 export type SymbolParsedResponse = {symbol: string; price: number};
 
 @injectable()
 export abstract class SymbolPriceFetcher implements ServiceInterface {
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') protected logger!: Logger;
 
@@ -27,6 +29,9 @@ export abstract class SymbolPriceFetcher implements ServiceInterface {
 
   async apply(): Promise<void> {
     try {
+      const params = await this.feedsGetter.apply(this.fetcherName);
+      if (params.length === 0) return;
+
       await this.fetchPrices();
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);

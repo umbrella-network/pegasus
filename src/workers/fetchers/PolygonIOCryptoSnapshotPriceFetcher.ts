@@ -8,11 +8,13 @@ import {
   BasePolygonIOSnapshotFetcher,
   SnapshotResponse,
 } from '../../services/fetchers/common/BasePolygonIOSnapshotFetcher.js';
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter';
 
 type ParsedResponse = {symbol: string; price: number; timestamp: number};
 
 @injectable()
 export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFetcher implements ServiceInterface {
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(PolygonIOCryptoSnapshotDataRepository)
   pIOCryptoSnapshotDataRepository!: PolygonIOCryptoSnapshotDataRepository;
 
@@ -28,6 +30,9 @@ export class PolygonIOCryptoSnapshotPriceFetcher extends BasePolygonIOSnapshotFe
 
   async apply(): Promise<void> {
     try {
+      const params = await this.feedsGetter.apply<string[]>(FetcherName.PolygonIOCryptoSnapshotPrice);
+      if (params.length === 0) return;
+
       await this.fetchPrices();
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);
