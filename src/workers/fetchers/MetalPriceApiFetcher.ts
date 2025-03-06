@@ -2,13 +2,13 @@ import axios from 'axios';
 import {inject, injectable} from 'inversify';
 import {Logger} from 'winston';
 
-import {ServiceInterface} from '../../types/fetchers.js';
+import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 
 import Settings from '../../types/Settings.js';
 import {MetalPriceApiDataRepository} from '../../repositories/fetchers/MetalPriceApiDataRepository.js';
 import TimeService from '../../services/TimeService.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
+import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter.js";
 
 const GRAMS_PER_TROY_OUNCE = 31.1035;
 
@@ -19,6 +19,7 @@ export interface MetalPriceApiInputParams {
 
 @injectable()
 export class MetalPriceApiFetcher implements ServiceInterface {
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MetalPriceApiDataRepository) private metalPriceApiDataRepository!: MetalPriceApiDataRepository;
   @inject(TimeService) private timeService!: TimeService;
@@ -37,7 +38,7 @@ export class MetalPriceApiFetcher implements ServiceInterface {
 
   async apply(): Promise<void> {
     try {
-      const params = await this.getInput();
+      const params = await this.feedsGetter.apply<MetalPriceApiInputParams>(FetcherName.MetalPriceApi);
 
       if (params.length === 0) {
         this.logger.debug(`${this.logPrefix} no inputs to fetch`);
@@ -98,17 +99,5 @@ export class MetalPriceApiFetcher implements ServiceInterface {
       this.logger.error(`${this.logPrefix} An error occurred while fetching metal prices: ${error}`);
       return;
     }
-  }
-
-  private async getInput(): Promise<MetalPriceApiInputParams[]> {
-    const key = FetchersMappingCacheKeys.METAL_PRICE_API_PARAMS;
-
-    const cache = await this.mappingRepository.get(key);
-    const cachedParams = JSON.parse(cache || '{}');
-
-    return Object.keys(cachedParams).map((data) => {
-      const [symbol, currency] = data.split(';');
-      return {symbol, currency};
-    });
   }
 }

@@ -13,7 +13,7 @@ import {
 import {MetalPriceApiDataRepository} from '../../repositories/fetchers/MetalPriceApiDataRepository.js';
 import TimeService from '../TimeService.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
+import {DeviationFeedsGetter} from "../../workers/fetchers/_common/DeviationFeedsGetter";
 
 export interface MetalPriceApiInputParams {
   symbol: string;
@@ -22,6 +22,7 @@ export interface MetalPriceApiInputParams {
 
 @injectable()
 export class MetalPriceApiGetter implements FeedFetcherInterface {
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MetalPriceApiDataRepository) private metalPriceApiDataRepository!: MetalPriceApiDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
@@ -37,12 +38,6 @@ export class MetalPriceApiGetter implements FeedFetcherInterface {
       return {prices: []};
     }
 
-    try {
-      await this.cacheInput(params);
-    } catch (e) {
-      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
-    }
-
     const [price] = await this.metalPriceApiDataRepository.getPrices(params, options.timestamp);
     const result = {prices: [price], timestamp: options.timestamp};
 
@@ -56,20 +51,5 @@ export class MetalPriceApiGetter implements FeedFetcherInterface {
     );
 
     return result;
-  }
-
-  private async cacheInput(params: MetalPriceApiInputParams[]): Promise<void> {
-    const timestamp = this.timeService.apply();
-    const key = FetchersMappingCacheKeys.METAL_PRICE_API_PARAMS;
-
-    // const cache = await this.mappingRepository.get(key);
-    // const cachedParams = JSON.parse(cache || '{}');
-    const cachedParams: Record<string, number> = {};
-
-    params.forEach((input) => {
-      cachedParams[`${input.symbol};${input.currency}`.toLowerCase()] = timestamp;
-    });
-
-    await this.mappingRepository.set(key, JSON.stringify(cachedParams));
   }
 }
