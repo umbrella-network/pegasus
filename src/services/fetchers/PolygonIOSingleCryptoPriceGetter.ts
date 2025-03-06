@@ -35,12 +35,6 @@ export class PolygonIOSingleCryptoPriceGetter implements FeedFetcherInterface {
       return {prices: []};
     }
 
-    try {
-      await this.cacheInput(params);
-    } catch (e) {
-      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
-    }
-
     const prices = await this.pIOSingleCryptoDataRepository.getPrices(params, options.timestamp);
     const fetcherResults: FetcherResult = {prices, timestamp: options.timestamp};
 
@@ -53,19 +47,5 @@ export class PolygonIOSingleCryptoPriceGetter implements FeedFetcherInterface {
     );
 
     return fetcherResults;
-  }
-
-  private async cacheInput(params: PolygonIOSingleCryptoPriceInputParams[]): Promise<void> {
-    const timestamp = this.timeService.apply();
-    const key = FetchersMappingCacheKeys.POLYGONIO_SINGLE_CRYPO_PARAMS;
-
-    const cache = await this.mappingRepository.get(key);
-    const cachedParams = JSON.parse(cache || '{}');
-
-    params.forEach((input) => {
-      cachedParams[`${input.fsym};${input.tsym}`.toLowerCase()] = timestamp;
-    });
-
-    await this.mappingRepository.set(key, JSON.stringify(cachedParams));
   }
 }
