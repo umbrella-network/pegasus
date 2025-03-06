@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 import Settings from '../../types/Settings.js';
 
-import {ServiceInterface} from '../../types/fetchers.js';
+import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 
 import {
   CoingeckoDataRepository,
@@ -14,11 +14,14 @@ import {
 
 import {MappingRepository} from '../../repositories/MappingRepository.js';
 import {FetchersMappingCacheKeys} from '../../services/fetchers/common/FetchersMappingCacheKeys.js';
+import {DeviationFeedsGetter} from "./_common/DeviationFeedsGetter";
+import {CoingeckoPriceInputParams} from "../../services/fetchers/CoingeckoPriceGetter";
 
-type ParsedResponse = {id: string; currency: string; value: number; timestamp: number};
+type ParsedResponse = {id: string; currency: string; value: number; timestamp: number}
 
 @injectable()
 export class CoingeckoPriceFetcher implements ServiceInterface {
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(CoingeckoDataRepository) private coingeckoDataRepository!: CoingeckoDataRepository;
   @inject('Logger') private logger!: Logger;
@@ -41,14 +44,22 @@ export class CoingeckoPriceFetcher implements ServiceInterface {
   }
 
   private async fetchPrices(): Promise<void> {
-    const {ids, currencies} = await this.generateInput();
+    const params = await this.feedsGetter.apply<CoingeckoPriceInputParams>(FetcherName.CoingeckoPrice);
+    
+    const ids: 
+    const currencies: Set<string> = new Set(); 
+    
+    params.forEach(p => {
+      ids.add(p.id);
+      currencies.add(p.currency);
+    });
 
-    if (ids.length == 0) {
+    if (ids.size == 0) {
       this.logger.debug(`${this.logPrefix} no inputs to fetch`);
       return;
     }
 
-    const batchedInputs = _.chunk(ids, Math.ceil(this.maxBatchSize));
+    const batchedInputs = _.chunk(ids.keys(), Math.ceil(this.maxBatchSize));
 
     const responses = await Promise.allSettled(
       batchedInputs.map((inputs) => {
@@ -129,19 +140,5 @@ export class CoingeckoPriceFetcher implements ServiceInterface {
     });
 
     await this.coingeckoDataRepository.save(allData);
-  }
-
-  private async generateInput(): Promise<{ids: string[]; currencies: string[]}> {
-    const idKey = FetchersMappingCacheKeys.COINGECKO_PRICE_IDS;
-    const currenciesKey = FetchersMappingCacheKeys.COINGECKO_PRICE_CURRENCIES;
-
-    const cache = await this.mappingRepository.getMany([idKey, currenciesKey]);
-    const idsCache = JSON.parse(cache[idKey] || '{}');
-    const currenciesCache = JSON.parse(cache[currenciesKey] || '{}');
-
-    const ids = Object.keys(idsCache);
-    const currencies = Object.keys(currenciesCache);
-
-    return {ids, currencies};
   }
 }

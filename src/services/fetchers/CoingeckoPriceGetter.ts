@@ -15,7 +15,6 @@ import TimeService from '../TimeService.js';
 import {CoingeckoDataRepository} from '../../repositories/fetchers/CoingeckoDataRepository.js';
 
 import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export interface CoingeckoPriceInputParams {
   id: string;
@@ -39,12 +38,6 @@ export class CoingeckoPriceGetter implements FeedFetcherInterface {
       return {prices: []};
     }
 
-    try {
-      await this.cacheInput(params);
-    } catch (e) {
-      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
-    }
-
     const prices = await this.coingeckoDataRepository.getPrices(params, options.timestamp);
     const fetcherResult = {prices, timestamp: options.timestamp};
 
@@ -58,29 +51,5 @@ export class CoingeckoPriceGetter implements FeedFetcherInterface {
     );
 
     return fetcherResult;
-  }
-
-  private async cacheInput(inputsParams: CoingeckoPriceInputParams[]): Promise<void> {
-    const timestamp = this.timeService.apply();
-
-    const idKey = FetchersMappingCacheKeys.COINGECKO_PRICE_IDS;
-    const currenciesKey = FetchersMappingCacheKeys.COINGECKO_PRICE_CURRENCIES;
-
-    const cache = await this.mappingRepository.getMany([idKey, currenciesKey]);
-    const idsCache = JSON.parse(cache[idKey] || '{}');
-    const currenciesCache = JSON.parse(cache[currenciesKey] || '{}');
-
-    inputsParams.forEach((input) => {
-      idsCache[input.id.toLowerCase()] = timestamp;
-    });
-
-    inputsParams.forEach((input) => {
-      currenciesCache[input.currency.toLowerCase()] = timestamp;
-    });
-
-    await this.mappingRepository.setMany([
-      {_id: idKey, value: JSON.stringify(idsCache)},
-      {_id: currenciesKey, value: JSON.stringify(currenciesCache)},
-    ]);
   }
 }

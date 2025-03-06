@@ -1,9 +1,6 @@
 import {FetcherName} from '../../../types/fetchers.js';
 
 export enum FetchersMappingCacheKeys {
-  COINGECKO_PRICE_IDS = `${FetcherName.CoingeckoPrice}_ids`,
-  COINGECKO_PRICE_CURRENCIES = `${FetcherName.CoingeckoPrice}_vs_currencies`,
-  GOLD_API_PRICE_PARAMS = `${FetcherName.GoldApiPrice}_params`,
   METAL_PRICE_API_PARAMS = `${FetcherName.MetalPriceApi}_params`,
   METALS_DEV_API_PARAMS = `${FetcherName.MetalsDevApi}_params`,
   MOC_MEASUREMENT_PARAMS = `${FetcherName.MoCMeasurement}_params`,
