@@ -38,7 +38,6 @@ weBTC-rUSDT:
 */
 @injectable()
 export class SovrynPriceGetter implements FeedFetcherInterface {
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(SovrynDataRepository) private sovrynDataRepository!: SovrynDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject('Logger') private logger!: Logger;
@@ -51,12 +50,6 @@ export class SovrynPriceGetter implements FeedFetcherInterface {
     this.logger.debug(
       `${this.logPrefix} fetcher started for ${params.map((p) => `[${p.base}/${p.quote}]`).join(', ')}`,
     );
-
-    try {
-      await this.cacheInput(params);
-    } catch (e) {
-      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
-    }
 
     const pricesResponse: FeedPrice[] = await this.sovrynDataRepository.getPrices(params, options.timestamp);
 
@@ -72,28 +65,5 @@ export class SovrynPriceGetter implements FeedFetcherInterface {
     );
 
     return fetcherResult;
-  }
-
-  private async cacheInput(params: SovrynPriceInputParams[]): Promise<void> {
-    const timestamp = this.timeService.apply();
-    const key = FetchersMappingCacheKeys.SOVRYN_PRICE_PARAMS;
-
-    const cache = await this.mappingRepository.get(key);
-    const cachedParams = JSON.parse(cache || '{}');
-
-    params.forEach((input) => {
-      const id = ethers.utils.id(`${input.base};${input.quote}`.toLowerCase());
-
-      cachedParams[id] = {
-        params: <SovrynPriceInputParams>{
-          base: input.base.toLowerCase(),
-          quote: input.quote.toLowerCase(),
-          amountInDecimals: input.amountInDecimals,
-        },
-        timestamp,
-      };
-    });
-
-    await this.mappingRepository.set(key, JSON.stringify(cachedParams));
   }
 }

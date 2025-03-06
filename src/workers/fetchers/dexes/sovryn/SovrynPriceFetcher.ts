@@ -17,7 +17,7 @@ import {
   SovrynDataRepositoryInput,
 } from '../../../../repositories/fetchers/SovrynDataRepository.js';
 import {MappingRepository} from '../../../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from '../../../../services/fetchers/common/FetchersMappingCacheKeys.js';
+import {DeviationFeedsGetter} from "../../_common/DeviationFeedsGetter.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,6 +44,7 @@ const pairRequestToString = (pair: SovrynPriceInputParams) => {
 
 @injectable()
 export class SovrynPriceFetcher implements ServiceInterface {
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(SovrynDataRepository) private sovrynDataRepository!: SovrynDataRepository;
   @inject(BlockchainRepository) private blockchainRepository!: BlockchainRepository;
@@ -53,7 +54,7 @@ export class SovrynPriceFetcher implements ServiceInterface {
   static fetcherSource = '';
 
   public async apply(): Promise<void> {
-    const params = await this.getInput();
+    const params = await this.feedsGetter.apply<SovrynPriceInputParams>(FetcherName.SovrynPrice);
 
     if (params.length === 0) {
       this.logger.debug(`${this.logPrefix} no inputs to fetch`);
@@ -105,17 +106,5 @@ export class SovrynPriceFetcher implements ServiceInterface {
     });
 
     return successfulPrices.filter((p) => p != undefined) as SovrynDataRepositoryInput[];
-  }
-
-  private async getInput(): Promise<SovrynPriceInputParams[]> {
-    const key = FetchersMappingCacheKeys.SOVRYN_PRICE_PARAMS;
-
-    const cache = await this.mappingRepository.get(key);
-    const cachedParams = JSON.parse(cache || '{}');
-
-    return Object.keys(cachedParams).map((id) => {
-      const {params} = <{params: SovrynPriceInputParams}>cachedParams[id];
-      return params;
-    });
   }
 }

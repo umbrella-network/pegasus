@@ -97,12 +97,6 @@ class Migrations {
         throw new Error(`Migration 8.4.1 failed: ${reason}`);
       }
 
-      try {
-        await mapping.deleteOne({_id: FetchersMappingCacheKeys.SOVRYN_PRICE_PARAMS});
-      } catch (reason) {
-        throw new Error(`Migration 8.4.1 failed: ${reason}`);
-      }
-
       console.log('Migration 8.4.1 finished');
     });
   };
