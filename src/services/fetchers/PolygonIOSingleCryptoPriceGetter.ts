@@ -11,7 +11,6 @@ import {
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
 import {PolygonIOSingleCryptoDataRepository} from '../../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
-import {MappingRepository} from '../../repositories/MappingRepository.js';
 
 export interface PolygonIOSingleCryptoPriceInputParams {
   fsym: string;
@@ -21,7 +20,6 @@ export interface PolygonIOSingleCryptoPriceInputParams {
 @injectable()
 export class PolygonIOSingleCryptoPriceGetter implements FeedFetcherInterface {
   @inject('Logger') protected logger!: Logger;
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PolygonIOSingleCryptoDataRepository) pIOSingleCryptoDataRepository!: PolygonIOSingleCryptoDataRepository;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;

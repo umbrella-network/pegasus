@@ -12,7 +12,6 @@ import {
 
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import {SovrynDataRepository} from '../../repositories/fetchers/SovrynDataRepository.js';
-import TimeService from '../TimeService.js';
 
 export type SovrynPriceInputParams = {
   base: string;
@@ -38,7 +37,6 @@ export class SovrynPriceGetter implements FeedFetcherInterface {
   @inject(SovrynDataRepository) private sovrynDataRepository!: SovrynDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject('Logger') private logger!: Logger;
-  @inject(TimeService) private timeService!: TimeService;
 
   private logPrefix = `[${FetcherName.SovrynPrice}]`;
   static fetcherSource = '';
