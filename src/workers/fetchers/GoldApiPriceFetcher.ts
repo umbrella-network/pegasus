@@ -8,7 +8,7 @@ import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
 import {GoldApiDataRepository} from '../../repositories/fetchers/GoldApiDataRepository.js';
 import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter';
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter.js';
 
 export interface GoldApiPriceInputParams {
   symbol: string;
