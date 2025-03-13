@@ -15,10 +15,12 @@ import {MultichainArchitectureDetector} from './MultichainArchitectureDetector.j
 import {ValidatorRepository} from '../repositories/ValidatorRepository.js';
 import {ChainStatus} from '../types/ChainStatus.js';
 import {MappingRepository} from '../repositories/MappingRepository.js';
-import {MasterChainData} from '../types/Consensus.js';
+import {LeavesAndFeeds, MasterChainData} from '../types/Consensus.js';
 import {BalanceMonitorChecker} from './balanceMonitor/BalanceMonitorChecker.js';
 import {sleep} from '../utils/sleep.js';
 import {Validator} from '../types/Validator.js';
+import {FeedsType} from '../types/Feed.js';
+import {FeedDataService} from './FeedDataService.js';
 
 const MASTERCHAINSTATUS_MIN_SIGNATURES = 'masterChainStatus.minSignatures';
 
@@ -37,10 +39,16 @@ class BlockMinter {
   @inject(ValidatorRepository) validatorRepository!: ValidatorRepository;
   @inject(MappingRepository) mappingRepository!: MappingRepository;
   @inject(BalanceMonitorChecker) balanceMonitorChecker!: BalanceMonitorChecker;
+  @inject(FeedDataService) feedDataService!: FeedDataService;
   @inject('Settings') settings!: Settings;
 
   async apply(): Promise<void> {
     const dataTimestamp = this.timeService.apply(this.settings.dataTimestampOffsetSeconds);
+
+    if (!(await this.doWeHaveFeeds(dataTimestamp))) {
+      this.logger.warn('[BlockMinter] no feeds');
+      return;
+    }
 
     if (!(await this.balanceMonitorChecker.apply(BlockchainType.LAYER2))) {
       this.logger.error(`[BlockMinter] There is not enough balance in any of the chains for ${BlockchainType.LAYER2}`);
@@ -121,6 +129,12 @@ class BlockMinter {
     }
 
     return addressMatch;
+  }
+
+  private async doWeHaveFeeds(dataTimestamp: number): Promise<boolean> {
+    const resolvedFeeds = await this.feedDataService.apply(dataTimestamp, FeedsType.CONSENSUS);
+    const {firstClassLeaves, leaves} = resolvedFeeds.feeds as LeavesAndFeeds;
+    return !(firstClassLeaves.length === 0 && leaves.length === 0);
   }
 }
 
