@@ -1,12 +1,11 @@
 import {getModelForClass, mongoose, ReturnModelType} from '@typegoose/typegoose';
 import {ModelType} from '@typegoose/typegoose/lib/types.js';
+import {BeAnObject} from '@typegoose/typegoose/lib/types.js';
 
 import Migration from '../models/Migration.js';
 import CachedValidator from '../models/CachedValidator.js';
 import {UniswapV3Pool} from '../models/UniswapV3Pool.js';
 import {Token} from '../models/Token.js';
-import {Mapping} from '../models/Mapping.js';
-import {FetchersMappingCacheKeys} from './fetchers/common/FetchersMappingCacheKeys.js';
 import {PriceModel_Binance} from '../models/fetchers/PriceModel_Binance.js';
 import {PriceModel_ByBit} from '../models/fetchers/PriceModel_ByBit.js';
 import {PriceModel_Coingecko} from '../models/fetchers/PriceModel_Coingecko.js';
@@ -20,15 +19,12 @@ import {PriceModel_PolygonIOSingleCrypto} from '../models/fetchers/PriceModel_Po
 import {PriceModel_PolygonIOStockSnapshot} from '../models/fetchers/PriceModel_PolygonIOStockSnapshot.js';
 import {PriceModel_Sovryn} from '../models/fetchers/PriceModel_Sovryn.js';
 import {PriceModel_UniswapV3} from '../models/fetchers/PriceModel_UniswapV3.js';
-import {BeAnObject} from '@typegoose/typegoose/lib/types';
 
 class Migrations {
   static async apply(): Promise<void> {
     await Migrations.migrateTo7110();
     await Migrations.migrateTo_7_27_1();
     await Migrations.migrateTo7280();
-    await Migrations.migrateTo_8_4_1();
-    await Migrations.migrateTo_8_4_2();
     await Migrations.migrateTo_8_5_8();
   }
 
@@ -85,46 +81,6 @@ class Migrations {
       }
 
       console.log('Migration 7.28.0 finished');
-    });
-  };
-
-  private static migrateTo_8_4_1 = async () => {
-    await Migrations.wrapMigration('8.4.1', async () => {
-      const mapping = await getModelForClass(Mapping);
-
-      try {
-        await mapping.deleteOne({_id: FetchersMappingCacheKeys.UNISWAPV3_PARAMS});
-      } catch (reason) {
-        throw new Error(`Migration 8.4.1 failed: ${reason}`);
-      }
-
-      try {
-        await mapping.deleteOne({_id: FetchersMappingCacheKeys.SOVRYN_PRICE_PARAMS});
-      } catch (reason) {
-        throw new Error(`Migration 8.4.1 failed: ${reason}`);
-      }
-
-      console.log('Migration 8.4.1 finished');
-    });
-  };
-
-  private static migrateTo_8_4_2 = async () => {
-    await Migrations.wrapMigration('8.4.2', async () => {
-      const mapping = await getModelForClass(Mapping);
-
-      try {
-        await mapping.deleteMany({
-          $or: [
-            {_id: FetchersMappingCacheKeys.MOC_MEASUREMENT_PARAMS},
-            {_id: FetchersMappingCacheKeys.UNISWAPV3_PARAMS},
-            {_id: FetchersMappingCacheKeys.SOVRYN_PRICE_PARAMS},
-          ],
-        });
-      } catch (reason) {
-        throw new Error(`Migration 8.4.2 failed: ${reason}`);
-      }
-
-      console.log('Migration 8.4.2 finished');
     });
   };
 

@@ -4,15 +4,17 @@ import {Logger} from 'winston';
 
 import Settings from '../../types/Settings.js';
 import TimeService from '../../services/TimeService.js';
-import {ServiceInterface} from '../../types/fetchers.js';
+import {FetcherName, ServiceInterface} from '../../types/fetchers.js';
 
 import {BinanceDataRepository} from '../../repositories/fetchers/BinanceDataRepository.js';
+import {DeviationFeedsGetter} from './_common/DeviationFeedsGetter.js';
 
 type BinanceResponse = {symbol: string; price: string};
 type ParsedResponse = {symbol: string; price: number};
 
 @injectable()
 export class BinancePriceFetcher implements ServiceInterface {
+  @inject(DeviationFeedsGetter) feedsGetter!: DeviationFeedsGetter;
   @inject(BinanceDataRepository) binanceDataRepository!: BinanceDataRepository;
   @inject(TimeService) timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
@@ -27,6 +29,9 @@ export class BinancePriceFetcher implements ServiceInterface {
 
   async apply(): Promise<void> {
     try {
+      const feeds = await this.feedsGetter.apply(FetcherName.BinancePrice);
+      if (feeds.length === 0) return;
+
       await this.fetchPrices();
     } catch (e) {
       this.logger.error(`${this.logPrefix} failed: ${(e as Error).message}`);

@@ -11,8 +11,6 @@ import {
 import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 import TimeService from '../TimeService.js';
 import {PolygonIOSingleCryptoDataRepository} from '../../repositories/fetchers/PolygonIOSingleCryptoDataRepository.js';
-import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export interface PolygonIOSingleCryptoPriceInputParams {
   fsym: string;
@@ -22,7 +20,6 @@ export interface PolygonIOSingleCryptoPriceInputParams {
 @injectable()
 export class PolygonIOSingleCryptoPriceGetter implements FeedFetcherInterface {
   @inject('Logger') protected logger!: Logger;
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PolygonIOSingleCryptoDataRepository) pIOSingleCryptoDataRepository!: PolygonIOSingleCryptoDataRepository;
   @inject(PriceDataRepository) priceDataRepository!: PriceDataRepository;
   @inject(TimeService) timeService!: TimeService;
@@ -33,12 +30,6 @@ export class PolygonIOSingleCryptoPriceGetter implements FeedFetcherInterface {
     if (params.length === 0) {
       this.logger.debug(`${this.logPrefix} no inputs to fetch`);
       return {prices: []};
-    }
-
-    try {
-      await this.cacheInput(params);
-    } catch (e) {
-      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
     }
 
     const prices = await this.pIOSingleCryptoDataRepository.getPrices(params, options.timestamp);
@@ -53,19 +44,5 @@ export class PolygonIOSingleCryptoPriceGetter implements FeedFetcherInterface {
     );
 
     return fetcherResults;
-  }
-
-  private async cacheInput(params: PolygonIOSingleCryptoPriceInputParams[]): Promise<void> {
-    const timestamp = this.timeService.apply();
-    const key = FetchersMappingCacheKeys.POLYGONIO_SINGLE_CRYPO_PARAMS;
-
-    const cache = await this.mappingRepository.get(key);
-    const cachedParams = JSON.parse(cache || '{}');
-
-    params.forEach((input) => {
-      cachedParams[`${input.fsym};${input.tsym}`.toLowerCase()] = timestamp;
-    });
-
-    await this.mappingRepository.set(key, JSON.stringify(cachedParams));
   }
 }

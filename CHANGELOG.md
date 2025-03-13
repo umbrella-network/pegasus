@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Updated
 - Update Makefile and github actions due to decommission of DEV environment
 
+### Removed
+- remove feeds cache
+
 ## [8.8.2] - 2025-02-28
 ### Added
 - add logs for uniswap pool search

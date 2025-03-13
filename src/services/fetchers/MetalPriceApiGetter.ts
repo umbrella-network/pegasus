@@ -11,9 +11,6 @@ import {
 } from '../../types/fetchers.js';
 
 import {MetalPriceApiDataRepository} from '../../repositories/fetchers/MetalPriceApiDataRepository.js';
-import TimeService from '../TimeService.js';
-import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
 
 export interface MetalPriceApiInputParams {
   symbol: string;
@@ -22,10 +19,8 @@ export interface MetalPriceApiInputParams {
 
 @injectable()
 export class MetalPriceApiGetter implements FeedFetcherInterface {
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(MetalPriceApiDataRepository) private metalPriceApiDataRepository!: MetalPriceApiDataRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
-  @inject(TimeService) private timeService!: TimeService;
   @inject('Logger') private logger!: Logger;
 
   private logPrefix = `[${FetcherName.MetalPriceApi}]`;
@@ -35,12 +30,6 @@ export class MetalPriceApiGetter implements FeedFetcherInterface {
     if (params.length === 0) {
       this.logger.debug(`${this.logPrefix} no inputs to fetch`);
       return {prices: []};
-    }
-
-    try {
-      await this.cacheInput(params);
-    } catch (e) {
-      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
     }
 
     const [price] = await this.metalPriceApiDataRepository.getPrices(params, options.timestamp);
@@ -56,20 +45,5 @@ export class MetalPriceApiGetter implements FeedFetcherInterface {
     );
 
     return result;
-  }
-
-  private async cacheInput(params: MetalPriceApiInputParams[]): Promise<void> {
-    const timestamp = this.timeService.apply();
-    const key = FetchersMappingCacheKeys.METAL_PRICE_API_PARAMS;
-
-    // const cache = await this.mappingRepository.get(key);
-    // const cachedParams = JSON.parse(cache || '{}');
-    const cachedParams: Record<string, number> = {};
-
-    params.forEach((input) => {
-      cachedParams[`${input.symbol};${input.currency}`.toLowerCase()] = timestamp;
-    });
-
-    await this.mappingRepository.set(key, JSON.stringify(cachedParams));
   }
 }

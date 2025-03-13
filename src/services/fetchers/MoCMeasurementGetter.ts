@@ -13,10 +13,6 @@ import {PriceDataRepository} from '../../repositories/PriceDataRepository.js';
 
 import {MoCMeasurementDataRepository} from '../../repositories/fetchers/MoCMeasurementDataRepository.js';
 
-import {MappingRepository} from '../../repositories/MappingRepository.js';
-import {FetchersMappingCacheKeys} from './common/FetchersMappingCacheKeys.js';
-import {MoCMeasurementCache} from '../../types/fetchersCachedTypes';
-
 export interface MoCMeasurementPriceInputParams {
   measurement_id: string;
   field: string;
@@ -24,7 +20,6 @@ export interface MoCMeasurementPriceInputParams {
 
 @injectable()
 export class MoCMeasurementGetter implements FeedFetcherInterface {
-  @inject(MappingRepository) private mappingRepository!: MappingRepository;
   @inject(PriceDataRepository) private priceDataRepository!: PriceDataRepository;
   @inject(MoCMeasurementDataRepository) private moCMeasurementDataRepository!: MoCMeasurementDataRepository;
   @inject('Logger') private logger!: Logger;
@@ -35,12 +30,6 @@ export class MoCMeasurementGetter implements FeedFetcherInterface {
     if (params.length === 0) {
       this.logger.debug(`${this.logPrefix} no inputs to fetch`);
       return {prices: []};
-    }
-
-    try {
-      await this.cacheInput(params);
-    } catch (e) {
-      this.logger.error(`${this.logPrefix} failed cache: ${(e as Error).message}`);
     }
 
     const prices = await this.moCMeasurementDataRepository.getPrices(params, options.timestamp);
@@ -56,20 +45,5 @@ export class MoCMeasurementGetter implements FeedFetcherInterface {
     );
 
     return fetcherResult;
-  }
-
-  private async cacheInput(inputsParams: MoCMeasurementPriceInputParams[]): Promise<void> {
-    const key = FetchersMappingCacheKeys.MOC_MEASUREMENT_PARAMS;
-
-    const cache = await this.mappingRepository.get(key);
-    const idsCache = JSON.parse(cache || '{}') as MoCMeasurementCache;
-
-    inputsParams.forEach((input) => {
-      if (!idsCache[input.measurement_id]) idsCache[input.measurement_id] = {};
-
-      idsCache[input.measurement_id][input.field] = true;
-    });
-
-    await this.mappingRepository.set(key, JSON.stringify(idsCache));
   }
 }
