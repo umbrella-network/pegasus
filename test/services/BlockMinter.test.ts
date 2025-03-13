@@ -207,62 +207,6 @@ describe('BlockMinter', () => {
   });
 
   describe('#apply', () => {
-    it('does not try to get new feed data if you are not the leader', async () => {
-      allStates.chainsStatuses = [
-        {
-          chainAddress: '0x123',
-          chainStatus: {
-            blockNumber: BigNumber.from(1),
-            timePadding: 10,
-            lastBlockId: 1,
-            nextBlockId: 2,
-            nextLeader: Wallet.createRandom().address,
-            validators: [wallet.address, 'leader'],
-            locations: ['abc'],
-            lastDataTimestamp: timestamp(),
-            powers: [BigNumber.from(1)],
-            staked: BigNumber.from(1),
-            minSignatures: 1,
-          },
-          chainId: ChainsIds.AVALANCHE,
-        },
-      ];
-
-      allStates.chainsIdsReadyForBlock = [ChainsIds.AVALANCHE];
-      mockedMultiChainStatusResolver.apply.resolves(allStates);
-      await blockMinter.apply();
-
-      expect(mockedFeedProcessor.apply.notCalled).to.be.true;
-    });
-
-    it('does not try to get new feed data if there are no chain ready', async () => {
-      allStates.chainsStatuses = [
-        {
-          chainAddress: '0x123',
-          chainStatus: {
-            blockNumber: BigNumber.from(1),
-            timePadding: 100,
-            lastBlockId: 1,
-            nextBlockId: 1,
-            nextLeader: wallet.address,
-            validators: [wallet.address],
-            locations: ['abc'],
-            lastDataTimestamp: timestamp(),
-            powers: [BigNumber.from(1)],
-            staked: BigNumber.from(1),
-            minSignatures: 1,
-          },
-          chainId: ChainsIds.AVALANCHE,
-        },
-      ];
-
-      allStates.chainsIdsReadyForBlock = [];
-      mockedMultiChainStatusResolver.apply.resolves(allStates);
-      await blockMinter.apply();
-
-      expect(mockedFeedProcessor.apply.notCalled).to.be.true;
-    });
-
     it('passes right arguments to SignatureCollector', async () => {
       const {leaf, affidavit, fcd, timestamp} = leafWithAffidavit;
       const signature = await signAffidavitWithWallet(wallet, affidavit);

@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Removed
 - remove feeds cache
 
+## [8.8.3] - 2025-03-13
+### Added
+- add check for feeds for block minter
+
 ## [8.8.2] - 2025-02-28
 ### Added
 - add logs for uniswap pool search
