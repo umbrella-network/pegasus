@@ -121,7 +121,7 @@ export class UniswapV3PoolRepository {
           filterToken1,
         )}`,
       );
-      
+
       return undefined;
     }
 
