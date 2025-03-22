@@ -40,4 +40,4 @@ jobs:
           context: .
           platforms: linux/amd64
           push: true
-          tags: umbrellanetwork/pegasus:v${{ steps.docker-params.outputs.version }},umbrellanetwork/pegasus:latest
+          tags: umbrellaadmin/pegasus:v${{ steps.docker-params.outputs.version }},umbrellaadmin/pegasus:latest
